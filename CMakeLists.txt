@@ -25,9 +25,20 @@ endif()
 
 # Our Project
 
-add_executable(${PROJECT_NAME} source/main.cpp)
-#set(raylib_VERBOSE 1)
+file(GLOB_RECURSE sources
+  "${PROJECT_SOURCE_DIR}/source/*.h"
+  "${PROJECT_SOURCE_DIR}/source/*.cpp"
+)
+add_executable(${PROJECT_NAME} ${sources})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/source
+)
+
 target_link_libraries(${PROJECT_NAME} raylib)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
 # Web Configurations
 if (${PLATFORM} STREQUAL "Web")
