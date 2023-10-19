@@ -1,0 +1,203 @@
+#pragma once
+#include <iostream>
+
+#include "SqareRoot.h"
+
+namespace Utility
+{
+	namespace Math
+	{
+		template <class Type>
+		class Quaternion
+		{
+		public:
+			Type w;
+			Type x;
+			Type y;
+			Type z;
+
+			Quaternion() : x(0), y(0), z(0), w(0) { }
+			Quaternion(const Quaternion& q) : w(q.w), x(q.x), y(q.y), z(q.z) {}
+			Quaternion(float ax, float ay, float az, float aw) : w(aw), x(ax), y(ay), z(az) {}
+			Quaternion(Type angle, const Vector3<Type>& axis)
+			{
+				w = cos(angle / 2);
+				const Type sinAngle = sin(angle / 2);
+				x = axis.x * sinAngle;
+				y = axis.y * sinAngle;
+				z = axis.z * sinAngle;
+			}
+
+			Quaternion(const Vector3<Type>& euler)
+			{
+				// Assuming the angles are in radians.
+				const Type heading = euler.y;
+				const Type attitude = euler.z;
+				const Type bank = euler.x;
+
+				const Type c1 = cos(heading / 2);
+				const Type s1 = sin(heading / 2);
+				const Type c2 = cos(attitude / 2);
+				const Type s2 = sin(attitude / 2);
+				const Type c3 = cos(bank / 2);
+				const Type s3 = sin(bank / 2);
+				const Type c1c2 = c1 * c2;
+				const Type s1s2 = s1 * s2;
+				w = c1c2 * c3 - s1s2 * s3;
+				x = c1c2 * s3 + s1s2 * c3;
+				y = s1 * c2 * c3 + c1 * s2 * s3;
+				z = c1 * s2 * c3 - s1 * c2 * s3;
+			}
+
+			Vector3<Type> Euler()
+			{
+				Type heading, attitude, bank;
+				Type sqw = w * w;
+				Type sqx = x * x;
+				Type sqy = y * y;
+				Type sqz = z * z;
+				Type unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+				Type test = x * y + z * w;
+				if (test > 0.499 * unit) { // singularity at north pole
+					heading = 2 * atan2(x, w);
+					attitude = 3.14159265359f / 2;
+					bank = 0;
+					return { bank, heading, attitude };
+				}
+				if (test < -0.499 * unit) { // singularity at south pole
+					heading = -2 * atan2(x, w);
+					attitude = -3.14159265359f / 2;
+					bank = 0;
+					return { bank, heading, attitude };
+				}
+				heading = atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw);
+				attitude = asin(2 * test / unit);
+				bank = atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw);
+				return { bank, heading, attitude };
+			}
+
+			Quaternion operator*(const Quaternion& q2) const
+			{	
+				Quaternion t;
+				t.x = x * q2.w + y * q2.z - z * q2.y + w * q2.x;
+				t.y = -x * q2.z + y * q2.w + z * q2.x + w * q2.y;
+				t.z = x * q2.y - y * q2.x + z * q2.w + w * q2.z;
+				t.w = -x * q2.x - y * q2.y - z * q2.z + w * q2.w;
+				return t;
+			}
+
+
+			Quaternion operator/(float aFloat) const
+			{
+				Quaternion t;
+				t.x = x / aFloat;
+				t.y = y / aFloat;
+				t.z = z / aFloat;
+				t.w = w / aFloat;
+				return t;
+			}
+
+			Quaternion operator/=(float aFloat)
+			{
+				x /= aFloat;
+				y /= aFloat;
+				z /= aFloat;
+				w /= aFloat;
+				return *this;
+			}
+
+			Quaternion operator*(float aFloat) const
+			{
+				Quaternion t;
+				t.x = x * aFloat;
+				t.y = y * aFloat;
+				t.z = z * aFloat;
+				t.w = w * aFloat;
+				return t;
+			}
+
+			Quaternion operator*=(float aFloat)
+			{
+				x *= aFloat;
+				y *= aFloat;
+				z *= aFloat;
+				w *= aFloat;
+				return *this;
+			}
+
+
+			Quaternion operator+(const Quaternion& q2) const
+			{
+				Quaternion t;
+				t.x += q2.x;
+				t.y += q2.y;
+				t.z += q2.z;
+				t.w += q2.w;
+				return t;
+			}
+
+			Quaternion operator+=(const Quaternion& q2) const
+			{
+				x += q2.x;
+				y += q2.y;
+				z += q2.z;
+				w += q2.w;
+				return *this;
+			}
+
+			double Norm()
+			{
+				return SquareRoot(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
+			}
+
+
+			void Normalize()
+			{
+				double norm = Norm();
+				this->x /= norm; this->y /= norm; this->z /= norm; this->w /= norm;
+			}
+			
+			static Quaternion Slerp(Quaternion qa, Quaternion qb, Type t) {
+				// quaternion to return
+				qa.Normalize();
+				qb.Normalize();
+				Quaternion<Type> qm;
+				// Calculate angle between them.
+				double cosHalfTheta = qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z;
+
+				if (cosHalfTheta < 0.f) {
+					qb.w = -qb.w; qb.x = -qb.x; qb.y = -qb.y; qb.z = qb.z;
+					cosHalfTheta = -cosHalfTheta;
+				}
+
+				// if qa=qb or qa=-qb then theta = 0 and we can return qa
+				if (abs(cosHalfTheta) >= 1.0) {
+					qm.w = qa.w; qm.x = qa.x; qm.y = qa.y; qm.z = qa.z;
+					return qm;
+				}
+				// Calculate temporary values.
+				double halfTheta = acos(cosHalfTheta);
+				double sinHalfTheta = SquareRoot(1.0 - cosHalfTheta * cosHalfTheta);
+				// if theta = 180 degrees then result is not fully defined
+				// we could rotate around any axis normal to qa or qb
+				if (fabs(sinHalfTheta) < 0.00001) { // fabs is floating point absolute
+					qm.w = (qa.w * 0.5 + qb.w * 0.5);
+					qm.x = (qa.x * 0.5 + qb.x * 0.5);
+					qm.y = (qa.y * 0.5 + qb.y * 0.5);
+					qm.z = (qa.z * 0.5 + qb.z * 0.5);
+					return qm;
+				}
+				double ratioA = sin((1 - t) * halfTheta) / sinHalfTheta;
+				double ratioB = sin(t * halfTheta) / sinHalfTheta;
+				//calculate Quaternion.
+				qm.w = (qa.w * ratioA + qb.w * ratioB);
+				qm.x = (qa.x * ratioA + qb.x * ratioB);
+				qm.y = (qa.y * ratioA + qb.y * ratioB);
+				qm.z = (qa.z * ratioA + qb.z * ratioB);
+				qm.Normalize();
+				return qm;
+			}
+			
+		};
+	}
+}

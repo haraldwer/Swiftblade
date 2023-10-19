@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utility/utility.h"
+#include "Utility/Utility.h"
 
 template <class T>
 class Singelton
@@ -12,6 +12,7 @@ public:
 
     virtual void Init()
     {
+        CHECK_ASSERT(Instance, "Instance already set");
         Instance = static_cast<T*>(this); 
     }
     

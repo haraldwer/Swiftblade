@@ -1,19 +1,26 @@
 #pragma once
-#include "camera/camera_manager.h"
+
+#include <vector>
+
+#include "RenderScene.h"
+#include "Utility/Singelton.h"
 
 inline constexpr int ScreenWidth  = 800;
 inline constexpr int ScreenHeight = 450;
 
-class Renderer
+class Renderer : public Singelton<Renderer>
 {
 
 public:
 
-    void Init(); 
+    void Init() override; 
     void Render();
+
+    void ClearScenes(); 
+    void PushScene(const RenderScene& InScene);
 
 private:
 
-    CameraManager CameraManager;
-    
+    std::vector<RenderScene> Scenes; 
+
 };

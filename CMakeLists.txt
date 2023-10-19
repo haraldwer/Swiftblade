@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5) # FetchContent is available in 3.11+
-project(rayengine)
+project(RayEngine)
 
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,22 +23,37 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
   endif()
 endif()
 
-# Our Project
+
+
+
+# -- Project -- #
 
 file(GLOB_RECURSE sources
   "${PROJECT_SOURCE_DIR}/source/*.h"
   "${PROJECT_SOURCE_DIR}/source/*.cpp"
+  "${PROJECT_SOURCE_DIR}/source/*.hpp"
 )
 add_executable(${PROJECT_NAME} ${sources})
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-  ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/source
+target_include_directories(${PROJECT_NAME} 
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/source
+)
+
+target_precompile_headers(${PROJECT_NAME} 
+  PUBLIC
+    "${PROJECT_SOURCE_DIR}/source/pch.h"
 )
 
 target_link_libraries(${PROJECT_NAME} raylib)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+
+# -- #
+
+
+
 
 # Web Configurations
 if (${PLATFORM} STREQUAL "Web")

@@ -1,37 +1,50 @@
-#include "game.h"
+#include "Game.h"
 
-#include "raylib.h"
-#include "engine/rendering/camera/camera_manager.h"
+#include "Engine/ECS/Systems/Camera.h"
+#include "Engine/ECS/Systems/Mesh.h"
+#include "Engine/ECS/Systems/Transform.h"
+#include "Engine/Rendering/Renderer.h"
 
 void Game::Init()
 {
     Singelton::Init();
 
-    Camera camera;
-    camera.position = Vector3{ 16.0f, 16.0f, 16.0f };
-    camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
-    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 90.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    ECS.Init();
+    Room.Init();
 
-    CameraManager::Get().SetCamera(camera);
+    auto& tSys = ECS.GetSystem<ECS::SysTransform>();
+    auto& mSys = ECS.GetSystem<ECS::SysMesh>();
+    auto& cSys = ECS.GetSystem<ECS::SysCamera>();
 
-    Room.Vertices.push_back(Vector3(0.0f, 0.0f, 0.0f));
-    Room.Vertices.push_back(Vector3(1.0f, 0.0f, 0.0f));
-    Room.Vertices.push_back(Vector3(1.0f, 1.0f, 0.0f));
-    Room.Vertices.push_back(Vector3(0.0f, 1.0f, 0.0f));
+    const ECS::EntityID c = ECS.CreateEntity();
+    tSys.Register(c);
+    cSys.Register(c);
+    
+    //const EntityID e = ECS.CreateEntity();
+    //tSys.Register(e);
+    //mSys.Register(e);
+
 }
 
 void Game::Update()
 {
     TickTimer += GetFrameTime();
-    while (TickTimer > TickRate)
+    constexpr double delta = 1.0 / TickRate;
+    while (TickTimer > delta)
     {
-        TickTimer -= TickRate;
-        FixedUpdate(TickRate);
+        TickTimer -= delta;
+        FixedUpdate(delta);
     }
 }
 
 void Game::FixedUpdate(double InDelta)
 {
+    RenderScene = {};
+    
+    ECS.Update(InDelta);
+    Room.Draw();
+
+    auto& r = Renderer::Get(); 
+    r.ClearScenes();
+    r.PushScene(RenderScene);
 }
