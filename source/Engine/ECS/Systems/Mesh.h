@@ -1,13 +1,15 @@
 #pragma once
 
-#include "../System.h"
+#include "Engine/ECS/System.h"
+#include "Engine/ECS/Component.h"
+#include "Engine/Resource/Resources/ResModel.h"
 
 namespace ECS
 {
-    struct Mesh
-    {
-        bool Visible = true;
-        // Point to a mesh and material resource
+    struct Mesh : Component
+    { 
+        PROPERTY(bool, Visible, true);
+        PROPERTY(ResModel, Model);
     };
 
     class SysMesh : public System<Mesh>

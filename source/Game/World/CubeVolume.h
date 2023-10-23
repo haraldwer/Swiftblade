@@ -3,7 +3,7 @@
 
 struct Coord
 {
-    Coord(const uint8_t InX, const uint8_t InY, const uint8_t InZ)
+    Coord(const uint8 InX, const uint8 InY, const uint8 InZ)
     {
         Pos.X = InX;
         Pos.Y = InY;
@@ -11,20 +11,20 @@ struct Coord
         Pos.Padding = 0; 
     }
 
-    Coord(const uint32_t InKey) : Key(InKey) {}
+    Coord(const uint32 InKey) : Key(InKey) {}
 
     struct Vec
     {
-        uint8_t X;
-        uint8_t Y;
-        uint8_t Z;
-        uint8_t Padding; 
+        uint8 X;
+        uint8 Y;
+        uint8 Z;
+        uint8 Padding; 
     };
         
     union
     {
         Vec Pos;
-        uint32_t Key = 0; 
+        uint32 Key = 0; 
     };
 };
 
@@ -33,7 +33,7 @@ struct Volume
     int SizeX = 0;
     int SizeY = 0;
     int SizeZ = 0;
-    std::unordered_map<uint32_t, uint8_t> Types;
+    Map<uint32, uint8> Types;
 };
 
 class CubeVolume
@@ -41,11 +41,11 @@ class CubeVolume
 public:
     void Init();
     void Apply(const Volume& InVolume); 
-    void Draw(); 
+    void Draw() const; 
     
 private:
 
     // Cached result
-    std::unordered_map<uint32_t, uint8_t> Result;
+    Map<uint32, uint8> Result;
     
 };

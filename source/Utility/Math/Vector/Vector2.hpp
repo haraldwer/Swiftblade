@@ -3,7 +3,10 @@
 #include <functional>
 
 #include "Swizzle.hpp"
+#include "Utility/Math/DefaultInitialization.h"
 #include "Utility/Math/SqareRoot.h"
+
+#define ALIB_MATH_VECTOR2
 
 namespace Utility
 {
@@ -306,6 +309,12 @@ namespace Utility
 			Vector2(const Type& a_x, const Type& a_y) : data{ a_x, a_y } {}
 			Vector2(const Type& a_v) : data{ a_v, a_v } {}
 			Vector2() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}
+
+			inline static constexpr Vector2<Type> Up { 0, 1 };
+			inline static constexpr Vector2<Type> Forward { 0, 1 };
+			inline static constexpr Vector2<Type> Right { 1, 0 };
+			inline static constexpr Vector2<Type> Zero { 0, 0 };
+			inline static constexpr Vector2<Type> One { 1, 1 };
 		};
 	}
 }

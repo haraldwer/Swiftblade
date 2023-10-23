@@ -75,8 +75,7 @@ namespace Utility
 			{
 				return *this;
 			}
-
-
+			
 			Void() {}
 		};
 	}

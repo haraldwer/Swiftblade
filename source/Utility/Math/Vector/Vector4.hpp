@@ -3,6 +3,8 @@
 #include "Swizzle.hpp"
 #include "Utility/Math/DefaultInitialization.h"
 
+#define ALIB_MATH_VECTOR4
+
 namespace Utility
 {
 	namespace Math
@@ -594,6 +596,9 @@ namespace Utility
 				DefaultInitializationValue<Type>(),
 				DefaultInitializationValue<Type>() ,
 				DefaultInitializationValue<Type>() } {}
+
+			static Vector4 Zero() { return { 0, 0, 0, 0 }; }
+			static Vector4 One() { return { 1, 1, 1, 1 }; }
 		};
 	}
 }

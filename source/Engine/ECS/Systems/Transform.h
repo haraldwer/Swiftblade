@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../System.h"
+#include "Engine/ECS/System.h"
+#include "Engine/ECS/Component.h"
 
 namespace ECS
 {
-    struct Transform
+    struct Transform : Component
     {
-        Vec3F Position; 
+        PROPERTY(Vec3F, Position); 
         // Parent?
         // Children? 
     };

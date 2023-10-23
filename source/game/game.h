@@ -1,18 +1,18 @@
 #pragma once
 #include "Engine/ECS/Manager.h"
-#include "Engine/Rendering/RenderScene.h"
+#include "Engine/Rendering/Scene.h"
 #include "Utility/Singelton.h"
 #include "World/CubeVolume.h"
 
-class Game : public Singelton<Game>
+class Game : public Utility::Singelton<Game>
 {
     
 public:
 
-    void Init() override;
+    void Init();
     void Update();
-    
-    RenderScene& GetRenderScene() { return RenderScene; }
+
+    Rendering::LogicScene& GetRenderScene() { return RenderScene; }
     
 private:
     
@@ -21,7 +21,7 @@ private:
     static constexpr double TickRate = 300.0; 
     double TickTimer = 0.0;
 
-    RenderScene RenderScene;
+    Rendering::LogicScene RenderScene;
     ECS::Manager ECS;
     CubeVolume Room; 
 };

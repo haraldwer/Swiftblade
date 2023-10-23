@@ -1,7 +1,7 @@
 
 #pragma once
-#include "Utility/Memory/Memory.hpp"
-#include "Utility/Memory/TypeMap.hpp"
+#include "..\..\Memory\Memory.h"
+#include "..\..\Memory\TypeMap.h"
 
 namespace Utility
 {

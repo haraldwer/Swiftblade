@@ -1,26 +1,25 @@
 #pragma once
 
-#include <vector>
-
-#include "RenderScene.h"
+#include "Scene.h"
 #include "Utility/Singelton.h"
 
-inline constexpr int ScreenWidth  = 800;
-inline constexpr int ScreenHeight = 450;
-
-class Renderer : public Singelton<Renderer>
+namespace Rendering
 {
+    class Renderer : public Utility::Singelton<Renderer>
+    {
 
-public:
+    public:
 
-    void Init() override; 
-    void Render();
+        void Init(); 
+        void Render();
 
-    void ClearScenes(); 
-    void PushScene(const RenderScene& InScene);
+        void ClearScenes(); 
+        void PushScene(const LogicScene& InScene);
 
-private:
+    private:
 
-    std::vector<RenderScene> Scenes; 
+        std::vector<Scene> Scenes; 
 
-};
+    };
+}
+

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Swizzle.hpp"
+#include "Utility/Math/DefaultInitialization.h"
+
+#define ALIB_MATH_VECTOR3
 
 namespace Utility
 {
@@ -441,30 +444,11 @@ namespace Utility
 			Vector3(const Type& a_v) : data{ a_v, a_v, a_v } {}
 			Vector3() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}
 
-			static Vector3<Type> Up()
-			{
-				return { 0, 1, 0 };
-			}
-
-			static Vector3<Type> Right()
-			{
-				return { 1, 0, 0 };
-			}
-
-			static Vector3<Type> Forward()
-			{
-				return { 0, 0, 1 };
-			}
-
-			static Vector3<Type> Zero()
-			{
-				return { 0, 0, 0 };
-			}
-
-			static Vector3<Type> One()
-			{
-				return { 1, 1, 1 };
-			}
+			static Vector3 Up() { return { 0, 1, 0 }; }
+			static Vector3 Right() { return { 1, 0, 0 }; }
+			static Vector3 Forward() { return { 0, 0, 1 }; }
+			static Vector3 Zero() { return { 0, 0, 0 }; }
+			static Vector3 One() { return { 1, 1, 1 }; }
 		};
 	}
 }

@@ -1,5 +1,6 @@
 #include "Game.h"
 
+#include "raylib.h"
 #include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Mesh.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -7,8 +8,6 @@
 
 void Game::Init()
 {
-    Singelton::Init();
-
     ECS.Init();
     Room.Init();
 
@@ -44,7 +43,7 @@ void Game::FixedUpdate(double InDelta)
     ECS.Update(InDelta);
     Room.Draw();
 
-    auto& r = Renderer::Get(); 
+    auto& r = Rendering::Renderer::Get(); 
     r.ClearScenes();
     r.PushScene(RenderScene);
 }

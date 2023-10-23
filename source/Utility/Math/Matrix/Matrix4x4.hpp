@@ -125,8 +125,8 @@ namespace Utility
 			
 			void SetRotation(const Quaternion<Type>& q)
 			{
-				const auto p = GetPosition();
-				const auto s = GetScales();
+				const Vector3<Type> p = GetPosition();
+				const Vector3<Type> s = GetScales();
 				
 				const Type sqw = q.w * q.w;
 				const Type sqx = q.x * q.x;

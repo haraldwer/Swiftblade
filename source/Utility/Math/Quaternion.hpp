@@ -197,6 +197,8 @@ namespace Utility
 				qm.Normalize();
 				return qm;
 			}
+
+			static Quaternion Identity() { return { 0, 0, 0, 0 }; }
 			
 		};
 	}

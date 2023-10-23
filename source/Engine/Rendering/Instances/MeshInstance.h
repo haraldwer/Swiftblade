@@ -1,11 +1,8 @@
 #pragma once
-#include "raylib.h"
+#include "Engine/Resource/Resources/ResModel.h"
 
 struct MeshInstance
 {
-    // Mesh resource
-    // Material resource
-    Mesh Mesh;
-    Material Material;
-    Matrix Transform;
+    ResModel Model;
+    Mat4F Transform;
 };

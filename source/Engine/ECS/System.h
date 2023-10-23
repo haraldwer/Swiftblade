@@ -48,8 +48,8 @@ namespace ECS
             return -1;
         }
 
-        std::unordered_map<EntityID, ComponentID> Translation;
-        std::vector<ComponentID> Unused; 
+        Map<EntityID, ComponentID> Translation;
+        Vector<ComponentID> Unused; 
         ComponentID LastID = 0;
         
     private:
@@ -132,7 +132,8 @@ namespace ECS
             CHECK_ASSERT(InID < 0 || InID > Components.size(), "Invalid index");
             return Components[InID];
         }
-        
-        std::array<T, Size> Components;
+
+        // Components are never moved in memory
+        Array<T, Size> Components;
     };
 }

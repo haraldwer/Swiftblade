@@ -2,26 +2,26 @@
 
 #include "Utility/Utility.h"
 
-template <class T>
-class Singelton
+namespace Utility
 {
-    
-public:
-
-    virtual ~Singelton() = default; 
-
-    virtual void Init()
+    template <class T>
+    class Singelton
     {
-        CHECK_ASSERT(Instance, "Instance already set");
-        Instance = static_cast<T*>(this); 
-    }
-    
-    static T& Get()
-    {
-        CHECK_ASSERT(!Instance, "Instance invalid");
-        return *Instance;
-    }
+    public:
 
-    inline static T* Instance = nullptr;
-    
-};
+        virtual ~Singelton() = default;
+        Singelton()
+        {
+            CHECK_ASSERT(Instance, "Instance already set");
+            Instance = reinterpret_cast<T*>(this); 
+        }
+        
+        static T& Get()
+        {
+            CHECK_ASSERT(!Instance, "Instance invalid");
+            return *Instance;
+        }
+
+        inline static T* Instance = nullptr;
+    };
+}

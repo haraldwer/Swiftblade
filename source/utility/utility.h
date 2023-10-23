@@ -3,7 +3,7 @@
 #include <assert.h>
 
 #define LOG_CONSOLE(text) \
-TraceLog(LOG_INFO, text);
+printf(text);
 #define LOG(text) \
 LOG_CONSOLE(text);
 
