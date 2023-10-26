@@ -9,8 +9,8 @@ using namespace ECS;
 void Manager::Init()
 {
     RegisterSystems();
-    for (const auto& comp : Systems)
-        comp.second->InitSystem(this);
+    for (const auto& comp : SystemMap)
+        comp.second->InitSystem();
 }
 
 void Manager::Deinit()
@@ -22,7 +22,7 @@ void Manager::Deinit()
 
 void Manager::Update(const double InDelta)
 {
-    for (const auto& comp : Systems)
+    for (const auto& comp : SystemMap)
         comp.second->UpdateSystem(InDelta);
     DestroyPending();
 }
@@ -45,10 +45,26 @@ void Manager::DestroyPending()
     const Set<EntityID> copy = PendingDestroy;
     for (EntityID obj : copy)
     {
-        for (const auto& comp : Systems)
+        for (const auto& comp : SystemMap)
             comp.second->Unregister(obj);
         Entities.erase(obj);
     }
     PendingDestroy.clear();
 }
 
+SystemBase* Manager::GetSystem(const String& InComponentName)
+{
+    const auto find = NameMap.find(InComponentName);
+    CHECK_ASSERT(find == NameMap.end(), "Unable to find system");
+    CHECK_ASSERT(!find->second, "System null");
+    return find->second;
+}
+
+SystemBase* Manager::GetSystem(const size_t InHash, const bool InIsCompHash)
+{
+    auto& map = InIsCompHash ? ComponentMap : SystemMap;
+    const auto find = map.find(InHash);
+    CHECK_ASSERT(find == map.end(), "Unable to find system");
+    CHECK_ASSERT(!find->second, "System null");
+    return find->second;
+}

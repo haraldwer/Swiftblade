@@ -1,4 +1,4 @@
-#include "ResModel.h"
+#include "Model.h"
 
 #include "raylib.h"
 

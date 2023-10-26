@@ -1,61 +1,39 @@
 #pragma once
-#include <unordered_map>
-#include <array>
 
 #include "entity.h"
-#include "Manager.h"
 #include "utility/utility.h"
 
 namespace ECS
 {
     class Manager;
+    class Component;
 
     class SystemBase
     {
+        friend Manager; 
         
     public:
-        
         virtual ~SystemBase() = default;
-        virtual void InitSystem(Manager* InOwner)
-        {
-            Owner = InOwner;
-        }
 
         // Implemented by EntitySystem<T>
-        virtual ComponentID Register(const EntityID InObject) { return InvalidID; }
-        virtual void Unregister(const EntityID InObject) {}
-        virtual void UpdateSystem(const double InDelta) {}
+
+        virtual ComponentID Register(EntityID InObject) = 0;
+        virtual ComponentID Register(EntityID InObject, const DeserializeObj& InReference) = 0;
+        virtual void Unregister(EntityID InObject) = 0;
+        
+        virtual void InitSystem() = 0;
+        virtual void UpdateSystem(double InDelta) = 0;
+
+        virtual size_t GetComponentType() const = 0;
+        SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash) const;
 
     protected:
 
-        template <class T>
-        T& GetSystem()
-        {
-            return GetManager().GetSystem<T>();
-        }
+        ComponentID Translate(EntityID InEntity) const;
         
-        Manager& GetManager() const
-        {
-            CHECK_ASSERT(!Owner, "Invalid owner");
-            return *Owner; 
-        }
-
-        ComponentID Translate(EntityID InEntity) const
-        {
-            const auto find = Translation.find(InEntity);
-            if (find != Translation.end())
-                return find->second;
-            return -1;
-        }
-
         Map<EntityID, ComponentID> Translation;
         Vector<ComponentID> Unused; 
         ComponentID LastID = 0;
-        
-    private:
-
-        Manager* Owner = nullptr;
-        
     };
 
     template <class T, int Size = 100>
@@ -69,6 +47,7 @@ namespace ECS
         virtual void Deinit(EntityID InEntity, T& InComponent) {}
         virtual void Update(EntityID InEntity, T& InComponent, double InDelta) {}
 
+        virtual void InitSystem() override {}
         virtual void UpdateSystem(const double InDelta) override
         {
             for (const auto& id : Translation)
@@ -77,12 +56,21 @@ namespace ECS
 
         // - Helpers - //
 
-        // Get component from this system
-        T& Get(const EntityID InEntity)
+        template <class ComponentType>
+        ComponentType& Get(const EntityID InEntity)
         {
-            const ComponentID id = Translate(InEntity);
-            CHECK_ASSERT(id == InvalidID, "No component for entity");
-            return GetInternal(id);
+            auto ptr = TryGet<ComponentType>(InEntity);
+            CHECK_ASSERT(!ptr, "Unable to find component");
+            return *ptr; 
+        }
+
+        template <class ComponentType>
+        ComponentType* TryGet(const EntityID InEntity)
+        {
+            const size_t hash = typeid(ComponentType).hash_code();
+            SystemBase* base = GetAnonymousSystem(hash, true);
+            System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
+            return sys->TryGet(InEntity);
         }
 
         T* TryGet(const EntityID InEntity)
@@ -90,6 +78,15 @@ namespace ECS
             const ComponentID id = Translate(InEntity);
             CHECK_RETURN(id == InvalidID, nullptr);
             return &GetInternal(id);
+        }
+
+        template <class SystemType>
+        SystemType& GetSystem() const
+        {
+            const size_t hash = typeid(SystemType).hash_code();
+            SystemBase* base = GetAnonymousSystem(hash, true);
+            CHECK_ASSERT(!base, "Unable to find system");
+            return *reinterpret_cast<SystemType*>(base);
         }
         
         ComponentID Register(const EntityID InEntity) override
@@ -118,11 +115,19 @@ namespace ECS
             Init(InEntity, GetInternal(id));
             return id;
         }
+
+        ComponentID Register(EntityID InObject, const DeserializeObj& InReference) override
+        {
+            const ComponentID compID = Register(InObject);
+            T& data = GetInternal(compID);
+            data.Deserialize(InReference);
+            return compID;
+        }
         
         void Unregister(const EntityID InEntity) override
         {
             const ComponentID id = Translate(InEntity);
-            CHECK_ASSERT(id == InvalidID, "ID not registered");
+            CHECK_RETURN(id == InvalidID);
 
             // Reset data
             T& data = GetInternal(id);
@@ -130,6 +135,11 @@ namespace ECS
             data = T();
             Translation.erase(InEntity);
             Unused.push_back(id);
+        }
+
+        size_t GetComponentType() const override
+        {
+            return typeid(T).hash_code();
         }
 
     private:

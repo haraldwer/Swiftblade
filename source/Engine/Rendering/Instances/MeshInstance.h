@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Resource/Resources/ResModel.h"
+#include "..\..\Resource\Resources\Model.h"
 
 struct MeshInstance
 {

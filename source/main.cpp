@@ -15,7 +15,8 @@ int main()
     Game game;
     game.Init();
     
-    static constexpr double tickRate = 300.0; 
+    constexpr double tickRate = 300.0; 
+    constexpr double fixedDelta = 1.0 / tickRate;
     double tickTimer = 0.0;
     
     while (true)
@@ -23,15 +24,15 @@ int main()
         if (WindowShouldClose())
             break;
 
-        double delta = GetFrameTime();
+        const double delta = GetFrameTime();
 
         // Fixed update
         tickTimer += delta;
         while (tickTimer >= 0)
         {
-            tickTimer -= 1.0 / tickRate;
+            tickTimer -= fixedDelta;
             renderer.Clear();
-            game.Update();
+            game.Update(fixedDelta);
         }
 
         // Render

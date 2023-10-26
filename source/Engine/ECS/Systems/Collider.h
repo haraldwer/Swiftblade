@@ -12,7 +12,7 @@ namespace ECS
         
     };
 
-    class SysCollision : public System<Collider>
+    class SysCollider : public System<Collider>
     {
     public:
         

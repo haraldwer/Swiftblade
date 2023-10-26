@@ -61,12 +61,14 @@ namespace Resource
             Utility::Serialize(InOutObj, InName, Ptr->Identifier);
         }
         
-        void Deserialize(const DeserializeObj& InObj, const String& InName)
+        bool Deserialize(const DeserializeObj& InObj, const String& InName)
         {
             String identifier;
-            Utility::Deserialize(InObj, InName, identifier);
-            if (!identifier.empty())
-                (*this) = Ref<T>(identifier); 
+            if (!Utility::Deserialize(InObj, InName, identifier))
+                return false;
+            CHECK_RETURN(identifier.empty(), false)
+            (*this) = Ref(identifier);
+            return true; 
         }
         
     private:

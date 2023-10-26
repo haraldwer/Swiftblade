@@ -9,7 +9,11 @@ namespace Utility
     {
     public:
 
-        virtual ~Singelton() = default;
+        virtual ~Singelton()
+        {
+            Instance = nullptr;
+        }
+        
         Singelton()
         {
             CHECK_ASSERT(Instance, "Instance already set");

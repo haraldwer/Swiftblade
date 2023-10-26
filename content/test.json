@@ -1,0 +1,12 @@
+{
+	"Components":[
+		{
+			"Name":"Mesh",
+			"Data":{}			
+		},
+		{
+			"Name":"Transform",
+			"Data":{}			
+		}
+	]
+}

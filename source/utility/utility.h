@@ -2,6 +2,9 @@
 
 #include <assert.h>
 
+#define CONCAT_INTERNAL(A, B) A ## B
+#define CONCAT(A, B) CONCAT_INTERNAL(A, B)
+
 #define LOG_CONSOLE(text) \
 printf(text);
 #define LOG(text) \

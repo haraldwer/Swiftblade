@@ -76,9 +76,10 @@ void Physics::Manager::Update(double InDelta)
 
 void Physics::Manager::Add(const ECS::EntityID InID)
 {
-    auto t = ECS::Manager::Get().GetSystem<ECS::SysTransform>().TryGet(InID); 
-    auto c = ECS::Manager::Get().GetSystem<ECS::SysCollision>().TryGet(InID); 
-    auto rb = ECS::Manager::Get().GetSystem<ECS::SysRigidbody>().TryGet(InID); 
+    const auto& ecs = ECS::Manager::Get();
+    const auto t = ecs.GetComponent<ECS::Transform>(InID);
+    const auto c = ecs.GetComponent<ECS::Collider>(InID); 
+    const auto rb = ecs.GetComponent<ECS::Rigidbody>(InID);
 
     CHECK_RETURN_LOG(!t, "No transform for entity");
     CHECK_RETURN_LOG(!c, "No collider for entity");

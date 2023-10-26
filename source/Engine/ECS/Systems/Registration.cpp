@@ -6,21 +6,22 @@
 #include "Collider.h"
 #include "Rigidbody.h"
 
-using namespace ECS; 
+using namespace ECS;
 
 void Manager::RegisterSystems()
 {
 #define REG_ENTITY_SYSTEM(x) { \
-auto var = new x(); \
-size_t hash = typeid(x).hash_code(); \
-Systems[hash] = var; }
+auto var = new CONCAT(Sys, x) (); \
+SystemMap[typeid(CONCAT(Sys, x)).hash_code()] = var; \
+ComponentMap[typeid(x).hash_code()] = var; \
+NameMap[String(#x)] = var; }
 
     // Register systems here!
-    REG_ENTITY_SYSTEM(SysTransform);
-    REG_ENTITY_SYSTEM(SysMesh);
-    REG_ENTITY_SYSTEM(SysCamera);
-    REG_ENTITY_SYSTEM(SysCollision);
-    REG_ENTITY_SYSTEM(SysRigidbody);
+    REG_ENTITY_SYSTEM(Transform);
+    REG_ENTITY_SYSTEM(Mesh);
+    REG_ENTITY_SYSTEM(Camera);
+    REG_ENTITY_SYSTEM(Collider);
+    REG_ENTITY_SYSTEM(Rigidbody);
     
 #undef REG_OBJ_SYS
 }

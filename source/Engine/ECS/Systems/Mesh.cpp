@@ -16,7 +16,7 @@ void SysMesh::Update(EntityID InEntity, Mesh& InComponent, double InDelta)
     if (!InComponent.Visible)
         return;
 
-    const Transform& t = GetSystem<SysTransform>().Get(InEntity);
+    const Transform& t = Get<Transform>(InEntity);
     const MeshInstance m {
         InComponent.Model,
         t.Matrix()

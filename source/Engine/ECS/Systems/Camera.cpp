@@ -7,10 +7,10 @@ using namespace ECS;
 
 void SysCamera::Update(EntityID InEntity, Camera& InComponent, double InDelta)
 {
-    const Transform& t = GetSystem<SysTransform>().Get(InEntity);
+    const Transform& t = Get<Transform>(InEntity);
     const CameraInstance c {
         t.Position,
-       Vec3F::Forward(),
+        Vec3F::Forward(),
         InComponent.FOV };
     Game::Get().GetRenderScene().SetCamera(c);
 }

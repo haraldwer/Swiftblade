@@ -69,76 +69,83 @@ namespace Utility
     // - Deserialize - // 
     
     template <class T>
-    void Deserialize(const DeserializeObj& InObj, const String& InName, T& OutData)
+    bool Deserialize(const DeserializeObj& InObj, const String& InName, T& OutData)
     {
-        OutData.Deserialize(InObj, InName); 
+        return OutData.Deserialize(InObj, InName); 
     }
 
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, bool& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, bool& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsBool(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsBool(), "Json obj incorrect type", false);
         OutData = InContent[InName.c_str()].GetBool();
+        return true;
     }
 
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, float& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, float& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsFloat(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsFloat(), "Json obj incorrect type", false);
         OutData = InContent[InName.c_str()].GetFloat();
+        return true;
     }
 
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, int32& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, int32& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsInt(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsInt(), "Json obj incorrect type", false);
         OutData = InContent[InName.c_str()].GetInt();
+        return true;
     }
     
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, Vec3F& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, Vec3F& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsArray(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsArray(), "Json obj incorrect type", false);
         const auto arr = InContent[InName.c_str()].GetArray();
-        CHECK_ASSERT(arr.Size() != 3, "Json invalid arr size");
+        CHECK_RETURN_LOG(arr.Size() != 3, "Json invalid arr size", false);
         for (int32 i = 0; i < 3; i++)
         {
-            CHECK_ASSERT(!arr[i].IsFloat(), "Json arr entry incorrect type");
+            CHECK_RETURN_LOG(!arr[i].IsFloat(), "Json arr entry incorrect type", false);
             OutData.data[i] = arr[i].GetFloat();
         }
+        return true;
     }
     
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, QuatF& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, QuatF& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsArray(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsArray(), "Json obj incorrect type", false);
         const auto arr = InContent[InName.c_str()].GetArray();
-        CHECK_ASSERT(arr.Size() != 4, "Json invalid arr size");
+        CHECK_RETURN_LOG(arr.Size() != 4, "Json invalid arr size", false);
         for (int32 i = 0; i < 4; i++)
         {
             CHECK_ASSERT(!arr[i].IsFloat(), "Json arr entry incorrect type");
             OutData.data[i] = arr[i].GetFloat();
         }
+        return true;
     }
     
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, Mat4F& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, Mat4F& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsArray(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsArray(), "Json obj incorrect type", false);
         const auto arr = InContent[InName.c_str()].GetArray();
-        CHECK_ASSERT(arr.Size() != 16, "Json invalid arr size");
+        CHECK_RETURN_LOG(arr.Size() != 16, "Json invalid arr size", false);
         for (int32 i = 0; i < 16; i++)
         {
             CHECK_ASSERT(!arr[i].IsFloat(), "Json arr entry incorrect type");
             OutData.data[i] = arr[i].GetFloat();
         }
+        return true;
     }
     
-    inline void Deserialize(const DeserializeObj& InContent, const String& InName, String& OutData)
+    inline bool Deserialize(const DeserializeObj& InContent, const String& InName, String& OutData)
     {
-        CHECK_ASSERT(!InContent.HasMember(InName.c_str()), "Json obj no memeber");
-        CHECK_ASSERT(!InContent[InName.c_str()].IsString(), "Json obj incorrect type");
+        CHECK_RETURN_LOG(!InContent.HasMember(InName.c_str()), "Json obj no memeber", false);
+        CHECK_RETURN_LOG(!InContent[InName.c_str()].IsString(), "Json obj incorrect type", false);
         OutData = InContent[InName.c_str()].GetString();
+        return true;
     }
 
     

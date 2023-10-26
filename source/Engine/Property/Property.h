@@ -10,7 +10,7 @@ template <class T>
 class Property : public PropertyBase
 {
 public:
-    Property(const String& InName, const T& InData) : PropertyBase(InName), Data(InData) {}
+    Property(const String& InName, const T& InData) : PropertyBase(InName), Data(InData), Default(InData) {}
     operator T&() { return Data; }
     operator T() const { return Data; }
     Property& operator = (const T& InData)
@@ -19,8 +19,12 @@ public:
         return *this;
     }
 
+    void Reset() { Data = Default; }
+    T GetDefault() const { return Default; }
+    
     void Serialize(SerializeObj& InOutObj) const override
     {
+        // TODO: Compare against default value
         Utility::Serialize(InOutObj, GetName(), Data);
     }
     
@@ -30,5 +34,6 @@ public:
     }
     
 private: 
-    T Data; 
+    T Data;
+    T Default;
 };

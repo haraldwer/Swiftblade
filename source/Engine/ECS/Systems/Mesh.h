@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
-#include "Engine/Resource/Resources/ResModel.h"
+#include "..\..\Resource\Resources\Model.h"
 
 namespace ECS
 {
