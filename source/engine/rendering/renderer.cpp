@@ -16,22 +16,24 @@ void Renderer::Init()
     SetWindowSize(ScreenWidth, ScreenHeight);
 }
 
-void Renderer::Render()
+void Renderer::Render(double InDelta)
 {
+    // TODO: Interpolate render instances
+    
+    // Render world
     BeginDrawing();
-    for (const Scene& scene : Scenes)
-        static_cast<RenderScene>(scene).Render();
+    for (auto s : Scenes)
+        reinterpret_cast<RenderScene*>(&s)->Render();
     DrawFPS(10, 10);
     EndDrawing();
 }
 
-void Renderer::ClearScenes()
+void Renderer::Clear()
 {
     Scenes.clear();
 }
 
-void Renderer::PushScene(const LogicScene& InScene)
+void Renderer::Push(const Scene& InScene)
 {
     Scenes.push_back(InScene);
 }
-

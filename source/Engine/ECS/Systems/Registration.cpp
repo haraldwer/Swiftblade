@@ -3,6 +3,8 @@
 #include "Mesh.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Collider.h"
+#include "Rigidbody.h"
 
 using namespace ECS; 
 
@@ -17,6 +19,8 @@ Systems[hash] = var; }
     REG_ENTITY_SYSTEM(SysTransform);
     REG_ENTITY_SYSTEM(SysMesh);
     REG_ENTITY_SYSTEM(SysCamera);
+    REG_ENTITY_SYSTEM(SysCollision);
+    REG_ENTITY_SYSTEM(SysRigidbody);
     
 #undef REG_OBJ_SYS
 }

@@ -37,7 +37,7 @@ namespace Utility
                 );
         }
 
-        inline Camera ConvertCamera(const Rendering::CameraInstance& InCamera)
+        inline Camera ConvertCamera(const CameraInstance& InCamera)
         {
             Camera cam;
             cam.fovy = InCamera.FOV;

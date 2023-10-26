@@ -5,6 +5,7 @@
 #include "../Vector/Vector3.hpp"
 #include "../Quaternion.hpp"
 #include "../SqareRoot.h"
+#include "Utility/Math/Macros.h"
 
 namespace Utility
 {
@@ -82,13 +83,13 @@ namespace Utility
 			
 				if (elements[0][1] > 0.998) { // singularity at north pole
 					heading = atan2(elements[2][0], elements[2][2]);
-					attitude = 3.14159265359f / 2;
+					attitude = PI_FLOAT / 2;
 					bank = 0;
 					return { bank, heading, attitude };
 				}
 				if (elements[1][0] < -0.998) { // singularity at south pole
 					heading = atan2(elements[2][0], elements[2][2]);
-					attitude = -3.14159265359f / 2;
+					attitude = -PI_FLOAT / 2;
 					bank = 0;
 					return { bank, heading, attitude };
 				}
@@ -143,7 +144,7 @@ namespace Utility
 				elements[3][2] = 0;
 
 				// invs (inverse square length) is only required if quaternion is not already normalised
-				const Type invs = 1.0 / (sqx + sqy + sqz + sqw);
+				const Type invs = static_cast<Type>(1.0) / (sqx + sqy + sqz + sqw);
 				elements[0][0] = (sqx - sqy - sqz + sqw) * invs; // since sqw + sqx + sqy + sqz =1/invs*invs
 				elements[1][1] = (-sqx + sqy - sqz + sqw) * invs;
 				elements[2][2] = (-sqx - sqy + sqz + sqw) * invs;
@@ -151,22 +152,22 @@ namespace Utility
 				{
 					const Type tmp1 = q.x * q.y;
 					const Type tmp2 = q.z * q.w;
-					elements[0][1] = 2.0 * (tmp1 + tmp2) * invs;
-					elements[1][0] = 2.0 * (tmp1 - tmp2) * invs;
+					elements[0][1] = static_cast<Type>(2.0) * (tmp1 + tmp2) * invs;
+					elements[1][0] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
 				}
 
 				{
 					const Type tmp1 = q.x * q.z;
 					const Type tmp2 = q.y * q.w;
-					elements[0][2] = 2.0 * (tmp1 - tmp2) * invs;
-					elements[2][0] = 2.0 * (tmp1 + tmp2) * invs;
+					elements[0][2] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
+					elements[2][0] = static_cast<Type>(2.0) * (tmp1 + tmp2) * invs;
 				}
 
 				{
 					const Type tmp1 = q.y * q.z;
 					const Type tmp2 = q.x * q.w;
-					elements[1][2] = 2.0 * (tmp1 + tmp2) * invs;
-					elements[2][1] = 2.0 * (tmp1 - tmp2) * invs;
+					elements[1][2] = static_cast<Type>(2.0) * (tmp1 + tmp2) * invs;
+					elements[2][1] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
 				}
 
 				// Position

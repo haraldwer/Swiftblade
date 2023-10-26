@@ -25,9 +25,9 @@ endif()
 
 
 
-
 # -- Project -- #
 
+# Source files
 file(GLOB_RECURSE sources
   "${PROJECT_SOURCE_DIR}/source/*.h"
   "${PROJECT_SOURCE_DIR}/source/*.cpp"
@@ -35,23 +35,31 @@ file(GLOB_RECURSE sources
 )
 add_executable(${PROJECT_NAME} ${sources})
 
+# Includes
 target_include_directories(${PROJECT_NAME} 
   PRIVATE
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/source
 )
 
+# Pch
 target_precompile_headers(${PROJECT_NAME} 
-  PUBLIC
+  PRIVATE
     "${PROJECT_SOURCE_DIR}/source/pch.h"
 )
 
-target_link_libraries(${PROJECT_NAME} raylib)
+# Linking
+file(GLOB_RECURSE libs "${PROJECT_SOURCE_DIR}/library/*.lib")
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib ${libs})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 
-# -- #
+# Copy DLL files to exe folder
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/library/dll/ $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
+# -- #
 
 
 

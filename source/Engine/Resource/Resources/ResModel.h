@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Engine/Resource/Resource.h"
+#include "..\Resource.h"
 
 // Raylib model reference
-class Model; 
+struct Model; 
 
 class ModelResource
 {
@@ -16,4 +16,4 @@ private:
     Model* Ptr = nullptr; 
 };
 
-typedef Resource<ModelResource> ResModel;  
+typedef Resource::Ref<ModelResource> ResModel;  

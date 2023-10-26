@@ -7,8 +7,8 @@ public:
     PropertyBase(const String& InName);
     const String& GetName() const { return Name; }
     
-    virtual String Serialize() const = 0;
-    virtual void Deserialize(const String& InString) = 0;
+    virtual void Serialize(SerializeObj& InOutObj) const = 0;
+    virtual void Deserialize(const DeserializeObj& InObj) = 0;
     
 private:
     String Name; 

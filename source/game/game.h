@@ -1,8 +1,9 @@
 #pragma once
-#include "Engine/ECS/Manager.h"
-#include "Engine/Rendering/Scene.h"
+
 #include "Utility/Singelton.h"
-#include "World/CubeVolume.h"
+#include "Engine/ECS/Manager.h"
+#include "Engine/Physics/Manager.h"
+#include "Engine/Rendering/Scene.h"
 
 class Game : public Utility::Singelton<Game>
 {
@@ -11,17 +12,14 @@ public:
 
     void Init();
     void Update();
+    void Deinit(); 
 
-    Rendering::LogicScene& GetRenderScene() { return RenderScene; }
-    
 private:
     
     void FixedUpdate(double InDelta);
-    
-    static constexpr double TickRate = 300.0; 
-    double TickTimer = 0.0;
 
-    Rendering::LogicScene RenderScene;
     ECS::Manager ECS;
-    CubeVolume Room; 
+    Physics::Manager Physics;
+    Rendering::Scene RenderScene; 
+    
 };

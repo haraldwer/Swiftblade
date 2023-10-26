@@ -1,7 +1,6 @@
 #include "Mesh.h"
 
 #include "Transform.h"
-#include "Engine/Resource/ResourceManager.h"
 #include "Game/Game.h"
 
 using namespace ECS;
@@ -18,12 +17,9 @@ void SysMesh::Update(EntityID InEntity, Mesh& InComponent, double InDelta)
         return;
 
     const Transform& t = GetSystem<SysTransform>().Get(InEntity);
-    const Rendering::Mesh m {
+    const MeshInstance m {
         InComponent.Model,
-        Mat4F(
-            QuatF::Identity(),
-            t.Position,
-            Vec3F::One())
+        t.Matrix()
     };
     Game::Get().GetRenderScene().AddMesh(m);
 }

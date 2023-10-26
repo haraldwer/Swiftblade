@@ -137,4 +137,6 @@ namespace Utility
         T* Ptr = nullptr;
         BaseRef* Ref = nullptr;
     };
+
+    // TODO: Scoped pointer
 }

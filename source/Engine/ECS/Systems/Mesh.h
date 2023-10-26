@@ -8,7 +8,7 @@ namespace ECS
 {
     struct Mesh : Component
     { 
-        PROPERTY(bool, Visible, true);
+        PROPERTY_P(bool, Visible, true);
         PROPERTY(ResModel, Model);
     };
 

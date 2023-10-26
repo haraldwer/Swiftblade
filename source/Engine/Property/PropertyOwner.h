@@ -11,13 +11,12 @@ public:
     void EndScope(); // TODO: End scope!
     static void AddProperty(PropertyBase* InProperty);
 
-    // User can implement custom serialization functions
-    virtual String Serialize() const;
-    virtual void Deserialize(const String& InString);
+    virtual void Serialize(SerializeObj& InOutObj) const;
+    virtual void Deserialize(const DeserializeObj& InObj);
     
 private:
     
-    inline static Vector<PropertyOwner*> InstanceStack;
+    inline static PropertyOwner* Instance = nullptr;
     Map<String, PropertyBase*> Properties;
 
     // TODO:

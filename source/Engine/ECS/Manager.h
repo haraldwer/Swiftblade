@@ -26,8 +26,8 @@ namespace ECS
             const size_t hash = typeid(T).hash_code();
             const auto find = Systems.find(hash);
             CHECK_ASSERT(find == Systems.end(), "Unable to find component");
-            CHECK_ASSERT(!find->second.Get(), "Component null");
-            return *static_cast<T*>(find->second.Get());
+            CHECK_ASSERT(!find->second, "Component null");
+            return *static_cast<T*>(find->second);
         }
 
     private:
@@ -36,7 +36,7 @@ namespace ECS
         void DestroyPending();
 
         // Map of type to component
-        Map<size_t, ObjectPtr<SystemBase>> Systems;
+        Map<size_t, SystemBase*> Systems;
 
         // List of all entities
         Set<EntityID> Entities;

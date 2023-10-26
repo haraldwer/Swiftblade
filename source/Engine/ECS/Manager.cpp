@@ -10,8 +10,7 @@ void Manager::Init()
 {
     RegisterSystems();
     for (const auto& comp : Systems)
-        if (const auto ptr = comp.second.Get())
-            ptr->InitSystem(this);
+        comp.second->InitSystem(this);
 }
 
 void Manager::Deinit()
@@ -24,8 +23,7 @@ void Manager::Deinit()
 void Manager::Update(const double InDelta)
 {
     for (const auto& comp : Systems)
-        if (const auto ptr = comp.second.Get())
-            ptr->UpdateSystem(InDelta);
+        comp.second->UpdateSystem(InDelta);
     DestroyPending();
 }
 
@@ -48,8 +46,7 @@ void Manager::DestroyPending()
     for (EntityID obj : copy)
     {
         for (const auto& comp : Systems)
-            if (auto ptr = comp.second.Get())
-                ptr->Unregister(obj);
+            comp.second->Unregister(obj);
         Entities.erase(obj);
     }
     PendingDestroy.clear();

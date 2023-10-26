@@ -1,6 +1,6 @@
 #include "CubeVolume.h"
 
-#include "Engine/Resource/ResourceManager.h"
+#include "Engine/Resource/Manager.h"
 #include "Game/Game.h"
 #include "Utility/Utility.h"
 
@@ -65,8 +65,8 @@ void CubeVolume::Draw() const
         
         const Coord::Vec pos = Coord(coord.first).Pos;
 
-        Rendering::Mesh m;
-        m.Model = ResourceImpl::ResourceManager::Get().Request<Rendering::Model>("../content/test.obj");
+        MeshInstance m;
+        m.Model = ResModel("../content/test.obj");
         m.Transform = Mat4F(
             QuatF::Identity(),
             Vec3F::Zero(),

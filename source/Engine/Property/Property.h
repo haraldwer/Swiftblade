@@ -3,7 +3,8 @@
 #include "PropertyBase.h"
 #include "Utility/Serialization.h"
 
-#define PROPERTY(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, type(__VA_ARGS__));
+#define PROPERTY(type, name) Property<type> name = Property<type>(#name, type());
+#define PROPERTY_P(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, type(__VA_ARGS__));
 
 template <class T>
 class Property : public PropertyBase
@@ -12,15 +13,20 @@ public:
     Property(const String& InName, const T& InData) : PropertyBase(InName), Data(InData) {}
     operator T&() { return Data; }
     operator T() const { return Data; }
-
-    String Serialize() const override
+    Property& operator = (const T& InData)
     {
-        return Utility::Serialize(GetName(), Data);
+        Data = InData;
+        return *this;
+    }
+
+    void Serialize(SerializeObj& InOutObj) const override
+    {
+        Utility::Serialize(InOutObj, GetName(), Data);
     }
     
-    void Deserialize(const String& InString) override
+    void Deserialize(const DeserializeObj& InObj) override
     {
-        Utility::Deserialize(InString, GetName(), Data); 
+        Utility::Deserialize(InObj, GetName(), Data); 
     }
     
 private: 

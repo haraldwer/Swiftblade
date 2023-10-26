@@ -1,25 +1,44 @@
-
 #include "raylib.h"
+#include "Engine/Physics/Manager.h"
 #include "engine/rendering/renderer.h"
-#include "Engine/Resource/ResourceManager.h"
+#include "Engine/Resource/Manager.h"
 #include "game/game.h"
 
 int main()
 {
+    // Renderer and resource manager are shared between instances
     Rendering::Renderer renderer;
-    ResourceImpl::ResourceManager resourceManager;
-    Game game;
+    Resource::Manager resourceManager;
     renderer.Init();
-    game.Init();
 
+    // A game instance that can be created / destroyed at any time :) 
+    Game game;
+    game.Init();
+    
+    static constexpr double tickRate = 300.0; 
+    double tickTimer = 0.0;
+    
     while (true)
     {
         if (WindowShouldClose())
             break;
-        
-        game.Update();
-        renderer.Render();
+
+        double delta = GetFrameTime();
+
+        // Fixed update
+        tickTimer += delta;
+        while (tickTimer >= 0)
+        {
+            tickTimer -= 1.0 / tickRate;
+            renderer.Clear();
+            game.Update();
+        }
+
+        // Render
+        renderer.Render(delta);
     }
+    
+    game.Deinit();
 
     CloseWindow();
     return 0;

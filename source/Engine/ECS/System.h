@@ -84,6 +84,13 @@ namespace ECS
             CHECK_ASSERT(id == InvalidID, "No component for entity");
             return GetInternal(id);
         }
+
+        T* TryGet(const EntityID InEntity)
+        {
+            const ComponentID id = Translate(InEntity);
+            CHECK_RETURN(id == InvalidID, nullptr);
+            return &GetInternal(id);
+        }
         
         ComponentID Register(const EntityID InEntity) override
         {

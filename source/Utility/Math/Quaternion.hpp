@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 
+#include "Macros.h"
 #include "SqareRoot.h"
 
 namespace Utility
@@ -11,10 +12,19 @@ namespace Utility
 		class Quaternion
 		{
 		public:
-			Type w;
-			Type x;
-			Type y;
-			Type z;
+
+			union
+			{
+				Type data[4];
+
+				struct
+				{
+					Type w;
+					Type x;
+					Type y;
+					Type z;
+				};
+			};
 
 			Quaternion() : x(0), y(0), z(0), w(0) { }
 			Quaternion(const Quaternion& q) : w(q.w), x(q.x), y(q.y), z(q.z) {}
@@ -60,13 +70,13 @@ namespace Utility
 				Type test = x * y + z * w;
 				if (test > 0.499 * unit) { // singularity at north pole
 					heading = 2 * atan2(x, w);
-					attitude = 3.14159265359f / 2;
+					attitude = PI_FLOAT / 2;
 					bank = 0;
 					return { bank, heading, attitude };
 				}
 				if (test < -0.499 * unit) { // singularity at south pole
 					heading = -2 * atan2(x, w);
-					attitude = -3.14159265359f / 2;
+					attitude = -PI_FLOAT / 2;
 					bank = 0;
 					return { bank, heading, attitude };
 				}

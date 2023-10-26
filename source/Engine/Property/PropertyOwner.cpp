@@ -5,34 +5,30 @@
 void PropertyOwner::StartScope()
 {
     LOG("Start scope");
-    InstanceStack.push_back(this); 
+    Instance = this;  
 }
 
 void PropertyOwner::EndScope()
 {
     LOG("End scope");
-    InstanceStack.pop_back();
+    Instance = nullptr;
 }
 
 void PropertyOwner::AddProperty(PropertyBase* InProperty)
 {
     CHECK_ASSERT(!InProperty, "Property null");
-    CHECK_ASSERT(InstanceStack.empty(), "InstanceStack empty");
-    InstanceStack[InstanceStack.size() - 1]->Properties[InProperty->GetName()] = InProperty;
+    CHECK_ASSERT(!Instance, "No instance");
+    Instance->Properties[InProperty->GetName()] = InProperty;
 }
 
-String PropertyOwner::Serialize() const
+void PropertyOwner::Serialize(SerializeObj& InOutObj) const
 {
-    String s; 
     for (auto& p : Properties)
-        if (p.second)
-            s += p.second->Serialize();
-    return s; 
+        p.second->Serialize(InOutObj);
 }
 
-void PropertyOwner::Deserialize(const String& InString)
+void PropertyOwner::Deserialize(const DeserializeObj& InObj)
 {
     for (auto& p : Properties)
-        if (p.second)
-            p.second->Deserialize(InString); 
+        p.second->Deserialize(InObj);
 }

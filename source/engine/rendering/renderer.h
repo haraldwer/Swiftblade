@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Scene.h"
 #include "Utility/Singelton.h"
+#include "Scene.h"
 
 namespace Rendering
 {
@@ -11,14 +11,14 @@ namespace Rendering
     public:
 
         void Init(); 
-        void Render();
+        void Render(double InDelta);
 
-        void ClearScenes(); 
-        void PushScene(const LogicScene& InScene);
+        void Clear(); 
+        void Push(const Scene& InScene);
 
     private:
 
-        std::vector<Scene> Scenes; 
+        Vector<Scene> Scenes; 
 
     };
 }
