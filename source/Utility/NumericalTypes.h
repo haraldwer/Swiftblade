@@ -13,3 +13,6 @@ typedef int16_t int16;
 
 typedef uint8_t uint8;
 typedef int8_t int8;
+
+//#define SMALL_NUMBER
+//#define KINDA_SMALL_NUMBER

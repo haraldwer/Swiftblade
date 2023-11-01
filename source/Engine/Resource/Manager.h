@@ -5,7 +5,7 @@ namespace Resource
 {
     struct Base;
     
-    class Manager : public Utility::Singelton<Manager>
+    class Manager : public Utility::Singelton<Manager, true>
     {
     public:
 
@@ -21,8 +21,14 @@ namespace Resource
         {
             Resources[InIdentifier] = InResource;
         }
-
+        
         // TODO: Unload
+
+        
+        void Deinit()
+        {
+            // TODO: Unload all
+        }
 
     private:
         Map<String, Base*> Resources; 

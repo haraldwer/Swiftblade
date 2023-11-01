@@ -4,6 +4,7 @@
 #include "Transform.h"
 #include "Camera.h"
 #include "Collider.h"
+#include "Player.h"
 #include "Rigidbody.h"
 
 using namespace ECS;
@@ -22,6 +23,7 @@ NameMap[String(#x)] = var; }
     REG_ENTITY_SYSTEM(Camera);
     REG_ENTITY_SYSTEM(Collider);
     REG_ENTITY_SYSTEM(Rigidbody);
+    REG_ENTITY_SYSTEM(Player);
     
 #undef REG_OBJ_SYS
 }

@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "System.h"
+#include "Engine/Instance/Instance.h"
 
 using namespace ECS; 
 
@@ -23,7 +24,8 @@ void Manager::Deinit()
 void Manager::Update(const double InDelta)
 {
     for (const auto& comp : SystemMap)
-        comp.second->UpdateSystem(InDelta);
+        if (comp.second->ShouldUpdate())
+            comp.second->UpdateSystem(InDelta);
     DestroyPending();
 }
 
@@ -50,6 +52,40 @@ void Manager::DestroyPending()
         Entities.erase(obj);
     }
     PendingDestroy.clear();
+}
+
+void Manager::DeserializeEntity(EntityID InID, const DeserializeObj& InObj)
+{
+    for (auto& comp : InObj["Components"].GetArray())
+    {
+        CHECK_CONTINUE_LOG(!comp.IsObject(), "Invalid component");
+        CHECK_CONTINUE_LOG(!comp.HasMember("Name"), "Missing name member");
+        String name = comp["Name"].GetString();
+        SystemBase* sys = GetSystem(name);
+        CHECK_ASSERT(!sys, "Unable to find system")
+        sys->Register(InID);
+        if (comp.HasMember("Data")) 
+            sys->Deserialize(InID, comp["Data"].GetObject());
+    }
+}
+
+void Manager::SerializeEntity(EntityID InID, SerializeObj& OutObj) const
+{
+    OutObj.Key("Components");
+    OutObj.StartArray();
+    for (auto& sys : NameMap)
+    {
+        CHECK_CONTINUE(!sys.second->Contains(InID));
+        OutObj.StartObject();
+        OutObj.Key("Name");
+        OutObj.String(sys.first.c_str());
+        OutObj.Key("Data");
+        OutObj.StartObject();
+        sys.second->Serialize(InID, OutObj);
+        OutObj.EndObject();
+        OutObj.EndObject();
+    }
+    OutObj.EndArray();
 }
 
 SystemBase* Manager::GetSystem(const String& InComponentName)

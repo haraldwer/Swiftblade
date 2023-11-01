@@ -14,6 +14,7 @@ namespace ECS
     {
     public:
         void Update(EntityID InEntity, Camera& InComponent, double InDelta) override;
+        bool ShouldUpdate() const override { return true; }
     };
     
 }

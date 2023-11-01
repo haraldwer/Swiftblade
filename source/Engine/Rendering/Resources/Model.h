@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\Resource.h"
+#include "Engine/Resource/Resource.h"
 
 // Raylib model reference
 struct Model; 

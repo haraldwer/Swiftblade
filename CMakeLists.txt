@@ -52,7 +52,13 @@ target_precompile_headers(${PROJECT_NAME}
 file(GLOB_RECURSE libs "${PROJECT_SOURCE_DIR}/library/*.lib")
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib ${libs})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
+# Compile options
+set_target_properties(${PROJECT_NAME} 
+  PROPERTIES 
+    CXX_STANDARD 20
+    UNITY_BUILD_MODE BATCH
+    UNITY_BUILD_BATCH_SIZE 10)
+target_compile_options(${PROJECT_NAME} PUBLIC /MP -j8) # Multithreading
 
 # Copy DLL files to exe folder
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

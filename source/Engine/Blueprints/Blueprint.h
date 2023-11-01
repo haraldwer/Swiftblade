@@ -10,10 +10,12 @@ public:
     bool Unload();
 
     ECS::EntityID Instantiate();
+    void Serialize(ECS::EntityID InID);
 
 private:
 
     rapidjson::Document Doc;
+    String Identifier;
     
 };
 

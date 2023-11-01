@@ -7,9 +7,10 @@ namespace ECS
 {
     struct Transform : Component
     {
-        PROPERTY(Vec3F, Position); 
+        PROPERTY(Vec3F, Position);
         PROPERTY(QuatF, Rotation);
         PROPERTY_P(Vec3F, Scale, Vec3F::One());
+        PROPERTY_P(bool, Static, false); 
 
         // Parent?
         // Children?
@@ -17,8 +18,8 @@ namespace ECS
         Mat4F Matrix() const
         {
             return Mat4F(
-                Rotation,
                 Position,
+                Rotation,
                 Scale);
         }
     };

@@ -5,7 +5,8 @@ namespace Resource
     struct Base
     {
         virtual ~Base() = default;
-        virtual bool Load(const String& InIdentifier) = 0;
+        Base(const String& InIdentifier) : Identifier(InIdentifier) {}
+        virtual bool Load() = 0;
         virtual bool Unload() = 0;
         bool Loaded = false;
         uint32 Count = 0;
@@ -15,12 +16,13 @@ namespace Resource
     template <class T>
     struct Impl : Base
     {
-        bool Load(const String& InIdentifier) override
+        Impl(const String& InIdentifier) : Base(InIdentifier) {}
+        
+        bool Load() override
         {
-            Identifier = InIdentifier; 
             if (Loaded)
                 return true; 
-            Loaded = Data.Load(InIdentifier);
+            Loaded = Data.Load(Identifier);
             return Loaded;
         }
         

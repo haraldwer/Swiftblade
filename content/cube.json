@@ -1,0 +1,30 @@
+{
+	"Components":[{
+		"Name":"Transform",
+		"Data":{
+			"Position":[0.0,
+			0.0,
+			0.0],
+			"Rotation":[0.0,
+			0.0,
+			1.0,
+			0.0],
+			"Scale":[1.0,
+			1.0,
+			1.0]
+		}
+	},
+	{
+		"Name":"Mesh",
+		"Data":{
+			"Visible":true,
+			"Model":"test.obj"
+		}
+	},
+	{
+		"Name":"Collider",
+		"Data":{
+			
+		}
+	}]
+}

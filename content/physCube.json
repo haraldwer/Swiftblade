@@ -1,0 +1,19 @@
+{
+	"Components":[
+		{
+			"Name":"Mesh"
+		},
+		{
+			"Name":"Transform",
+			"Data":{
+				"Position":[0.0, 100.0, 0]
+			}
+		},
+		{
+			"Name":"Rigidbody"
+		},
+		{
+			"Name":"Collider"
+		}
+	]
+}

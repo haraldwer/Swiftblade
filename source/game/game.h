@@ -1,25 +1,18 @@
 #pragma once
 
-#include "Utility/Singelton.h"
-#include "Engine/ECS/Manager.h"
+#include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
-#include "Engine/Rendering/Scene.h"
 
-class Game : public Utility::Singelton<Game>
+class Game : public Engine::Instance 
 {
     
 public:
-
-    void Init();
-    void Deinit();
-    void Update(double InDelta);
-
-    Rendering::LogicScene& GetRenderScene();
+    void Init() override;
+    void Deinit() override;
+    void Update(double InDelta) override;
 
 private:
-    
-    ECS::Manager ECS;
+
     Physics::Manager Physics;
-    Rendering::Scene RenderScene; 
     
 };

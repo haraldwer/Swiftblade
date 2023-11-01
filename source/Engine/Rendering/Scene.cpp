@@ -1,8 +1,5 @@
 #include "Scene.h"
 
-#include "raylib.h"
-#include "../../Utility/RayUtility.h"
-
 using namespace Rendering; 
 
 void RenderScene::Render()
@@ -20,10 +17,14 @@ void RenderScene::Render()
     {
         const Matrix matrix = Utility::Ray::ConvertMat(m.Transform);
 
-        // Ugly!
+        const Material* mat = nullptr;
+        if (const MaterialResource* matRsc = m.Material.Get())
+            mat = matRsc->Get();
+        CHECK_CONTINUE(!mat);
+        
         if (const auto mData = m.Model.Get())
             if (const auto rayModel = mData->Get())
-                DrawMesh(rayModel->meshes[0], rayModel->materials[0], matrix);
+                DrawMesh(rayModel->meshes[0], *mat, matrix);
     }
 
     DrawGrid(10, 10.0f);

@@ -15,6 +15,7 @@ namespace Utility
 		class Matrix4x4
 		{
 		public:
+			
 			union
 			{
 				Type elements[4][4];
@@ -29,19 +30,59 @@ namespace Utility
 				};
 			};
 
-			Matrix4x4(const Quaternion<Type>& q, const Vector3<Type>& p, const Vector3<Type>& s)
+			Matrix4x4()
 			{
-				SetIdentity();
+				elements[0][0] = 1.0f;
+				elements[0][1] = 0.0f;
+				elements[0][2] = 0.0f;
+				elements[0][3] = 0.0f;
+
+				elements[1][0] = 0.0f;
+				elements[1][1] = 1.0f;
+				elements[1][2] = 0.0f;
+				elements[1][3] = 0.0f;
+
+				elements[2][0] = 0.0f;
+				elements[2][1] = 0.0f;
+				elements[2][2] = 1.0f;
+				elements[2][3] = 0.0f;
+
+				elements[3][0] = 0.0f;
+				elements[3][1] = 0.0f;
+				elements[3][2] = 0.0f;
+				elements[3][3] = 1.0f;
+			}
+
+			Matrix4x4(const Matrix4x4& aMatrix)
+			{
+				memcpy(data, aMatrix.data, sizeof(Type) * 16);
+			}
+
+			Matrix4x4(const Vector3<Type>& p, const Quaternion<Type>& q, const Vector3<Type>& s) : Matrix4x4()
+			{
 				SetPosition(p);
-				SetScales(s);
+				SetScale(s);
+				SetRotation(q);
+			}
+
+			Matrix4x4(const Vector3<Type>& p) : Matrix4x4()
+			{
+				SetPosition(p);
+			}
+
+			Matrix4x4(const Quaternion<Type>& q) : Matrix4x4()
+			{
 				SetRotation(q);
 			}
 
 			void Rotate(const Vector3<Type>& aRotation) 
 			{
-				*this *= CreateRotationAroundX(aRotation.x);
-				*this *= CreateRotationAroundY(aRotation.y);
-				*this *= CreateRotationAroundZ(aRotation.z);
+				Matrix4x4 n = GetNormalized();
+				n *= CreateRotationAroundX(aRotation.x);
+				n *= CreateRotationAroundY(aRotation.y);
+				n *= CreateRotationAroundZ(aRotation.z);
+				n.SetScale(Scale());
+				*this = n;
 			}
 
 			static Matrix4x4 CreateRotationAroundAxis(Type aAngleInRadians, Vector3<Type> aNormalizedAxis)
@@ -77,30 +118,34 @@ namespace Utility
 				return new_matrix;
 			}
 			
-			Vector3<Type> GetEulerRotation() const
+			Vector3<Type> GetEuler() const
 			{
+				const Matrix4x4 n = GetNormalized();
+				
 				Type heading, attitude, bank;
 			
-				if (elements[0][1] > 0.998) { // singularity at north pole
-					heading = atan2(elements[2][0], elements[2][2]);
+				if (n.elements[0][1] > 0.998) { // singularity at north pole
+					heading = atan2(n.elements[2][0], n.elements[2][2]);
 					attitude = PI_FLOAT / 2;
 					bank = 0;
 					return { bank, heading, attitude };
 				}
-				if (elements[1][0] < -0.998) { // singularity at south pole
-					heading = atan2(elements[2][0], elements[2][2]);
+				if (n.elements[1][0] < -0.998) { // singularity at south pole
+					heading = atan2(n.elements[2][0], n.elements[2][2]);
 					attitude = -PI_FLOAT / 2;
 					bank = 0;
 					return { bank, heading, attitude };
 				}
-				heading = atan2(-elements[0][2], elements[0][0]);
-				bank = atan2(-elements[2][1], elements[1][1]);
-				attitude = asin(elements[0][1]);
+				heading = atan2(-n.elements[0][2], n.elements[0][0]);
+				bank = atan2(-n.elements[2][1], n.elements[1][1]);
+				attitude = asin(n.elements[0][1]);
 				return { bank, heading, attitude };
 			}
 
-			void SetEulerRotation(const Vector3<Type>& aRotation)
+			void SetEuler(const Vector3<Type>& aRotation)
 			{
+				const Vector3<Type> scale = Scale();
+				
 				const Type heading = aRotation.y;
 				const Type attitude = aRotation.z;
 				const Type bank = aRotation.x;
@@ -122,13 +167,22 @@ namespace Utility
 				elements[0][2] = -sh * ca;
 				elements[1][2] = sh * sa * cb + ch * sb;
 				elements[2][2] = -sh * sa * sb + ch * cb;
+				
+				SetScale(scale);
+			}
+
+			static Matrix4x4<Type> FromEuler(const Vector3<Type>& aRotation)
+			{
+				Matrix4x4 m;
+				m.SetEuler(aRotation);
+				return m;
 			}
 			
 			void SetRotation(const Quaternion<Type>& q)
 			{
 				const Vector3<Type> p = GetPosition();
-				const Vector3<Type> s = GetScales();
-				
+				const Vector3<Type> s = Scale();
+
 				const Type sqw = q.w * q.w;
 				const Type sqx = q.x * q.x;
 				const Type sqy = q.y * q.y;
@@ -170,15 +224,8 @@ namespace Utility
 					elements[2][1] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
 				}
 
-				// Position
-				elements[3][0] = p.x;
-				elements[3][1] = p.y;
-				elements[3][2] = p.z;
-
-				// Scale
-				right *= s.x;
-				up *= s.y;
-				forward *= s.z;
+				SetPosition(p);
+				SetScale(s);
 			}
 			
 			Matrix4x4 GetRotationMatrix() const
@@ -199,8 +246,8 @@ namespace Utility
 			Quaternion<Type> GetRotation() const
 			{
 				Quaternion<Type> q;
-				const Type trelementsce = elements[0][0] + elements[1][1] + elements[2][2]; // I removed + 1.0f; see discussion with Ethelementsn
-				if (trelementsce > 0) {// I chelementsnged M_EPSILON to 0
+				const Type trelementsce = elements[0][0] + elements[1][1] + elements[2][2];
+				if (trelementsce > 0) {
 					const Type s = 0.5f / SquareRoot(trelementsce + 1.0f);
 					q.w = 0.25f / s;
 					q.x = (elements[1][2] - elements[2][1]) * s;
@@ -242,50 +289,11 @@ namespace Utility
 				};
 			}
 
-			Vector3<Type> GetScales() const
-			{
-				return {
-					Vec3F(right.xyz).Length(),
-					Vec3F(up.xyz).Length(),
-					Vec3F(forward.xyz).Length()
-				};
-			}
-			
 			void SetPosition(const Vector3<Type>& aPosition)
 			{
 				elements[3][0] = aPosition.x;
 				elements[3][1] = aPosition.y;
 				elements[3][2] = aPosition.z;
-			}
-			
-			void Move(const Vector3<Type>& aMovement)
-			{
-				SetPosition(GetPosition() + aMovement);
-			}
-			
-			void RelativeMove(const Vector3<Type>& aMovement)
-			{
-				ForwardMovement(aMovement.x);
-				RightMovement(aMovement.y);
-				UpMovement(aMovement.z);
-			}
-			
-			void ForwardMovement(const float& aValue)
-			{
-				Vector4<Type> fwd = forward * aValue;
-				Move(Vector3<Type>(fwd.x, fwd.y, fwd.z));
-			}
-			
-			void RightMovement(const float& aValue)
-			{
-				Vector4<Type> rgt = right * aValue;
-				Move(Vector3<Type>(rgt.x, rgt.y, rgt.z));
-			}
-			
-			void UpMovement(const float& aValue)
-			{
-				Vector4<Type> Up = up * aValue;
-				Move(Vector3<Type>(Up.x, Up.y, Up.z));
 			}
 
 			Type& operator()(const int aRow, const int aColumn)
@@ -357,11 +365,6 @@ namespace Utility
 			Matrix4x4& operator = (const Matrix4x4& aMatrix)
 			{
 				memcpy(data, aMatrix.data, sizeof(Type) * 16);
-				//for (int index = 0; index < 16; ++index)
-				//{
-				//	data[index] = aMatrix.data[index];
-				//}
-
 				return *this;
 			}
 
@@ -385,42 +388,55 @@ namespace Utility
 				return new_matrix;
 			}
 
-			Type GetScaleX()
+			Type ScaleX() const
 			{
 				return right.length;
 			}
 			
-			Type GetScaleY()
+			Type ScaleY() const
 			{
 				return up.length;
 			}
 
-			Type GetScaleZ()
+			Type ScaleZ() const
 			{
 				return forward.length;
 			}
 
-			Vector3<Type> GetScales()
+			Vector3<Type> Scale() const
 			{
-				return { GetScaleX(), GetScaleY(), GetScaleZ() };
+				return { ScaleX(), ScaleY(), ScaleZ() };
 			}
 			
-			Vector3<Type> TransformPoint (Vector3<Type> aPoint)
+			void SetScale(const Vector3<Type>& s)
+			{
+				right = right.GetNormalized() * s.x;
+				up = up.GetNormalized() * s.y;
+				forward = forward.GetNormalized() * s.z;
+			}
+			
+			Vector3<Type> Forward() const
+			{
+				return Vector3<Type>(forward.xyz).GetNormalized();
+			}
+			
+			Vector3<Type> Right() const
+			{
+				return Vector3<Type>(right.xyz).GetNormalized();
+			}
+			
+			Vector3<Type> Up() const
+			{
+				return Vector3<Type>(up.xyz).GetNormalized();
+			}
+			
+			Vector3<Type> TransformPoint(const Vector3<Type>& aPoint) const
 			{
 				Vector3<Type> result;
 				result.x = aPoint.x * data[0] + aPoint.y * data[4] + aPoint.z * data[8] + data[12];
 				result.y = aPoint.x * data[1] + aPoint.y * data[5] + aPoint.z * data[9] + data[13];
 				result.z = aPoint.x * data[2] + aPoint.y * data[6] + aPoint.z * data[10] + data[14];
 				return result;
-			}
-
-
-
-			void SetScales(const Vector3<Type>& s)
-			{
-				right = right.GetNormalized() * s.x;
-				up = up.GetNormalized() * s.y;
-				forward = forward.GetNormalized() * s.z;
 			}
 			
 			Matrix4x4 GetNormalized() const
@@ -431,6 +447,12 @@ namespace Utility
 				m.up.Normalize();
 				m.forward.Normalize();
 				return m;
+			}
+			
+			Matrix4x4& Normalize()
+			{
+				*this = GetNormalized();
+				return *this; 
 			}
 
 			static Matrix4x4 CreateProjection(Type aAspectRatio, Type aFov, Type aNear, Type aFar)
@@ -457,61 +479,7 @@ namespace Utility
 				new_matrix.elements[3][3] = 0.0f;
 				return new_matrix;
 			}
-
-			static Matrix4x4 CreateScale(Vector3<Type> aScale)
-			{
-				Matrix4x4 new_matrix;
 			
-				new_matrix.elements[0][0] = aScale.x;
-				new_matrix.elements[0][1] = 0.0f;
-				new_matrix.elements[0][2] = 0.0f;
-				new_matrix.elements[0][3] = 0.0f;
-			
-				new_matrix.elements[1][0] = 0.0f;
-				new_matrix.elements[1][1] = aScale.y;
-				new_matrix.elements[1][2] = 0.0f;
-				new_matrix.elements[1][3] = 0.0f;
-			
-				new_matrix.elements[2][0] = 0.0f;
-				new_matrix.elements[2][1] = 0.0f;
-				new_matrix.elements[2][2] = aScale.z;
-				new_matrix.elements[2][3] = 0.0f;
-			
-				new_matrix.elements[3][0] = 0.0f;
-				new_matrix.elements[3][1] = 0.0f;
-				new_matrix.elements[3][2] = 0.0f;
-				new_matrix.elements[3][3] = 1.0f;
-			
-				return new_matrix;
-			}
-
-			static Matrix4x4 CreateTranslation(Vector3<Type> aTranslation)
-			{
-				Matrix4x4 new_matrix;
-			
-				new_matrix.elements[0][0] = 1.0f;
-				new_matrix.elements[0][1] = 0.0f;
-				new_matrix.elements[0][2] = 0.0f;
-				new_matrix.elements[0][3] = 0.0f;
-			
-				new_matrix.elements[1][0] = 0.0f;
-				new_matrix.elements[1][1] = 1.0f;
-				new_matrix.elements[1][2] = 0.0f;
-				new_matrix.elements[1][3] = 0.0f;
-			
-				new_matrix.elements[2][0] = 0.0f;
-				new_matrix.elements[2][1] = 0.0f;
-				new_matrix.elements[2][2] = 1.0f;
-				new_matrix.elements[2][3] = 0.0f;
-			
-				new_matrix.elements[3][0] = aTranslation.x;
-				new_matrix.elements[3][1] = aTranslation.y;
-				new_matrix.elements[3][2] = aTranslation.z;
-				new_matrix.elements[3][3] = 1.0f;
-			
-				return new_matrix;
-			}
-
 			// Static functions for creating rotation matrices.
 			static Matrix4x4 CreateRotationAroundX(Type aAngleInRadians)
 			{
@@ -598,29 +566,6 @@ namespace Utility
 				new_matrix.elements[3][3] = 1.0f;
 
 				return new_matrix;
-			}
-
-			void SetIdentity()
-			{
-				elements[0][0] = 1.f;
-				elements[0][1] = 0.0f;
-				elements[0][2] = 0.f;
-				elements[0][3] = 0.0f;
-
-				elements[1][0] = 0.0f;
-				elements[1][1] = 1.0;
-				elements[1][2] = 0.0;
-				elements[1][3] = 0.0f;
-
-				elements[2][0] = 0.f;
-				elements[2][1] = 0.0;
-				elements[2][2] = 1.f;
-				elements[2][3] = 0.0f;
-
-				elements[3][0] = 0.0f;
-				elements[3][1] = 0.0f;
-				elements[3][2] = 0.0f;
-				elements[3][3] = 1.0f;
 			}
 
 			static Matrix4x4 Transpose(const Matrix4x4& aMatrix)
@@ -794,34 +739,6 @@ namespace Utility
 				}
 				
 				return invMat;
-			}
-			
-			Matrix4x4()
-			{
-				elements[0][0] = 1.0f;
-				elements[0][1] = 0.0f;
-				elements[0][2] = 0.0f;
-				elements[0][3] = 0.0f;
-
-				elements[1][0] = 0.0f;
-				elements[1][1] = 1.0f;
-				elements[1][2] = 0.0f;
-				elements[1][3] = 0.0f;
-
-				elements[2][0] = 0.0f;
-				elements[2][1] = 0.0f;
-				elements[2][2] = 1.0f;
-				elements[2][3] = 0.0f;
-
-				elements[3][0] = 0.0f;
-				elements[3][1] = 0.0f;
-				elements[3][2] = 0.0f;
-				elements[3][3] = 1.0f;
-			}
-
-			Matrix4x4(const Matrix4x4& aMatrix)
-			{
-				memcpy(data, aMatrix.data, sizeof(Type) * 16);
 			}
 
 			Matrix4x4 operator*(const Matrix4x4& aMatrix) const

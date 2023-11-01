@@ -310,11 +310,11 @@ namespace Utility
 			Vector2(const Type& a_v) : data{ a_v, a_v } {}
 			Vector2() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}
 
-			inline static constexpr Vector2<Type> Up { 0, 1 };
-			inline static constexpr Vector2<Type> Forward { 0, 1 };
-			inline static constexpr Vector2<Type> Right { 1, 0 };
-			inline static constexpr Vector2<Type> Zero { 0, 0 };
-			inline static constexpr Vector2<Type> One { 1, 1 };
+			static Vector2 Up() { return { 0, 1 }; };
+			static Vector2 Forward() { return { 0, 1 }; };
+			static Vector2 Right() { return { 1, 0 }; };
+			static Vector2 Zero() { return { 0, 0 }; };
+			static Vector2 One() { return { 1, 1 }; };
 		};
 	}
 }

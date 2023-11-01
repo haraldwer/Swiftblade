@@ -3,6 +3,6 @@
 struct CameraInstance
 {
     Vec3F Position;
-    Vec3F Direction;
+    QuatF Rotation;
     float FOV; 
 };

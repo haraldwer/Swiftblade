@@ -13,6 +13,8 @@ public:
     Property(const String& InName, const T& InData) : PropertyBase(InName), Data(InData), Default(InData) {}
     operator T&() { return Data; }
     operator T() const { return Data; }
+    T& Get() { return Data; }
+    const T& Get() const { return Data; }
     Property& operator = (const T& InData)
     {
         Data = InData;
@@ -32,7 +34,8 @@ public:
     {
         Utility::Deserialize(InObj, GetName(), Data); 
     }
-    
+
+
 private: 
     T Data;
     T Default;

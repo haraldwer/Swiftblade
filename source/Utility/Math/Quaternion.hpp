@@ -26,7 +26,7 @@ namespace Utility
 				};
 			};
 
-			Quaternion() : x(0), y(0), z(0), w(0) { }
+			Quaternion() : w(static_cast<Type>(1.0)), x(DefaultInitializationValue<Type>()), y(DefaultInitializationValue<Type>()), z(DefaultInitializationValue<Type>()) {}
 			Quaternion(const Quaternion& q) : w(q.w), x(q.x), y(q.y), z(q.z) {}
 			Quaternion(float ax, float ay, float az, float aw) : w(aw), x(ax), y(ay), z(az) {}
 			Quaternion(Type angle, const Vector3<Type>& axis)
@@ -59,7 +59,7 @@ namespace Utility
 				z = c1 * s2 * c3 - s1 * c2 * s3;
 			}
 
-			Vector3<Type> Euler()
+			Vector3<Type> Euler() const
 			{
 				Type heading, attitude, bank;
 				Type sqw = w * w;
@@ -208,7 +208,7 @@ namespace Utility
 				return qm;
 			}
 
-			static Quaternion Identity() { return { 0, 0, 0, 0 }; }
+			static Quaternion Identity() { return Quaternion(); }
 			
 		};
 	}

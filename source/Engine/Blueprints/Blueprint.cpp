@@ -5,6 +5,7 @@
 
 bool BlueprintResource::Load(const String& InIdentifier)
 {
+    Identifier = InIdentifier;
     const String fileContent = Utility::ReadFile(InIdentifier);
     CHECK_RETURN_LOG(fileContent.empty(), "Prefab file empty", false);
     Doc = rapidjson::Document();
@@ -21,23 +22,37 @@ bool BlueprintResource::Unload()
 
 ECS::EntityID BlueprintResource::Instantiate()
 {
+    CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", false);
+
+    // Create entity
     auto& man = ECS::Manager::Get();
     const ECS::EntityID id = man.CreateEntity();
 
-    // TODO: Maybe load metadata?
-
-    CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", ECS::InvalidID);
-    for (auto& comp : Doc.GetObject()["Components"].GetArray())
-    {
-        CHECK_CONTINUE_LOG(!comp.IsObject(), "Invalid component");
-        CHECK_CONTINUE_LOG(!comp.HasMember("Name"), "Missing name member");
-        String name = comp["Name"].GetString();
-        ECS::SystemBase* sys = man.GetSystem(name);
-        CHECK_ASSERT(!sys, "Unable to find system")
-        comp.HasMember("Data") ? 
-            sys->Register(id, comp["Data"].GetObject()) :
-            sys->Register(id);
-    }
+    // Read doc
+    CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
+    ECS::Manager::Get().DeserializeEntity(id, Doc.GetObj());
 
     return id;
+}
+
+void BlueprintResource::Serialize(ECS::EntityID InID)
+{
+    CHECK_RETURN_LOG(InID == ECS::InvalidID, "Invalid ID");
+
+    //  Json writer
+    rapidjson::StringBuffer s;
+    rapidjson::Writer writer(s);
+    writer.StartObject();
+    ECS::Manager::Get().SerializeEntity(InID, writer);
+    writer.EndObject();
+
+    // Format
+    const String formatted = Utility::FormatJson(s.GetString());
+
+    // Set doc
+    Doc = rapidjson::Document();
+    Doc.Parse(formatted.c_str());
+    
+    // Write to file!
+    Utility::WriteFile(Identifier, formatted);
 }

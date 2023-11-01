@@ -13,6 +13,9 @@ public:
 
     virtual void Serialize(SerializeObj& InOutObj) const;
     virtual void Deserialize(const DeserializeObj& InObj);
+
+    virtual bool Save(const String& InPath) const;
+    virtual bool Load(const String& InPath); 
     
 private:
     

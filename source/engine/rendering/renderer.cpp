@@ -1,29 +1,39 @@
 #include "renderer.h"
 
-#include "raylib.h"
-
 using namespace Rendering;
 
 void Renderer::Init()
 {
-    // TODO: Load config
-    constexpr int ScreenWidth  = 800;
-    constexpr int ScreenHeight = 450;
+    InitWindow(1280, 720, "rayengine");
 
-    // Apply render settings
-    InitWindow(50, 50, "rayengine");
-    SetTargetFPS(60);
-    SetWindowSize(ScreenWidth, ScreenHeight);
+    Settings s;
+    if (s.Load("renderSettings.json"))
+        ApplySettings(s); 
 }
 
-void Renderer::Render(double InDelta)
+void Renderer::Deinit()
+{
+    // TODO: Cleanup rendering
+    CloseWindow();
+}
+
+bool Renderer::BeginRender()
+{
+    if (WindowShouldClose())
+        return false;
+    BeginDrawing();
+    return true; 
+}
+
+void Renderer::RenderScenes(double InDelta)
 {
     // TODO: Interpolate render instances
-    
-    // Render world
-    BeginDrawing();
     for (auto s : Scenes)
         reinterpret_cast<RenderScene*>(&s)->Render();
+}
+
+void Renderer::EndRender()
+{
     DrawFPS(10, 10);
     EndDrawing();
 }
@@ -36,4 +46,15 @@ void Renderer::Clear()
 void Renderer::Push(const Scene& InScene)
 {
     Scenes.push_back(InScene);
+}
+
+void Renderer::ApplySettings(const Settings& InSettings)
+{
+    CurrentSettings = InSettings;
+    SetTargetFPS(InSettings.TargetFPS);
+    SetWindowSize(InSettings.Width, InSettings.Height);
+    if (InSettings.Fullscreen != IsWindowFullscreen())
+        ToggleFullscreen();
+    LOG("Render settings applied");
+    CurrentSettings.Save("renderSettings.json");
 }

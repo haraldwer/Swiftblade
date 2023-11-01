@@ -68,9 +68,9 @@ void CubeVolume::Draw() const
         MeshInstance m;
         m.Model = ResModel("../content/test.obj");
         m.Transform = Mat4F(
+            Vec3F(pos.X, pos.Y, pos.Z),
             QuatF::Identity(),
-            Vec3F::Zero(),
-            Vec3F::Zero());
+            Vec3F::One());
         
         Game::Get().GetRenderScene().AddMesh(m); 
     }

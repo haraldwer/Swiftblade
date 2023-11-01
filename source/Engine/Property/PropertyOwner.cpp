@@ -1,16 +1,15 @@
 #include "PropertyOwner.h"
 
 #include "PropertyBase.h"
+#include "Utility/File.h"
 
 void PropertyOwner::StartScope()
 {
-    LOG("Start scope");
     Instance = this;  
 }
 
 void PropertyOwner::EndScope()
 {
-    LOG("End scope");
     Instance = nullptr;
 }
 
@@ -31,4 +30,27 @@ void PropertyOwner::Deserialize(const DeserializeObj& InObj)
 {
     for (auto& p : Properties)
         p.second->Deserialize(InObj);
+}
+
+bool PropertyOwner::Save(const String& InPath) const
+{
+    //  Json writer
+    rapidjson::StringBuffer s;
+    rapidjson::Writer writer(s);
+    writer.StartObject();
+    Serialize(writer); 
+    writer.EndObject();
+    const String result = Utility::FormatJson(s.GetString());
+    return Utility::WriteFile(InPath, result);
+}
+
+bool PropertyOwner::Load(const String& InPath)
+{
+    const String fileContent = Utility::ReadFile(InPath);
+    CHECK_RETURN_LOG(fileContent.empty(), "Prefab file empty", false);
+    rapidjson::Document doc;
+    doc.Parse(fileContent.c_str());
+    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
+    Deserialize(doc.GetObj());
+    return true; 
 }

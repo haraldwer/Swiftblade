@@ -17,19 +17,24 @@ namespace ECS
 
         // Implemented by EntitySystem<T>
 
-        virtual ComponentID Register(EntityID InObject) = 0;
-        virtual ComponentID Register(EntityID InObject, const DeserializeObj& InReference) = 0;
-        virtual void Unregister(EntityID InObject) = 0;
+        virtual ComponentID Register(EntityID InID) = 0;
+        virtual void Unregister(EntityID InID) = 0;
+        virtual size_t GetComponentType() const = 0;
+        virtual void Serialize(EntityID InID, SerializeObj& OutObj) = 0; 
+        virtual void Deserialize(EntityID InID, const DeserializeObj& InObj) = 0; 
+        
+        // Can be overriden by T
         
         virtual void InitSystem() = 0;
         virtual void UpdateSystem(double InDelta) = 0;
+        virtual bool ShouldUpdate() const;
 
-        virtual size_t GetComponentType() const = 0;
         SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash) const;
+        bool Contains(EntityID InID) const;
 
     protected:
 
-        ComponentID Translate(EntityID InEntity) const;
+        ComponentID Translate(EntityID InID) const;
         
         Map<EntityID, ComponentID> Translation;
         Vector<ComponentID> Unused; 
@@ -43,12 +48,12 @@ namespace ECS
     public:
 
         // - Implement - //  
-        virtual void Init(EntityID InEntity, T& InComponent) {}
-        virtual void Deinit(EntityID InEntity, T& InComponent) {}
-        virtual void Update(EntityID InEntity, T& InComponent, double InDelta) {}
+        virtual void Init(EntityID InID, T& InComponent) {}
+        virtual void Deinit(EntityID InID, T& InComponent) {}
+        virtual void Update(EntityID InID, T& InComponent, double InDelta) {}
 
-        virtual void InitSystem() override {}
-        virtual void UpdateSystem(const double InDelta) override
+        void InitSystem() override {}
+        void UpdateSystem(const double InDelta) override
         {
             for (const auto& id : Translation)
                 Update(id.first, GetInternal(id.second), InDelta);
@@ -57,25 +62,25 @@ namespace ECS
         // - Helpers - //
 
         template <class ComponentType>
-        ComponentType& Get(const EntityID InEntity)
+        ComponentType& Get(const EntityID InID)
         {
-            auto ptr = TryGet<ComponentType>(InEntity);
+            auto ptr = TryGet<ComponentType>(InID);
             CHECK_ASSERT(!ptr, "Unable to find component");
             return *ptr; 
         }
 
         template <class ComponentType>
-        ComponentType* TryGet(const EntityID InEntity)
+        ComponentType* TryGet(const EntityID InID)
         {
             const size_t hash = typeid(ComponentType).hash_code();
             SystemBase* base = GetAnonymousSystem(hash, true);
             System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
-            return sys->TryGet(InEntity);
+            return sys->TryGet(InID);
         }
 
-        T* TryGet(const EntityID InEntity)
+        T* TryGet(const EntityID InID)
         {
-            const ComponentID id = Translate(InEntity);
+            const ComponentID id = Translate(InID);
             CHECK_RETURN(id == InvalidID, nullptr);
             return &GetInternal(id);
         }
@@ -84,14 +89,14 @@ namespace ECS
         SystemType& GetSystem() const
         {
             const size_t hash = typeid(SystemType).hash_code();
-            SystemBase* base = GetAnonymousSystem(hash, true);
+            SystemBase* base = GetAnonymousSystem(hash, false);
             CHECK_ASSERT(!base, "Unable to find system");
             return *reinterpret_cast<SystemType*>(base);
         }
         
-        ComponentID Register(const EntityID InEntity) override
+        ComponentID Register(const EntityID InID) override
         {
-            CHECK_ASSERT(Translate(InEntity) != InvalidID, "ID already registered");
+            CHECK_ASSERT(Translate(InID) != InvalidID, "ID already registered");
             
             // Find ID
             const auto findID = [&]()
@@ -111,30 +116,34 @@ namespace ECS
             
             // Register
             const ComponentID id = findID();
-            Translation[InEntity] = id;
-            Init(InEntity, GetInternal(id));
+            Translation[InID] = id;
+            Init(InID, GetInternal(id));
             return id;
         }
-
-        ComponentID Register(EntityID InObject, const DeserializeObj& InReference) override
-        {
-            const ComponentID compID = Register(InObject);
-            T& data = GetInternal(compID);
-            data.Deserialize(InReference);
-            return compID;
-        }
         
-        void Unregister(const EntityID InEntity) override
+        void Unregister(const EntityID InID) override
         {
-            const ComponentID id = Translate(InEntity);
+            const ComponentID id = Translate(InID);
             CHECK_RETURN(id == InvalidID);
 
             // Reset data
             T& data = GetInternal(id);
-            Deinit(InEntity, GetInternal(id));
+            Deinit(InID, GetInternal(id));
             data = T();
-            Translation.erase(InEntity);
+            Translation.erase(InID);
             Unused.push_back(id);
+        }
+
+        void Serialize(EntityID InID, SerializeObj& OutObj) override
+        {
+            T& data = GetInternal(InID);
+            data.Serialize(OutObj);
+        }
+
+        void Deserialize(EntityID InID, const DeserializeObj& InObj) override
+        {
+            T& data = GetInternal(InID);
+            data.Deserialize(InObj);
         }
 
         size_t GetComponentType() const override

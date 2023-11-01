@@ -1,0 +1,51 @@
+{
+	"Components":[{
+		"Name":"Transform",
+		"Data":{
+			"Static":false,
+			"Position":[0.0,
+			0.0,
+			50.0],
+			"Rotation":[0.0,
+			1.0,
+			0.0,
+			0.0],
+			"Scale":[1.0,
+			1.0,
+			1.0]
+		}
+	},
+	{
+		"Name":"Mesh",
+		"Data":{
+			"Visible":true,
+			"Model":"test.obj"
+		}
+	},
+	{
+		"Name":"Rigidbody",
+		"Data":{
+			"RotLockX":true,
+			"RotLockY":false,
+			"RotLockZ":true
+		}
+	},
+	{
+		"Name":"Collider",
+		"Data":{
+			
+		}
+	},
+	{
+		"Name":"Player",
+		"Data":{
+			
+		}
+	},
+	{
+		"Name":"Camera",
+		"Data":{
+
+		}
+	}]
+}

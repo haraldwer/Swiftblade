@@ -1,12 +1,13 @@
 #pragma once
 
 #include <assert.h>
+#include "Log/Log.h"
 
 #define CONCAT_INTERNAL(A, B) A ## B
 #define CONCAT(A, B) CONCAT_INTERNAL(A, B)
 
 #define LOG_CONSOLE(text) \
-printf(text);
+Log(text);
 #define LOG(text) \
 LOG_CONSOLE(text);
 

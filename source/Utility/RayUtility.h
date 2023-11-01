@@ -17,23 +17,25 @@ namespace Utility
         inline Matrix ConvertMat(const Mat4F& InMat)
         {
             // Maybe flip row / colum
+            const Mat4F con = InMat;
+            
             return Matrix(
-                InMat.data[0],
-                InMat.data[1],
-                InMat.data[2],
-                InMat.data[3],
-                InMat.data[4],
-                InMat.data[5],
-                InMat.data[6],
-                InMat.data[7],
-                InMat.data[8],
-                InMat.data[9],
-                InMat.data[10],
-                InMat.data[11],
-                InMat.data[12],
-                InMat.data[13],
-                InMat.data[14],
-                InMat.data[15]
+                con.data[0],
+                con.data[4],
+                con.data[8],
+                con.data[12],
+                con.data[1],
+                con.data[5],
+                con.data[9],
+                con.data[13],
+                con.data[2],
+                con.data[6],
+                con.data[10],
+                con.data[14],
+                con.data[3],
+                con.data[7],
+                con.data[11],
+                con.data[15]
                 );
         }
 
@@ -43,8 +45,11 @@ namespace Utility
             cam.fovy = InCamera.FOV;
             cam.position = ConvertVec(InCamera.Position);
             cam.projection = CAMERA_PERSPECTIVE;
-            cam.up = ConvertVec(Vec3F::Up());
-            cam.target = ConvertVec(InCamera.Direction);
+
+            const Mat4F mat = Mat4F(InCamera.Position, InCamera.Rotation, Vec3F::One());
+            cam.up = ConvertVec(mat.Up());
+            cam.target = ConvertVec(InCamera.Position + mat.Forward());
+            
             return cam; 
         }
 

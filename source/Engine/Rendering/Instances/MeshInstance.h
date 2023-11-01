@@ -1,8 +1,10 @@
 #pragma once
-#include "..\..\Resource\Resources\Model.h"
+#include "Engine/Rendering/Resources/Material.h"
+#include "Engine/Rendering/Resources/Model.h"
 
 struct MeshInstance
 {
     ResModel Model;
+    ResMaterial Material;
     Mat4F Transform;
 };

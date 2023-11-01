@@ -9,7 +9,7 @@ namespace Rendering
     {
     protected:
         CameraInstance Cam = {};
-        std::vector<MeshInstance> Meshes;
+        Vector<MeshInstance> Meshes;
     };
 
     class LogicScene : public Scene

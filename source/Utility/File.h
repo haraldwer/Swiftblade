@@ -3,10 +3,10 @@
 
 namespace Utility
 {
-    inline String ReadFile(const String& path)
+    inline String ReadFile(const String& InPath)
     {
         constexpr std::size_t read_size = 4096;
-        auto stream = std::ifstream(path.data());
+        auto stream = std::ifstream(("../content/" + InPath).data());
         stream.exceptions(std::ios_base::badbit);
 
         if (!stream) {
@@ -20,5 +20,16 @@ namespace Utility
         }
         out.append(buf, 0, stream.gcount());
         return out;
+    }
+
+    inline bool WriteFile(const String& InPath, const String& InContent)
+    {
+        std::ofstream out("../content/" + InPath);
+        if (!out.is_open())
+            return false;
+        out.clear();
+        out << InContent;
+        out.close();
+        return true;
     }
 }

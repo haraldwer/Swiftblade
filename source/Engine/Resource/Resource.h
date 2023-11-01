@@ -17,11 +17,10 @@ namespace Resource
         Ref(const String& InIdentifier)
         {
             Manager& man = Manager::Get();
-            auto* res = static_cast<Impl<T>*>(man.GetResource(InIdentifier));
+            auto* res = reinterpret_cast<Impl<T>*>(man.GetResource(InIdentifier));
             if (!res)
             {
-                res = new Impl<T>();
-                res->Load(InIdentifier);
+                res = new Impl<T>(InIdentifier);
                 man.Register(res, InIdentifier); 
             }
             Ptr = res;
@@ -35,6 +34,8 @@ namespace Resource
 
         T* Get() const
         {
+            if (!IsLoaded() && Ptr)
+                Ptr->Load(); // Try load
             if (IsLoaded())
                 return &Ptr->Data;
             return nullptr;
@@ -42,7 +43,7 @@ namespace Resource
         
         // Ref counting
         Ref() = default;
-        Ref(const Ref& s) : Ptr(s.Ptr) { Increment(); }
+        Ref(const Ref& InOther) { *this = InOther; }
         virtual ~Ref() { Decrement(); }
         Ref& operator=(const Ref& InPtr)
         {

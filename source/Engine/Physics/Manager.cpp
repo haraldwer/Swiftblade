@@ -37,10 +37,12 @@ void Physics::Manager::Init()
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
-    Material = Physics->createMaterial(0.5f, 0.5f, 0.6f);
 
-    PxRigidStatic* groundPlane = PxCreatePlane(*Physics, PxPlane(0,1,0,0), *Material);
-    Scene->addActor(*groundPlane);
+    if (const PhysicsMaterialResource* matRsc = ResPhysicsMaterial("physMat_default.json").Get())
+    {
+        PxRigidStatic* groundPlane = PxCreatePlane(*Physics, PxPlane(0,1,0,0), *matRsc->Get());
+        Scene->addActor(*groundPlane);
+    }
 
 }
 
@@ -61,17 +63,30 @@ void Physics::Manager::Deinit()
 
 void Physics::Manager::Update(double InDelta)
 {
+    const auto& ecs = ECS::Manager::Get();
+    for (const auto& instance : Dynamics)
+    {
+        CHECK_CONTINUE(!instance.second)
+        auto t = ecs.GetComponent<ECS::Transform>(instance.first);
+        CHECK_CONTINUE(!t);
+        const PxTransform trans = PxTransform(
+            Utility::PhysX::ConvertVec(t->Position),
+            Utility::PhysX::ConvertQuat(t->Rotation));
+        instance.second->setGlobalPose(trans);
+    }
+
     Scene->simulate(static_cast<PxReal>(InDelta));
     Scene->fetchResults(true);
 
-    for (auto& instance : Instances)
+    for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
-
-        
+        auto t = ecs.GetComponent<ECS::Transform>(instance.first);
+        CHECK_CONTINUE(!t);
+        PxTransform trans = instance.second->getGlobalPose();
+        t->Position = Utility::PhysX::ConvertVec(trans.p);
+        t->Rotation = Utility::PhysX::ConvertQuat(trans.q);
     }
-    
-    // Apply result 
 }
 
 void Physics::Manager::Add(const ECS::EntityID InID)
@@ -85,30 +100,57 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     CHECK_RETURN_LOG(!c, "No collider for entity");
 
     const PxTransform trans = PxTransform(
-        Utility::PhysX::ConvertMat(Mat4F(
-            QuatF::Identity(),
-            t->Position,
-            Vec3F::One())));
+        Utility::PhysX::ConvertVec(t->Position),
+        Utility::PhysX::ConvertQuat(t->Rotation));
+
+    PxMaterial* material = nullptr;
+    if (PhysicsMaterialResource* matRsc = c->Material.Get().Get())
+        material = matRsc->Get();
+    CHECK_RETURN(!material); 
     
-    bool stationary = true; 
     PxRigidActor* actor = nullptr;
     
-    if (rb)
+    if (!t->Static)
     {
-        PxRigidDynamic* ptr = PxCreateDynamic(*Physics, trans, PxBoxGeometry(1, 1, 1), *Material, 1.0f);
+        PxRigidDynamic* ptr = PxCreateDynamic(
+            *Physics,
+            trans,
+            PxBoxGeometry(1, 1, 1),
+            *material,
+            1.0f);
+        Dynamics[InID] = ptr; 
         actor = ptr;
-    }
-    else if (!stationary)
-    {
-        PxRigidDynamic* ptr = PxCreateDynamic(*Physics, trans, PxBoxGeometry(1, 1, 1), *Material, 1.0f);
-        Rigidbodies[InID] = ptr; 
-        actor = ptr;
+        PxRigidDynamicLockFlags flags;
+        
+        if (!rb)
+        {
+            flags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_X;
+            flags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_Y;
+            flags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_Z;
+            flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_X;
+            flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y;
+            flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z;
+        }
+        else
+        {
+            if (rb->LockRotation)
+            {
+                flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_X;
+                flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y;
+                flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z;
+            }
+        }
+
+        ptr->setRigidDynamicLockFlags(flags);
     }
     else
     {
-        
-        PxRigidStatic* ptr = PxCreateStatic(*Physics, trans, PxBoxGeometry(1, 1, 1), *Material);
-        actor = ptr; 
+        PxRigidStatic* ptr = PxCreateStatic(
+            *Physics,
+            trans,
+            PxBoxGeometry(1, 1, 1),
+            *material);
+        actor = ptr;
     }
 
     Instances[InID] = actor;
@@ -123,6 +165,36 @@ void Physics::Manager::Remove(const ECS::EntityID InID)
         ptr->release();
     }
     Instances.erase(InID);
-    if (Rigidbodies.contains(InID))
-        Rigidbodies.erase(InID);
+    if (Dynamics.contains(InID))
+        Dynamics.erase(InID);
+}
+
+void Physics::Manager::AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceMode InForceMode)
+{
+    const auto find = Dynamics.find(InID);
+    CHECK_RETURN(find == Dynamics.end())
+    CHECK_RETURN(!find->second);
+    const PxVec3 force = Utility::PhysX::ConvertVec(InForce);
+    const PxForceMode::Enum mode = ConvertForceMode(InForceMode);
+    find->second->addForce(force, mode);
+}
+
+PxMaterial* Physics::Manager::CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution) const
+{
+    CHECK_RETURN(!Physics, nullptr); 
+    return Physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
+}
+
+PxForceMode::Enum Physics::Manager::ConvertForceMode(ForceMode InMode)
+{
+    switch (InMode)
+    {
+    case ForceMode::FORCE:
+        return PxForceMode::eFORCE;
+    case ForceMode::IMPULSE:
+        return PxForceMode::eIMPULSE;
+    case ForceMode::VELOCITY:
+        return PxForceMode::eVELOCITY_CHANGE;
+    }
+    return PxForceMode::eFORCE;
 }

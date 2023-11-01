@@ -4,28 +4,39 @@
 
 namespace Utility
 {
-    template <class T>
+    struct SingeltonContext
+    {
+        inline static int Value = -1; 
+    };
+
+    template <class T, bool Global = false>
     class Singelton
     {
     public:
-
         virtual ~Singelton()
         {
-            Instance = nullptr;
-        }
-        
-        Singelton()
-        {
-            CHECK_ASSERT(Instance, "Instance already set");
-            Instance = reinterpret_cast<T*>(this); 
-        }
-        
-        static T& Get()
-        {
-            CHECK_ASSERT(!Instance, "Instance invalid");
-            return *Instance;
+            Singelton*& ptr = Global ?
+                instance : contextInstance[SingeltonContext::Value];
+            ptr = nullptr;
         }
 
-        inline static T* Instance = nullptr;
+        Singelton()
+        {
+            Singelton*& ptr = Global ?
+                instance : contextInstance[SingeltonContext::Value];
+            CHECK_ASSERT(ptr, "Instance already set");
+            ptr = this;
+        }
+
+        static T& Get()
+        {
+            Singelton*& ptr = Global ?
+                instance : contextInstance[SingeltonContext::Value];
+            CHECK_ASSERT(!ptr, "Instance invalid");
+            return *reinterpret_cast<T*>(ptr);
+        }
+        
+        inline static Singelton* instance = nullptr;
+        inline static Map<int, Singelton*> contextInstance;
     };
 }
