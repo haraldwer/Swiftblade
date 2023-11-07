@@ -1,11 +1,11 @@
 #include "Scene.h"
 
+#include "Utility/RayUtility.h"
+
 using namespace Rendering; 
 
 void RenderScene::Render()
 {
-    ClearBackground(SKYBLUE);
-    
     BeginMode3D(Utility::Ray::ConvertCamera(Cam));
     
     // TODO: Sub-tick camera movement

@@ -1,11 +1,15 @@
 #include "renderer.h"
 
+#include "ImGui/rlImGui.h"
+
 using namespace Rendering;
 
 void Renderer::Init()
 {
     InitWindow(1280, 720, "rayengine");
 
+    rlImGuiSetup(false); 
+    
     Settings s;
     if (s.Load("renderSettings.json"))
         ApplySettings(s); 
@@ -14,6 +18,7 @@ void Renderer::Init()
 void Renderer::Deinit()
 {
     // TODO: Cleanup rendering
+    rlImGuiShutdown();
     CloseWindow();
 }
 
@@ -22,6 +27,8 @@ bool Renderer::BeginRender()
     if (WindowShouldClose())
         return false;
     BeginDrawing();
+    ClearBackground(SKYBLUE);
+    rlImGuiBegin();
     return true; 
 }
 
@@ -34,6 +41,7 @@ void Renderer::RenderScenes(double InDelta)
 
 void Renderer::EndRender()
 {
+    rlImGuiEnd();
     DrawFPS(10, 10);
     EndDrawing();
 }

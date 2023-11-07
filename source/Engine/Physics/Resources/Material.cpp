@@ -1,5 +1,7 @@
 #include "Material.h"
 
+#include <physx/PxMaterial.h>
+
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
 

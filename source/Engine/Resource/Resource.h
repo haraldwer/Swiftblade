@@ -3,7 +3,9 @@
 #include "Impl.h"
 #include "Manager.h"
 
-#include "Utility/Serialization.h"
+#include "Utility/Serialization/Serialize.h"
+#include "Utility/Serialization/Deserialize.h"
+#include "Utility/Serialization/Edit.h"
 
 namespace Resource
 {
@@ -16,6 +18,7 @@ namespace Resource
         // Create resource from identifier
         Ref(const String& InIdentifier)
         {
+            CHECK_RETURN(InIdentifier == "");
             Manager& man = Manager::Get();
             auto* res = reinterpret_cast<Impl<T>*>(man.GetResource(InIdentifier));
             if (!res)
@@ -30,6 +33,11 @@ namespace Resource
         bool IsLoaded() const
         {
             return Ptr && Ptr->Loaded;    
+        }
+
+        String Identifier() const
+        {
+            return Ptr ? Ptr->Identifier : ""; 
         }
 
         T* Get() const
@@ -68,8 +76,18 @@ namespace Resource
             if (!Utility::Deserialize(InObj, InName, identifier))
                 return false;
             CHECK_RETURN(identifier.empty(), false)
-            (*this) = Ref(identifier);
+            *this = Ref(identifier);
             return true; 
+        }
+
+        bool Edit(const String& InName)
+        {
+            // File picker
+            String id = Ptr ? Ptr->Identifier : "";
+            const bool result = Utility::Edit(InName, id);
+            if (id != "" || IsLoaded())
+                *this = Ref(id);
+            return result; 
         }
         
     private:

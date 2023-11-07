@@ -43,6 +43,8 @@
 #define NOMCX            
 
 #define RAYGUI_IMPLEMENTATION
+#define IMGUI_IMPLEMENTATION
+#define IMGUI_DISABLE_WIN32_FUNCTIONS
 
 #include <set>
 #include <array>
@@ -79,5 +81,3 @@ typedef Utility::Math::Matrix4x4<float> Mat4F;
 typedef Utility::Math::Quaternion<float> QuatF;
 
 #include "Utility/JsonUtility.h"
-#include "Utility/RayUtility.h"
-#include "Utility/PhysXUtility.h"

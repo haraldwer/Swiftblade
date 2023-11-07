@@ -12,24 +12,51 @@
 static physx::PxDefaultAllocator gAllocator;
 static physx::PxDefaultErrorCallback gErrorCallback;
 
+static Physics::PersistentPhysics Persistent;
+
 using namespace physx;
+
+void Physics::PersistentPhysics::TryInit()
+{
+    if (Foundation && Physics && Dispatcher)
+        return; 
+    
+    Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+
+    if (!PVD)
+    {
+        PVD = PxCreatePvd(*Foundation);
+        PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+        PVD->connect(*transport,PxPvdInstrumentationFlag::eALL);
+    }
+
+    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(),true,PVD);
+    Dispatcher = PxDefaultCpuDispatcherCreate(2); 
+}
+
+Physics::PersistentPhysics::~PersistentPhysics()
+{
+    PX_RELEASE(Dispatcher);
+    PX_RELEASE(Physics);
+    if(PVD)
+    {
+        PxPvdTransport* transport = PVD->getTransport();
+        PX_RELEASE(transport);
+        PX_RELEASE(PVD)
+    }
+    PX_RELEASE(Foundation);
+}
 
 void Physics::Manager::Init()
 {
-    Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-
-    PVD = PxCreatePvd(*Foundation);
-    PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-    PVD->connect(*transport,PxPvdInstrumentationFlag::eALL);
-
-    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(),true,PVD);
-
-    PxSceneDesc sceneDesc(Physics->getTolerancesScale());
+    Persistent.TryInit(); 
+    
+    PxSceneDesc sceneDesc(Persistent.Physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-    Dispatcher = PxDefaultCpuDispatcherCreate(2);
-    sceneDesc.cpuDispatcher	= Dispatcher;
+    
+    sceneDesc.cpuDispatcher	= Persistent.Dispatcher;
     sceneDesc.filterShader	= PxDefaultSimulationFilterShader;
-    Scene = Physics->createScene(sceneDesc);
+    Scene = Persistent.Physics->createScene(sceneDesc);
 
     if(PxPvdSceneClient* pvdClient = Scene->getScenePvdClient())
     {
@@ -40,7 +67,7 @@ void Physics::Manager::Init()
 
     if (const PhysicsMaterialResource* matRsc = ResPhysicsMaterial("physMat_default.json").Get())
     {
-        PxRigidStatic* groundPlane = PxCreatePlane(*Physics, PxPlane(0,1,0,0), *matRsc->Get());
+        PxRigidStatic* groundPlane = PxCreatePlane(*Persistent.Physics, PxPlane(0,1,0,0), *matRsc->Get());
         Scene->addActor(*groundPlane);
     }
 
@@ -49,16 +76,6 @@ void Physics::Manager::Init()
 void Physics::Manager::Deinit()
 {
     PX_RELEASE(Scene);
-    PX_RELEASE(Dispatcher);
-    PX_RELEASE(Physics);
-    if(PVD)
-    {
-        PxPvdTransport* transport = PVD->getTransport();
-        PVD->release();
-        PVD = nullptr;
-        PX_RELEASE(transport);
-    }
-    PX_RELEASE(Foundation);
 }
 
 void Physics::Manager::Update(double InDelta)
@@ -113,7 +130,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     if (!t->Static)
     {
         PxRigidDynamic* ptr = PxCreateDynamic(
-            *Physics,
+            *Persistent.Physics,
             trans,
             PxBoxGeometry(1, 1, 1),
             *material,
@@ -146,7 +163,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     else
     {
         PxRigidStatic* ptr = PxCreateStatic(
-            *Physics,
+            *Persistent.Physics,
             trans,
             PxBoxGeometry(1, 1, 1),
             *material);
@@ -181,8 +198,7 @@ void Physics::Manager::AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceM
 
 PxMaterial* Physics::Manager::CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution) const
 {
-    CHECK_RETURN(!Physics, nullptr); 
-    return Physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
+    return Persistent.Physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
 }
 
 PxForceMode::Enum Physics::Manager::ConvertForceMode(ForceMode InMode)

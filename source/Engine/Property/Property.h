@@ -1,7 +1,9 @@
 #pragma once
 
 #include "PropertyBase.h"
-#include "Utility/Serialization.h"
+#include "Utility/Serialization/Serialize.h"
+#include "Utility/Serialization/Deserialize.h"
+#include "Utility/Serialization/Edit.h"
 
 #define PROPERTY(type, name) Property<type> name = Property<type>(#name, type());
 #define PROPERTY_P(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, type(__VA_ARGS__));
@@ -30,11 +32,15 @@ public:
         Utility::Serialize(InOutObj, GetName(), Data);
     }
     
-    void Deserialize(const DeserializeObj& InObj) override
+    bool Deserialize(const DeserializeObj& InObj) override
     {
-        Utility::Deserialize(InObj, GetName(), Data); 
+        return Utility::Deserialize(InObj, GetName(), Data); 
     }
 
+    bool Edit() override
+    {
+        return Utility::Edit(GetName(), Data); 
+    }
 
 private: 
     T Data;

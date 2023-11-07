@@ -5,7 +5,7 @@
 void EditorCamera::Update(double InDelta)
 {
     // Calculate rotation
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
     {
         const auto mouseDelta = GetMouseDelta();
         TargetState.Rotation += Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.01f;
@@ -17,7 +17,8 @@ void EditorCamera::Update(double InDelta)
 
         // Add position
         const Vec3F posDelta =
-            up * (static_cast<float>(IsKeyDown(KEY_E)) - static_cast<float>(IsKeyDown(KEY_Q))) +
+            up * ((static_cast<float>(IsKeyDown(KEY_E)) - static_cast<float>(IsKeyDown(KEY_Q))) +
+                (static_cast<float>(IsKeyDown(KEY_LEFT_SHIFT)) - static_cast<float>(IsKeyDown(KEY_LEFT_CONTROL)))) +
             right * (static_cast<float>(IsKeyDown(KEY_D)) - static_cast<float>(IsKeyDown(KEY_A))) +
             forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)));
         TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * 100.0f;

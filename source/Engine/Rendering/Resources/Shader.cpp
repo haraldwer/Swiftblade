@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+#include "raylib.h"
+
 bool ShaderResource::Load(const String& InIdentifier)
 {
     Ptr = new Shader(); 

@@ -2,6 +2,7 @@
 
 #include "PropertyBase.h"
 #include "Utility/File.h"
+#include "Utility/JsonUtility.h"
 
 void PropertyOwner::StartScope()
 {
@@ -26,10 +27,22 @@ void PropertyOwner::Serialize(SerializeObj& InOutObj) const
         p.second->Serialize(InOutObj);
 }
 
-void PropertyOwner::Deserialize(const DeserializeObj& InObj)
+bool PropertyOwner::Deserialize(const DeserializeObj& InObj)
 {
+    bool success = true;
     for (auto& p : Properties)
-        p.second->Deserialize(InObj);
+        if (!p.second->Deserialize(InObj))
+            success = false;
+    return success;
+}
+
+bool PropertyOwner::Edit()
+{
+    bool edited = false;
+    for (auto& p : Properties)
+        if (p.second->Edit())
+            edited = true;
+    return edited;
 }
 
 bool PropertyOwner::Save(const String& InPath) const

@@ -14,7 +14,7 @@ public:
 
 private:
 
-    rapidjson::Document Doc;
+    DocumentObj Doc;
     String Identifier;
     
 };

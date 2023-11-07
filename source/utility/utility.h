@@ -1,13 +1,13 @@
 #pragma once
 
 #include <assert.h>
-#include "Log/Log.h"
+#include "raylib.h"
 
 #define CONCAT_INTERNAL(A, B) A ## B
 #define CONCAT(A, B) CONCAT_INTERNAL(A, B)
 
 #define LOG_CONSOLE(text) \
-Log(text);
+TraceLog(LOG_INFO, String(String(text) + " | " + String(__FUNCTION__) + "::" + std::to_string(__LINE__)).c_str());
 #define LOG(text) \
 LOG_CONSOLE(text);
 

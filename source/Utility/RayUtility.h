@@ -8,7 +8,6 @@ namespace Utility
 {
     namespace Ray
     {
-        
         inline Vector3 ConvertVec(const Vec3F& InVec)
         {
             return { InVec.x, InVec.y, InVec.z };
@@ -52,6 +51,5 @@ namespace Utility
             
             return cam; 
         }
-
     }
 }

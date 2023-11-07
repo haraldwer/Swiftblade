@@ -34,6 +34,17 @@ namespace Physics
         IMPULSE,
         VELOCITY
     };
+
+    struct PersistentPhysics
+    {
+        void TryInit();
+        ~PersistentPhysics();
+
+        physx::PxPvd* PVD = nullptr;
+        physx::PxFoundation* Foundation = nullptr;
+        physx::PxPhysics* Physics = nullptr;
+        physx::PxDefaultCpuDispatcher* Dispatcher = nullptr;
+    };
     
     class Manager : public Utility::Singelton<Manager>
     {
@@ -51,13 +62,9 @@ namespace Physics
         physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution) const;
 
     private:
+        
         static physx::PxForceMode::Enum ConvertForceMode(ForceMode InMode);
-        
-        inline static physx::PxPvd* PVD = nullptr;
-        
-        physx::PxFoundation* Foundation = nullptr;
-        physx::PxPhysics* Physics = nullptr;
-        physx::PxDefaultCpuDispatcher* Dispatcher = nullptr;
+
         physx::PxScene* Scene = nullptr;
 
         Map<ECS::EntityID, physx::PxActor*> Instances; 

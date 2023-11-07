@@ -12,7 +12,8 @@ public:
     static void AddProperty(PropertyBase* InProperty);
 
     virtual void Serialize(SerializeObj& InOutObj) const;
-    virtual void Deserialize(const DeserializeObj& InObj);
+    virtual bool Deserialize(const DeserializeObj& InObj);
+    virtual bool Edit(); 
 
     virtual bool Save(const String& InPath) const;
     virtual bool Load(const String& InPath); 

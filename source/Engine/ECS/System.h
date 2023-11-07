@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.h"
-#include "utility/utility.h"
+#include "utility/Utility.h"
 
 namespace ECS
 {
@@ -21,7 +21,8 @@ namespace ECS
         virtual void Unregister(EntityID InID) = 0;
         virtual size_t GetComponentType() const = 0;
         virtual void Serialize(EntityID InID, SerializeObj& OutObj) = 0; 
-        virtual void Deserialize(EntityID InID, const DeserializeObj& InObj) = 0; 
+        virtual bool Deserialize(EntityID InID, const DeserializeObj& InObj) = 0; 
+        virtual bool Edit(EntityID InID) = 0; 
         
         // Can be overriden by T
         
@@ -140,10 +141,16 @@ namespace ECS
             data.Serialize(OutObj);
         }
 
-        void Deserialize(EntityID InID, const DeserializeObj& InObj) override
+        bool Deserialize(EntityID InID, const DeserializeObj& InObj) override
         {
             T& data = GetInternal(InID);
-            data.Deserialize(InObj);
+            return data.Deserialize(InObj);
+        }
+
+        bool Edit(EntityID InID) override
+        {
+            T& data = GetInternal(InID);
+            return data.Edit(); 
         }
 
         size_t GetComponentType() const override

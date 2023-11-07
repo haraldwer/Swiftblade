@@ -21,9 +21,6 @@ namespace ECS
         EntityID CreateEntity();
         void DestroyEntity(EntityID InEntity);
 
-        void DeserializeEntity(EntityID InID, const DeserializeObj& InObj);
-        void SerializeEntity(EntityID InID, SerializeObj& OutObj) const; 
-
         template <class T>
         T& GetSystem() const
         {
@@ -47,6 +44,8 @@ namespace ECS
 
         SystemBase* GetSystem(const String& InComponentName);
         SystemBase* GetSystem(size_t InHash, bool InIsCompHash);
+        
+        const Map<String, SystemBase*>& GetAllSystems() const { return NameMap; } 
 
     private:
         

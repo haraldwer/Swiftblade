@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/Manager.h"
 #include "Utility/File.h"
+#include "Utility/JsonUtility.h"
 
 bool BlueprintResource::Load(const String& InIdentifier)
 {
@@ -23,14 +24,25 @@ bool BlueprintResource::Unload()
 ECS::EntityID BlueprintResource::Instantiate()
 {
     CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", false);
+    CHECK_RETURN_LOG(!Doc.GetObj().HasMember("Components"), "Missing component array", ECS::InvalidID);
 
     // Create entity
     auto& man = ECS::Manager::Get();
     const ECS::EntityID id = man.CreateEntity();
+    CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
 
     // Read doc
-    CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
-    ECS::Manager::Get().DeserializeEntity(id, Doc.GetObj());
+    for (auto& comp : Doc.GetObj()["Components"].GetArray())
+    {
+        CHECK_CONTINUE_LOG(!comp.IsObject(), "Invalid component");
+        CHECK_CONTINUE_LOG(!comp.HasMember("Name"), "Missing name member");
+        String name = comp["Name"].GetString();
+        ECS::SystemBase* sys = man.GetSystem(name);
+        CHECK_ASSERT(!sys, "Unable to find system")
+        sys->Register(id);
+        if (comp.HasMember("Data")) 
+            sys->Deserialize(id, comp["Data"].GetObject());
+    }
 
     return id;
 }
@@ -42,8 +54,26 @@ void BlueprintResource::Serialize(ECS::EntityID InID)
     //  Json writer
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
+
+    // Write content
     writer.StartObject();
-    ECS::Manager::Get().SerializeEntity(InID, writer);
+    writer.Key("Components");
+    writer.StartArray();
+    auto& man = ECS::Manager::Get();
+    for (auto& sys : man.GetAllSystems())
+    {
+        CHECK_CONTINUE_LOG(!sys.second, "Sys nullptr");
+        CHECK_CONTINUE(!sys.second->Contains(InID));
+        writer.StartObject();
+        writer.Key("Name");
+        writer.String(sys.first.c_str());
+        writer.Key("Data");
+        writer.StartObject();
+        sys.second->Serialize(InID, writer);
+        writer.EndObject();
+        writer.EndObject();
+    }
+    writer.EndArray();
     writer.EndObject();
 
     // Format

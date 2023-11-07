@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include "raylib.h"
+
 bool ModelResource::Load(const String& InIdentifier)
 {
     Ptr = new Model(); 

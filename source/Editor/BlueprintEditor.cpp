@@ -1,11 +1,9 @@
 #include "BlueprintEditor.h"
 
-#include "raylib/raygui.h"
-
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Instance/Manager.h"
-#include "Engine/Rendering/Renderer.h"
 #include "Game/Game.h"
+#include "ImGui/imgui.h"
 
 void BlueprintEditor::Init()
 {
@@ -41,12 +39,25 @@ void BlueprintEditor::Update(double InDelta)
 
 void BlueprintEditor::UpdateUI()
 {
-    return;
-    GuiPanel(Rectangle(30, 30, 100, 100), "Panel");
-    
-    if (GuiButton(Rectangle(10, 10, 100, 20), "Test"))
+    if (ImGui::Begin("Blueprint Editor"))
     {
-        TraceLog(LOG_INFO, "Test!");
+        ImGui::Text(String("BP: " + Blueprint.Identifier()).c_str());
+        if (InstanceID == ECS::InvalidID)
+        {
+            ImGui::Text("Invalid instance");
+        }
+        else
+        {
+            ImGui::Text(String("ID: " + std::to_string(InstanceID)).c_str());
+            for (auto sys : ECS.GetAllSystems())
+            {
+                CHECK_CONTINUE(!sys.second);
+                CHECK_CONTINUE(!sys.second->Contains(InstanceID));
+                if (ImGui::CollapsingHeader(sys.first.c_str()))
+                    sys.second->Edit(InstanceID);
+                
+            }
+        }
     }
-    GuiStatusBar(Rectangle(0, 0, GetScreenWidth(), 10), "Status bar");
+    ImGui::End(); 
 }
