@@ -15,14 +15,17 @@ void EditorCamera::Update(double InDelta)
         const Vec3F right = rotMat.Right() * -1.0f;
         const Vec3F forward = rotMat.Forward();
 
+        const float ScrollDelta = GetMouseWheelMove() * 0.1f;
+        TargetState.MovementSpeed = CLAMP(TargetState.MovementSpeed + ScrollDelta * (50.0f + TargetState.MovementSpeed * 0.5f), 1.0f, 300.0f);
+        
         // Add position
         const Vec3F posDelta =
             up * ((static_cast<float>(IsKeyDown(KEY_E)) - static_cast<float>(IsKeyDown(KEY_Q))) +
                 (static_cast<float>(IsKeyDown(KEY_LEFT_SHIFT)) - static_cast<float>(IsKeyDown(KEY_LEFT_CONTROL)))) +
             right * (static_cast<float>(IsKeyDown(KEY_D)) - static_cast<float>(IsKeyDown(KEY_A))) +
             forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)));
-        TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * 100.0f;
-
+        TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * TargetState.MovementSpeed;
+        
         // FOV
         TargetState.FOV += (static_cast<float>(IsKeyDown(KEY_Z)) - static_cast<float>(IsKeyDown(KEY_X))) *
             static_cast<float>(InDelta) * 30.0f;
@@ -32,6 +35,7 @@ void EditorCamera::Update(double InDelta)
     CurrentState.Rotation = TargetState.Rotation;
     CurrentState.Position = LERP(CurrentState.Position, TargetState.Position, 10.0f * (float)InDelta);
     CurrentState.FOV = LERP(CurrentState.FOV, TargetState.FOV, 10.0f * (float)InDelta);
+    CurrentState.MovementSpeed = LERP(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * (float)InDelta);
     
     // Set camera
     BlueprintEditor::Get().GetRenderScene().SetCamera({

@@ -4,7 +4,7 @@
 
 namespace ECS
 {
-    struct Rigidbody : Component
+    struct Rigidbody : Component<Rigidbody>
     {
         // Some exposed properties
         // And pointer to physx object

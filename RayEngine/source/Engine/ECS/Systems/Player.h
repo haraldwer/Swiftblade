@@ -5,7 +5,7 @@
 
 namespace ECS
 {
-    struct Player : Component
+    struct Player : Component<Player>
     {
         PROPERTY_P(float, MovementForce, 200.0); 
         PROPERTY_P(float, JumpForce, 50.0); 

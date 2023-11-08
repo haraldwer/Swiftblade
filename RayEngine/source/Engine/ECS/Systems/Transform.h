@@ -5,7 +5,7 @@
 
 namespace ECS
 {
-    struct Transform : Component
+    struct Transform : Component<Transform>
     {
         PROPERTY(Vec3F, Position);
         PROPERTY(QuatF, Rotation);

@@ -7,18 +7,17 @@
 
 namespace ECS
 {
-    struct Mesh : Component
+    struct Mesh : Component<Mesh>
     { 
         PROPERTY_P(bool, Visible, true);
-        PROPERTY_P(ResModel, Model, "test.obj");
-        PROPERTY_P(ResMaterial, Material, "test_mat.json");
+        PROPERTY_P(ResModel, Model, "Defaults/M_Cube.obj");
+        PROPERTY_P(ResRM, Material, "Defaults/RM_Default.json");
     };
 
     class SysMesh : public System<Mesh>
     {
         
     public:
-        
         void Update(EntityID InEntity, Mesh& InComponent, double InDelta) override;
         bool ShouldUpdate() const override { return true; }
         

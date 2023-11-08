@@ -2,6 +2,8 @@
 
 namespace Utility
 {
+    static constexpr bool DeserializePrint = false; 
+    
     template <class T>
     bool Deserialize(const DeserializeObj& InObj, const String& InName, T& OutData)
     {

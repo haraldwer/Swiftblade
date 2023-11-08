@@ -5,7 +5,7 @@
 
 namespace ECS
 {
-    struct Camera : Component
+    struct Camera : Component<Camera>
     {
         PROPERTY_P(float, FOV, 90.0f);
     };

@@ -6,7 +6,6 @@
 namespace ECS
 {
     class Manager;
-    class Component;
 
     class SystemBase
     {
@@ -38,11 +37,10 @@ namespace ECS
         ComponentID Translate(EntityID InID) const;
         
         Map<EntityID, ComponentID> Translation;
-        Vector<ComponentID> Unused; 
-        ComponentID LastID = 0;
+        Vector<ComponentID> Unused;
     };
 
-    template <class T, int Size = 100>
+    template <class T>
     class System : public SystemBase
     {
 
@@ -108,10 +106,9 @@ namespace ECS
                     Unused.pop_back();
                     return id; 
                 }
-
-                const ComponentID newID = LastID + 1;
-                CHECK_ASSERT(newID >= Size, "Out of IDs, increase size!");
-                LastID = newID;
+                
+                const ComponentID newID = static_cast<ComponentID>(Components.size());
+                Components.emplace_back();
                 return newID;
             };
             
@@ -166,7 +163,6 @@ namespace ECS
             return Components[InID];
         }
 
-        // Components are never moved in memory
-        Array<T, Size> Components;
+        Vector<T> Components;
     };
 }

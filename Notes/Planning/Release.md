@@ -1,0 +1,2 @@
+There will be a free version of the game, which is not connected to the DB. This means limited maps and no leaderboards. This should be painfully obvious to the player. 
+The game will be cheap, the revenue is supposed to pay for server costs. 

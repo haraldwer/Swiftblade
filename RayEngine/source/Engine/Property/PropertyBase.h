@@ -5,12 +5,12 @@ class PropertyBase
 public:
     virtual ~PropertyBase() = default;
     PropertyBase(const String& InName);
-    const String& GetName() const { return Name; }
-    
+    const String& GetName() const;
+
     virtual void Serialize(SerializeObj& InOutObj) const = 0;
     virtual bool Deserialize(const DeserializeObj& InObj) = 0;
     virtual bool Edit() = 0;
     
 private:
-    String Name; 
+    String Name; // Should the property know about its own name?  
 };

@@ -49,7 +49,7 @@ Physics::PersistentPhysics::~PersistentPhysics()
 
 void Physics::Manager::Init()
 {
-    Persistent.TryInit(); 
+    Persistent.TryInit();
     
     PxSceneDesc sceneDesc(Persistent.Physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
@@ -65,12 +65,11 @@ void Physics::Manager::Init()
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
 
-    if (const PhysicsMaterialResource* matRsc = ResPhysicsMaterial("physMat_default.json").Get())
+    if (const PhysicsMaterialResource* matRsc = ResPM("Defaults/PM_Default.json").Get())
     {
         PxRigidStatic* groundPlane = PxCreatePlane(*Persistent.Physics, PxPlane(0,1,0,0), *matRsc->Get());
         Scene->addActor(*groundPlane);
     }
-
 }
 
 void Physics::Manager::Deinit()
@@ -196,7 +195,7 @@ void Physics::Manager::AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceM
     find->second->addForce(force, mode);
 }
 
-PxMaterial* Physics::Manager::CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution) const
+PxMaterial* Physics::Manager::CreateMaterial(const float InStaticFric, const float InDynamicFric, const float InRestitution) const
 {
     return Persistent.Physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
 }

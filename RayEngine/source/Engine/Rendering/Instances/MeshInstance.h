@@ -5,6 +5,6 @@
 struct MeshInstance
 {
     ResModel Model;
-    ResMaterial Material;
+    ResRM Material;
     Mat4F Transform;
 };

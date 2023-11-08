@@ -25,6 +25,8 @@ namespace Rendering
 
     private:
 
+        static String GetPath() { return "Configs/C_Rendering.json"; }
+
         Settings CurrentSettings; 
         Vector<Scene> Scenes; 
 

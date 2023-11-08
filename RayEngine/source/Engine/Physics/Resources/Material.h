@@ -10,7 +10,7 @@ namespace physx
     class PxMaterial;
 }
 
-class PhysicsMaterialResource : public PropertyOwner
+class PhysicsMaterialResource : public PropertyOwner<PhysicsMaterialResource>
 {
 public:
 
@@ -28,4 +28,4 @@ private:
     
 };
 
-typedef Resource::Ref<PhysicsMaterialResource> ResPhysicsMaterial;  
+typedef Resource::Ref<PhysicsMaterialResource> ResPM;  

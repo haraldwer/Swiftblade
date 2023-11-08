@@ -42,6 +42,10 @@
 #define NODEFERWINDOWPOS 
 #define NOMCX            
 
+// Silence warnings
+#define _SILENCE_CXX20_CISO646_REMOVED_WARNING
+
+// External libraries
 #define RAYGUI_IMPLEMENTATION
 #define IMGUI_IMPLEMENTATION
 #define IMGUI_DISABLE_WIN32_FUNCTIONS
@@ -61,6 +65,7 @@ template <class Key, class Val>
 using Map = std::unordered_map<Key, Val>;
 using String = std::string; 
 
+#include "Utility/Math/Macros.h"
 #include "Utility/Utility.h"
 #include "Utility/NumericalTypes.h"
 

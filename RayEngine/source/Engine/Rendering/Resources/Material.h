@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Engine/Property/Property.h"
-#include "Engine/Property/PropertyOwner.h"
+#include "..\..\Property\PropertyOwner.h"
 #include "Engine/Resource/Resource.h"
 #include "Engine/Rendering/Resources/Shader.h"
 
-class MaterialResource : public PropertyOwner
+class MaterialResource : public PropertyOwner<MaterialResource>
 {
 public:
 
@@ -19,8 +19,8 @@ public:
     
 private:
 
-    Material* Ptr; 
+    Material* Ptr = nullptr; 
     
 };
 
-typedef Resource::Ref<MaterialResource> ResMaterial;  
+typedef Resource::Ref<MaterialResource> ResRM;  

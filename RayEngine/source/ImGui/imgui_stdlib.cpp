@@ -80,6 +80,27 @@ bool ImGui::InputTextWithHint(const char* label, const char* hint, std::string* 
     return InputTextWithHint(label, hint, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 }
 
+bool ImGui::Combo(const char* label, int* curr, const std::vector<std::string>& items)
+{
+    const std::string currItemLabel = *curr >= 0 && *curr < items.size() ?  
+        items[*curr] : "None"; 
+    if (BeginCombo(label, currItemLabel.c_str())) {
+        for (int i = 0; i < items.size(); ++i) {
+            const bool isSelected = (*curr == i);
+            if (Selectable(items[i].c_str(), isSelected)) {
+                *curr = i;
+            }
+            
+            if (isSelected) {
+                SetItemDefaultFocus();
+            }
+        }
+        EndCombo();
+        return true; 
+    }
+    return false; 
+}
+
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif

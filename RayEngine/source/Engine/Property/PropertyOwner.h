@@ -2,13 +2,13 @@
 
 class PropertyBase;
 
-class PropertyOwner
+class PropertyOwnerBase
 {
 public:
-    virtual ~PropertyOwner() = default;
-    PropertyOwner() { StartScope(); }
-    void StartScope();
-    void EndScope(); // TODO: End scope!
+    
+    virtual ~PropertyOwnerBase() = default;
+
+    // Property registration
     static void AddProperty(PropertyBase* InProperty);
 
     virtual void Serialize(SerializeObj& InOutObj) const;
@@ -16,14 +16,63 @@ public:
     virtual bool Edit(); 
 
     virtual bool Save(const String& InPath) const;
-    virtual bool Load(const String& InPath); 
+    virtual bool Load(const String& InPath);
+
+protected:
+
+    // Property map owned by template  
+    virtual Map<String, uint16>& GetPropertyMap() const = 0; 
+    uint16 PtrToOff(PropertyBase* InPtr) const;
+    PropertyBase* OffToPtr(uint16 InOff) const;
+
+    // Current instance, only set during reg scope
+    static inline PropertyOwnerBase* Instance = nullptr;
     
 private:
     
-    inline static PropertyOwner* Instance = nullptr;
-    Map<String, PropertyBase*> Properties;
+    void AddPropertyInternal(PropertyBase* InProperty) const;
+};
 
-    // TODO:
-    // Instead of storing property pointer (that might be moved)
-    // Store pointer offset compared to self
+template <class T>
+class PropertyOwner : public PropertyOwnerBase
+{
+
+public:
+
+    PropertyOwner()
+    {
+        T::Reg(); 
+    }
+    
+    static void Reg()
+    {
+        // Only do once
+        static bool reg = false;
+        CHECK_RETURN(reg || Instance); 
+        reg = true; 
+        
+        // T on heap 
+        static T instance;
+        
+        // Set instance
+        Instance = &instance;
+        
+        // Create new copy
+        // Will run constructor
+        // And properties will be added
+        instance.~T();
+        new (&instance) T();
+        
+        // Reset instance 
+        Instance = nullptr;
+    }
+    
+private:
+
+    Map<String, uint16>& GetPropertyMap() const override { return Properties; }
+    
+    // Store memory offset compared to (this)
+    // Shared between all instances of the same type T
+    static inline Map<String, uint16> Properties;
+    
 };

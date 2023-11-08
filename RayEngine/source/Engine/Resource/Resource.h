@@ -82,12 +82,20 @@ namespace Resource
 
         bool Edit(const String& InName)
         {
-            // File picker
-            String id = Ptr ? Ptr->Identifier : "";
-            const bool result = Utility::Edit(InName, id);
-            if (id != "" || IsLoaded())
-                *this = Ref(id);
-            return result; 
+            // File picker?
+            const String currID = Ptr ? Ptr->Identifier : "";
+            const String newID = Base::Pick(InName, currID);
+            if (currID != newID)
+            {
+                *this = Ref(newID); 
+                return true; 
+            }
+            return false; 
+        }
+
+        bool operator==(const Ref& InOther) const
+        {
+            return InOther.Ptr == Ptr;
         }
         
     private:

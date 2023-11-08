@@ -2,7 +2,7 @@
 
 bool MaterialResource::Load(const String& InPath)
 {
-    if (!PropertyOwner::Load(InPath))
+    if (!PropertyOwnerBase::Load(InPath))
         return false;
     
     Ptr = new Material();

@@ -17,8 +17,8 @@ void ECS::SysPlayer::Update(EntityID InID, Player& InComponent, double InDelta)
     // Get directions
     const Mat4F rotMat = Mat4F(trans.Rotation);
     const Vec3F up = Vec3F::Up();
-    const Vec3F right = rotMat.Right() * -1.0f;
-    const Vec3F forward = rotMat.Forward();
+    const Vec3F right = (rotMat.Right() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized() * -1.0f;
+    const Vec3F forward = (rotMat.Forward() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized();
 
     // Calculate force
     const Vec3F force =

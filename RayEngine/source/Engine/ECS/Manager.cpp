@@ -39,6 +39,8 @@ EntityID Manager::CreateEntity()
 
 void Manager::DestroyEntity(const EntityID InEntity)
 {
+    CHECK_ASSERT(InEntity == InvalidID, "Invalid ID");
+    CHECK_ASSERT(!Entities.contains(InEntity), "Entity does not exist");
     PendingDestroy.insert(InEntity); 
 }
 

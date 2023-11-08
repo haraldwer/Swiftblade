@@ -1,0 +1,196 @@
+{
+  "main": {
+    "id": "8cb9e482a8e8b620",
+    "type": "split",
+    "children": [
+      {
+        "id": "a3d4eb9f6467bf99",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8cd9a2aecd15c4f3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Milestone.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "4d7966325a7655a6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Tasks/0 - Collision callbacks.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f4120e751c5c9a78",
+    "type": "split",
+    "children": [
+      {
+        "id": "9ea0de9dfbdb51b1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "99326411889e7499",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "ef44a1bb0e9e3eed",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "e2a8fecd75a29647",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "78b0926d3271ad6a",
+    "type": "split",
+    "children": [
+      {
+        "id": "e0d77f518a07a8dc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "989507c9397e1f5f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Milestone.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "e1928ead88e6a6ca",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Milestone.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "3dba09572989b8b5",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "41fd4207d89b0f5a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Milestone.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "99326411889e7499",
+  "lastOpenFiles": [
+    "Tasks/Backlog.md",
+    "Tasks/Archive/1 - Properties are not registered correctly.md",
+    "Milestone.md",
+    "Tasks/0 - Collision callbacks.md",
+    "Planning/Timeline.md",
+    "Tasks/Archive/0 - Set up default resources.md",
+    "Tasks/2 - File picker default path.md",
+    "Tasks/Archive/0 - File picker.md",
+    "Documentation.md",
+    "Tasks/0 - Break out player input and player movement.md",
+    "Pipelines/Content.md",
+    "Pipelines/Tools.md",
+    "Pipelines/Logic.md",
+    "Tasks/Archive",
+    "Tasks/0 - Room can be saved and loaded.md",
+    "Tasks/Milestone.md",
+    "Tasks/0 - Cube-based volume.md",
+    "Tasks/0 - Cubes can be clicked to be removed or added.md",
+    "Tasks/0 - Cube line trace.md",
+    "Milestone",
+    "Pipelines/Administrative.md",
+    "Tasks",
+    "Planning/Testing.md",
+    "Planning/Release.md",
+    "Planning/Game Creation Process.md",
+    "Planning/Conditions.md",
+    "Design/Idea.md",
+    "Design/GDD.md",
+    "Design/Pitch.md",
+    "Design",
+    "Planning",
+    "Pipelines"
+  ]
+}

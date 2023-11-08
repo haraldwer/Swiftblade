@@ -10,7 +10,7 @@ bool PhysicsMaterialResource::Load(const String& InPath)
     if (Engine::InstanceBase::Get().IsEditor())
         return false; 
     
-    if (!PropertyOwner::Load(InPath))
+    if (!PropertyOwnerBase::Load(InPath))
         return false;
     
     const auto& man = Physics::Manager::Get();

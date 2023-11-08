@@ -15,7 +15,7 @@ void Manager::RegisterSystems()
 auto var = new CONCAT(Sys, x) (); \
 SystemMap[typeid(CONCAT(Sys, x)).hash_code()] = var; \
 ComponentMap[typeid(x).hash_code()] = var; \
-NameMap[String(#x)] = var; }
+NameMap[String(#x)] = var; } \
 
     // Register systems here!
     REG_ENTITY_SYSTEM(Transform);

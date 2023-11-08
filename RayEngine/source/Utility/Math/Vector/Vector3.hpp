@@ -440,6 +440,14 @@ namespace Utility
 				return (*this);
 			}
 
+			bool operator==(const Vector3& in) const
+			{
+				return
+					x == in.x &&
+					y == in.y &&
+					z == in.z;
+			}
+
 			Vector3(const Type& a_x, const Type& a_y, const Type& a_z) : data{ a_x, a_y, a_z } {}
 			Vector3(const Type& a_v) : data{ a_v, a_v, a_v } {}
 			Vector3() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}

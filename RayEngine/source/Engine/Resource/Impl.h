@@ -11,6 +11,8 @@ namespace Resource
         bool Loaded = false;
         uint32 Count = 0;
         String Identifier;
+
+        static String Pick(const String& InLabel, const String& InID);
     };
 
     template <class T>

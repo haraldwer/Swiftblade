@@ -5,12 +5,12 @@
 
 namespace ECS
 {
-    struct Collider : Component
+    struct Collider : Component<Collider>
     {
         // Some exposed properties
         // And pointer to physx object
         
-        PROPERTY_P(ResPhysicsMaterial, Material, "physMat_default.json");
+        PROPERTY_P(ResPM, Material, "Defaults/PM_Default.json");
         
     };
 

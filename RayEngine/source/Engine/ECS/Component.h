@@ -5,7 +5,12 @@
 
 namespace ECS
 {
-    class Component : public PropertyOwner
+    class ComponentBase
+    {
+    };
+    
+    template <class T>
+    class Component : public PropertyOwner<T>, public ComponentBase
     {
     };
 }

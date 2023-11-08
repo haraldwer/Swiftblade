@@ -155,6 +155,20 @@ namespace Utility
 				return *this;
 			}
 
+			bool operator==(const Quaternion& q2) const
+			{
+				return
+					x == q2.x &&
+					y == q2.y &&
+					z == q2.z &&
+					w == q2.w;
+			}
+
+			bool operator!=(const Quaternion& q2) const
+			{
+				return !(*this == q2); 
+			}
+
 			double Norm()
 			{
 				return SquareRoot(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);

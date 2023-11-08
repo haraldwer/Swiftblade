@@ -1,0 +1,18 @@
+{
+	"Components":[{
+		"Name":"Transform",
+		"Data":{
+		}
+	},
+	{
+		"Name":"Mesh",
+		"Data":{
+		}
+	},
+	{
+		"Name":"Collider",
+		"Data":{
+			
+		}
+	}]
+}

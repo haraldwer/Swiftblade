@@ -1,0 +1,40 @@
+{
+	"Components":[{
+		"Name":"Transform",
+		"Data":{
+			"Position":[0.0,
+			3.0,
+			0.0]
+		}
+	},
+	{
+		"Name":"Mesh",
+		"Data":{
+			"Model":"Defaults\\M_Cube.obj"
+		}
+	},
+	{
+		"Name":"Camera",
+		"Data":{
+			
+		}
+	},
+	{
+		"Name":"Collider",
+		"Data":{
+			
+		}
+	},
+	{
+		"Name":"Player",
+		"Data":{
+			
+		}
+	},
+	{
+		"Name":"Rigidbody",
+		"Data":{
+			
+		}
+	}]
+}
