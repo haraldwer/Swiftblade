@@ -15,7 +15,7 @@ class PhysicsMaterialResource : public PropertyOwner<PhysicsMaterialResource>
 public:
 
     bool Load(const String& InPath) override;
-    bool Unload();
+    bool Unload() override;
     physx::PxMaterial* Get() const { return Ptr; }
     
     PROPERTY_P(float, StaticFriction, 1.0f);

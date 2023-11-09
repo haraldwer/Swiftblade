@@ -11,6 +11,14 @@ void PropertyOwnerBase::AddProperty(PropertyBase* InProperty)
     Instance->AddPropertyInternal(InProperty);
 }
 
+Map<String, PropertyBase*> PropertyOwnerBase::GetProperties() const
+{
+    Map<String, PropertyBase*> result; 
+    for (const auto& p : GetPropertyMap())
+        result[p.first] = OffToPtr(p.second);
+    return result; 
+}
+
 void PropertyOwnerBase::Serialize(SerializeObj& InOutObj) const
 {
     for (const auto& p : GetPropertyMap())
@@ -34,7 +42,13 @@ bool PropertyOwnerBase::Deserialize(const DeserializeObj& InObj)
     return success;
 }
 
-bool PropertyOwnerBase::Edit()
+bool PropertyOwnerBase::Deserialize(const GenericVal& InObj)
+{
+    CHECK_RETURN_LOG(!InObj.IsObject(), "Incorrect type, expected object", false); 
+    return Deserialize(InObj.GetObj());
+}
+
+bool PropertyOwnerBase::Edit(const String& InName)
 {
     bool edited = false;
     for (const auto& p : GetPropertyMap())
@@ -67,6 +81,20 @@ bool PropertyOwnerBase::Load(const String& InPath)
     doc.Parse(fileContent.c_str());
     CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
     Deserialize(doc.GetObj());
+    return true; 
+}
+
+bool PropertyOwnerBase::operator==(const PropertyOwnerBase& InOther) const
+{
+    // Compare properties!
+    const auto& map = InOther.GetPropertyMap();
+    for (const auto& entry : map)
+    {
+        const auto firstPtr = OffToPtr(entry.second);
+        const auto secondPtr = InOther.OffToPtr(entry.second);
+        if (!((*firstPtr) == (*secondPtr)))
+            return false; 
+    }
     return true; 
 }
 

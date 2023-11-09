@@ -11,6 +11,8 @@ public:
     virtual bool Deserialize(const DeserializeObj& InObj) = 0;
     virtual bool Edit() = 0;
     
+    virtual bool operator==(const PropertyBase& InOther) const;
+
 private:
     String Name; // Should the property know about its own name?  
 };

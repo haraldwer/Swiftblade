@@ -11,3 +11,8 @@ const String& PropertyBase::GetName() const
 {
     return Name;
 }
+
+bool PropertyBase::operator==(const PropertyBase& InOther) const
+{
+    return false; 
+}

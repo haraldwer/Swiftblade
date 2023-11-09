@@ -1,13 +1,12 @@
 #include "Player.h"
 
-#include "Rigidbody.h"
-#include "Transform.h"
+#include "Engine/ECS/Systems/Rigidbody.h"
+#include "Engine/ECS/Systems/Transform.h"
 
 void ECS::SysPlayer::Update(EntityID InID, Player& InComponent, double InDelta)
 {
     auto& trans = Get<Transform>(InID);
     auto& rb = Get<Rigidbody>(InID);
-    auto& rbSys = GetSystem<SysRigidbody>();
 
     // Camera rotation
     const auto mouseDelta = GetMouseDelta();
@@ -26,8 +25,8 @@ void ECS::SysPlayer::Update(EntityID InID, Player& InComponent, double InDelta)
         forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)));
 
     if (force.length > 0.01f)
-        rbSys.AddForce(InID, Vec3F(force.normalized) * InComponent.MovementForce.Get());
+        rb.AddForce(Vec3F(force.normalized) * InComponent.MovementForce.Get());
 
     if (IsKeyPressed(KEY_SPACE))
-        rbSys.AddImpulse(InID, up * InComponent.JumpForce.Get());
+        rb.AddImpulse(up * InComponent.JumpForce.Get());
 }

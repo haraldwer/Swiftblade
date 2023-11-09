@@ -10,13 +10,18 @@ public:
 
     // Property registration
     static void AddProperty(PropertyBase* InProperty);
+    Map<String, PropertyBase*> GetProperties() const;
 
     virtual void Serialize(SerializeObj& InOutObj) const;
     virtual bool Deserialize(const DeserializeObj& InObj);
-    virtual bool Edit(); 
+    virtual bool Deserialize(const GenericVal& InObj);
+    virtual bool Edit(const String& InName = ""); 
 
     virtual bool Save(const String& InPath) const;
     virtual bool Load(const String& InPath);
+    virtual bool Unload() { return true; }
+
+    bool operator==(const PropertyOwnerBase& InOther) const;
 
 protected:
 
@@ -41,18 +46,20 @@ public:
 
     PropertyOwner()
     {
-        T::Reg(); 
+        Reg(); 
     }
     
     static void Reg()
     {
-        // Only do once
-        static bool reg = false;
-        CHECK_RETURN(reg || Instance); 
-        reg = true; 
+        CHECK_RETURN(Instance);
         
-        // T on heap 
-        static T instance;
+        // Only do once
+        static bool hasRegistered = false;
+        CHECK_RETURN(hasRegistered); 
+        hasRegistered = true; 
+        
+        // Local T instance 
+        T instance;
         
         // Set instance
         Instance = &instance;

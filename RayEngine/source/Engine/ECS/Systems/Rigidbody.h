@@ -14,14 +14,13 @@ namespace ECS
         // Add impulse?
 
         PROPERTY_P(bool, LockRotation, true);
-        
+
+        void AddForce(const Vec3F& InForce) const;
+        void AddImpulse(const Vec3F& InForce) const;
+        void SetVelocity(const Vec3F& InVelocity) const;
     };
 
     class SysRigidbody : public System<Rigidbody>
     {
-    public:
-        void AddForce(EntityID InID, const Vec3F& InForce) const;
-        void AddImpulse(EntityID InID, const Vec3F& InForce) const;
-        void SetVelocity(EntityID InID, const Vec3F& InVelocity) const;
     };
 }

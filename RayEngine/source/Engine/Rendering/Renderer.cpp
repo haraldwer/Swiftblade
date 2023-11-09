@@ -6,14 +6,14 @@ using namespace Rendering;
 
 void Renderer::Init()
 {
-    CurrentSettings.Load(GetPath());
+    CurrConfig.Load();
     
     InitWindow(
-        CurrentSettings.Width,
-        CurrentSettings.Height,
+        CurrConfig.Width,
+        CurrConfig.Height,
         "RayEngine");
     
-    ApplySettings(CurrentSettings); 
+    ApplyConfig(CurrConfig); 
 
     rlImGuiSetup(false); 
 }
@@ -59,24 +59,24 @@ void Renderer::Push(const Scene& InScene)
     Scenes.push_back(InScene);
 }
 
-void Renderer::ApplySettings(const Settings& InSettings)
+void Renderer::ApplyConfig(const Config& InConfig)
 {
-    CurrentSettings = InSettings;
-    SetTargetFPS(InSettings.TargetFPS);
-    SetWindowSize(InSettings.Width, InSettings.Height);
-    if (InSettings.Fullscreen != IsWindowFullscreen())
+    CurrConfig = InConfig;
+    SetTargetFPS(InConfig.TargetFPS);
+    SetWindowSize(InConfig.Width, InConfig.Height);
+    if (InConfig.Fullscreen != IsWindowFullscreen())
         ToggleFullscreen();
 
     unsigned flags = 0;
-    if (InSettings.Fullscreen)
+    if (InConfig.Fullscreen)
         flags |= FLAG_FULLSCREEN_MODE;
-    if (InSettings.VSync)
+    if (InConfig.VSync)
         flags |= FLAG_VSYNC_HINT;
-    if (InSettings.MSAA)
+    if (InConfig.MSAA)
         flags |= FLAG_MSAA_4X_HINT;
     flags |= FLAG_WINDOW_ALWAYS_RUN;
     SetWindowState(flags);
     
-    LOG("Render settings applied");
-    CurrentSettings.Save(GetPath());
+    LOG("Render config applied");
+    CurrConfig.Save();
 }

@@ -7,8 +7,6 @@
 #include "Game/Game.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
-#include "ImGui/FileBrowser/ImGuiFileBrowser.h"
-#include "Utility/String.h"
 
 void BlueprintEditor::Init()
 {

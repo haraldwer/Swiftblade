@@ -1,8 +1,6 @@
 #include "CubeVolume.h"
 
-#include "Engine/Resource/Manager.h"
 #include "Game/Game.h"
-#include "Utility/Utility.h"
 
 void CubeVolume::Init()
 {

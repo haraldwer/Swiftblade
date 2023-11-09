@@ -2,42 +2,31 @@
 
 #include "Utility/JsonUtility.h"
 
-#define DESERIALIZE_CHECK_RETURN(cond, error) \
-if (DeserializePrint) { \
-    CHECK_RETURN_LOG(cond, error, false); \
-} else { \
-    CHECK_RETURN(cond, false) \
-} \
-
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, bool& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, bool& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsBool(), "Incorrect type, expected bool");
-    OutData = InContent[InName.c_str()].GetBool();
-    return true;
+    DESERIALIZE_CHECK_RETURN(!InVal.IsBool(), "Incorrect type, expected bool");
+    OutData = InVal.GetBool();
+    return true; 
 }
 
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, float& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, float& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsFloat(), "Incorrect type, expected float");
-    OutData = InContent[InName.c_str()].GetFloat();
-    return true;
+    DESERIALIZE_CHECK_RETURN(!InVal.IsFloat(), "Incorrect type, expected float");
+    OutData = InVal.GetFloat();
+    return true; 
 }
 
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, int32& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, int32& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsInt(), "Incorrect type, expected int");
-    OutData = InContent[InName.c_str()].GetInt();
-    return true;
+    DESERIALIZE_CHECK_RETURN(!InVal.IsInt(), "Incorrect type, expected int");
+    OutData = InVal.GetInt();
+    return true; 
 }
 
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, Vec3F& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, Vec3F& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsArray(), "Incorrect type, expected array");
-    const auto arr = InContent[InName.c_str()].GetArray();
+    DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+    const auto arr = InVal.GetArray();
     DESERIALIZE_CHECK_RETURN(arr.Size() != 3, "Invalid array size: " + std::to_string(arr.Size()));
     for (int32 i = 0; i < 3; i++)
     {
@@ -47,12 +36,11 @@ bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName,
     return true;
 }
 
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, QuatF& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, QuatF& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsArray(), "Incorrect type, expected array");
-    const auto arr = InContent[InName.c_str()].GetArray();
-    DESERIALIZE_CHECK_RETURN(arr.Size() != 3, "Invalid array size: " + std::to_string(arr.Size()));
+    DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+    const auto arr = InVal.GetArray();
+    DESERIALIZE_CHECK_RETURN(arr.Size() != 4, "Invalid array size: " + std::to_string(arr.Size()));
     for (int32 i = 0; i < 4; i++)
     {
         DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
@@ -61,12 +49,11 @@ bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName,
     return true;
 }
 
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, Mat4F& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, Mat4F& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsArray(), "Incorrect type, expected array");
-    const auto arr = InContent[InName.c_str()].GetArray();
-    DESERIALIZE_CHECK_RETURN(arr.Size() != 3, "Invalid array size: " + std::to_string(arr.Size()));
+    DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+    const auto arr = InVal.GetArray();
+    DESERIALIZE_CHECK_RETURN(arr.Size() != 16, "Invalid array size: " + std::to_string(arr.Size()));
     for (int32 i = 0; i < 16; i++)
     {
         DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
@@ -75,12 +62,9 @@ bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName,
     return true;
 }
 
-bool Utility::Deserialize(const DeserializeObj& InContent, const String& InName, String& OutData)
+bool Utility::ReadValue(const GenericVal& InVal, String& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InContent.HasMember(InName.c_str()), "No member: " + InName);
-    DESERIALIZE_CHECK_RETURN(!InContent[InName.c_str()].IsString(), "Incorrect type, expected string");
-    OutData = InContent[InName.c_str()].GetString();
-    return true;
+    DESERIALIZE_CHECK_RETURN(!InVal.IsString(), "Incorrect type, expected string");
+    OutData = InVal.GetString();
+    return true; 
 }
-
-#undef DESERIALIZE_CHECK_RETURN

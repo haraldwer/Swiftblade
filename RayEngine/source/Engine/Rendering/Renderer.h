@@ -2,7 +2,7 @@
 
 #include "Utility/Singelton.h"
 #include "Scene.h"
-#include "Settings.h"
+#include "Config.h"
 
 namespace Rendering
 {
@@ -21,13 +21,11 @@ namespace Rendering
         void Clear(); 
         void Push(const Scene& InScene);
 
-        void ApplySettings(const Settings& InSettings);
+        void ApplyConfig(const Config& InConfig);
 
     private:
 
-        static String GetPath() { return "Configs/C_Rendering.json"; }
-
-        Settings CurrentSettings; 
+        Config CurrConfig; 
         Vector<Scene> Scenes; 
 
     };

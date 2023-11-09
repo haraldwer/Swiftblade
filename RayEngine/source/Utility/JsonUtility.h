@@ -6,6 +6,7 @@
 
 typedef rapidjson::Writer<rapidjson::StringBuffer> SerializeObj;
 typedef rapidjson::Value::Object DeserializeObj;
+typedef rapidjson::GenericValue<rapidjson::UTF8<>> GenericVal; 
 typedef rapidjson::Document DocumentObj;
 
 namespace Utility

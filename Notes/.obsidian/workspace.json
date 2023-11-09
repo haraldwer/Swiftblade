@@ -13,19 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Milestone.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "4d7966325a7655a6",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Tasks/0 - Collision callbacks.md",
+                "file": "Tasks/0 - Scenes.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Milestone.md",
+                "file": "Tasks/0 - Scenes.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Milestone.md",
+                "file": "Tasks/0 - Scenes.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Milestone.md"
+                "file": "Tasks/0 - Scenes.md"
               }
             }
           }
@@ -158,25 +146,27 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "99326411889e7499",
+  "active": "8cd9a2aecd15c4f3",
   "lastOpenFiles": [
-    "Tasks/Backlog.md",
-    "Tasks/Archive/1 - Properties are not registered correctly.md",
     "Milestone.md",
+    "Tasks/0 - Scenes.md",
+    "Tasks/Backlog.md",
+    "Tasks/0 - Break out player input and player movement.md",
+    "Tasks/0.md",
+    "Tasks/0 - Cube-based volume.md",
     "Tasks/0 - Collision callbacks.md",
+    "Tasks/Archive/1 - Properties are not registered correctly.md",
     "Planning/Timeline.md",
     "Tasks/Archive/0 - Set up default resources.md",
     "Tasks/2 - File picker default path.md",
     "Tasks/Archive/0 - File picker.md",
     "Documentation.md",
-    "Tasks/0 - Break out player input and player movement.md",
     "Pipelines/Content.md",
     "Pipelines/Tools.md",
     "Pipelines/Logic.md",
     "Tasks/Archive",
     "Tasks/0 - Room can be saved and loaded.md",
     "Tasks/Milestone.md",
-    "Tasks/0 - Cube-based volume.md",
     "Tasks/0 - Cubes can be clicked to be removed or added.md",
     "Tasks/0 - Cube line trace.md",
     "Milestone",
@@ -187,8 +177,6 @@
     "Planning/Game Creation Process.md",
     "Planning/Conditions.md",
     "Design/Idea.md",
-    "Design/GDD.md",
-    "Design/Pitch.md",
     "Design",
     "Planning",
     "Pipelines"

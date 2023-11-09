@@ -38,3 +38,28 @@ bool Utility::Edit(const String& InName, String& InOutData)
 {
     return ImGui::InputText(InName.c_str(), &InOutData);
 }
+
+bool Utility::BeginList(const String& InName)
+{
+    return ImGui::BeginListBox(InName.c_str());
+}
+
+void Utility::EndList()
+{
+    ImGui::EndListBox();
+}
+
+void Utility::SameLine()
+{
+    ImGui::SameLine();
+}
+
+bool Utility::AddButton()
+{
+    return ImGui::Button("+");
+}
+
+bool Utility::RemoveButton()
+{
+    return ImGui::Button("-");
+}

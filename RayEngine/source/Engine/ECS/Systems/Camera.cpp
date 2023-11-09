@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 #include "Transform.h"
-#include "game/game.h"
+#include "game/Game.h"
 
 using namespace ECS; 
 

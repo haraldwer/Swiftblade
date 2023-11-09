@@ -2,27 +2,23 @@
 
 #include "Utility/JsonUtility.h"
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const bool& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const bool& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.Bool(InData); 
 }
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const float& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const float& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.Double(InData); 
 }
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const int32& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const int32& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.Int(InData); 
 }
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const Vec3F& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const Vec3F& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.StartArray();
     InOutObj.Double(InData.x); 
     InOutObj.Double(InData.y); 
@@ -30,9 +26,8 @@ void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const Vec3
     InOutObj.EndArray();
 }
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const QuatF& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const QuatF& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.StartArray();
     InOutObj.Double(InData.x); 
     InOutObj.Double(InData.y); 
@@ -41,17 +36,15 @@ void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const Quat
     InOutObj.EndArray();
 }
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const Mat4F& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const Mat4F& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.StartArray();
     for (const float f : InData.data)
         InOutObj.Double(f); 
     InOutObj.EndArray();
 }
 
-void Utility::Serialize(SerializeObj& InOutObj, const String& InName, const String& InData)
+void Utility::WriteValue(SerializeObj& InOutObj, const String& InData)
 {
-    InOutObj.Key(InName.c_str());
     InOutObj.String(InData.c_str());
 }

@@ -107,7 +107,7 @@ namespace ECS
                     return id; 
                 }
                 
-                const ComponentID newID = static_cast<ComponentID>(Components.size());
+                const auto newID = static_cast<ComponentID>(Components.size());
                 Components.emplace_back();
                 return newID;
             };
@@ -115,7 +115,12 @@ namespace ECS
             // Register
             const ComponentID id = findID();
             Translation[InID] = id;
-            Init(InID, GetInternal(id));
+
+            // Init comp
+            auto& comp = GetInternal(id);
+            comp.SetID(id); 
+            Init(InID, comp);
+            
             return id;
         }
         

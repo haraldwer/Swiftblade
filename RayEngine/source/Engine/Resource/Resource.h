@@ -64,16 +64,16 @@ namespace Resource
             return *this;
         }
 
-        void Serialize(SerializeObj& InOutObj, const String& InName) const
+        void Serialize(SerializeObj& InOutObj) const
         {
             CHECK_RETURN(!Ptr); 
-            Utility::Serialize(InOutObj, InName, Ptr->Identifier);
+            Utility::WriteValue(InOutObj, Ptr->Identifier);
         }
         
-        bool Deserialize(const DeserializeObj& InObj, const String& InName)
+        bool Deserialize(const GenericVal& InObj)
         {
             String identifier;
-            if (!Utility::Deserialize(InObj, InName, identifier))
+            if (!Utility::ReadValue(InObj, identifier))
                 return false;
             CHECK_RETURN(identifier.empty(), false)
             *this = Ref(identifier);
