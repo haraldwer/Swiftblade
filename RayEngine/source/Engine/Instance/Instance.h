@@ -22,7 +22,6 @@ namespace Engine
             return *reinterpret_cast<Rendering::LogicScene*>(&RenderScene);
         }
 
-
     private:
         Rendering::Scene RenderScene;
     };

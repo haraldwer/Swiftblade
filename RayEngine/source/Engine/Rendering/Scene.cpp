@@ -21,10 +21,14 @@ void RenderScene::Render()
         if (const MaterialResource* matRsc = m.Material.Get())
             mat = matRsc->Get();
         CHECK_CONTINUE(!mat);
-        
+
         if (const auto mData = m.Model.Get())
+        {
             if (const auto rayModel = mData->Get())
+            {
                 DrawMesh(rayModel->meshes[0], *mat, matrix);
+            }
+        }
     }
 
     DrawGrid(10, 10.0f);

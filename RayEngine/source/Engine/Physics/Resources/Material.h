@@ -16,6 +16,7 @@ public:
 
     bool Load(const String& InPath) override;
     bool Unload() override;
+    Utility::Timepoint GetEditTime() const; 
     physx::PxMaterial* Get() const { return Ptr; }
     
     PROPERTY_P(float, StaticFriction, 1.0f);
@@ -24,6 +25,7 @@ public:
 
 private:
 
+    String Identifier; 
     physx::PxMaterial* Ptr = nullptr;
     
 };

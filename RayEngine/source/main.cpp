@@ -6,6 +6,7 @@
 
 #include "Editor/BlueprintEditor.h"
 #include "Game/Game.h"
+#include "Game/RoomEditor.h"
 
 int main()
 {
@@ -16,7 +17,7 @@ int main()
     renderer.Init();
 
     // Push game instance by default
-    instanceManager.Push<BlueprintEditor>();
+    instanceManager.Push<RoomEditor>();
 
     // Timekeeping
     double tickTimer = 0.0;
@@ -28,6 +29,8 @@ int main()
     
     while (true)
     {
+        resourceManager.Update(); 
+        
         // Get instance
         const auto instance = instanceManager.Top();
         CHECK_BREAK(!instance);

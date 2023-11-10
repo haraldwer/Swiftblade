@@ -9,6 +9,7 @@ public:
 
     bool Load(const String& InIdentifier);
     bool Unload();
+    Utility::Timepoint GetEditTime() const;
 
     ECS::EntityID Instantiate();
     void Serialize(ECS::EntityID InID);

@@ -4,6 +4,7 @@
 
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
+#include "Utility/File.h"
 
 bool PhysicsMaterialResource::Load(const String& InPath)
 {
@@ -18,6 +19,8 @@ bool PhysicsMaterialResource::Load(const String& InPath)
         StaticFriction,
         DynamicFriction,
         Restitution);
+
+    Identifier = InPath;
     return Ptr;
 }
 
@@ -27,4 +30,9 @@ bool PhysicsMaterialResource::Unload()
     Ptr->release();
     Ptr = nullptr;
     return true;
+}
+
+Utility::Timepoint PhysicsMaterialResource::GetEditTime() const
+{
+    return Utility::GetFileWriteTime(Identifier);  
 }

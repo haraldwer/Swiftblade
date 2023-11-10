@@ -1,5 +1,10 @@
 #pragma once
+
 #include <fstream>
+#include <chrono>
+#include <filesystem>
+
+#include "Time/Timepoint.h"
 
 namespace Utility
 {
@@ -31,5 +36,16 @@ namespace Utility
         out << InContent;
         out.close();
         return true;
+    }
+
+    inline Timepoint GetFileWriteTime(const String& InPath)
+    {
+        if (InPath.empty())
+            return Timepoint();
+        const String path = "../content/" + InPath;
+        if (!std::filesystem::exists("../content/" + InPath))
+            return Timepoint(); 
+        const std::filesystem::file_time_type fileTime = std::filesystem::last_write_time(path);
+        return Timepoint(fileTime.time_since_epoch());
     }
 }

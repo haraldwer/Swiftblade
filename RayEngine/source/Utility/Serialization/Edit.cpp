@@ -18,6 +18,22 @@ bool Utility::Edit(const String& InName, int32& InOutData)
     return ImGui::InputInt(InName.c_str(), &InOutData);
 }
 
+bool Utility::Edit(const String& InName, uint8& InOutData)
+{
+    int i = InOutData;
+    const bool result = ImGui::InputInt(InName.c_str(), &i);
+    InOutData = static_cast<uint8>(i); 
+    return result; 
+}
+
+bool Utility::Edit(const String& InName, uint32& InOutData)
+{
+    int i = static_cast<int>(InOutData);
+    const bool result = ImGui::InputInt(InName.c_str(), &i);
+    InOutData = static_cast<uint32>(i); 
+    return result; 
+}
+
 bool Utility::Edit(const String& InName, Vec3F& InOutData)
 {
     return ImGui::InputFloat3(InName.c_str(), &InOutData.data[0]);

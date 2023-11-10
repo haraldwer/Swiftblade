@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Engine/ECS/System.h"
+#include "Engine/ECS/Component.h"
+
 struct Coord
 {
     Coord(const uint8 InX, const uint8 InY, const uint8 InZ)
@@ -27,24 +30,33 @@ struct Coord
     };
 };
 
-struct Volume
+namespace ECS
 {
-    int SizeX = 0;
-    int SizeY = 0;
-    int SizeZ = 0;
-    Map<uint32, uint8> Types;
-};
-
-class CubeVolume
-{
-public:
-    void Init();
-    void Apply(const Volume& InVolume); 
-    void Draw() const; 
+    typedef Map<uint32, uint8> Volume; 
     
-private:
+    struct CubeVolume : Component<CubeVolume>
+    {
+        PROPERTY_P(float, Scale, 1.0f);
+        PROPERTY_P(uint8, Height, 50);
+        PROPERTY_P(uint8, Width, 50);
+        PROPERTY_P(uint8, Depth, 50);
+        PROPERTY(Volume, Data);
+    };
 
-    // Cached result
-    Map<uint32, uint8> Result;
-    
-};
+    class SysCubeVolume : public System<CubeVolume>
+    {
+    public:
+        uint8 GetVal(EntityID InID, Coord InCoord);
+        void Set(EntityID InID, Coord InStart, Coord InEnd, uint8 InVal);
+        Coord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
+        
+        void Init(EntityID InID, CubeVolume& InComponent) override;
+        void Update(EntityID InID, CubeVolume& InComponent, double InDelta) override;
+        static void DrawCube(const Vec3F& InPos);
+
+        bool ShouldUpdate() const override { return true; }
+    private:
+        Coord CachedTrace = 0; 
+    };
+}
+

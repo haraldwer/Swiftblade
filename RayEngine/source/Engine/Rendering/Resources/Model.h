@@ -10,9 +10,11 @@ class ModelResource
 public:
     bool Load(const String& InIdentifier);
     bool Unload();
+    Utility::Timepoint GetEditTime() const;
     Model* Get() const { return Ptr; }
     
-private: 
+private:
+    String Identifier; 
     Model* Ptr = nullptr; 
 };
 

@@ -4,10 +4,15 @@ class EditorCamera
 {
 public:
 
+    EditorCamera() = default;
+    
     void Update(double InDelta);
+    void SetRequireHold(bool InHold) { HoldRight = InHold; }
+    void ToggleRequireHold() { HoldRight = !HoldRight; }
+    bool IsControlling() const;
 
 private:
-
+    
     struct State
     {
         float FOV = 90.0f;
@@ -18,6 +23,7 @@ private:
 
     State TargetState;
     State CurrentState;
-    
+    bool HoldRight = true;
+    Vec2F CursorPos; 
     
 };

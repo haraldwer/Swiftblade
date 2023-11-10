@@ -6,7 +6,7 @@ using namespace Rendering;
 
 void Renderer::Init()
 {
-    CurrConfig.Load();
+    CurrConfig.LoadConfig();
     
     InitWindow(
         CurrConfig.Width,
@@ -78,5 +78,5 @@ void Renderer::ApplyConfig(const Config& InConfig)
     SetWindowState(flags);
     
     LOG("Render config applied");
-    CurrConfig.Save();
+    CurrConfig.SaveConfig();
 }

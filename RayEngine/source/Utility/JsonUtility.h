@@ -5,7 +5,7 @@
 #include "rapidjson/document.h"
 
 typedef rapidjson::Writer<rapidjson::StringBuffer> SerializeObj;
-typedef rapidjson::Value::Object DeserializeObj;
+typedef rapidjson::GenericValue<rapidjson::UTF8<>>::ConstObject DeserializeObj;
 typedef rapidjson::GenericValue<rapidjson::UTF8<>> GenericVal; 
 typedef rapidjson::Document DocumentObj;
 

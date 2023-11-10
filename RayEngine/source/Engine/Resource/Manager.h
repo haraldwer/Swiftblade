@@ -9,26 +9,11 @@ namespace Resource
     {
     public:
 
-        Base* GetResource(const String& InIdentifier)
-        {
-            const auto find = Resources.find(InIdentifier);
-            if (find == Resources.end())
-                return nullptr; 
-            return find->second;
-        }
+        Base* GetResource(const String& InIdentifier);
+        void Register(Base* InResource, const String& InIdentifier);
         
-        void Register(Base* InResource, const String& InIdentifier)
-        {
-            Resources[InIdentifier] = InResource;
-        }
-        
-        // TODO: Unload
-
-        
-        void Deinit()
-        {
-            // TODO: Unload all
-        }
+        void Update() const;
+        void Deinit();
 
     private:
         Map<String, Base*> Resources; 

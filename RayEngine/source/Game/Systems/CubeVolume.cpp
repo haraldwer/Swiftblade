@@ -1,75 +1,93 @@
 #include "CubeVolume.h"
 
-#include "Game/Game.h"
+#include "Engine/Instance/Instance.h"
+#include "Utility/Math/Grid.h"
 
-void CubeVolume::Init()
+uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
 {
-    // Load required meshes
-    
-    Volume v;
-    v.SizeX = 3;
-    v.SizeY = 2;
-    v.SizeZ = 3;
-
-    v.Types[Coord(0, 0, 0).Key] = 1; 
-    v.Types[Coord(0, 0, 1).Key] = 1; 
-    v.Types[Coord(1, 0, 0).Key] = 1;
-
-    Apply(v);
-}
-
-void CubeVolume::Apply(const Volume& InVolume)
-{
-    const int sizeX = InVolume.SizeX - 1;
-    const int sizeY = InVolume.SizeY - 1;
-    const int sizeZ = InVolume.SizeZ - 1;
-    
-    const auto evalCoord = [&](int x, int y, int z)
-    {
-        const auto find = InVolume.Types.find(Coord(x, y, z).Key);
-        if (find == InVolume.Types.end())
-            return static_cast<uint8>(0);
+    auto& v = Get<CubeVolume>(InID);
+    auto& data = v.Data.Get();
+    const auto find = data.find(InCoord.Key);
+    if (find != data.end())
         return find->second;
-    };
-    
-    const auto func = [&](int x, int y, int z)
-    {
-        // Check coord with offset
-        // Does coord exist in volume?
-
-        const bool x1y1 = evalCoord(x, y, z) > 0; 
-        const bool x1y2 = evalCoord(x, y, z + 1) > 0; 
-        const bool x2y1 = evalCoord(x + 1, y, z) > 0; 
-        const bool x2y2 = evalCoord(x + 1, y, z + 1) > 0; 
-
-        // Select variation depending on these
-        // Allow rotation
-
-        if (x1y1 || x1y2 || x2y1 || x2y2)
-            Result[Coord(x, y, z).Key] = 1; 
-    };
-    
-    for (int x = 0; x < sizeX; x++)
-        for (int y = 0; y < sizeY; y++)
-            for (int z = 0; z < sizeZ; z++)
-                func(x, y, z);                
+    return 0; 
 }
 
-void CubeVolume::Draw() const
+void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coord InEnd, const uint8 InVal)
 {
-    for (const auto& coord : Result)
-    {
-        CHECK_CONTINUE(coord.second == 0);
-        
-        const Coord::Vec pos = Coord(coord.first).Pos;
+    auto& v = Get<CubeVolume>(InID);
+    auto& data = v.Data.Get();
+    
+    const int startX = MIN(InStart.Pos.X, InEnd.Pos.X); 
+    const int startY = MIN(InStart.Pos.Y, InEnd.Pos.Y); 
+    const int startZ = MIN(InStart.Pos.Z, InEnd.Pos.Z);
+    const int endX = MAX(InStart.Pos.X, InEnd.Pos.X); 
+    const int endY = MAX(InStart.Pos.Y, InEnd.Pos.Y); 
+    const int endZ = MAX(InStart.Pos.Z, InEnd.Pos.Z);
+    
+    for (int x = startX; x <= endX; x++)   
+        for (int y = startY; y <= endY; y++)   
+            for (int z = startZ; z <= endZ; z++)
+                data[Coord(x, y, z).Key] = InVal;
+}
 
-        MeshInstance m;
-        m.Model = ResModel("../content/test.obj");
-        m.Transform = Mat4F(
-            Vec3F(pos.X, pos.Y, pos.Z),
-            QuatF::Identity(),
-            Vec3F::One());
-        
-        Game::Get().GetRenderScene().AddMesh(m); 
+Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist)
+{
+    auto& v = Get<CubeVolume>(InID);
+    const auto& volume = v.Data.Get();
+    const auto bounds = Utility::Math::Vector3<uint8>(
+            v.Height, 
+            v.Width,
+            v.Depth);
+    
+    Coord last = 0;
+    int count = 0; 
+    for (const auto& intersect : GridIntersection(InPos, InDir, bounds))
+    {
+        const Coord c = Coord(intersect.x, intersect.y, intersect.z);
+        const auto find = volume.find(c.Key);
+        const bool block = find != volume.end() && find->second != 0; 
+        if (block || count == InMaxDist)
+        {
+            CachedTrace = c; 
+            return c;
+        }
+        last = c;
+        count++; 
     }
+    CachedTrace = last;
+    return last;
+}
+
+void ECS::SysCubeVolume::Init(EntityID InID, CubeVolume& InComponent)
+{
+    auto& data = InComponent.Data.Get();
+    data[Coord(0, 0, 0).Key] = 1;
+}
+
+void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double InDelta)
+{
+    for (const auto& entry : InComponent.Data.Get())
+    {
+        CHECK_CONTINUE(entry.second == 0);
+        const Coord coord = entry.first;
+        DrawCube(Vec3F(
+            coord.Pos.X,
+            coord.Pos.Y,
+            coord.Pos.Z)
+            * InComponent.Scale.Get());
+    }
+    
+    DrawCube(Vec3F(
+        CachedTrace.Pos.X,
+        CachedTrace.Pos.Y,
+        CachedTrace.Pos.Z));
+}
+void ECS::SysCubeVolume::DrawCube(const Vec3F& InPos)
+{
+    MeshInstance m;
+    m.Material = ResRM("Defaults/RM_Default.json");
+    m.Model = ResModel("Defaults/M_Cube.obj");
+    m.Transform = Mat4F(InPos, QuatF::Identity(), {0.5f});
+    Engine::InstanceBase::Get().GetRenderScene().AddMesh(m);
 }

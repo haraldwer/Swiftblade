@@ -1,6 +1,8 @@
 #pragma once
+
 #include <vector>
 #include "Line.h"
+
 namespace Utility
 {
 	namespace Math

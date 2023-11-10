@@ -1,10 +1,10 @@
 #pragma once
 #include <chrono>
 
+#include "Timepoint.h"
+
 namespace Utility
 {
-    typedef std::chrono::steady_clock::time_point Timepoint; 
-    
     class Timer
     {
     public:

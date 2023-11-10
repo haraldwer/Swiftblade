@@ -42,10 +42,10 @@ bool PropertyOwnerBase::Deserialize(const DeserializeObj& InObj)
     return success;
 }
 
-bool PropertyOwnerBase::Deserialize(const GenericVal& InObj)
+bool PropertyOwnerBase::Deserialize(const GenericVal& InVal)
 {
-    CHECK_RETURN_LOG(!InObj.IsObject(), "Incorrect type, expected object", false); 
-    return Deserialize(InObj.GetObj());
+    CHECK_RETURN(!InVal.IsObject(), "Incorrect type, expected object");
+    return Deserialize(InVal.GetObj());
 }
 
 bool PropertyOwnerBase::Edit(const String& InName)
@@ -76,12 +76,13 @@ bool PropertyOwnerBase::Save(const String& InPath) const
 bool PropertyOwnerBase::Load(const String& InPath)
 {
     const String fileContent = Utility::ReadFile(InPath);
-    CHECK_RETURN_LOG(fileContent.empty(), "Prefab file empty", false);
+    CHECK_RETURN_LOG(fileContent.empty(), "Property file empty", false);
     rapidjson::Document doc;
     doc.Parse(fileContent.c_str());
     CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
-    Deserialize(doc.GetObj());
-    return true; 
+    // Requires const, dont know why
+    const rapidjson::Document& constDoc = doc; 
+    return Deserialize(constDoc.GetObj()); 
 }
 
 bool PropertyOwnerBase::operator==(const PropertyOwnerBase& InOther) const

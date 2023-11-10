@@ -22,8 +22,11 @@ class Scene : public PropertyOwner<Scene>
 public:
     SceneInstance Create() const;
     bool Save(const String& InPath) const override;
+    bool Load(const String& InPath) override;
+    Utility::Timepoint GetEditTime() const; 
 protected:
     PROPERTY(Vector<SceneObject>, Objects);
+    String Identifier; 
 };
 
 typedef Resource::Ref<Scene> ResScene;

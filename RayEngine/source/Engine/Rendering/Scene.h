@@ -16,6 +16,7 @@ namespace Rendering
     {
     public:
         void SetCamera(const CameraInstance& InCamera) { Cam = InCamera; }
+        const CameraInstance& GetCamera() const { return Cam; }
         void AddMesh(const MeshInstance& InMesh) { Meshes.push_back(InMesh); }
     };
 

@@ -8,7 +8,27 @@ namespace Utility
 {
 	namespace Math
 	{
+		template <class T>
+		bool LinePlaneIntersection(Vector3<T>& contact, const Vector3<T>& rayDirection, const Vector3<T>& rayOrigin, 
+						   const Vector3<T>& normal, const Vector3<T>& coord) {
+			// get d value
+			
+			T rayDot = normal.Dot(rayDirection); 
+			
+			if (rayDot == 0) {
+				return false; // No intersection, the line is parallel to the plane
+			}
 
+			T coordDot = normal.Dot(coord);
+			T originDot = normal.Dot(rayOrigin);
+			
+			// Compute the X value for the directed line ray intersecting the plane
+			T x = (coordDot - originDot) / rayDot;
+
+			// output contact point
+			contact = rayOrigin + rayDirection.GetNormalized() * x; //Make sure your ray vector is normalized
+			return true;
+		}
 
 		/*inline bool CheckLineCollision(float p1s_x, float p1s_y, float p1e_x, float p1e_y,
 		                               float p2s_x, float p2s_y, float p2e_x, float p2e_y,

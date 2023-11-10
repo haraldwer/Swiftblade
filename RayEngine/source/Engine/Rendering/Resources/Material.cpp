@@ -1,5 +1,7 @@
 #include "Material.h"
 
+#include "Utility/File.h"
+
 bool MaterialResource::Load(const String& InPath)
 {
     if (!PropertyOwnerBase::Load(InPath))
@@ -9,14 +11,30 @@ bool MaterialResource::Load(const String& InPath)
     *Ptr = LoadMaterialDefault();
 
     if (const ShaderResource* rsc = Shader.Get().Get())
-        Ptr->shader = *rsc->Get();
+    {
+        const ::Shader& shader = *rsc->Get(); 
+        Ptr->shader = shader;
+    }
+
+    Identifier = InPath;
 
     return true;
 }
 
 bool MaterialResource::Unload()
 {
+    if (Ptr)
+        UnloadMaterial(*Ptr);
     delete Ptr;
     Ptr = nullptr;
     return true;
+}
+
+Utility::Timepoint MaterialResource::GetEditTime() const
+{
+    Utility::Timepoint maxTime; 
+    if (const ShaderResource* rsc = Shader.Get().Get())
+        maxTime = rsc->GetEditTime();
+    maxTime = MAX(maxTime, Utility::GetFileWriteTime(Identifier));
+    return maxTime;
 }

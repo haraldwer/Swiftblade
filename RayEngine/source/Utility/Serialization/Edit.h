@@ -11,6 +11,8 @@ namespace Utility
     bool Edit(const String& InName, bool& InOutData);
     bool Edit(const String& InName, float& InOutData);
     bool Edit(const String& InName, int32& InOutData);
+    bool Edit(const String& InName, uint8& InOutData);
+    bool Edit(const String& InName, uint32& InOutData);
     bool Edit(const String& InName, Vec3F& InOutData);
     bool Edit(const String& InName, QuatF& InOutData);
     bool Edit(const String& InName, Mat4F& InOutData);
@@ -50,7 +52,8 @@ namespace Utility
         {
             for (auto& data : InOutData)
             {
-                if (Edit(("##Key_" + InName).c_str(), data.first))
+                Key k = data.first;
+                if (Edit(("##Key_" + InName).c_str(), k))
                     edited = true;
                 SameLine();
                 if (Edit(("##Val_" + InName).c_str(), data.second))

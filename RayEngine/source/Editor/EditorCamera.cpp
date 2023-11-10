@@ -1,14 +1,24 @@
 #include "EditorCamera.h"
 
 #include "BlueprintEditor.h"
+#include "Utility/Math/AngleConversion.h"
 
 void EditorCamera::Update(double InDelta)
 {
     // Calculate rotation
-    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    if (IsControlling())
     {
+        if (!IsCursorHidden())
+        {
+            auto pos = GetMousePosition();
+            CursorPos = { pos.x, pos.y };
+            HideCursor();
+        }
+        
         const auto mouseDelta = GetMouseDelta();
+        SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
         TargetState.Rotation += Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.01f;
+        TargetState.Rotation.x = CLAMP(Utility::Math::DegreesToRadians(-90.0f), Utility::Math::DegreesToRadians(90.0f), TargetState.Rotation.x);  
 
         const Mat4F rotMat = Mat4F::FromEuler(TargetState.Rotation);
         const Vec3F up = Vec3F::Up();
@@ -30,6 +40,16 @@ void EditorCamera::Update(double InDelta)
         TargetState.FOV += (static_cast<float>(IsKeyDown(KEY_Z)) - static_cast<float>(IsKeyDown(KEY_X))) *
             static_cast<float>(InDelta) * 30.0f;
     }
+    else
+    {
+        if (IsCursorHidden())
+        {
+            SetMousePosition(
+                static_cast<int>(CursorPos.x),
+                static_cast<int>(CursorPos.y));
+            ShowCursor();
+        }
+    }
 
     // TODO: Interp account for dt
     CurrentState.Rotation = TargetState.Rotation;
@@ -41,4 +61,9 @@ void EditorCamera::Update(double InDelta)
     BlueprintEditor::Get().GetRenderScene().SetCamera({
         CurrentState.Position, QuatF(CurrentState.Rotation), CurrentState.FOV
     });
+}
+
+bool EditorCamera::IsControlling() const
+{
+    return IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || !HoldRight;
 }

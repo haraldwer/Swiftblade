@@ -1,5 +1,6 @@
 #pragma once
-#include "Vector3.h"
+
+#include "../Vector/Vector3.hpp"
 
 namespace Utility
 {
@@ -22,6 +23,7 @@ namespace Utility
 			bool IsInside(const Vector3<T> & aPosition) const;
 			// Returns the normal of the plane.
 			const Vector3<T>& GetNormal() const;
+			const Vector3<T>& GetPoint() const;
 		private:
 			Vector3<T> myPoint0;
 			Vector3<T> myNormal;
@@ -65,10 +67,15 @@ namespace Utility
 		}
 	
 		template<class T>
-		inline const Vector3<T>& Plane<T>::GetNormal() const
+		const Vector3<T>& Plane<T>::GetNormal() const
 		{
 			return myNormal;
 		}
 
+		template <class T>
+		const Vector3<T>& Plane<T>::GetPoint() const
+		{
+			return myPoint0;
+		}
 	}
 }

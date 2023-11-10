@@ -8,7 +8,7 @@ bool BlueprintResource::Load(const String& InIdentifier)
 {
     Identifier = InIdentifier;
     const String fileContent = Utility::ReadFile(InIdentifier);
-    CHECK_RETURN_LOG(fileContent.empty(), "Prefab file empty", false);
+    CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty", false);
     Doc = rapidjson::Document();
     Doc.Parse(fileContent.c_str());
     LOG("Blueprint loaded successfully");
@@ -19,6 +19,11 @@ bool BlueprintResource::Unload()
 {
     Doc = rapidjson::Document();
     return true;
+}
+
+Utility::Timepoint BlueprintResource::GetEditTime() const
+{
+    return Utility::GetFileWriteTime(Identifier);
 }
 
 ECS::EntityID BlueprintResource::Instantiate()
@@ -32,7 +37,7 @@ ECS::EntityID BlueprintResource::Instantiate()
     CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
 
     // Read doc
-    for (auto& comp : Doc.GetObj()["Components"].GetArray())
+    for (const auto& comp : Doc.GetObj()["Components"].GetArray())
     {
         CHECK_CONTINUE_LOG(!comp.IsObject(), "Invalid component");
         CHECK_CONTINUE_LOG(!comp.HasMember("Name"), "Missing name member");

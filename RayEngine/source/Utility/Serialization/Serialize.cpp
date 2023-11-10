@@ -17,6 +17,16 @@ void Utility::WriteValue(SerializeObj& InOutObj, const int32& InData)
     InOutObj.Int(InData); 
 }
 
+void Utility::WriteValue(SerializeObj& InOutObj, const uint8& InData)
+{
+    InOutObj.Uint(InData); 
+}
+
+void Utility::WriteValue(SerializeObj& InOutObj, const uint32& InData)
+{
+    InOutObj.Uint(InData); 
+}
+
 void Utility::WriteValue(SerializeObj& InOutObj, const Vec3F& InData)
 {
     InOutObj.StartArray();

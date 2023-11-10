@@ -14,7 +14,7 @@ public:
 
     virtual void Serialize(SerializeObj& InOutObj) const;
     virtual bool Deserialize(const DeserializeObj& InObj);
-    virtual bool Deserialize(const GenericVal& InObj);
+    bool Deserialize(const GenericVal& InVal);
     virtual bool Edit(const String& InName = ""); 
 
     virtual bool Save(const String& InPath) const;

@@ -13,8 +13,8 @@ namespace Rendering
         PROPERTY_P(bool, VSync, false);
         PROPERTY_P(bool, MSAA, false);
 
-        static constexpr String Path = "Configs/C_Rendering.json";
-        void Load() { PropertyOwner::Load(Path); }
-        void Save() const { PropertyOwner::Save(Path); }
+        inline static const String Path = "Configs/C_Rendering.json";
+        void LoadConfig() { Load(Path); }
+        void SaveConfig() const { Save(Path); }
     };
 }

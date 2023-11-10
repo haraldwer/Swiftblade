@@ -8,6 +8,7 @@ Nov 8 (1/8) - Development start
 Nov 15 (2/8) - Editor and Movement
 - Work has started on an editor
 - The player can move around in a level
+- The cube volume has physics
 
 Nov 22 (3/8) - Game loop
 - There is a main menu

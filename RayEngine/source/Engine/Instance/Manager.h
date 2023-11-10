@@ -34,6 +34,7 @@ namespace Engine
             Stack.pop_back();
             Utility::SingeltonContext::Value--; 
         }
+        
         void Clear()
         {
             while (Top())

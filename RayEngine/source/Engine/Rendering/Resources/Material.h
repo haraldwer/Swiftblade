@@ -10,7 +10,9 @@ class MaterialResource : public PropertyOwner<MaterialResource>
 public:
 
     bool Load(const String& InPath) override;
-    bool Unload();
+    bool Unload() override;
+    Utility::Timepoint GetEditTime() const; 
+    
     Material* Get() const { return Ptr; }
     
     PROPERTY(ResShader, Shader);
@@ -19,6 +21,7 @@ public:
     
 private:
 
+    String Identifier; 
     Material* Ptr = nullptr; 
     
 };

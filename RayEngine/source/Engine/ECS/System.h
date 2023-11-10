@@ -31,6 +31,7 @@ namespace ECS
 
         SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash) const;
         bool Contains(EntityID InID) const;
+        Vector<EntityID> GetEntities() const;
 
     protected:
 
@@ -119,7 +120,7 @@ namespace ECS
             // Init comp
             auto& comp = GetInternal(id);
             comp.SetID(id); 
-            Init(InID, comp);
+            Init(id, comp);
             
             return id;
         }
@@ -131,7 +132,7 @@ namespace ECS
 
             // Reset data
             T& data = GetInternal(id);
-            Deinit(InID, GetInternal(id));
+            Deinit(id, GetInternal(id));
             data = T();
             Translation.erase(InID);
             Unused.push_back(id);

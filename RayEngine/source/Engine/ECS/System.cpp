@@ -18,6 +18,14 @@ bool ECS::SystemBase::Contains(EntityID InID) const
     return Translation.contains(InID);
 }
 
+Vector<ECS::EntityID> ECS::SystemBase::GetEntities() const
+{
+    Vector<EntityID> result;
+    for (auto& entry : Translation)
+        result.push_back(entry.first);
+    return result; 
+}
+
 ECS::ComponentID ECS::SystemBase::Translate(EntityID InID) const
 {
     const auto find = Translation.find(InID);

@@ -8,5 +8,6 @@ Prefixes:
  - BP - Blueprint
  - RM - Render material
  - PM - Physics material
- - SH- Shader
+ - SH - Shader
+ - S - Scene
 Defaults in a default folder
