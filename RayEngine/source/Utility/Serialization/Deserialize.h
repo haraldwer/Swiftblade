@@ -23,9 +23,11 @@ namespace Utility
     bool ReadValue(const GenericVal& InVal, uint8& OutData);
     bool ReadValue(const GenericVal& InVal, uint32& OutData);
     bool ReadValue(const GenericVal& InVal, Vec3F& OutData);
+    bool ReadValue(const GenericVal& InVal, Vec4F& OutData);
     bool ReadValue(const GenericVal& InVal, QuatF& OutData);
     bool ReadValue(const GenericVal& InVal, Mat4F& OutData);
     bool ReadValue(const GenericVal& InVal, String& OutData);
+    // What type is the enums? 
 
     template <class T>
     bool ReadValue(const GenericVal& InVal, Vector<T>& OutData)

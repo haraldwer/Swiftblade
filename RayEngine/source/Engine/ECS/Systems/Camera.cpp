@@ -9,8 +9,8 @@ void SysCamera::Update(EntityID InEntity, Camera& InComponent, double InDelta)
 {
     const Transform& t = Get<Transform>(InEntity);
     const CameraInstance c {
-        t.Position,
-        t.Rotation,
+        t.GetPosition(),
+        t.GetRotation(),
         InComponent.FOV };
     Game::Get().GetRenderScene().SetCamera(c);
 }

@@ -28,7 +28,10 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     for (int x = startX; x <= endX; x++)   
         for (int y = startY; y <= endY; y++)   
             for (int z = startZ; z <= endZ; z++)
-                data[Coord(x, y, z).Key] = InVal;
+                if (InVal == 0)
+                    data.erase(Coord(x, y, z).Key);
+                else
+                    data[Coord(x, y, z).Key] = InVal;
 }
 
 Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist)

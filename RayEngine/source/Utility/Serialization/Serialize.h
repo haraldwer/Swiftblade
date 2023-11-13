@@ -14,6 +14,7 @@ namespace Utility
     void WriteValue(SerializeObj& InOutObj, const uint8& InData);
     void WriteValue(SerializeObj& InOutObj, const uint32& InData);
     void WriteValue(SerializeObj& InOutObj, const Vec3F& InData);
+    void WriteValue(SerializeObj& InOutObj, const Vec4F& InData);
     void WriteValue(SerializeObj& InOutObj, const QuatF& InData);
     void WriteValue(SerializeObj& InOutObj, const Mat4F& InData);
     void WriteValue(SerializeObj& InOutObj, const String& InData);

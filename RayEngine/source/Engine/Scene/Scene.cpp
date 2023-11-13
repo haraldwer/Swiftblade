@@ -18,7 +18,7 @@ SceneInstance Scene::Create() const
     SceneInstance instance;
     for (const SceneObject& obj : Objects.Get())
         if (const auto bp = obj.Blueprint.Get().Get())
-            instance.Entities.push_back(bp->Instantiate());
+            instance.Entities.push_back(bp->Instantiate()); // TODO: Pass override object
     return instance; 
 }
 

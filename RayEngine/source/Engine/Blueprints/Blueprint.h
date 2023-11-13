@@ -11,7 +11,7 @@ public:
     bool Unload();
     Utility::Timepoint GetEditTime() const;
 
-    ECS::EntityID Instantiate();
+    ECS::EntityID Instantiate(const DeserializeObj* InOverride = nullptr);
     void Serialize(ECS::EntityID InID);
 
 private:

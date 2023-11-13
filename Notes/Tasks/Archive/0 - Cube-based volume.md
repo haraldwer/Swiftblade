@@ -35,3 +35,5 @@ struct Volume
     Map<uint32, uint8> Types;  
 };
 ```
+
+There is a cube-based volume

@@ -4,6 +4,7 @@
 in vec2 fragTexCoord;
 in vec4 fragColor;
 in vec4 fragPos;
+in vec4 fragNormal;
 
 // Input uniform values
 uniform vec4 colDiffuse;
@@ -23,8 +24,4 @@ void main()
 
     // Calculate final fragment color
     finalColor = vec4(gray, gray, gray, texelColor.a);
-
-    // Changing the shader
-
-    // Changing it again
 }

@@ -86,3 +86,4 @@ typedef Utility::Math::Matrix4x4<float> Mat4F;
 typedef Utility::Math::Quaternion<float> QuatF;
 
 #include "Utility/JsonUtility.h"
+#include "Utility/Enum/BetterEnums.h"

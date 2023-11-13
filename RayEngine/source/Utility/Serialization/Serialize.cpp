@@ -36,6 +36,16 @@ void Utility::WriteValue(SerializeObj& InOutObj, const Vec3F& InData)
     InOutObj.EndArray();
 }
 
+void Utility::WriteValue(SerializeObj& InOutObj, const Vec4F& InData)
+{
+    InOutObj.StartArray();
+    InOutObj.Double(InData.x); 
+    InOutObj.Double(InData.y); 
+    InOutObj.Double(InData.z); 
+    InOutObj.Double(InData.w); 
+    InOutObj.EndArray();
+}
+
 void Utility::WriteValue(SerializeObj& InOutObj, const QuatF& InData)
 {
     InOutObj.StartArray();

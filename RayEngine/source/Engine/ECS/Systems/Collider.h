@@ -3,15 +3,21 @@
 #include "Engine/ECS/System.h"
 #include "Engine/Physics/Resources/Material.h"
 
+
 namespace ECS
 {
+    enum class CollisionShape : uint8
+    {
+        BOX,
+        CAPSULE,
+        SPHERE
+    };
+    
     struct Collider : Component<Collider>
     {
-        // Some exposed properties
-        // And pointer to physx object
-        
+        PROPERTY_P(uint8, Shape, 0);
+        PROPERTY_P(Vec4F, ShapeData, Vec4F::One()); // Shape data depends on shape type
         PROPERTY_P(ResPM, Material, "Defaults/PM_Default.json");
-        
     };
 
     class SysCollider : public System<Collider>

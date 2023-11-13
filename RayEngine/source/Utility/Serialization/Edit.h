@@ -14,6 +14,7 @@ namespace Utility
     bool Edit(const String& InName, uint8& InOutData);
     bool Edit(const String& InName, uint32& InOutData);
     bool Edit(const String& InName, Vec3F& InOutData);
+    bool Edit(const String& InName, Vec4F& InOutData);
     bool Edit(const String& InName, QuatF& InOutData);
     bool Edit(const String& InName, Mat4F& InOutData);
     bool Edit(const String& InName, String& InOutData);

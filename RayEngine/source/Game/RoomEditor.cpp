@@ -1,5 +1,7 @@
 ﻿#include "RoomEditor.h"
 
+#include "Game.h"
+#include "Engine/Instance/Manager.h"
 #include "ImGui/imgui.h"
 #include "Systems/CubeVolume.h"
 
@@ -7,11 +9,6 @@ void RoomEditor::Init()
 {
     Instance::Init();
     CurrConfig.LoadConfig();
-    
-
-    if (const Scene* loadedScene = SceneResource("content/scene.json"))
-        SceneInstance = loadedScene->Create(); 
-        
     
     if (const auto scene = CurrConfig.Scene.Get().Get())
         Scene = scene->Create();
@@ -77,6 +74,18 @@ void RoomEditor::Update(double InDelta)
         }
         
         // If in object mode, place / remove selected object type
+    }
+    else if (IsKeyDown(KEY_LEFT_CONTROL))
+    {
+        if (IsKeyPressed(KEY_S))
+        {
+            // TODO: Save
+        }
+        if (IsKeyPressed(KEY_P))
+        {
+            // Create game instance
+            Engine::Manager::Get().Push<Game>();
+        }
     }
 }
 

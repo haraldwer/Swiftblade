@@ -39,6 +39,11 @@ bool Utility::Edit(const String& InName, Vec3F& InOutData)
     return ImGui::InputFloat3(InName.c_str(), &InOutData.data[0]);
 }
 
+bool Utility::Edit(const String& InName, Vec4F& InOutData)
+{
+    return ImGui::InputFloat4(InName.c_str(), &InOutData.data[0]);
+}
+
 bool Utility::Edit(const String& InName, QuatF& InOutData)
 {
     return ImGui::InputFloat4(InName.c_str(), &InOutData.data[0]);

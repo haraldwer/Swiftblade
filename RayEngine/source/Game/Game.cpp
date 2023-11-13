@@ -14,6 +14,9 @@ void Game::Init()
         bp->Instantiate();
     
     if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_Player.json").Get())
+        bp->Instantiate();
+
+    if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_PhysCube.json").Get())
         bp->Instantiate(); 
 }
 

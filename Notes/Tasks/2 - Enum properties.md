@@ -1,0 +1,1 @@
+Enum properties using betterenums

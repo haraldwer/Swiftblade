@@ -50,6 +50,19 @@ bool Utility::ReadValue(const GenericVal& InVal, Vec3F& OutData)
     return true;
 }
 
+bool Utility::ReadValue(const GenericVal& InVal, Vec4F& OutData)
+{
+    DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+    const auto arr = InVal.GetArray();
+    DESERIALIZE_CHECK_RETURN(arr.Size() != 4, "Invalid array size: " + std::to_string(arr.Size()));
+    for (int32 i = 0; i < 4; i++)
+    {
+        DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
+        OutData.data[i] = arr[i].GetFloat();
+    }
+    return true;
+}
+
 bool Utility::ReadValue(const GenericVal& InVal, QuatF& OutData)
 {
     DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");

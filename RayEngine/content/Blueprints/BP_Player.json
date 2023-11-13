@@ -2,15 +2,9 @@
 	"Components":[{
 		"Name":"Transform",
 		"Data":{
-			"Position":[0.0,
-			3.0,
+			"Position":[3.0,
+			10.0,
 			0.0]
-		}
-	},
-	{
-		"Name":"Mesh",
-		"Data":{
-			"Model":"Defaults\\M_Cube.obj"
 		}
 	},
 	{
@@ -22,7 +16,7 @@
 	{
 		"Name":"Collider",
 		"Data":{
-			
+			"Shape":1
 		}
 	},
 	{
@@ -34,7 +28,7 @@
 	{
 		"Name":"Rigidbody",
 		"Data":{
-			
+			"LockRotation":true
 		}
 	}]
 }

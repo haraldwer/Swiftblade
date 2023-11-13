@@ -15,6 +15,7 @@ namespace ECS
     class SysPlayer : public System<Player>
     {
     public:
+        void Deinit(EntityID InID, Player& InComponent) override;
         void Update(EntityID InID, Player& InComponent, double InDelta) override;
     };
 }

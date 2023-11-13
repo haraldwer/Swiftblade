@@ -3,22 +3,19 @@
 
 namespace Resource
 {
-    class Base
-    {
-    public: 
+    struct Base
+    { 
         virtual ~Base() = default;
         Base(const String& InIdentifier) : Identifier(InIdentifier) {}
         virtual bool Load() = 0;
         virtual bool Unload() = 0;
         virtual bool TryHotReload() = 0;
+        static String Pick(const String& InLabel, const String& InID);
 
-    protected:
         bool Loaded = false;
         uint32 Count = 0;
         String Identifier;
         Utility::Timepoint EditTimestamp; 
-
-        static String Pick(const String& InLabel, const String& InID);
     };
 
     template <class T>

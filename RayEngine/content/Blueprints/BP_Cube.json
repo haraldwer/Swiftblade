@@ -14,5 +14,19 @@
 		"Data":{
 			
 		}
-	}]
+	}],
+	"Children":[{
+			"BP":"Blueprints/BP_PhysCube.json"
+		},{
+			"BP":"Blueprints/BP_PhysCube.json"
+		},{
+			"BP":"Blueprints/BP_PhysCube.json"
+		},{
+			"BP":"Blueprints/BP_PhysCube.json"
+		},{
+			"BP":"Blueprints/BP_PhysCube.json"
+		},{
+			"BP":"Blueprints/BP_PhysCube.json"
+		}
+	]
 }

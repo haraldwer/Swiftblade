@@ -589,6 +589,15 @@ namespace Utility
 				return (*this);
 			}
 
+			bool operator==(const Vector4& in) const
+			{
+				return
+					x == in.x &&
+					y == in.y &&
+					z == in.z &&
+					w == in.w;
+			}
+
 			Vector4(const Type & a_x, const Type & a_y, const Type & a_z, const Type & a_w) : data{ a_x, a_y, a_z, a_w } {}
 			Vector4(const Type & a_v) : data{ a_v, a_v, a_v, a_v } {}
 			Vector4() : data{

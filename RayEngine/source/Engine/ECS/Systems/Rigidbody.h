@@ -13,7 +13,7 @@ namespace ECS
         // Add force?
         // Add impulse?
 
-        PROPERTY_P(bool, LockRotation, true);
+        PROPERTY_P(bool, LockRotation, false);
 
         void AddForce(const Vec3F& InForce) const;
         void AddImpulse(const Vec3F& InForce) const;

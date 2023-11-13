@@ -40,9 +40,11 @@ Physics::PersistentPhysics::~PersistentPhysics()
     PX_RELEASE(Physics);
     if(PVD)
     {
+        if (PVD->isConnected())
+            PVD->disconnect();
         PxPvdTransport* transport = PVD->getTransport();
         PX_RELEASE(transport);
-        PX_RELEASE(PVD)
+        PX_RELEASE(PVD);
     }
     PX_RELEASE(Foundation);
 }
@@ -83,11 +85,11 @@ void Physics::Manager::Update(double InDelta)
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
-        auto t = ecs.GetComponent<ECS::Transform>(instance.first);
+        ECS::Transform* t = ecs.GetComponent<ECS::Transform>(instance.first);
         CHECK_CONTINUE(!t);
         const PxTransform trans = PxTransform(
-            Utility::PhysX::ConvertVec(t->Position),
-            Utility::PhysX::ConvertQuat(t->Rotation));
+            Utility::PhysX::ConvertVec(t->GetPosition()),
+            Utility::PhysX::ConvertQuat(t->GetRotation()));
         instance.second->setGlobalPose(trans);
     }
 
@@ -97,11 +99,11 @@ void Physics::Manager::Update(double InDelta)
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
-        auto t = ecs.GetComponent<ECS::Transform>(instance.first);
+        ECS::Transform* t = ecs.GetComponent<ECS::Transform>(instance.first);
         CHECK_CONTINUE(!t);
         PxTransform trans = instance.second->getGlobalPose();
-        t->Position = Utility::PhysX::ConvertVec(trans.p);
-        t->Rotation = Utility::PhysX::ConvertQuat(trans.q);
+        t->SetPosition(Utility::PhysX::ConvertVec(trans.p));
+        t->SetRotation(Utility::PhysX::ConvertQuat(trans.q));
     }
 }
 
@@ -116,28 +118,56 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     CHECK_RETURN_LOG(!c, "No collider for entity");
 
     const PxTransform trans = PxTransform(
-        Utility::PhysX::ConvertVec(t->Position),
-        Utility::PhysX::ConvertQuat(t->Rotation));
+        Utility::PhysX::ConvertVec(t->GetPosition()),
+        Utility::PhysX::ConvertQuat(t->GetRotation()));
 
     PxMaterial* material = nullptr;
-    if (PhysicsMaterialResource* matRsc = c->Material.Get().Get())
+    if (const PhysicsMaterialResource* matRsc = c->Material.Get().Get())
         material = matRsc->Get();
-    CHECK_RETURN(!material); 
+    CHECK_RETURN(!material);
+
+    const PxGeometry* geometry = nullptr;
+    const Vec4F shapeData = c->ShapeData.Get();
+    switch (static_cast<ECS::CollisionShape>(c->Shape.Get()))
+    {
+    case ECS::CollisionShape::BOX:
+        {
+            static PxBoxGeometry box;
+            box = PxBoxGeometry(shapeData.x, shapeData.y, shapeData.z);
+            geometry = &box; 
+            break;
+        }
+    case ECS::CollisionShape::CAPSULE:
+        {
+            static PxCapsuleGeometry capsule;
+            capsule = PxCapsuleGeometry(shapeData.x, shapeData.y);
+            geometry = &capsule;
+            break;
+        }
+    case ECS::CollisionShape::SPHERE:
+        {
+            static PxSphereGeometry sphere;
+            sphere = PxSphereGeometry(shapeData.x);
+            geometry = &sphere;
+            break;
+        }
+        // Consider cooking geometry
+    }
     
     PxRigidActor* actor = nullptr;
     
-    if (!t->Static)
+    if (!t->IsStatic())
     {
         PxRigidDynamic* ptr = PxCreateDynamic(
             *Persistent.Physics,
             trans,
-            PxBoxGeometry(1, 1, 1),
+            *geometry,
             *material,
             1.0f);
         Dynamics[InID] = ptr; 
         actor = ptr;
-        PxRigidDynamicLockFlags flags;
         
+        PxRigidDynamicLockFlags flags;
         if (!rb)
         {
             flags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_X;
@@ -156,7 +186,6 @@ void Physics::Manager::Add(const ECS::EntityID InID)
                 flags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z;
             }
         }
-
         ptr->setRigidDynamicLockFlags(flags);
     }
     else
@@ -164,7 +193,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
         PxRigidStatic* ptr = PxCreateStatic(
             *Persistent.Physics,
             trans,
-            PxBoxGeometry(1, 1, 1),
+            *geometry,
             *material);
         actor = ptr;
     }

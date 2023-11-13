@@ -16,7 +16,8 @@ namespace ECS
 
         // Implemented by EntitySystem<T>
 
-        virtual ComponentID Register(EntityID InID) = 0;
+        virtual ComponentID Register(EntityID InID, bool InDeferredInit = false) = 0;
+        virtual void FinishRegistration(EntityID InID) = 0;
         virtual void Unregister(EntityID InID) = 0;
         virtual size_t GetComponentType() const = 0;
         virtual void Serialize(EntityID InID, SerializeObj& OutObj) = 0; 
@@ -94,9 +95,11 @@ namespace ECS
             return *reinterpret_cast<SystemType*>(base);
         }
         
-        ComponentID Register(const EntityID InID) override
+        ComponentID Register(const EntityID InID, bool const InDeferredInit) override
         {
-            CHECK_ASSERT(Translate(InID) != InvalidID, "ID already registered");
+            // Already registered? 
+            const ComponentID existingID = Translate(InID);
+            CHECK_RETURN(existingID != InvalidID, existingID);
             
             // Find ID
             const auto findID = [&]()
@@ -118,11 +121,20 @@ namespace ECS
             Translation[InID] = id;
 
             // Init comp
-            auto& comp = GetInternal(id);
-            comp.SetID(id); 
-            Init(id, comp);
+            T& data = GetInternal(id);
+            data.SetID(InID);
+            if (!InDeferredInit)
+                FinishRegistration(InID);
             
             return id;
+        }
+
+        void FinishRegistration(const EntityID InID) override
+        {
+            const ComponentID id = Translate(InID);
+            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            T& data = GetInternal(id);
+            Init(id, data);
         }
         
         void Unregister(const EntityID InID) override
@@ -140,19 +152,25 @@ namespace ECS
 
         void Serialize(EntityID InID, SerializeObj& OutObj) override
         {
-            T& data = GetInternal(InID);
+            const ComponentID id = Translate(InID);
+            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            T& data = GetInternal(id);
             data.Serialize(OutObj);
         }
 
         bool Deserialize(EntityID InID, const DeserializeObj& InObj) override
         {
-            T& data = GetInternal(InID);
+            const ComponentID id = Translate(InID);
+            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            T& data = GetInternal(id);
             return data.Deserialize(InObj);
         }
 
         bool Edit(EntityID InID) override
         {
-            T& data = GetInternal(InID);
+            const ComponentID id = Translate(InID);
+            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            T& data = GetInternal(id);
             return data.Edit(); 
         }
 

@@ -24,7 +24,10 @@ bool MaterialResource::Load(const String& InPath)
 bool MaterialResource::Unload()
 {
     if (Ptr)
+    {
+        Ptr->shader = ::Shader(); // Shader resource managed separately 
         UnloadMaterial(*Ptr);
+    }
     delete Ptr;
     Ptr = nullptr;
     return true;

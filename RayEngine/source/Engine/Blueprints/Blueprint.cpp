@@ -1,6 +1,7 @@
 #include "Blueprint.h"
 
 #include "Engine/ECS/Manager.h"
+#include "Engine/ECS/Systems/Transform.h"
 #include "Utility/File.h"
 #include "Utility/JsonUtility.h"
 
@@ -26,7 +27,7 @@ Utility::Timepoint BlueprintResource::GetEditTime() const
     return Utility::GetFileWriteTime(Identifier);
 }
 
-ECS::EntityID BlueprintResource::Instantiate()
+ECS::EntityID BlueprintResource::Instantiate(const DeserializeObj* InOverrideObj)
 {
     CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", false);
     CHECK_RETURN_LOG(!Doc.GetObj().HasMember("Components"), "Missing component array", ECS::InvalidID);
@@ -36,19 +37,83 @@ ECS::EntityID BlueprintResource::Instantiate()
     const ECS::EntityID id = man.CreateEntity();
     CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
 
-    // Read doc
-    for (const auto& comp : Doc.GetObj()["Components"].GetArray())
+    Set<ECS::SystemBase*> systems; 
+    const auto readObj = [&](const auto& InObj)
     {
-        CHECK_CONTINUE_LOG(!comp.IsObject(), "Invalid component");
-        CHECK_CONTINUE_LOG(!comp.HasMember("Name"), "Missing name member");
-        String name = comp["Name"].GetString();
-        ECS::SystemBase* sys = man.GetSystem(name);
-        CHECK_ASSERT(!sys, "Unable to find system")
-        sys->Register(id);
-        if (comp.HasMember("Data")) 
-            sys->Deserialize(id, comp["Data"].GetObject());
-    }
+        // Read components
+        CHECK_RETURN(!InObj.HasMember("Components"));
+        const auto& compMember = InObj["Components"];
+        CHECK_RETURN(!compMember.IsArray());
+        for (const auto& comp : compMember.GetArray())
+        {
+            CHECK_CONTINUE_LOG(!comp.IsObject(), "Invalid component");
+            CHECK_CONTINUE_LOG(!comp.HasMember("Name"), "Missing name member");
+            String name = comp["Name"].GetString();
+            ECS::SystemBase* sys = man.GetSystem(name);
+            CHECK_ASSERT(!sys, "Unable to find system")
+            sys->Register(id, true);
+            if (comp.HasMember("Data"))
+            {
+                const auto& dataMember = comp["Data"];
+                if (dataMember.IsObject())
+                    sys->Deserialize(id, dataMember.GetObject());
+            }
+            systems.insert(sys);
+        }
 
+        // Read children
+        if (InObj.HasMember("Children"))
+        {
+            const auto& childMember = InObj["Children"];
+            if (childMember.IsArray())
+            {
+                auto& transSys = man.GetSystem<ECS::SysTransform>();
+                for (const auto& child : childMember.GetArray())
+                {
+                    CHECK_CONTINUE_LOG(!child.IsObject(), "Child wasnt object");
+                    ECS::EntityID childID = ECS::InvalidID;
+
+                    // Load BP
+                    ResBlueprint bp; 
+                    Utility::Deserialize(child.GetObj(), "BP", bp);
+                    if (BlueprintResource* loadedBP = bp.Get())
+                    {
+                        if (child.HasMember("Override"))
+                        {
+                            const auto& overrideMember = child["Override"];
+                            if (overrideMember.IsObject())
+                            {
+                                const DeserializeObj obj = overrideMember.GetObj();
+                                childID = loadedBP->Instantiate(&obj);
+                            }
+                        }
+                        else
+                            childID = loadedBP->Instantiate();
+                    }
+                    
+                    // In case there was no BP
+                    if (childID == ECS::InvalidID) 
+                        childID = man.CreateEntity();
+
+                    // Setup hierarchy
+                    CHECK_CONTINUE(childID == ECS::InvalidID);
+                    transSys.SetupHierarchy(id, childID);
+                }
+            }
+        }
+    };
+    
+    // Read doc
+    readObj(Doc.GetObject());
+    
+    // Read overrides
+    if (InOverrideObj && !InOverrideObj->ObjectEmpty())
+        readObj(*InOverrideObj);
+    
+    // Finish reg after all components are loaded
+    for (const auto sys : systems)
+        sys->FinishRegistration(id);
+    
     return id;
 }
 
@@ -72,13 +137,19 @@ void BlueprintResource::Serialize(ECS::EntityID InID)
         writer.StartObject();
         writer.Key("Name");
         writer.String(sys.first.c_str());
+
+        // TODO: Only write data if there are overrides
         writer.Key("Data");
         writer.StartObject();
         sys.second->Serialize(InID, writer);
         writer.EndObject();
+        
         writer.EndObject();
     }
     writer.EndArray();
+
+    // TODO: Write children, but only if they have overrides
+    
     writer.EndObject();
 
     // Format

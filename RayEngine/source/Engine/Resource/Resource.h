@@ -5,7 +5,6 @@
 
 #include "Utility/Serialization/Serialize.h"
 #include "Utility/Serialization/Deserialize.h"
-#include "Utility/Serialization/Edit.h"
 
 namespace Resource
 {
@@ -18,7 +17,7 @@ namespace Resource
         // Create resource from identifier
         Ref(const String& InIdentifier)
         {
-            CHECK_RETURN(InIdentifier == "");
+            CHECK_RETURN(InIdentifier.empty());
             Manager& man = Manager::Get();
             auto* res = reinterpret_cast<Impl<T>*>(man.GetResource(InIdentifier));
             if (!res)

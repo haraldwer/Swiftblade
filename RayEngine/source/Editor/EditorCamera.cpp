@@ -18,7 +18,10 @@ void EditorCamera::Update(double InDelta)
         const auto mouseDelta = GetMouseDelta();
         SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
         TargetState.Rotation += Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.01f;
-        TargetState.Rotation.x = CLAMP(Utility::Math::DegreesToRadians(-90.0f), Utility::Math::DegreesToRadians(90.0f), TargetState.Rotation.x);  
+        TargetState.Rotation.x = CLAMP(
+            Utility::Math::DegreesToRadians(-90.0f),
+            Utility::Math::DegreesToRadians(90.0f),
+            TargetState.Rotation.x);  
 
         const Mat4F rotMat = Mat4F::FromEuler(TargetState.Rotation);
         const Vec3F up = Vec3F::Up();

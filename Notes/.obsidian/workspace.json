@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/0 - Hot reloading any resource.md",
+                "file": "Tasks/0 - Break out player input and player movement.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Tasks/0 - Hot reloading any resource.md",
+                "file": "Tasks/0 - Break out player input and player movement.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Tasks/0 - Hot reloading any resource.md",
+                "file": "Tasks/0 - Break out player input and player movement.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Tasks/0 - Hot reloading any resource.md"
+                "file": "Tasks/0 - Break out player input and player movement.md"
               }
             }
           }
@@ -148,21 +148,24 @@
   },
   "active": "8cd9a2aecd15c4f3",
   "lastOpenFiles": [
-    "Tasks/0 - Room can be saved and loaded.md",
-    "Tasks/0 - Hot reloading any resource.md",
     "Tasks/0 - Cubes can be clicked to be removed or added.md",
-    "Tasks/0 - Cube-based volume.md",
-    "Tasks/0 - Cube line trace.md",
-    "Tasks/0 - Break out player input and player movement.md",
+    "Tasks/0 - Default shading.md",
+    "Tasks/0 - Room can be saved and loaded.md",
+    "Tasks/0 - Object hierarchies.md",
+    "Tasks/0 - Scenes.md",
+    "Tasks/2 - Enum properties.md",
+    "Milestone.md",
+    "Documentation.md",
+    "Tasks/2 - File picker default path.md",
+    "Tasks/Archive/0 - Cube-based volume.md",
     "Tasks/0 - Collision callbacks.md",
+    "Tasks/0 - Break out player input and player movement.md",
+    "Tasks/Archive/0 - Cube line trace.md",
+    "Tasks/Archive/0 - Hot reloading any resource.md",
     "Pipelines/Content.md",
     "Pipelines/Logic.md",
     "Planning/Timeline.md",
-    "Milestone.md",
-    "Documentation.md",
     "Tasks/Backlog.md",
-    "Tasks/2 - File picker default path.md",
-    "Tasks/0 - Scenes.md",
     "Tasks/0.md",
     "Tasks/Archive/1 - Properties are not registered correctly.md",
     "Tasks/Archive/0 - Set up default resources.md",
@@ -174,9 +177,6 @@
     "Pipelines/Administrative.md",
     "Tasks",
     "Planning/Testing.md",
-    "Planning/Release.md",
-    "Planning/Game Creation Process.md",
-    "Planning/Conditions.md",
     "Design",
     "Planning",
     "Pipelines"

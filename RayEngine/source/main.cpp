@@ -17,7 +17,7 @@ int main()
     renderer.Init();
 
     // Push game instance by default
-    instanceManager.Push<RoomEditor>();
+    instanceManager.Push<Game>();
 
     // Timekeeping
     double tickTimer = 0.0;
@@ -73,8 +73,8 @@ int main()
     }
     
     instanceManager.Clear(); 
-    resourceManager.Deinit(); 
     renderer.Deinit();
+    resourceManager.Deinit(); 
     
     return 0;
 }

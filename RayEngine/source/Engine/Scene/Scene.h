@@ -14,7 +14,7 @@ struct SceneInstance
 struct SceneObject : PropertyOwner<SceneObject>
 {
     PROPERTY(ResBlueprint, Blueprint);
-    PROPERTY(String, Overrides); 
+    PROPERTY(String, Overrides); // This is supposed to point to the data 
 };
 
 class Scene : public PropertyOwner<Scene>

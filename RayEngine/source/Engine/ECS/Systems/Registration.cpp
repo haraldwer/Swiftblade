@@ -7,7 +7,7 @@
 #include "Rigidbody.h"
 #include "Game/Systems/CubeVolume.h"
 
-#include "Game/Systems/Player.h"
+#include "Game/Systems/Player/Player.h"
 
 using namespace ECS;
 
