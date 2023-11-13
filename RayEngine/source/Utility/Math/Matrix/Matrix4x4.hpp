@@ -81,7 +81,7 @@ namespace Utility
 				n *= CreateRotationAroundX(aRotation.x);
 				n *= CreateRotationAroundY(aRotation.y);
 				n *= CreateRotationAroundZ(aRotation.z);
-				n.SetScale(Scale());
+				n.SetScale(GetScale());
 				*this = n;
 			}
 
@@ -144,7 +144,7 @@ namespace Utility
 
 			void SetEuler(const Vector3<Type>& aRotation)
 			{
-				const Vector3<Type> scale = Scale();
+				const Vector3<Type> scale = GetScale();
 				
 				const Type heading = aRotation.y;
 				const Type attitude = aRotation.z;
@@ -181,7 +181,7 @@ namespace Utility
 			void SetRotation(const Quaternion<Type>& q)
 			{
 				const Vector3<Type> p = GetPosition();
-				const Vector3<Type> s = Scale();
+				const Vector3<Type> s = GetScale();
 
 				const Type sqw = q.w * q.w;
 				const Type sqx = q.x * q.x;
@@ -403,7 +403,7 @@ namespace Utility
 				return forward.length;
 			}
 
-			Vector3<Type> Scale() const
+			Vector3<Type> GetScale() const
 			{
 				return { ScaleX(), ScaleY(), ScaleZ() };
 			}

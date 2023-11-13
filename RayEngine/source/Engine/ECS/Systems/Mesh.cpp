@@ -1,8 +1,8 @@
 #include "Mesh.h"
 
 #include "Transform.h"
-#include "Editor/BlueprintEditor.h"
-#include "Game/Game.h"
+#include "Engine/Instance/Instance.h"
+#include "Engine/Rendering/Instances/MeshInstance.h"
 
 using namespace ECS;
 
@@ -17,7 +17,7 @@ void SysMesh::Update(EntityID InEntity, Mesh& InComponent, double InDelta)
     const MeshInstance m {
         InComponent.Model,
         InComponent.Material,
-        t.Matrix()
+        t.World()
     };
 
     Engine::InstanceBase::Get().GetRenderScene().AddMesh(m);

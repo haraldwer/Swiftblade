@@ -1,3 +1,4 @@
+#include "Attributes.h"
 #include "Engine/ECS/Manager.h"
 
 #include "Mesh.h"
@@ -20,6 +21,7 @@ ComponentMap[typeid(x).hash_code()] = var; \
 NameMap[String(#x)] = var; } \
 
     // Register systems here!
+    REG_ENTITY_SYSTEM(Attributes);
     REG_ENTITY_SYSTEM(Transform);
     REG_ENTITY_SYSTEM(Mesh);
     REG_ENTITY_SYSTEM(Camera);

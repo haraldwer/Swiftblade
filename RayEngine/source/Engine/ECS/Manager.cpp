@@ -4,6 +4,8 @@
 
 #include "System.h"
 #include "Engine/Instance/Instance.h"
+#include "Systems/Attributes.h"
+#include "Systems/Transform.h"
 
 using namespace ECS; 
 
@@ -34,6 +36,10 @@ EntityID Manager::CreateEntity()
     const EntityID id = IDCounter;
     Entities.insert(id); 
     IDCounter++;
+
+    // Force attribute component
+    auto& attr = GetSystem<SysAttributes>();
+    attr.Register(id, false);
     return id;
 }
 
@@ -41,6 +47,9 @@ void Manager::DestroyEntity(const EntityID InEntity)
 {
     CHECK_ASSERT(InEntity == InvalidID, "Invalid ID");
     CHECK_ASSERT(!Entities.contains(InEntity), "Entity does not exist");
+    if (const auto t = GetComponent<Transform>(InEntity))
+        for (const auto child : t->GetChildren())
+            DestroyEntity(child);
     PendingDestroy.insert(InEntity); 
 }
 

@@ -16,8 +16,15 @@ public:
 
 private:
 
+    void EditComponents(ECS::EntityID InID);
+    void EditHierarhcy(ECS::EntityID InID);
+    void HierarchyNode(ECS::EntityID InID);
+
+    String Text(const String& InString) const;
+    
     EditorCamera Camera;
     ResBlueprint Blueprint;
     ECS::EntityID InstanceID = ECS::InvalidID; 
+    ECS::EntityID SelectedID = ECS::InvalidID;  
     
 };

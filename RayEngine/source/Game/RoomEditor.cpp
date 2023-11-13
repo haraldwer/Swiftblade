@@ -48,7 +48,7 @@ void RoomEditor::Update(double InDelta)
         // Do cube trace
         auto& sys = ECS.GetSystem<ECS::SysCubeVolume>();
         const CameraInstance cam = GetRenderScene().GetCamera();
-        const Coord trace = sys.Trace(CubeVolume, cam.Position, Mat4F(cam.Rotation).Forward(), PlaceDist);
+        const Coord trace = sys.Trace(CubeVolume, cam.Position, Mat4F(cam.Rotation).Forward(), static_cast<int32>(PlaceDist));
 
         // Press to set target cube
 

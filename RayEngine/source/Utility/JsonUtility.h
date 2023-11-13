@@ -40,29 +40,30 @@ namespace Utility
             }
             if (!inString)
             {
-                if (aJson[i] == ',' || aJson[i] == '{' || aJson[i] == '}') // add new line
-                    {
+                if (aJson[i] == ',')
+                {
+                    // If comma and next is scope start
+                    if (i + 1 < aJson.size() && aJson[i + 1] == '{')
+                        continue;
+                    
                     formatted.append(aJson.substr(offset, i - offset));
-
-                    if (aJson[i] == '}')
-                    {
-                        totalIndent--;
-                        formatted.append("\n");
-                        for (int j = 0; j < totalIndent; j++)
-                        {
-                            formatted.append("\t");
-                        }
-                    }
-
                     formatted.append({ aJson[i] });
                     offset = i + 1;
+                    formatted.append("\n");
+                    for (int j = 0; j < totalIndent; j++)
+                        if (aDoTabs) formatted.append("\t");
+                }
 
-                    if (aJson[i] == '{')
-                    {
-                        totalIndent++;
-                    }
+                if (aJson[i] == '{')
+                {
+                    formatted.append(aJson.substr(offset, i - offset));
+                    formatted.append({ aJson[i] });
+                    offset = i + 1;
+                    
+                    totalIndent++;
 
-                    if (aJson[i] != '}')
+                    // If next is not closer
+                    if (i + 1 >= aJson.size() || aJson[i + 1] != '}')
                     {
                         formatted.append("\n");
                         for (int j = 0; j < totalIndent; j++)
@@ -71,7 +72,63 @@ namespace Utility
                                 formatted.append("\t");
                         }
                     }
+                }
+
+                if (aJson[i] == '[')
+                {
+                    formatted.append(aJson.substr(offset, i - offset));
+                    formatted.append({ aJson[i] });
+                    offset = i + 1;
+                    
+                    totalIndent++;
+
+                    // If next is not arr closer or scope start 
+                    if (i + 1 >= aJson.size() || (aJson[i + 1] != ']' && aJson[i + 1] != '{'))
+                    {
+                        formatted.append("\n");
+                        for (int j = 0; j < totalIndent; j++)
+                        {
+                            if (aDoTabs)
+                                formatted.append("\t");
+                        }
                     }
+                }
+                
+                if (aJson[i] == '}')
+                {
+                    formatted.append(aJson.substr(offset, i - offset));
+
+                    totalIndent--;
+                    
+                    // If previous was not scope start
+                    if (i > 0 && aJson[i - 1] != '{')
+                    {
+                        formatted.append("\n");
+                        for (int j = 0; j < totalIndent; j++)
+                            formatted.append("\t");
+                    }
+
+                    formatted.append({ aJson[i] });
+                    offset = i + 1;
+                }
+
+                if (aJson[i] == ']')
+                {
+                    formatted.append(aJson.substr(offset, i - offset));
+
+                    totalIndent--;
+                    
+                    // If previous was not scope start
+                    if (i > 0 && aJson[i - 1] != '[')
+                    {
+                        formatted.append("\n");
+                        for (int j = 0; j < totalIndent; j++)
+                            formatted.append("\t");
+                    }
+
+                    formatted.append({ aJson[i] });
+                    offset = i + 1;
+                }
             }
         }
         return formatted;

@@ -79,18 +79,19 @@ void Physics::Manager::Deinit()
     PX_RELEASE(Scene);
 }
 
-void Physics::Manager::Update(double InDelta)
+void Physics::Manager::Update(double InDelta) const
 {
     const auto& ecs = ECS::Manager::Get();
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
-        ECS::Transform* t = ecs.GetComponent<ECS::Transform>(instance.first);
+        auto* t = ecs.GetComponent<ECS::Transform>(instance.first);
         CHECK_CONTINUE(!t);
         const PxTransform trans = PxTransform(
             Utility::PhysX::ConvertVec(t->GetPosition()),
             Utility::PhysX::ConvertQuat(t->GetRotation()));
-        instance.second->setGlobalPose(trans);
+        if (instance.second->getGlobalPose() != trans)
+            instance.second->setGlobalPose(trans);
     }
 
     Scene->simulate(static_cast<PxReal>(InDelta));
@@ -99,11 +100,13 @@ void Physics::Manager::Update(double InDelta)
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
-        ECS::Transform* t = ecs.GetComponent<ECS::Transform>(instance.first);
+        auto* t = ecs.GetComponent<ECS::Transform>(instance.first);
         CHECK_CONTINUE(!t);
         PxTransform trans = instance.second->getGlobalPose();
-        t->SetPosition(Utility::PhysX::ConvertVec(trans.p));
-        t->SetRotation(Utility::PhysX::ConvertQuat(trans.q));
+        const Vec3F p = Utility::PhysX::ConvertVec(trans.p);
+        const QuatF q = Utility::PhysX::ConvertQuat(trans.q);
+        const Mat4F mat = Mat4F(p, q, t->GetScale());
+        t->SetWorld(mat); 
     }
 }
 

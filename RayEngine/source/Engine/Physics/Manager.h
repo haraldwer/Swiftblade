@@ -52,7 +52,7 @@ namespace Physics
 
         void Init();
         void Deinit();
-        void Update(double InDelta);
+        void Update(double InDelta) const;
 
         void Add(ECS::EntityID InID);
         void Remove(ECS::EntityID InID);

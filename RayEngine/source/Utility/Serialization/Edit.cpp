@@ -2,6 +2,7 @@
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
+#include "Utility/Math/AngleConversion.h"
 
 bool Utility::Edit(const String& InName, bool& InOutData)
 {
@@ -46,7 +47,14 @@ bool Utility::Edit(const String& InName, Vec4F& InOutData)
 
 bool Utility::Edit(const String& InName, QuatF& InOutData)
 {
-    return ImGui::InputFloat4(InName.c_str(), &InOutData.data[0]);
+    Vec3F euler = InOutData.Euler();
+    euler *= Math::RadiansToDegrees(1.0f);
+    if (ImGui::InputFloat3(InName.c_str(), &euler[0]))
+    {
+        InOutData = QuatF(euler *= Math::DegreesToRadians(1.0f));
+        return true; 
+    } 
+    return false;  
 }
 
 bool Utility::Edit(const String& InName, Mat4F& InOutData)

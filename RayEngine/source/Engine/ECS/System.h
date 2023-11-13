@@ -30,7 +30,7 @@ namespace ECS
         virtual void UpdateSystem(double InDelta) = 0;
         virtual bool ShouldUpdate() const;
 
-        SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash) const;
+        static SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash);
         bool Contains(EntityID InID) const;
         Vector<EntityID> GetEntities() const;
 
@@ -71,6 +71,14 @@ namespace ECS
         }
 
         template <class ComponentType>
+        const ComponentType& Get(const EntityID InID) const
+        {
+            auto ptr = TryGet<ComponentType>(InID);
+            CHECK_ASSERT(!ptr, "Unable to find component");
+            return *ptr; 
+        }
+
+        template <class ComponentType>
         ComponentType* TryGet(const EntityID InID)
         {
             const size_t hash = typeid(ComponentType).hash_code();
@@ -79,7 +87,23 @@ namespace ECS
             return sys->TryGet(InID);
         }
 
+        template <class ComponentType>
+        const ComponentType* TryGet(const EntityID InID) const
+        {
+            const size_t hash = typeid(ComponentType).hash_code();
+            SystemBase* base = GetAnonymousSystem(hash, true);
+            System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
+            return sys->TryGet(InID);
+        }
+
         T* TryGet(const EntityID InID)
+        {
+            const ComponentID id = Translate(InID);
+            CHECK_RETURN(id == InvalidID, nullptr);
+            return &GetInternal(id);
+        }
+
+        const T* TryGet(const EntityID InID) const
         {
             const ComponentID id = Translate(InID);
             CHECK_RETURN(id == InvalidID, nullptr);
@@ -182,6 +206,12 @@ namespace ECS
     private:
         
         T& GetInternal(const ComponentID InID)
+        {
+            CHECK_ASSERT(InID < 0 || InID > Components.size(), "Invalid index");
+            return Components[InID];
+        }
+
+        const T& GetInternal(const ComponentID InID) const
         {
             CHECK_ASSERT(InID < 0 || InID > Components.size(), "Invalid index");
             return Components[InID];

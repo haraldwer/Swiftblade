@@ -26,5 +26,7 @@ namespace ECS
         
         void Init(EntityID InEntity, Collider& InComponent) override;
         void Deinit(EntityID InEntity, Collider& InComponent) override;
+        void Update(EntityID InID, Collider& InComponent, double InDelta) override;
+        bool ShouldUpdate() const override;
     };
 }

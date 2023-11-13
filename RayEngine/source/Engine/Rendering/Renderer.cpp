@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "ImGui/rlImGui.h"
+#include "..\..\ImGui\imgui_themes.h"
 
 using namespace Rendering;
 
@@ -15,7 +16,9 @@ void Renderer::Init()
     
     ApplyConfig(CurrConfig); 
 
-    rlImGuiSetup(false); 
+    rlImGuiSetup(false);
+    ImGui::ThemeMoonlight();
+    ImGui::LoadFont();
 }
 
 void Renderer::Deinit()
@@ -30,8 +33,9 @@ bool Renderer::BeginRender()
     if (WindowShouldClose())
         return false;
     BeginDrawing();
-    ClearBackground(SKYBLUE);
+    ClearBackground(DARKGRAY);
     rlImGuiBegin();
+    ImGui::PushDefaultFont();
     return true; 
 }
 
@@ -44,6 +48,7 @@ void Renderer::RenderScenes(double InDelta)
 
 void Renderer::EndRender()
 {
+    ImGui::PopDefaultFont(); 
     rlImGuiEnd();
     DrawFPS(10, 10);
     EndDrawing();
