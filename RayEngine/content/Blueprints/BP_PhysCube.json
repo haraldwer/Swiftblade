@@ -1,19 +1,27 @@
 {
-	"Components":[
-		{
-			"Name":"Mesh"
-		},
-		{
+	"Components":[{
+			"Name":"Mesh",
+			"Data":{}
+		},{
+			"Name":"Attributes",
+			"Data":{
+				"Name":"PhysCube"
+			}
+		},{
 			"Name":"Transform",
 			"Data":{
-				"Position":[0.0, 100.0, 0]
+				"Position":[
+					0.0,
+					10.0,
+					0.0
+				]
 			}
-		},
-		{
-			"Name":"Rigidbody"
-		},
-		{
-			"Name":"Collider"
+		},{
+			"Name":"Collider",
+			"Data":{}
+		},{
+			"Name":"Rigidbody",
+			"Data":{}
 		}
 	]
 }

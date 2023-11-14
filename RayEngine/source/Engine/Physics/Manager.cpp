@@ -117,6 +117,13 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     const auto c = ecs.GetComponent<ECS::Collider>(InID); 
     const auto rb = ecs.GetComponent<ECS::Rigidbody>(InID);
 
+    // We're adding collider, rb might be somewhere in the hierarchy chain
+    // Rb is the real actor
+    // c is just a shape
+
+    // Rb == dynamic
+    // c == just shape 
+    
     CHECK_RETURN_LOG(!t, "No transform for entity");
     CHECK_RETURN_LOG(!c, "No collider for entity");
 

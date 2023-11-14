@@ -2,6 +2,7 @@
 
 #include "ImGui/rlImGui.h"
 #include "..\..\ImGui\imgui_themes.h"
+#include "ImGui/Gizmo/ImGuizmo.h"
 
 using namespace Rendering;
 
@@ -36,6 +37,7 @@ bool Renderer::BeginRender()
     ClearBackground(DARKGRAY);
     rlImGuiBegin();
     ImGui::PushDefaultFont();
+    ImGuizmo::BeginFrame();
     return true; 
 }
 

@@ -26,7 +26,7 @@ void ECS::SysCollider::Update(EntityID InID, Collider& InComponent, double InDel
     case CollisionShape::BOX:
         Rendering::DebugBox(
             t.GetPosition(),
-            InComponent.ShapeData.Get().xyz);
+            InComponent.ShapeData.Get().xyz * 2.0f);
         break;
     case CollisionShape::CAPSULE:
         Rendering::DebugCapsule(

@@ -24,7 +24,6 @@
 		}
 	],
 	"Children":[{
-			"BP":"",
 			"Overrides":{
 				"Components":[{
 						"Name":"Attributes",
@@ -44,11 +43,9 @@
 						"Name":"Camera",
 						"Data":{}
 					}
-				],
-				"Children":[]
+				]
 			}
 		},{
-			"BP":"",
 			"Overrides":{
 				"Components":[{
 						"Name":"Attributes",
@@ -61,8 +58,7 @@
 							"Rotation":[
 								0.0,
 								0.0,
-								0.7071067690849304,
-								0.7071067690849304
+								90.0
 							]
 						}
 					},{
@@ -71,8 +67,7 @@
 							"Shape":1
 						}
 					}
-				],
-				"Children":[]
+				]
 			}
 		}
 	]

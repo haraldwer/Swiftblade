@@ -1,32 +1,20 @@
 {
 	"Components":[{
-		"Name":"Transform",
-		"Data":{
-		}
-	},
-	{
-		"Name":"Mesh",
-		"Data":{
-		}
-	},
-	{
-		"Name":"Collider",
-		"Data":{
-			
-		}
-	}],
-	"Children":[{
-			"BP":"Blueprints/BP_PhysCube.json"
+			"Name":"Mesh",
+			"Data":{}
 		},{
-			"BP":"Blueprints/BP_PhysCube.json"
+			"Name":"Attributes",
+			"Data":{
+				"Name":"Cube"
+			}
 		},{
-			"BP":"Blueprints/BP_PhysCube.json"
+			"Name":"Transform",
+			"Data":{
+				"Static":true
+			}
 		},{
-			"BP":"Blueprints/BP_PhysCube.json"
-		},{
-			"BP":"Blueprints/BP_PhysCube.json"
-		},{
-			"BP":"Blueprints/BP_PhysCube.json"
+			"Name":"Collider",
+			"Data":{}
 		}
 	]
 }

@@ -1,6 +1,7 @@
 ﻿#include "Serialize.h"
 
 #include "Utility/JsonUtility.h"
+#include "Utility/Math/AngleConversion.h"
 
 void Utility::WriteValue(SerializeObj& InOutObj, const bool& InData)
 {
@@ -48,12 +49,9 @@ void Utility::WriteValue(SerializeObj& InOutObj, const Vec4F& InData)
 
 void Utility::WriteValue(SerializeObj& InOutObj, const QuatF& InData)
 {
-    InOutObj.StartArray();
-    InOutObj.Double(InData.x); 
-    InOutObj.Double(InData.y); 
-    InOutObj.Double(InData.z); 
-    InOutObj.Double(InData.w); 
-    InOutObj.EndArray();
+    Vec3F euler = InData.Euler(); 
+    euler *= Math::RadiansToDegrees(1.0f);
+    WriteValue(InOutObj, euler); 
 }
 
 void Utility::WriteValue(SerializeObj& InOutObj, const Mat4F& InData)

@@ -1,6 +1,7 @@
 ﻿#include "Deserialize.h"
 
 #include "Utility/JsonUtility.h"
+#include "Utility/Math/AngleConversion.h"
 
 bool Utility::ReadValue(const GenericVal& InVal, bool& OutData)
 {
@@ -65,15 +66,13 @@ bool Utility::ReadValue(const GenericVal& InVal, Vec4F& OutData)
 
 bool Utility::ReadValue(const GenericVal& InVal, QuatF& OutData)
 {
-    DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
-    const auto arr = InVal.GetArray();
-    DESERIALIZE_CHECK_RETURN(arr.Size() != 4, "Invalid array size: " + std::to_string(arr.Size()));
-    for (int32 i = 0; i < 4; i++)
+    Vec3F euler = OutData.Euler(); 
+    if (ReadValue(InVal, euler))
     {
-        DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
-        OutData.data[i] = arr[i].GetFloat();
+        OutData = QuatF(euler *= Math::DegreesToRadians(1.0f));        
+        return true; 
     }
-    return true;
+    return false; 
 }
 
 bool Utility::ReadValue(const GenericVal& InVal, Mat4F& OutData)

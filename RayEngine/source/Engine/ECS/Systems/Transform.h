@@ -10,8 +10,8 @@ namespace ECS
     {
         enum class Space : uint8
         {
-            WORLD,
-            LOCAL
+            LOCAL,
+            WORLD
         };
         
         friend class SysTransform;
@@ -27,34 +27,29 @@ namespace ECS
         void SetScale(const Vec3F& InScale, Space InSpace = Space::LOCAL); 
         
         Mat4F World() const { return WorldMat; }
-        Mat4F Local() const
-        {
-            return Mat4F(
-                Position,
-                Rotation,
-                Scale);
-        }
+        Mat4F Local() const { return LocalMat; }
 
         void SetWorld(const Mat4F& InWorld);
-        void SetLocal(const Mat4F& InLocal);
+        void SetLocal(const Mat4F& InLocal, bool bInForce = false);
         
         const Set<EntityID>& GetChildren() const { return Children; }
         EntityID GetParent() const { return Parent; }
 
         bool IsStatic() const { return Static.Get(); }
 
+        bool Deserialize(const DeserializeObj& InObj) override;
+        void Serialize(SerializeObj& InOutObj) const override;
+        
     protected:
 
         bool CanMove() const; 
         
-        PROPERTY(Vec3F, Position);
-        PROPERTY(QuatF, Rotation);
-        PROPERTY_P(Vec3F, Scale, Vec3F::One()); 
         PROPERTY_P(bool, Static, false); 
  
         Set<EntityID> Children; 
         EntityID Parent = InvalidID;
         Mat4F WorldMat;
+        Mat4F LocalMat;
     };
 
     class SysTransform : public System<Transform>
@@ -62,14 +57,17 @@ namespace ECS
     public:
         void Init(EntityID InID, Transform& InComponent) override;
         void Deinit(EntityID InID, Transform& InComponent) override;
+
+        
         bool Edit(EntityID InID) override;
+        
         void SetupHierarchy(EntityID InParent, EntityID InChild);
 
         // Propagate changes to children  
         void UpdateChildrenTransform(const Transform& InParent);
 
-        Mat4F WorldToLocal(Transform& InComp, const Mat4F& InWorld) const;
-        Mat4F LocalToWorld(Transform& InComp, const Mat4F& InLocal) const;
+        Mat4F WorldToLocal(const Transform& InComp, const Mat4F& InWorld) const;
+        Mat4F LocalToWorld(const Transform& InComp, const Mat4F& InLocal) const;
     };
 }
 

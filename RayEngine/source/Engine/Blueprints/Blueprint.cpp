@@ -180,18 +180,26 @@ void BlueprintResource::SerializeEntity(ECS::EntityID InID, SerializeObj& OutObj
     // Write children
     if (auto* t = man.GetComponent<ECS::Transform>(InID))
     {
-        OutObj.Key("Children");
-        OutObj.StartArray();
-        for (const ECS::EntityID child : t->GetChildren())
+        const Set<ECS::EntityID>& children = t->GetChildren();
+        if (!children.empty())
         {
-            OutObj.StartObject();
-            OutObj.Key("BP");
-            OutObj.String(""); // TODO: Write object BP
-            OutObj.Key("Overrides");
-            SerializeEntity(child, OutObj);
-            OutObj.EndObject();
+            OutObj.Key("Children");
+            OutObj.StartArray();
+            for (const ECS::EntityID child : children)
+            {
+                OutObj.StartObject();
+                String bp;
+                if (!bp.empty())
+                {
+                    OutObj.Key("BP");
+                    OutObj.String(bp.c_str()); // TODO: Write object BP
+                }
+                OutObj.Key("Overrides");
+                SerializeEntity(child, OutObj);
+                OutObj.EndObject();
+            }
+            OutObj.EndArray();
         }
-        OutObj.EndArray();
     }
     
     OutObj.EndObject();

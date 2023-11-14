@@ -10,14 +10,14 @@ void Game::Init()
     Physics.Init();
 
 
-    if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_Cube.json").Get())
-        bp->Instantiate();
+    //if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_Cube.json").Get())
+    //    bp->Instantiate();
     
     if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_Player.json").Get())
         bp->Instantiate();
 
-    if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_PhysCube.json").Get())
-        bp->Instantiate(); 
+    //if (BlueprintResource* bp = ResBlueprint("Blueprints/BP_PhysCube.json").Get())
+    //    bp->Instantiate(); 
 }
 
 void Game::Deinit()
