@@ -3,6 +3,11 @@
 #include "entity.h"
 #include "utility/Utility.h"
 
+namespace Physics
+{
+    struct Contact;
+}
+
 namespace ECS
 {
     class Manager;
@@ -29,6 +34,8 @@ namespace ECS
         virtual void InitSystem() = 0;
         virtual void UpdateSystem(double InDelta) = 0;
         virtual bool ShouldUpdate() const;
+        virtual void OnBeginContact(const Physics::Contact& InContact) {}
+        virtual void OnEndContact(const Physics::Contact& InContact) {}
 
         static SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash);
         bool Contains(EntityID InID) const;
@@ -158,7 +165,7 @@ namespace ECS
             const ComponentID id = Translate(InID);
             CHECK_ASSERT(id == InvalidID, "Invalid ID");
             T& data = GetInternal(id);
-            Init(id, data);
+            Init(InID, data);
         }
         
         void Unregister(const EntityID InID) override
@@ -168,7 +175,7 @@ namespace ECS
 
             // Reset data
             T& data = GetInternal(id);
-            Deinit(id, GetInternal(id));
+            Deinit(InID, GetInternal(id));
             data = T();
             Translation.erase(InID);
             Unused.push_back(id);

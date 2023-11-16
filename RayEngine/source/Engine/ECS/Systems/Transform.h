@@ -35,16 +35,10 @@ namespace ECS
         const Set<EntityID>& GetChildren() const { return Children; }
         EntityID GetParent() const { return Parent; }
 
-        bool IsStatic() const { return Static.Get(); }
-
         bool Deserialize(const DeserializeObj& InObj) override;
         void Serialize(SerializeObj& InOutObj) const override;
         
     protected:
-
-        bool CanMove() const; 
-        
-        PROPERTY_P(bool, Static, false); 
  
         Set<EntityID> Children; 
         EntityID Parent = InvalidID;
@@ -57,7 +51,6 @@ namespace ECS
     public:
         void Init(EntityID InID, Transform& InComponent) override;
         void Deinit(EntityID InID, Transform& InComponent) override;
-
         
         bool Edit(EntityID InID) override;
         

@@ -2,6 +2,7 @@
 
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
+#include "Engine/Scene/Scene.h"
 
 class Game : public Engine::Instance 
 {
@@ -14,5 +15,6 @@ public:
 private:
 
     Physics::Manager Physics;
+    SceneInstance SceneInstance; 
     
 };

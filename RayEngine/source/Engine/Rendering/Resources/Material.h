@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Property/Property.h"
+#include "..\..\Property\Property.h"
 #include "..\..\Property\PropertyOwner.h"
 #include "Engine/Resource/Resource.h"
 #include "Engine/Rendering/Resources/Shader.h"

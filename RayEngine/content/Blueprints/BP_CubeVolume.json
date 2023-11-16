@@ -1,7 +1,9 @@
 {
 	"Components":[{
 		"Name":"CubeVolume",
-		"Data":{
-		}
+		"Data":{}
+	},{
+		"Name":"Transform",
+		"Data":{}
 	}]
 }

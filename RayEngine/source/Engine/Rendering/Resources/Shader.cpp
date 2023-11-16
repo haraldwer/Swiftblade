@@ -9,6 +9,10 @@ bool ShaderResource::Load(const String& InIdentifier)
     *Ptr = LoadShader(
         ("../Content/" + InIdentifier + ".vs").c_str(),
         ("../Content/" + InIdentifier + ".fs").c_str());
+    
+    Ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*Ptr, "mvp");
+    Ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*Ptr, "instanceTransform");
+    
     Identifier = InIdentifier;
     return true;
 }

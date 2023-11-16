@@ -1,21 +1,29 @@
 #pragma once
 
-#include <physx/PxForceMode.h>
-
+#include "TraceResult.h"
 #include "Engine/ECS/entity.h"
-#include "Resources/Material.h"
+#include "Engine/ECS/Manager.h"
 #include "Utility/Singelton.h"
+
+namespace Physics
+{
+    class Callback;
+}
 
 namespace ECS
 {
     struct Rigidbody;
     struct Collider;
+    enum class CollisionShape : uint8;
 }
 
 namespace physx
 {
+    class PxRigidActor;
+    class PxShape;
+    class PxGeometry;
+    class PxRigidStatic;
     struct PxForceMode;
-    enum PxForceMode::Enum;
     class PxActor;
     class PxRigidDynamic;
     class PxFoundation;
@@ -58,16 +66,38 @@ namespace Physics
         void Remove(ECS::EntityID InID);
         
         void AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceMode InForceMode);
+        void ClearForces(ECS::EntityID InID);
+        void SetKinematic(ECS::EntityID InID, bool InKinematic);
+        
+        void AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions);
+        void ClearCubes(ECS::EntityID InID);
 
-        physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution) const;
+        static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);
+
+        TraceResult Trace(const Vec3F& aStart, const Vec3F& anEnd) const;
 
     private:
+        static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);
+        physx::PxRigidDynamic* CreateDynamic(const ECS::Rigidbody& InRigidbody);
+        physx::PxRigidStatic* CreateStatic(const ECS::Collider& InCollider);
+        void CreateShape(const ECS::Collider& InCollider, ECS::EntityID InActorID, physx::PxRigidActor& InActor);
+        static physx::PxGeometry* GetGeometry(ECS::CollisionShape InShape, const Vec4F& InShapeData);
         
-        static physx::PxForceMode::Enum ConvertForceMode(ForceMode InMode);
+        void TryReleaseShape(ECS::EntityID InID); 
+        void TryReleaseDynamic(ECS::EntityID InID); 
+        void TryReleaseStatic(ECS::EntityID InID); 
 
         physx::PxScene* Scene = nullptr;
+        Callback* Callback = nullptr; 
 
-        Map<ECS::EntityID, physx::PxActor*> Instances; 
-        Map<ECS::EntityID, physx::PxRigidDynamic*> Dynamics; 
+        Map<ECS::EntityID, physx::PxRigidStatic*> Statics; 
+        Map<ECS::EntityID, physx::PxRigidDynamic*> Dynamics;
+        
+        Map<ECS::EntityID, physx::PxShape*> Shapes; 
+        Map<ECS::EntityID, Set<ECS::EntityID>> ActorToShape; 
+        Map<ECS::EntityID, ECS::EntityID> ShapeToActor;
+
+        physx::PxRigidStatic* CubeOwner = nullptr;
+        Map<ECS::EntityID, Vector<physx::PxShape*>> CubeShapes;
     };
 }

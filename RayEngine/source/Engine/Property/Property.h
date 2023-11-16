@@ -5,24 +5,21 @@
 #include "Utility/Serialization/Deserialize.h"
 #include "Utility/Serialization/Edit.h"
 
+// Defines a property
 #define PROPERTY(type, name) Property<type> name = Property<type>(#name, type());
-#define PROPERTY_P(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, type(__VA_ARGS__));
+
+// Defines a property with a default value
+#define PROPERTY_D(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, type(__VA_ARGS__));
+
+// Defines a constant property, that can only be changed by Edit() and Deserialize()
+#define PROPERTY_C(type, name, __VA_ARGS__) ConstantProperty<type> name = ConstantProperty<type>(#name, type(__VA_ARGS__));
 
 template <class T>
-class Property : public PropertyBase
+class ConstantProperty : public PropertyBase
 {
 public:
-    Property(const String& InName, const T& InData) : PropertyBase(InName) { Data = InData, Default = InData; }
-    operator T&() { return Data; }
-    operator const T&() const { return Data; }
-    T& Get() { return Data; }
-    const T& Get() const { return Data; }
-    Property& operator = (const T& InData)
-    {
-        Data = InData;
-        return *this;
-    }
-
+    ConstantProperty(const String& InName, const T& InData) : PropertyBase(InName) { Data = InData, Default = InData; }
+    
     void Reset() { Data = Default; }
     T GetDefault() const { return Default; }
     
@@ -42,18 +39,46 @@ public:
         return Utility::Edit(GetName(), Data); 
     }
 
+    // Comparisons
+    
     bool operator==(const PropertyBase& InOther) const override
     {
-        // Assuming type of InOther
-        return operator==(*reinterpret_cast<const Property*>(&InOther));
+        return operator==(*reinterpret_cast<const ConstantProperty*>(&InOther));
     }
     
-    bool operator==(const Property& InOther) const
+    bool operator==(const ConstantProperty& InOther) const
     {
         return Data == InOther.Data; 
     }
 
-private: 
+    // Getters
+    operator const T&() const { return Data; }
+    const T& Get() const { return Data; }
+    
+protected:
+
+    T& GetData() { return Data; }
+    const T& GetData() const { return Data; }
+    
     T Data;
     T Default;
+};
+
+template <class T>
+class Property : public ConstantProperty<T>
+{
+public:
+    Property(const String& InName, const T& InData) : ConstantProperty<T>(InName, InData) {}
+
+    // Non-const getters
+    operator T&() { return this->Data; }
+    operator const T&() const { return this->Data; }
+    T& Get() { return this->Data; }
+    const T& Get() const { return this->Data; }
+    
+    Property& operator = (const T& InData)
+    {
+        this->Data = InData;
+        return *this;
+    }
 };

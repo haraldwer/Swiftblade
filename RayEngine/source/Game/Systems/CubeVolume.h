@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
+#include "Engine/Rendering/Instances/MeshInstance.h"
 
 struct Coord
 {
@@ -36,10 +37,10 @@ namespace ECS
     
     struct CubeVolume : Component<CubeVolume>
     {
-        PROPERTY_P(float, Scale, 1.0f);
-        PROPERTY_P(uint8, Height, 50);
-        PROPERTY_P(uint8, Width, 50);
-        PROPERTY_P(uint8, Depth, 50);
+        PROPERTY_D(float, Scale, 1.0f);
+        PROPERTY_D(uint8, Height, 50);
+        PROPERTY_D(uint8, Width, 50);
+        PROPERTY_D(uint8, Depth, 50);
         PROPERTY(Volume, Data);
     };
 
@@ -51,12 +52,14 @@ namespace ECS
         Coord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
         
         void Init(EntityID InID, CubeVolume& InComponent) override;
+        void Deinit(EntityID InID, CubeVolume& InComponent) override;
         void Update(EntityID InID, CubeVolume& InComponent, double InDelta) override;
-        static void DrawCube(const Vec3F& InPos);
+        void DrawCubes(const Vector<Mat4F>& InTransforms) const;
 
         bool ShouldUpdate() const override { return true; }
     private:
-        Coord CachedTrace = 0; 
+        Coord CachedTrace = 0;
+        MeshInstance MeshInstance; 
     };
 }
 

@@ -39,6 +39,7 @@ add_executable(${PROJECT_NAME} ${sources})
 target_include_directories(${PROJECT_NAME} 
   PRIVATE
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include/physx
     ${PROJECT_SOURCE_DIR}/source
 )
 

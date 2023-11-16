@@ -39,15 +39,29 @@ namespace ECS
             CHECK_ASSERT(find == ComponentMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
             System<T>* sys = reinterpret_cast<System<T>*>(find->second);
-            return sys->TryGet<T>(InID);
+            return sys->TryGet(InID);
         }
 
         SystemBase* GetSystem(const String& InComponentName);
         SystemBase* GetSystem(size_t InHash, bool InIsCompHash);
         
-        const Map<String, SystemBase*>& GetAllSystems() const { return NameMap; } 
+        const Map<String, SystemBase*>& GetAllSystems() const { return NameMap; }
+
+        void Deserialize(EntityID InID, const Vector<DeserializeObj>& InObjects);
+        void Serialize(EntityID InID, SerializeObj& OutObj);
 
     private:
+
+        struct DeserializeSysTuple
+        {
+            Set<SystemBase*> Systems;
+            int Depth = 0;
+        };
+        typedef Map<EntityID, DeserializeSysTuple> DeserializeSysCollection;
+        
+        void Deserialize(EntityID InID, const DeserializeObj& InObj, DeserializeSysCollection& OutSystems, int InDepth); 
+        Set<SystemBase*> DeserializeComponents(EntityID InID, const DeserializeObj& InObj); 
+        void DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeSysCollection& OutSystems, int InDepth);
         
         void RegisterSystems();
         void DestroyPending(); 

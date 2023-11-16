@@ -107,7 +107,6 @@ void ECS::Transform::SetScale(const Vec3F& InScale, Space InSpace)
 
 void ECS::Transform::SetWorld(const Mat4F& InWorld)
 {
-    CHECK_ASSERT(!CanMove(), "Tried to move a static object")
     CHECK_RETURN(WorldMat == InWorld);
     WorldMat = InWorld; 
     auto& sys = Manager::Get().GetSystem<SysTransform>();
@@ -117,16 +116,10 @@ void ECS::Transform::SetWorld(const Mat4F& InWorld)
 
 void ECS::Transform::SetLocal(const Mat4F& InLocal, bool bInForce)
 {
-    CHECK_ASSERT(!bInForce && !CanMove(), "Tried to move a static object")
     LocalMat = InLocal; 
     auto& sys = Manager::Get().GetSystem<SysTransform>();
     WorldMat = sys.LocalToWorld(*this, InLocal);
     sys.UpdateChildrenTransform(*this);
-}
-
-bool ECS::Transform::CanMove() const
-{
-    return Engine::Instance::Get().IsEditor() || !IsStatic(); 
 }
 
 void SysTransform::Init(EntityID InID, Transform& InComponent)
@@ -231,7 +224,6 @@ void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChil
     CHECK_RETURN_LOG(!child, "Unable to find child");
     parent->Children.insert(InChild);
     child->Parent = InParent;
-    child->Static = parent->IsStatic();
     child->SetLocal(child->Local(), true);
 }
 

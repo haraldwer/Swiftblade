@@ -1,8 +1,8 @@
 #pragma once
+
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 #include "Engine/Physics/Resources/Material.h"
-
 
 namespace ECS
 {
@@ -15,9 +15,9 @@ namespace ECS
     
     struct Collider : Component<Collider>
     {
-        PROPERTY_P(uint8, Shape, 0);
-        PROPERTY_P(Vec4F, ShapeData, Vec4F::One()); // Shape data depends on shape type
-        PROPERTY_P(ResPM, Material, "Defaults/PM_Default.json");
+        PROPERTY_C(uint8, Shape, 0);
+        PROPERTY_C(Vec4F, ShapeData, Vec4F::One()); // Shape data depends on shape type
+        PROPERTY_C(ResPM, Material, "Defaults/PM_Default.json");
     };
 
     class SysCollider : public System<Collider>

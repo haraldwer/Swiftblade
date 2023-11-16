@@ -4,22 +4,35 @@
     "type": "split",
     "children": [
       {
-        "id": "a3d4eb9f6467bf99",
+        "id": "c1a0018d3574e944",
         "type": "tabs",
         "children": [
           {
-            "id": "8cd9a2aecd15c4f3",
+            "id": "4b0d5d57611f22ad",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/0 - Break out player input and player movement.md",
+                "file": "Milestones/Milestone 3 (Nov 22).md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "bf95713e01019e6f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Tasks/0 - Movement state machine.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -85,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Tasks/0 - Break out player input and player movement.md",
+                "file": "Tasks/0 - Movement state machine.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Tasks/0 - Break out player input and player movement.md",
+                "file": "Tasks/0 - Movement state machine.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Tasks/0 - Break out player input and player movement.md"
+                "file": "Tasks/0 - Movement state machine.md"
               }
             }
           }
@@ -146,37 +159,38 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "8cd9a2aecd15c4f3",
+  "active": "bf95713e01019e6f",
   "lastOpenFiles": [
-    "Tasks/0 - Cubes can be clicked to be removed or added.md",
-    "Tasks/0 - Default shading.md",
-    "Tasks/0 - Room can be saved and loaded.md",
-    "Tasks/0 - Object hierarchies.md",
-    "Tasks/0 - Scenes.md",
-    "Tasks/2 - Enum properties.md",
-    "Milestone.md",
-    "Documentation.md",
-    "Tasks/2 - File picker default path.md",
-    "Tasks/Archive/0 - Cube-based volume.md",
-    "Tasks/0 - Collision callbacks.md",
-    "Tasks/0 - Break out player input and player movement.md",
-    "Tasks/Archive/0 - Cube line trace.md",
-    "Tasks/Archive/0 - Hot reloading any resource.md",
-    "Pipelines/Content.md",
-    "Pipelines/Logic.md",
+    "Milestones/Milestone 3 (Nov 22).md",
+    "Tasks/0 - Sword.md",
+    "Tasks/Archive/1 - Instanced rendering.md",
+    "Milestones/Milestone 2 (Nov 15).md",
+    "Tasks/0 - UI Library.md",
+    "Tasks/0 - Scene Offset.md",
+    "Tasks/0 - Room connections.md",
+    "Tasks/0 - Level end.md",
+    "Tasks/0 - Player death.md",
+    "Tasks/0 - Entity reparenting.md",
+    "Tasks/0 - Movement state machine.md",
     "Planning/Timeline.md",
+    "Milestones",
+    "Documentation.md",
+    "Tasks/0 - Collision masks.md",
     "Tasks/Backlog.md",
-    "Tasks/0.md",
-    "Tasks/Archive/1 - Properties are not registered correctly.md",
-    "Tasks/Archive/0 - Set up default resources.md",
-    "Tasks/Archive/0 - File picker.md",
-    "Pipelines/Tools.md",
+    "Tasks/Archive/0 - Break out player input and player movement.md",
+    "Tasks/0 - CubeVolume custom serialization.md",
+    "Tasks/0 - Optimize scene overrides.md",
+    "Tasks/2 - File picker default path.md",
+    "Tasks/2 - Enum properties.md",
+    "Tasks/Archive/0 - Room can be saved and loaded.md",
+    "Tasks/0 - Default shading.md",
+    "Tasks/Archive/0 - Cubes can be clicked to be removed or added.md",
+    "Tasks/Archive/0 - Scenes.md",
+    "Tasks/Archive/0 - Cube volume collisions.md",
+    "Tasks/Archive/0 - Object hierarchies.md",
     "Tasks/Archive",
-    "Tasks/Milestone.md",
     "Milestone",
-    "Pipelines/Administrative.md",
     "Tasks",
-    "Planning/Testing.md",
     "Design",
     "Planning",
     "Pipelines"

@@ -15,8 +15,8 @@ void RoomEditor::Init()
 
     const auto& sys = ECS.GetSystem<ECS::SysCubeVolume>();
     const auto volumes = sys.GetEntities();
-    CHECK_RETURN_LOG(volumes.empty(), "No cube volume");
-    CubeVolume = volumes[0];
+    if (!volumes.empty())
+        CubeVolume = volumes[0];
 
     Camera.SetRequireHold(false);  
 }
@@ -43,15 +43,16 @@ void RoomEditor::Update(double InDelta)
     {
         // If in cube edit mode, add / remove cubes
         CHECK_RETURN(CubeVolume == ECS::InvalidID)
+        
         // Change place dist
         PlaceDist = CLAMP(0.0f, 10.0f, PlaceDist + GetMouseWheelMove());
+        
         // Do cube trace
         auto& sys = ECS.GetSystem<ECS::SysCubeVolume>();
         const CameraInstance cam = GetRenderScene().GetCamera();
         const Coord trace = sys.Trace(CubeVolume, cam.Position, Mat4F(cam.Rotation).Forward(), static_cast<int32>(PlaceDist));
 
         // Press to set target cube
-
         if (!Placing &&
             (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
             IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
@@ -62,6 +63,14 @@ void RoomEditor::Update(double InDelta)
 
         if (Placing)
         {
+            // Show start
+            const auto coord = Coord(PlaceStart); 
+            sys.DrawCubes({ Vec3F(
+                coord.Pos.X,
+                coord.Pos.Y,
+                coord.Pos.Z)});
+
+            // Release to place cubes
             if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) &&
                 !IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             {
@@ -69,8 +78,6 @@ void RoomEditor::Update(double InDelta)
                 const uint8 val = IsMouseButtonReleased(MOUSE_BUTTON_LEFT) ? 1 : 0;
                 sys.Set(CubeVolume, PlaceStart, trace, val);
             }
-            
-            // Should probably draw selection too
         }
         
         // If in object mode, place / remove selected object type
@@ -78,14 +85,11 @@ void RoomEditor::Update(double InDelta)
     else if (IsKeyDown(KEY_LEFT_CONTROL))
     {
         if (IsKeyPressed(KEY_S))
-        {
-            // TODO: Save
-        }
+            if (const auto scene = CurrConfig.Scene.Get().Get())
+                scene->Save(Scene);
+        
         if (IsKeyPressed(KEY_P))
-        {
-            // Create game instance
             Engine::Manager::Get().Push<Game>();
-        }
     }
 }
 
@@ -99,6 +103,11 @@ void RoomEditor::UpdateUI()
             {
                 Scene.Destroy();
                 Scene = scene->Create();
+                
+                const auto& sys = ECS.GetSystem<ECS::SysCubeVolume>();
+                const auto volumes = sys.GetEntities();
+                if (!volumes.empty())
+                    CubeVolume = volumes[0];
             }
         }
 
@@ -112,9 +121,8 @@ void RoomEditor::UpdateUI()
         }
         
         if (ImGui::Button("Save"))
-        {
-            // TODO: Save the scene, with overrides!
-        }
+            if (const auto scene = CurrConfig.Scene.Get().Get())
+                scene->Save(Scene);
     }
     ImGui::End(); 
 }

@@ -45,7 +45,7 @@ void BlueprintEditor::Update(double InDelta)
     {
         if (IsKeyPressed(KEY_S))
             if (BlueprintResource* bp = Blueprint.Get())
-                bp->Serialize(InstanceID); 
+                bp->Save(InstanceID); 
         
         if (IsKeyPressed(KEY_P))
             Engine::Manager::Get().Push<Game>();
@@ -61,7 +61,7 @@ void BlueprintEditor::UpdateUI()
         ImGui::SameLine();
         if (ImGui::Button("Save"))
             if (BlueprintResource* bp = Blueprint.Get())
-                bp->Serialize(InstanceID);
+                bp->Save(InstanceID);
 
         ImGui::Spacing();
         ImGui::Separator();

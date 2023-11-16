@@ -14,13 +14,21 @@
 				]
 			}
 		},{
+			"Name":"Input",
+			"Data":{}
+		},{
 			"Name":"Player",
 			"Data":{}
 		},{
 			"Name":"Rigidbody",
 			"Data":{
-				"LockRotation":true
+				"LockRotation":true,
+				"AngularDamping":0.0,
+				"LinearDamping":0.0
 			}
+		},{
+			"Name":"Movement",
+			"Data":{}
 		}
 	],
 	"Children":[{

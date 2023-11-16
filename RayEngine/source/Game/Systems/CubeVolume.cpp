@@ -1,6 +1,8 @@
 #include "CubeVolume.h"
 
+#include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Instance.h"
+#include "Engine/Physics/Manager.h"
 #include "Utility/Math/Grid.h"
 
 uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
@@ -64,33 +66,60 @@ Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& 
 
 void ECS::SysCubeVolume::Init(EntityID InID, CubeVolume& InComponent)
 {
-    auto& data = InComponent.Data.Get();
-    data[Coord(0, 0, 0).Key] = 1;
+    MeshInstance.Material = ResRM("Defaults/RM_Default.json");
+    MeshInstance.Model = ResModel("Defaults/M_Cube.obj");
+    
+    if (Engine::InstanceBase::Get().IsEditor())
+        return;
+    
+    Vector<Vec3F> cubes;
+    for (const auto entry : InComponent.Data.Get())
+    {
+        Coord coord(entry.first);
+        cubes.emplace_back(
+            coord.Pos.X,
+            coord.Pos.Y,
+            coord.Pos.Z); 
+    }
+    Physics::Manager::Get().AddCubes(InID, cubes); 
+}
+
+void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
+{
+    if (Engine::InstanceBase::Get().IsEditor())
+        return;
+    Physics::Manager::Get().ClearCubes(InID); 
 }
 
 void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double InDelta)
 {
+    Mat4F world = Get<ECS::Transform>(InID).World();
+    
+    Vector<Mat4F> transforms;
+    transforms.reserve(InComponent.Data.Get().size() + 1);
+    const float scale = InComponent.Scale.Get();
     for (const auto& entry : InComponent.Data.Get())
     {
         CHECK_CONTINUE(entry.second == 0);
         const Coord coord = entry.first;
-        DrawCube(Vec3F(
+        const Mat4F mat = Mat4F(Vec3F(
             coord.Pos.X,
             coord.Pos.Y,
-            coord.Pos.Z)
-            * InComponent.Scale.Get());
+            coord.Pos.Z) * scale);
+        transforms.emplace_back(mat * world);
     }
-    
-    DrawCube(Vec3F(
-        CachedTrace.Pos.X,
-        CachedTrace.Pos.Y,
-        CachedTrace.Pos.Z));
+
+    if (Engine::InstanceBase::Get().IsEditor())
+    {
+        transforms.emplace_back(Vec3F(
+            CachedTrace.Pos.X,
+            CachedTrace.Pos.Y,
+            CachedTrace.Pos.Z));
+    }
+
+    DrawCubes(transforms);
 }
-void ECS::SysCubeVolume::DrawCube(const Vec3F& InPos)
+void ECS::SysCubeVolume::DrawCubes(const Vector<Mat4F>& InTransforms) const
 {
-    MeshInstance m;
-    m.Material = ResRM("Defaults/RM_Default.json");
-    m.Model = ResModel("Defaults/M_Cube.obj");
-    m.Transform = Mat4F(InPos, QuatF::Identity(), {0.5f});
-    Engine::InstanceBase::Get().GetRenderScene().AddMesh(m);
+    Engine::InstanceBase::Get().GetRenderScene().AddMeshes(MeshInstance, InTransforms);
 }

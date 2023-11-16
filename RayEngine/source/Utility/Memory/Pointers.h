@@ -47,7 +47,8 @@ namespace Utility
         T* Get() const { return Ptr; }
         T* operator->() const { return Ptr; }
         T& operator*() const { return *Ptr; }
-        
+        bool operator!() const { return !Ptr; }
+            
         uint32 RefCount() const { return Ref ? Ref->Count : 0; }
         uint32 WeakRefCount() const { return Ref ? Ref->WeakCount : 0; }
         

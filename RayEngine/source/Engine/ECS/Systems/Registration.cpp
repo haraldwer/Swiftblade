@@ -7,6 +7,8 @@
 #include "Collider.h"
 #include "Rigidbody.h"
 #include "Game/Systems/CubeVolume.h"
+#include "Game/Systems/Player/Input.h"
+#include "Game/Systems/Player/Movement.h"
 
 #include "Game/Systems/Player/Player.h"
 
@@ -30,6 +32,8 @@ NameMap[String(#x)] = var; } \
 
     // Game systems
     REG_ENTITY_SYSTEM(Player);
+    REG_ENTITY_SYSTEM(Input);
+    REG_ENTITY_SYSTEM(Movement);
     REG_ENTITY_SYSTEM(CubeVolume);
     
 #undef REG_OBJ_SYS

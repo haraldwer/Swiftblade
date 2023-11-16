@@ -1,5 +1,5 @@
 {
-	"StaticFriction":0.5,
-	"DynamicFriction":1.0,
+	"StaticFriction":0.1,
+	"DynamicFriction":0.1,
 	"Restitution":0.1
 }

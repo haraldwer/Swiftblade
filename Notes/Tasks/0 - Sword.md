@@ -1,0 +1,1 @@
+The player should be able to pick up a sword

@@ -50,7 +50,10 @@ namespace Utility
             // Calculate leftover delta?
             // We're not starting in the middle of a block
             // Diff between coord and pos
-            Vec3F coordDiff = currPos - Vec3F(x, y, z);
+            Vec3F coordDiff = currPos - Vec3F(
+                static_cast<float>(x),
+                static_cast<float>(y),
+                static_cast<float>(z));
             // We're already diff in
             // What is the leftover delta? 
             

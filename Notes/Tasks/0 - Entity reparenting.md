@@ -1,0 +1,1 @@
+You should be able to change the parent of an entity mid-gameplay. This has to be compatible with physx.

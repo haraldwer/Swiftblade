@@ -6,7 +6,7 @@
 
 struct RoomEditorConfig : PropertyOwner<RoomEditorConfig>
 {
-    PROPERTY_P(ResScene, Scene, "Scenes/untitled.json");
+    PROPERTY_D(ResScene, Scene, "Scenes/untitled.json");
 
     inline static const String Path = "Configs/C_RoomEditor.json";
     void LoadConfig() { Load(Path); }

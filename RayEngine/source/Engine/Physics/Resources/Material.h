@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Engine/Property/Property.h"
+#include "..\..\Property\Property.h"
 #include "Engine/Property/PropertyOwner.h"
 #include "Engine/Resource/Resource.h"
 
@@ -19,9 +19,9 @@ public:
     Utility::Timepoint GetEditTime() const; 
     physx::PxMaterial* Get() const { return Ptr; }
     
-    PROPERTY_P(float, StaticFriction, 1.0f);
-    PROPERTY_P(float, DynamicFriction, 1.0f);
-    PROPERTY_P(float, Restitution, 1.0f);
+    PROPERTY_D(float, StaticFriction, 1.0f);
+    PROPERTY_D(float, DynamicFriction, 1.0f);
+    PROPERTY_D(float, Restitution, 1.0f);
 
 private:
 

@@ -1,32 +1,29 @@
 #pragma once
 
 #include "Engine/Resource/Resource.h"
-#include "Engine/Property/Property.h"
+#include "..\Property\Property.h"
 #include "Engine/Property/PropertyOwner.h"
 #include "Engine/Blueprints/Blueprint.h"
 
 struct SceneInstance
 {
-    void Destroy(); 
-    Vector<ECS::EntityID> Entities; 
+    void Destroy();
+    Vector<ECS::EntityID> Entities;
 };
 
-struct SceneObject : PropertyOwner<SceneObject>
-{
-    PROPERTY(ResBlueprint, Blueprint);
-    PROPERTY(String, Overrides); // This is supposed to point to the data 
-};
-
-class Scene : public PropertyOwner<Scene>
+class Scene
 {
 public:
-    SceneInstance Create() const;
-    bool Save(const String& InPath) const override;
-    bool Load(const String& InPath) override;
-    Utility::Timepoint GetEditTime() const; 
+    SceneInstance Create(const Mat4F& InOffset = Mat4F()) const;
+    bool Save(const SceneInstance& InInstance) const;
+    bool Load(const String& InIdentifier);
+    bool Unload(); 
+    Utility::Timepoint GetEditTime() const;
+    
 protected:
-    PROPERTY(Vector<SceneObject>, Objects);
-    String Identifier; 
+    
+    DocumentObj Doc; 
+    String Identifier;
 };
 
 typedef Resource::Ref<Scene> ResScene;

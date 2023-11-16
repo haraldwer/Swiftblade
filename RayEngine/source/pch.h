@@ -68,6 +68,7 @@ using String = std::string;
 #include "Utility/Math/Macros.h"
 #include "Utility/Utility.h"
 #include "Utility/NumericalTypes.h"
+#include "Utility/Type.h"
 
 #include "Utility/Memory/Pointers.h"
 template <class T>
