@@ -5,8 +5,7 @@
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Contact.h"
-#include "Engine/Physics/Manager.h"
-#include "Engine/Physics/Trace.h"
+#include "Engine/Physics/Query.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Utility/Math/AngleConversion.h"
 
@@ -78,7 +77,8 @@ void ECS::Movement::ConsumeJumpInput()
     
     if (input.JumpInput && OnGround)
     {
-        rb.SetVelocity(Vec3F::Up() * JumpVelocity.Get());
+        const Vec3F vel = rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f);
+        rb.SetVelocity(vel + Vec3F::Up() * JumpVelocity.Get());
         OnGround = false; 
         input.JumpInput = false; 
     }

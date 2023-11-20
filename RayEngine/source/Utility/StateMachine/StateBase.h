@@ -8,7 +8,7 @@ public:
 	void SetOwner(const ObjectPtr<StateMachine>& InOwner) { Owner = InOwner; }
 	
 	virtual void Init() {}
-	virtual Utility::TypeAny Update(float InDT) { return {}; }
+	virtual Utility::TypeAny Update(double InDT) { return {}; }
 	virtual Utility::TypeAny Check() { return {}; }
 	
 	virtual void Enter() {}

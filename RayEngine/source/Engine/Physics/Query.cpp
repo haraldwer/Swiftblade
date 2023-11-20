@@ -1,4 +1,4 @@
-﻿#include "Trace.h"
+﻿#include "Query.h"
 
 #include <PxQueryReport.h>
 #include <PxScene.h>
@@ -20,13 +20,20 @@ Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
     physx::PxRaycastBuffer buff(hits, numHits);
 
     // TODO: Filtering
+
+    physx::PxHitFlags flags = physx::PxHitFlag::eDEFAULT;
+    physx::PxQueryFilterData filterData;
+    physx::PxQueryFilterCallback* filterCallback = nullptr;
     
     CHECK_ASSERT(!Manager::Get().Scene, "Invalid scene"); 
     Manager::Get().Scene->raycast(
         Utility::PhysX::ConvertVec(InParams.Start),
         Utility::PhysX::ConvertVec(dir),
         length,
-        buff);
+        buff,
+        flags,
+        filterData,
+        filterCallback);
 
     if (buff.nbTouches > 0)
     {
