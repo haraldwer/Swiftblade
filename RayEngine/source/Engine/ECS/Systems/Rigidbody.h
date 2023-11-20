@@ -3,17 +3,20 @@
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 
+namespace Physics
+{
+    class Manager;
+}
+
+namespace physx
+{
+    class PxRigidDynamic;
+}
+
 namespace ECS
 {
     struct Rigidbody : Component<Rigidbody>
     {
-        // Some exposed properties
-        // And pointer to physx object
-
-        // Set velocity?
-        // Add force?
-        // Add impulse?
-
         PROPERTY_C(bool, LockRotation, false);
         PROPERTY_C(float, Mass, 1.0f);
         PROPERTY_C(float, LinearDamping, 0.1f);
@@ -29,6 +32,10 @@ namespace ECS
         void SetKinematic(bool InKinematic) const;
         
         Vec3F GetVelocity() const;
+
+    private:
+        friend Physics::Manager;
+        physx::PxRigidDynamic* Ptr = nullptr; 
     };
 
     class SysRigidbody : public System<Rigidbody>

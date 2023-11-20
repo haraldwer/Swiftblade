@@ -6,6 +6,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Contact.h"
 #include "Engine/Physics/Manager.h"
+#include "Engine/Physics/Trace.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Utility/Math/AngleConversion.h"
 
@@ -92,11 +93,13 @@ void ECS::Movement::GroundSnap()
     
     const Vec4F shapeData = collider.ShapeData;
     const Vec3F pos = transform.GetPosition();
-    const Vec3F start = pos - Vec3F::Up() * shapeData.y;
-    const Vec3F end = start - Vec3F::Up() * GroundDist.Get();
+
+    Physics::TraceParams params;
+    params.Start = pos - Vec3F::Up() * shapeData.y;
+    params.End = params.Start - Vec3F::Up() * GroundDist.Get();
     
     // TODO: Sweep
-    const Physics::TraceResult result = Physics::Manager::Get().Trace(start, end);
+    const Physics::QueryResult result = Physics::Query::Trace(params);
     
     CHECK_RETURN(!result.IsHit);
     CHECK_RETURN(result.Hits.empty());

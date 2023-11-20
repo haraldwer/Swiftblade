@@ -2,6 +2,7 @@
 
 #include "Transform.h"
 #include "Engine/Instance/Manager.h"
+#include "Engine/Physics/CollisionShape.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
 
@@ -22,20 +23,20 @@ void ECS::SysCollider::Deinit(EntityID InEntity, Collider& InComponent)
 void ECS::SysCollider::Update(EntityID InID, Collider& InComponent, double InDelta)
 {
     auto& t = Get<Transform>(InID);
-    switch (static_cast<CollisionShape>(InComponent.Shape.Get())) {
-    case CollisionShape::BOX:
+    switch (static_cast<Physics::Shape>(InComponent.Shape.Get())) {
+    case Physics::Shape::BOX:
         Rendering::DebugBox(
             t.GetPosition(),
             InComponent.ShapeData.Get().xyz * 2.0f);
         break;
-    case CollisionShape::CAPSULE:
+    case Physics::Shape::CAPSULE:
         Rendering::DebugCapsule(
             t.GetPosition(),
             t.GetRotation(),
             InComponent.ShapeData.Get().x,
             InComponent.ShapeData.Get().y);
         break;
-    case CollisionShape::SPHERE:
+    case Physics::Shape::SPHERE:
         Rendering::DebugSphere(
             t.GetPosition(),
             InComponent.ShapeData.Get().x);

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "TraceResult.h"
 #include "Engine/ECS/entity.h"
 #include "Engine/ECS/Manager.h"
 #include "Utility/Singelton.h"
+
+namespace Physics
+{
+    enum class Shape : uint8;
+}
 
 namespace Physics
 {
@@ -14,7 +18,6 @@ namespace ECS
 {
     struct Rigidbody;
     struct Collider;
-    enum class CollisionShape : uint8;
 }
 
 namespace physx
@@ -36,13 +39,6 @@ namespace physx
 
 namespace Physics
 {
-    enum class ForceMode
-    {
-        FORCE,
-        IMPULSE,
-        VELOCITY
-    };
-
     struct PersistentPhysics
     {
         void TryInit();
@@ -56,6 +52,7 @@ namespace Physics
     
     class Manager : public Utility::Singelton<Manager>
     {
+        friend class Query; 
     public:
 
         void Init();
@@ -65,26 +62,17 @@ namespace Physics
         void Add(ECS::EntityID InID);
         void Remove(ECS::EntityID InID);
         
-        void AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceMode InForceMode);
-        void SetVelocity(ECS::EntityID InID, const Vec3F& InVelocity);
-        Vec3F GetVelocity(ECS::EntityID InID);
-        void ClearForces(ECS::EntityID InID);
-        void SetKinematic(ECS::EntityID InID, bool InKinematic);
-        
         void AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions);
         void ClearCubes(ECS::EntityID InID);
 
         static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);
 
-        TraceResult Trace(const Vec3F& aStart, const Vec3F& anEnd) const;
-        TraceResult Sweep(const Vec3F& aStart, const Vec3F& anEnd, ECS::CollisionShape InShape, const Vec4F& InShapeData, const Mat4F& InPose = Mat4F()) const;
-
     private:
         static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);
-        physx::PxRigidDynamic* CreateDynamic(const ECS::Rigidbody& InRigidbody);
+        physx::PxRigidDynamic* CreateDynamic(ECS::Rigidbody& InRigidbody);
         physx::PxRigidStatic* CreateStatic(const ECS::Collider& InCollider);
         void CreateShape(const ECS::Collider& InCollider, ECS::EntityID InActorID, physx::PxRigidActor& InActor);
-        static physx::PxGeometry* GetGeometry(ECS::CollisionShape InShape, const Vec4F& InShapeData);
+        static physx::PxGeometry* GetGeometry(const Shape& InShape, const Vec4F& InShapeData);
         
         void TryReleaseShape(ECS::EntityID InID); 
         void TryReleaseDynamic(ECS::EntityID InID); 

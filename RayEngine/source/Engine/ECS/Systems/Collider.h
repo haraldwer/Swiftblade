@@ -6,12 +6,7 @@
 
 namespace ECS
 {
-    enum class CollisionShape : uint8
-    {
-        BOX,
-        CAPSULE,
-        SPHERE
-    };
+
     
     struct Collider : Component<Collider>
     {
