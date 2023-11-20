@@ -24,7 +24,6 @@ namespace ECS
         virtual ComponentID Register(EntityID InID, bool InDeferredInit = false) = 0;
         virtual void FinishRegistration(EntityID InID) = 0;
         virtual void Unregister(EntityID InID) = 0;
-        virtual size_t GetComponentType() const = 0;
         virtual void Serialize(EntityID InID, SerializeObj& OutObj) = 0; 
         virtual bool Deserialize(EntityID InID, const DeserializeObj& InObj) = 0; 
         virtual bool Edit(EntityID InID) = 0; 
@@ -205,12 +204,7 @@ namespace ECS
             return data.Edit(); 
         }
 
-        size_t GetComponentType() const override
-        {
-            return typeid(T).hash_code();
-        }
-
-    private:
+    protected:
         
         T& GetInternal(const ComponentID InID)
         {
@@ -224,6 +218,8 @@ namespace ECS
             return Components[InID];
         }
 
+    private:
+        
         Vector<T> Components;
     };
 }

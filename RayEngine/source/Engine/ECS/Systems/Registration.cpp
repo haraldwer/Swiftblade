@@ -1,5 +1,7 @@
 #include "Attributes.h"
+
 #include "Engine/ECS/Manager.h"
+#include "Engine/ECS/UniqueComponent.h"
 
 #include "Mesh.h"
 #include "Transform.h"
@@ -22,6 +24,12 @@ SystemMap[typeid(CONCAT(Sys, x)).hash_code()] = var; \
 ComponentMap[typeid(x).hash_code()] = var; \
 NameMap[String(#x)] = var; } \
 
+#define REG_UNIQUE_COMPONENT(x) { \
+auto var = new UniqueSystem<x>(); \
+SystemMap[typeid(UniqueSystem<x>).hash_code()] = var; \
+ComponentMap[typeid(x).hash_code()] = var; \
+NameMap[String(#x)] = var; } \
+
     // Register systems here!
     REG_ENTITY_SYSTEM(Attributes);
     REG_ENTITY_SYSTEM(Transform);
@@ -31,10 +39,10 @@ NameMap[String(#x)] = var; } \
     REG_ENTITY_SYSTEM(Rigidbody);
 
     // Game systems
-    REG_ENTITY_SYSTEM(Player);
-    REG_ENTITY_SYSTEM(Input);
-    REG_ENTITY_SYSTEM(Movement);
     REG_ENTITY_SYSTEM(CubeVolume);
+    REG_UNIQUE_COMPONENT(Player);
+    REG_UNIQUE_COMPONENT(Input);
+    REG_UNIQUE_COMPONENT(Movement);
     
 #undef REG_OBJ_SYS
 }

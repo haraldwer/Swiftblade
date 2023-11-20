@@ -19,8 +19,8 @@ namespace Physics
             float Separation;
         };
         
-        ECS::EntityID First = ECS::InvalidID;
-        ECS::EntityID Second = ECS::InvalidID;
+        ECS::EntityID Target = ECS::InvalidID;
+        ECS::EntityID Other = ECS::InvalidID;
         Vector<Point> Points; 
         bool IsTrigger = false;
     };

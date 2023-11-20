@@ -9,6 +9,7 @@ namespace ECS
     class ComponentBase
     {
     public:
+        virtual ~ComponentBase() = default;
         void SetID(const EntityID InID) { ID = InID; }
         EntityID GetID() const
         {

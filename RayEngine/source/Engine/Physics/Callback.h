@@ -57,8 +57,8 @@ namespace Physics
             {
                 const physx::PxU32 contactCount = pairs[i].contactCount;
                 Contact c;
-                c.First = ECS::PtrToEntity(pairs[i].shapes[0]->userData);
-                c.Second = ECS::PtrToEntity(pairs[i].shapes[1]->userData);
+                c.Target = ECS::PtrToEntity(pairs[i].shapes[0]->userData);
+                c.Other = ECS::PtrToEntity(pairs[i].shapes[1]->userData);
                 if (contactCount)
                 {
                     static Vector<physx::PxContactPairPoint> contactPoints;
@@ -90,8 +90,8 @@ namespace Physics
                 const physx::PxShape* triggerActivator = pairs[i].otherShape;
 				
                 Contact c;
-                c.First = ECS::PtrToEntity(triggerActivator->userData);
-                c.Second = ECS::PtrToEntity(triggeredShape->userData);
+                c.Target = ECS::PtrToEntity(triggerActivator->userData);
+                c.Other = ECS::PtrToEntity(triggeredShape->userData);
                 c.IsTrigger = true;
 
                 // Send contact to gameplay!
@@ -112,20 +112,35 @@ namespace Physics
         
         static void RegisterContact(const Contact& InContact, Contact::Event InEvent)
         {
-            // Invoke callback on all systems
-            for (auto& sys : ECS::Manager::Get().GetAllSystems())
+            const auto func = [](const Contact& InContact, Contact::Event InEvent)
             {
-                CHECK_ASSERT(!sys.second, "System nullptr");
-                switch (InEvent)
+                // Invoke callback on all systems
+                for (auto& sys : ECS::Manager::Get().GetAllSystems())
                 {
-                case Contact::Event::BEGIN:
-                    sys.second->OnBeginContact(InContact);
-                    break;
-                case Contact::Event::END:
-                    sys.second->OnEndContact(InContact);
-                    break;
-                }
-            }
+                    CHECK_ASSERT(!sys.second, "System nullptr");
+                    CHECK_CONTINUE(!sys.second->Contains(InContact.Target))
+                    switch (InEvent)
+                    {
+                    case Contact::Event::BEGIN:
+                        sys.second->OnBeginContact(InContact);
+                        break;
+                    case Contact::Event::END:
+                        sys.second->OnEndContact(InContact);
+                        break;
+                    }
+                }                
+            };
+
+            func(InContact, InEvent);
+            
+            // Also test flipped contact
+            const Contact flippedContact = {
+                InContact.Other,
+                InContact.Target,
+                InContact.Points,
+                InContact.IsTrigger
+            };
+            func(flippedContact, InEvent);
         }
     };
 }

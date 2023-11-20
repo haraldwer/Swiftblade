@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Blueprints/Blueprint.h"
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
 
@@ -15,8 +14,6 @@ namespace ECS
         };
         
         friend class SysTransform;
-        
-    public:
         
         Vec3F GetPosition(Space InSpace = Space::WORLD) const;
         QuatF GetRotation(Space InSpace = Space::WORLD) const;

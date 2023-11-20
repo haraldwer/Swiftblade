@@ -66,6 +66,8 @@ namespace Physics
         void Remove(ECS::EntityID InID);
         
         void AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceMode InForceMode);
+        void SetVelocity(ECS::EntityID InID, const Vec3F& InVelocity);
+        Vec3F GetVelocity(ECS::EntityID InID);
         void ClearForces(ECS::EntityID InID);
         void SetKinematic(ECS::EntityID InID, bool InKinematic);
         
@@ -75,6 +77,7 @@ namespace Physics
         static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);
 
         TraceResult Trace(const Vec3F& aStart, const Vec3F& anEnd) const;
+        TraceResult Sweep(const Vec3F& aStart, const Vec3F& anEnd, ECS::CollisionShape InShape, const Vec4F& InShapeData, const Mat4F& InPose = Mat4F()) const;
 
     private:
         static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);

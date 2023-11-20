@@ -93,7 +93,7 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double InDelta)
 {
-    Mat4F world = Get<ECS::Transform>(InID).World();
+    Mat4F world = Get<Transform>(InID).World();
     
     Vector<Mat4F> transforms;
     transforms.reserve(InComponent.Data.Get().size() + 1);

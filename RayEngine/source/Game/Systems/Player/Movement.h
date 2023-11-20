@@ -1,27 +1,34 @@
 ﻿#pragma once
 
+#include "PlayerInterface.h"
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
+#include "Engine/ECS/UniqueComponent.h"
 
 namespace ECS
 {
-    struct Movement : Component<Movement>
-    {
-        PROPERTY_C(float, MovementForce, 50.0); 
-        PROPERTY_C(float, JumpForce, 20.0);
+    class Input;
 
-        bool JumpInput = false;
-        Vec2F MoveInput;
-        Vec2F RotInput;
-    };
-
-    class SysMovement : public System<Movement>
+    class Movement : public UniqueComponent<Movement>, public PlayerInterface   
     {
     public:
-        void Update(EntityID InID, Movement& InComponent, double InDelta) override;
+        void Update(double InDelta) override;
+        void OnBeginContact(const Physics::Contact& InContact) override;
+        
     private:
-        void ConsumeRotInput(ECS::Movement& InMovement);
-        void ConsomeMoveInput(ECS::Movement& InMovement);
-        void ConsumeJumpInput(ECS::Movement& InMovement);
+        void ConsumeRotInput() const;
+        void ConsomeMoveInput();
+        void ConsumeJumpInput();
+        void GroundSnap();
+
+        PROPERTY_C(float, MovementForce, 50.0); 
+        PROPERTY_C(float, JumpVelocity, 20.0);
+        
+        PROPERTY_C(float, GroundDist, 0.2f);
+        PROPERTY_C(float, GroundDot, 0.2f);
+
+        // Movement state
+        bool OnGround = false;
+        Vec3F GroundLocation;  
     };
 }

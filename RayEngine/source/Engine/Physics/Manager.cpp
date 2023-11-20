@@ -259,7 +259,7 @@ void Physics::Manager::CreateShape(const ECS::Collider& InCollider, const ECS::E
     }
 
     // Set shape user data (very unsafe)
-    shape->userData = ECS::EntityToPtr(id); 
+    shape->userData = ECS::EntityToPtr(InActorID); 
         
     // Add to maps
     Shapes[id] = shape;
@@ -377,6 +377,24 @@ void Physics::Manager::AddForce(ECS::EntityID InID, const Vec3F& InForce, ForceM
     find->second->addForce(force, mode);
 }
 
+void Physics::Manager::SetVelocity(const ECS::EntityID InID, const Vec3F& InVelocity)
+{
+    const auto find = Dynamics.find(InID);
+    CHECK_RETURN(find == Dynamics.end())
+    CHECK_RETURN(!find->second);
+    find->second->setLinearVelocity(
+        Utility::PhysX::ConvertVec(InVelocity));
+}
+
+Vec3F Physics::Manager::GetVelocity(const ECS::EntityID InID)
+{
+    const auto find = Dynamics.find(InID);
+    CHECK_RETURN(find == Dynamics.end(), Vec3F())
+    CHECK_RETURN(!find->second, Vec3F());
+    const PxVec3 vel = find->second->getLinearVelocity();
+    return Utility::PhysX::ConvertVec(vel); 
+}
+
 void Physics::Manager::ClearForces(ECS::EntityID InID)
 {
     const auto find = Dynamics.find(InID);
@@ -426,6 +444,56 @@ Physics::TraceResult Physics::Manager::Trace(const Vec3F& aStart, const Vec3F& a
             if (!(static_cast<uint8>(touch.shape->getFlags()) &
                 static_cast<uint8>(PxShapeFlag::eSCENE_QUERY_SHAPE)))
                 continue;
+            
+            auto& hit = result.Hits.emplace_back(); 
+            hit.Distance = touch.distance;
+            hit.Position = Utility::PhysX::ConvertVec(touch.position);
+            hit.Normal = Utility::PhysX::ConvertVec(touch.normal);
+            hit.Entity = ECS::PtrToEntity(touch.shape->userData);
+            result.Hits.push_back(hit);
+        }
+    }
+
+    return result;
+}
+
+Physics::TraceResult Physics::Manager::Sweep(const Vec3F& aStart, const Vec3F& anEnd, ECS::CollisionShape InShape, const Vec4F& InShapeData, const Mat4F& InPose) const
+{
+    Vec3F diff = (anEnd - aStart);
+    Vec3F dir = diff.GetNormalized();
+    float length = diff.Length();
+    
+    TraceResult result;
+
+    PxGeometry* geometry = GetGeometry(InShape, InShapeData);
+    CHECK_RETURN(!geometry, result);
+    
+    constexpr size_t numHits = 8;
+    PxSweepHit hits[numHits];
+    PxSweepBuffer buff(hits, numHits);
+
+    const PxTransform pose = PxTransform(
+        Utility::PhysX::ConvertVec(aStart + InPose.GetPosition()),
+        Utility::PhysX::ConvertQuat(InPose.GetRotation()));
+    
+    // TODO: Filtering
+    Scene->sweep(
+        *geometry,
+        pose,
+        Utility::PhysX::ConvertVec(dir),
+        length,
+        buff);
+    
+    if (buff.nbTouches > 0)
+    {
+        result.IsHit = true;
+        for (int i = 0; i < static_cast<int>(buff.nbTouches); i++)
+        {
+            auto& touch = buff.touches[i];
+
+            if (!(static_cast<uint8>(touch.shape->getFlags()) &
+                static_cast<uint8>(PxShapeFlag::eSCENE_QUERY_SHAPE)))
+                    continue;
             
             auto& hit = result.Hits.emplace_back(); 
             hit.Distance = touch.distance;

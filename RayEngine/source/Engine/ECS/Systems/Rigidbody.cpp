@@ -14,7 +14,7 @@ void ECS::Rigidbody::AddImpulse(const Vec3F& InForce) const
 
 void ECS::Rigidbody::SetVelocity(const Vec3F& InVelocity) const
 {
-    Physics::Manager::Get().AddForce(GetID(), InVelocity, Physics::ForceMode::VELOCITY); 
+    Physics::Manager::Get().SetVelocity(GetID(), InVelocity); 
 }
 
 void ECS::Rigidbody::ClearForces() const
@@ -25,6 +25,11 @@ void ECS::Rigidbody::ClearForces() const
 void ECS::Rigidbody::SetKinematic(bool InKinematic) const
 {
     Physics::Manager::Get().SetKinematic(GetID(), InKinematic);
+}
+
+Vec3F ECS::Rigidbody::GetVelocity() const
+{
+    return Physics::Manager::Get().GetVelocity(GetID());
 }
 
 void ECS::SysRigidbody::Update(EntityID InID, Rigidbody& InComponent, double InDelta)

@@ -1,19 +1,24 @@
 ﻿#pragma once
 
-#include "Engine/ECS/System.h"
-#include "Engine/ECS/Component.h"
+#include "PlayerInterface.h"
+#include "Engine/ECS/UniqueComponent.h"
 
 namespace ECS
 {
-    struct Input : Component<Input>
-    {
-        PROPERTY_C(float, Sensitivity, 0.005f);
-    };
-
-    class SysInput : public System<Input>
+    class Input : public UniqueComponent<Input>, public PlayerInterface 
     {
     public:
-        void Deinit(EntityID InID, Input& InComponent) override;
-        void Update(EntityID InID, Input& InComponent, double InDelta) override;
+        
+        void Deinit() override;
+        void Update(double InDelta) override;
+        
+        bool JumpInput = false;
+        Vec2F MoveInput;
+        Vec2F RotInput;
+
+    private:
+        
+        PROPERTY_C(float, Sensitivity, 0.005f);
+        
     };
 }

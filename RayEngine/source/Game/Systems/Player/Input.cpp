@@ -3,25 +3,24 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Movement.h"
 
-void ECS::SysInput::Deinit(EntityID InID, Input& InComponent)
+void ECS::Input::Deinit()
 {
     if (IsCursorHidden())
         ShowCursor();
 }
 
-void ECS::SysInput::Update(EntityID InID, Input& InComponent, double InDelta)
+void ECS::Input::Update(double InDelta)
 {
     if (!IsCursorHidden())
         HideCursor();
     
-    auto& trans = Get<Transform>(InID);
-    auto& movement = Get<Movement>(InID);
+    auto& trans = Get<Transform>(GetID());
 
     // Camera rotation
     const auto mouseDelta = GetMouseDelta();
     SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
-    Vec2F rotDelta = Vec2F(mouseDelta.y, mouseDelta.x * -1.0f) * InComponent.Sensitivity.Get();
-    movement.RotInput += rotDelta;  
+    Vec2F rotDelta = Vec2F(mouseDelta.y, mouseDelta.x * -1.0f) * Sensitivity.Get();
+    RotInput += rotDelta;  
 
     // Get directions
     const Mat4F rotMat = Mat4F(trans.GetRotation());
@@ -32,8 +31,9 @@ void ECS::SysInput::Update(EntityID InID, Input& InComponent, double InDelta)
     const Vec3F input =
         right * (static_cast<float>(IsKeyDown(KEY_D)) - static_cast<float>(IsKeyDown(KEY_A))) +
         forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)));
-    movement.MoveInput += input.xz;
+    MoveInput += input.xz;
 
     if (IsKeyPressed(KEY_SPACE))
-        movement.JumpInput = true; 
+        JumpInput = true; 
 }
+

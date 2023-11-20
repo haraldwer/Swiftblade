@@ -24,7 +24,7 @@ namespace ECS
         template <class T>
         T& GetSystem() const
         {
-            const size_t hash = typeid(T).hash_code();
+            const Utility::TypeHash hash = Utility::Type<T>().GetHash();
             const auto find = SystemMap.find(hash);
             CHECK_ASSERT(find == SystemMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
@@ -34,11 +34,11 @@ namespace ECS
         template <class T>
         T* GetComponent(const EntityID InID) const
         {
-            const size_t hash = typeid(T).hash_code();
+            const Utility::TypeHash hash = Utility::Type<T>().GetHash();
             const auto find = ComponentMap.find(hash);
             CHECK_ASSERT(find == ComponentMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
-            System<T>* sys = reinterpret_cast<System<T>*>(find->second);
+            auto* sys = reinterpret_cast<System<T>*>(find->second);
             return sys->TryGet(InID);
         }
 
@@ -67,9 +67,9 @@ namespace ECS
         void DestroyPending(); 
 
         // System type -> System ptr
-        Map<size_t, SystemBase*> SystemMap;
+        Map<Utility::TypeHash, SystemBase*> SystemMap;
         // Component type -> System ptr
-        Map<size_t, SystemBase*> ComponentMap;
+        Map<Utility::TypeHash, SystemBase*> ComponentMap;
         // System name -> system ptr
         Map<String, SystemBase*> NameMap;
 

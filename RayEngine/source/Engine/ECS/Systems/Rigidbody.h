@@ -27,6 +27,8 @@ namespace ECS
         void SetVelocity(const Vec3F& InVelocity) const;
         void ClearForces() const;
         void SetKinematic(bool InKinematic) const;
+        
+        Vec3F GetVelocity() const;
     };
 
     class SysRigidbody : public System<Rigidbody>

@@ -1,21 +1,20 @@
 #pragma once
 
-#include "Engine/ECS/System.h"
-#include "Engine/ECS/Component.h"
+#include "Engine/ECS/UniqueComponent.h"
 
 namespace ECS
 {
-    struct Player : Component<Player>
-    {
-        EntityID Collider;
-        EntityID Camera; 
-    };
+    class PlayerInterface;
 
-    class SysPlayer : public System<Player>
+    class Player : public UniqueComponent<Player>
     {
     public:
-        void Init(EntityID InID, Player& InComponent) override;
-        void OnBeginContact(const Physics::Contact& InContact) override;
-        void OnEndContact(const Physics::Contact& InContact) override;
+        void Init() override;
+        EntityID GetCameraID() const { return CameraID; }
+        EntityID GetColliderID() const { return ColliderID; }
+
+    private:
+        EntityID ColliderID = InvalidID;
+        EntityID CameraID = InvalidID;
     };
 }
