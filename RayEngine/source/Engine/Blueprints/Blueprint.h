@@ -16,10 +16,13 @@ public:
     bool Unload();
     Utility::Timepoint GetEditTime() const;
 
-    ECS::EntityID Instantiate(const Vector<DeserializeObj>& InOverrides = {}) const;
+    ECS::EntityID Instantiate(const Mat4F& InTransform = Mat4F(), const Vector<DeserializeObj>& InOverrides = {}) const;
     void Save(ECS::EntityID InID);
     
     DeserializeObj GetObj() const;
+
+    bool Save(const String& InPath) { return false; };
+    bool Edit(const String& InName) { return false; };
 
 private:
 

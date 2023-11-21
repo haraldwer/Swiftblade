@@ -1,7 +1,7 @@
 ﻿#include "Input.h"
 
 #include "Engine/ECS/Systems/Transform.h"
-#include "Movement.h"
+#include "Movement/Movement.h"
 
 void ECS::Input::Deinit()
 {
@@ -11,6 +11,12 @@ void ECS::Input::Deinit()
 
 void ECS::Input::Update(double InDelta)
 {
+    if (Blocked)
+        return;
+    
+    if (!IsWindowFocused())
+        return; 
+    
     if (!IsCursorHidden())
         HideCursor();
     

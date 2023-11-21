@@ -1,16 +1,17 @@
 #version 330
 
-in vec3 fragPosition;
-in vec3 fragNormal;
+// Default uniforms
+uniform vec3 cameraPosition;
+
+in vec3 worldPosition;
+in vec3 worldNormal;
 
 out vec4 finalColor;
 
-// NOTE: Add here your custom variables
-
 void main()
 {
-    vec3 color = fragNormal;
-
     // Calculate final fragment color
+    vec3 cameraDirection = normalize(cameraPosition - worldPosition);
+    vec3 color = vec3(dot(cameraDirection, worldNormal));
     finalColor = vec4(color, 1.0f);
 }

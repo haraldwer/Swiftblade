@@ -84,6 +84,9 @@ void RenderScene::Render()
         CHECK_CONTINUE(!material);
         CHECK_CONTINUE(!transforms);
         CHECK_CONTINUE(tCount == 0);
+
+        const int cameraPos = GetShaderLocation(material->shader, "cameraPosition");
+        SetShaderValue(material->shader, cameraPos, Cam.Position.data, SHADER_UNIFORM_VEC3);
         
         for (int i = 0; i < meshCount; i++)
             DrawMeshInstanced(meshes[i], *material, transforms, tCount);
@@ -95,7 +98,7 @@ void RenderScene::Render()
     {
         switch (shape.Type)
         {
-        case DebugShape::Type::SPHERE:
+        case DebugShapeInstance::Type::SPHERE:
             DrawSphereWires(
                 Utility::Ray::ConvertVec(shape.Pos),
                 shape.Data.x,
@@ -103,13 +106,13 @@ void RenderScene::Render()
                 static_cast<int>(shape.Data.z),
                 shape.Color);
             break;
-        case DebugShape::Type::BOX:
+        case DebugShapeInstance::Type::BOX:
             DrawCubeWiresV(
                 Utility::Ray::ConvertVec(shape.Pos),
                 Utility::Ray::ConvertVec(shape.Data),
                 shape.Color);
             break;
-        case DebugShape::Type::CAPSULE:
+        case DebugShapeInstance::Type::CAPSULE:
             const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
             const auto start = Utility::Ray::ConvertVec(shape.Pos + dir);
             const auto end = Utility::Ray::ConvertVec(shape.Pos - dir);
@@ -123,6 +126,12 @@ void RenderScene::Render()
             break;
         }
     }
+
+    for (auto& line : DebugLines)
+        DrawLine3D(
+            Utility::Ray::ConvertVec(line.Start),
+            Utility::Ray::ConvertVec(line.End),
+            line.Color);
 
     EndMode3D();
 }

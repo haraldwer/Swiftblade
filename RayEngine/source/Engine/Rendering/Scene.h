@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Debug/DebugShape.h"
+#include "Debug/DebugShapeInstance.h"
 #include "Instances/CameraInstance.h"
 #include "Instances/MeshInstance.h"
 
@@ -28,7 +28,8 @@ namespace Rendering
     protected:
         CameraInstance Cam = {};
         MeshCollection Meshes;
-        Vector<DebugShape> DebugShapes;
+        Vector<DebugShapeInstance> DebugShapes;
+        Vector<DebugLineInstance> DebugLines;
     };
 
     class LogicScene : public Scene
@@ -38,7 +39,8 @@ namespace Rendering
         const CameraInstance& GetCamera() const { return Cam; }
         void AddMesh(const MeshInstance& InMesh) { Meshes.AddMesh(InMesh); }
         void AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms) { Meshes.AddMeshes(InMesh, InTransforms); }
-        void AddDebugShape(const DebugShape& InShape) { DebugShapes.push_back(InShape); }
+        void AddDebugShape(const DebugShapeInstance& InShape) { DebugShapes.push_back(InShape); }
+        void AddDebugLine(const DebugLineInstance& InLine) { DebugLines.push_back(InLine); }
     };
 
     class RenderScene : public Scene

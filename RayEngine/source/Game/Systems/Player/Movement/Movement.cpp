@@ -1,16 +1,40 @@
 ﻿#include "Movement.h"
 
-#include "Input.h"
+#include "MovementStateMachine.h"
+#include "Game/Systems/Player/Input.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Contact.h"
 #include "Engine/Physics/Query.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Game/Systems/Player/Player.h"
 #include "Utility/Math/AngleConversion.h"
+#include "Utility/StateMachine/StateMachine.h"
+
+void ECS::Movement::Init()
+{
+}
+
+void ECS::Movement::Deinit()
+{
+    if (StateMachine)
+    {
+        StateMachine->Deinit();
+        StateMachine = nullptr;
+    }
+}
 
 void ECS::Movement::Update(double InDelta)
 {
+    if (!StateMachine)
+    {
+        StateMachine = new MovementStateMachine();
+        StateMachine->Init(GetPlayer().GetID());
+    }
+    if (StateMachine)
+        StateMachine->Update(InDelta); 
+    
     ConsumeRotInput();
     ConsomeMoveInput();
     ConsumeJumpInput();
@@ -88,34 +112,47 @@ void ECS::Movement::GroundSnap()
 {
     CHECK_RETURN(!OnGround);
 
+    constexpr bool debugDraw = false; 
+    
     auto& transform = GetPlayerTransform();
+    auto& collTrans = GetColliderTransform();
     const auto& collider = GetCollider();
     
-    const Vec4F shapeData = collider.ShapeData;
-    const Vec3F pos = transform.GetPosition();
-
-    Physics::TraceParams params;
-    params.Start = pos - Vec3F::Up() * shapeData.y;
+    Physics::SweepParams params;
+    params.Start = transform.GetPosition();
     params.End = params.Start - Vec3F::Up() * GroundDist.Get();
+    params.IgnoredEntities = { GetID() };
+    params.Shape = static_cast<Physics::Shape>(collider.Shape.Get());
+    params.ShapeData = collider.ShapeData;
+    params.Pose = collTrans.Local(); 
+
+    if (debugDraw)
+    {
+        Rendering::DebugCapsule(params.Start, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, RED); 
+        Rendering::DebugCapsule(params.End, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, BLUE);
+    }
     
-    // TODO: Sweep
-    const Physics::QueryResult result = Physics::Query::Trace(params);
-    
+    // Sweep 
+    const Physics::QueryResult result = Physics::Query::Sweep(params);
     CHECK_RETURN(!result.IsHit);
     CHECK_RETURN(result.Hits.empty());
+    auto hit = result.ClosestHit();
 
-    const auto& hit = result.Hits[0];
+    
+    // Test ground dot
     const float dot = hit.Normal.Dot(Vec3F::Up());
     CHECK_RETURN(dot < GroundDot);
-    
-    const Vec3F loc = hit.Position; 
-    GroundLocation = loc;
-    const Vec3F newPos = loc + Vec3F::Up() * shapeData.y;
-    LOG("Diff " + std::to_string((newPos - transform.GetPosition()).Length)); 
+
+    // Set location
+    GroundLocation = hit.Position;
+    const Vec3F newPos = params.Start - Vec3F::Up() * hit.Distance; 
     transform.SetPosition(newPos);
+
+    if (debugDraw)
+        Rendering::DebugCapsule(newPos, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, GREEN); 
+
+    // Flatten velocity
     auto& rb = GetRB();
-    rb.SetVelocity(rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f)); 
-        
-    Rendering::DebugSphere(hit.Position, 0.1f); 
-    Rendering::DebugSphere(newPos, 0.1f);
+    Vec3F vel = rb.GetVelocity(); 
+    rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
 }

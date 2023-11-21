@@ -1,7 +1,6 @@
 #include "BlueprintEditor.h"
 
 #include <filesystem>
-#include <rcamera.h>
 
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/ECS/Systems/Attributes.h"
@@ -11,8 +10,6 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_stdlib.h"
-#include "ImGui/Gizmo/ImGuizmo.h"
-#include "ImGui/Gizmo/ImGuizmo_Wrapper.h"
 #include "Utility/RayUtility.h"
 
 void BlueprintEditor::Init()

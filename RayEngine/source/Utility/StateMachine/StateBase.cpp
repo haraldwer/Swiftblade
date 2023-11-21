@@ -1,13 +1,13 @@
 #include "StateBase.h"
 #include "StateMachine.h"
 
-StateBase* StateBase::GetCurrentState() const
+Utility::Type StateBase::GetCurrentState() const
 {
-    CHECK_RETURN_LOG(!Owner, "No owner", nullptr);
-    return Owner->GetCurrentState();
+    CHECK_RETURN_LOG(!Owner, "No owner", Utility::Type::None());
+    return Owner->GetCurrentType();
 }
 
-StateBase* StateBase::GetState(const Utility::TypeAny& InType) const
+StateBase* StateBase::GetState(const Utility::Type& InType) const
 {
     CHECK_RETURN_LOG(!Owner, "No owner", nullptr);
     return Owner->GetState(InType);
@@ -15,5 +15,5 @@ StateBase* StateBase::GetState(const Utility::TypeAny& InType) const
 
 bool StateBase::IsCurrentState() const
 {
-    return GetCurrentState() == this;
+    return GetCurrentState() == GetType();
 }

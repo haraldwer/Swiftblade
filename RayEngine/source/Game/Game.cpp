@@ -4,6 +4,7 @@
 #include "Engine/Instance/Manager.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
+#include "Systems/Player/Input.h"
 
 void Game::Init()
 {
@@ -15,6 +16,8 @@ void Game::Init()
 
     if (const BlueprintResource* bp = ResBlueprint("Blueprints/BP_Player.json").Get())
         bp->Instantiate();
+
+    DebugCamera.SetRequireHold(false); 
 }
 
 void Game::Deinit()
@@ -30,9 +33,19 @@ void Game::Update(double InDelta)
     
     // Update
     const double scaledDelta = Time.Delta();
+    // TODO: Pre-update for movement logic
     Physics.Update(scaledDelta);
     ECS.Update(scaledDelta);
 
+    if (IsKeyPressed(KEY_TAB))
+    {
+        bUseDebugCamera = !bUseDebugCamera;
+        DebugCamera.SetReference(GetRenderScene().GetCamera());
+        ECS::Input::Blocked = bUseDebugCamera; 
+    }
+    if (bUseDebugCamera)
+        DebugCamera.Update(InDelta);
+    
     if (IsKeyDown(KEY_LEFT_CONTROL))
         if (IsKeyPressed(KEY_P))
             Engine::Manager::Get().Pop();

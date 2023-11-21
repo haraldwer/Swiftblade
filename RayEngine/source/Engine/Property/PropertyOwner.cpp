@@ -81,8 +81,9 @@ bool PropertyOwnerBase::Load(const String& InPath)
     doc.Parse(fileContent.c_str());
     CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
     // Requires const, dont know why
-    const rapidjson::Document& constDoc = doc; 
-    return Deserialize(constDoc.GetObj()); 
+    const rapidjson::Document& constDoc = doc;
+    Deserialize(constDoc.GetObj());
+    return true;   
 }
 
 bool PropertyOwnerBase::operator==(const PropertyOwnerBase& InOther) const

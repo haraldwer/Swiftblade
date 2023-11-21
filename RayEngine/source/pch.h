@@ -68,13 +68,16 @@ using String = std::string;
 #include "Utility/Math/Macros.h"
 #include "Utility/Utility.h"
 #include "Utility/NumericalTypes.h"
+
 #include "Utility/Type.h"
+using Type = Utility::Type;
 
 #include "Utility/Memory/Pointers.h"
 template <class T>
 using ObjectPtr = Utility::ObjectPtr<T>;
 template <class T>
 using WeakPtr = Utility::WeakPtr<T>;
+
 
 #include "Utility/Math/Vector/Vector.hpp"
 #include "Utility/Math/Matrix/Matrix.hpp"

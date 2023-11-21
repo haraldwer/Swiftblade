@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Rendering/Scene.h"
 
 class EditorCamera
 {
@@ -10,6 +11,7 @@ public:
     void SetRequireHold(bool InHold) { HoldRight = InHold; }
     void ToggleRequireHold() { HoldRight = !HoldRight; }
     bool IsControlling() const;
+    void SetReference(const CameraInstance& InCamera);
 
 private:
     

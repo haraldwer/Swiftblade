@@ -26,4 +26,4 @@ private:
     
 };
 
-typedef Resource::Ref<MaterialResource> ResRM;  
+typedef Resource::Ref<MaterialResource, true> ResRM;  

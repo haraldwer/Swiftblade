@@ -12,16 +12,18 @@ namespace Physics
             float Distance = 0.0f;
             Vec3F Position;
             Vec3F Normal;
-            ECS::EntityID Entity;
+            ECS::EntityID Entity = ECS::InvalidID;
         };
         Vector<Hit> Hits; 
-        bool IsHit;
+        bool IsHit = false;
+        Hit ClosestHit() const;
     };
 
     struct TraceParams
     {
         Vec3F Start; 
-        Vec3F End; 
+        Vec3F End;
+        Set<ECS::EntityID> IgnoredEntities; 
     };
 
     struct SweepParams
@@ -31,6 +33,7 @@ namespace Physics
         Shape Shape;
         Vec4F ShapeData;
         Mat4F Pose;
+        Set<ECS::EntityID> IgnoredEntities; 
     }; 
     
     class Query

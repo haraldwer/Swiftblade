@@ -26,7 +26,7 @@ Utility::Timepoint BlueprintResource::GetEditTime() const
     return Utility::GetFileWriteTime(Identifier);
 }
 
-ECS::EntityID BlueprintResource::Instantiate(const Vector<DeserializeObj>& InOverrides) const
+ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides) const
 {
     CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", false);
 
@@ -45,7 +45,7 @@ ECS::EntityID BlueprintResource::Instantiate(const Vector<DeserializeObj>& InOve
     vec.push_back(obj);
     for (const auto& override : InOverrides)
         vec.push_back(override);
-    man.Deserialize(id, vec);
+    man.Deserialize(id, InTransform, vec);
     return id;
 }
 

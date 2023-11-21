@@ -8,9 +8,9 @@ bool ECS::SystemBase::ShouldUpdate() const
     return !Engine::InstanceBase::Get().IsEditor();
 }
 
-ECS::SystemBase* ECS::SystemBase::GetAnonymousSystem(size_t InHash, bool InIsCompHash)
+ECS::SystemBase* ECS::SystemBase::GetAnonymousSystem(const Utility::Type& InType, bool InIsCompHash)
 {
-    return Manager::Get().GetSystem(InHash, InIsCompHash);
+    return Manager::Get().GetSystem(InType, InIsCompHash);
 }
 
 bool ECS::SystemBase::Contains(EntityID InID) const

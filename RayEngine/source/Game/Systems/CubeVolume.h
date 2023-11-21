@@ -42,6 +42,9 @@ namespace ECS
         PROPERTY_D(uint8, Width, 50);
         PROPERTY_D(uint8, Depth, 50);
         PROPERTY(Volume, Data);
+
+        Vec3F CoordToPos(Coord InCoord);
+        Coord PosToCoord(const Vec3F& InPos);
     };
 
     class SysCubeVolume : public System<CubeVolume>
@@ -58,6 +61,7 @@ namespace ECS
 
         bool ShouldUpdate() const override { return true; }
     private:
+        
         Coord CachedTrace = 0;
         MeshInstance MeshInstance; 
     };

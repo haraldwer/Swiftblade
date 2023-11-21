@@ -12,6 +12,9 @@ public:
     Utility::Timepoint GetEditTime() const; 
     Shader* Get() const { return Ptr; }
 
+    bool Save(const String& InPath) { return false; };
+    bool Edit(const String& InName) { return false; };
+
 private:
     String Identifier; 
     Shader* Ptr = nullptr;

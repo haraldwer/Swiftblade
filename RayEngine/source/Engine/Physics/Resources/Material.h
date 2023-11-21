@@ -23,6 +23,8 @@ public:
     PROPERTY_D(float, DynamicFriction, 1.0f);
     PROPERTY_D(float, Restitution, 1.0f);
 
+    // Potentially load with overrides
+
 private:
 
     String Identifier; 
@@ -30,4 +32,4 @@ private:
     
 };
 
-typedef Resource::Ref<PhysicsMaterialResource> ResPM;  
+typedef Resource::Ref<PhysicsMaterialResource, true> ResPM;  

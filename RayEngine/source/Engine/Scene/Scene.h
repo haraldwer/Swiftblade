@@ -19,6 +19,9 @@ public:
     bool Load(const String& InIdentifier);
     bool Unload(); 
     Utility::Timepoint GetEditTime() const;
+
+    bool Save(const String& InPath) { return false; };
+    bool Edit(const String& InName) { return false; };
     
 protected:
     

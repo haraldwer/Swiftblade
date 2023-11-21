@@ -17,47 +17,32 @@ void SceneInstance::Destroy()
 
 SceneInstance Scene::Create(const Mat4F& InOffset) const
 {
+    CHECK_RETURN(!Doc.HasMember("Objects"), {})
+    CHECK_RETURN(!Doc["Objects"].IsArray(), {}); 
     SceneInstance instance;
-    if (Doc.HasMember("Objects") && Doc["Objects"].IsArray())
+    for (const auto& entry : Doc["Objects"].GetArray())
     {
-        for (const auto& entry : Doc["Objects"].GetArray())
-        {
-            CHECK_CONTINUE(!entry.IsObject());
-            const auto& obj = entry.GetObj();  
-            
-            Vector<DeserializeObj> overrides;
-            if (obj.HasMember("Overrides") && obj["Overrides"].IsObject())
-                overrides.push_back(obj["Overrides"].GetObj());  
+        CHECK_CONTINUE(!entry.IsObject());
+        const auto& obj = entry.GetObj();  
+        
+        Vector<DeserializeObj> overrides;
+        if (obj.HasMember("Overrides") && obj["Overrides"].IsObject())
+            overrides.push_back(obj["Overrides"].GetObj());  
 
-            ECS::Manager& man = ECS::Manager::Get();
-            ECS::EntityID entity = ECS::InvalidID;
-            
-            String bp;
-            Utility::Deserialize(obj, "Blueprint", bp);
-            if (const auto bpRes = ResBlueprint(bp).Get())
-            {
-                entity = bpRes->Instantiate(overrides);
-                CHECK_CONTINUE_LOG(entity == ECS::InvalidID, "Invalid ID");
-            }
-            else
-            {
-                entity = man.CreateEntity();
-                CHECK_CONTINUE_LOG(entity == ECS::InvalidID, "Invalid ID");
-                man.Deserialize(entity, overrides);
-            }
-            
-            instance.Entities.push_back(entity);
-            
-            // TODO: This is too late! Before FinishRegistration
-            if (auto trans = man.GetComponent<ECS::Transform>(entity))
-            {
-                if (trans->GetParent() == ECS::InvalidID)
-                {
-                    Mat4F world = trans->World();
-                    world *= InOffset;
-                    trans->SetWorld(world); 
-                }
-            }
+        ECS::Manager& man = ECS::Manager::Get();
+        
+        String bp;
+        Utility::Deserialize(obj, "Blueprint", bp);
+        if (const auto bpRes = ResBlueprint(bp).Get())
+        {
+            const ECS::EntityID entity = bpRes->Instantiate(InOffset, overrides);
+            CHECK_CONTINUE_LOG(entity == ECS::InvalidID, "Invalid ID");
+        }
+        else
+        {
+            const ECS::EntityID entity = man.CreateEntity();
+            CHECK_CONTINUE_LOG(entity == ECS::InvalidID, "Invalid ID");
+            man.Deserialize(entity, InOffset, overrides);
         }
     }
     return instance; 

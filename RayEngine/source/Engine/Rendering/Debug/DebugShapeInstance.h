@@ -2,7 +2,7 @@
 
 namespace Rendering
 {
-    struct DebugShape
+    struct DebugShapeInstance
     {
         enum class Type : uint8
         {
@@ -14,6 +14,13 @@ namespace Rendering
         Vec3F Pos;
         QuatF Rot; 
         Vec3F Data;
+        Color Color; 
+    };
+    
+    struct DebugLineInstance
+    {
+        Vec3F Start;
+        Vec3F End; 
         Color Color; 
     };
 }

@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <numeric>
-
 #include "Geometry/PlaneVolume.h"
 
 namespace Utility

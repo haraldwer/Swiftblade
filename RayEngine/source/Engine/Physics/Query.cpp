@@ -5,7 +5,20 @@
 #include <PxShape.h>
 
 #include "Manager.h"
+#include "QueryFilter.h"
+#include "Engine/Rendering/Renderer.h"
+#include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Utility/PhysXUtility.h"
+
+Physics::QueryResult::Hit Physics::QueryResult::ClosestHit() const
+{
+    Hit result;
+    result.Distance = -1.0f; 
+    for (auto& hit : Hits)
+        if (hit.Distance < result.Distance || result.Distance < 0.0)
+            result = hit;
+    return result; 
+}
 
 Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
 {
@@ -19,11 +32,12 @@ Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
     physx::PxRaycastHit hits[numHits];
     physx::PxRaycastBuffer buff(hits, numHits);
 
-    // TODO: Filtering
-
     physx::PxHitFlags flags = physx::PxHitFlag::eDEFAULT;
     physx::PxQueryFilterData filterData;
-    physx::PxQueryFilterCallback* filterCallback = nullptr;
+    filterData.flags |= physx::PxQueryFlag::ePREFILTER; // Enable filter 
+    static QueryFilter filter;
+    filter.SetIgnoredEntities(InParams.IgnoredEntities);
+    physx::PxQueryFilterCallback* filterCallback = &filter;
     
     CHECK_ASSERT(!Manager::Get().Scene, "Invalid scene"); 
     Manager::Get().Scene->raycast(
@@ -35,26 +49,24 @@ Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
         filterData,
         filterCallback);
 
-    if (buff.nbTouches > 0)
+    Rendering::DebugLine(InParams.Start, InParams.End);
+    
+    for (int i = 0; i < static_cast<int>(buff.nbTouches); i++)
     {
+        auto& touch = buff.touches[i];
+
+        if (!(static_cast<uint8>(touch.shape->getFlags()) &
+            static_cast<uint8>(physx::PxShapeFlag::eSCENE_QUERY_SHAPE)))
+                continue;
+        
+        auto& hit = result.Hits.emplace_back(); 
+        hit.Distance = touch.distance;
+        hit.Position = Utility::PhysX::ConvertVec(touch.position);
+        hit.Normal = Utility::PhysX::ConvertVec(touch.normal);
+        hit.Entity = ECS::PtrToEntity(touch.shape->userData);
+        result.Hits.push_back(hit);
         result.IsHit = true;
-        for (int i = 0; i < static_cast<int>(buff.nbTouches); i++)
-        {
-            auto& touch = buff.touches[i];
-
-            if (!(static_cast<uint8>(touch.shape->getFlags()) &
-                static_cast<uint8>(physx::PxShapeFlag::eSCENE_QUERY_SHAPE)))
-                    continue;
-            
-            auto& hit = result.Hits.emplace_back(); 
-            hit.Distance = touch.distance;
-            hit.Position = Utility::PhysX::ConvertVec(touch.position);
-            hit.Normal = Utility::PhysX::ConvertVec(touch.normal);
-            hit.Entity = ECS::PtrToEntity(touch.shape->userData);
-            result.Hits.push_back(hit);
-        }
     }
-
     return result;
 }
 
@@ -68,42 +80,49 @@ Physics::QueryResult Physics::Query::Sweep(const SweepParams& InParams)
     
     physx::PxGeometry* geometry = Manager::GetGeometry(InParams.Shape, InParams.ShapeData);
     CHECK_RETURN(!geometry, result);
-    
-    constexpr size_t numHits = 8;
-    physx::PxSweepHit hits[numHits];
-    physx::PxSweepBuffer buff(hits, numHits);
 
     const physx::PxTransform pose = physx::PxTransform(
         Utility::PhysX::ConvertVec(InParams.Start + InParams.Pose.GetPosition()),
         Utility::PhysX::ConvertQuat(InParams.Pose.GetRotation()));
     
+    constexpr size_t numHits = 8;
+    physx::PxSweepHit hits[numHits];
+    physx::PxSweepBuffer buff(hits, numHits);
+    
+    physx::PxHitFlags flags = physx::PxHitFlag::eDEFAULT;
+    physx::PxQueryFilterData filterData;
+    filterData.flags |= physx::PxQueryFlag::ePREFILTER; // Enable filter 
+    static QueryFilter filter;
+    filter.SetIgnoredEntities(InParams.IgnoredEntities);
+    physx::PxQueryFilterCallback* filterCallback = &filter;
+    
     // TODO: Filtering
-    CHECK_ASSERT(!Manager::Get().Scene, "Invalid scene"); 
+    CHECK_ASSERT(!Manager::Get().Scene, "Invalid scene");
     Manager::Get().Scene->sweep(
         *geometry,
         pose,
         Utility::PhysX::ConvertVec(dir),
         length,
-        buff);
-    
-    if (buff.nbTouches > 0)
-    {
-        result.IsHit = true;
-        for (int i = 0; i < static_cast<int>(buff.nbTouches); i++)
-        {
-            auto& touch = buff.touches[i];
+        buff,
+        flags, 
+        filterData,
+        filterCallback);
 
-            if (!(static_cast<uint8>(touch.shape->getFlags()) &
-                static_cast<uint8>(physx::PxShapeFlag::eSCENE_QUERY_SHAPE)))
-                    continue;
-            
-            auto& hit = result.Hits.emplace_back(); 
-            hit.Distance = touch.distance;
-            hit.Position = Utility::PhysX::ConvertVec(touch.position);
-            hit.Normal = Utility::PhysX::ConvertVec(touch.normal);
-            hit.Entity = ECS::PtrToEntity(touch.shape->userData);
-            result.Hits.push_back(hit);
-        }
+    for (int i = 0; i < static_cast<int>(buff.nbTouches); i++)
+    {
+        auto& touch = buff.touches[i];
+
+        if (!(static_cast<uint8>(touch.shape->getFlags()) &
+            static_cast<uint8>(physx::PxShapeFlag::eSCENE_QUERY_SHAPE)))
+                continue;
+
+        auto& hit = result.Hits.emplace_back(); 
+        hit.Distance = touch.distance;
+        hit.Position = Utility::PhysX::ConvertVec(touch.position);
+        hit.Normal = Utility::PhysX::ConvertVec(touch.normal);
+        hit.Entity = ECS::PtrToEntity(touch.shape->userData);
+        result.Hits.push_back(hit);
+        result.IsHit = true;
     }
 
     return result;

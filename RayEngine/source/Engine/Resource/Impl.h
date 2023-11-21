@@ -10,7 +10,12 @@ namespace Resource
         virtual bool Load() = 0;
         virtual bool Unload() = 0;
         virtual bool TryHotReload() = 0;
+
+        // Editing
+        static bool BeginEdit(const String& InID);
+        static void EndEdit();
         static String Pick(const String& InLabel, const String& InID);
+        static bool SaveButton(const String& InID);
 
         bool Loaded = false;
         uint32 Count = 0;

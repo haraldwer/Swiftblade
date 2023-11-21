@@ -8,10 +8,10 @@ namespace Rendering
     {
         PROPERTY_D(int, Width, 1280);
         PROPERTY_D(int, Height, 720);
-        PROPERTY_D(int, TargetFPS, 60);
+        PROPERTY_D(int, TargetFPS, 0);
         PROPERTY_D(bool, Fullscreen, false);
-        PROPERTY_D(bool, VSync, false);
-        PROPERTY_D(bool, MSAA, false);
+        PROPERTY_D(bool, VSync, true);
+        PROPERTY_D(bool, MSAA, true);
 
         inline static const String Path = "Configs/C_Rendering.json";
         void LoadConfig() { Load(Path); }

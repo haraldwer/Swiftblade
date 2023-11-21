@@ -7,27 +7,29 @@ class StateMachine
 public:
 	virtual ~StateMachine() = default;
 
-	void Init();
-	void Update(double InDelta); 
+	virtual void Init();
+	virtual void Deinit();
+	virtual void Update(double InDelta); 
 	
 	// Override with default state
-	virtual Utility::TypeAny GetDefaultStateType() = 0; 
+	virtual Utility::Type GetDefaultStateType() = 0;
 
 	template <class T>
 	bool SetState();
-	bool SetStatePtr(StateBase* InState);
-	bool TryOverrideState(StateBase* InState);
+	bool SetState(const Utility::Type& InType);
+	bool TryOverrideState(const Utility::Type& InType);
 	
 	template <class T>
 	T* GetState() const;
-	StateBase* GetState(const Utility::TypeAny& InType) const;
-	StateBase* GetCurrentState() const { return State.Get(); };
+	StateBase* GetState(const Utility::Type& InType) const;
+	Utility::Type GetCurrentType() const { return CurrentState; };
+	StateBase* GetCurrentState() const { return GetState(GetCurrentType()); };
 
 protected:
 	
-	ObjectPtr<StateBase> State;
-	Vector<ObjectPtr<StateBase>> myStates;
-	
+	Utility::Type CurrentState = Utility::Type::None();
+	Vector<StateBase*> States;
+	Map<Utility::TypeHash, StateBase*> TypeMap;
 };
 
 template <class T>
@@ -39,8 +41,8 @@ bool StateMachine::SetState()
 template <class T>
 T* StateMachine::GetState() const
 {
-	for (auto& state : myStates)
-		if (auto ptr = Utility::TypeCast<T>(state.Get()))
-			return ptr;
+	auto find = TypeMap.find(Utility::GetType<T>());
+	if (find != TypeMap.end())
+		return find->second; 
 	return nullptr;
 }

@@ -5,6 +5,27 @@
 #include "Engine/Physics/Manager.h"
 #include "Utility/Math/Grid.h"
 
+Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord)
+{
+    return Vec3F(
+        InCoord.Pos.X,
+        InCoord.Pos.Y,
+        InCoord.Pos.Z) *
+            (Scale * 2.0f);
+}
+
+Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos)
+{
+    Vec3F p = InPos * (1.0f / (Scale * 2.0f));
+    p.x = CLAMP(p.x, 0.0f, Width);
+    p.y = CLAMP(p.y, 0.0f, Height);
+    p.z = CLAMP(p.z, 0.0f, Depth);
+    return Coord(
+        static_cast<uint8>(p.x),
+        static_cast<uint8>(p.y),
+        static_cast<uint8>(p.z));
+}
+
 uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
 {
     auto& v = Get<CubeVolume>(InID);
@@ -30,9 +51,8 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     for (int x = startX; x <= endX; x++)   
         for (int y = startY; y <= endY; y++)   
             for (int z = startZ; z <= endZ; z++)
-                if (InVal == 0)
-                    data.erase(Coord(x, y, z).Key);
-                else
+                InVal == 0 ?
+                    data.erase(Coord(x, y, z).Key) :
                     data[Coord(x, y, z).Key] = InVal;
 }
 
@@ -41,13 +61,16 @@ Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& 
     auto& v = Get<CubeVolume>(InID);
     const auto& volume = v.Data.Get();
     const auto bounds = Utility::Math::Vector3<uint8>(
-            v.Height, 
-            v.Width,
-            v.Depth);
+        v.Height, 
+        v.Width,
+        v.Depth);
+
+    // Convert pos
+    Vec3F origin = InPos * (1.0f / v.Scale);
     
     Coord last = 0;
     int count = 0; 
-    for (const auto& intersect : GridIntersection(InPos, InDir, bounds))
+    for (const auto& intersect : GridIntersection(origin, InDir, bounds))
     {
         const Coord c = Coord(intersect.x, intersect.y, intersect.z);
         const auto find = volume.find(c.Key);
@@ -64,7 +87,7 @@ Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& 
     return last;
 }
 
-void ECS::SysCubeVolume::Init(EntityID InID, CubeVolume& InComponent)
+void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
 {
     MeshInstance.Material = ResRM("Defaults/RM_Default.json");
     MeshInstance.Model = ResModel("Defaults/M_Cube.obj");
@@ -75,13 +98,11 @@ void ECS::SysCubeVolume::Init(EntityID InID, CubeVolume& InComponent)
     Vector<Vec3F> cubes;
     for (const auto entry : InComponent.Data.Get())
     {
-        Coord coord(entry.first);
-        cubes.emplace_back(
-            coord.Pos.X,
-            coord.Pos.Y,
-            coord.Pos.Z); 
+        CHECK_CONTINUE(entry.second == 0)
+        cubes.emplace_back(InComponent.CoordToPos(entry.first));
     }
-    Physics::Manager::Get().AddCubes(InID, cubes); 
+    
+    Physics::Manager::Get().AddCubes(InID, cubes, InComponent.Scale.Get()); 
 }
 
 void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
@@ -97,24 +118,21 @@ void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double I
     
     Vector<Mat4F> transforms;
     transforms.reserve(InComponent.Data.Get().size() + 1);
-    const float scale = InComponent.Scale.Get();
+
+    // Add cubes
     for (const auto& entry : InComponent.Data.Get())
     {
         CHECK_CONTINUE(entry.second == 0);
-        const Coord coord = entry.first;
-        const Mat4F mat = Mat4F(Vec3F(
-            coord.Pos.X,
-            coord.Pos.Y,
-            coord.Pos.Z) * scale);
+        const Mat4F mat = Mat4F(InComponent.CoordToPos(entry.first));
         transforms.emplace_back(mat * world);
     }
 
+    // Add trace cube
     if (Engine::InstanceBase::Get().IsEditor())
     {
-        transforms.emplace_back(Vec3F(
-            CachedTrace.Pos.X,
-            CachedTrace.Pos.Y,
-            CachedTrace.Pos.Z));
+        const Mat4F mat = Mat4F(
+            InComponent.CoordToPos(CachedTrace));
+        transforms.emplace_back(mat * world);
     }
 
     DrawCubes(transforms);

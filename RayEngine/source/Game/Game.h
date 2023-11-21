@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Editor/EditorCamera.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
@@ -15,6 +16,9 @@ public:
 private:
 
     Physics::Manager Physics;
-    SceneInstance SceneInstance; 
+    SceneInstance SceneInstance;
+
+    bool bUseDebugCamera = false; 
+    EditorCamera DebugCamera; 
     
 };

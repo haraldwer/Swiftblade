@@ -52,7 +52,8 @@ namespace Physics
     
     class Manager : public Utility::Singelton<Manager>
     {
-        friend class Query; 
+        friend class Query;
+        friend class QueryFilter;
     public:
 
         void Init();
@@ -62,7 +63,7 @@ namespace Physics
         void Add(ECS::EntityID InID);
         void Remove(ECS::EntityID InID);
         
-        void AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions);
+        void AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions, float InScale);
         void ClearCubes(ECS::EntityID InID);
 
         static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);

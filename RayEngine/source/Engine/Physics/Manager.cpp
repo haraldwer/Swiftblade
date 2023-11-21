@@ -354,7 +354,7 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
     return nullptr;
 }
 
-void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions)
+void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions, float InScale)
 {
     // Create cube owner
     if (!CubeOwner)
@@ -376,7 +376,7 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPosit
     // Get geometry
     const PxGeometry* geometry = GetGeometry(
         Shape::BOX,
-        Vec4F::One() * 0.5f);
+        Vec4F::One() * InScale);
 
     auto& shapes = CubeShapes[InID]; 
     for (const Vec3F& pos : InPositions)

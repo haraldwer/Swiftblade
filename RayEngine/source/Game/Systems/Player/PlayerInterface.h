@@ -17,7 +17,9 @@ namespace ECS
     
     class PlayerInterface
     {
-        friend Player;
+    public:
+
+        void SetPlayer(const EntityID InPlayer) { PlayerID = InPlayer; }
         
     protected:
         
@@ -27,6 +29,7 @@ namespace ECS
         // Specific getters
         Transform& GetPlayerTransform() const;
         Transform& GetCameraTransform() const;
+        Transform& GetColliderTransform() const;
         Movement& GetMovement() const;
         Input& GetInput() const;
         Collider& GetCollider() const;

@@ -1,8 +1,8 @@
 ﻿#include "PlayerInterface.h"
 
 #include "Player.h"
-#include "Movement.h"
 #include "Input.h"
+#include "Movement/Movement.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/ECS/Systems/Camera.h"
@@ -19,14 +19,21 @@ ECS::Player& ECS::PlayerInterface::GetPlayer() const
 ECS::Transform& ECS::PlayerInterface::GetPlayerTransform() const
 {
     auto* ptr = Manager::Get().GetComponent<Transform>(PlayerID);
-    CHECK_ASSERT(!ptr, "Invalid player");
+    CHECK_ASSERT(!ptr, "Invalid player trans");
     return *ptr; 
 }
 
 ECS::Transform& ECS::PlayerInterface::GetCameraTransform() const
 {
     auto* ptr = Manager::Get().GetComponent<Transform>(GetPlayer().GetCameraID());
-    CHECK_ASSERT(!ptr, "Invalid player");
+    CHECK_ASSERT(!ptr, "Invalid camera trans");
+    return *ptr; 
+}
+
+ECS::Transform& ECS::PlayerInterface::GetColliderTransform() const
+{
+    auto* ptr = Manager::Get().GetComponent<Transform>(GetPlayer().GetColliderID());
+    CHECK_ASSERT(!ptr, "Invalid collider trans");
     return *ptr; 
 }
 
@@ -54,13 +61,13 @@ ECS::Collider& ECS::PlayerInterface::GetCollider() const
 ECS::Rigidbody& ECS::PlayerInterface::GetRB() const
 {
     auto* ptr = Manager::Get().GetComponent<Rigidbody>(PlayerID);
-    CHECK_ASSERT(!ptr, "Invalid input");
+    CHECK_ASSERT(!ptr, "Invalid rb");
     return *ptr;
 }
 
 ECS::Camera& ECS::PlayerInterface::GetCamera() const
 {
     auto* ptr = Manager::Get().GetComponent<Camera>(GetPlayer().GetCameraID());
-    CHECK_ASSERT(!ptr, "Invalid input");
+    CHECK_ASSERT(!ptr, "Invalid camera");
     return *ptr;
 }

@@ -13,22 +13,43 @@ using namespace ECS;
 void Manager::Init()
 {
     RegisterSystems();
-    for (const auto& comp : SystemMap)
-        comp.second->InitSystem();
+    SortSystems();
+    for (SystemBase* system : SortedSystems)
+        system->InitSystem();
+}
+
+void Manager::SortSystems()
+{
+    for (auto sys : SystemMap)
+        SortedSystems.push_back(sys.second);
+
+    std::ranges::sort(SortedSystems, [](const SystemBase* InFirst, const SystemBase* InSecond)
+    {
+        return InFirst->GetPriority() > InSecond->GetPriority();
+    });
 }
 
 void Manager::Deinit()
 {
+    // Destroy entities
     for (const EntityID entity : Entities)
         DestroyEntity(entity);
     DestroyPending();
+
+    // Delete systems
+    for (const SystemBase* system : SortedSystems)
+        delete(system);
+    SortedSystems.clear();
+    SystemMap.clear();
+    ComponentMap.clear();
+    NameMap.clear(); 
 }
 
 void Manager::Update(const double InDelta)
 {
-    for (const auto& comp : SystemMap)
-        if (comp.second->ShouldUpdate())
-            comp.second->UpdateSystem(InDelta);
+    for (SystemBase* system : SortedSystems)
+        if (system->ShouldUpdate())
+            system->UpdateSystem(InDelta);
     DestroyPending();
 }
 
@@ -59,8 +80,8 @@ void Manager::DestroyPending()
     const Set<EntityID> copy = PendingDestroy;
     for (EntityID obj : copy)
     {
-        for (const auto& comp : SystemMap)
-            comp.second->Unregister(obj);
+        for (SystemBase* system : SortedSystems)
+            system->Unregister(obj);
         Entities.erase(obj);
     }
     PendingDestroy.clear();
@@ -74,26 +95,32 @@ SystemBase* Manager::GetSystem(const String& InComponentName)
     return find->second;
 }
 
-SystemBase* Manager::GetSystem(const size_t InHash, const bool InIsCompHash)
+SystemBase* Manager::GetSystem(const Utility::Type& InType, const bool InIsCompHash)
 {
     auto& map = InIsCompHash ? ComponentMap : SystemMap;
-    const auto find = map.find(InHash);
+    const auto find = map.find(InType.GetHash());
     CHECK_ASSERT(find == map.end(), "Unable to find system");
     CHECK_ASSERT(!find->second, "System null");
     return find->second;
 }
 
-void Manager::Deserialize(EntityID InID, const Vector<DeserializeObj>& InObjects)
+void Manager::Deserialize(const EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects)
 {
     CHECK_ASSERT(InID == InvalidID, "Invalid ID");
     
-    DeserializeSysCollection systems;
+    DeserializeEntityCollection systems;
 
     // Read objects
     for (const DeserializeObj& obj : InObjects)    
         if (!obj.ObjectEmpty())
             Deserialize(InID, obj, systems, 0);
 
+    // Apply transformation
+    for (const auto& entry : systems)
+        if (auto* trans = GetComponent<Transform>(entry.first))
+            if (trans->GetParent() == InvalidID) // Is root? 
+                trans->SetWorld(trans->World() * InTransform);
+    
     // Systems should initialize in order of depth, reversed
     struct SysEntry
     {
@@ -110,15 +137,17 @@ void Manager::Deserialize(EntityID InID, const Vector<DeserializeObj>& InObjects
 
     // Sort the list
     std::ranges::sort(sysList, [](const SysEntry& a, const SysEntry& b) {
-        return a.Depth < b.Depth; // TODO: Also consider system order  
+        if (a.Depth == b.Depth)
+            return a.Sys->GetPriority() > b.Sys->GetPriority();
+        return a.Depth < b.Depth;
     });
-
+    
     // Finish reg
     for (const auto& sys : sysList)
         if (sys.Sys) sys.Sys->FinishRegistration(sys.ID);
 }
 
-void Manager::Deserialize(EntityID InID, const DeserializeObj& InObj, DeserializeSysCollection& OutSystems, int InDepth)
+void Manager::Deserialize(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth)
 {
     Set<SystemBase*> systems = DeserializeComponents(InID, InObj);
     auto& entry = OutSystems[InID];
@@ -154,7 +183,7 @@ Set<SystemBase*> Manager::DeserializeComponents(EntityID InID, const Deserialize
     return systems; 
 }
 
-void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeSysCollection& OutSystems, int InDepth)
+void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth)
 {
     // Read children
     CHECK_RETURN(!InObj.HasMember("Children"))

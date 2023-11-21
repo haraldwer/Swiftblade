@@ -35,8 +35,9 @@ namespace ECS
         virtual bool ShouldUpdate() const;
         virtual void OnBeginContact(const Physics::Contact& InContact) {}
         virtual void OnEndContact(const Physics::Contact& InContact) {}
+        virtual int GetPriority() const { return 0; }
 
-        static SystemBase* GetAnonymousSystem(size_t InHash, bool InIsCompHash);
+        static SystemBase* GetAnonymousSystem(const Utility::Type& InType, bool InIsCompHash);
         bool Contains(EntityID InID) const;
         Vector<EntityID> GetEntities() const;
 
@@ -87,8 +88,7 @@ namespace ECS
         template <class ComponentType>
         ComponentType* TryGet(const EntityID InID)
         {
-            const size_t hash = typeid(ComponentType).hash_code();
-            SystemBase* base = GetAnonymousSystem(hash, true);
+            SystemBase* base = GetAnonymousSystem(Utility::GetType<ComponentType>(), true);
             System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
             return sys->TryGet(InID);
         }
@@ -96,8 +96,7 @@ namespace ECS
         template <class ComponentType>
         const ComponentType* TryGet(const EntityID InID) const
         {
-            const size_t hash = typeid(ComponentType).hash_code();
-            SystemBase* base = GetAnonymousSystem(hash, true);
+            SystemBase* base = GetAnonymousSystem(Utility::GetType<ComponentType>(), true);
             System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
             return sys->TryGet(InID);
         }
@@ -119,8 +118,7 @@ namespace ECS
         template <class SystemType>
         SystemType& GetSystem() const
         {
-            const size_t hash = typeid(SystemType).hash_code();
-            SystemBase* base = GetAnonymousSystem(hash, false);
+            SystemBase* base = GetAnonymousSystem(Utility::GetType<SystemType>(), false);
             CHECK_ASSERT(!base, "Unable to find system");
             return *reinterpret_cast<SystemType*>(base);
         }

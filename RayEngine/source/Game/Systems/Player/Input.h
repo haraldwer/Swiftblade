@@ -11,6 +11,7 @@ namespace ECS
         
         void Deinit() override;
         void Update(double InDelta) override;
+        inline static bool Blocked = false; 
         
         bool JumpInput = false;
         Vec2F MoveInput;

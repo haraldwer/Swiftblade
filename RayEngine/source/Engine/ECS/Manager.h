@@ -1,5 +1,4 @@
 #pragma once
-#include <vcruntime_typeinfo.h>
 
 #include "Entity.h"
 #include "System.h"
@@ -24,7 +23,7 @@ namespace ECS
         template <class T>
         T& GetSystem() const
         {
-            const Utility::TypeHash hash = Utility::Type<T>().GetHash();
+            const Utility::TypeHash hash = Utility::GetType<T>();
             const auto find = SystemMap.find(hash);
             CHECK_ASSERT(find == SystemMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
@@ -34,7 +33,7 @@ namespace ECS
         template <class T>
         T* GetComponent(const EntityID InID) const
         {
-            const Utility::TypeHash hash = Utility::Type<T>().GetHash();
+            const Utility::TypeHash hash = Utility::GetType<T>();
             const auto find = ComponentMap.find(hash);
             CHECK_ASSERT(find == ComponentMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
@@ -43,11 +42,11 @@ namespace ECS
         }
 
         SystemBase* GetSystem(const String& InComponentName);
-        SystemBase* GetSystem(size_t InHash, bool InIsCompHash);
+        SystemBase* GetSystem(const Utility::Type& InType, bool InIsCompHash);
         
         const Map<String, SystemBase*>& GetAllSystems() const { return NameMap; }
 
-        void Deserialize(EntityID InID, const Vector<DeserializeObj>& InObjects);
+        void Deserialize(EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects);
         void Serialize(EntityID InID, SerializeObj& OutObj);
 
     private:
@@ -57,13 +56,14 @@ namespace ECS
             Set<SystemBase*> Systems;
             int Depth = 0;
         };
-        typedef Map<EntityID, DeserializeSysTuple> DeserializeSysCollection;
+        typedef Map<EntityID, DeserializeSysTuple> DeserializeEntityCollection;
         
-        void Deserialize(EntityID InID, const DeserializeObj& InObj, DeserializeSysCollection& OutSystems, int InDepth); 
+        void Deserialize(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth); 
         Set<SystemBase*> DeserializeComponents(EntityID InID, const DeserializeObj& InObj); 
-        void DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeSysCollection& OutSystems, int InDepth);
+        void DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth);
         
         void RegisterSystems();
+        void SortSystems();
         void DestroyPending(); 
 
         // System type -> System ptr
@@ -72,6 +72,7 @@ namespace ECS
         Map<Utility::TypeHash, SystemBase*> ComponentMap;
         // System name -> system ptr
         Map<String, SystemBase*> NameMap;
+        Vector<SystemBase*> SortedSystems; 
 
         // List of all entities
         Set<EntityID> Entities;

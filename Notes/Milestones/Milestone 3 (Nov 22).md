@@ -9,9 +9,9 @@ Done:
 
 Ongoing: 
 [[0 - Scene Offset]]
+[[0 - Movement state machine]]
 
 Tasks:
-[[0 - Movement state machine]]
 [[0 - Entity reparenting]]
 [[0 - Sword]]
 [[0 - Player death]]

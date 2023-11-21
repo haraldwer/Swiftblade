@@ -68,5 +68,13 @@ void EditorCamera::Update(double InDelta)
 
 bool EditorCamera::IsControlling() const
 {
-    return IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || !HoldRight;
+    return (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || !HoldRight) && IsWindowFocused();
+}
+
+void EditorCamera::SetReference(const CameraInstance& InCamera)
+{
+    TargetState.Position = InCamera.Position;
+    TargetState.Rotation = InCamera.Rotation.Euler();
+    TargetState.FOV = InCamera.FOV;
+    CurrentState = TargetState; 
 }

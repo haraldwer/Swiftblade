@@ -10,7 +10,7 @@
 #include "Rigidbody.h"
 #include "Game/Systems/CubeVolume.h"
 #include "Game/Systems/Player/Input.h"
-#include "Game/Systems/Player/Movement.h"
+#include "Game/Systems/Player/Movement/Movement.h"
 
 #include "Game/Systems/Player/Player.h"
 

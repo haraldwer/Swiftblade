@@ -2,37 +2,48 @@
 
 class StateMachine;
 
-class StateBase : public Utility::Typed<StateBase>
+class StateBase
 {
 public:
+	virtual ~StateBase() = default;
 	void SetOwner(const ObjectPtr<StateMachine>& InOwner) { Owner = InOwner; }
 	
 	virtual void Init() {}
-	virtual Utility::TypeAny Update(double InDT) { return {}; }
-	virtual Utility::TypeAny Check() { return {}; }
+	virtual void Deinit() {}
+	virtual Utility::Type Update(double InDT) { return {}; }
+	virtual Utility::Type Check() { return {}; }
 	
 	virtual void Enter() {}
 	virtual void Exit() {}
 	
 	virtual int32 Priority() const { return 0; }
+	virtual Utility::Type GetType() const { return {}; }
 
 protected:
 	
-	StateBase* GetCurrentState() const;
-	StateBase* GetState(const Utility::TypeAny& InType) const;
+	Utility::Type GetCurrentState() const;
+	StateBase* GetState(const Utility::Type& InType) const;
 	bool IsCurrentState() const;
 
 	template <class T>
 	T* GetState() const
 	{
-		return TypeCast<T>(GetState(T::GetType()));
+		if (auto state = GetState(Utility::GetType<T>()))
+			return reinterpret_cast<T*>(state);
+		return nullptr; 
 	}
-	
+
 private:
-	ObjectPtr<StateMachine> Owner = nullptr;
+
+	ObjectPtr<StateMachine> Owner; 
 };
 
 template <class T>
-class State : public StateBase, public Utility::Typed<T>
+class State : StateBase
 {
-}; 
+public:
+	Utility::Type GetType() const override
+	{
+		return Utility::GetType<T>();
+	}
+};

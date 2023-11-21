@@ -8,7 +8,7 @@
 
 namespace Resource
 {
-    template <class T>
+    template <class T, bool Editable = false>
     class Ref
     {
         
@@ -81,14 +81,30 @@ namespace Resource
 
         bool Edit(const String& InName)
         {
-            // File picker?
+            // File picker
             const String currID = Ptr ? Ptr->Identifier : "";
+            
             const String newID = Base::Pick(InName, currID);
             if (currID != newID)
             {
                 *this = Ref(newID); 
                 return true; 
             }
+        
+            // Inline editing
+            if (Editable && Ptr)
+            {
+                if (Base::BeginEdit(currID))
+                {
+                    if (Ptr->Data.Edit(InName))
+                    {
+                        Ptr->Data.Save(currID);
+                        Ptr->TryHotReload(); 
+                    }
+                }
+            }
+            
+            // TODO: Duplicate resource
             return false; 
         }
 
