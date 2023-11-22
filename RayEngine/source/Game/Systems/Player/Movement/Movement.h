@@ -23,17 +23,34 @@ namespace ECS
         void ConsumeRotInput() const;
         void ConsomeMoveInput(); 
         void ConsumeJumpInput();
+        void ApplySlowdown(double InDelta);
+        void ApplyVelocityClamp(double InDelta) const;
         void GroundSnap();
 
-        PROPERTY_C(float, MovementForce, 50.0); 
-        PROPERTY_C(float, JumpVelocity, 20.0);
-        
+        // Movement forces
+        PROPERTY_C(float, MovementForce, 180.0f);
+        PROPERTY_C(float, AirMovementMultiplier, 0.7f);
+        PROPERTY_C(float, JumpVelocity, 22.0f);
+
+        // Speed clamps
+        PROPERTY_C(float, MaxGroundSpeed, 15.0f);
+        PROPERTY_C(float, MaxAirSpeed, 20.0f);
+        PROPERTY_C(float, AirClampSlowdown, 0.005f);
+        PROPERTY_C(float, GroundClampSlowdown, 0.001f);
+        PROPERTY_C(float, MaxVerticalSpeed, 30.0f);
+
+        // Friction / Slowdown
+        PROPERTY_C(float, GroundSlowdown, 0.001f);
+        PROPERTY_C(float, AirSlowdown, 0.1f);
+
+        // Ground detection
         PROPERTY_C(float, GroundDist, 0.5f);
         PROPERTY_C(float, GroundDot, 0.2f);
 
         // Movement state
         bool OnGround = false;
         Vec3F GroundLocation;
+        Vec2F LastInputVector; 
 
         ObjectPtr<MovementStateMachine> StateMachine; 
     };

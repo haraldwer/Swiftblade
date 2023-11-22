@@ -8,11 +8,11 @@
 
 bool PhysicsMaterialResource::Load(const String& InPath)
 {
-    if (Engine::InstanceBase::Get().IsEditor())
-        return false; 
-    
     if (!PropertyOwnerBase::Load(InPath))
         return false;
+
+    if (Engine::InstanceBase::Get().IsEditor())
+        return false; 
     
     const auto& man = Physics::Manager::Get();
     Ptr = man.CreateMaterial(

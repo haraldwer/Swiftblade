@@ -14,7 +14,7 @@ void Game::Init()
     if (const Scene* scene = ResScene("Scenes/RM_Scene.json").Get())
         SceneInstance = scene->Create();
 
-    if (const BlueprintResource* bp = ResBlueprint("Blueprints/BP_Player.json").Get())
+    if (const BlueprintResource* bp = ResBlueprint("Player/BP_Player.json").Get())
         bp->Instantiate();
 
     DebugCamera.SetRequireHold(false); 

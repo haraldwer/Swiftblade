@@ -32,6 +32,7 @@ int main()
         resourceManager.Update(); 
         
         // Get instance
+        instanceManager.DelayedPop();
         const auto instance = instanceManager.Top();
         CHECK_BREAK(!instance);
         
@@ -67,8 +68,7 @@ int main()
         if (!renderer.BeginRender())
             break;
         renderer.RenderScenes(delta);
-        if (const auto lateInstance = instanceManager.Top())
-            lateInstance->UpdateUI();
+        instance->UpdateUI();
         renderer.EndRender();
     }
     

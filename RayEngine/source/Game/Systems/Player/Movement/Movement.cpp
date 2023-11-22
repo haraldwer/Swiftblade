@@ -38,6 +38,8 @@ void ECS::Movement::Update(double InDelta)
     ConsumeRotInput();
     ConsomeMoveInput();
     ConsumeJumpInput();
+    ApplySlowdown(InDelta); 
+    ApplyVelocityClamp(InDelta);
     GroundSnap(); 
 }
 
@@ -88,9 +90,15 @@ void ECS::Movement::ConsomeMoveInput()
     
     if (input.MoveInput.length > 0.01f)
     {
-        const Vec2F force = Vec2F(input.MoveInput.normalized) * MovementForce.Get();
-        rb.AddForce(Vec3F(force.x, 0.0f, force.y));
+        LastInputVector = input.MoveInput.GetNormalized();
+        const float force = MovementForce * (OnGround ? 1.0f : AirMovementMultiplier);
+        const Vec2F vec = Vec2F(LastInputVector) * force;
+        rb.AddForce(Vec3F(vec.x, 0.0f, vec.y));
         input.MoveInput = Vec2F::Zero(); 
+    }
+    else
+    {
+        LastInputVector = Vec2F::Zero();
     }
 }
 
@@ -106,6 +114,40 @@ void ECS::Movement::ConsumeJumpInput()
         OnGround = false; 
         input.JumpInput = false; 
     }
+}
+
+void ECS::Movement::ApplySlowdown(double InDelta)
+{
+    CHECK_RETURN(LastInputVector.Length > 0.001f);
+    const float slowdown = OnGround ? GroundSlowdown : AirSlowdown;
+    const float friction = std::pow(slowdown, InDelta);
+
+    auto& rb = GetRB();
+    const Vec3F vel = rb.GetVelocity();
+    const Vec3F flatVel = vel * Vec3F(1.0f, 0.0f, 1.0f) * friction;
+    const Vec3F newVel = Vec3F(flatVel.x, vel.y, flatVel.z);
+    rb.SetVelocity(newVel);
+}
+
+void ECS::Movement::ApplyVelocityClamp(double InDelta) const
+{
+    auto& rb = GetRB();
+    const Vec3F vel = rb.GetVelocity();
+
+    const Vec3F flatVel = vel * Vec3F(1.0f, 0.0f, 1.0f);
+    const float maxSpeed = OnGround ?
+        MaxGroundSpeed : MaxAirSpeed;
+    const float currentSpeed = flatVel.Length();
+    
+    // Horizontal friction slowdown
+    const float slowdown = OnGround ? GroundClampSlowdown : AirClampSlowdown;
+    const float friction = std::pow(slowdown, InDelta);
+    const float newSpeed = currentSpeed < maxSpeed ? currentSpeed : currentSpeed * friction;
+    const Vec3F clampedFlatVel = flatVel.GetNormalized() * newSpeed;
+    
+    // Vertical raw clamp
+    float clapedVertVel = CLAMP(vel.y, -MaxVerticalSpeed, MaxVerticalSpeed); 
+    rb.SetVelocity(Vec3F(clampedFlatVel.x, clapedVertVel, clampedFlatVel.z));
 }
 
 void ECS::Movement::GroundSnap()

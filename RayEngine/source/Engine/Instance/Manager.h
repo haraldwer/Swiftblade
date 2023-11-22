@@ -27,22 +27,35 @@ namespace Engine
         
         void Pop()
         {
-            auto* top = Top();
-            CHECK_RETURN(!top); 
-            top->Deinit();
-            delete top;
-            Stack.pop_back();
-            Utility::SingeltonContext::Value--; 
+            popQueue++;
+        }
+
+        void DelayedPop()
+        {
+            while (popQueue)
+            {
+                popQueue--; 
+                auto* top = Top();
+                CHECK_CONTINUE(!top); 
+                top->Deinit();
+                delete top;
+                Stack.pop_back();
+                Utility::SingeltonContext::Value--;
+            }
         }
         
         void Clear()
         {
             while (Top())
+            {
                 Pop();
+                DelayedPop(); 
+            }
         }
 
     private:
-        
+
+        int popQueue = 0;
         Vector<InstanceBase*> Stack;
         
     };

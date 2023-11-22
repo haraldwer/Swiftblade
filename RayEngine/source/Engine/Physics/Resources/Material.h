@@ -21,7 +21,7 @@ public:
     
     PROPERTY_D(float, StaticFriction, 1.0f);
     PROPERTY_D(float, DynamicFriction, 1.0f);
-    PROPERTY_D(float, Restitution, 1.0f);
+    PROPERTY_D(float, Restitution, 0.5f);
 
     // Potentially load with overrides
 
