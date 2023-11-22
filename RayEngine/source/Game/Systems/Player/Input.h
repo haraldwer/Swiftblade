@@ -17,6 +17,8 @@ namespace ECS
         Vec2F MoveInput;
         Vec2F RotInput;
 
+        int GetPriority() const override { return 10; }
+        
     private:
         
         PROPERTY_C(float, Sensitivity, 0.005f);

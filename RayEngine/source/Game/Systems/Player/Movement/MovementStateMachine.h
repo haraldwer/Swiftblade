@@ -1,7 +1,9 @@
 ﻿#pragma once
+
+#include "Utility/StateMachine/StateMachine.h"
+#include "States/MovementStateAir.h"
 #include "States/MovementStateIdle.h"
 #include "States/MovementStateRun.h"
-#include "Utility/StateMachine/StateMachine.h"
 
 namespace Physics
 {
@@ -23,4 +25,5 @@ private:
 
     MovementStateIdle Idle;
     MovementStateRun Run;
+    MovementStateAir Air;
 };

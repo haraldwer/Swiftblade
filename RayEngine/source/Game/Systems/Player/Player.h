@@ -13,6 +13,8 @@ namespace ECS
         EntityID GetCameraID() const { return CameraID; }
         EntityID GetColliderID() const { return ColliderID; }
 
+        int GetPriority() const override { return 20; }
+
     private:
         EntityID ColliderID = InvalidID;
         EntityID CameraID = InvalidID;

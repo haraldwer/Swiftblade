@@ -20,6 +20,7 @@ namespace ECS
         virtual void Update(double InDelta) {}
         virtual void OnBeginContact(const Physics::Contact& InContact) {}
         virtual void OnEndContact(const Physics::Contact& InContact) {}
+        virtual int GetPriority() const { return 0; }
 
     protected:
         
@@ -66,6 +67,11 @@ namespace ECS
         {
             InComponent.Update(InDelta); 
         }
+
+        int GetPriority() const override
+        {
+            return T().GetPriority();
+        } 
 
         void OnBeginContact(const Physics::Contact& InContact) override
         {

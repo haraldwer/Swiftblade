@@ -2,9 +2,12 @@
 
 #include "MovementStateIdle.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
+#include "Game/Systems/Player/Movement/Movement.h"
 
 Type MovementStateRun::Check()
 {
+    if (!GetMovement().IsOnGround())
+        return Type::None(); 
     if (GetRB().GetVelocity().Length() > 0.5f)
         return Type::Get<MovementStateRun>(); 
     return Type::None();

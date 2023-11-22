@@ -5,11 +5,15 @@
 
 void MovementStateMachine::Init(ECS::EntityID InPlayer)
 {
-    States.emplace_back(reinterpret_cast<StateBase*>(&Idle));
-    States.emplace_back(reinterpret_cast<StateBase*>(&Run));
-
-    Idle.SetPlayer(InPlayer); 
-    Run.SetPlayer(InPlayer); 
+    const auto addState = [&](auto& InState)
+    {
+        States.emplace_back(reinterpret_cast<StateBase*>(&InState));
+        InState.SetPlayer(InPlayer);
+    };
+    
+    addState(Idle); 
+    addState(Run); 
+    addState(Air); 
     
     StateMachine::Init();
 }

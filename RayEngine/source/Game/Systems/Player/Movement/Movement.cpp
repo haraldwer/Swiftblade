@@ -14,6 +14,8 @@
 
 void ECS::Movement::Init()
 {
+    StateMachine = new MovementStateMachine();
+    StateMachine->Init(GetPlayer().GetID());
 }
 
 void ECS::Movement::Deinit()
@@ -27,11 +29,6 @@ void ECS::Movement::Deinit()
 
 void ECS::Movement::Update(double InDelta)
 {
-    if (!StateMachine)
-    {
-        StateMachine = new MovementStateMachine();
-        StateMachine->Init(GetPlayer().GetID());
-    }
     if (StateMachine)
         StateMachine->Update(InDelta); 
     

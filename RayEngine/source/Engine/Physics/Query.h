@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿    #pragma once
 
 #include "CollisionShape.h"
 #include "Engine/ECS/Entity.h"

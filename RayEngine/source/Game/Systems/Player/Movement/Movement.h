@@ -18,6 +18,11 @@ namespace ECS
         void Deinit() override;
         void Update(double InDelta) override;
         void OnBeginContact(const Physics::Contact& InContact) override;
+
+        int GetPriority() const override { return 9; }
+
+        bool IsOnGround() const { return OnGround; }
+        bool IsInAir() const { return !IsOnGround(); }
         
     private:
         void ConsumeRotInput() const;

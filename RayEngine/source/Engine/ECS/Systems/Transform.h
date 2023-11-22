@@ -58,6 +58,8 @@ namespace ECS
 
         Mat4F WorldToLocal(const Transform& InComp, const Mat4F& InWorld) const;
         Mat4F LocalToWorld(const Transform& InComp, const Mat4F& InLocal) const;
+
+        int GetPriority() const override { return 100; }
     };
 }
 
