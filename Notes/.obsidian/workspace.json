@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/1 - Inline resource editing.md",
+                "file": "Tasks/0 - Movement state machine.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Tasks/1 - Inline resource editing.md",
+                "file": "Tasks/0 - Movement state machine.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Tasks/1 - Inline resource editing.md",
+                "file": "Tasks/0 - Movement state machine.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Tasks/1 - Inline resource editing.md"
+                "file": "Tasks/0 - Movement state machine.md"
               }
             }
           }
@@ -148,11 +148,13 @@
   },
   "active": "4b0d5d57611f22ad",
   "lastOpenFiles": [
+    "Tasks/0 - Entity reparenting.md",
+    "Tasks/0 - Default shading.md",
+    "Tasks/1 - Inline resource editing.md",
     "Tasks/Backlog.md",
     "Tasks/0 - System priority.md",
     "Milestones/Milestone 3 (Nov 22).md",
     "Tasks/2 - Enum properties.md",
-    "Tasks/1 - Inline resource editing.md",
     "Tasks/0 - Movement state machine.md",
     "Tasks/0 - Sword.md",
     "Tasks/Archive/1 - Instanced rendering.md",
@@ -162,7 +164,6 @@
     "Tasks/0 - Room connections.md",
     "Tasks/0 - Level end.md",
     "Tasks/0 - Player death.md",
-    "Tasks/0 - Entity reparenting.md",
     "Planning/Timeline.md",
     "Milestones",
     "Documentation.md",
@@ -170,9 +171,8 @@
     "Tasks/Archive/0 - Break out player input and player movement.md",
     "Tasks/0 - CubeVolume custom serialization.md",
     "Tasks/0 - Optimize scene overrides.md",
-    "Tasks/2 - File picker default path.md",
+    "Tasks/Archive/2 - File picker default path.md",
     "Tasks/Archive/0 - Room can be saved and loaded.md",
-    "Tasks/0 - Default shading.md",
     "Tasks/Archive/0 - Cubes can be clicked to be removed or added.md",
     "Tasks/Archive/0 - Scenes.md",
     "Tasks/Archive",
