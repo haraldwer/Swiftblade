@@ -4,7 +4,7 @@
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
-#include "ImGui/CustomFileBrowser/imgui_filebrowser.h"
+#include "ImGui/FileBrowser/imgui_filebrowser.h"
 
 bool Resource::Base::BeginEdit(const String& InID)
 {
@@ -23,7 +23,7 @@ String Resource::Base::Pick(const String& InLabel, const String& InID)
     if (ImGui::Button((InID + "##" + InLabel).c_str()))
         ImGui::OpenFileBrowser(InID);
     String result; 
-    if (ImGui::FetchFileBrowserResult(result))
+    if (ImGui::FetchFileBrowserResult(InID, result))
         return result;
     return InID; 
 }

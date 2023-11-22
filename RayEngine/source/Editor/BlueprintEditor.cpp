@@ -15,7 +15,7 @@
 void BlueprintEditor::Init()
 {
     Instance::Init();
-    SetBP(ResBlueprint("Blueprints/BP_Player.json"));
+    SetBP(ResBlueprint("Player/BP_Player.json"));
 }
 
 void BlueprintEditor::SetBP(const ResBlueprint& InBP)

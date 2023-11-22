@@ -5,6 +5,9 @@
 				"Name":"Player"
 			}
 		},{
+			"Name":"Input",
+			"Data":{}
+		},{
 			"Name":"Transform",
 			"Data":{
 				"Position":[
@@ -13,9 +16,6 @@
 					0.0
 				]
 			}
-		},{
-			"Name":"Input",
-			"Data":{}
 		},{
 			"Name":"Player",
 			"Data":{}
@@ -72,7 +72,8 @@
 					},{
 						"Name":"Collider",
 						"Data":{
-							"Shape":1
+							"Shape":1,
+							"Material":"Player\\PM_Player.json"
 						}
 					}
 				]
