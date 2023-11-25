@@ -78,12 +78,6 @@ void Physics::Manager::Init()
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
-
-    if (const PhysicsMaterialResource* matRsc = ResPM("Defaults/PM_Default.json").Get())
-    {
-        PxRigidStatic* groundPlane = PxCreatePlane(*Persistent.Physics, PxPlane(0,1,0,0), *matRsc->Get());
-        Scene->addActor(*groundPlane);
-    }
 }
 
 void Physics::Manager::Deinit()
@@ -242,7 +236,8 @@ void Physics::Manager::CreateShape(const ECS::Collider& InCollider, const ECS::E
     // Get geometry
     const PxGeometry* geometry = GetGeometry(
         static_cast<Shape>(InCollider.Shape.Get()),
-        InCollider.ShapeData.Get());
+        InCollider.ShapeData.Get(),
+        trans->GetScale(ECS::Transform::Space::LOCAL));
     
     // Create shape
     PxShape* shape = Persistent.Physics->createShape(
@@ -327,26 +322,30 @@ PxMaterial* Physics::Manager::CreateMaterial(const float InStaticFric, const flo
     return Persistent.Physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
 }
 
-PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InShapeData)
+PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InShapeData, const Vec3F& InScale)
 {
+    // TODO: Use transform scale
+    
     switch (InShape)
     {
     case Physics::Shape::BOX:
         {
             static PxBoxGeometry box;
-            box = PxBoxGeometry(InShapeData.x, InShapeData.y, InShapeData.z);
+            box = PxBoxGeometry(InShapeData.x * InScale.x, InShapeData.y * InScale.y, InShapeData.z * InScale.z);
             return &box; 
         }
     case Shape::CAPSULE:
         {
             static PxCapsuleGeometry capsule;
-            capsule = PxCapsuleGeometry(InShapeData.x, InShapeData.y);
+            const float rScale = MAX(InScale.x, InScale.z);
+            capsule = PxCapsuleGeometry(InShapeData.x * rScale, InShapeData.y * InScale.y);
             return &capsule;
         }
     case Shape::SPHERE:
         {
             static PxSphereGeometry sphere;
-            sphere = PxSphereGeometry(InShapeData.x);
+            const float rScale = MAX(MAX(InScale.x, InScale.y), InScale.z);
+            sphere = PxSphereGeometry(InShapeData.x * rScale);
             return &sphere;
         }
         // Consider cooking geometry
@@ -376,7 +375,8 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPosit
     // Get geometry
     const PxGeometry* geometry = GetGeometry(
         Shape::BOX,
-        Vec4F::One() * InScale);
+        Vec4F::One(),
+        InScale);
 
     auto& shapes = CubeShapes[InID]; 
     for (const Vec3F& pos : InPositions)

@@ -12,6 +12,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Update(double InDelta) override;
+    void UpdateUI() override;
 
 private:
 
@@ -19,6 +20,8 @@ private:
     SceneInstance SceneInstance;
 
     bool bUseDebugCamera = false; 
-    EditorCamera DebugCamera; 
+    EditorCamera DebugCamera;
+
+    ECS::EntityID PlayerID; 
     
 };

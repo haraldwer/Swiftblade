@@ -10,6 +10,7 @@
 #include "Rigidbody.h"
 #include "Game/Systems/CubeVolume.h"
 #include "Game/Systems/Player/Input.h"
+#include "Game/Systems/Player/PlayerCamera.h"
 #include "Game/Systems/Player/Movement/Movement.h"
 
 #include "Game/Systems/Player/Player.h"
@@ -43,6 +44,7 @@ NameMap[String(#x)] = var; } \
     REG_UNIQUE_COMPONENT(Player);
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);
+    REG_UNIQUE_COMPONENT(PlayerCamera);
     
 #undef REG_OBJ_SYS
 }

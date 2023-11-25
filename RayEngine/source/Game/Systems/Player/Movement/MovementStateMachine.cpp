@@ -13,7 +13,12 @@ void MovementStateMachine::Init(ECS::EntityID InPlayer)
     
     addState(Idle); 
     addState(Run); 
+    addState(Jump); 
     addState(Air); 
+    addState(Crouch); 
+    addState(Slide);
+    addState(Dash);
+    addState(Wall);
     
     StateMachine::Init();
 }

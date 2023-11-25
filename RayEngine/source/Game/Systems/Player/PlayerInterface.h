@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/Entity.h"
 
+
 namespace ECS
 {
     struct Transform;
@@ -14,6 +15,7 @@ namespace ECS
     class Player;
     class SysPlayer;
     class Manager;
+    class PlayerCamera;
     
     class PlayerInterface
     {
@@ -25,6 +27,7 @@ namespace ECS
         
         // Base getters
         Player& GetPlayer() const;
+        EntityID GetPlayerID() const { return PlayerID; }
 
         // Specific getters
         Transform& GetPlayerTransform() const;
@@ -34,8 +37,11 @@ namespace ECS
         Input& GetInput() const;
         Collider& GetCollider() const;
         Rigidbody& GetRB() const;
+        PlayerCamera& GetPlayerCamera() const;
         Camera& GetCamera() const;
 
+        static double GetTime(); 
+        
     private:
         
         EntityID PlayerID = InvalidID;

@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include "Input.h"
+#include "PlayerCamera.h"
 #include "Movement/Movement.h"
 #include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Collider.h"
@@ -22,5 +23,6 @@ void ECS::Player::Init()
         movement->SetPlayer(GetID());
     if (const auto input = TryGet<Input>(GetID()))
         input->SetPlayer(GetID());
-
+    if (const auto playerCamera = TryGet<PlayerCamera>(GetID()))
+        playerCamera->SetPlayer(GetID());
 }

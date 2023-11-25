@@ -39,7 +39,7 @@ private:
 };
 
 template <class T>
-class State : StateBase
+class State : public StateBase
 {
 public:
 	Utility::Type GetType() const override

@@ -26,7 +26,7 @@ void ECS::Input::Update(double InDelta)
     const auto mouseDelta = GetMouseDelta();
     SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
     Vec2F rotDelta = Vec2F(mouseDelta.y, mouseDelta.x * -1.0f) * Sensitivity.Get();
-    RotInput += rotDelta;  
+    RotInput = rotDelta;  
 
     // Get directions
     const Mat4F rotMat = Mat4F(trans.GetRotation());
@@ -37,9 +37,10 @@ void ECS::Input::Update(double InDelta)
     const Vec3F input =
         right * (static_cast<float>(IsKeyDown(KEY_D)) - static_cast<float>(IsKeyDown(KEY_A))) +
         forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)));
-    MoveInput += input.xz;
+    MoveInput = input.xz;
 
-    if (IsKeyPressed(KEY_SPACE))
-        JumpInput = true; 
+    JumpInput = IsKeyPressed(KEY_SPACE);
+    CrouchInput = IsKeyDown(KEY_LEFT_CONTROL);
+    DashInput = IsKeyDown(KEY_LEFT_SHIFT);
 }
 

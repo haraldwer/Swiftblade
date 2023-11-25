@@ -17,6 +17,7 @@ namespace Physics
         Vector<Hit> Hits; 
         bool IsHit = false;
         Hit ClosestHit() const;
+        Vector<Hit> DistanceSorted() const;
     };
 
     struct TraceParams

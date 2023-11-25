@@ -1,0 +1,26 @@
+﻿#pragma once
+#include "PlayerInterface.h"
+#include "Engine/ECS/UniqueComponent.h"
+
+namespace ECS
+{
+    class PlayerCamera : public UniqueComponent<PlayerCamera>, public PlayerInterface
+    {
+    public:
+        void Init() override;
+        void Update(double InDelta) override;
+        int GetPriority() const override { return 8; }
+        
+        void AddCrouchOffset(float InHeightDiff);
+    
+    private:
+
+        PROPERTY_D(float, CrouchOffsetMultiplier, 0.5f);
+        PROPERTY_D(float, CrouchInterpSpeed, 10.0f);
+        
+        float CrouchOffset = 0.0f; 
+        float TargetCrouchOffset = 0.0f;
+        
+        Vec3F OriginalPosition;
+    };
+}

@@ -4,7 +4,7 @@
 
 namespace Utility
 {
-    class Time : Singelton<Time>
+    class Time : public Singelton<Time>
     {
     public:
 

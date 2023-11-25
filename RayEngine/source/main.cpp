@@ -17,7 +17,7 @@ int main()
     renderer.Init();
 
     // Push game instance by default
-    instanceManager.Push<BlueprintEditor>();
+    instanceManager.Push<Game>();
 
     // Timekeeping
     double tickTimer = 0.0;

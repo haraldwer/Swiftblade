@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "Input.h"
+#include "PlayerCamera.h"
 #include "Movement/Movement.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -65,9 +66,21 @@ ECS::Rigidbody& ECS::PlayerInterface::GetRB() const
     return *ptr;
 }
 
+ECS::PlayerCamera& ECS::PlayerInterface::GetPlayerCamera() const
+{
+    auto* ptr = Manager::Get().GetComponent<PlayerCamera>(PlayerID);
+    CHECK_ASSERT(!ptr, "Invalid camera");
+    return *ptr;
+}
+
 ECS::Camera& ECS::PlayerInterface::GetCamera() const
 {
     auto* ptr = Manager::Get().GetComponent<Camera>(GetPlayer().GetCameraID());
     CHECK_ASSERT(!ptr, "Invalid camera");
     return *ptr;
+}
+
+double ECS::PlayerInterface::GetTime()
+{
+    return Utility::Time::Get().Total();
 }

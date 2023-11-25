@@ -6,10 +6,10 @@ User stories:
 - The game loop is set up
 
 Done:
-
-Ongoing: 
 [[0 - Scene Offset]]
 [[0 - Movement state machine]]
+
+Ongoing: 
 
 Tasks:
 [[0 - Entity reparenting]]

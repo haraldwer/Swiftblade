@@ -12,8 +12,13 @@ namespace ECS
         void Deinit() override;
         void Update(double InDelta) override;
         inline static bool Blocked = false; 
+
+        // TODO: Action mapping and input buffering
+        // TODO: Fix weird sensitivity bug
         
         bool JumpInput = false;
+        bool CrouchInput = false;
+        bool DashInput = false; 
         Vec2F MoveInput;
         Vec2F RotInput;
 

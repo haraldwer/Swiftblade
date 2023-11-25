@@ -73,7 +73,7 @@ namespace Physics
         physx::PxRigidDynamic* CreateDynamic(ECS::Rigidbody& InRigidbody);
         physx::PxRigidStatic* CreateStatic(const ECS::Collider& InCollider);
         void CreateShape(const ECS::Collider& InCollider, ECS::EntityID InActorID, physx::PxRigidActor& InActor);
-        static physx::PxGeometry* GetGeometry(const Shape& InShape, const Vec4F& InShapeData);
+        static physx::PxGeometry* GetGeometry(const Shape& InShape, const Vec4F& InShapeData, const Vec3F& InScale);
         
         void TryReleaseShape(ECS::EntityID InID); 
         void TryReleaseDynamic(ECS::EntityID InID); 

@@ -49,3 +49,10 @@ bool ECS::SysCollider::ShouldUpdate() const
     // Show debug visualization in editor
     return Engine::InstanceBase::Get().IsEditor();
 }
+
+void ECS::SysCollider::UpdateShape(EntityID InEntity) const
+{
+    auto& man = Physics::Manager::Get();
+    man.Remove(InEntity);
+    man.Add(InEntity); 
+}

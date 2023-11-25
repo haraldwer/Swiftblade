@@ -15,7 +15,7 @@ void Game::Init()
         SceneInstance = scene->Create();
 
     if (const BlueprintResource* bp = ResBlueprint("Player/BP_Player.json").Get())
-        bp->Instantiate();
+        PlayerID = bp->Instantiate();
 
     DebugCamera.SetRequireHold(false); 
 }
@@ -49,4 +49,9 @@ void Game::Update(double InDelta)
     if (IsKeyDown(KEY_LEFT_CONTROL))
         if (IsKeyPressed(KEY_P))
             Engine::Manager::Get().Pop();
+}
+
+void Game::UpdateUI()
+{
+    
 }

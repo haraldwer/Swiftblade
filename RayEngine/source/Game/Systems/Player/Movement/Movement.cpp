@@ -9,7 +9,9 @@
 #include "Engine/Physics/Query.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Game/Systems/Player/Player.h"
+#include "Game/Systems/Player/PlayerCamera.h"
 #include "Utility/Math/AngleConversion.h"
+#include "Utility/Math/Geometry/Plane.h"
 #include "Utility/StateMachine/StateMachine.h"
 
 void ECS::Movement::Init()
@@ -30,45 +32,37 @@ void ECS::Movement::Deinit()
 void ECS::Movement::Update(double InDelta)
 {
     if (StateMachine)
-        StateMachine->Update(InDelta); 
-    
-    ConsumeRotInput();
-    ConsomeMoveInput();
-    ConsumeJumpInput();
-    ApplySlowdown(InDelta); 
-    ApplyVelocityClamp(InDelta);
-    GroundSnap(); 
+        StateMachine->Update(InDelta);
+
+    const bool prevGround = OnGround;
+    GetMovement().GroundSnap();
+
+    if (OnGround != prevGround)
+        {LOG(OnGround ? "On ground" : "In air");}
 }
 
-void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
+bool ECS::Movement::Edit(const String& InName)
 {
-    CHECK_RETURN(InContact.IsTrigger);
-    CHECK_RETURN(OnGround);
-    for (const auto& point : InContact.Points)
-    {
-        const float dot = point.Normal.Dot(Vec3F::Up());
-        if (dot > GroundDot)
-        {
-            OnGround = true;
-            GroundLocation = point.Position;
-        }
-    }
+    bool edited = UniqueComponent::Edit(InName);  
+    //if (StateMachine)
+    //    if (StateMachine->Edit(InName))
+    //        edited = true;  
+    return edited; 
 }
 
-void ECS::Movement::ConsumeRotInput() const
+void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
 {
     auto& trans = GetPlayerTransform();
     auto& camTrans = GetCameraTransform();
-    auto& input = GetInput();
     
     // Set body rotation
     Vec3F bodyRot = trans.GetRotation().Euler();
-    bodyRot.y += input.RotInput.y; 
+    bodyRot.y += InInput.y * InParams.SensitivityMultiplier.y; 
     trans.SetRotation(bodyRot);
 
     // Set camera rotation
     float camRot = camTrans.GetRotation().Euler().x; 
-    camRot += input.RotInput.x;
+    camRot += InInput.x * InParams.SensitivityMultiplier.x;
     camRot = CLAMP(
         Utility::Math::DegreesToRadians(-90.0f),
         Utility::Math::DegreesToRadians(90.0f),
@@ -76,48 +70,38 @@ void ECS::Movement::ConsumeRotInput() const
     camTrans.SetRotation(
         Vec3F(camRot, 0.0f, 0.0f),
         Transform::Space::LOCAL); 
-
-    input.RotInput = Vec2F::Zero();
 }
 
-void ECS::Movement::ConsomeMoveInput()
+bool ECS::Movement::Move(const Vec2F& InInput, const MoveParams& InParams) const
 {
     const auto& rb = GetRB(); 
-    auto& input = GetInput();
+    CHECK_RETURN(InInput.length() <= InParams.InputDeadzone, false);
+    const float force = InParams.MovementForce;
+    const Vec2F vec = InInput.GetNormalized() * force;
+    Vec3F forceVec = Vec3F(vec.x, 0.0f, vec.y); 
+
+    // Project vec to PlaneNormal if set
+    if (InParams.PlaneNormal.Length() > 0.1f)
+        forceVec = Utility::Math::Plane(InParams.PlaneNormal).Project(forceVec);
     
-    if (input.MoveInput.length > 0.01f)
-    {
-        LastInputVector = input.MoveInput.GetNormalized();
-        const float force = MovementForce * (OnGround ? 1.0f : AirMovementMultiplier);
-        const Vec2F vec = Vec2F(LastInputVector) * force;
-        rb.AddForce(Vec3F(vec.x, 0.0f, vec.y));
-        input.MoveInput = Vec2F::Zero(); 
-    }
-    else
-    {
-        LastInputVector = Vec2F::Zero();
-    }
+    rb.AddForce(forceVec);
+    return true;
 }
 
-void ECS::Movement::ConsumeJumpInput()
+void ECS::Movement::Jump(const JumpParams& InParams)
 {
-    const auto& rb = GetRB(); 
-    auto& input = GetInput();
-    
-    if (input.JumpInput && OnGround)
-    {
-        const Vec3F vel = rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f);
-        rb.SetVelocity(vel + Vec3F::Up() * JumpVelocity.Get());
-        OnGround = false; 
-        input.JumpInput = false; 
-    }
+    const auto& rb = GetRB();
+    const Vec3F vel = rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f);
+    rb.SetVelocity(vel + Vec3F::Up() * InParams.JumpVelocity);
+    JumpTimestamp = GetTime(); 
+    OnGround = false;
+    LOG("Jump"); 
 }
 
-void ECS::Movement::ApplySlowdown(double InDelta)
+void ECS::Movement::Slowdown(double InDelta, const SlowdownParams& InParams) const
 {
-    CHECK_RETURN(LastInputVector.Length > 0.001f);
-    const float slowdown = OnGround ? GroundSlowdown : AirSlowdown;
-    const float friction = std::pow(slowdown, InDelta);
+    const float slowdown = InParams.Slowdown;
+    const float friction = static_cast<float>(std::pow(slowdown, InDelta));
 
     auto& rb = GetRB();
     const Vec3F vel = rb.GetVelocity();
@@ -126,31 +110,61 @@ void ECS::Movement::ApplySlowdown(double InDelta)
     rb.SetVelocity(newVel);
 }
 
-void ECS::Movement::ApplyVelocityClamp(double InDelta) const
+void ECS::Movement::VelocityClamp(double InDelta, const VelocityClampParams& InParams) const
 {
     auto& rb = GetRB();
     const Vec3F vel = rb.GetVelocity();
 
     const Vec3F flatVel = vel * Vec3F(1.0f, 0.0f, 1.0f);
-    const float maxSpeed = OnGround ?
-        MaxGroundSpeed : MaxAirSpeed;
     const float currentSpeed = flatVel.Length();
     
     // Horizontal friction slowdown
-    const float slowdown = OnGround ? GroundClampSlowdown : AirClampSlowdown;
-    const float friction = std::pow(slowdown, InDelta);
-    const float newSpeed = currentSpeed < maxSpeed ? currentSpeed : currentSpeed * friction;
+    const float friction = static_cast<float>(std::pow(InParams.ClampSlowdown, InDelta));
+    const float newSpeed = currentSpeed < InParams.MaxSpeed ? currentSpeed : currentSpeed * friction;
     const Vec3F clampedFlatVel = flatVel.GetNormalized() * newSpeed;
     
     // Vertical raw clamp
-    float clapedVertVel = CLAMP(vel.y, -MaxVerticalSpeed, MaxVerticalSpeed); 
-    rb.SetVelocity(Vec3F(clampedFlatVel.x, clapedVertVel, clampedFlatVel.z));
+    float clampedVertVel = CLAMP(vel.y, -InParams.MaxVerticalSpeed, InParams.MaxVerticalSpeed); 
+    rb.SetVelocity(Vec3F(clampedFlatVel.x, clampedVertVel, clampedFlatVel.z));
+}
+
+void ECS::Movement::SetCrouch(bool InCrouch, const CrouchParams& InParams)
+{
+    CHECK_RETURN(InCrouch == Crouching);
+    Crouching = InCrouch;
+
+    // Retain velocity
+    auto& rb = GetRB();
+    Vec3F vel = rb.GetVelocity();
+    
+    // Change size of collider
+    Collider& collider = GetCollider();
+    Vec4F data = collider.ShapeData.Get();
+    const float prevHeight = data.y;
+    data.y = InCrouch ? data.y * InParams.HeightMul : 1.0f; 
+    const float heightDiff = data.y - prevHeight;
+    collider.ShapeData = data; 
+    GetSystem<SysCollider>().UpdateShape(collider.GetID());
+
+    rb.SetVelocity(vel);
+    
+    // Move down / up a bit
+    Transform& trans = GetPlayerTransform();
+    trans.SetPosition(trans.GetPosition() + Vec3F::Up() * heightDiff);
+
+    PlayerCamera& cam = GetPlayerCamera();
+    cam.AddCrouchOffset(heightDiff);
+
+    if (!InCrouch)
+        LOG("Uncrouch"); 
 }
 
 void ECS::Movement::GroundSnap()
-{
-    CHECK_RETURN(!OnGround);
-
+{    
+    CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
+    
+    OnGround = false;
+    
     constexpr bool debugDraw = false; 
     
     auto& transform = GetPlayerTransform();
@@ -159,7 +173,7 @@ void ECS::Movement::GroundSnap()
     
     Physics::SweepParams params;
     params.Start = transform.GetPosition();
-    params.End = params.Start - Vec3F::Up() * GroundDist.Get();
+    params.End = params.Start - Vec3F::Up() * GroundDist;
     params.IgnoredEntities = { GetID() };
     params.Shape = static_cast<Physics::Shape>(collider.Shape.Get());
     params.ShapeData = collider.ShapeData;
@@ -174,24 +188,24 @@ void ECS::Movement::GroundSnap()
     // Sweep 
     const Physics::QueryResult result = Physics::Query::Sweep(params);
     CHECK_RETURN(!result.IsHit);
-    CHECK_RETURN(result.Hits.empty());
-    auto hit = result.ClosestHit();
+    for (auto hit : result.DistanceSorted())
+    {
+        // Test ground dot
+        const float dot = hit.Normal.Dot(Vec3F::Up());
+        CHECK_CONTINUE(dot < GroundDot);
 
-    
-    // Test ground dot
-    const float dot = hit.Normal.Dot(Vec3F::Up());
-    CHECK_RETURN(dot < GroundDot);
+        // Set location
+        OnGround = true; 
+        const Vec3F newPos = params.Start - Vec3F::Up() * hit.Distance; 
+        transform.SetPosition(newPos);
 
-    // Set location
-    GroundLocation = hit.Position;
-    const Vec3F newPos = params.Start - Vec3F::Up() * hit.Distance; 
-    transform.SetPosition(newPos);
+        if (debugDraw)
+            Rendering::DebugCapsule(newPos, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, GREEN); 
 
-    if (debugDraw)
-        Rendering::DebugCapsule(newPos, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, GREEN); 
-
-    // Flatten velocity
-    auto& rb = GetRB();
-    Vec3F vel = rb.GetVelocity(); 
-    rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
+        // Flatten velocity
+        auto& rb = GetRB();
+        Vec3F vel = rb.GetVelocity(); 
+        rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
+        return; 
+    }
 }

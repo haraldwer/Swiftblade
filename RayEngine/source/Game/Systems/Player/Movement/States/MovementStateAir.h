@@ -3,8 +3,9 @@
 
 class MovementStateAir : public MovementState<MovementStateAir>
 {
-    Utility::Type Check() override;
-    Utility::Type Update(double InDT) override;
-    void Enter() override;
-    void Exit() override;
+public: 
+    Type Check() override;
+    Type Update(double InDT) override;
+    int32 Priority() const override { return 2; }
+    void Enter() override { LOG("Enter air"); }
 };

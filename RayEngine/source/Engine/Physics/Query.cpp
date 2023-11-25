@@ -1,5 +1,6 @@
 ﻿#include "Query.h"
 
+#include <algorithm>
 #include <PxQueryReport.h>
 #include <PxScene.h>
 #include <PxShape.h>
@@ -18,6 +19,16 @@ Physics::QueryResult::Hit Physics::QueryResult::ClosestHit() const
         if (hit.Distance < result.Distance || result.Distance < 0.0)
             result = hit;
     return result; 
+}
+
+Vector<Physics::QueryResult::Hit> Physics::QueryResult::DistanceSorted() const
+{
+    Vector<Hit> hits = Hits;
+    std::ranges::sort(hits.begin(), hits.end(), [](const Hit& InFirst, const Hit& InSecond)
+    {
+        return InFirst.Distance < InSecond.Distance; 
+    });
+    return hits;
 }
 
 Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
@@ -78,7 +89,7 @@ Physics::QueryResult Physics::Query::Sweep(const SweepParams& InParams)
     
     QueryResult result;
     
-    physx::PxGeometry* geometry = Manager::GetGeometry(InParams.Shape, InParams.ShapeData);
+    physx::PxGeometry* geometry = Manager::GetGeometry(InParams.Shape, InParams.ShapeData, InParams.Pose.GetScale());
     CHECK_RETURN(!geometry, result);
 
     const physx::PxTransform pose = physx::PxTransform(

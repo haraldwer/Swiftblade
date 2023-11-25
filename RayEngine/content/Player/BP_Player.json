@@ -29,6 +29,9 @@
 		},{
 			"Name":"Movement",
 			"Data":{}
+		},{
+			"Name":"PlayerCamera",
+			"Data":{}
 		}
 	],
 	"Children":[{
@@ -72,8 +75,8 @@
 					},{
 						"Name":"Collider",
 						"Data":{
-							"Shape":1,
-							"Material":"Player\\PM_Player.json"
+							"Material":"Player\\PM_Player.json",
+							"Shape":1
 						}
 					}
 				]

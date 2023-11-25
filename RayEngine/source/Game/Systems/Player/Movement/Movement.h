@@ -1,9 +1,8 @@
 ﻿#pragma once
 
 #include "Game/Systems/Player/PlayerInterface.h"
-#include "Engine/ECS/System.h"
-#include "Engine/ECS/Component.h"
 #include "Engine/ECS/UniqueComponent.h"
+#include "Utility/Time/Time.h"
 
 class MovementStateMachine;
 
@@ -17,45 +16,69 @@ namespace ECS
         void Init() override;
         void Deinit() override;
         void Update(double InDelta) override;
-        void OnBeginContact(const Physics::Contact& InContact) override;
 
+        bool Edit(const String& InName = "") override;
+        void DebugDraw() const;
+        
         int GetPriority() const override { return 9; }
 
         bool IsOnGround() const { return OnGround; }
         bool IsInAir() const { return !IsOnGround(); }
+        bool IsCrouching() const { return Crouching; } 
+
+        struct LookParams
+        {
+            Vec2F SensitivityMultiplier = 1.0f; 
+        };
+        void Look(const Vec2F& InInput, const LookParams& InParams = LookParams()) const;
+
+        struct MoveParams
+        {
+            float InputDeadzone = 0.1f; 
+            float MovementForce = 150.0f;
+            Vec3F PlaneNormal = Vec3F::Zero();
+        };
+        bool Move(const Vec2F& InInput, const MoveParams& InParams = MoveParams()) const;
+
+        struct JumpParams
+        {
+            float JumpVelocity = 22.0f;
+        };
+        void Jump(const JumpParams& InParams = JumpParams());
+
+        struct SlowdownParams
+        {
+            float Slowdown = 0.0005f; 
+        };
+        void Slowdown(double InDelta, const SlowdownParams& InParams = SlowdownParams()) const;
+
+        struct VelocityClampParams
+        {
+            float MaxSpeed = 15.0f;
+            float MaxVerticalSpeed = 50.0f;
+            float ClampSlowdown = 0.001f;
+        };
+        void VelocityClamp(double InDelta, const VelocityClampParams& InParams = VelocityClampParams()) const;
+        
+        struct CrouchParams
+        {
+            float HeightMul = 0.3f; 
+        };
+        void SetCrouch(bool InCrouch, const CrouchParams& InParams = CrouchParams());
+
+        void GroundSnap();
+        double TimeSinceJump() const { return GetTime() - JumpTimestamp; }
         
     private:
-        void ConsumeRotInput() const;
-        void ConsomeMoveInput(); 
-        void ConsumeJumpInput();
-        void ApplySlowdown(double InDelta);
-        void ApplyVelocityClamp(double InDelta) const;
-        void GroundSnap();
-
-        // Movement forces
-        PROPERTY_C(float, MovementForce, 180.0f);
-        PROPERTY_C(float, AirMovementMultiplier, 0.7f);
-        PROPERTY_C(float, JumpVelocity, 22.0f);
-
-        // Speed clamps
-        PROPERTY_C(float, MaxGroundSpeed, 15.0f);
-        PROPERTY_C(float, MaxAirSpeed, 20.0f);
-        PROPERTY_C(float, AirClampSlowdown, 0.005f);
-        PROPERTY_C(float, GroundClampSlowdown, 0.001f);
-        PROPERTY_C(float, MaxVerticalSpeed, 30.0f);
-
-        // Friction / Slowdown
-        PROPERTY_C(float, GroundSlowdown, 0.001f);
-        PROPERTY_C(float, AirSlowdown, 0.1f);
-
-        // Ground detection
-        PROPERTY_C(float, GroundDist, 0.5f);
-        PROPERTY_C(float, GroundDot, 0.2f);
+        
+        inline static constexpr float GroundDist = 0.5f;
+        inline static constexpr float GroundDot = 0.2f;
+        inline static constexpr float GroundJumpDelay = 0.5f;
 
         // Movement state
         bool OnGround = false;
-        Vec3F GroundLocation;
-        Vec2F LastInputVector; 
+        bool Crouching = false;
+        double JumpTimestamp = 0.0f; 
 
         ObjectPtr<MovementStateMachine> StateMachine; 
     };

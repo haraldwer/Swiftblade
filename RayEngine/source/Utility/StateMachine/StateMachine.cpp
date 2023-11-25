@@ -64,11 +64,21 @@ bool StateMachine::SetState(const Utility::Type& InType)
 {
 	CHECK_RETURN(!InType, false);
 	CHECK_RETURN(InType == CurrentState, false)
-	if (const auto currentState = GetCurrentState())
+
+	const Type prevState = CurrentState;
+
+	// When exiting previous state, current state should be new state
+	CurrentState = InType; 
+	if (const auto currentState = GetState(prevState))
 		currentState->Exit();
-	CurrentState = InType;
-	if (const auto newState = GetCurrentState())
+
+	// When entering new state, current state should be previous state
+	CurrentState = prevState;
+	if (const auto newState = GetState(InType))
 		newState->Enter();
+
+	// Finally set current state
+	CurrentState = InType; 
 	return true;
 }
 

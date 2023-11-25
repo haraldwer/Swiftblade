@@ -4,15 +4,22 @@
 #include "Engine/ECS/System.h"
 #include "Engine/Physics/Resources/Material.h"
 
+namespace Physics
+{
+    enum class Shape : uint8;
+}
+
 namespace ECS
 {
-
-    
     struct Collider : Component<Collider>
     {
-        PROPERTY_C(uint8, Shape, 0);
-        PROPERTY_C(Vec4F, ShapeData, Vec4F::One()); // Shape data depends on shape type
-        PROPERTY_C(ResPM, Material, "Defaults/PM_Default.json");
+        PROPERTY_D(ResPM, Material, "Defaults/PM_Default.json");
+
+        // 0 - Box: x, y, z = extents
+        // 1 - Capsule: x = radius, y = halfheight
+        // 2 - Sphere: x = radius
+        PROPERTY_D(uint8, Shape, 0);
+        PROPERTY_D(Vec4F, ShapeData, Vec4F::One()); // Shape data depends on shape type
     };
 
     class SysCollider : public System<Collider>
@@ -24,5 +31,7 @@ namespace ECS
         void Update(EntityID InID, Collider& InComponent, double InDelta) override;
         bool ShouldUpdate() const override;
         int GetPriority() const override { return 99; }
+
+        void UpdateShape(EntityID InEntity) const;
     };
 }
