@@ -13,19 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 22).md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "f3d5d6c9c448ac89",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Tasks/0 - Player death.md",
+                "file": "Tasks/0 - UI Library.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 22).md",
+                "file": "Tasks/0 - UI Library.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 22).md",
+                "file": "Tasks/0 - UI Library.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 22).md"
+                "file": "Tasks/0 - UI Library.md"
               }
             }
           }
@@ -161,6 +149,7 @@
   "active": "4b0d5d57611f22ad",
   "lastOpenFiles": [
     "Tasks/0 - Player death.md",
+    "Tasks/0 - UI Library.md",
     "Milestones/Milestone 3 (Nov 22).md",
     "Planning/Timeline.md",
     "Planning/Testing.md",
@@ -175,7 +164,6 @@
     "Tasks/0 - Sword.md",
     "Tasks/1 - Inline resource editing.md",
     "Tasks/2 - Enum properties.md",
-    "Tasks/0 - UI Library.md",
     "Tasks/0 - Optimize scene overrides.md",
     "Tasks/0 - Collision masks.md",
     "Tasks/0 - CubeVolume custom serialization.md",

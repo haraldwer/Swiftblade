@@ -16,7 +16,7 @@ namespace Context
 {
 	class ExampleClass
 	{
-		void Func(Var parameter)
+		void Func(Var InParameter)
 		{
 			Var variable
 		}
@@ -35,9 +35,9 @@ namespace Context
 Files:
 ```
 Folder
-	File.h
-	File.cpp
-	File.hpp
+	FileName.h
+	FileName.cpp
+	FileName.hpp
 ```
 
 # Principles

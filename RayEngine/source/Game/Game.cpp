@@ -17,7 +17,9 @@ void Game::Init()
     if (const BlueprintResource* bp = ResBlueprint("Player/BP_Player.json").Get())
         PlayerID = bp->Instantiate();
 
-    DebugCamera.SetRequireHold(false); 
+    DebugCamera.SetRequireHold(false);
+
+    Menu.Init(); 
 }
 
 void Game::Deinit()
@@ -45,6 +47,8 @@ void Game::Update(double InDelta)
     }
     if (bUseDebugCamera)
         DebugCamera.Update(InDelta);
+
+    Menu.Update(); 
     
     if (IsKeyDown(KEY_LEFT_CONTROL))
         if (IsKeyPressed(KEY_P))
@@ -53,5 +57,5 @@ void Game::Update(double InDelta)
 
 void Game::UpdateUI()
 {
-    
+    Menu.Draw(); 
 }

@@ -4,6 +4,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
+#include "Menus/MenuMain.h"
 
 class Game : public Engine::Instance 
 {
@@ -22,6 +23,7 @@ private:
     bool bUseDebugCamera = false; 
     EditorCamera DebugCamera;
 
-    ECS::EntityID PlayerID; 
-    
+    ECS::EntityID PlayerID;
+
+    MenuMain Menu; 
 };

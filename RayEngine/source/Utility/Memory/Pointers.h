@@ -58,8 +58,7 @@ namespace Utility
                 Decrement();
                 Ptr = InPtr.Ptr;
                 Ref = InPtr.Ref;
-                if (Ref)
-                    Increment();
+                Increment();
             }        
             return *this;
         }
@@ -77,8 +76,8 @@ namespace Utility
 
         void Increment() const
         {
-            CHECK_ASSERT(!Ref, "Ref invalid on increment")
-            Ref->Count++;
+            if (Ref)
+                Ref->Count++;
         }
         
         void Decrement() 
@@ -118,8 +117,7 @@ namespace Utility
             {
                 Decrement();
                 Ref = InPtr.Ref;
-                if (Ref)
-                    Increment();
+                Increment();
             }        
             return *this;
         }
@@ -147,13 +145,14 @@ namespace Utility
 
         void Increment() const
         {
-            CHECK_ASSERT(!Ref, "Ref invalid on increment")
-            Ref->WeakCount++;
+            if (Ref)
+                Ref->WeakCount++;
         }
         
         void Decrement() 
         {
-            CHECK_ASSERT(!Ref, "Ref invalid on decement")
+            if (!Ref)
+                return; 
             Ref->WeakCount--;
             if (!Ref->Count && !Ref->WeakCount)
             {
