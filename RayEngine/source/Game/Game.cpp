@@ -10,16 +10,18 @@ void Game::Init()
 {
     Instance::Init();
     Physics.Init();
-    
-    if (const Scene* scene = ResScene("Scenes/RM_Scene.json").Get())
-        SceneInstance = scene->Create();
+
+    StartScene.Unload(); // Force reload
+    Vector<ResScene> rooms;
+    rooms.push_back(StartScene);
+    rooms.push_back(StartScene);
+    rooms.push_back(StartScene);
+    RoomManager.Load(rooms);
 
     if (const BlueprintResource* bp = ResBlueprint("Player/BP_Player.json").Get())
-        PlayerID = bp->Instantiate();
+        PlayerID = bp->Instantiate(StartPlayerPos);
 
-    DebugCamera.SetRequireHold(false);
-
-    Menu.Init(); 
+    DebugCamera.SetRequireHold(false); 
 }
 
 void Game::Deinit()
@@ -45,17 +47,13 @@ void Game::Update(double InDelta)
         DebugCamera.SetReference(GetRenderScene().GetCamera());
         ECS::Input::Blocked = bUseDebugCamera; 
     }
+    
     if (bUseDebugCamera)
         DebugCamera.Update(InDelta);
-
-    Menu.Update(); 
-    
-    if (IsKeyDown(KEY_LEFT_CONTROL))
-        if (IsKeyPressed(KEY_P))
-            Engine::Manager::Get().Pop();
 }
 
-void Game::UpdateUI()
+void Game::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
 {
-    Menu.Draw(); 
+    StartScene = InScene;
+    StartPlayerPos = InPlayerPos;
 }

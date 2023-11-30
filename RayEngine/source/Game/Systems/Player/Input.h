@@ -15,6 +15,7 @@ namespace ECS
 
         // TODO: Action mapping and input buffering
         // TODO: Fix weird sensitivity bug
+        // TODO: Improve blocking logic
         
         bool JumpInput = false;
         bool CrouchInput = false;

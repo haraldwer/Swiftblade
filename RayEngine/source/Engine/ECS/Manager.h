@@ -19,6 +19,7 @@ namespace ECS
 
         EntityID CreateEntity();
         void DestroyEntity(EntityID InEntity);
+        void DestroyPending();
 
         template <class T>
         T& GetSystem() const
@@ -45,6 +46,7 @@ namespace ECS
         SystemBase* GetSystem(const Utility::Type& InType, bool InIsCompHash);
         
         const Map<String, SystemBase*>& GetAllSystems() const { return NameMap; }
+        std::set<EntityID> GetAllEntities() { return Entities; }
 
         void Deserialize(EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects);
         void Serialize(EntityID InID, SerializeObj& OutObj);
@@ -63,8 +65,7 @@ namespace ECS
         void DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth);
         
         void RegisterSystems();
-        void SortSystems();
-        void DestroyPending(); 
+        void SortSystems(); 
 
         // System type -> System ptr
         Map<Utility::TypeHash, SystemBase*> SystemMap;

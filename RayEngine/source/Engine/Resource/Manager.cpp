@@ -18,20 +18,34 @@ void Resource::Manager::Register(Base* InResource, const String& InIdentifier)
 void Resource::Manager::Update()
 {
     // Only check every 3 seconds
-    CHECK_RETURN(CheckTimer.Ellapsed() < 3.0f)
+    CHECK_RETURN(CheckTimer.Ellapsed() < 1.0f)
     CheckTimer = Utility::Timer();
-    
+    HotReload(1); 
+}
+
+void Resource::Manager::HotReload(int InNum) const
+{
+    int count = 0; 
     for (const auto& res : Resources)
     {
         CHECK_CONTINUE(!res.second)
-        if (res.second->Loaded)
+        CHECK_CONTINUE(!res.second->Loaded)
+
+        // Maybe unload? 
+        if (res.second->Count <= 0)
         {
-            if (res.second->Count <= 0)
-                res.second->Unload();
-            else
-                res.second->TryHotReload();
+            res.second->Unload();
+            continue; 
         }
-    }
+
+        // Maybe reload? 
+        if (res.second->TryHotReload())
+        {
+            count++;
+            if (InNum > 0 && count >= InNum)
+                break; // Only reload a couple at a time
+        }
+    }    
 }
 
 void Resource::Manager::Deinit()

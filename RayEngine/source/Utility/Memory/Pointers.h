@@ -66,7 +66,11 @@ namespace Utility
         // Getters
         T* Get() const { return Ptr; }
         T* operator->() const { return Ptr; }
-        T& operator*() const { return *Ptr; }
+        T& operator*() const
+        {
+            CHECK_ASSERT(!Ptr, "Dereference invalid ptr");
+            return *Ptr;
+        }
         operator bool() const { return Ptr; }
             
         uint32 RefCount() const { return Ref ? Ref->Count : 0; }
@@ -85,6 +89,7 @@ namespace Utility
             if (!Ref)
                 return; 
             Ref->Count--;
+            CHECK_ASSERT(Ref->Count < 0, "Negative ref count");
             if (!Ref->Count && !Ref->WeakCount)
             {
                 Ref->destroy();
@@ -101,13 +106,13 @@ namespace Utility
     template <class T>
     class WeakPtr
     {
-        friend class ObjectPtr<T>;
+        friend ObjectPtr<T>;
         
     public:
 
         // Construct
         WeakPtr() = default;
-        WeakPtr(const ObjectPtr<T>& InPtr) : Ref(InPtr.Ref) { Increment(); }
+        WeakPtr(T* InPtr) : Ref(RefImpl<T>::Get(InPtr)) { Increment(); }
         WeakPtr(const WeakPtr& InPtr) : Ref(InPtr.Ref) { Increment(); }
         ~WeakPtr() { Decrement(); }
         
@@ -127,13 +132,13 @@ namespace Utility
         {
             if (!Ref || Ref->Count == 0)
                 return nullptr; 
-            return reinterpret_cast<RefImpl<T>>(Ref)->Ptr;
+            return reinterpret_cast<RefImpl<T>*>(Ref)->Ptr;
         }
         T* operator->() const { return Get(); }
         T& operator*() const
         {
             auto ptr = Get();
-            CHECK_ASSERT(!ptr, "Invalid ptr")
+            CHECK_ASSERT(!ptr, "Dereference invalid ptr")
             return *ptr;
         }
         operator bool() const { return Get(); }
@@ -154,6 +159,7 @@ namespace Utility
             if (!Ref)
                 return; 
             Ref->WeakCount--;
+            CHECK_ASSERT(Ref->WeakCount < 0, "Negative weak ref count");
             if (!Ref->Count && !Ref->WeakCount)
             {
                 Ref->destroy();

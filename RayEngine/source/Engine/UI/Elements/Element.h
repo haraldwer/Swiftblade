@@ -13,14 +13,27 @@ namespace UI
         virtual ~Element() = default;
         Element() = default;
         Element(const Transform& InTransform) : Transform(InTransform) {}
+        
         virtual void Init();
         virtual void Update();
-        virtual Rect Draw(const Rect& InContainer);
+        virtual void Draw();
+        void Invalidate();
 
+        Rect GetRect() const { return CachedRect; }
+        virtual void RefreshRect(const Rect& InContainer);
+        
+        bool IsHovered() const;
+        bool IsClicked() const;
+        
     protected:
+        
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
+        
         ObjectPtr<Container> Parent; 
         Transform Transform = Transform::Fill();
+        Rect CachedRect;
+
+        
     };
 }

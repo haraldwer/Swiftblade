@@ -1,21 +1,20 @@
 #pragma once
 
 #include "Engine/Resource/Resource.h"
-#include "..\Property\Property.h"
-#include "Engine/Property/PropertyOwner.h"
 #include "Engine/Blueprints/Blueprint.h"
 
 struct SceneInstance
 {
     void Destroy();
-    Vector<ECS::EntityID> Entities;
+    Set<ECS::EntityID> Entities;
+    Mat4F Offset;
 };
 
 class Scene
 {
 public:
     SceneInstance Create(const Mat4F& InOffset = Mat4F()) const;
-    bool Save(const SceneInstance& InInstance) const;
+    bool Save(const SceneInstance& InInstance, const Mat4F& InOffset) const;
     bool Load(const String& InIdentifier);
     bool Unload(); 
     Utility::Timepoint GetEditTime() const;

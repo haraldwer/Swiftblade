@@ -182,6 +182,16 @@ void ECS::Transform::Serialize(SerializeObj& InOutObj) const
 
 bool SysTransform::Edit(const EntityID InID)
 {
+    bool edited = false;
+    if (EditValues(InID))
+        edited = true; 
+    if (EditGizmo(InID))
+        edited = true;
+    return edited; 
+}
+
+bool SysTransform::EditValues(const EntityID InID)
+{
     bool edited = false; 
     
     // Custom edit
@@ -201,7 +211,13 @@ bool SysTransform::Edit(const EntityID InID)
     if (System::Edit(InID))
         edited = true;
 
-    // Gizmo
+    return edited; 
+}
+
+bool SysTransform::EditGizmo(EntityID InID)
+{
+    // Gizmo edit
+    auto& t = Get<Transform>(InID);
     static int gizmoSpace = 1;
     static int gizmoOperation = 0;
     static bool useSnap = true; 
@@ -209,10 +225,9 @@ bool SysTransform::Edit(const EntityID InID)
     if (ImGuizmo::Edit(trans, gizmoSpace, gizmoOperation, useSnap))
     {
         t.SetWorld(trans); 
-        edited = true;
+        return true; 
     }
-    
-    return edited; 
+    return false; 
 }
 
 void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChild)

@@ -9,10 +9,10 @@
 #include "Collider.h"
 #include "Rigidbody.h"
 #include "Game/Systems/CubeVolume.h"
+#include "Game/Systems/RoomEnd.h"
 #include "Game/Systems/Player/Input.h"
 #include "Game/Systems/Player/PlayerCamera.h"
 #include "Game/Systems/Player/Movement/Movement.h"
-
 #include "Game/Systems/Player/Player.h"
 
 using namespace ECS;
@@ -41,6 +41,7 @@ NameMap[String(#x)] = var; } \
 
     // Game systems
     REG_ENTITY_SYSTEM(CubeVolume);
+    REG_ENTITY_SYSTEM(RoomEnd);
     REG_UNIQUE_COMPONENT(Player);
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);

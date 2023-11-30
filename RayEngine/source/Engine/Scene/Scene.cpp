@@ -17,9 +17,14 @@ void SceneInstance::Destroy()
 
 SceneInstance Scene::Create(const Mat4F& InOffset) const
 {
+    SceneInstance instance;
+    if (Doc.HasMember("Data") && Doc["Data"].IsObject())
+        Utility::Deserialize(Doc["Data"].GetObj(), "Offset", instance.Offset);
+    instance.Offset *= InOffset;
+    
     CHECK_RETURN(!Doc.HasMember("Objects"), {})
     CHECK_RETURN(!Doc["Objects"].IsArray(), {}); 
-    SceneInstance instance;
+    ECS::Manager& man = ECS::Manager::Get();
     for (const auto& entry : Doc["Objects"].GetArray())
     {
         CHECK_CONTINUE(!entry.IsObject());
@@ -28,32 +33,41 @@ SceneInstance Scene::Create(const Mat4F& InOffset) const
         Vector<DeserializeObj> overrides;
         if (obj.HasMember("Overrides") && obj["Overrides"].IsObject())
             overrides.push_back(obj["Overrides"].GetObj());  
-
-        ECS::Manager& man = ECS::Manager::Get();
+        
+        ECS::EntityID entity = ECS::InvalidID;
         
         String bp;
         Utility::Deserialize(obj, "Blueprint", bp);
         if (const auto bpRes = ResBlueprint(bp).Get())
         {
-            const ECS::EntityID entity = bpRes->Instantiate(InOffset, overrides);
+            entity = bpRes->Instantiate(instance.Offset, overrides);
             CHECK_CONTINUE_LOG(entity == ECS::InvalidID, "Invalid ID");
         }
         else
         {
-            const ECS::EntityID entity = man.CreateEntity();
+            entity = man.CreateEntity();
             CHECK_CONTINUE_LOG(entity == ECS::InvalidID, "Invalid ID");
-            man.Deserialize(entity, InOffset, overrides);
+            man.Deserialize(entity, instance.Offset, overrides);
         }
+        instance.Entities.insert(entity);
     }
     return instance; 
 }
 
-bool Scene::Save(const SceneInstance& InInstance) const
+bool Scene::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
 {
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
 
     writer.StartObject();
+
+    // Write offset
+    writer.Key("Data");
+    writer.StartObject();
+    Utility::Serialize(writer, "Offset", InOffset);
+    writer.EndObject();
+
+    // Write entities
     if (!InInstance.Entities.empty())
     {
         writer.Key("Objects");

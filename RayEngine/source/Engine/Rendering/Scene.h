@@ -12,7 +12,7 @@ namespace Rendering
         void AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms);
 
         struct Entry {
-            Vector<Matrix> Transforms;
+            Vector<Mat4F> Transforms;
             ResModel Model;
             ResRM Material;
             bool Initialized = false;
@@ -47,6 +47,9 @@ namespace Rendering
     {
     public:
         void Render();
+    private:
+        void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices) const;
+        
     };
 }
 

@@ -10,16 +10,13 @@ void Renderer::Init()
 {
     CurrConfig.LoadConfig();
     
-    InitWindow(
-        CurrConfig.Width,
-        CurrConfig.Height,
-        "RayEngine");
-    
     ApplyConfig(CurrConfig); 
 
     rlImGuiSetup(false);
     ImGui::ThemeMoonlight();
     ImGui::LoadFont();
+
+    SetExitKey(KEY_F4);
 }
 
 void Renderer::Deinit()
@@ -69,11 +66,7 @@ void Renderer::Push(const Scene& InScene)
 void Renderer::ApplyConfig(const Config& InConfig)
 {
     CurrConfig = InConfig;
-    SetTargetFPS(InConfig.TargetFPS);
-    SetWindowSize(InConfig.Width, InConfig.Height);
-    if (InConfig.Fullscreen != IsWindowFullscreen())
-        ToggleFullscreen();
-
+    
     unsigned flags = 0;
     if (InConfig.Fullscreen)
         flags |= FLAG_FULLSCREEN_MODE;
@@ -83,6 +76,16 @@ void Renderer::ApplyConfig(const Config& InConfig)
         flags |= FLAG_MSAA_4X_HINT;
     flags |= FLAG_WINDOW_ALWAYS_RUN;
     SetWindowState(flags);
+
+    // Create window
+    if (IsWindowReady())
+        CloseWindow();
+    InitWindow(
+        CurrConfig.Width,
+        CurrConfig.Height,
+        "RayEngine");
+    
+    SetTargetFPS(InConfig.TargetFPS);
     
     LOG("Render config applied");
     CurrConfig.SaveConfig();

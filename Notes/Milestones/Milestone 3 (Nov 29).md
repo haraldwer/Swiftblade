@@ -8,6 +8,7 @@ User stories:
 Done:
 [[0 - Scene Offset]]
 [[0 - Movement state machine]]
+[[0 - UI Library]]
 
 Ongoing: 
 
@@ -17,4 +18,13 @@ Tasks:
 [[0 - Player death]]
 [[0 - Level end]]
 [[0 - Room connections]]
-[[0 - UI Library]]
+
+To get there: 
+1. Make a few rooms - Requires being able to add new files
+2. Connect them - Requires object placement and room connections
+3. Add main menu correctly
+
+Stuff:
+1. Fix spawn transform
+2. Fix object placement history 
+3. Add connection history

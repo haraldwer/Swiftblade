@@ -14,8 +14,9 @@ namespace Engine
         {
             Utility::SingeltonContext::Value++;
             T* ptr = new T();
-            Stack.push_back(ptr);
-            ptr->Init(); 
+            Queue.push_back(ptr);
+            Utility::SingeltonContext::Value--;
+            
             return ptr;
         }
 
@@ -30,8 +31,16 @@ namespace Engine
             popQueue++;
         }
 
-        void DelayedPop()
+        void Update()
         {
+            for (auto ptr : Queue)
+            {
+                Utility::SingeltonContext::Value++;
+                Stack.push_back(ptr);
+                ptr->Init();
+            }
+            Queue.clear(); 
+            
             while (popQueue)
             {
                 popQueue--; 
@@ -49,13 +58,14 @@ namespace Engine
             while (Top())
             {
                 Pop();
-                DelayedPop(); 
+                Update(); 
             }
         }
 
     private:
 
         int popQueue = 0;
+        Vector<InstanceBase*> Queue;
         Vector<InstanceBase*> Stack;
         
     };

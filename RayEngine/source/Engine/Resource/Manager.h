@@ -14,10 +14,12 @@ namespace Resource
         void Register(Base* InResource, const String& InIdentifier);
         
         void Update();
+        void HotReload(int InNum) const;
         void Deinit();
 
     private:
         Map<String, Base*> Resources;
-        Utility::Timer CheckTimer; 
+        Utility::Timer CheckTimer;
+        static constexpr float CheckInterval = 1.0f; 
     };
 }

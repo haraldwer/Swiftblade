@@ -1,5 +1,7 @@
 ﻿#include "Element.h"
 
+#include "Container.h"
+
 void UI::Element::Init()
 {
 }
@@ -8,12 +10,48 @@ void UI::Element::Update()
 {
 }
 
-UI::Rect UI::Element::Draw(const Rect& InContainer)
+void UI::Element::Draw()
 {
-    const Rect r = CalculateRect(InContainer);
-    DrawRect(InContainer); 
-    DrawRect(r); 
-    return r;
+    DrawRect(CachedRect); 
+}
+
+void UI::Element::Invalidate()
+{
+    if (Parent)
+    {
+        Parent->Invalidate();
+    }
+    else
+    {
+        const Rect rootRect {
+            Vec2F::Zero(),
+            {
+                static_cast<float>(GetRenderWidth()),
+                static_cast<float>(GetRenderHeight())
+            }
+        };
+        RefreshRect(rootRect);
+    }
+}
+
+void UI::Element::RefreshRect(const Rect& InContainer)
+{
+    CachedRect = CalculateRect(InContainer);
+}
+
+bool UI::Element::IsHovered() const
+{
+    const Vector2 mp = GetMousePosition();
+    return
+        mp.x > CachedRect.Start.x &&
+        mp.x < CachedRect.End.x &&
+        mp.y > CachedRect.Start.y &&
+        mp.y < CachedRect.End.y;
+}
+
+bool UI::Element::IsClicked() const
+{
+    return IsHovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const

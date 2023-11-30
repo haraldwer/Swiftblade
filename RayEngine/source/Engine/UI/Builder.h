@@ -11,9 +11,9 @@ namespace UI
         Builder() = default;
 
         template <class T>
-        Builder& Push(const T& InContainer)
+        Builder& Push(const T& InContainer, const String& InIdentifier = String())
         {
-            T* elem = AddInternal(InContainer);
+            T* elem = AddInternal(InContainer, InIdentifier);
 
             // No root, set container as root
             if (!CurrentContainer)
@@ -27,10 +27,10 @@ namespace UI
         }
 
         template <class T>
-        Builder& Add(const T& InElement)
+        Builder& Add(const T& InElement, const String& InIdentifier = String())
         {
             CHECK_ASSERT(!CurrentContainer, "Current not set")
-            AddInternal(InElement);
+            AddInternal(InElement, InIdentifier);
             return *this; 
         }
         
@@ -44,6 +44,8 @@ namespace UI
         Instance Build()
         {
             CurrentContainer = nullptr;
+            if (WorkingInstance.Root)
+                WorkingInstance.Root->Invalidate();
             WorkingInstance.Init();
             const Instance instance = WorkingInstance;
             WorkingInstance = Instance(); 
@@ -53,14 +55,16 @@ namespace UI
     private:
 
         template <class T>
-        T* AddInternal(const T& InElement)
+        T* AddInternal(const T& InElement, const String& InIdentifier)
         {
-            auto ptr = new T(InElement);
+            T* ptr = new T(InElement);
             if (CurrentContainer)
             {
                 ptr->Parent = CurrentContainer;
                 CurrentContainer->Elements.push_back(ptr);
             }
+            if (!InIdentifier.empty())
+                WorkingInstance.NamedElements[InIdentifier] = ptr;   
             return ptr; 
         }
         

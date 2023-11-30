@@ -12,9 +12,10 @@ namespace UI
         Container(const UI::Transform& InTransform) : Element(InTransform) {}
         void Init() override;
         void Update() override;
-        Rect Draw(const Rect& InContainer) override;
-        
-    protected: 
+        void Draw() override;
+
+    protected:
+        void RefreshRect(const Rect& InContainer) override;
         Vector<ObjectPtr<Element>> Elements;
     };
 }

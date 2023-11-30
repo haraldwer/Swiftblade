@@ -17,7 +17,9 @@ void EditorCamera::Update(double InDelta)
         
         const auto mouseDelta = GetMouseDelta();
         SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
-        TargetState.Rotation += Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.01f;
+        TargetState.Rotation +=
+            Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.005f *
+            static_cast<float>(!IsKeyDown(KEY_LEFT_CONTROL));
         TargetState.Rotation.x = CLAMP(
             Utility::Math::DegreesToRadians(-90.0f),
             Utility::Math::DegreesToRadians(90.0f),
@@ -33,14 +35,16 @@ void EditorCamera::Update(double InDelta)
         
         // Add position
         const Vec3F posDelta =
-            up * ((static_cast<float>(IsKeyDown(KEY_E)) - static_cast<float>(IsKeyDown(KEY_Q))) +
-                (static_cast<float>(IsKeyDown(KEY_LEFT_SHIFT)) - static_cast<float>(IsKeyDown(KEY_LEFT_CONTROL)))) +
+            (up * (static_cast<float>(IsKeyDown(KEY_E)) - static_cast<float>(IsKeyDown(KEY_Q))) +
             right * (static_cast<float>(IsKeyDown(KEY_D)) - static_cast<float>(IsKeyDown(KEY_A))) +
-            forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)));
+            forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)))) * 
+            static_cast<float>(!IsKeyDown(KEY_LEFT_CONTROL));
         TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * TargetState.MovementSpeed;
         
         // FOV
-        TargetState.FOV += (static_cast<float>(IsKeyDown(KEY_Z)) - static_cast<float>(IsKeyDown(KEY_X))) *
+        TargetState.FOV +=
+            (static_cast<float>(IsKeyDown(KEY_Z)) - static_cast<float>(IsKeyDown(KEY_X))) *
+            static_cast<float>(!IsKeyDown(KEY_LEFT_CONTROL)) * 
             static_cast<float>(InDelta) * 30.0f;
     }
     else
@@ -66,9 +70,25 @@ void EditorCamera::Update(double InDelta)
     });
 }
 
+void EditorCamera::Deinit() const
+{
+    if (IsCursorHidden())
+    {
+        SetMousePosition(
+            static_cast<int>(CursorPos.x),
+            static_cast<int>(CursorPos.y));
+        ShowCursor();
+    }
+}
+
 bool EditorCamera::IsControlling() const
 {
-    return (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || !HoldRight) && IsWindowFocused();
+    return (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || !RequireHold) && IsWindowFocused();
+}
+
+bool EditorCamera::IsFullyControlling() const
+{
+    return !RequireHold && IsWindowFocused();
 }
 
 void EditorCamera::SetReference(const CameraInstance& InCamera)

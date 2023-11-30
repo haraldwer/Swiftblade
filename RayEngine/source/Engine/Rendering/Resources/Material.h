@@ -10,19 +10,14 @@ class MaterialResource : public PropertyOwner<MaterialResource>
 public:
 
     bool Load(const String& InPath) override;
-    bool Unload() override;
     Utility::Timepoint GetEditTime() const; 
     
-    Material* Get() const { return Ptr; }
-    
-    PROPERTY(ResShader, Shader);
-    // Shader properties? 
-    // Other stuff? 
+    PROPERTY_D(ResShader, Shader, "Defaults/SH_Default");
+    PROPERTY_D(bool, TwoSided, false);
     
 private:
 
     String Identifier; 
-    Material* Ptr = nullptr; 
     
 };
 

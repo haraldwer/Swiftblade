@@ -10,7 +10,7 @@ public:
     bool Load(const String& InIdentifier);
     bool Unload();
     Utility::Timepoint GetEditTime() const; 
-    Shader* Get() const { return Ptr; }
+    Shader* Get() const;
 
     bool Save(const String& InPath) { return false; };
     bool Edit(const String& InName) { return false; };

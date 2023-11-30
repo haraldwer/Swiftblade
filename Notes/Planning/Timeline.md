@@ -14,7 +14,7 @@ Nov 15 (2/8) - Editor and Movement
 Nov 29 (3/8) - Game loop
 - There is a main menu
 - The game loop is set up
-[[Milestone 3 (Nov 22)]]
+[[Milestone 3 (Nov 29)]]
 
 Dec 6 (4/8) - Core experience
  - The player should be able to play through the game from start to finish and receive a score that is displayed on a leaderboard. 

@@ -1,8 +1,9 @@
 ﻿#include "Image.h"
 
-UI::Rect UI::Image::Draw(const Rect& InContainer)
+void UI::Image::Draw()
 {
-    const Rect rect = Element::Draw(InContainer);
+    const Rect rect = GetRect();
+    DrawRect(rect);
     if (const auto textureRes = Texture.Get())
         if (const auto texture = textureRes->Get())
             DrawTexturePro(
@@ -21,6 +22,4 @@ UI::Rect UI::Image::Draw(const Rect& InContainer)
                 { 0.0f, 0.0f },
                 1.0f,
                 WHITE);
-    
-    return rect; 
 }

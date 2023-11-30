@@ -12,6 +12,7 @@ bool BlueprintResource::Load(const String& InIdentifier)
     CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty", false);
     Doc = rapidjson::Document();
     Doc.Parse(fileContent.c_str());
+    CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid object", false);
     return true;
 }
 

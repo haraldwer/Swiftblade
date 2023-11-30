@@ -16,15 +16,6 @@ void UI::Instance::Update()
 
 void UI::Instance::Draw()
 {
-    CHECK_RETURN(!Root);
-
-    const Rect rootRect {
-        Vec2F::Zero(),
-        {
-            static_cast<float>(GetRenderWidth()),
-            static_cast<float>(GetRenderHeight())
-        }
-    };
-    
-    Root->Draw(rootRect); 
+    CHECK_RETURN(!Root);    
+    Root->Draw(); 
 }

@@ -7,10 +7,11 @@ namespace UI
     class Label : public Element
     {
     public:
-        Label(const String& InText, const Vec2F& InCentering = Vec2F::Zero(), const UI::Transform& InTransform = Transform::Fill(), const ResFont& InFont = ResFont("Defaults/F_SourceCodePro.ttf")) :
-            Element(InTransform), Centering(InCentering), Text(InText), Font(InFont) {}
+        Label(const String& InText, const Vec2F& InCentering = Vec2F::Zero(), const UI::Transform& InTransform = Transform::Fill(), const ResFont& InFont = ResFont("Defaults/F_SourceCodePro.ttf"), const float InSize = 30.0f, const float InSpacing = 0.0f) :
+            Element(InTransform), Centering(InCentering), Text(InText), Font(InFont), Size(InSize), Spacing(InSpacing) {}
         void Init() override;
-        Rect Draw(const Rect& InContainer) override;
+        void Draw() override;
+        
     private:
         Vec2F Centering;
         ResFont Font;

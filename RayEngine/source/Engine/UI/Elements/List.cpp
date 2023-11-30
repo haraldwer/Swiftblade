@@ -1,24 +1,24 @@
 ﻿#include "C:/Dev/Swiftblade/RayEngine/build/CMakeFiles/RayEngine.dir/Debug/cmake_pch.hxx"
 #include "List.h"
 
-UI::Rect UI::List::Draw(const Rect& InContainer)
+void UI::List::RefreshRect(const Rect& InContainer)
 {
-    Rect baseRect = Element::Draw(InContainer);
+    CachedRect = CalculateRect(InContainer);
 
-    baseRect.Start.x += Transform.Margin.Horizontal.x;
-    baseRect.End.x -= Transform.Margin.Horizontal.y;
-    baseRect.Start.y += Transform.Margin.Vertical.x;
-    baseRect.End.y -= Transform.Margin.Vertical.y;
-    
+    Rect rect = GetRect();
+    rect.Start.x += Transform.Margin.Horizontal.x;
+    rect.End.x -= Transform.Margin.Horizontal.y;
+    rect.Start.y += Transform.Margin.Vertical.x;
+    rect.End.y -= Transform.Margin.Vertical.y;
+
     // Each child gets its own rect
     for (int i = 0; i < Elements.size(); i++)
         if (Element* e = Elements[i].Get())
-            e->Draw(GetChildRect(
-                baseRect,
-                static_cast<float>(Elements.size()),
-                static_cast<float>(i)));
-
-    return baseRect;
+            e->RefreshRect(
+                GetChildRect(
+                    rect,
+                    static_cast<float>(Elements.size()),
+                    static_cast<float>(i)));
 }
 
 UI::Rect UI::List::GetChildRect(const Rect& InRect, const float total, const float index) const

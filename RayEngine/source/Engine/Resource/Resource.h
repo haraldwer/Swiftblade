@@ -34,6 +34,17 @@ namespace Resource
             return Ptr && Ptr->Loaded;    
         }
 
+        operator bool() const
+        {
+            return IsLoaded(); 
+        }
+        
+        bool Unload()
+        {
+            CHECK_RETURN(!Ptr, false);
+            return Ptr->Unload();  
+        }
+
         String Identifier() const
         {
             return Ptr ? Ptr->Identifier : ""; 

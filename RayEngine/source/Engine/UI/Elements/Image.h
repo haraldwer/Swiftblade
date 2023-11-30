@@ -9,9 +9,9 @@ namespace UI
     public:
         Image(const ResTexture& InTexture = String("Defaults/T_Missing.png"), const UI::Transform& InTransform = Transform::Fill()) :
             Element(InTransform), Texture(InTexture) {}
-        Rect Draw(const Rect& InContainer) override;
-    private:
+        void Draw() override;
         
+    private:
         ResTexture Texture;
     };
 }

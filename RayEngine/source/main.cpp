@@ -5,8 +5,7 @@
 #include "Utility/Time/Time.h"
 
 #include "Editor/BlueprintEditor.h"
-#include "Game/Game.h"
-#include "Game/RoomEditor.h"
+#include "Game/Menus/Menu.h"
 
 int main()
 {
@@ -17,7 +16,7 @@ int main()
     renderer.Init();
 
     // Push game instance by default
-    instanceManager.Push<Game>();
+    instanceManager.Push<Menu>();
 
     // Timekeeping
     double tickTimer = 0.0;
@@ -29,12 +28,17 @@ int main()
     
     while (true)
     {
-        resourceManager.Update(); 
+        resourceManager.Update();
+        
+        // Update instances
+        if (IsKeyPressed(KEY_ESCAPE))
+            instanceManager.Pop(); 
+        instanceManager.Update();
         
         // Get instance
-        instanceManager.DelayedPop();
         const auto instance = instanceManager.Top();
-        CHECK_BREAK(!instance);
+        if (!instance)
+            break;
         
         // Calculate delta
         const double delta = timer.Ellapsed();
@@ -66,7 +70,7 @@ int main()
 
         // Render
         if (!renderer.BeginRender())
-            break;
+            break; 
         renderer.RenderScenes(delta);
         instance->UpdateUI();
         renderer.EndRender();

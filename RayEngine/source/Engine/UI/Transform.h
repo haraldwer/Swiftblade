@@ -57,7 +57,7 @@ namespace UI
             };
         }
 
-        static Transform FromRect(const Vec2F& InSize, const Vec2F& InPosition = Vec2F::Zero(), const Vec2F& InAnchor = Vec2F::Zero())
+        static Transform FromRect(const Vec2F& InSize, const Vec2F& InPosition = Vec2F::Zero(), const Vec2F& InAnchor = Vec2F::Zero(), const Vec2F& InPivot = Vec2F::Zero())
         {
             return {
                 InPosition,
@@ -66,7 +66,7 @@ namespace UI
                 Margin::Zero(),
                 Margin::Zero(),
                 InAnchor,
-                Vec2F::Zero()
+                InPivot
             };
         }
     };

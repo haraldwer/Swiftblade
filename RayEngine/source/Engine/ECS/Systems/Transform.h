@@ -50,6 +50,8 @@ namespace ECS
         void Deinit(EntityID InID, Transform& InComponent) override;
         
         bool Edit(EntityID InID) override;
+        bool EditValues(EntityID InID);
+        bool EditGizmo(EntityID InID); 
         
         void SetupHierarchy(EntityID InParent, EntityID InChild);
 

@@ -77,14 +77,18 @@ void Manager::DestroyEntity(const EntityID InEntity)
 
 void Manager::DestroyPending()
 {
-    const Set<EntityID> copy = PendingDestroy;
-    for (EntityID obj : copy)
+    do
     {
-        for (SystemBase* system : SortedSystems)
-            system->Unregister(obj);
-        Entities.erase(obj);
+        const Set<EntityID> copy = PendingDestroy;
+        PendingDestroy.clear();
+        for (EntityID obj : copy)
+        {
+            for (SystemBase* system : SortedSystems)
+                system->Unregister(obj);
+            Entities.erase(obj);
+        }
     }
-    PendingDestroy.clear();
+    while (!PendingDestroy.empty());
 }
 
 SystemBase* Manager::GetSystem(const String& InComponentName)

@@ -41,10 +41,14 @@ namespace ECS
         PROPERTY_D(uint8, Height, 50);
         PROPERTY_D(uint8, Width, 50);
         PROPERTY_D(uint8, Depth, 50);
-        PROPERTY(Volume, Data);
+        
+        Volume Data; 
 
-        Vec3F CoordToPos(Coord InCoord);
-        Coord PosToCoord(const Vec3F& InPos);
+        void Serialize(SerializeObj& InOutObj) const override;
+        bool Deserialize(const DeserializeObj& InObj) override;
+        
+        Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld);
+        Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld);
     };
 
     class SysCubeVolume : public System<CubeVolume>
@@ -53,17 +57,18 @@ namespace ECS
         uint8 GetVal(EntityID InID, Coord InCoord);
         void Set(EntityID InID, Coord InStart, Coord InEnd, uint8 InVal);
         Coord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
+        void DrawEditVolume(EntityID InID, Coord InStart, Coord InEnd);
         
         void Init(EntityID InID, CubeVolume& InComponent) override;
         void Deinit(EntityID InID, CubeVolume& InComponent) override;
         void Update(EntityID InID, CubeVolume& InComponent, double InDelta) override;
-        void DrawCubes(const Vector<Mat4F>& InTransforms) const;
+        void DrawCubes(const Vector<Mat4F>& InTransforms, bool InEditMesh) const;
 
         bool ShouldUpdate() const override { return true; }
     private:
         
-        Coord CachedTrace = 0;
-        MeshInstance MeshInstance; 
+        MeshInstance BlockMesh; 
+        MeshInstance EditMesh; 
     };
 }
 

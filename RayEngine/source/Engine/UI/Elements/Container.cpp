@@ -16,19 +16,25 @@ void UI::Container::Update()
             e->Update(); 
 }
 
-UI::Rect UI::Container::Draw(const Rect& InContainer)
+void UI::Container::Draw()
 {
-    Element::Draw(InContainer); 
+    DrawRect(GetRect());
+    for (auto& elem : Elements)
+        if (Element* e = elem.Get())
+            e->Draw();
+}
+
+void UI::Container::RefreshRect(const Rect& InContainer)
+{
+    CachedRect = CalculateRect(InContainer);
     
-    Rect rect = CalculateRect(InContainer);
-    rect.Start.x -= Transform.Margin.Horizontal.x;
-    rect.End.x += Transform.Margin.Horizontal.y;
-    rect.Start.y -= Transform.Margin.Vertical.x;
-    rect.End.y += Transform.Margin.Vertical.y;
+    Rect rect = GetRect();
+    rect.Start.x += Transform.Margin.Horizontal.x;
+    rect.End.x -= Transform.Margin.Horizontal.y;
+    rect.Start.y += Transform.Margin.Vertical.x;
+    rect.End.y -= Transform.Margin.Vertical.y;
     
     for (auto& elem : Elements)
         if (Element* e = elem.Get())
-            e->Draw(rect);
-
-    return rect;
+            e->RefreshRect(rect);
 }

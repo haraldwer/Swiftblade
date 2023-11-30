@@ -9,7 +9,7 @@ CHECK_RETURN(cond, false) \
 
 namespace Utility
 {
-    static constexpr bool DeserializePrint = false; 
+    static constexpr bool DeserializePrint = true; 
     
     template <class T>
     bool ReadValue(const GenericVal& InVal, T& OutData)

@@ -16,9 +16,10 @@ void UI::Label::Init()
     }
 }
 
-UI::Rect UI::Label::Draw(const Rect& InContainer)
+void UI::Label::Draw()
 {
-    const Rect rect = Element::Draw(InContainer);
+    const Rect rect = GetRect();
+    DrawRect(rect); 
     
     const Vec2F startPos = rect.Start;
     const Vec2F endPos = rect.End - CachedSize;
@@ -30,7 +31,6 @@ UI::Rect UI::Label::Draw(const Rect& InContainer)
     const Vector2 origin = { 0.0f, 0.0f };
     const float rot = 0.0f;
     const Color tint = WHITE;
-    
     if (const auto fontRsc = Font.Get())
         if (const auto font = fontRsc->Get())
             DrawTextPro(
@@ -42,6 +42,4 @@ UI::Rect UI::Label::Draw(const Rect& InContainer)
                 Size,
                 Spacing,
                 tint);
-
-    return rect; 
 }
