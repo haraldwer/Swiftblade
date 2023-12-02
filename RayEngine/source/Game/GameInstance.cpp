@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "GameInstance.h"
 
 #include <filesystem>
 
@@ -6,9 +6,9 @@
 #include "Engine/Instance/Manager.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
-#include "Systems/Player/Input.h"
+#include "ECS/Player/Input.h"
 
-void Game::Init()
+void GameInstance::Init()
 {
     Instance::Init();
     Physics.Init();
@@ -47,23 +47,25 @@ void Game::Init()
     DebugCamera.SetRequireHold(false); 
 }
 
-void Game::Deinit()
+void GameInstance::Deinit()
 {
     SceneInstance.Destroy();
     Instance::Deinit();
     Physics.Deinit();
 }
 
-void Game::Update(double InDelta)
+void GameInstance::Update(double InDelta)
 {
-    Time.Frame(InDelta);
+    Time.Tick(InDelta);
     
     // Update
     const double scaledDelta = Time.Delta();
     // TODO: Pre-update for movement logic
-    Physics.Update(scaledDelta);
+    if (!Time.IsPaused())
+        Physics.Update(scaledDelta);
     ECS.Update(scaledDelta);
-
+    Menus.Update(scaledDelta);
+    
     if (IsKeyPressed(KEY_TAB))
     {
         bUseDebugCamera = !bUseDebugCamera;
@@ -72,10 +74,16 @@ void Game::Update(double InDelta)
     }
     
     if (bUseDebugCamera)
-        DebugCamera.Update(InDelta);
+        DebugCamera.Update(InDelta); 
 }
 
-void Game::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
+void GameInstance::UpdateUI()
+{
+    ECS.UpdateUI();
+    Menus.Draw(); 
+}
+
+void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
 {
     StartScene = InScene;
     StartPlayerPos = InPlayerPos;

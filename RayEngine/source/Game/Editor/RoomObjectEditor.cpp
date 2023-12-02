@@ -5,7 +5,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Rendering/Instances/CameraInstance.h"
-#include "Game/Systems/CubeVolume.h"
+#include "Game/ECS/CubeVolume.h"
 #include "ImGui/imgui.h"
 
 void RoomObjectEditor::Init()

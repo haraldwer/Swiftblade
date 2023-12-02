@@ -1,16 +1,14 @@
-﻿#include "Menu.h"
+﻿#include "MenuMain.h"
 
 #include "Editor/BlueprintEditor.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/UI/Builder.h"
-#include "Engine/UI/Elements/Image.h"
 #include "Engine/UI/Elements/Label.h"
 #include "Engine/UI/Elements/List.h"
-#include "Game/Game.h"
+#include "game/GameInstance.h"
 #include "Game/Editor/RoomEditor.h"
-#include "Utility/Time/Time.h"
 
-void Menu::Init()
+void MenuMain::Init()
 {
     UI::Builder builder = UI::Builder()
         .Push(UI::Container(UI::Transform::FromRect(600.0f, -300.0f, 0.5f)))
@@ -20,31 +18,18 @@ void Menu::Init()
                 .Add(UI::Label("Leaderboard", 0.5f), "Leaderboard")
                 .Add(UI::Label("Create", 0.5f), "Create")
                 .Add(UI::Label("Edit", 0.5f), "Edit");
-    UI = builder.Build();
+    
+    UI = builder.Build(); 
 }
 
-void Menu::Deinit()
+void MenuMain::Update(double InDelta)
 {
-    Instance::Deinit();
-    UI = UI::Instance();
-}
-
-void Menu::Update(double InDelta)
-{
-    Instance::Update(InDelta);
-    UI.Update();
-}
-
-void Menu::UpdateUI()
-{
-    Instance::UpdateUI();
+    CHECK_RETURN(!UI.IsValid())
     
     if (UI.Get("Play").IsClicked())
-        Engine::Manager::Get().Push<Game>();
+        Engine::Manager::Get().Push<GameInstance>();
     if (UI.Get("Create").IsClicked())
         Engine::Manager::Get().Push<RoomEditor>();
     if (UI.Get("Edit").IsClicked())
         Engine::Manager::Get().Push<BlueprintEditor>();
-    
-    UI.Draw();
 }

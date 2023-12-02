@@ -58,7 +58,7 @@ namespace Physics
                 const physx::PxU32 contactCount = pairs[i].contactCount;
                 Contact c;
                 c.Target = ECS::PtrToEntity(pairs[i].shapes[0]->userData);
-                c.Other = ECS::PtrToEntity(pairs[i].shapes[1]->userData);
+                c.Self = ECS::PtrToEntity(pairs[i].shapes[1]->userData);
                 if (contactCount)
                 {
                     static Vector<physx::PxContactPairPoint> contactPoints;
@@ -90,8 +90,8 @@ namespace Physics
                 const physx::PxShape* triggerActivator = pairs[i].otherShape;
 				
                 Contact c;
-                c.Target = ECS::PtrToEntity(triggerActivator->userData);
-                c.Other = ECS::PtrToEntity(triggeredShape->userData);
+                c.Self = ECS::PtrToEntity(triggerActivator->userData);
+                c.Target = ECS::PtrToEntity(triggeredShape->userData);
                 c.IsTrigger = true;
 
                 // Send contact to gameplay!
@@ -118,7 +118,7 @@ namespace Physics
                 for (auto& sys : ECS::Manager::Get().GetAllSystems())
                 {
                     CHECK_ASSERT(!sys.second, "System nullptr");
-                    CHECK_CONTINUE(!sys.second->Contains(InContact.Target))
+                    CHECK_CONTINUE(!sys.second->Contains(InContact.Self))
                     switch (InEvent)
                     {
                     case Contact::Event::BEGIN:
@@ -135,7 +135,7 @@ namespace Physics
             
             // Also test flipped contact
             const Contact flippedContact = {
-                InContact.Other,
+                InContact.Self,
                 InContact.Target,
                 InContact.Points,
                 InContact.IsTrigger

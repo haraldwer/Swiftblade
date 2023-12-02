@@ -10,10 +10,14 @@ namespace ECS
     {
     public:
         void Init() override;
+        void Update(double InDelta) override;
+        void OnBeginContact(const Physics::Contact& InContact) override;
+        int GetPriority() const override { return 20; }
+
         EntityID GetCameraID() const { return CameraID; }
         EntityID GetColliderID() const { return ColliderID; }
 
-        int GetPriority() const override { return 20; }
+        void Die(); 
 
     private:
         EntityID ColliderID = InvalidID;

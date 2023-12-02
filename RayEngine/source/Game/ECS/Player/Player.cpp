@@ -6,6 +6,10 @@
 #include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "Engine/Menu/Manager.h"
+#include "Game/Menus/MenuLevelEnd.h"
+#include "Game/ECS/LevelEnd.h"
+#include "Game/Menus/MenuDeath.h"
 
 void ECS::Player::Init()
 {
@@ -25,4 +29,25 @@ void ECS::Player::Init()
         input->SetPlayer(GetID());
     if (const auto playerCamera = TryGet<PlayerCamera>(GetID()))
         playerCamera->SetPlayer(GetID());
+}
+
+void ECS::Player::Update(double InDelta)
+{
+    const auto& t = Get<Transform>(GetID());
+    if (t.GetPosition().y < -30.0f)
+        Die();
+}
+
+void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
+{
+    const auto parent = Get<Transform>(InContact.Target).GetParent(); 
+    if (parent != InvalidID)
+        if (GetSystem<SysLevelEnd>().Contains(parent))
+            Menu::Manager::Get().Push<MenuLevelEnd>();
+}
+
+void ECS::Player::Die()
+{
+    LOG("Player died!");
+    Menu::Manager::Get().Push<MenuDeath>();
 }

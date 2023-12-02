@@ -23,6 +23,14 @@ namespace ECS
         virtual int GetPriority() const { return 0; }
 
     protected:
+
+        template <class T>
+        T& Get() const
+        {
+            T* comp = TryGet<T>(GetID());
+            CHECK_ASSERT(!comp, "Invalid component");
+            return *comp;
+        }
         
         template <class T>
         T& Get(const EntityID InID) const
@@ -75,7 +83,7 @@ namespace ECS
 
         void OnBeginContact(const Physics::Contact& InContact) override
         {
-            ComponentID find = SystemBase::Translate(InContact.Target);
+            ComponentID find = SystemBase::Translate(InContact.Self);
             CHECK_RETURN(find == InvalidID)
             System<T>::GetInternal(find).OnBeginContact(InContact);
         }

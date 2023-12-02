@@ -30,13 +30,13 @@ void ECS::CubeVolume::Serialize(SerializeObj& InOutObj) const
 
 bool ECS::CubeVolume::Deserialize(const DeserializeObj& InObj)
 {
-    bool result = Component::Deserialize(InObj);
+    const bool result = Component::Deserialize(InObj);
 
     // Unpack
     String data;
     Utility::Deserialize(InObj, "Data", data);
 
-    int index = 0; 
+    size_t index = 0; 
     while (true)
     {
         // Find ;
@@ -58,7 +58,7 @@ bool ECS::CubeVolume::Deserialize(const DeserializeObj& InObj)
         const String entriesStr = findStr.substr(split + 1);
 
         // Find all values
-        int valueIndex = 0; 
+        size_t valueIndex = 0; 
         while (true)
         {
             // Find ,

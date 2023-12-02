@@ -50,7 +50,7 @@ ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vec
     return id;
 }
 
-void BlueprintResource::Save(ECS::EntityID InID)
+void BlueprintResource::Save(const ECS::EntityID InID)
 {
     CHECK_RETURN_LOG(InID == ECS::InvalidID, "Invalid ID");
 
@@ -59,7 +59,7 @@ void BlueprintResource::Save(ECS::EntityID InID)
     rapidjson::Writer writer(s);
 
     ECS::Manager& man = ECS::Manager::Get();
-    man.Serialize(InID, writer); 
+    man.Serialize(InID, writer, true); 
 
     // Format
     const String formatted = Utility::FormatJson(s.GetString());

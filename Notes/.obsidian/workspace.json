@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Planning/Timeline.md",
+                "file": "Milestones/Milestone 3 (Nov 29).md",
                 "mode": "source",
                 "source": false
               }
@@ -98,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Planning/Timeline.md",
+                "file": "Milestones/Milestone 3 (Nov 29).md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Planning/Timeline.md",
+                "file": "Milestones/Milestone 3 (Nov 29).md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -138,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Planning/Timeline.md"
+                "file": "Milestones/Milestone 3 (Nov 29).md"
               }
             }
           }
@@ -161,13 +161,17 @@
   },
   "active": "0c67e2d3891fea90",
   "lastOpenFiles": [
+    "Milestones/Milestone 2 (Nov 15).md",
     "Milestones/Milestone 3 (Nov 29).md",
+    "Tasks/0 - Sword.md",
+    "Tasks/2 - Remove deltas everywhere.md",
+    "Tasks/0 - Player death.md",
+    "Tasks/0 - Level end feedback.md",
+    "Planning/Timeline.md",
     "Tasks/Archive/0 - Triggers.md",
     "Tasks/0 - Collision masks.md",
     "Tasks/0 - CubeVolume custom serialization.md",
     "Tasks/Archive/0 - Level start & end.md",
-    "Tasks/0 - Level end feedback.md",
-    "Tasks/0 - Player death.md",
     "Tasks/0 - Default shading.md",
     "Tasks/0 - Entity reparenting.md",
     "Tasks/Archive/0 - Movement state machine.md",
@@ -178,15 +182,11 @@
     "Tasks/2 - Child overrides.md",
     "Pipelines/Content.md",
     "Tasks/Archive/0 - UI Library.md",
-    "Planning/Timeline.md",
     "Tasks/1 - Inline resource editing.md",
     "Tasks/2 - Enum properties.md",
     "Planning/Testing.md",
     "Tasks/Archive/0 - System priority.md",
     "Tasks/Backlog.md",
-    "Tasks/0 - Sword.md",
-    "Tasks/Archive/1 - Instanced rendering.md",
-    "Milestones/Milestone 2 (Nov 15).md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

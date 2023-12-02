@@ -6,7 +6,7 @@
 #include "Engine/ECS/Systems/Attributes.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
-#include "Game/Game.h"
+#include "Game/GameInstance.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_stdlib.h"
@@ -32,7 +32,7 @@ void BlueprintEditor::SetBP(const ResBlueprint& InBP)
 
 void BlueprintEditor::Update(double InDelta)
 {
-    Time.Frame(InDelta);
+    Time.Tick(InDelta);
     
     // Update
     ECS.Update(Time.Delta());
@@ -45,12 +45,14 @@ void BlueprintEditor::Update(double InDelta)
                 bp->Save(InstanceID); 
         
         if (IsKeyPressed(KEY_P))
-            Engine::Manager::Get().Push<Game>();
+            Engine::Manager::Get().Push<GameInstance>();
     }
 }
 
 void BlueprintEditor::UpdateUI()
 {
+    ECS.UpdateUI(); 
+    
     if (ImGui::Begin("Blueprint Editor"))
     {
         if (Blueprint.Edit("BP"))

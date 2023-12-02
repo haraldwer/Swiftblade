@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/Property/PropertyOwner.h"
-#include "Game/Systems/Player/PlayerInterface.h"
+#include "Game/ECS/Player/PlayerInterface.h"
 #include "Utility/StateMachine/StateBase.h"
 
 namespace Physics

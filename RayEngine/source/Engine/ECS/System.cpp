@@ -5,7 +5,9 @@
 
 bool ECS::SystemBase::ShouldUpdate() const
 {
-    return !Engine::InstanceBase::Get().IsEditor();
+    return
+        !Engine::InstanceBase::Get().IsEditor() &&
+        !Utility::Time::Get().IsPaused();
 }
 
 ECS::SystemBase* ECS::SystemBase::GetAnonymousSystem(const Utility::Type& InType, bool InIsCompHash)

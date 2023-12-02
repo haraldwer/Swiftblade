@@ -16,6 +16,7 @@ namespace ECS
         void Init();
         void Deinit(); 
         void Update(double InDelta); 
+        void UpdateUI() const; 
 
         EntityID CreateEntity();
         void DestroyEntity(EntityID InEntity);
@@ -49,7 +50,7 @@ namespace ECS
         std::set<EntityID> GetAllEntities() { return Entities; }
 
         void Deserialize(EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects);
-        void Serialize(EntityID InID, SerializeObj& OutObj);
+        void Serialize(EntityID InID, SerializeObj& OutObj, bool InChildren);
 
     private:
 

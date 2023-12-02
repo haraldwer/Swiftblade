@@ -53,6 +53,12 @@ void Manager::Update(const double InDelta)
     DestroyPending();
 }
 
+void Manager::UpdateUI() const
+{
+    for (SystemBase* system : SortedSystems)
+        system->UpdateUI();
+}
+
 EntityID Manager::CreateEntity()
 {
     const EntityID id = IDCounter;
@@ -231,7 +237,7 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
     }
 }
 
-void Manager::Serialize(const EntityID InID, SerializeObj& OutObj)
+void Manager::Serialize(const EntityID InID, SerializeObj& OutObj, const bool InChildren)
 {
     CHECK_ASSERT(InID == InvalidID, "Invalid ID");
     
@@ -259,29 +265,32 @@ void Manager::Serialize(const EntityID InID, SerializeObj& OutObj)
     OutObj.EndArray();
 
     // Write children
-    if (auto* t = GetComponent<Transform>(InID))
+    if (InChildren)
     {
-        const Set<EntityID>& children = t->GetChildren();
-        if (!children.empty())
+        if (const auto* t = GetComponent<Transform>(InID))
         {
-            OutObj.Key("Children");
-            OutObj.StartArray();
-            for (const EntityID child : children)
+            const Set<EntityID>& children = t->GetChildren();
+            if (!children.empty())
             {
-                OutObj.StartObject();
-                String bp;
-                if (!bp.empty())
+                OutObj.Key("Children");
+                OutObj.StartArray();
+                for (const EntityID child : children)
                 {
-                    OutObj.Key("BP");
-                    OutObj.String(bp.c_str()); 
-                }
+                    OutObj.StartObject();
+                    String bp;
+                    if (!bp.empty())
+                    {
+                        OutObj.Key("BP");
+                        OutObj.String(bp.c_str()); 
+                    }
 
-                // Serialize children overrides
-                OutObj.Key("Overrides");
-                Serialize(child, OutObj);
-                OutObj.EndObject();
+                    // Serialize children overrides
+                    OutObj.Key("Overrides");
+                    Serialize(child, OutObj, true);
+                    OutObj.EndObject();
+                }
+                OutObj.EndArray();
             }
-            OutObj.EndArray();
         }
     }
     

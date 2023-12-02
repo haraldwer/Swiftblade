@@ -8,13 +8,14 @@
 #include "Camera.h"
 #include "Collider.h"
 #include "Rigidbody.h"
-#include "Game/Systems/CubeVolume.h"
-#include "Game/Systems/LevelEnd.h"
-#include "Game/Systems/RoomConnection.h"
-#include "Game/Systems/Player/Input.h"
-#include "Game/Systems/Player/PlayerCamera.h"
-#include "Game/Systems/Player/Movement/Movement.h"
-#include "Game/Systems/Player/Player.h"
+#include "Game/ECS/CubeVolume.h"
+#include "Game/ECS/LevelEnd.h"
+#include "Game/ECS/RoomConnection.h"
+#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/PlayerCamera.h"
+#include "Game/ECS/Player/Movement/Movement.h"
+#include "Game/ECS/Player/Player.h"
+#include "Game/ECS/Player/Sword/Sword.h"
 
 using namespace ECS;
 
@@ -48,6 +49,7 @@ NameMap[String(#x)] = var; } \
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);
     REG_UNIQUE_COMPONENT(PlayerCamera);
+    REG_UNIQUE_COMPONENT(Sword);
     
 #undef REG_ENTITY_SYSTEM
 #undef REG_UNIQUE_COMPONENT

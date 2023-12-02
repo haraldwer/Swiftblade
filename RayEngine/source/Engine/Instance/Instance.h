@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/ECS/Manager.h"
+#include "Engine/Menu/Manager.h"
 #include "Engine/Rendering/Scene.h"
 #include "Utility/Singelton.h"
 #include "Utility/Time/Time.h"
@@ -39,10 +40,12 @@ namespace Engine
         void Deinit() override
         {
             ECS.Deinit();
+            Menus.Clear();
         }
 
     protected:
         Utility::Time Time;
         ECS::Manager ECS;
+        Menu::Manager Menus; 
     };
 }

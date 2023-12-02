@@ -84,7 +84,7 @@ bool Scene::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
 
             // Write entity data
             writer.Key("Overrides");
-            ecs.Serialize(entity, writer);
+            ecs.Serialize(entity, writer, false);
             
             writer.EndObject(); 
         }

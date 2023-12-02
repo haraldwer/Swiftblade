@@ -2,7 +2,7 @@
 
 #include "Transform.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
-#include "game/Game.h"
+#include "game/GameInstance.h"
 #include "Utility/RayUtility.h"
 
 using namespace ECS; 

@@ -22,6 +22,8 @@ namespace UI
             CHECK_ASSERT(!ptr, "Invalid ptr");
             return *reinterpret_cast<T*>(ptr); 
         }
+
+        bool IsValid() const { return Root; }
         
     private:
         ObjectPtr<Container> Root;

@@ -1,7 +1,7 @@
 ﻿#include "RoomEditor.h"
 
 #include "Engine/ECS/Systems/Transform.h"
-#include "Game/Game.h"
+#include "Game/GameInstance.h"
 #include "Engine/Instance/Manager.h"
 #include "ImGui/imgui.h"
 
@@ -24,7 +24,7 @@ void RoomEditor::Deinit()
 
 void RoomEditor::Update(double InDelta)
 {
-    Time.Frame(InDelta);
+    Time.Tick(InDelta);
     
     // Update
     ECS.Update(Time.Delta());
@@ -57,6 +57,8 @@ void RoomEditor::Update(double InDelta)
 
 void RoomEditor::UpdateUI()
 {
+    ECS.UpdateUI();
+    
     if (ImGui::Begin("Room Editor"))
     {
         if (Camera.IsControlling())
@@ -97,7 +99,7 @@ void RoomEditor::OpenScene()
 
 void RoomEditor::PlayScene()
 {
-    if (Game* game = Engine::Manager::Get().Push<Game>())
+    if (GameInstance* game = Engine::Manager::Get().Push<GameInstance>())
         game->PlayScene(CurrConfig.Scene, Camera.GetPosition());
 }
 

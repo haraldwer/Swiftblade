@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Game/Systems/Player/PlayerInterface.h"
+#include "Game/ECS/Player/PlayerInterface.h"
 #include "Engine/ECS/UniqueComponent.h"
 #include "Utility/Time/Time.h"
 

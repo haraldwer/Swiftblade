@@ -4,8 +4,8 @@
 #include "MovementStateIdle.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Game/Systems/Player/Input.h"
-#include "Game/Systems/Player/Movement/Movement.h"
+#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/Movement/Movement.h"
 
 Type MovementStateSlide::Check()
 {

@@ -11,19 +11,13 @@ Done:
 [[0 - UI Library]]
 [[0 - Room connections]]
 [[0 - Level start & end]]
+[[0 - Level end feedback]]
+[[0 - Player death]]
 
 Ongoing: 
+[[0 - Sword]]
 
 Tasks:
 [[0 - Entity reparenting]]
-[[0 - Sword]]
-[[0 - Player death]]
-[[0 - Level end feedback]]
 
-To get there: 
-3. Add main menu correctly
 
-Stuff:
-1. Fix spawn transform
-2. Fix object placement history 
-3. Add connection history

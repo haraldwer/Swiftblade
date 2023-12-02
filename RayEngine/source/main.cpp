@@ -4,8 +4,7 @@
 #include "Engine/Resource/Manager.h"
 #include "Utility/Time/Time.h"
 
-#include "Editor/BlueprintEditor.h"
-#include "Game/Menus/Menu.h"
+#include "Game/MenuInstance.h"
 
 int main()
 {
@@ -16,7 +15,7 @@ int main()
     renderer.Init();
 
     // Push game instance by default
-    instanceManager.Push<Menu>();
+    instanceManager.Push<MenuInstance>();
 
     // Timekeeping
     double tickTimer = 0.0;

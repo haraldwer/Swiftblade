@@ -20,7 +20,7 @@ namespace Physics
         };
         
         ECS::EntityID Target = ECS::InvalidID;
-        ECS::EntityID Other = ECS::InvalidID;
+        ECS::EntityID Self = ECS::InvalidID;
         Vector<Point> Points; 
         bool IsTrigger = false;
     };

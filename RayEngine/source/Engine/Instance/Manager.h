@@ -12,45 +12,58 @@ namespace Engine
         template <class T>
         T* Push()
         {
-            Utility::SingeltonContext::Value++;
+            const int prevContext = Utility::SingeltonContext::Value;
+            contextCount++;
+            const int newContext = contextCount;
+            Utility::SingeltonContext::Value = newContext;
             T* ptr = new T();
-            Queue.push_back(ptr);
-            Utility::SingeltonContext::Value--;
-            
+            Queue.push_back({newContext, ptr});
+            Utility::SingeltonContext::Value = prevContext; 
             return ptr;
         }
 
         InstanceBase* Top() const
         {
             CHECK_RETURN(Stack.empty(), nullptr)
-            return Stack[Stack.size() - 1];
+            return Stack[Stack.size() - 1].Ptr;
         }
         
         void Pop()
         {
-            popQueue++;
+            Queue.emplace_back(); 
         }
 
         void Update()
         {
-            for (auto ptr : Queue)
+            for (const auto& entry : Queue)
             {
-                Utility::SingeltonContext::Value++;
-                Stack.push_back(ptr);
-                ptr->Init();
+                if (entry.Ptr && entry.Context != -1)
+                {
+                    // Add
+                    Stack.push_back(entry);
+                    Utility::SingeltonContext::Value = entry.Context; 
+                    entry.Ptr->Init();
+                }
+                else if (!Stack.empty())
+                {
+                    // Remove
+                    const auto& top = Stack.back();
+                    if (top.Ptr)
+                    {
+                        top.Ptr->Deinit();
+                        delete top.Ptr;
+                    }
+                    Stack.pop_back();
+
+                    // Set context
+                    if (!Stack.empty())
+                    {
+                        const auto& newTop = Stack.back();
+                        Utility::SingeltonContext::Value = newTop.Context;
+                    }
+                }
             }
-            Queue.clear(); 
-            
-            while (popQueue)
-            {
-                popQueue--; 
-                auto* top = Top();
-                CHECK_CONTINUE(!top); 
-                top->Deinit();
-                delete top;
-                Stack.pop_back();
-                Utility::SingeltonContext::Value--;
-            }
+            Queue.clear();
         }
         
         void Clear()
@@ -64,9 +77,15 @@ namespace Engine
 
     private:
 
-        int popQueue = 0;
-        Vector<InstanceBase*> Queue;
-        Vector<InstanceBase*> Stack;
+
+        struct Entry
+        {
+            int Context = -1;
+            InstanceBase* Ptr = nullptr; 
+        };
+        Vector<Entry> Queue;
+        Vector<Entry> Stack;
+        int contextCount = 0; 
         
     };
 }
