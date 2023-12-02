@@ -10,10 +10,9 @@
 
 void RoomObjectEditor::Init()
 {
-    Config.LoadConfig(); 
-    SetCubeVolume(); 
+    Config.LoadConfig();
+    
     LoadPlacedObjects();
-    SetEditObject(Config.BPIndex);
 }
 
 void RoomObjectEditor::Deinit()
@@ -47,14 +46,6 @@ void RoomObjectEditor::Update(double InDelta)
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
         RemoveObject();
-
-    if (IsKeyDown(KEY_LEFT_CONTROL))
-    {
-        if (IsKeyPressed(KEY_Z))
-            History.Undo();
-        if (IsKeyPressed(KEY_Y))
-            History.Redo();
-    }
 }
 
 void RoomObjectEditor::UpdateUI(bool InIsCameraControlling)
@@ -72,13 +63,25 @@ void RoomObjectEditor::UpdateUI(bool InIsCameraControlling)
     {
         if (transSys.EditGizmo(ObjectID))
         {
-            TargetPos = trans->GetPosition(); 
+            auto& v = GetVolume();
+            const Vec3F pos = trans->GetPosition();
+            TargetPos = v.CoordToPos(v.PosToCoord(pos, Mat4F()), Mat4F());  
             TargetRot = trans->GetRotation().Euler();
         }
     }
     
     if (ImGui::Button("Place"))
         PlaceObject();
+}
+
+void RoomObjectEditor::Enter()
+{
+    NewEditObject();
+}
+
+void RoomObjectEditor::Exit()
+{
+    DestroyEditObject();
 }
 
 void RoomObjectEditor::SetEditObject(const int InIndex)
@@ -103,11 +106,18 @@ void RoomObjectEditor::PlaceObject()
         ECS::InvalidID
     };
     data.PrevObjectData = GetPlacedObjectData(GetKey(TargetPos));
+    data.PrevObjectData.Position = TargetPos;
     data.PrevObjectData.ID = ECS::InvalidID; 
     
-    History.AddChange(Utility::Change<EditData>(
-        [&](const EditData& InData) { PlaceObject(InData.NewObjectData); },
-        [&](const EditData& InData) { PlaceObject(InData.PrevObjectData); },
+    GetHistory().AddChange(Utility::Change<EditData>(
+        [&](const EditData& InData)
+        {
+            PlaceObject(InData.NewObjectData);
+        },
+        [&](const EditData& InData)
+        {
+            PlaceObject(InData.PrevObjectData);
+        },
         data));
 }
 
@@ -123,7 +133,7 @@ void RoomObjectEditor::RemoveObject()
     data.PrevObjectData = GetPlacedObjectData(GetKey(TargetPos));
     data.PrevObjectData.ID = ECS::InvalidID; 
     
-    History.AddChange(Utility::Change<EditData>(
+    GetHistory().AddChange(Utility::Change<EditData>(
         [&](const EditData& InData) { RemovePlacedObject(GetKey(InData.Position)); },
         [&](const EditData& InData) { PlaceObject(InData.PrevObjectData); },
         data));
@@ -131,13 +141,17 @@ void RoomObjectEditor::RemoveObject()
 
 void RoomObjectEditor::NewEditObject()
 {
+    DestroyEditObject();
+    ObjectID = CreateObject(Config.BPIndex, Mat4F(TargetPos, TargetRot, Vec3F::One()));
+}
+
+void RoomObjectEditor::DestroyEditObject()
+{
     if (ObjectID != ECS::InvalidID)
     {
         ECS::Manager::Get().DestroyEntity(ObjectID);
         ObjectID = ECS::InvalidID; 
     }
-    
-    ObjectID = CreateObject(Config.BPIndex, Mat4F(TargetPos, TargetRot, Vec3F::One()));
 }
 
 void RoomObjectEditor::LoadPlacedObjects()
@@ -179,11 +193,11 @@ void RoomObjectEditor::PlaceObject(const ObjectData& InObjectData)
     
     auto& entry = PlacedObjects[key];
     entry = InObjectData;
-    if (entry.ID == ECS::InvalidID)
+    if (entry.ID == ECS::InvalidID && InObjectData.ObjectType != -1)
         entry.ID = CreateObject(entry.ObjectType, Mat4F(entry.Position, entry.Rotation, Vec3F::One()));
 }
 
-void RoomObjectEditor::RemovePlacedObject(uint32 InKey)
+void RoomObjectEditor::RemovePlacedObject(const uint32 InKey)
 {
     auto find = PlacedObjects.find(InKey);
     if (find != PlacedObjects.end())
@@ -208,7 +222,7 @@ RoomObjectEditor::ObjectData RoomObjectEditor::GetPlacedObjectData(const uint32 
     return {};
 }
 
-ECS::EntityID RoomObjectEditor::CreateObject(int InIndex, const Mat4F& InMat) const
+ECS::EntityID RoomObjectEditor::CreateObject(const int InIndex, const Mat4F& InMat) const
 {
     CHECK_RETURN_LOG(InIndex < 0 || InIndex >= Config.Blueprints.Get().size(), "BP index outside of range", ECS::InvalidID);
     if (const auto bp = Config.Blueprints.Get()[InIndex].Get())

@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#include <filesystem>
+
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Physics/Manager.h"
@@ -11,12 +13,33 @@ void Game::Init()
     Instance::Init();
     Physics.Init();
 
-    StartScene.Unload(); // Force reload
-    Vector<ResScene> rooms;
-    rooms.push_back(StartScene);
-    rooms.push_back(StartScene);
-    rooms.push_back(StartScene);
-    RoomManager.Load(rooms);
+    if (!StartScene.Identifier().empty())
+    {
+        Vector<ResScene> rooms;
+        rooms.push_back(StartScene);
+        rooms.push_back(StartScene);
+        rooms.push_back(StartScene);
+        StartScene.Unload(); // Force reload
+        RoomManager.Load(rooms, false);
+    }
+    else
+    {
+        Vector<ResScene> rooms;
+        
+        // Start
+        rooms.emplace_back("../content/Scenes/S_Start.json");
+        
+        // Load content of room folder
+        const std::filesystem::path path = "../content/Scenes/Rooms";
+        for (const auto& entry : std::filesystem::directory_iterator(path))
+            if (entry.path().extension() == ".json")
+                rooms.emplace_back(entry.path().string());
+
+        // End
+        rooms.emplace_back("../content/Scenes/S_End.json");
+
+        RoomManager.Load(rooms, true); 
+    }
 
     if (const BlueprintResource* bp = ResBlueprint("Player/BP_Player.json").Get())
         PlayerID = bp->Instantiate(StartPlayerPos);

@@ -60,7 +60,8 @@ bool ImGuizmo::Edit(Mat4F& InOutMat, int& InOutSpace, int& InOutOperation, bool&
 
     const ImGuiIO& io = ImGui::GetIO();
     SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    return Manipulate(
+    
+    const bool result = Manipulate(
         view.data,
         proj.data,
         static_cast<OPERATION>(InOutOperation),
@@ -68,4 +69,16 @@ bool ImGuizmo::Edit(Mat4F& InOutMat, int& InOutSpace, int& InOutOperation, bool&
         InOutMat.data,
         nullptr,
         InOutUseSnap ? &snap.x : nullptr);
+
+    static bool edited;
+    if (result)
+        edited = true;
+    
+    if (edited && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+    {
+        edited = false;
+        return true; 
+    }
+    
+    return false; 
 }

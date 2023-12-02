@@ -9,7 +9,8 @@
 #include "Collider.h"
 #include "Rigidbody.h"
 #include "Game/Systems/CubeVolume.h"
-#include "Game/Systems/RoomEnd.h"
+#include "Game/Systems/LevelEnd.h"
+#include "Game/Systems/RoomConnection.h"
 #include "Game/Systems/Player/Input.h"
 #include "Game/Systems/Player/PlayerCamera.h"
 #include "Game/Systems/Player/Movement/Movement.h"
@@ -41,11 +42,13 @@ NameMap[String(#x)] = var; } \
 
     // Game systems
     REG_ENTITY_SYSTEM(CubeVolume);
-    REG_ENTITY_SYSTEM(RoomEnd);
+    REG_ENTITY_SYSTEM(RoomConnection);
+    REG_ENTITY_SYSTEM(LevelEnd);
     REG_UNIQUE_COMPONENT(Player);
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);
     REG_UNIQUE_COMPONENT(PlayerCamera);
     
-#undef REG_OBJ_SYS
+#undef REG_ENTITY_SYSTEM
+#undef REG_UNIQUE_COMPONENT
 }

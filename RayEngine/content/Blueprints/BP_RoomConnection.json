@@ -2,13 +2,13 @@
 	"Components":[{
 			"Name":"Attributes",
 			"Data":{
-				"Name":"RoomEnd"
+				"Name":"RoomConnection"
 			}
 		},{
 			"Name":"Transform",
 			"Data":{}
 		},{
-			"Name":"RoomEnd",
+			"Name":"RoomConnection",
 			"Data":{}
 		}
 	],

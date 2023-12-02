@@ -4,7 +4,7 @@
 class RoomManager
 {
 public:
-    void Load(const Vector<ResScene>& InRooms);
+    void Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset);
     void Unload();
     
 private:

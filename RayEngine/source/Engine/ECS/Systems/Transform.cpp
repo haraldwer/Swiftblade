@@ -220,14 +220,11 @@ bool SysTransform::EditGizmo(EntityID InID)
     auto& t = Get<Transform>(InID);
     static int gizmoSpace = 1;
     static int gizmoOperation = 0;
-    static bool useSnap = true; 
-    Mat4F trans = t.World(); 
-    if (ImGuizmo::Edit(trans, gizmoSpace, gizmoOperation, useSnap))
-    {
-        t.SetWorld(trans); 
-        return true; 
-    }
-    return false; 
+    static bool useSnap = true;
+    Mat4F trans = t.World();
+    const bool finishEdit = ImGuizmo::Edit(trans, gizmoSpace, gizmoOperation, useSnap);
+    t.SetWorld(trans); 
+    return finishEdit; 
 }
 
 void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChild)

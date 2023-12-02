@@ -1,12 +1,9 @@
 ﻿#pragma once
 
-#include "RoomConnectionEditor.h"
+#include "RoomSubEditorManager.h"
 #include "Editor/EditorCamera.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Scene/Scene.h"
-
-#include "RoomObjectEditor.h"
-#include "VolumeEditor.h"
 
 struct RoomEditorConfig : PropertyOwner<RoomEditorConfig>
 {
@@ -19,14 +16,7 @@ struct RoomEditorConfig : PropertyOwner<RoomEditorConfig>
 
 class RoomEditor : public Engine::Instance
 {
-    enum class EditMode : uint8
-    {
-        VOLUME,
-        OBJECTS,
-        CONNECTIONS,
-        COUNT
-    };
-    
+
 public:
     void Init() override;
     void Deinit() override;
@@ -35,21 +25,15 @@ public:
     bool IsEditor() const override { return true; }
 
 private:
-    
     void OpenScene();
     void PlayScene();
     void SaveRoom();
-
+    
     // Editor stuff
     RoomEditorConfig CurrConfig;
     EditorCamera Camera;
+    RoomSubEditorManager SubEditorManager; 
     
-    EditMode Mode = EditMode::VOLUME;
-    VolumeEditor VolumeEditor;
-    RoomObjectEditor ObjectEditor;
-    RoomConnectionEditor ConnectionEditor;
-
     // Scene stuff
     SceneInstance Scene;
- 
 };

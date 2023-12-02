@@ -18,13 +18,15 @@ struct RoomObjectEditorConfig : PropertyOwner<RoomObjectEditorConfig>
     void SaveConfig() const { Save(Path); }
 };
 
-class RoomObjectEditor : RoomSubEditor
+class RoomObjectEditor : public RoomSubEditor
 {
 public:
-    void Init();
-    void Deinit();
-    void Update(double InDelta);
-    void UpdateUI(bool InIsCameraControlling);
+    void Init() override;
+    void Deinit() override;
+    void Update(double InDelta) override;
+    void UpdateUI(bool InIsCameraControlling) override;
+    void Enter() override;
+    void Exit() override;
 
     void PlaceObject();
     void RemoveObject();
@@ -37,6 +39,7 @@ private:
     // Edit object
     void SetEditObject(int InIndex);
     void NewEditObject();
+    void DestroyEditObject();
     ECS::EntityID ObjectID = ECS::InvalidID;
 
     // Placed objects
@@ -44,7 +47,7 @@ private:
     {
         Vec3F Position;
         Vec3F Rotation;
-        int ObjectType;
+        int ObjectType = -1;
         ECS::EntityID ID = ECS::InvalidID;
     };
     void LoadPlacedObjects();
@@ -58,7 +61,6 @@ private:
     ECS::EntityID CreateObject(int InIndex, const Mat4F& InMat) const;
     
     RoomObjectEditorConfig Config; 
-    Utility::History History;
     
     static constexpr float PlaceDist = 5.0f;
     Vec3F TargetRot;

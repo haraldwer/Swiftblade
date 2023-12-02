@@ -9,6 +9,8 @@ Done:
 [[0 - Scene Offset]]
 [[0 - Movement state machine]]
 [[0 - UI Library]]
+[[0 - Room connections]]
+[[0 - Level start & end]]
 
 Ongoing: 
 
@@ -16,12 +18,9 @@ Tasks:
 [[0 - Entity reparenting]]
 [[0 - Sword]]
 [[0 - Player death]]
-[[0 - Level end]]
-[[0 - Room connections]]
+[[0 - Level end feedback]]
 
 To get there: 
-1. Make a few rooms - Requires being able to add new files
-2. Connect them - Requires object placement and room connections
 3. Add main menu correctly
 
 Stuff:

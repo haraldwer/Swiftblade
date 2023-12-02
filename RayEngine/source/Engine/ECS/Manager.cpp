@@ -194,11 +194,18 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
     const auto& childMember = InObj["Children"];
     CHECK_RETURN(!childMember.IsArray());
 
-    auto& transSys = GetSystem<ECS::SysTransform>();
+    auto& transSys = GetSystem<SysTransform>();
     for (const auto& child : childMember.GetArray())
     {
         CHECK_CONTINUE_LOG(!child.IsObject(), "Child wasnt object");
-        EntityID childID = childID = CreateEntity();
+
+        EntityID childID = InvalidID;
+        
+        // The child might already exist!
+        // How do we identify these children? 
+        
+        if (childID == InvalidID)
+            childID = CreateEntity();
 
         // Read blueprint
         ResBlueprint bp; 
@@ -210,7 +217,7 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
                 Deserialize(childID, obj, OutSystems, InDepth);
         }
 
-        // Apply overrides
+        // TODO: Apply children overrides
         if (child.HasMember("Overrides"))
         {
             const auto& overrideMember = child["Overrides"];
@@ -219,7 +226,7 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
         }
 
         // Setup hierarchy
-        CHECK_CONTINUE(childID == ECS::InvalidID);
+        // TODO: Only if child is newly created
         transSys.SetupHierarchy(InID, childID);
     }
 }
@@ -266,8 +273,10 @@ void Manager::Serialize(const EntityID InID, SerializeObj& OutObj)
                 if (!bp.empty())
                 {
                     OutObj.Key("BP");
-                    OutObj.String(bp.c_str()); // TODO: Write object BP
+                    OutObj.String(bp.c_str()); 
                 }
+
+                // Serialize children overrides
                 OutObj.Key("Overrides");
                 Serialize(child, OutObj);
                 OutObj.EndObject();

@@ -2,25 +2,26 @@
 
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Systems/RoomEnd.h"
+#include "Systems/RoomConnection.h"
 
-void RoomManager::Load(const Vector<ResScene>& InRooms)
+void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
 {
     Unload(); 
     
-    Mat4F offset; 
+    Mat4F offset;
     for (const ResScene& room : InRooms)
     {
         const Scene* scene = room.Get();
         CHECK_CONTINUE(!scene);
-        SceneInstance instance = scene->Create(offset); 
+        SceneInstance instance = scene->Create(offset, Scenes.empty() && !InApplyRootOffset);
         Scenes.push_back(instance);
 
         bool foundEnd = false; 
         for (const ECS::EntityID entity : instance.Entities)
         {
-            const auto roomEnd = ECS::Manager::Get().GetComponent<RoomEnd>(entity);
+            const auto roomEnd = ECS::Manager::Get().GetComponent<RoomConnection>(entity);
             CHECK_CONTINUE(!roomEnd);
+            CHECK_CONTINUE(!roomEnd->IsEnd);
             const auto roomEndTrans = ECS::Manager::Get().GetComponent<ECS::Transform>(entity);
             CHECK_CONTINUE(!roomEndTrans);
 

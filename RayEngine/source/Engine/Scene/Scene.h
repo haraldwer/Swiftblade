@@ -13,7 +13,7 @@ struct SceneInstance
 class Scene
 {
 public:
-    SceneInstance Create(const Mat4F& InOffset = Mat4F()) const;
+    SceneInstance Create(const Mat4F& InOffset = Mat4F(), bool InIsRoot = true) const;
     bool Save(const SceneInstance& InInstance, const Mat4F& InOffset) const;
     bool Load(const String& InIdentifier);
     bool Unload(); 

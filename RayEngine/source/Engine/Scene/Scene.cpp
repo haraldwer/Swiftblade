@@ -15,11 +15,12 @@ void SceneInstance::Destroy()
     Entities.clear();
 }
 
-SceneInstance Scene::Create(const Mat4F& InOffset) const
+SceneInstance Scene::Create(const Mat4F& InOffset, bool InIsRoot) const
 {
     SceneInstance instance;
-    if (Doc.HasMember("Data") && Doc["Data"].IsObject())
-        Utility::Deserialize(Doc["Data"].GetObj(), "Offset", instance.Offset);
+    if (!InIsRoot)
+        if (Doc.HasMember("Data") && Doc["Data"].IsObject())
+            Utility::Deserialize(Doc["Data"].GetObj(), "Offset", instance.Offset);
     instance.Offset *= InOffset;
     
     CHECK_RETURN(!Doc.HasMember("Objects"), {})

@@ -26,6 +26,6 @@ private:
     ECS::EntityID PlayerID;
     RoomManager RoomManager;
     
-    ResScene StartScene = ResScene("Scenes/RM_Scene.json");
+    ResScene StartScene;
     Vec3F StartPlayerPos; 
 };

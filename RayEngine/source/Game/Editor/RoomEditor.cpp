@@ -1,5 +1,6 @@
 ﻿#include "RoomEditor.h"
 
+#include "Engine/ECS/Systems/Transform.h"
 #include "Game/Game.h"
 #include "Engine/Instance/Manager.h"
 #include "ImGui/imgui.h"
@@ -9,16 +10,14 @@ void RoomEditor::Init()
     Instance::Init();
     CurrConfig.LoadConfig();
     
-    OpenScene(); 
+    OpenScene();
+    SubEditorManager.SetMode(SubEditorMode::VOLUME);
 }
 
 void RoomEditor::Deinit()
 {
     CurrConfig.SaveConfig();
-    VolumeEditor.Deinit();
-    ObjectEditor.Deinit();
-    ConnectionEditor.Deinit();
-    Scene.Destroy();
+    SubEditorManager.Deinit();
     Camera.Deinit();
     Instance::Deinit();
 }
@@ -34,28 +33,17 @@ void RoomEditor::Update(double InDelta)
     if (IsKeyPressed(KEY_TAB))
         Camera.ToggleRequireHold();
 
+    SubEditorMode newMode = SubEditorMode::COUNT;  
     if (IsKeyPressed(KEY_ONE))
-        Mode = EditMode::VOLUME;
+        newMode = SubEditorMode::VOLUME;
     if (IsKeyPressed(KEY_TWO))
-        Mode = EditMode::OBJECTS;
+        newMode = SubEditorMode::OBJECTS;
     if (IsKeyPressed(KEY_THREE))
-        Mode = EditMode::CONNECTIONS;
+        newMode = SubEditorMode::CONNECTIONS;
+    if (newMode != SubEditorMode::COUNT)
+        SubEditorManager.SetMode(newMode); 
     
-    if (Camera.IsFullyControlling())
-    {
-        switch (Mode)
-        {
-        case EditMode::VOLUME:
-            VolumeEditor.Update(InDelta);
-            break;
-        case EditMode::OBJECTS:
-            ObjectEditor.Update(InDelta); 
-            break;
-        case EditMode::CONNECTIONS:
-            ConnectionEditor.Update(InDelta); 
-            break; 
-        }
-    }
+    SubEditorManager.Update(InDelta, Camera.IsFullyControlling()); 
 
     // Keyboard shortcuts
     if (IsKeyDown(KEY_LEFT_CONTROL))
@@ -71,24 +59,16 @@ void RoomEditor::UpdateUI()
 {
     if (ImGui::Begin("Room Editor"))
     {
+        if (Camera.IsControlling())
+            ImGui::SetWindowFocus(nullptr); 
+        
         if (CurrConfig.Edit())
             OpenScene();
 
         ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
         ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
 
-        switch (Mode)
-        {
-        case EditMode::VOLUME:
-            VolumeEditor.UpdateUI();
-            break;
-        case EditMode::OBJECTS:
-            ObjectEditor.UpdateUI(Camera.IsFullyControlling()); 
-            break;
-        case EditMode::CONNECTIONS:
-            ConnectionEditor.UpdateUI(); 
-            break;
-        }
+        SubEditorManager.UpdateUI(Camera.IsFullyControlling());
         
         if (ImGui::Button("Save"))
             SaveRoom(); 
@@ -101,21 +81,15 @@ void RoomEditor::UpdateUI()
 
 void RoomEditor::OpenScene()
 {
+    SubEditorManager.Deinit();
+    SubEditorManager = {};
     Scene.Destroy();
     ECS.DestroyPending();
-    VolumeEditor.Deinit();
-    ObjectEditor.Deinit();
-    ConnectionEditor.Deinit();
-    VolumeEditor = {};
-    ObjectEditor = {};
-    ConnectionEditor  = {};
 
     if (const auto scene = CurrConfig.Scene.Get().Get())
     { 
         Scene = scene->Create();
-        VolumeEditor.Init();
-        ObjectEditor.Init();
-        ConnectionEditor.Init(); 
+        SubEditorManager.Init(); 
     }
     
     Camera.SetRequireHold(false); 
@@ -130,9 +104,15 @@ void RoomEditor::PlayScene()
 void RoomEditor::SaveRoom()
 {
     auto& man = ECS::Manager::Get();
-    Scene.Entities = man.GetAllEntities();
-    Scene.Entities.erase(ObjectEditor.GetEditEntity());
-    Scene.Entities.erase(ConnectionEditor.GetStartEntity());
+    for (auto e : man.GetAllEntities())
+    {
+        const auto trans = man.GetComponent<ECS::Transform>(e);
+        CHECK_CONTINUE(!trans);
+        CHECK_CONTINUE(trans->GetParent() != ECS::InvalidID);
+        CHECK_CONTINUE(SubEditorManager.IgnoreSave(e));
+        Scene.Entities.insert(e);
+    }
+    
     if (const auto scene = CurrConfig.Scene.Get().Get())
-        scene->Save(Scene, ConnectionEditor.GetStartOffset());
+        scene->Save(Scene, SubEditorManager.GetStartOffset());
 }

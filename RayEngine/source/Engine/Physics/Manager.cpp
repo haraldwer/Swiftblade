@@ -239,11 +239,21 @@ void Physics::Manager::CreateShape(const ECS::Collider& InCollider, const ECS::E
         InCollider.ShapeData.Get(),
         trans->GetScale(ECS::Transform::Space::LOCAL));
     
+    // Set flags
+    const PxShapeFlags flags =
+        PxShapeFlag::eVISUALIZATION |
+        PxShapeFlag::eSCENE_QUERY_SHAPE |
+        (InCollider.IsTrigger ?
+            PxShapeFlag::eTRIGGER_SHAPE :
+            PxShapeFlag::eSIMULATION_SHAPE); 
+    
     // Create shape
     PxShape* shape = Persistent.Physics->createShape(
         *geometry,
         *material,
-        true);
+        true,
+        flags);
+    
     InActor.attachShape(*shape);
 
     // Set transform

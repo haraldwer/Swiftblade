@@ -1,28 +1,33 @@
 ﻿#include "RoomSubEditor.h"
 
+#include "RoomSubEditorManager.h"
 #include "Engine/ECS/Entity.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Game/Systems/CubeVolume.h"
 
-void RoomSubEditor::SetCubeVolume()
+void RoomSubEditor::SetOwner(RoomSubEditorManager* InOwner)
 {
-    // Cache CubeVolume
-    const auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-    const auto volumes = sys.GetEntities();
-    if (!volumes.empty())
-        CubeVolume = volumes[0];
+    Owner = InOwner; 
+}
 
-    // Force reset cube transform 
-    if (CubeVolume != ECS::InvalidID)
-        if (ECS::Transform* cubeTrans = ECS::Manager::Get().GetComponent<ECS::Transform>(CubeVolume))
-            cubeTrans->SetWorld(Mat4F());
+ECS::EntityID RoomSubEditor::GetVolumeID() const
+{
+    CHECK_ASSERT(!Owner, "Invalid owner")
+    return Owner->GetCubeVolume();
 }
 
 ECS::CubeVolume& RoomSubEditor::GetVolume() const
 {
-    CHECK_ASSERT(CubeVolume == ECS::InvalidID, "Invalid id");
-    auto* vol = ECS::Manager::Get().GetComponent<ECS::CubeVolume>(CubeVolume);
+    const ECS::EntityID cube = GetVolumeID(); 
+    CHECK_ASSERT(cube == ECS::InvalidID, "Invalid id");
+    auto* vol = ECS::Manager::Get().GetComponent<ECS::CubeVolume>(cube);
     CHECK_ASSERT(!vol, "Invalid ptr")
     return *vol; 
+}
+
+Utility::History& RoomSubEditor::GetHistory() const
+{
+    CHECK_ASSERT(!Owner, "Invalid owner");
+    return Owner->GetHistory();
 }

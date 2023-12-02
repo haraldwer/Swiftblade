@@ -18,8 +18,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "0c67e2d3891fea90",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Planning/Timeline.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -85,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 29).md",
+                "file": "Planning/Timeline.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 29).md",
+                "file": "Planning/Timeline.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Milestones/Milestone 3 (Nov 29).md"
+                "file": "Planning/Timeline.md"
               }
             }
           }
@@ -146,35 +159,35 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "4b0d5d57611f22ad",
+  "active": "0c67e2d3891fea90",
   "lastOpenFiles": [
-    "Tasks/0 - Room connections.md",
     "Milestones/Milestone 3 (Nov 29).md",
-    "Tasks/Archive/0 - UI Library.md",
+    "Tasks/Archive/0 - Triggers.md",
+    "Tasks/0 - Collision masks.md",
+    "Tasks/0 - CubeVolume custom serialization.md",
+    "Tasks/Archive/0 - Level start & end.md",
+    "Tasks/0 - Level end feedback.md",
+    "Tasks/0 - Player death.md",
+    "Tasks/0 - Default shading.md",
     "Tasks/0 - Entity reparenting.md",
+    "Tasks/Archive/0 - Movement state machine.md",
+    "Tasks/0 - Optimize scene overrides.md",
+    "Tasks/Archive/0 - Room connections.md",
+    "Tasks/Archive/0 - Scene Offset.md",
+    "Documentation.md",
+    "Tasks/2 - Child overrides.md",
+    "Pipelines/Content.md",
+    "Tasks/Archive/0 - UI Library.md",
     "Planning/Timeline.md",
     "Tasks/1 - Inline resource editing.md",
     "Tasks/2 - Enum properties.md",
-    "Tasks/0 - Player death.md",
     "Planning/Testing.md",
     "Tasks/Archive/0 - System priority.md",
-    "Tasks/0 - Scene Offset.md",
-    "Tasks/0 - Default shading.md",
-    "Tasks/0 - Level end.md",
-    "Tasks/0 - Movement state machine.md",
-    "Documentation.md",
     "Tasks/Backlog.md",
     "Tasks/0 - Sword.md",
-    "Tasks/0 - Optimize scene overrides.md",
-    "Tasks/0 - Collision masks.md",
-    "Tasks/0 - CubeVolume custom serialization.md",
     "Tasks/Archive/1 - Instanced rendering.md",
     "Milestones/Milestone 2 (Nov 15).md",
     "Milestones",
-    "Tasks/Archive/0 - Break out player input and player movement.md",
-    "Tasks/Archive/2 - File picker default path.md",
-    "Tasks/Archive/0 - Room can be saved and loaded.md",
-    "Tasks/Archive/0 - Cubes can be clicked to be removed or added.md",
     "Tasks/Archive",
     "Milestone",
     "Tasks",

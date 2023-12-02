@@ -6,8 +6,8 @@ namespace Rendering
 {
     struct Config : PropertyOwner<Config>
     {
-        PROPERTY_D(int, Width, 1280);
-        PROPERTY_D(int, Height, 720);
+        PROPERTY_D(int, Width, 1600);
+        PROPERTY_D(int, Height, 900);
         PROPERTY_D(int, TargetFPS, 0);
         PROPERTY_D(bool, Fullscreen, false);
         PROPERTY_D(bool, VSync, true);

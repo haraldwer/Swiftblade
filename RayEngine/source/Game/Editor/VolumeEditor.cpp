@@ -8,7 +8,6 @@
 
 void VolumeEditor::Init()
 {
-    SetCubeVolume();
     // TODO: If there is none, maybe create one?
 }
 
@@ -57,7 +56,7 @@ void VolumeEditor::Update(double InDelta)
                 Coord End;
             };
             
-            History.AddChange(Utility::Change<VolumeChange>(
+            GetHistory().AddChange(Utility::Change<VolumeChange>(
                 [&](const VolumeChange& InData)
                 {
                     auto& localSystem = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
@@ -76,17 +75,9 @@ void VolumeEditor::Update(double InDelta)
                 }));
         }
     }
-
-    if (IsKeyDown(KEY_LEFT_CONTROL))
-    {
-        if (IsKeyPressed(KEY_Z))
-            History.Undo();
-        if (IsKeyPressed(KEY_Y))
-            History.Redo();
-    }
 }
 
-void VolumeEditor::UpdateUI() const
+void VolumeEditor::UpdateUI(bool InIsCameraControlling)
 {
     ImGui::Text("Volume editing mode"); 
     const auto size = GetVolume().Data.size();
