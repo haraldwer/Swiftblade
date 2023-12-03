@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "PlayerCamera.h"
 #include "Movement/Movement.h"
+#include "Sword/Sword.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/ECS/Systems/Camera.h"
@@ -78,6 +79,13 @@ ECS::Camera& ECS::PlayerInterface::GetCamera() const
     auto* ptr = Manager::Get().GetComponent<Camera>(GetPlayer().GetCameraID());
     CHECK_ASSERT(!ptr, "Invalid camera");
     return *ptr;
+}
+
+Sword* ECS::PlayerInterface::GetSword() const
+{
+    const EntityID id = GetPlayer().GetSwordID();
+    CHECK_RETURN(id == InvalidID, nullptr); 
+    return Manager::Get().GetComponent<Sword>(id);
 }
 
 double ECS::PlayerInterface::GetTime()

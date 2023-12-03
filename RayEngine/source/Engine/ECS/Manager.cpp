@@ -233,7 +233,7 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
 
         // Setup hierarchy
         // TODO: Only if child is newly created
-        transSys.SetupHierarchy(InID, childID);
+        transSys.SetupHierarchy(InID, childID, Transform::Space::LOCAL, false);
     }
 }
 

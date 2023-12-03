@@ -13,6 +13,7 @@ namespace Physics
         physx::PxQueryHitType::Enum postFilter(const physx::PxFilterData& filterData, const physx::PxQueryHit& hit, const physx::PxShape* shape, const physx::PxRigidActor* actor) override;
 
     private:
+        static void GetHierarchyEntities(ECS::EntityID InParent, Set<ECS::EntityID>& OutSet);
         Set<const physx::PxRigidActor*> IgnoredActors;
     };
 }

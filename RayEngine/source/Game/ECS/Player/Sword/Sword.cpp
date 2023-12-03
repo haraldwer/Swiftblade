@@ -1,6 +1,7 @@
 ﻿#include "Sword.h"
 
 #include "Engine/ECS/Systems/Transform.h"
+#include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Utility/Time/Time.h"
 
 void Sword::Init()
@@ -15,6 +16,6 @@ void Sword::Update(double InDelta)
     {
         const float time = static_cast<float>(Utility::Time::Get().Total());
         t.SetPosition(StartPos + Vec3F::Up() * sin(time * FloatSpeed) * FloatDist.Get());
-        t.SetRotation(Vec3F(0.0f, time * RotationSpeed, 0.0f)); 
+        t.SetRotation(Vec3F(0.0f, time * RotationSpeed, 0.0f));
     }
 }

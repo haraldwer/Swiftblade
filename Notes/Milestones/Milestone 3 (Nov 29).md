@@ -13,11 +13,12 @@ Done:
 [[0 - Level start & end]]
 [[0 - Level end feedback]]
 [[0 - Player death]]
+[[0 - Sword]]
+[[0 - Entity reparenting]]
 
 Ongoing: 
-[[0 - Sword]]
 
 Tasks:
-[[0 - Entity reparenting]]
+
 
 

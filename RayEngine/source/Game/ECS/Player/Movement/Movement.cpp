@@ -10,6 +10,7 @@
 #include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Game/ECS/Player/Player.h"
 #include "Game/ECS/Player/PlayerCamera.h"
+#include "Game/ECS/Player/Sword/Sword.h"
 #include "Utility/Math/AngleConversion.h"
 #include "Utility/Math/Geometry/Plane.h"
 #include "Utility/StateMachine/StateMachine.h"

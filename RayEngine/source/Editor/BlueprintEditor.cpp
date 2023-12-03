@@ -88,7 +88,7 @@ void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)
         const ECS::EntityID child = ECS.CreateEntity();
         auto& transSys = ECS.GetSystem<ECS::SysTransform>();
         transSys.Register(child, false); 
-        transSys.SetupHierarchy(InID, child);
+        transSys.SetupHierarchy(InID, child, ECS::Transform::Space::LOCAL, false);
     }
     
     if (InID != InstanceID)

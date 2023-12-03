@@ -97,7 +97,7 @@ Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld)
 Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld)
 {
     // Transform to local space
-    Vec3F localP = (Mat4F(InPos) * Mat4F::GetInverse(InWorld)).GetPosition(); 
+    Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition(); 
     
     Vec3F p = localP * (1.0f / (Scale * 2.0f));
     p.x = CLAMP(p.x, 0.0f, Width);

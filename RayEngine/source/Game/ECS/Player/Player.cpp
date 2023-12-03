@@ -10,6 +10,7 @@
 #include "Game/Menus/MenuLevelEnd.h"
 #include "Game/ECS/LevelEnd.h"
 #include "Game/Menus/MenuDeath.h"
+#include "Sword/Sword.h"
 
 void ECS::Player::Init()
 {
@@ -40,10 +41,23 @@ void ECS::Player::Update(double InDelta)
 
 void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
 {
-    const auto parent = Get<Transform>(InContact.Target).GetParent(); 
+    const auto& t = Get<Transform>(InContact.Target);
+    const auto parent = t.GetParent(); 
     if (parent != InvalidID)
+    {
+        // Level end
         if (GetSystem<SysLevelEnd>().Contains(parent))
             Menu::Manager::Get().Push<MenuLevelEnd>();
+
+        // Sword
+        if (auto sword = TryGet<Sword>(parent))
+        {
+            // Attach sword to player with an offset
+            Get<Transform>(parent).SetParent(GetCameraID());
+            SwordID = parent;
+            LOG("Sword attached");
+        }
+    }
 }
 
 void ECS::Player::Die()

@@ -21,6 +21,7 @@ Dec 6 (4/8) - Core experience
  - The core movement should work as expected, with some abilities. 
  - There should be at least one enemy and an arena stage. 
  - There should be a very basic level editor
+[[Milestone 4 (Dec 6)]]
 
 Dec 13 (5/8) - Feedback and stability
  - The game should be fairly stable

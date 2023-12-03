@@ -26,15 +26,19 @@ namespace ECS
         Mat4F World() const { return WorldMat; }
         Mat4F Local() const { return LocalMat; }
 
-        void SetWorld(const Mat4F& InWorld);
-        void SetLocal(const Mat4F& InLocal, bool bInForce = false);
+        void SetWorld(const Mat4F& InWorld, bool InForce = false);
+        void SetLocal(const Mat4F& InLocal, bool InForce = false);
         
         const Set<EntityID>& GetChildren() const { return Children; }
         EntityID GetParent() const { return Parent; }
 
+        void SetParent(EntityID InID, Space InSpace = Space::WORLD) const;
+        void AddChild(EntityID InID, Space InSpace = Space::WORLD) const;
+        void RemoveChild(EntityID InID, Space InSpace = Space::WORLD) const; 
+        
         bool Deserialize(const DeserializeObj& InObj) override;
         void Serialize(SerializeObj& InOutObj) const override;
-        
+
     protected:
  
         Set<EntityID> Children; 
@@ -53,7 +57,7 @@ namespace ECS
         bool EditValues(EntityID InID);
         bool EditGizmo(EntityID InID); 
         
-        void SetupHierarchy(EntityID InParent, EntityID InChild);
+        void SetupHierarchy(EntityID InParent, EntityID InChild, Transform::Space InSpace, bool InApplyCollider);
 
         // Propagate changes to children  
         void UpdateChildrenTransform(const Transform& InParent);

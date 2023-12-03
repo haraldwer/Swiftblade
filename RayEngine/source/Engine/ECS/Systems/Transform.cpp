@@ -1,5 +1,6 @@
 #include "Transform.h"
 
+#include "Collider.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
 #include "ImGui/Gizmo/ImGuizmo_Wrapper.h"
@@ -50,7 +51,7 @@ void ECS::Transform::SetPosition(const Vec3F& InPos, Space InSpace)
         {
             Mat4F world = World();
             world.SetPosition(InPos); 
-            SetWorld(world);
+            SetWorld(world, false);
             break;
         }
     case Space::LOCAL:
@@ -105,21 +106,37 @@ void ECS::Transform::SetScale(const Vec3F& InScale, Space InSpace)
     }
 }
 
-void ECS::Transform::SetWorld(const Mat4F& InWorld)
+void ECS::Transform::SetWorld(const Mat4F& InWorld, bool InForce)
 {
-    CHECK_RETURN(WorldMat == InWorld);
+    CHECK_RETURN(!InForce && WorldMat == InWorld);
     WorldMat = InWorld; 
     auto& sys = Manager::Get().GetSystem<SysTransform>();
     LocalMat = sys.WorldToLocal(*this, InWorld);
     sys.UpdateChildrenTransform(*this);    
 }
 
-void ECS::Transform::SetLocal(const Mat4F& InLocal, bool bInForce)
+void ECS::Transform::SetLocal(const Mat4F& InLocal, bool InForce)
 {
+    CHECK_RETURN(!InForce && LocalMat == InLocal);
     LocalMat = InLocal; 
     auto& sys = Manager::Get().GetSystem<SysTransform>();
     WorldMat = sys.LocalToWorld(*this, InLocal);
     sys.UpdateChildrenTransform(*this);
+}
+
+void ECS::Transform::SetParent(const EntityID InID, const Space InSpace) const
+{
+    Manager::Get().GetSystem<SysTransform>().SetupHierarchy(InID, GetID(), InSpace, true); 
+}
+
+void ECS::Transform::AddChild(const EntityID InID, const Space InSpace) const
+{
+    Manager::Get().GetSystem<SysTransform>().SetupHierarchy(GetID(), InID, InSpace, true); 
+}
+
+void ECS::Transform::RemoveChild(const EntityID InID, const Space InSpace) const
+{
+    Manager::Get().GetSystem<SysTransform>().SetupHierarchy(InvalidID, InID, InSpace, true);
 }
 
 void SysTransform::Init(EntityID InID, Transform& InComponent)
@@ -130,17 +147,10 @@ void SysTransform::Init(EntityID InID, Transform& InComponent)
 
 void SysTransform::Deinit(EntityID InID, Transform& InComponent)
 {
-    // Remove parent from children
-    for (const auto child : InComponent.Children)
-    {
-        auto& c = Get<Transform>(child);
-        c.Parent = InvalidID;
-        c.SetLocal(c.World());
-    }
-
-    // Remove self from parent
-    if (InComponent.Parent != InvalidID)
-        Get<Transform>(InComponent.Parent).Children.erase(InID);
+    const auto copy = InComponent.Children; 
+    for (const auto child : copy)
+        SetupHierarchy(InvalidID, child, Transform::Space::WORLD, false);
+    SetupHierarchy(InvalidID, InID, Transform::Space::WORLD, false);
 }
 
 bool ECS::Transform::Deserialize(const DeserializeObj& InObj)
@@ -227,16 +237,58 @@ bool SysTransform::EditGizmo(EntityID InID)
     return finishEdit; 
 }
 
-void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChild)
+void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChild, Transform::Space InSpace, bool InApplyCollider)
 {
-    CHECK_RETURN_LOG(InParent == InvalidID || InChild == InvalidID, "Invalid ID");
-    const auto parent = TryGet<Transform>(InParent);
-    CHECK_RETURN_LOG(!parent, "Unable to find parent");
-    const auto child = TryGet<Transform>(InChild);
-    CHECK_RETURN_LOG(!child, "Unable to find child");
-    parent->Children.insert(InChild);
-    child->Parent = InParent;
-    child->SetLocal(child->Local(), true);
+    // First get child trans
+    const auto childTrans = TryGet<Transform>(InChild);
+    CHECK_RETURN_LOG(!childTrans, "Unable to find child");
+
+    // Cache mat
+    Mat4F mat;
+    switch (InSpace)
+    {
+    case Transform::Space::WORLD:
+        mat = childTrans->World();
+        break;
+    default:
+        mat = childTrans->Local();
+        break;
+    }
+
+    // Remove current child parent
+    if (childTrans->Parent != InvalidID)
+    {
+        auto& oldParentTransform = Get<Transform>(childTrans->Parent);
+        oldParentTransform.Children.erase(InChild);
+        childTrans->Parent = InvalidID;
+    }
+
+    // Set new parent
+    if (InParent != InvalidID)
+    {
+        auto& newParentTransform = Get<Transform>(InParent);
+        newParentTransform.Children.insert(InChild);
+        childTrans->Parent = InParent;
+    }
+    
+    // Apply cached mat
+    switch (InSpace)
+    {
+    case Transform::Space::WORLD:
+        childTrans->SetWorld(mat, true);
+        break;
+    default:
+        childTrans->SetLocal(mat, true);
+        break; 
+    }
+
+    // Apply this to physics
+    if (InApplyCollider)
+    {
+        auto& sysCollider = GetSystem<SysCollider>();
+        if (sysCollider.Contains(InChild))
+            sysCollider.UpdateShape(InChild);
+    }
 }
 
 void SysTransform::UpdateChildrenTransform(const Transform& InParent)
@@ -244,8 +296,7 @@ void SysTransform::UpdateChildrenTransform(const Transform& InParent)
     for (const EntityID child : InParent.Children)
     {
         auto& t = Get<Transform>(child);
-        t.SetLocal(t.Local());
-        UpdateChildrenTransform(t); 
+        t.SetLocal(t.Local(), true);
     }
 }
 
@@ -253,8 +304,9 @@ Mat4F SysTransform::WorldToLocal(const Transform& InComp, const Mat4F& InWorld) 
 {
     if (InComp.Parent != InvalidID)
     {
+        // Assume parent cache
         const auto& pTrans = Get<Transform>(InComp.Parent);
-        return Mat4F::GetFastInverse(pTrans.World()) * InWorld;
+        return InWorld * Mat4F::GetFastInverse(pTrans.World());
     }
     return InWorld; 
 }

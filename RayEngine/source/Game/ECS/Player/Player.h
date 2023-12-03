@@ -14,13 +14,15 @@ namespace ECS
         void OnBeginContact(const Physics::Contact& InContact) override;
         int GetPriority() const override { return 20; }
 
-        EntityID GetCameraID() const { return CameraID; }
         EntityID GetColliderID() const { return ColliderID; }
+        EntityID GetCameraID() const { return CameraID; }
+        EntityID GetSwordID() const { return SwordID; }
 
         void Die(); 
 
     private:
         EntityID ColliderID = InvalidID;
         EntityID CameraID = InvalidID;
+        EntityID SwordID = InvalidID;
     };
 }

@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Systems/RoomConnection.h"
+#include "ECS/RoomConnection.h"
 
 void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
 {

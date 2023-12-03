@@ -99,7 +99,7 @@ void RoomConnectionEditor::UpdateUI(bool InIsCameraControlling)
 
 Mat4F RoomConnectionEditor::GetStartOffset() const
 {
-    return Mat4F::GetInverse(GetTrans(StartEntity));
+    return Mat4F::GetFastInverse(GetTrans(StartEntity));
 }
 
 ECS::EntityID RoomConnectionEditor::GetCurrent() const

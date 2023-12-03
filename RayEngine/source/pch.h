@@ -77,7 +77,9 @@ template <class T>
 using ObjectPtr = Utility::ObjectPtr<T>;
 template <class T>
 using WeakPtr = Utility::WeakPtr<T>;
-
+#include "Utility/Memory/Object.h"
+template <class T>
+using Object = Utility::Object<T>;
 
 #include "Utility/Math/Vector/Vector.hpp"
 #include "Utility/Math/Matrix/Matrix.hpp"
