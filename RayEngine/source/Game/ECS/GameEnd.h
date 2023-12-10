@@ -2,10 +2,10 @@
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 
-struct LevelEnd : ECS::Component<LevelEnd>
+struct GameEnd : ECS::Component<GameEnd>
 {
 };
 
-class SysLevelEnd : public ECS::System<LevelEnd>
+class SysGameEnd : public ECS::System<GameEnd>
 {
 };

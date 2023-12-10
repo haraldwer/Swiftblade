@@ -6,6 +6,7 @@ uniform vec3 cameraPosition;
 in vec3 worldPosition;
 in vec3 worldNormal;
 in vec3 objectPosition; 
+in vec4 screenPosition; 
 
 out vec4 finalColor;
 

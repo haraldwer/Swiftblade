@@ -39,7 +39,7 @@
 				]
 			}
 		},{
-			"Blueprint":"Blueprints/BP_RoomConnection.json",
+			"Blueprint":"Gameplay/BP_RoomConnection.json",
 			"Overrides":{
 				"Components":[{
 						"Name":"Attributes",
@@ -62,7 +62,7 @@
 				]
 			}
 		},{
-			"Blueprint":"Blueprints/BP_RoomConnection.json",
+			"Blueprint":"Gameplay/BP_RoomConnection.json",
 			"Overrides":{
 				"Components":[{
 						"Name":"Attributes",

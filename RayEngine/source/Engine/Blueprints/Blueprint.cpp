@@ -27,13 +27,14 @@ Utility::Timepoint BlueprintResource::GetEditTime() const
     return Utility::GetFileWriteTime(Identifier);
 }
 
-ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides) const
+ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides, ECS::EntityID InID) const
 {
     CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", false);
 
     // Create entity
     ECS::Manager& man = ECS::Manager::Get();
-    const ECS::EntityID id = man.CreateEntity();
+    const ECS::EntityID id = InID == ECS::InvalidID ?
+        man.CreateEntity() : InID; 
     CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
 
     // Set the blueprint that it's based on

@@ -17,7 +17,7 @@ namespace UI
         virtual void Init();
         virtual void Update();
         virtual void Draw();
-        void Invalidate();
+        virtual void Invalidate();
 
         Rect GetRect() const { return CachedRect; }
         virtual void RefreshRect(const Rect& InContainer);
@@ -30,10 +30,8 @@ namespace UI
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
         
-        ObjectPtr<Container> Parent; 
+        ObjectPtr<Container> Parent;
         Transform Transform = Transform::Fill();
         Rect CachedRect;
-
-        
     };
 }

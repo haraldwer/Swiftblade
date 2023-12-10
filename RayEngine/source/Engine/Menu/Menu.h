@@ -17,6 +17,6 @@ namespace Menu
         virtual bool IsBlocking() const { return true; }
 
     protected:
-        UI::Instance UI; 
+        ObjectPtr<UI::Instance> UI; 
     };
 }

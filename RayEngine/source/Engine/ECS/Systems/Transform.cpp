@@ -190,6 +190,14 @@ void ECS::Transform::Serialize(SerializeObj& InOutObj) const
         Utility::Serialize(InOutObj, "Scale", s);
 }
 
+String ECS::Transform::ToString(Space InSpace) const
+{
+    const Mat4F mat = InSpace == Space::WORLD ? World() : Local();
+    return "Position " + Utility::ToString(mat.GetPosition()) +
+        "\nRotation " + Utility::ToString(mat.GetRotation()) +
+        "\nScale " + Utility::ToString(mat.GetScale()); 
+}
+
 bool SysTransform::Edit(const EntityID InID)
 {
     bool edited = false;

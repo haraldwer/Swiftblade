@@ -3,12 +3,11 @@
 #include "Utility/StateMachine/StateBase.h"
 
 
-void MovementStateMachine::Init(ECS::EntityID InPlayer)
+void MovementStateMachine::Init()
 {
     const auto addState = [&](auto& InState)
     {
         States.emplace_back(reinterpret_cast<StateBase*>(&InState));
-        InState.SetPlayer(InPlayer);
     };
     
     addState(Idle); 

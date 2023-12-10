@@ -31,3 +31,8 @@ Utility::History& RoomSubEditor::GetHistory() const
     CHECK_ASSERT(!Owner, "Invalid owner");
     return Owner->GetHistory();
 }
+
+RoomType RoomSubEditor::GetType()
+{
+    return Owner->GetType();
+}

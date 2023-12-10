@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
+#include "Utility/StringConversion.h"
 
 namespace ECS
 {
@@ -38,6 +39,7 @@ namespace ECS
         
         bool Deserialize(const DeserializeObj& InObj) override;
         void Serialize(SerializeObj& InOutObj) const override;
+        String ToString(Space InSpace = Space::WORLD) const;
 
     protected:
  

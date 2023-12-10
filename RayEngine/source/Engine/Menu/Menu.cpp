@@ -2,6 +2,6 @@
 
 void Menu::Instance::Draw()
 {
-    if (UI.IsValid())
-        UI.Draw(); 
+    if (UI)
+        UI->Draw(); 
 }

@@ -19,7 +19,7 @@ class MovementStateMachine : public StateMachine
 {
 public:
 
-    void Init(ECS::EntityID InPlayer);
+    void Init();
     
     Utility::Type GetDefaultStateType() override { return Utility::GetType<MovementStateIdle>(); }    
     

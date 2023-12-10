@@ -32,6 +32,9 @@ file(GLOB_RECURSE sources
   "${PROJECT_SOURCE_DIR}/source/*.h"
   "${PROJECT_SOURCE_DIR}/source/*.cpp"
   "${PROJECT_SOURCE_DIR}/source/*.hpp"
+  "${PROJECT_SOURCE_DIR}/content/*.vs"
+  "${PROJECT_SOURCE_DIR}/content/*.fs"
+  "${PROJECT_SOURCE_DIR}/content/*.json"
 )
 add_executable(${PROJECT_NAME} ${sources})
 

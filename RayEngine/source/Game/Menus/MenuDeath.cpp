@@ -14,12 +14,14 @@ void MenuDeath::Init()
     UI::Builder builder = UI::Builder()
         .Push(UI::Container(UI::Transform::FromRect(600.0f, -300.0f, 0.5f)))
             .Push(UI::List(UI::Transform::Fill(10.0f), 10.0f), "List")
-                .Add(UI::Label("Death", 0.5f, UI::Transform::Fill(), ResFont("F_GothBallCrap.ttf"), 80.0f))
-                .Add(UI::Label("Retry", 0.5f), "Retry")
-                .Add(UI::Label("Main Menu", 0.5f), "Main Menu");
+                .Add(UI::Label("Death", 0.5f, UI::Transform::Fill(), ResFont("F_GothBallCrap.ttf"), 80.0f));
+
+    if (GameState::Get().Deaths < 3)
+        builder.Add(UI::Label("Respawn", 0.5f), "Respawn");
+    builder.Add(UI::Label("Main Menu", 0.5f), "Main Menu");
     
     UI = builder.Build();
-
+    
     // Disable player input and show mouse
     ECS::Input::Blocked = true;
     if (IsCursorHidden())
@@ -31,13 +33,21 @@ void MenuDeath::Init()
 
 void MenuDeath::Update(double InDelta)
 {
-    if (UI.Get<UI::Label>("Retry").IsClicked())
-    {
-        // Push new game instance
-        Engine::Manager::Get().Pop();
-        Engine::Manager::Get().Push<GameInstance>();
-    }
+    CHECK_RETURN(!UI);
 
-    if (UI.Get<UI::Label>("Main Menu").IsClicked())
+    if (const UI::Label* respawn = UI->TryGet<UI::Label>("Respawn"))
+    {
+        if (respawn->IsClicked())
+        {
+            // Push new game instance
+            Engine::Manager::Get().Pop();
+            if (const auto newGame = Engine::Manager::Get().Push<GameInstance>())
+                newGame->SetState(GameState::Get()); // Transfer game state 
+        }
+    }
+    
+    if (UI->Get<UI::Label>("Main Menu").IsClicked())
+    {
         Engine::Manager::Get().Pop();
+    }
 }

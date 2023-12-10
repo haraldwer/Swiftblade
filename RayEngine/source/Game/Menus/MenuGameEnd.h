@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Menu/Menu.h"
 
-class MenuLevelEnd : Menu::Instance
+class MenuGameEnd : Menu::Instance
 {
 public:
     void Init() override;

@@ -14,7 +14,7 @@ namespace Engine
         virtual void Init() = 0;
         virtual void Deinit() = 0;
         virtual void Update(double InDelta) {}
-        virtual void UpdateUI() {}
+        virtual void DrawUI() {}
         
         virtual bool IsEditor() const { return false; } 
         

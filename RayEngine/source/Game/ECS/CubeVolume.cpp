@@ -191,7 +191,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
     BlockMesh.Material = ResRM("Defaults/RM_Default.json");
     BlockMesh.Model = ResModel("Defaults/M_Cube.obj");
 
-    EditMesh.Material = ResRM("RoomEditor/RM_EditCube.json");
+    EditMesh.Material = ResRM("Editor/RM_EditCube.json");
     EditMesh.Model = ResModel("Defaults/M_Cube.obj");
     
     if (Engine::InstanceBase::Get().IsEditor())

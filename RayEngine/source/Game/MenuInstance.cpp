@@ -12,7 +12,7 @@ void MenuInstance::Update(const double InDelta)
     Menus.Update(InDelta); 
 }
 
-void MenuInstance::UpdateUI()
+void MenuInstance::DrawUI()
 {
     Menus.Draw(); 
 }

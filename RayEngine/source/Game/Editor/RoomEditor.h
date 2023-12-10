@@ -8,6 +8,7 @@
 struct RoomEditorConfig : PropertyOwner<RoomEditorConfig>
 {
     PROPERTY_D(ResScene, Scene, "Scenes/untitled.json");
+    PROPERTY_D(bool, IsArena, false);
 
     inline static const String Path = "Configs/C_RoomEditor.json";
     void LoadConfig() { Load(Path); }
@@ -21,7 +22,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Update(double InDelta) override;
-    void UpdateUI() override;
+    void DrawUI() override;
     bool IsEditor() const override { return true; }
 
 private:
@@ -36,4 +37,6 @@ private:
     
     // Scene stuff
     SceneInstance Scene;
+
+    ObjectPtr<UI::Instance> UI; 
 };

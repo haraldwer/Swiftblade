@@ -16,7 +16,7 @@ class RoomSubEditorManager
 {
 public:
     
-    void Init();
+    void Init(RoomType InType);
     void Deinit();
     void Update(double InDelta, bool InIsCameraControlling);
     void UpdateUI(bool InIsCameraControlling);
@@ -28,6 +28,7 @@ public:
     
     bool IgnoreSave(ECS::EntityID InID) const; 
     Mat4F GetStartOffset() const { return ConnectionEditor.GetStartOffset(); }
+    RoomType GetType() const { return Type; };
 
 private: 
     
@@ -38,5 +39,6 @@ private:
     RoomObjectEditor ObjectEditor;
     RoomConnectionEditor ConnectionEditor;
     
-    ECS::EntityID CubeVolume = ECS::InvalidID; 
+    ECS::EntityID CubeVolume = ECS::InvalidID;
+    RoomType Type; 
 };

@@ -43,3 +43,17 @@ void UI::Label::Draw()
                 Spacing,
                 tint);
 }
+
+void UI::Label::SetText(const String& InText)
+{
+    Text = InText;
+    if (const auto fontRsc = Font.Get())
+    {
+        if (const auto font = fontRsc->Get())
+        {
+            Vector2 size = MeasureTextEx(*font, Text.c_str(), Size, Spacing); 
+            CachedSize = { size.x, size.y };
+        }
+    }
+    Invalidate(); 
+}

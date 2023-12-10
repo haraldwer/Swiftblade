@@ -71,7 +71,7 @@ int main()
         if (!renderer.BeginRender())
             break; 
         renderer.RenderScenes(delta);
-        instance->UpdateUI();
+        instance->DrawUI();
         renderer.EndRender();
     }
     

@@ -6,7 +6,11 @@
 
 struct RoomConnectionEditorConfig : PropertyOwner<RoomConnectionEditorConfig>
 {
-    PROPERTY_C(ResBlueprint, EndBP, "Blueprints/BP_RoomConnection.json");
+    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/BP_RoomConnection.json");
+    PROPERTY_C(ResBlueprint, EndBP, "Gameplay/BP_RoomConnection.json");
+
+    PROPERTY_C(ResBlueprint, ArenaStartBP, "Gameplay/BP_RoomConnection.json");
+    PROPERTY_C(ResBlueprint, CheckpointBP, "Gameplay/BP_Checkpoint.json");
     
     inline static const String Path = "Configs/C_RoomConnectionEditor.json";
     void LoadConfig() { Load(Path); }

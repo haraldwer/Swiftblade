@@ -2,13 +2,13 @@
 	"Components":[{
 			"Name":"Attributes",
 			"Data":{
-				"Name":"LevelEnd"
+				"Name":"GameEnd"
 			}
 		},{
 			"Name":"Transform",
 			"Data":{}
 		},{
-			"Name":"LevelEnd",
+			"Name":"GameEnd",
 			"Data":{}
 		}
 	],

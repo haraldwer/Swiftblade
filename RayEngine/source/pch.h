@@ -55,6 +55,12 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+
+namespace Utility::Math
+{
+    class Random;
+}
+
 template <class T>
 using Set = std::set<T>;
 template <class T>
@@ -90,6 +96,7 @@ typedef Utility::Math::Vector4<float> Vec4F;
 typedef Utility::Math::Matrix3x3<float> Mat3F;
 typedef Utility::Math::Matrix4x4<float> Mat4F;
 typedef Utility::Math::Quaternion<float> QuatF;
+typedef Utility::Math::Random Random; 
 
 #include "Utility/JsonUtility.h"
 #include "Utility/Enum/BetterEnums.h"

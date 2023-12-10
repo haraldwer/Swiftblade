@@ -2,20 +2,20 @@
 
 #include "Elements/Container.h"
 
-void UI::Instance::Init()
+void UI::Instance::Invalidate()
 {
-    CHECK_RETURN(!Root);
-    Root->Init(); 
-}
-
-void UI::Instance::Update()
-{
-    CHECK_RETURN(!Root);
-    Root->Update();
-}
-
-void UI::Instance::Draw()
-{
-    CHECK_RETURN(!Root);    
-    Root->Draw(); 
+    if (Parent)
+    {
+        Parent->Invalidate();
+        return; 
+    }
+    
+    const Rect rootRect {
+        Vec2F::Zero(),
+        {
+            static_cast<float>(GetRenderWidth()),
+            static_cast<float>(GetRenderHeight())
+        }
+    };
+    RefreshRect(rootRect);
 }

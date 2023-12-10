@@ -39,7 +39,7 @@
 				]
 			}
 		},{
-			"Blueprint":"Blueprints/BP_LevelEnd.json",
+			"Blueprint":"Gameplay/BP_GameEnd.json",
 			"Overrides":{
 				"Components":[{
 						"Name":"Transform",
@@ -54,7 +54,7 @@
 				]
 			}
 		},{
-			"Blueprint":"Blueprints/BP_RoomConnection.json",
+			"Blueprint":"Gameplay/BP_RoomConnection.json",
 			"Overrides":{
 				"Components":[{
 						"Name":"Attributes",

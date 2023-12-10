@@ -31,6 +31,8 @@ void RoomConnectionEditor::Init()
         }
     }
 
+    // TODO: Use correct start and end bp 
+
     SetMode(EditMode::START);
 }
 

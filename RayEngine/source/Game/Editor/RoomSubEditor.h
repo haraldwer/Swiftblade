@@ -14,6 +14,12 @@ namespace ECS
     struct Transform;
 }
 
+enum class RoomType : uint8
+{
+    ROOM,
+    ARENA
+};
+
 class RoomSubEditor
 {
 public:
@@ -32,6 +38,8 @@ public:
     ECS::CubeVolume& GetVolume() const;
     Utility::History& GetHistory() const;
 
+    RoomType GetType(); 
+    
 private:
     
     RoomSubEditorManager* Owner = nullptr; 

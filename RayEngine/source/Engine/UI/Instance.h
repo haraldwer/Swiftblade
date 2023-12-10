@@ -1,32 +1,36 @@
 ﻿#pragma once
+#include "Elements/Container.h"
 
 namespace UI
 {
-    class Element;
-    class Container;
-
-    class Instance
+    class Instance : public Container
     {
-        friend class Builder; 
+        friend class Builder;
+        
     public:
-        void Init();
-        void Update(); 
-        void Draw();
-
-        template <class T = UI::Element>
+        void Invalidate() override;
+        
+        template <class T = Element>
         T& Get(const String& InIdentifier)
         {
             const auto find = NamedElements.find(InIdentifier);
             CHECK_ASSERT(find == NamedElements.end(), "Entry does not exist")
             const auto ptr = find->second.Get();
             CHECK_ASSERT(!ptr, "Invalid ptr");
-            return *reinterpret_cast<T*>(ptr); 
+            return *reinterpret_cast<T*>(ptr); // TODO: Type safety? 
         }
 
-        bool IsValid() const { return Root; }
+        template <class T = Element>
+        T* TryGet(const String& InIdentifier)
+        {
+            const auto find = NamedElements.find(InIdentifier);
+            CHECK_RETURN(find == NamedElements.end(), nullptr)
+            const auto ptr = find->second.Get();
+            CHECK_RETURN(!ptr, nullptr);
+            return reinterpret_cast<T*>(ptr); // TODO: Type safety? 
+        }
         
     private:
-        ObjectPtr<Container> Root;
         Map<String, WeakPtr<Element>> NamedElements;
     };
 }

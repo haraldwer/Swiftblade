@@ -9,7 +9,7 @@ public:
 
     void Init() override;
     void Update(double InDelta) override;
-    void UpdateUI() override;
+    void DrawUI() override;
     bool IsEditor() const override { return true; }
     
     void SetBP(const ResBlueprint& InBP);

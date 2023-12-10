@@ -8,17 +8,17 @@ User stories:
  - There should be a very basic level editor
 
 Done:
-
-Ongoing: 
 [[0 - Widgets]]
-
-Tasks:
-[[0 - Game end]]
-[[0 - Score]]
-[[0 - Leaderboard UI]]
 [[0 - Room order generation & presets]]
 [[0 - Arena level generation]]
+[[0 - Game end]]
+
+Ongoing: 
+[[0 - Score]]
+[[1 - Editor UI]]
+
+Tasks:
+[[0 - Leaderboard UI]]
 [[0 - Arena editing]]
 [[1 - Walljump boost]]
 [[1 - Improved ground snapping]]
-[[1 - Editor UI]]

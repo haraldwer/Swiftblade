@@ -18,20 +18,7 @@ void UI::Element::Draw()
 void UI::Element::Invalidate()
 {
     if (Parent)
-    {
         Parent->Invalidate();
-    }
-    else
-    {
-        const Rect rootRect {
-            Vec2F::Zero(),
-            {
-                static_cast<float>(GetRenderWidth()),
-                static_cast<float>(GetRenderHeight())
-            }
-        };
-        RefreshRect(rootRect);
-    }
 }
 
 void UI::Element::RefreshRect(const Rect& InContainer)

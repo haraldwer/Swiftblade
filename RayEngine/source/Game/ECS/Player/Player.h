@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/ECS/UniqueComponent.h"
+#include "Utility/Time/Timer.h"
 
 namespace ECS
 {
@@ -18,11 +19,18 @@ namespace ECS
         EntityID GetCameraID() const { return CameraID; }
         EntityID GetSwordID() const { return SwordID; }
 
-        void Die(); 
+        void PickupSword(EntityID InSwordID);
+        void Die();
+        
+        void TriggerSectionEnd();
+        void TriggerGameEnd();
+        void ActivateCheckpoint();
 
     private:
         EntityID ColliderID = InvalidID;
         EntityID CameraID = InvalidID;
         EntityID SwordID = InvalidID;
+
+        Utility::Timer PlayTimer; 
     };
 }

@@ -24,25 +24,14 @@ void GameInstance::Init()
     }
     else
     {
-        Vector<ResScene> rooms;
-        
-        // Start
-        rooms.emplace_back("../content/Scenes/S_Start.json");
-        
-        // Load content of room folder
-        const std::filesystem::path path = "../content/Scenes/Rooms";
-        for (const auto& entry : std::filesystem::directory_iterator(path))
-            if (entry.path().extension() == ".json")
-                rooms.emplace_back(entry.path().string());
-
-        // End
-        rooms.emplace_back("../content/Scenes/S_End.json");
-
-        RoomManager.Load(rooms, true); 
+        RoomManager.LoadConfig();  
     }
 
-    if (const BlueprintResource* bp = ResBlueprint("Player/BP_Player.json").Get())
-        PlayerID = bp->Instantiate(StartPlayerPos);
+    if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
+    { 
+        State.PlayerID = ECS.CreateEntity(); 
+        bp->Instantiate(StartPlayerPos, {}, State.PlayerID);
+    }
 
     DebugCamera.SetRequireHold(false); 
 }
@@ -60,6 +49,7 @@ void GameInstance::Update(double InDelta)
     
     // Update
     const double scaledDelta = Time.Delta();
+    
     // TODO: Pre-update for movement logic
     if (!Time.IsPaused())
         Physics.Update(scaledDelta);
@@ -77,7 +67,7 @@ void GameInstance::Update(double InDelta)
         DebugCamera.Update(InDelta); 
 }
 
-void GameInstance::UpdateUI()
+void GameInstance::DrawUI()
 {
     ECS.UpdateUI();
     Menus.Draw(); 
@@ -87,4 +77,11 @@ void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
 {
     StartScene = InScene;
     StartPlayerPos = InPlayerPos;
+}
+
+void GameInstance::SetState(const GameState& InState)
+{
+    const ECS::EntityID playerID = State.PlayerID;
+    State = InState;
+    State.PlayerID = playerID; 
 }

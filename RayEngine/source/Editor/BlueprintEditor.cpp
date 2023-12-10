@@ -15,7 +15,7 @@
 void BlueprintEditor::Init()
 {
     Instance::Init();
-    SetBP(ResBlueprint("Player/BP_Player.json"));
+    SetBP(ResBlueprint("Blueprints/untitled.json"));
 }
 
 void BlueprintEditor::SetBP(const ResBlueprint& InBP)
@@ -49,7 +49,7 @@ void BlueprintEditor::Update(double InDelta)
     }
 }
 
-void BlueprintEditor::UpdateUI()
+void BlueprintEditor::DrawUI()
 {
     ECS.UpdateUI(); 
     

@@ -12,6 +12,8 @@ namespace UI
         void Init() override;
         void Draw() override;
         
+        void SetText(const String& InText);
+
     private:
         Vec2F Centering;
         ResFont Font;

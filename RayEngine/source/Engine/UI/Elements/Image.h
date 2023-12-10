@@ -11,7 +11,7 @@ namespace UI
             Element(InTransform), Texture(InTexture) {}
         void Draw() override;
         
-    private:
+    protected:
         ResTexture Texture;
     };
 }

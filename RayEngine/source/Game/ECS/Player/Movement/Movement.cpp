@@ -18,7 +18,7 @@
 void ECS::Movement::Init()
 {
     StateMachine = new MovementStateMachine();
-    StateMachine->Init(GetPlayer().GetID());
+    StateMachine->Init();
 }
 
 void ECS::Movement::Deinit()

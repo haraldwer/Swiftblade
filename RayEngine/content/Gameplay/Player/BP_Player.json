@@ -75,7 +75,7 @@
 					},{
 						"Name":"Collider",
 						"Data":{
-							"Material":"Player\\PM_Player.json",
+							"Material":"Gameplay\\Player\\PM_Player.json",
 							"Shape":1
 						}
 					}

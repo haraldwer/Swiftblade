@@ -20,15 +20,11 @@ namespace ECS
     
     class PlayerInterface
     {
-    public:
-
-        void SetPlayer(const EntityID InPlayer) { PlayerID = InPlayer; }
-        
     protected:
         
         // Base getters
         Player& GetPlayer() const;
-        EntityID GetPlayerID() const { return PlayerID; }
+        EntityID GetPlayerID() const;
 
         // Specific getters
         Transform& GetPlayerTransform() const;
@@ -42,11 +38,7 @@ namespace ECS
         Camera& GetCamera() const;
         Sword* GetSword() const;
 
-        static double GetTime(); 
-        
-    private:
-        
-        EntityID PlayerID = InvalidID;
+        static double GetTime();
         
     };
 }

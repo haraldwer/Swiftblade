@@ -8,8 +8,10 @@
 #include "Camera.h"
 #include "Collider.h"
 #include "Rigidbody.h"
+#include "Game/ECS/Checkpoint.h"
 #include "Game/ECS/CubeVolume.h"
-#include "Game/ECS/LevelEnd.h"
+#include "Game/ECS/SectionEnd.h"
+#include "Game/ECS/GameEnd.h"
 #include "Game/ECS/RoomConnection.h"
 #include "Game/ECS/Player/Input.h"
 #include "Game/ECS/Player/PlayerCamera.h"
@@ -44,7 +46,9 @@ NameMap[String(#x)] = var; } \
     // Game systems
     REG_ENTITY_SYSTEM(CubeVolume);
     REG_ENTITY_SYSTEM(RoomConnection);
-    REG_ENTITY_SYSTEM(LevelEnd);
+    REG_ENTITY_SYSTEM(Checkpoint);
+    REG_ENTITY_SYSTEM(SectionEnd);
+    REG_ENTITY_SYSTEM(GameEnd);
     REG_UNIQUE_COMPONENT(Player);
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);

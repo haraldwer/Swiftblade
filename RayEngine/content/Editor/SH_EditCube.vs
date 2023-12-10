@@ -12,6 +12,7 @@ in mat4 instanceTransform;
 out vec3 worldPosition;
 out vec3 worldNormal;
 out vec3 objectPosition; 
+out vec4 screenPosition;
 
 void main()
 {
@@ -22,6 +23,18 @@ void main()
     worldPosition = vec3(instanceTransform * vec4(vertexPosition, 1.0));
 
     // Calculate final vertex position
-    mat4 mvpi = mvp*instanceTransform;
-    gl_Position = mvpi*vec4(vertexPosition, 1.0);
+    mat4 mvpi = mvp * instanceTransform;
+    screenPosition = mvpi * vec4(vertexPosition, 1.0);
+
+    float distMul = 0.5;
+    float distPow = 0.7; 
+    float pushMul = 0.3; 
+
+    float dist = distance(screenPosition.xy, vec2(0.0)) / screenPosition.z;
+    float clamped = clamp(dist * distMul, 0.0, 1.0);
+    float push = pow(clamped, distPow) * pushMul;
+    float compensation = pow(1.5 * distMul, distPow) * pushMul;
+    screenPosition.xy *= 1.0 - push + compensation;
+
+    gl_Position = screenPosition;
 }

@@ -1,0 +1,15 @@
+{
+    "GameStart": "Scenes/S_GameStart.json",
+    "GameEnd": "Scenes/S_GameEnd.json",
+    "SectionStart": "Scenes/S_SectionStart.json",
+    "SectionEnd": "Scenes/S_SectionEnd.json",
+    "NumRooms": 3,
+    "Rooms":[
+        "Scenes/Rooms/S_Room_1.json",
+        "Scenes/Rooms/S_Room_2.json"
+    ],
+    "NumArenas": 1,
+    "Arenas": [
+        "Scenes/Arenas/S_Arena_1.json"
+    ]
+}

@@ -4,7 +4,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Game/ECS/CubeVolume.h"
 
-void RoomSubEditorManager::Init()
+void RoomSubEditorManager::Init(const RoomType InType)
 {
     // Cache CubeVolume
     auto& ecs = ECS::Manager::Get(); 
@@ -28,6 +28,8 @@ void RoomSubEditorManager::Init()
     VolumeEditor.SetOwner(this); 
     ObjectEditor.SetOwner(this); 
     ConnectionEditor.SetOwner(this); 
+
+    Type = InType; 
     
     VolumeEditor.Init();
     ObjectEditor.Init();
@@ -63,7 +65,7 @@ void RoomSubEditorManager::UpdateUI(const bool InIsCameraControlling)
 {
     CHECK_RETURN(CubeVolume == ECS::InvalidID);
     
-    GetSubEditor(Mode).UpdateUI(InIsCameraControlling); 
+    GetSubEditor(Mode).UpdateUI(InIsCameraControlling);
 }
 
 void RoomSubEditorManager::SetMode(const SubEditorMode InMode)
