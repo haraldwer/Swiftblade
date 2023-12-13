@@ -53,12 +53,6 @@ void Manager::Update(const double InDelta)
     DestroyPending();
 }
 
-void Manager::UpdateUI() const
-{
-    for (SystemBase* system : SortedSystems)
-        system->UpdateUI();
-}
-
 EntityID Manager::CreateEntity()
 {
     const EntityID id = IDCounter;

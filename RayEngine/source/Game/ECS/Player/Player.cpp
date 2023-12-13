@@ -11,8 +11,8 @@
 #include "Game/ECS/Checkpoint.h"
 #include "Game/ECS/GameEnd.h"
 #include "Game/ECS/SectionEnd.h"
-#include "Game/Menus/MenuGameEnd.h"
-#include "Game/Menus/MenuDeath.h"
+#include "Game/UI/Menus/MenuGameEnd.h"
+#include "Game/UI/Menus/MenuDeath.h"
 #include "Sword/Sword.h"
 
 void ECS::Player::Init()
@@ -68,8 +68,8 @@ void ECS::Player::PickupSword(EntityID InSwordID)
     // Attach sword to player with an offset
     auto& swordTrans = Get<Transform>(InSwordID);
     swordTrans.SetParent(GetCameraID());
-    swordTrans.SetPosition(Vec3F(-1.0f, 0.0f, 1.5f), Transform::Space::LOCAL);
-    swordTrans.SetRotation(Vec3F(0.0, 0.0, 0.1f), Transform::Space::LOCAL);
+    swordTrans.SetPosition(Vec3F(-1.5f, 0.0f, 1.5f), Transform::Space::LOCAL);
+    swordTrans.SetRotation(Vec3F(0.0, 0.0, 0.2f), Transform::Space::LOCAL);
     SwordID = InSwordID;
     PlayTimer = Utility::Timer();
     LOG("Sword attached");

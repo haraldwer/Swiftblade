@@ -16,6 +16,7 @@ namespace ECS
         void Init() override;
         void Deinit() override;
         void Update(double InDelta) override;
+        void OnBeginContact(const Physics::Contact& InContact) override;
 
         bool Edit(const String& InName = "") override;
         void DebugDraw() const;
@@ -42,7 +43,9 @@ namespace ECS
 
         struct JumpParams
         {
-            float JumpVelocity = 22.0f;
+            float UpVelocity = 22.0f;
+            float DirectionalForce = 10.0f;
+            Vec3F Direction = Vec3F::Zero();
         };
         void Jump(const JumpParams& InParams = JumpParams());
 
@@ -66,19 +69,21 @@ namespace ECS
         };
         void SetCrouch(bool InCrouch, const CrouchParams& InParams = CrouchParams());
 
-        void GroundSnap();
-        double TimeSinceJump() const { return GetTime() - JumpTimestamp; }
+        double TimeSinceJump() const;
         
     private:
+        
+        void GroundSnap();
+        bool CheckGroundHit(const Vec3F& InNormal) const;
         
         inline static constexpr float GroundDist = 0.5f;
         inline static constexpr float GroundDot = 0.2f;
         inline static constexpr float GroundJumpDelay = 0.5f;
 
         // Movement state
-        bool OnGround = false;
+        bool OnGround = true;
         bool Crouching = false;
-        double JumpTimestamp = 0.0f; 
+        double GroundTimestamp = 0.0f;
 
         ObjectPtr<MovementStateMachine> StateMachine; 
     };

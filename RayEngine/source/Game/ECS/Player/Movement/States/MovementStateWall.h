@@ -4,6 +4,12 @@
 
 class MovementStateWall : public MovementState<MovementStateWall>
 {
+public:
+    
+    Vec3F GetWallNormal() const { return CurrentWallNormal; }
+
+private: 
+    
     Type Check() override;
     Type Update(double InDT) override;
     void Enter() override;
@@ -16,6 +22,7 @@ class MovementStateWall : public MovementState<MovementStateWall>
     PROPERTY_D(float, InputThreshold, 0.1f);
     PROPERTY_D(float, SweepLength, 0.3f);
     PROPERTY_D(float, MaxVerticalDot, 0.3f);
+    PROPERTY_D(float, MinWallInputDot, -0.3f);
     PROPERTY_D(float, NormalInterpSpeed, 10.0f);
 
     Vec3F TargetWallNormal;

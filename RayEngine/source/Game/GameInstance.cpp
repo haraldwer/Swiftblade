@@ -69,7 +69,6 @@ void GameInstance::Update(double InDelta)
 
 void GameInstance::DrawUI()
 {
-    ECS.UpdateUI();
     Menus.Draw(); 
 }
 

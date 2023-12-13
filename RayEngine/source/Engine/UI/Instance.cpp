@@ -9,13 +9,6 @@ void UI::Instance::Invalidate()
         Parent->Invalidate();
         return; 
     }
-    
-    const Rect rootRect {
-        Vec2F::Zero(),
-        {
-            static_cast<float>(GetRenderWidth()),
-            static_cast<float>(GetRenderHeight())
-        }
-    };
-    RefreshRect(rootRect);
+
+    RefreshRect(GetReferenceRect());
 }

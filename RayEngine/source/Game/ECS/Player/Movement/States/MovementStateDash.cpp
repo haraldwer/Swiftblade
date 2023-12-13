@@ -6,8 +6,8 @@
 
 Type MovementStateDash::Check()
 {
-    auto& input = GetInput(); 
-    if (TimeSinceDash() > Cooldown)
+    const auto& input = GetInput(); 
+    if (GetTimeSinceExit() > Cooldown)
         if (input.MoveInput.Length() > InputDeadzone)
             if (input.DashInput)
                 return GetType();
@@ -17,20 +17,14 @@ Type MovementStateDash::Check()
 Type MovementStateDash::Update(double InDT)
 {
     GetRB().SetVelocity(Direction * Speed.Get());
-    if (TimeSinceDash() > Duration)
+    if (GetTimeSinceEnter() > Duration)
         return Type::Get<MovementStateIdle>();
     return Type::None(); 
 }
 
 void MovementStateDash::Enter()
 {
-    LOG("Enter dash");
-    DashTimestamp = GetTime();
+    MovementState::Enter(); 
     const Vec2F input = GetInput().MoveInput;
     Direction = Vec3F(input.x, UpDirTilt, input.y).GetNormalized();
-}
-
-float MovementStateDash::TimeSinceDash() const
-{
-    return static_cast<float>(GetTime() - DashTimestamp); 
 }

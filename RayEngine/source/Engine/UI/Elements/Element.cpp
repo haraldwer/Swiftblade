@@ -1,6 +1,7 @@
 ﻿#include "Element.h"
 
 #include "Container.h"
+#include "Engine/Rendering/Renderer.h"
 
 void UI::Element::Init()
 {
@@ -29,16 +30,50 @@ void UI::Element::RefreshRect(const Rect& InContainer)
 bool UI::Element::IsHovered() const
 {
     const Vector2 mp = GetMousePosition();
+    const Rect screen = ToScreen(CachedRect); 
     return
-        mp.x > CachedRect.Start.x &&
-        mp.x < CachedRect.End.x &&
-        mp.y > CachedRect.Start.y &&
-        mp.y < CachedRect.End.y;
+        mp.x > screen.Start.x &&
+        mp.x < screen.End.x &&
+        mp.y > screen.Start.y &&
+        mp.y < screen.End.y;
 }
 
 bool UI::Element::IsClicked() const
 {
     return IsHovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+}
+
+UI::Rect UI::Element::GetReferenceRect()
+{
+    const Vec2F res = Rendering::Renderer::Get().GetResolution();
+    const float aspect = res.x / res.y; 
+    return {
+        Vec2F::Zero(),
+        {
+            1000.0f * aspect,
+            1000.0f
+        }
+    };
+}
+
+UI::Rect UI::Element::ToScreen(const Rect& InRect)
+{
+    return { ToScreen(InRect.Start), ToScreen(InRect.End) };    
+}
+
+Vec2F UI::Element::ToScreen(const Vec2F& InVec)
+{
+    // Convert rect from reference space to screen relative
+    // First, convert to 0 - 1 space
+    // Then, convert to 0 - virtual size
+    // TODO: Also consider ref start
+    // TODO: Fix stretching
+    
+    const Vec2F res = Rendering::Renderer::Get().GetResolution();
+    const Rect ref = GetReferenceRect();
+    return {
+        (InVec / ref.End) * res,
+    };
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
@@ -81,12 +116,14 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 
 void UI::Element::DrawRect(const Rect& InRect)
 {
-    Vec2F size = InRect.End - InRect.Start;
-    Vec2F pos = InRect.Start;
+    return; 
+    const Rect screenRect = ToScreen(InRect);
+    const Vec2F size = screenRect.End - screenRect.Start;
+    const Vec2F pos = screenRect.Start;
     DrawRectangleLines(
-        static_cast<int>(pos.x),
-        static_cast<int>(pos.y),
-        static_cast<int>(size.x),
-        static_cast<int>(size.y),
+        static_cast<int>(pos.x + 0.5f),
+        static_cast<int>(pos.y + 0.5f),
+        static_cast<int>(size.x + 0.5f),    
+        static_cast<int>(size.y + 0.5f),
         RED);
 }

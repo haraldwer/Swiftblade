@@ -9,7 +9,6 @@ using namespace Rendering;
 void Renderer::Init()
 {
     CurrConfig.LoadConfig();
-    
     ApplyConfig(CurrConfig); 
 
     rlImGuiSetup(false);
@@ -22,20 +21,20 @@ void Renderer::Init()
 void Renderer::Deinit()
 {
     // TODO: Cleanup rendering
+    UnloadRenderTexture(VirtualTarget);
     rlImGuiShutdown();
     CloseWindow();
 }
 
-bool Renderer::BeginRender()
+bool Renderer::ShouldClose()
 {
-    if (WindowShouldClose())
-        return false;
-    BeginDrawing();
+    return WindowShouldClose();
+}
+
+void Renderer::BeginVirtualFrame(const RenderTexture2D* InTarget)
+{
+    BeginTextureMode(InTarget ? *InTarget : VirtualTarget);
     ClearBackground(DARKGRAY);
-    rlImGuiBegin();
-    ImGui::PushDefaultFont();
-    ImGuizmo::BeginFrame();
-    return true; 
 }
 
 void Renderer::RenderScenes(double InDelta)
@@ -45,12 +44,50 @@ void Renderer::RenderScenes(double InDelta)
         reinterpret_cast<RenderScene*>(&s)->Render();
 }
 
-void Renderer::EndRender()
+void Renderer::EndVirtualFrame()
+{
+    
+    EndTextureMode();
+}
+
+void Renderer::BeginFrame()
+{
+    BeginDrawing(); 
+    ClearBackground(DARKGRAY);
+    
+    // Blip
+    const Vec2F windowSize = GetWindowSize();
+    const float virtualRatio = windowSize.x / windowSize.y;
+    const Rectangle sourceRec = {
+        0.0f, 0.0f,
+        static_cast<float>(VirtualTarget.texture.width),
+        -static_cast<float>(VirtualTarget.texture.height)
+    };
+    const Rectangle destRec = {
+        -virtualRatio,
+        -virtualRatio,
+        windowSize.x + (virtualRatio * 2),
+        windowSize.y + (virtualRatio * 2)
+    };
+    DrawTexturePro(
+        VirtualTarget.texture,
+        sourceRec,
+        destRec,
+        { 0.0, 0.0 },
+        0.0,
+        WHITE);
+    
+    rlImGuiBegin();
+    ImGui::PushDefaultFont();
+    ImGuizmo::BeginFrame();
+}
+
+void Renderer::EndFrame()
 {
     ImGui::PopDefaultFont(); 
     rlImGuiEnd();
     DrawFPS(10, 10);
-    EndDrawing();
+    EndDrawing(); 
 }
 
 void Renderer::Clear()
@@ -86,6 +123,17 @@ void Renderer::ApplyConfig(const Config& InConfig)
         "RayEngine");
     
     SetTargetFPS(InConfig.TargetFPS);
+
+    // Recreate render target
+    UnloadRenderTexture(VirtualTarget);
+
+    // The height is already set
+    // Calculate the width based on aspect
+    const float aspect = static_cast<float>(CurrConfig.Width) / static_cast<float>(CurrConfig.Height);
+    const int virtualWidth = CurrConfig.RenderSize ?
+        static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : CurrConfig.Width; 
+    const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : CurrConfig.Height;
+    VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
     
     LOG("Render config applied");
     CurrConfig.SaveConfig();

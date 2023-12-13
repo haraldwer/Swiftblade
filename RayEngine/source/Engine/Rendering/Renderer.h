@@ -13,21 +13,42 @@ namespace Rendering
 
         void Init(); 
         void Deinit();
+
+        bool ShouldClose();
         
-        bool BeginRender();
+        void BeginVirtualFrame(const RenderTexture2D* InTarget = nullptr);
         void RenderScenes(double InDelta);
-        void EndRender(); 
+        void EndVirtualFrame();
+
+        void BeginFrame();
+        void EndFrame();
         
         void Clear(); 
         void Push(const Scene& InScene);
 
         void ApplyConfig(const Config& InConfig);
 
+        Vec2F GetWindowSize() const
+        {
+            return {
+                CurrConfig.Width,
+                CurrConfig.Height
+            };
+        }
+        
+        Vec2F GetResolution() const
+        {
+            return {
+                static_cast<float>(VirtualTarget.texture.width),
+                static_cast<float>(VirtualTarget.texture.height)
+            };
+        }
+
     private:
 
         Config CurrConfig; 
-        Vector<Scene> Scenes; 
-
+        Vector<Scene> Scenes;
+        RenderTexture2D VirtualTarget = RenderTexture2D();
     };
 }
 

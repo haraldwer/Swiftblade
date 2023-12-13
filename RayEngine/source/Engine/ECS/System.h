@@ -32,7 +32,6 @@ namespace ECS
         
         virtual void InitSystem() = 0;
         virtual void UpdateSystem(double InDelta) = 0;
-        virtual void UpdateUI() = 0;
         virtual bool ShouldUpdate() const;
         virtual void OnBeginContact(const Physics::Contact& InContact) {}
         virtual void OnEndContact(const Physics::Contact& InContact) {}
@@ -67,7 +66,6 @@ namespace ECS
             for (const auto& id : Translation)
                 Update(id.first, GetInternal(id.second), InDelta);
         }
-        void UpdateUI() override {}
 
         // - Helpers - //
 

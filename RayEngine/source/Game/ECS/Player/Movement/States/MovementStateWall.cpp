@@ -42,15 +42,16 @@ Type MovementStateWall::Update(double InDT)
 
 void MovementStateWall::Enter()
 {
+    MovementState::Enter();
     auto& rb = GetRB();
     rb.GravityScale = 0.0f;
     rb.SetVelocity(rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f));
     CurrentWallNormal = TargetWallNormal;
-    LOG("Enter wall")
 }
 
 void MovementStateWall::Exit()
 {
+    MovementState::Exit(); 
     GetRB().GravityScale = 1.0f;
     TargetWallNormal = Vec3F::Zero(); 
 }
@@ -64,25 +65,43 @@ bool MovementStateWall::CheckWall()
     Physics::SweepParams params;
     params.Start = world.GetPosition();
     params.End = params.Start;
+    params.Pose = GetColliderTransform().Local();
     params.Shape = static_cast<Physics::Shape>(collider.Shape.Get());
     params.ShapeData = collider.ShapeData;
     params.IgnoredEntities = { GetPlayerID() };
 
     Physics::SweepParams rightParams = params;
-    rightParams.End += world.Right() * SweepLength.Get();
-    Physics::SweepParams leftParams = params;
-    leftParams.End -= world.Right() * SweepLength.Get();
+    const Vec3F rightDir = world.Right() * SweepLength.Get();
+    rightParams.End += rightDir;
+    rightParams.Start += rightDir * 0.1f; 
+    Physics::SweepParams leftParams = params; 
+    leftParams.End -= rightDir; 
+    leftParams.Start -= rightDir * 0.1f; 
+    
+    //Rendering::DebugCapsule(rightParams.End, rightParams.Pose.GetRotation(), rightParams.ShapeData.x, rightParams.ShapeData.y, RED);
+    //Rendering::DebugCapsule(leftParams.End, leftParams.Pose.GetRotation(), leftParams.ShapeData.x, leftParams.ShapeData.y, RED);
 
     const Physics::QueryResult right = Physics::Query::Sweep(rightParams);
     const Physics::QueryResult left = Physics::Query::Sweep(leftParams);
-
+    
     OnWall = false;
     TargetWallNormal = Vec3F();
+
+    // Cache input
+    const Vec2F inputVec = GetInput().MoveInput.GetNormalized();
+    const Vec3F inputDir = Vec3F(inputVec.x, 0.0f, inputVec.y);
+    
     auto processHit = [&](const Physics::QueryResult::Hit& InHit)
     {
         // Check vertical dot
         const float vertDot = InHit.Normal.Dot(Vec3F::Up());
         CHECK_RETURN(abs(vertDot) > MaxVerticalDot.Get());
+        
+        //Rendering::DebugLine(world.GetPosition() + world.Forward(), world.GetPosition() + InHit.Normal + world.Forward(), GREEN);
+        
+        // Check input dot
+        const float inputDot = InHit.Normal.Dot(inputDir * -1.0f);
+        CHECK_RETURN(inputDot < MinWallInputDot.Get());
 
         // Prioritize hits close to WallNormal
         const float dot = InHit.Normal.Dot(TargetWallNormal);
@@ -99,11 +118,15 @@ bool MovementStateWall::CheckWall()
         TargetWallNormal += InHit.Normal * normalMul;
     };
     
-    for (auto& hit : right.Hits)
+    for (auto& hit : right.DistanceSorted())
         processHit(hit);
-    for (auto& hit : left.Hits)
+    for (auto& hit : left.DistanceSorted())
         processHit(hit);
     TargetWallNormal = TargetWallNormal.GetNormalized();
+
+    //Rendering::DebugLine(world.GetPosition() + world.Forward(), world.GetPosition() + TargetWallNormal * 0.5f + world.Forward());
+    //Rendering::DebugLine(world.GetPosition() + world.Forward(), world.GetPosition() + CurrentWallNormal * 0.5f + world.Forward(), BLUE);
+
     return OnWall; 
 }
 

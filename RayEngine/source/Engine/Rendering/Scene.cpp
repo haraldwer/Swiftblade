@@ -91,8 +91,6 @@ void RenderScene::Render()
             DrawInstances(meshes[i], *shader, entry.second.Transforms);
     }
     
-    DrawGrid(10, 10.0f);
-
     for (auto& shape : DebugShapes)
     {
         switch (shape.Type)

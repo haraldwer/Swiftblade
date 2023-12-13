@@ -5,12 +5,9 @@
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Physics/Contact.h"
 #include "Engine/Physics/Query.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
-#include "Game/ECS/Player/Player.h"
 #include "Game/ECS/Player/PlayerCamera.h"
-#include "Game/ECS/Player/Sword/Sword.h"
 #include "Utility/Math/AngleConversion.h"
 #include "Utility/Math/Geometry/Plane.h"
 #include "Utility/StateMachine/StateMachine.h"
@@ -39,7 +36,22 @@ void ECS::Movement::Update(double InDelta)
     GetMovement().GroundSnap();
 
     if (OnGround != prevGround)
-        {LOG(OnGround ? "On ground" : "In air");}
+        LOG(OnGround ? "On ground" : "In air");
+}
+
+void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
+{
+    CHECK_RETURN(InContact.IsTrigger);
+    CHECK_RETURN(OnGround);
+    CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
+    for (auto& point : InContact.Points)
+    {
+        if (CheckGroundHit(point.Normal))
+        {
+            OnGround = true; 
+            break;
+        }
+    }
 }
 
 bool ECS::Movement::Edit(const String& InName)
@@ -93,8 +105,10 @@ void ECS::Movement::Jump(const JumpParams& InParams)
 {
     const auto& rb = GetRB();
     const Vec3F vel = rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f);
-    rb.SetVelocity(vel + Vec3F::Up() * InParams.JumpVelocity);
-    JumpTimestamp = GetTime(); 
+    const Vec3F newVel = vel +
+        Vec3F::Up() * InParams.UpVelocity +
+        InParams.Direction * InParams.DirectionalForce; 
+    rb.SetVelocity(newVel);
     OnGround = false;
     LOG("Jump"); 
 }
@@ -160,8 +174,17 @@ void ECS::Movement::SetCrouch(bool InCrouch, const CrouchParams& InParams)
         LOG("Uncrouch"); 
 }
 
+double ECS::Movement::TimeSinceJump() const
+{
+    CHECK_ASSERT(!StateMachine, "Invalid ptr");
+    const auto jumpState = StateMachine->GetState<MovementStateJump>();
+    CHECK_ASSERT(!jumpState, "Missing jump state");
+    return jumpState->GetTimeSinceEnter();
+}
+
 void ECS::Movement::GroundSnap()
 {    
+    CHECK_RETURN(!OnGround);
     CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
     
     OnGround = false;
@@ -191,22 +214,35 @@ void ECS::Movement::GroundSnap()
     CHECK_RETURN(!result.IsHit);
     for (auto hit : result.DistanceSorted())
     {
-        // Test ground dot
-        const float dot = hit.Normal.Dot(Vec3F::Up());
-        CHECK_CONTINUE(dot < GroundDot);
-
-        // Set location
-        OnGround = true; 
-        const Vec3F newPos = params.Start - Vec3F::Up() * hit.Distance; 
-        transform.SetPosition(newPos);
-
-        if (debugDraw)
-            Rendering::DebugCapsule(newPos, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, GREEN); 
-
-        // Flatten velocity
-        auto& rb = GetRB();
-        Vec3F vel = rb.GetVelocity(); 
-        rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
-        return; 
+        if (CheckGroundHit(hit.Normal))
+        {
+            // Set location
+            OnGround = true;
+    
+            const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.Distance; 
+            transform.SetPosition(newPos);
+    
+            // Flatten velocity
+            auto& rb = GetRB();
+            Vec3F vel = rb.GetVelocity(); 
+            rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
+            
+            if (debugDraw)
+                Rendering::DebugCapsule(
+                    transform.GetPosition(),
+                    params.Pose.GetRotation(),
+                    params.ShapeData.x,
+                    params.ShapeData.y,
+                    GREEN);
+            return;
+        } 
     }
+}
+
+bool ECS::Movement::CheckGroundHit(const Vec3F& InNormal) const
+{
+    // Test ground dot
+    const float dot = InNormal.Dot(Vec3F::Up());
+    CHECK_RETURN(dot < GroundDot, false);
+    return true; 
 }

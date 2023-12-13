@@ -23,6 +23,7 @@ public:
     void Deinit() override;
     void Update(double InDelta) override;
     void DrawUI() override;
+    void DrawDebug() override;
     bool IsEditor() const override { return true; }
 
 private:

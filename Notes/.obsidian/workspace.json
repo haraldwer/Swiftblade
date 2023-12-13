@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md",
+                "file": "Tasks/1 - Walljump boost.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md",
+                "file": "Tasks/1 - Walljump boost.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md",
+                "file": "Tasks/1 - Walljump boost.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md"
+                "file": "Tasks/1 - Walljump boost.md"
               }
             }
           }
@@ -148,18 +148,24 @@
   },
   "active": "1fc93849a5de3ca6",
   "lastOpenFiles": [
-    "Tasks/1 - Editor UI.md",
     "Milestones/Milestone 4 (Dec 6).md",
+    "Tasks/1 - Improved ground snapping.md",
+    "Tasks/Archive/0 - Leaderboard UI.md",
+    "Tasks/1 - Editor UI.md",
     "Tasks/0 - Score.md",
+    "Planning/Timeline.md",
+    "Planning/Release.md",
+    "Planning/Game Creation Process.md",
+    "Planning/Conditions.md",
+    "Design/Pitch.md",
+    "Design/Idea.md",
+    "Design/GDD.md",
     "Tasks/Backlog.md",
     "Tasks/0 - Arena editing.md",
-    "Planning/Timeline.md",
     "Tasks/Archive/0 - Arena level generation.md",
     "Tasks/0 - Menu input blocking.md",
     "Tasks/Archive/0 - Game end.md",
     "Tasks/Archive/0 - Room order generation & presets.md",
-    "Tasks/0 - Leaderboard UI.md",
-    "Tasks/1 - Improved ground snapping.md",
     "Tasks/0 - Optimize scene overrides.md",
     "Tasks/Archive/0 - Sword.md",
     "Tasks/Archive/0 - UI Library.md",
@@ -168,12 +174,6 @@
     "Tasks/Archive/0 - Entity reparenting.md",
     "Tasks/1 - Inline resource editing.md",
     "Milestones/Milestone 3 (Nov 29).md",
-    "Milestones/Milestone 2 (Nov 15).md",
-    "Tasks/0 - Collision masks.md",
-    "Tasks/0 - CubeVolume custom serialization.md",
-    "Tasks/0 - Default shading.md",
-    "Tasks/Archive/0 - Level end feedback.md",
-    "Tasks/Archive/0 - Player death.md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

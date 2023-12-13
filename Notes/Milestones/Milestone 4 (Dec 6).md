@@ -12,13 +12,17 @@ Done:
 [[0 - Room order generation & presets]]
 [[0 - Arena level generation]]
 [[0 - Game end]]
+[[0 - Leaderboard UI]]
+[[1 - Improved ground snapping]]
 
 Ongoing: 
-[[0 - Score]]
-[[1 - Editor UI]]
+[[1 - Walljump boost]]
 
 Tasks:
-[[0 - Leaderboard UI]]
+[[1 - Editor UI]]
 [[0 - Arena editing]]
-[[1 - Walljump boost]]
-[[1 - Improved ground snapping]]
+[[0 - Ledge vaulting]]
+[[0 - Double jump]]
+[[0 - Enemy spawner]]
+[[0 - Basic Enemy]]
+[[0 - Score]]

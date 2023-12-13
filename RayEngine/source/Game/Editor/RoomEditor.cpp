@@ -106,9 +106,13 @@ void RoomEditor::DrawUI()
 {
     CHECK_ASSERT(!UI, "UI Invalid");
     
-    ECS.UpdateUI();
-    UI->Draw(); 
+    UI->Draw();
     
+    SubEditorManager.UpdateUI(Camera.IsFullyControlling());
+}
+
+void RoomEditor::DrawDebug()
+{
     if (ImGui::Begin("Room Editor"))
     {
         if (Camera.IsControlling())
@@ -119,8 +123,6 @@ void RoomEditor::DrawUI()
         
         ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
         ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
-
-        SubEditorManager.UpdateUI(Camera.IsFullyControlling());
         
         if (ImGui::Button("Save"))
             SaveRoom(); 

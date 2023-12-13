@@ -1,6 +1,6 @@
 ﻿#include "MenuInstance.h"
 
-#include "Menus/MenuMain.h"
+#include "UI/Menus/MenuMain.h"
 
 void MenuInstance::Init()
 {

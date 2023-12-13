@@ -67,12 +67,16 @@ int main()
             update(delta);
         }
 
-        // Render
-        if (!renderer.BeginRender())
-            break; 
+        if (renderer.ShouldClose())
+            break;
+        
+        renderer.BeginVirtualFrame();
         renderer.RenderScenes(delta);
         instance->DrawUI();
-        renderer.EndRender();
+        renderer.EndVirtualFrame();
+        renderer.BeginFrame();
+        instance->DrawDebug();
+        renderer.EndFrame(); 
     }
     
     instanceManager.Clear(); 

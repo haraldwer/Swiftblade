@@ -27,6 +27,10 @@ namespace UI
         
     protected:
         
+        static Rect GetReferenceRect();
+        static Rect ToScreen(const Rect& InRect);
+        static Vec2F ToScreen(const Vec2F& InVec);
+        
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
         

@@ -19,7 +19,7 @@ void UI::Label::Init()
 void UI::Label::Draw()
 {
     const Rect rect = GetRect();
-    DrawRect(rect); 
+    DrawRect(rect);
     
     const Vec2F startPos = rect.Start;
     const Vec2F endPos = rect.End - CachedSize;
@@ -27,6 +27,13 @@ void UI::Label::Draw()
         LERP(startPos.x, endPos.x, Centering.x),
         LERP(startPos.y, endPos.y, Centering.y)
     };
+    const Vec2F screenPos = ToScreen(pos); 
+
+    // Difference in size between rect and screenRect
+    const Rect screenRect = ToScreen(rect); 
+    const float orgSize = (rect.End - rect.Start).Length();
+    const float screenSize = (screenRect.End - screenRect.Start).Length();
+    const float sizeScale = screenSize / orgSize;
     
     const Vector2 origin = { 0.0f, 0.0f };
     const float rot = 0.0f;
@@ -36,11 +43,11 @@ void UI::Label::Draw()
             DrawTextPro(
                 *font,
                 Text.c_str(),
-                { pos.x,  pos.y},
+                { screenPos.x, screenPos.y},
                 origin,
                 rot,
-                Size,
-                Spacing,
+                Size * sizeScale,
+                Spacing * sizeScale,
                 tint);
 }
 

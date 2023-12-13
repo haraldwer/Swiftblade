@@ -43,6 +43,6 @@ T* StateMachine::GetState() const
 {
 	auto find = TypeMap.find(Utility::GetType<T>());
 	if (find != TypeMap.end())
-		return find->second; 
+		return reinterpret_cast<T*>(find->second); 
 	return nullptr;
 }

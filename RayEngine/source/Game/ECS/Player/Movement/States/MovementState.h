@@ -12,4 +12,27 @@ namespace Physics
 template <class T>
 class MovementState : public State<T>, public PropertyOwner<T>, public ECS::PlayerInterface
 {
+public:
+    
+    double GetEnterTimestamp() const { return EnterTimestamp; }
+    double GetExitTimestamp() const { return EnterTimestamp; }
+    double GetTimeSinceEnter() const { return GetTime() - GetEnterTimestamp(); }
+    double GetTimeSinceExit() const { return GetTime() - GetExitTimestamp(); }
+    
+protected:
+    
+    void Enter() override
+    {
+        EnterTimestamp = GetTime(); 
+    }
+    
+    void Exit() override
+    {
+        ExitTimestamp = GetTime(); 
+    }
+
+private:
+    
+    double EnterTimestamp = 0.0f;
+    double ExitTimestamp = 0.0f; 
 };

@@ -87,7 +87,7 @@ void UI::RectImage::Draw()
             for (int i = 0; i < 9; i++)
             {
                 const Rect& source = sourceCorners[i];
-                const Rect& dest = destCorners[i];
+                const Rect& dest = ToScreen(destCorners[i]);
                 DrawTexturePro(
                     *texture,
                     {

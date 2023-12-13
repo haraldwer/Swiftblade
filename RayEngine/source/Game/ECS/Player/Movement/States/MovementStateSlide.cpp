@@ -54,15 +54,15 @@ Type MovementStateSlide::Update(double InDT)
 
 void MovementStateSlide::Enter()
 {
+    MovementState::Enter();
     GetMovement().SetCrouch(true);
     Direction = (GetRB().GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized();
-    LOG("Enter slide");
 }
 
 void MovementStateSlide::Exit()
 {
+    MovementState::Exit();
     GetMovement().SetCrouch(false);
-    LOG("Exit slide");
 }
 
 bool MovementStateSlide::CheckInput()

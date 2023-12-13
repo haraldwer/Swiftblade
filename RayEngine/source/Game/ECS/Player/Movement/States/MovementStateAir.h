@@ -7,5 +7,4 @@ public:
     Type Check() override;
     Type Update(double InDT) override;
     int32 Priority() const override { return 2; }
-    void Enter() override { LOG("Enter air"); }
 };

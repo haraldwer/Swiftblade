@@ -31,11 +31,12 @@ Type MovementStateCrouch::Update(double InDT)
 
 void MovementStateCrouch::Enter()
 {
+    MovementState::Enter(); 
     GetMovement().SetCrouch(true);
-    LOG("Enter crouch")
 }
 
 void MovementStateCrouch::Exit()
 {
+    MovementState::Exit(); 
     GetMovement().SetCrouch(false); 
 }

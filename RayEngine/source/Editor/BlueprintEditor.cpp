@@ -51,8 +51,10 @@ void BlueprintEditor::Update(double InDelta)
 
 void BlueprintEditor::DrawUI()
 {
-    ECS.UpdateUI(); 
-    
+}
+
+void BlueprintEditor::DrawDebug()
+{
     if (ImGui::Begin("Blueprint Editor"))
     {
         if (Blueprint.Edit("BP"))

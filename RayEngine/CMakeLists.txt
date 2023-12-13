@@ -19,6 +19,11 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     set(FETCHCONTENT_QUIET NO)
     FetchContent_Populate(raylib)
     set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
+    set(SUPPORT_CAMERA_SYSTEM OFF) # no camera
+    set(OPENGL_VERSION 4.3) # OpenGL version
+    set(SUPPORT_DEFAULT_FONT OFF) # skip font
+    set(SUPPORT_GESTURES_SYSTEM OFF) # skip gestures
+    set(SUPPORT_MOUSE_GESTURES OFF) # skip gestures
     add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
   endif()
 endif()

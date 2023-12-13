@@ -44,9 +44,9 @@ Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
     physx::PxRaycastHit hits[numHits];
     physx::PxRaycastBuffer buff(hits, numHits);
 
-    physx::PxHitFlags flags = physx::PxHitFlag::eDEFAULT;
+    physx::PxHitFlags flags = physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL;
     physx::PxQueryFilterData filterData;
-    filterData.flags |= physx::PxQueryFlag::ePREFILTER; // Enable filter 
+    filterData.flags |= physx::PxQueryFlag::ePREFILTER; // Enable filter
     static QueryFilter filter;
     filter.SetIgnoredEntities(InParams.IgnoredEntities);
     physx::PxQueryFilterCallback* filterCallback = &filter;
