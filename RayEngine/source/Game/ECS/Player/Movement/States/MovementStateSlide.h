@@ -12,11 +12,11 @@ class MovementStateSlide : public MovementState<MovementStateSlide>
 
     bool CheckInput(); 
     
-    PROPERTY_D(float, Speed, 30.0f);
-    PROPERTY_D(float, SpeedThreshold, 15.0f);
-    PROPERTY_D(float, InputDeadzone, 0.1f);
-    PROPERTY_D(float, InputDot, 0.3);
-    PROPERTY_D(float, LookDot, 0.3);
+    PROPERTY_C(float, Speed, 30.0f);
+    PROPERTY_C(float, SpeedThreshold, 15.0f);
+    PROPERTY_C(float, InputDeadzone, 0.1f);
+    PROPERTY_C(float, InputDot, 0.3);
+    PROPERTY_C(float, LookDot, 0.3);
 
     Vec3F Direction;
 };

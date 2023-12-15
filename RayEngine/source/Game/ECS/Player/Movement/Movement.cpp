@@ -29,14 +29,10 @@ void ECS::Movement::Deinit()
 
 void ECS::Movement::Update(double InDelta)
 {
+    GroundSnap();
+    
     if (StateMachine)
         StateMachine->Update(InDelta);
-
-    const bool prevGround = OnGround;
-    GetMovement().GroundSnap();
-
-    if (OnGround != prevGround)
-        LOG(OnGround ? "On ground" : "In air");
 }
 
 void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
@@ -48,7 +44,8 @@ void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
     {
         if (CheckGroundHit(point.Normal))
         {
-            OnGround = true; 
+            OnGround = true;
+            GroundTimestamp = GetTime(); 
             break;
         }
     }
@@ -109,7 +106,11 @@ void ECS::Movement::Jump(const JumpParams& InParams)
         Vec3F::Up() * InParams.UpVelocity +
         InParams.Direction * InParams.DirectionalForce; 
     rb.SetVelocity(newVel);
-    OnGround = false;
+    if (OnGround)
+    {
+        OnGround = false;
+        GroundTimestamp = GetTime(); 
+    }
     LOG("Jump"); 
 }
 
@@ -182,6 +183,11 @@ double ECS::Movement::TimeSinceJump() const
     return jumpState->GetTimeSinceEnter();
 }
 
+double ECS::Movement::TimeSinceLeftGround() const
+{
+    return GetTime() - GroundTimestamp; 
+}
+
 void ECS::Movement::GroundSnap()
 {    
     CHECK_RETURN(!OnGround);
@@ -218,6 +224,7 @@ void ECS::Movement::GroundSnap()
         {
             // Set location
             OnGround = true;
+            GroundTimestamp = GetTime(); 
     
             const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.Distance; 
             transform.SetPosition(newPos);

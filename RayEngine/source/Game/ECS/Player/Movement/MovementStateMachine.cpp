@@ -18,6 +18,7 @@ void MovementStateMachine::Init()
     addState(Slide);
     addState(Dash);
     addState(Wall);
+    addState(Vault);
     
     StateMachine::Init();
 }

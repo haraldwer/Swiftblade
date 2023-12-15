@@ -4,7 +4,7 @@ void UI::Image::Draw()
 {
     const Rect rect = GetRect();
     DrawRect(rect);
-    const Rect screenRect = ToScreen(rect);
+    const Rect view = ToViewport(rect);
     if (const auto textureRes = Texture.Get())
         if (const auto texture = textureRes->Get())
             DrawTexturePro(
@@ -15,10 +15,10 @@ void UI::Image::Draw()
                     static_cast<float>(texture->width),
                     static_cast<float>(texture->height)
                 }, {
-                    screenRect.Start.x,
-                    screenRect.Start.y,
-                    screenRect.End.x - screenRect.Start.x,
-                    screenRect.End.y - screenRect.Start.y
+                    view.Start.x,
+                    view.Start.y,
+                    view.End.x - view.Start.x,
+                    view.End.y - view.Start.y
                 },
                 { 0.0f, 0.0f },
                 0.0f,

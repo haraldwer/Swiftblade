@@ -9,11 +9,11 @@ class MovementStateDash : public MovementState<MovementStateDash>
     void Enter() override;
     int32 Priority() const override { return 7; }
     
-    PROPERTY_D(float, Speed, 70.0f)
-    PROPERTY_D(float, Duration, 1.0f)
-    PROPERTY_D(float, Cooldown, 1.0f)
-    PROPERTY_D(float, UpDirTilt, 0.1f)
-    PROPERTY_D(float, InputDeadzone, 0.1f)
+    PROPERTY_C(float, Speed, 70.0f)
+    PROPERTY_C(float, Duration, 1.0f)
+    PROPERTY_C(float, Cooldown, 1.0f)
+    PROPERTY_C(float, UpDirTilt, 0.1f)
+    PROPERTY_C(float, InputDeadzone, 0.1f)
     
     Vec3F Direction;
 };

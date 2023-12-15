@@ -29,6 +29,7 @@ public:
     virtual void Deinit() {}
     virtual void Update(double InDelta) {}
     virtual void UpdateUI(bool InIsCameraControlling) {}
+    virtual void DebugDraw(bool InIsCameraControlling) {}
     virtual void Enter() {}
     virtual void Exit() {}
     
@@ -38,8 +39,8 @@ public:
     ECS::CubeVolume& GetVolume() const;
     Utility::History& GetHistory() const;
 
-    RoomType GetType(); 
-    
+    RoomType GetType();
+
 private:
     
     RoomSubEditorManager* Owner = nullptr; 

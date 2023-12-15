@@ -19,11 +19,12 @@ private:
     bool CheckWall();
     bool CheckInput();
 
-    PROPERTY_D(float, InputThreshold, 0.1f);
-    PROPERTY_D(float, SweepLength, 0.3f);
-    PROPERTY_D(float, MaxVerticalDot, 0.3f);
-    PROPERTY_D(float, MinWallInputDot, -0.3f);
-    PROPERTY_D(float, NormalInterpSpeed, 10.0f);
+    PROPERTY_C(float, InputThreshold, 0.1f);
+    PROPERTY_C(float, SweepLength, 0.2f);
+    PROPERTY_C(float, MaxVerticalDot, 0.3f);
+    PROPERTY_C(float, MinWallInputDot, -0.3f);
+    PROPERTY_C(float, NormalInterpSpeed, 10.0f);
+    PROPERTY_C(float, EnterAirDelay, 0.1f);
 
     Vec3F TargetWallNormal;
     Vec3F CurrentWallNormal;

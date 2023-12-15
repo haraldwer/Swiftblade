@@ -52,6 +52,10 @@ void RoomConnectionEditor::Update(double InDelta)
 
 void RoomConnectionEditor::UpdateUI(bool InIsCameraControlling)
 {
+}
+
+void RoomConnectionEditor::DebugDraw(bool InIsCameraControlling)
+{
     ImGui::Text("Connection editing mode"); 
     
     // Draw the gizmo on end

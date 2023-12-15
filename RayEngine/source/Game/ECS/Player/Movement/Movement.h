@@ -44,7 +44,7 @@ namespace ECS
         struct JumpParams
         {
             float UpVelocity = 22.0f;
-            float DirectionalForce = 10.0f;
+            float DirectionalForce = 20.0f;
             Vec3F Direction = Vec3F::Zero();
         };
         void Jump(const JumpParams& InParams = JumpParams());
@@ -70,6 +70,7 @@ namespace ECS
         void SetCrouch(bool InCrouch, const CrouchParams& InParams = CrouchParams());
 
         double TimeSinceJump() const;
+        double TimeSinceLeftGround() const;  
         
     private:
         

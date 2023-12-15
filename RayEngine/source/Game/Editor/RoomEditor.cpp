@@ -18,35 +18,16 @@ void RoomEditor::Init()
 
     // Create UI
     UI::Builder builder = UI::Builder()
-        .Push(UI::List(UI::Transform::FromRect(Vec2F(300.0f, 80.0f), 20.0f), 5.0f, 80.0f, UI::List::FlowDirection::HORIZONTAL))
-            .Push(UI::Container(), "Exit")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_Exit.png")))
-                .Pop()
-            .Push(UI::Container(), "Save")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_Save.png")))
-                .Pop()
-            .Push(UI::Container(), "Load")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_Load.png")))
-                .Pop()
-            .Push(UI::Container(), "Play")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_Play.png")))
-                .Pop()
-            .Push(UI::Container(), "ModeVolume")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_ModeVolume.png")))
-                .Pop()
-            .Push(UI::Container(), "ModeObject")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_ModeObject.png")))
-                .Pop()
-            .Push(UI::Container(), "ModeConnections")
-                .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-                .Add(UI::Image(ResTexture("UI/T_ModeConnection.png")))
-                .Pop();
+        .Push(UI::Container(UI::Transform::FromRect(Vec2F(600.0f, 80.0f), 20.0f)))
+            .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
+            .Push(UI::List(UI::Transform::Fill(), 5.0f, 80.0f, UI::List::FlowDirection::HORIZONTAL))
+                .Add(UI::Image(ResTexture("UI/T_Exit.png")), "Exit")
+                .Add(UI::Image(ResTexture("UI/T_Save.png")), "Save")
+                .Add(UI::Image(ResTexture("UI/T_Load.png")), "Load")
+                .Add(UI::Image(ResTexture("UI/T_Play.png")), "Play")
+                .Add(UI::Image(ResTexture("UI/T_ModeVolume.png")), "ModeVolume")
+                .Add(UI::Image(ResTexture("UI/T_ModeObject.png")), "ModeObject")
+                .Add(UI::Image(ResTexture("UI/T_ModeConnection.png")), "ModeConnection");
     
     UI = builder.Build(); 
 }
@@ -74,11 +55,11 @@ void RoomEditor::Update(double InDelta)
         Camera.ToggleRequireHold();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
-    if (IsKeyPressed(KEY_ONE) || UI->Get<UI::Container>("ModeVolume").IsClicked())
+    if (IsKeyPressed(KEY_ONE) || UI->Get("ModeVolume").IsClicked())
         newMode = SubEditorMode::VOLUME;
-    if (IsKeyPressed(KEY_TWO) || UI->Get<UI::Container>("ModeObject").IsClicked())
+    if (IsKeyPressed(KEY_TWO) || UI->Get("ModeObject").IsClicked())
         newMode = SubEditorMode::OBJECTS;
-    if (IsKeyPressed(KEY_THREE) || UI->Get<UI::Container>("ModeConnections").IsClicked())
+    if (IsKeyPressed(KEY_THREE) || UI->Get("ModeConnection").IsClicked())
         newMode = SubEditorMode::CONNECTIONS;
     if (newMode != SubEditorMode::COUNT)
         SubEditorManager.SetMode(newMode); 
@@ -94,11 +75,11 @@ void RoomEditor::Update(double InDelta)
             PlayScene();
     }
 
-    if (UI->Get<UI::Container>("Save").IsClicked())
+    if (UI->Get("Save").IsClicked())
         SaveRoom();
-    if (UI->Get<UI::Container>("Play").IsClicked())
+    if (UI->Get("Play").IsClicked())
         PlayScene();
-    if (UI->Get<UI::Container>("Exit").IsClicked())
+    if (UI->Get("Exit").IsClicked())
         Engine::Manager::Get().Pop(); 
 }
 
@@ -123,6 +104,8 @@ void RoomEditor::DrawDebug()
         
         ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
         ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
+
+        SubEditorManager.DebugDraw(Camera.IsFullyControlling()); 
         
         if (ImGui::Button("Save"))
             SaveRoom(); 

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "MovementState.h"
+#include "Engine/Property/Property.h"
 
 class MovementStateJump : public MovementState<MovementStateJump>
 {
@@ -8,6 +9,17 @@ class MovementStateJump : public MovementState<MovementStateJump>
     void Enter() override;
     int32 Priority() const override { return 6; }
     
-    bool CanJump();
+    bool CanJump() const;
+    bool CanAirJump() const;
+    bool CanGroundJump() const; 
+    bool CanWallJump() const;
+    bool InJumpCooldown() const; 
+    
+    PROPERTY_C(float, CoyoteTime, 0.2f);
+    PROPERTY_C(int, NumAirJumps, 1);
+    
+    int AirJumps = 0;
+    bool GroundJump = false;
+    
 };
 

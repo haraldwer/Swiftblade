@@ -50,6 +50,10 @@ void RoomObjectEditor::Update(double InDelta)
 
 void RoomObjectEditor::UpdateUI(bool InIsCameraControlling)
 {
+}
+
+void RoomObjectEditor::DebugDraw(bool InIsCameraControlling)
+{
     ImGui::Text("Object editing mode");
     
     // TODO: Click on the object type you want to place

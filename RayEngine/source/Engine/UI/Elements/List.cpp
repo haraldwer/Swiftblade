@@ -1,5 +1,4 @@
-﻿#include "C:/Dev/Swiftblade/RayEngine/build/CMakeFiles/RayEngine.dir/Debug/cmake_pch.hxx"
-#include "List.h"
+﻿#include "List.h"
 
 void UI::List::RefreshRect(const Rect& InContainer)
 {

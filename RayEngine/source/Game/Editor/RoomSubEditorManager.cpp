@@ -64,8 +64,13 @@ void RoomSubEditorManager::Update(const double InDelta, const bool InIsCameraCon
 void RoomSubEditorManager::UpdateUI(const bool InIsCameraControlling)
 {
     CHECK_RETURN(CubeVolume == ECS::InvalidID);
-    
     GetSubEditor(Mode).UpdateUI(InIsCameraControlling);
+}
+
+void RoomSubEditorManager::DebugDraw(bool InIsCameraControlling)
+{
+    CHECK_RETURN(CubeVolume == ECS::InvalidID);
+    GetSubEditor(Mode).DebugDraw(InIsCameraControlling);
 }
 
 void RoomSubEditorManager::SetMode(const SubEditorMode InMode)

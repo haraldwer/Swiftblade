@@ -14,15 +14,16 @@ Done:
 [[0 - Game end]]
 [[0 - Leaderboard UI]]
 [[1 - Improved ground snapping]]
+[[1 - Walljump boost]]
+[[0 - Double jump]]
+[[0 - Ledge vaulting]]
 
 Ongoing: 
-[[1 - Walljump boost]]
+Walljump fixes? 
 
 Tasks:
 [[1 - Editor UI]]
 [[0 - Arena editing]]
-[[0 - Ledge vaulting]]
-[[0 - Double jump]]
 [[0 - Enemy spawner]]
 [[0 - Basic Enemy]]
 [[0 - Score]]

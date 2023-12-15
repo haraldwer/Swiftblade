@@ -10,8 +10,10 @@
 
 Type MovementStateWall::Check()
 {
-    if (CheckWall() && CheckInput() && GetMovement().IsInAir())
-        return Type::Get<MovementStateWall>(); 
+    auto& movement = GetMovement(); 
+    bool recentlyOnGround = movement.TimeSinceLeftGround() < EnterAirDelay;
+    if (CheckWall() && CheckInput() && movement.IsInAir() && !recentlyOnGround)
+        return Type::Get<MovementStateWall>();
     return Type::None(); 
 }
 
@@ -42,6 +44,7 @@ Type MovementStateWall::Update(double InDT)
 
 void MovementStateWall::Enter()
 {
+    LOG("Enter wall");
     MovementState::Enter();
     auto& rb = GetRB();
     rb.GravityScale = 0.0f;
@@ -51,6 +54,7 @@ void MovementStateWall::Enter()
 
 void MovementStateWall::Exit()
 {
+    LOG("Exit wall");
     MovementState::Exit(); 
     GetRB().GravityScale = 1.0f;
     TargetWallNormal = Vec3F::Zero(); 
@@ -67,7 +71,7 @@ bool MovementStateWall::CheckWall()
     params.End = params.Start;
     params.Pose = GetColliderTransform().Local();
     params.Shape = static_cast<Physics::Shape>(collider.Shape.Get());
-    params.ShapeData = collider.ShapeData;
+    params.ShapeData = collider.ShapeData.Get() * 0.8f;
     params.IgnoredEntities = { GetPlayerID() };
 
     Physics::SweepParams rightParams = params;

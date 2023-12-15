@@ -24,6 +24,7 @@ public:
     void Deinit() override;
     void Update(double InDelta) override;
     void UpdateUI(bool InIsCameraControlling) override;
+    void DebugDraw(bool InIsCameraControlling) override;
     
     Mat4F GetStartOffset() const;
 

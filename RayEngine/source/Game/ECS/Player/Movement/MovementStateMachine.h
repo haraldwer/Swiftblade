@@ -8,6 +8,7 @@
 #include "States/MovementStateJump.h"
 #include "States/MovementStateRun.h"
 #include "States/MovementStateSlide.h"
+#include "States/MovementStateVault.h"
 #include "States/MovementStateWall.h"
 
 namespace Physics
@@ -36,4 +37,5 @@ private:
     MovementStateSlide Slide;
     MovementStateDash Dash;
     MovementStateWall Wall;
+    MovementStateVault Vault;
 };

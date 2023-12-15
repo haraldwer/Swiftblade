@@ -30,12 +30,12 @@ void UI::Element::RefreshRect(const Rect& InContainer)
 bool UI::Element::IsHovered() const
 {
     const Vector2 mp = GetMousePosition();
-    const Rect screen = ToScreen(CachedRect); 
+    const Vec2F relative = FromScreen({ mp.x, mp.y });
     return
-        mp.x > screen.Start.x &&
-        mp.x < screen.End.x &&
-        mp.y > screen.Start.y &&
-        mp.y < screen.End.y;
+        relative.x > CachedRect.Start.x &&
+        relative.x < CachedRect.End.x &&
+        relative.y > CachedRect.Start.y &&
+        relative.y < CachedRect.End.y;
 }
 
 bool UI::Element::IsClicked() const
@@ -56,12 +56,12 @@ UI::Rect UI::Element::GetReferenceRect()
     };
 }
 
-UI::Rect UI::Element::ToScreen(const Rect& InRect)
+UI::Rect UI::Element::ToViewport(const Rect& InRect)
 {
-    return { ToScreen(InRect.Start), ToScreen(InRect.End) };    
+    return { ToViewport(InRect.Start), ToViewport(InRect.End) };    
 }
 
-Vec2F UI::Element::ToScreen(const Vec2F& InVec)
+Vec2F UI::Element::ToViewport(const Vec2F& InVec)
 {
     // Convert rect from reference space to screen relative
     // First, convert to 0 - 1 space
@@ -74,6 +74,13 @@ Vec2F UI::Element::ToScreen(const Vec2F& InVec)
     return {
         (InVec / ref.End) * res,
     };
+}
+
+Vec2F UI::Element::FromScreen(const Vec2F& InScreenPos)
+{
+    const Vec2F absolute = InScreenPos / Rendering::Renderer::Get().GetWindowSize();
+    const Rect ref = GetReferenceRect();
+    return absolute * ref.End; 
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
@@ -117,7 +124,7 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 void UI::Element::DrawRect(const Rect& InRect)
 {
     return; 
-    const Rect screenRect = ToScreen(InRect);
+    const Rect screenRect = ToViewport(InRect);
     const Vec2F size = screenRect.End - screenRect.Start;
     const Vec2F pos = screenRect.Start;
     DrawRectangleLines(

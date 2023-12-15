@@ -1,5 +1,4 @@
-﻿#include "C:/Dev/Swiftblade/RayEngine/build/CMakeFiles/RayEngine.dir/Debug/cmake_pch.hxx"
-#include "MovementStateAir.h"
+﻿#include "MovementStateAir.h"
 
 #include "MovementStateIdle.h"
 #include "Game/ECS/Player/Input.h"
