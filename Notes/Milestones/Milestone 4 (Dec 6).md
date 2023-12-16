@@ -19,7 +19,6 @@ Done:
 [[0 - Ledge vaulting]]
 
 Ongoing: 
-Walljump fixes? 
 
 Tasks:
 [[1 - Editor UI]]

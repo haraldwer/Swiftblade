@@ -2,21 +2,25 @@
 
 #include "MovementStateAir.h"
 #include "MovementStateIdle.h"
+#include "MovementStateWall.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Game/ECS/Player/Input.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
 Type MovementStateVault::Check()
 {
-    if (IsCurrentState())
-        return Type::Get<MovementStateVault>();
-
     if (GetMovement().IsCrouching())
         return Type::None();
 
+    if (GetCurrentState() == Type::Get<MovementStateWall>())
+        return Type::None(); 
+
+    // Do not update cached result if already in state
+    if (IsCurrentState())
+        return Type::None();
+    
     const Vec2F input = GetInput().MoveInput;
     if (input.Length < Deadzone)
         return Type::None();
@@ -65,7 +69,8 @@ Type MovementStateVault::Update(double InDT)
 void MovementStateVault::Exit()
 {
     MovementState::Exit();
-    auto newState = GetCurrentState();
+
+    // Limit exit Y velocity
     const ECS::Rigidbody& rb = GetRB();
     const Vec3F vel = rb.GetVelocity();
     rb.SetVelocity(Vec3F(vel.x, 0.0f, vel.z));

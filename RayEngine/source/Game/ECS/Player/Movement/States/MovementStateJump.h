@@ -13,9 +13,9 @@ class MovementStateJump : public MovementState<MovementStateJump>
     bool CanAirJump() const;
     bool CanGroundJump() const; 
     bool CanWallJump() const;
-    bool InJumpCooldown() const; 
     
     PROPERTY_C(float, CoyoteTime, 0.2f);
+    PROPERTY_C(float, WallCoyoteTime, 0.4f);
     PROPERTY_C(int, NumAirJumps, 1);
     
     int AirJumps = 0;

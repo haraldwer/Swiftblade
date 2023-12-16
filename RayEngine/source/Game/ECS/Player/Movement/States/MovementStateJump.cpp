@@ -92,7 +92,7 @@ bool MovementStateJump::CanWallJump() const
     if (GetCurrentState() == Type::Get<MovementStateWall>())
         return true;
     if (const auto wallState = GetState<MovementStateWall>())
-        if (wallState->GetTimeSinceExit() < CoyoteTime)
+        if (wallState->GetTimeSinceExit() < WallCoyoteTime)
             return true;
     return false;
 }

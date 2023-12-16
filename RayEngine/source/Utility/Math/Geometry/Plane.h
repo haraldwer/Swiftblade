@@ -70,7 +70,7 @@ namespace Utility
 		Vector3<T> Plane<T>::Project(Vector3<T> InPoint)
 		{
 			const Vector3<T> diff = InPoint - myPoint0;
-			const float dist = diff.Dot(myNormal);
+			const float dist = myNormal.Dot(diff);
 			return InPoint - dist * myNormal;
 		}
 

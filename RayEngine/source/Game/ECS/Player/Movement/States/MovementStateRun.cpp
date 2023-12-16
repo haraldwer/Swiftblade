@@ -4,15 +4,6 @@
 #include "Game/ECS/Player/Input.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
-Type MovementStateRun::Check()
-{
-    if (!GetMovement().IsOnGround())
-        return Type::None(); 
-    if (GetInput().MoveInput.Length() > 0.5f)
-        return Type::Get<MovementStateRun>(); 
-    return Type::None();
-}
-
 Type MovementStateRun::Update(double InDT)
 {
     const auto& input = GetInput();
@@ -23,7 +14,8 @@ Type MovementStateRun::Update(double InDT)
         movement.Slowdown(InDT); 
     movement.VelocityClamp(InDT);
     
-    if (GetInput().MoveInput.Length() < 0.5f)
-        return Type::Get<MovementStateIdle>();  
+    if (input.MoveInput.Length() < 0.5f)
+        return Type::Get<MovementStateIdle>();
+    
     return Type::None(); 
 }

@@ -7,9 +7,9 @@
 Type MovementStateDash::Check()
 {
     const auto& input = GetInput(); 
-    if (GetTimeSinceExit() > Cooldown)
-        if (input.MoveInput.Length() > InputDeadzone)
-            if (input.DashInput)
+    if (input.DashInput)
+        if (GetTimeSinceExit() > Cooldown)
+            if (input.MoveInput.Length() > InputDeadzone)
                 return GetType();
     return Type::None(); 
 }

@@ -7,6 +7,7 @@ class MovementStateVault : public MovementState<MovementStateVault>
 {
     Type Check() override;
     Type Update(double InDT) override;
+    void Enter() override { LOG("Enter vault"); }
     void Exit() override;
     int32 Priority() const override { return 3; };
 

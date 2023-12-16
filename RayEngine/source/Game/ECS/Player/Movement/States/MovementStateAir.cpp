@@ -4,13 +4,6 @@
 #include "Game/ECS/Player/Input.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
-Type MovementStateAir::Check()
-{
-    if (GetMovement().IsInAir())
-        return GetType();
-    return Type::None(); 
-}
-
 Type MovementStateAir::Update(double InDT)
 {
     const auto& input = GetInput();
