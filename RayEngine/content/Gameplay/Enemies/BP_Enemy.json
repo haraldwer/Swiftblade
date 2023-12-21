@@ -1,0 +1,26 @@
+{
+	"Components":[{
+			"Name":"Mesh",
+			"Data":{}
+		},{
+			"Name":"Attributes",
+			"Data":{
+				"Name":"Enemy"
+			}
+		},{
+			"Name":"Transform",
+			"Data":{}
+		},{
+			"Name":"Collider",
+			"Data":{}
+		},{
+			"Name":"Rigidbody",
+			"Data":{
+				"GravityScale":0.0
+			}
+		},{
+			"Name":"Enemy",
+			"Data":{}
+		}
+	]
+}

@@ -13,6 +13,8 @@ void RoomObjectEditor::Init()
     Config.LoadConfig();
     
     LoadPlacedObjects();
+
+    SetEditObject(1);
 }
 
 void RoomObjectEditor::Deinit()

@@ -9,9 +9,10 @@
 struct RoomObjectEditorConfig : PropertyOwner<RoomObjectEditorConfig>
 {
     PROPERTY(int, BPIndex);
-    PROPERTY_C(Vector<ResBlueprint>, Blueprints, {
-        ResBlueprint("Blueprints/BP_PhysCube.json")
-    });
+    PROPERTY_C(Vector<ResBlueprint>, Blueprints, Vector<ResBlueprint>({
+        ResBlueprint("Blueprints/BP_PhysCube.json"),
+        ResBlueprint("Gameplay/Enemies/BP_Enemy.json")
+    }));
     
     inline static const String Path = "Configs/C_RoomObjectEditor.json";
     void LoadConfig() { Load(Path); }

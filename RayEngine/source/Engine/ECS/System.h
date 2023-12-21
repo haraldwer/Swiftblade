@@ -69,7 +69,7 @@ namespace ECS
 
         // - Helpers - //
 
-        template <class ComponentType>
+        template <class ComponentType = T>
         ComponentType& Get(const EntityID InID)
         {
             auto ptr = TryGet<ComponentType>(InID);
@@ -77,7 +77,7 @@ namespace ECS
             return *ptr; 
         }
 
-        template <class ComponentType>
+        template <class ComponentType = T>
         const ComponentType& Get(const EntityID InID) const
         {
             auto ptr = TryGet<ComponentType>(InID);
@@ -85,7 +85,7 @@ namespace ECS
             return *ptr; 
         }
 
-        template <class ComponentType>
+        template <class ComponentType = T>
         ComponentType* TryGet(const EntityID InID)
         {
             SystemBase* base = GetAnonymousSystem(Utility::GetType<ComponentType>(), true);
@@ -93,7 +93,7 @@ namespace ECS
             return sys->TryGet(InID);
         }
 
-        template <class ComponentType>
+        template <class ComponentType = T>
         const ComponentType* TryGet(const EntityID InID) const
         {
             SystemBase* base = GetAnonymousSystem(Utility::GetType<ComponentType>(), true);

@@ -19,10 +19,10 @@ Done:
 [[0 - Ledge vaulting]]
 
 Ongoing: 
+[[0 - Enemy spawner]]
+[[0 - Basic Enemy]]
 
 Tasks:
 [[1 - Editor UI]]
 [[0 - Arena editing]]
-[[0 - Enemy spawner]]
-[[0 - Basic Enemy]]
 [[0 - Score]]

@@ -13,6 +13,8 @@
 #include "Game/ECS/SectionEnd.h"
 #include "Game/ECS/GameEnd.h"
 #include "Game/ECS/RoomConnection.h"
+#include "Game/ECS/Enemies/Enemy.h"
+#include "Game/ECS/Enemies/EnemySpawner.h"
 #include "Game/ECS/Player/Input.h"
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "Game/ECS/Player/Movement/Movement.h"
@@ -49,6 +51,10 @@ NameMap[String(#x)] = var; } \
     REG_ENTITY_SYSTEM(Checkpoint);
     REG_ENTITY_SYSTEM(SectionEnd);
     REG_ENTITY_SYSTEM(GameEnd);
+
+    REG_ENTITY_SYSTEM(Enemy);
+    REG_ENTITY_SYSTEM(EnemySpawner);
+    
     REG_UNIQUE_COMPONENT(Player);
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);
