@@ -4,7 +4,7 @@ The focus of this milestone is: **Core experience**
 User stories: 
 - The player should be able to play through the game from start to finish and receive a score that is displayed on a leaderboard. 
  - The core movement should work as expected, with some abilities. 
- - There should be at least one enemy and an arena stage. 
+ - There should be an arena stage. 
  - There should be a very basic level editor
 
 Done:
@@ -19,10 +19,9 @@ Done:
 [[0 - Ledge vaulting]]
 
 Ongoing: 
-[[0 - Enemy spawner]]
-[[0 - Basic Enemy]]
 
 Tasks:
-[[1 - Editor UI]]
-[[0 - Arena editing]]
-[[0 - Score]]
+
+Break up milestone
+Future? 
+Transcribe journal 

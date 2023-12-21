@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md",
+                "file": "Milestones/Milestone 5 (Dec 27).md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md",
+                "file": "Milestones/Milestone 5 (Dec 27).md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md",
+                "file": "Milestones/Milestone 5 (Dec 27).md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Milestones/Milestone 4 (Dec 6).md"
+                "file": "Milestones/Milestone 5 (Dec 27).md"
               }
             }
           }
@@ -146,34 +146,71 @@
       "command-palette:Open command palette": false
     }
   },
+  "floating": {
+    "id": "87fab898314cd328",
+    "type": "floating",
+    "children": [
+      {
+        "id": "907aac0b7481023a",
+        "type": "window",
+        "children": [
+          {
+            "id": "f6e08fae8e25c745",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "433fa5c61f062b80",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Planning/Timeline.md",
+                    "mode": "source",
+                    "source": false
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": 1459,
+        "y": 168,
+        "width": 1006,
+        "height": 1184,
+        "maximize": false,
+        "zoom": 0
+      }
+    ]
+  },
   "active": "1fc93849a5de3ca6",
   "lastOpenFiles": [
-    "Planning/Game Creation Process.md",
     "Planning/Timeline.md",
-    "Milestones/Milestone 4 (Dec 6).md",
-    "Tasks/1 - Walljump boost.md",
-    "Tasks/1 - Improved ground snapping.md",
-    "Tasks/Archive/0 - Leaderboard UI.md",
+    "Milestones/Milestone 5 (Dec 27).md",
+    "0 - Object switching in object edit mode.md",
     "Tasks/1 - Editor UI.md",
+    "Tasks/0 - Arena editing.md",
+    "Milestones/Milestone 4 (Dec 21).md",
+    "Tasks/0 - Enemy spawner.md",
+    "Tasks/0 - Menu input blocking.md",
+    "Milestones/Milestone 3 (Nov 29).md",
+    "Tasks/Archive/0 - Double jump.md",
+    "Tasks/Archive/0 - Ledge vaulting.md",
+    "Tasks/Archive/1 - Walljump boost.md",
+    "Tasks/0 - Basic Enemy.md",
+    "Tasks/Archive/1 - Improved ground snapping.md",
+    "Tasks/Archive/0 - Leaderboard UI.md",
     "Tasks/0 - Score.md",
     "Planning/Release.md",
+    "Planning/Game Creation Process.md",
     "Planning/Conditions.md",
     "Design/Pitch.md",
     "Design/Idea.md",
     "Design/GDD.md",
     "Tasks/Backlog.md",
-    "Tasks/0 - Arena editing.md",
     "Tasks/Archive/0 - Arena level generation.md",
-    "Tasks/0 - Menu input blocking.md",
     "Tasks/Archive/0 - Game end.md",
     "Tasks/Archive/0 - Room order generation & presets.md",
-    "Tasks/0 - Optimize scene overrides.md",
-    "Tasks/Archive/0 - Sword.md",
-    "Tasks/Archive/0 - UI Library.md",
-    "Tasks/Archive/0 - Widgets.md",
-    "Tasks/Archive/0 - Entity reparenting.md",
-    "Tasks/1 - Inline resource editing.md",
-    "Milestones/Milestone 3 (Nov 29).md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",
