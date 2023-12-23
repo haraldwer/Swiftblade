@@ -16,6 +16,6 @@ void Sword::Update(double InDelta)
     {
         const float time = static_cast<float>(Utility::Time::Get().Total());
         t.SetPosition(StartPos + Vec3F::Up() * sin(time * FloatSpeed) * FloatDist.Get());
-        t.SetRotation(Vec3F(0.0f, time * RotationSpeed, 0.0f));
+        t.SetRotation(QuatF::FromEuler(Vec3F(0.0f, time * RotationSpeed, 0.0f)));
     }
 }

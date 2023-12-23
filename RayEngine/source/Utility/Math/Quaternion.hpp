@@ -38,7 +38,7 @@ namespace Utility
 				z = axis.z * sinAngle;
 			}
 
-			Quaternion(const Vector3<Type>& euler)
+			static Quaternion FromEuler(const Vector3<Type>& euler)
 			{
 				// Assuming the angles are in radians.
 				const Type heading = euler.y;
@@ -53,10 +53,24 @@ namespace Utility
 				const Type s3 = sin(bank / 2);
 				const Type c1c2 = c1 * c2;
 				const Type s1s2 = s1 * s2;
-				w = c1c2 * c3 - s1s2 * s3;
-				x = c1c2 * s3 + s1s2 * c3;
-				y = s1 * c2 * c3 + c1 * s2 * s3;
-				z = c1 * s2 * c3 - s1 * c2 * s3;
+				
+				Quaternion q; 
+				q.w = c1c2 * c3 - s1s2 * s3;
+				q.x = c1c2 * s3 + s1s2 * c3;
+				q.y = s1 * c2 * c3 + c1 * s2 * s3;
+				q.z = c1 * s2 * c3 - s1 * c2 * s3;
+				return q; 
+			}
+
+			static Quaternion FromDirection(const Vector3<Type>& direction)
+			{
+				const float angle = atan2(direction.x, direction.z); // Note: I expected atan2(z,x) but OP reported success with atan2(x,z) instead! Switch around if you see 90° off.
+				Quaternion q; 
+				q.x = 0; 
+				q.y = 1 * sin(angle / 2); 
+				q.z = 0;
+				q.w = cos(angle / 2);
+				return q;
 			}
 
 			Vector3<Type> Euler() const
@@ -85,7 +99,7 @@ namespace Utility
 				bank = atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw);
 				return { bank, heading, attitude };
 			}
-
+			
 			Quaternion operator*(const Quaternion& q2) const
 			{	
 				Quaternion t;

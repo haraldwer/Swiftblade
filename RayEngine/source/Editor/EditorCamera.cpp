@@ -66,7 +66,7 @@ void EditorCamera::Update(double InDelta)
     
     // Set camera
     BlueprintEditor::Get().GetRenderScene().SetCamera({
-        CurrentState.Position, QuatF(CurrentState.Rotation), CurrentState.FOV
+        CurrentState.Position, QuatF::FromEuler(CurrentState.Rotation), CurrentState.FOV
     });
 }
 

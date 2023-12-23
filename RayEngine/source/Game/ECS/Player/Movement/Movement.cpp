@@ -68,7 +68,7 @@ void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
     // Set body rotation
     Vec3F bodyRot = trans.GetRotation().Euler();
     bodyRot.y += InInput.y * InParams.SensitivityMultiplier.y; 
-    trans.SetRotation(bodyRot);
+    trans.SetRotation(QuatF::FromEuler(bodyRot));
 
     // Set camera rotation
     float camRot = camTrans.GetRotation().Euler().x; 
@@ -78,7 +78,7 @@ void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
         Utility::Math::DegreesToRadians(90.0f),
         camRot);
     camTrans.SetRotation(
-        Vec3F(camRot, 0.0f, 0.0f),
+        QuatF::FromEuler(Vec3F(camRot, 0.0f, 0.0f)),
         Transform::Space::LOCAL); 
 }
 

@@ -69,7 +69,7 @@ void ECS::Player::PickupSword(EntityID InSwordID)
     auto& swordTrans = Get<Transform>(InSwordID);
     swordTrans.SetParent(GetCameraID());
     swordTrans.SetPosition(Vec3F(-1.5f, 0.0f, 1.5f), Transform::Space::LOCAL);
-    swordTrans.SetRotation(Vec3F(0.0, 0.0, 0.2f), Transform::Space::LOCAL);
+    swordTrans.SetRotation(QuatF::FromEuler(Vec3F(0.0, 0.0, 0.2f)), Transform::Space::LOCAL);
     SwordID = InSwordID;
     PlayTimer = Utility::Timer();
     LOG("Sword attached");

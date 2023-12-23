@@ -69,7 +69,7 @@ bool Utility::ReadValue(const GenericVal& InVal, QuatF& OutData)
     Vec3F euler = OutData.Euler(); 
     if (ReadValue(InVal, euler))
     {
-        OutData = QuatF(euler *= Math::DegreesToRadians(1.0f));        
+        OutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));        
         return true; 
     }
     return false; 

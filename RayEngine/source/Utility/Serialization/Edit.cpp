@@ -51,7 +51,7 @@ bool Utility::Edit(const String& InName, QuatF& InOutData)
     euler *= Math::RadiansToDegrees(1.0f);
     if (ImGui::InputFloat3(InName.c_str(), &euler[0]))
     {
-        InOutData = QuatF(euler *= Math::DegreesToRadians(1.0f));
+        InOutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));
         return true; 
     } 
     return false;  

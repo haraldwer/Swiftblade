@@ -41,7 +41,7 @@ void RoomObjectEditor::Update(double InDelta)
     if (IsKeyPressed(KEY_R))
         TargetRot.y += PI_FLOAT * 0.25f;
     const QuatF rot = trans->GetRotation();
-    trans->SetRotation(QuatF::Slerp(rot, TargetRot, 20.0f * static_cast<float>(InDelta)));
+    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 20.0f * static_cast<float>(InDelta)));
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         PlaceObject();
@@ -148,7 +148,7 @@ void RoomObjectEditor::RemoveObject()
 void RoomObjectEditor::NewEditObject()
 {
     DestroyEditObject();
-    ObjectID = CreateObject(Config.BPIndex, Mat4F(TargetPos, TargetRot, Vec3F::One()));
+    ObjectID = CreateObject(Config.BPIndex, Mat4F(TargetPos, QuatF::FromEuler(TargetRot), Vec3F::One()));
 }
 
 void RoomObjectEditor::DestroyEditObject()
@@ -200,7 +200,7 @@ void RoomObjectEditor::PlaceObject(const ObjectData& InObjectData)
     auto& entry = PlacedObjects[key];
     entry = InObjectData;
     if (entry.ID == ECS::InvalidID && InObjectData.ObjectType != -1)
-        entry.ID = CreateObject(entry.ObjectType, Mat4F(entry.Position, entry.Rotation, Vec3F::One()));
+        entry.ID = CreateObject(entry.ObjectType, Mat4F(entry.Position, QuatF::FromEuler(entry.Rotation), Vec3F::One()));
 }
 
 void RoomObjectEditor::RemovePlacedObject(const uint32 InKey)

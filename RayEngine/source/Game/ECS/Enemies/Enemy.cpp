@@ -3,18 +3,21 @@
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "Game/GameState.h"
 
 void SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent, double InDelta)
 {
     auto& trans = Get<ECS::Transform>(InID);
+    const ECS::EntityID player = GameState::Get().GetPlayerID();
+    CHECK_RETURN(player == ECS::InvalidID); 
+    auto& playerTrans = Get<ECS::Transform>(player);
 
     // Rotate towards player
     // Add force forward
 
-    Vec3F dir = trans.World().Forward();
-
-    
-    
+    const Vec3F dir = (playerTrans.GetPosition() - trans.GetPosition()).GetNormalized(); 
+    const QuatF rot = QuatF::FromDirection(dir);
+    trans.SetRotation(rot);
     
     Get<ECS::Rigidbody>(InID).AddForce(dir * InComponent.MovementSpeed.Get());  
 }

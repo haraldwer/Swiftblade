@@ -28,7 +28,7 @@ QuatF ECS::Transform::GetRotation(const Space InSpace) const
     case Space::LOCAL:
         return LocalMat.GetRotation();
     }
-    return Vec3F::Zero(); 
+    return QuatF::Identity();  
 }
 
 Vec3F ECS::Transform::GetScale(const Space InSpace) const

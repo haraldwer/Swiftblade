@@ -18,6 +18,18 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "fd3eb57a82fd5c6f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Tasks/0 - Basic Enemy.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ]
       }
@@ -146,58 +158,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "floating": {
-    "id": "87fab898314cd328",
-    "type": "floating",
-    "children": [
-      {
-        "id": "907aac0b7481023a",
-        "type": "window",
-        "children": [
-          {
-            "id": "f6e08fae8e25c745",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "433fa5c61f062b80",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Planning/Timeline.md",
-                    "mode": "source",
-                    "source": false
-                  }
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": 1459,
-        "y": 168,
-        "width": 1006,
-        "height": 1184,
-        "maximize": false,
-        "zoom": 0
-      }
-    ]
-  },
-  "active": "1fc93849a5de3ca6",
+  "active": "99326411889e7499",
   "lastOpenFiles": [
-    "Planning/Timeline.md",
+    "Milestones/Milestone 4 (Dec 21).md",
     "Milestones/Milestone 5 (Dec 27).md",
-    "0 - Object switching in object edit mode.md",
+    "Tasks/0 - Enemy spawner.md",
+    "Tasks/0 - Basic Enemy.md",
+    "Planning/Timeline.md",
+    "Tasks/0 - Object switching in object edit mode.md",
     "Tasks/1 - Editor UI.md",
     "Tasks/0 - Arena editing.md",
-    "Milestones/Milestone 4 (Dec 21).md",
-    "Tasks/0 - Enemy spawner.md",
     "Tasks/0 - Menu input blocking.md",
     "Milestones/Milestone 3 (Nov 29).md",
     "Tasks/Archive/0 - Double jump.md",
     "Tasks/Archive/0 - Ledge vaulting.md",
     "Tasks/Archive/1 - Walljump boost.md",
-    "Tasks/0 - Basic Enemy.md",
     "Tasks/Archive/1 - Improved ground snapping.md",
     "Tasks/Archive/0 - Leaderboard UI.md",
     "Tasks/0 - Score.md",

@@ -29,11 +29,11 @@ void UI::Label::Draw()
     };
     const Vec2F viewPos = ToViewport(pos); 
 
-    // Difference in size between rect and screenRect
+    // Difference in size between reference and view
     const Rect view = ToViewport(rect); 
     const float orgSize = (rect.End - rect.Start).Length();
-    const float screenSize = (view.End - view.Start).Length();
-    const float sizeScale = screenSize / orgSize;
+    const float viewSize = (view.End - view.Start).Length();
+    const float sizeScale = viewSize / orgSize;
     
     const Vector2 origin = { 0.0f, 0.0f };
     const float rot = 0.0f;
