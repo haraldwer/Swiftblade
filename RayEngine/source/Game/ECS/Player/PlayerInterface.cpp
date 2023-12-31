@@ -4,7 +4,7 @@
 #include "Input.h"
 #include "PlayerCamera.h"
 #include "Movement/Movement.h"
-#include "Sword/Sword.h"
+#include "Weapon/Weapon.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/ECS/Systems/Camera.h"
@@ -89,11 +89,11 @@ ECS::Camera& ECS::PlayerInterface::GetCamera() const
     return *ptr;
 }
 
-Sword* ECS::PlayerInterface::GetSword() const
+Weapon* ECS::PlayerInterface::GetSword() const
 {
     const EntityID id = GetPlayer().GetSwordID();
     CHECK_RETURN(id == InvalidID, nullptr); 
-    return Manager::Get().GetComponent<Sword>(id);
+    return Manager::Get().GetComponent<Weapon>(id);
 }
 
 double ECS::PlayerInterface::GetTime()

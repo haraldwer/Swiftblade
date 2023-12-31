@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/ECS/UniqueComponent.h"
 
-class Sword : public ECS::UniqueComponent<Sword>
+class Weapon : public ECS::UniqueComponent<Weapon>
 {
 public:
     void Init() override;

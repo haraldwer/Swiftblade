@@ -17,15 +17,18 @@
 				]
 			}
 		},{
-			"Name":"Player",
-			"Data":{}
-		},{
 			"Name":"Rigidbody",
 			"Data":{
 				"LockRotation":true,
 				"AngularDamping":0.0,
 				"LinearDamping":0.0
 			}
+		},{
+			"Name":"Combat",
+			"Data":{}
+		},{
+			"Name":"Player",
+			"Data":{}
 		},{
 			"Name":"Movement",
 			"Data":{}

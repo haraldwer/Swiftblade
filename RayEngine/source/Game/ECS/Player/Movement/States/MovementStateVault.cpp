@@ -6,6 +6,7 @@
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
+#include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Game/ECS/Player/Input.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
@@ -49,6 +50,8 @@ Type MovementStateVault::Update(double InDT)
     const Vec3F vel = rb.GetVelocity();
     if (vel.y < UpSpeed)
         rb.SetVelocity(Vec3F(vel.x, UpSpeed.Get(), vel.z));
+
+    //Rendering::DebugSphere(LedgeLocation.y, 0.1f, BLUE);
     
     const Vec2F input = GetInput().MoveInput;
     if (input.Length < Deadzone)

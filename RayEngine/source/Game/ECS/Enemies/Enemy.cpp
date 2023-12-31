@@ -1,6 +1,7 @@
 #include "Enemy.h"
 
 #include "Engine/Blueprints/Blueprint.h"
+#include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Game/GameState.h"
@@ -30,4 +31,10 @@ void SysEnemy::Spawn(ECS::EntityID InSpawnerID)
     const ECS::EntityID enemy = bp->Instantiate(spawnTrans.World()); 
     CHECK_RETURN_LOG(enemy == ECS::InvalidID, "Failed to instantiate enemy");
     
+}
+
+void SysEnemy::ApplyDamage(ECS::EntityID InEnemy, ECS::EntityID InDamageDealer)
+{
+    LOG("Enemy killed!");
+    ECS::Manager::Get().DestroyEntity(InEnemy); 
 }

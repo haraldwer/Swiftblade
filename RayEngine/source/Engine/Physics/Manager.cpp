@@ -395,6 +395,7 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPosit
            *geometry,
            *material,
            true);
+        shape->userData = ECS::EntityToPtr(InID); 
         PxVec3 pxPos = Utility::PhysX::ConvertVec(pos);
         shape->setLocalPose(PxTransform(pxPos));
         CubeOwner->attachShape(*shape); 

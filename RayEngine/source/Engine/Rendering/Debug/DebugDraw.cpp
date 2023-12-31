@@ -26,7 +26,7 @@ void Rendering::DebugSphere(const Vec3F& InPos, const float InRadius, const Colo
     }); 
 }
 
-void Rendering::DebugBox(const Vec3F& InPos, const Vec3F& InExtent, const Color InColor)
+void Rendering::DebugBox(const Vec3F& InPos, const Vec3F& InExtent, Color InColor)
 {
     Engine::InstanceBase::Get().GetRenderScene().AddDebugShape({
         DebugShapeInstance::Type::BOX,

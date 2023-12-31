@@ -19,7 +19,8 @@
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 #include "Game/ECS/Player/Player.h"
-#include "Game/ECS/Player/Sword/Sword.h"
+#include "Game/ECS/Player/Weapon/Weapon.h"
+#include "Game/ECS/Player/Combat/Combat.h"
 
 using namespace ECS;
 
@@ -59,7 +60,8 @@ NameMap[String(#x)] = var; } \
     REG_UNIQUE_COMPONENT(Input);
     REG_UNIQUE_COMPONENT(Movement);
     REG_UNIQUE_COMPONENT(PlayerCamera);
-    REG_UNIQUE_COMPONENT(Sword);
+    REG_UNIQUE_COMPONENT(Weapon);
+    REG_UNIQUE_COMPONENT(Combat);
     
 #undef REG_ENTITY_SYSTEM
 #undef REG_UNIQUE_COMPONENT

@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/Entity.h"
 
-class Sword;
+class Weapon;
 
 namespace ECS
 {
@@ -36,7 +36,7 @@ namespace ECS
         Rigidbody& GetRB() const;
         PlayerCamera& GetPlayerCamera() const;
         Camera& GetCamera() const;
-        Sword* GetSword() const;
+        Weapon* GetSword() const;
 
         static double GetTime();
         

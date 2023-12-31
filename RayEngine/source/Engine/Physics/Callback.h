@@ -55,10 +55,13 @@ namespace Physics
             PX_UNUSED((pairHeader));
             for (physx::PxU32 i = 0; i < nbPairs; i++)
             {
-                const physx::PxU32 contactCount = pairs[i].contactCount;
                 Contact c;
-                c.Target = ECS::PtrToEntity(pairs[i].shapes[0]->userData);
-                c.Self = ECS::PtrToEntity(pairs[i].shapes[1]->userData);
+                const void* userData0 = pairs[i].shapes[0]->userData;
+                const void* userData1 = pairs[i].shapes[1]->userData;
+                c.Target = ECS::PtrToEntity(userData0);
+                c.Self = ECS::PtrToEntity(userData1);
+                
+                const physx::PxU32 contactCount = pairs[i].contactCount;
                 if (contactCount)
                 {
                     static Vector<physx::PxContactPairPoint> contactPoints;

@@ -13,9 +13,9 @@ class MovementStateVault : public MovementState<MovementStateVault>
 
     Physics::QueryResult Sweep() const; 
     
-    PROPERTY_C(float, ForwardDist, 1.0f)
+    PROPERTY_C(float, ForwardDist, 1.5f)
     PROPERTY_C(float, SweepHeight, 1.0f);
-    PROPERTY_C(float, SweepRadius, 0.3f);
+    PROPERTY_C(float, SweepRadius, 0.5f);
     PROPERTY_C(float, Deadzone, 0.1f);
     PROPERTY_C(float, InputDot, 0.3f);
     PROPERTY_C(float, UpSpeed, 25.0f);

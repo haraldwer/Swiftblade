@@ -1,15 +1,15 @@
-﻿#include "Sword.h"
+﻿#include "Weapon.h"
 
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Rendering/Debug/DebugDraw.h"
 #include "Utility/Time/Time.h"
 
-void Sword::Init()
+void Weapon::Init()
 {
     StartPos = Get<ECS::Transform>().GetPosition(); 
 }
 
-void Sword::Update(double InDelta)
+void Weapon::Update(double InDelta)
 {
     auto& t = Get<ECS::Transform>();
     if (t.GetParent() == ECS::InvalidID)
@@ -19,3 +19,4 @@ void Sword::Update(double InDelta)
         t.SetRotation(QuatF::FromEuler(Vec3F(0.0f, time * RotationSpeed, 0.0f)));
     }
 }
+

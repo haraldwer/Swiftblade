@@ -13,10 +13,13 @@
 #include "Game/ECS/SectionEnd.h"
 #include "Game/UI/Menus/MenuGameEnd.h"
 #include "Game/UI/Menus/MenuDeath.h"
-#include "Sword/Sword.h"
+#include "Weapon/Weapon.h"
 
 void ECS::Player::Init()
 {
+    if (Engine::InstanceBase::Get().IsEditor())
+        return; 
+    
     // Find camera and collider
     const auto& trans = Get<Transform>(GetID());
     for (const EntityID child : trans.GetChildren())
@@ -28,6 +31,7 @@ void ECS::Player::Init()
     }
 
     // Create sword
+    
     const auto& state = GameState::Get();
     if (SwordID == InvalidID && (state.Checkpoint > 0 || state.InArena))
     {
@@ -58,7 +62,7 @@ void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
             TriggerSectionEnd();
         if (GetSystem<SysGameEnd>().Contains(parent))
             TriggerGameEnd();
-        if (TryGet<Sword>(parent))
+        if (TryGet<Weapon>(parent))
             PickupSword(parent); 
     }
 }
