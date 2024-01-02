@@ -1,4 +1,5 @@
 
+#include "Engine/Input/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Rendering/Renderer.h"
 #include "Engine/Resource/Manager.h"
@@ -12,6 +13,7 @@ int main()
     Rendering::Renderer renderer;
     Resource::Manager resourceManager;
     Engine::Manager instanceManager;
+    Input::Manager inputManager; 
     renderer.Init();
 
     // Push game instance by default
@@ -28,6 +30,7 @@ int main()
     while (true)
     {
         resourceManager.Update();
+        inputManager.Update(); 
         
         // Update instances
         if (IsKeyPressed(KEY_ESCAPE))
