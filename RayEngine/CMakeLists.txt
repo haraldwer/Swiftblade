@@ -48,6 +48,8 @@ target_include_directories(${PROJECT_NAME}
   PRIVATE
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/physx
+    ${PROJECT_SOURCE_DIR}/include/nakama-sdk
+    ${PROJECT_SOURCE_DIR}/include/nonstd
     ${PROJECT_SOURCE_DIR}/source
 )
 

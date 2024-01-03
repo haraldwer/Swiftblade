@@ -31,8 +31,8 @@ namespace Rendering
         Vec2F GetWindowSize() const
         {
             return {
-                CurrConfig.Width,
-                CurrConfig.Height
+                static_cast<float>(CurrConfig.Width),
+                static_cast<float>(CurrConfig.Height)
             };
         }
         

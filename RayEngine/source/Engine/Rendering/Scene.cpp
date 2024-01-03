@@ -135,7 +135,7 @@ void RenderScene::Render()
 
 void RenderScene::DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices) const
 {
-    int instances = InMatrices.size();
+    int instances = static_cast<int>(InMatrices.size());
     
     // Send required data to shader (matrices, values)
     //-----------------------------------------------------
