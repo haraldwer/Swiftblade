@@ -124,7 +124,7 @@ namespace IMGUIZMO_NAMESPACE
    void Perspective(float fovyInDegrees, float aspectRatio, float znear, float zfar, float* m16)
    {
       float ymax, xmax;
-      ymax = znear * tanf(fovyInDegrees * DEG2RAD);
+      ymax = znear * tanf(fovyInDegrees * static_cast<float>(DEG2RAD));
       xmax = ymax * aspectRatio;
       Frustum(-xmax, xmax, -ymax, ymax, znear, zfar, m16);
    }
@@ -2384,7 +2384,7 @@ namespace IMGUIZMO_NAMESPACE
          gContext.mRotationAngle = ComputeAngleOnPlan();
          if (snap)
          {
-            float snapInRadian = snap[0] * DEG2RAD;
+            float snapInRadian = snap[0] * static_cast<float>(DEG2RAD);
             ComputeSnap(&gContext.mRotationAngle, snapInRadian);
          }
          vec_t rotationAxisLocalSpace;
@@ -2441,9 +2441,9 @@ namespace IMGUIZMO_NAMESPACE
 
       mat.OrthoNormalize();
 
-      rotation[0] = RAD2DEG * atan2f(mat.m[1][2], mat.m[2][2]);
-      rotation[1] = RAD2DEG * atan2f(-mat.m[0][2], sqrtf(mat.m[1][2] * mat.m[1][2] + mat.m[2][2] * mat.m[2][2]));
-      rotation[2] = RAD2DEG * atan2f(mat.m[0][1], mat.m[0][0]);
+      rotation[0] = static_cast<float>(RAD2DEG) * atan2f(mat.m[1][2], mat.m[2][2]);
+      rotation[1] = static_cast<float>(RAD2DEG) * atan2f(-mat.m[0][2], sqrtf(mat.m[1][2] * mat.m[1][2] + mat.m[2][2] * mat.m[2][2]));
+      rotation[2] = static_cast<float>(RAD2DEG) * atan2f(mat.m[0][1], mat.m[0][0]);
 
       translation[0] = mat.v.position.x;
       translation[1] = mat.v.position.y;
@@ -2457,7 +2457,7 @@ namespace IMGUIZMO_NAMESPACE
       matrix_t rot[3];
       for (int i = 0; i < 3; i++)
       {
-         rot[i].RotationAxis(directionUnary[i], rotation[i] * DEG2RAD);
+         rot[i].RotationAxis(directionUnary[i], rotation[i] * static_cast<float>(DEG2RAD));
       }
 
       mat = rot[0] * rot[1] * rot[2];
@@ -2793,7 +2793,7 @@ namespace IMGUIZMO_NAMESPACE
       // view/projection matrices
       const float distance = 3.f;
       matrix_t cubeProjection, cubeView;
-      float fov = acosf(distance / (sqrtf(distance * distance + 3.f))) * RAD2DEG;
+      float fov = acosf(distance / (sqrtf(distance * distance + 3.f))) * static_cast<float>(RAD2DEG);
       Perspective(fov / sqrtf(2.f), size.x / size.y, 0.01f, 1000.f, cubeProjection.m16);
 
       vec_t dir = makeVect(viewInverse.m[2][0], viewInverse.m[2][1], viewInverse.m[2][2]);

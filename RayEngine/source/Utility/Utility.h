@@ -10,7 +10,7 @@
 #define LOG(text) LOG_CONSOLE(text);
 
 #define CHECK_ASSERT(condition, text) \
-assert(!(condition) && text );
+assert(!(condition) && text);
 
 #define CHECK_RETURN(condition, ...) \
 if (condition) { return __VA_ARGS__; }

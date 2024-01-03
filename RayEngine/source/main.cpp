@@ -1,5 +1,5 @@
 
-#include "Database/Manager.h"
+#include "Engine/Input/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Rendering/Renderer.h"
 #include "Engine/Resource/Manager.h"
@@ -13,10 +13,8 @@ int main()
     Rendering::Renderer renderer;
     Resource::Manager resourceManager;
     Engine::Manager instanceManager;
-    DB::Manager databaseManager;
-    
+    Input::Manager inputManager; 
     renderer.Init();
-    databaseManager.Init();
 
     // Push game instance by default
     instanceManager.Push<MenuInstance>();
@@ -32,7 +30,7 @@ int main()
     while (true)
     {
         resourceManager.Update();
-        databaseManager.Update();
+        inputManager.Update(); 
         
         // Update instances
         if (IsKeyPressed(KEY_ESCAPE))
