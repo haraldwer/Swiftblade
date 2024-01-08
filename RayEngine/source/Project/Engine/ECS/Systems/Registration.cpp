@@ -9,7 +9,7 @@
 #include "Collider.h"
 #include "Rigidbody.h"
 #include "Game/ECS/Checkpoint.h"
-#include "Game/ECS/CubeVolume.h"
+#include "Game/ECS/Volume/CubeVolume.h"
 #include "Game/ECS/SectionEnd.h"
 #include "Game/ECS/GameEnd.h"
 #include "Game/ECS/RoomConnection.h"

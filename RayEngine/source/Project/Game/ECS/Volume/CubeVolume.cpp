@@ -68,10 +68,19 @@ bool ECS::CubeVolume::Deserialize(const DeserializeObj& InObj)
 
             // Split on ,
             const String entryStr = entriesStr.substr(valueIndex, entryFind - valueIndex);
-            const int entry = std::stoi(entryStr);
+            const uint32 entry = std::stoi(entryStr);
 
             // Add to data!
             Data[entry] = value;
+
+            // Set bounds!
+            const Coord coord = entry;
+            MinBounds.x = MIN(coord.Pos.X, MinBounds.x);
+            MinBounds.y = MIN(coord.Pos.Y, MinBounds.y);
+            MinBounds.z = MIN(coord.Pos.Z, MinBounds.z);
+            MaxBounds.x = MAX(coord.Pos.X, MaxBounds.x);
+            MaxBounds.y = MAX(coord.Pos.Y, MaxBounds.y);
+            MaxBounds.z = MAX(coord.Pos.Z, MaxBounds.z);
             
             valueIndex = entryFind + 1; 
         }
@@ -82,7 +91,7 @@ bool ECS::CubeVolume::Deserialize(const DeserializeObj& InObj)
     return result; 
 }
 
-Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld)
+Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld) const
 {
     const Mat4F mat = Vec3F(
         InCoord.Pos.X,
@@ -94,7 +103,7 @@ Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld)
     return (mat * InWorld).GetPosition(); 
 }
 
-Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld)
+Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) const
 {
     // Transform to local space
     Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition(); 
@@ -121,30 +130,38 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
 {
     auto& v = Get<CubeVolume>(InID);
     auto& data = v.Data;
+    auto& minB = v.MinBounds;
+    auto& maxB = v.MaxBounds;
     
-    const int startX = MIN(InStart.Pos.X, InEnd.Pos.X); 
-    const int startY = MIN(InStart.Pos.Y, InEnd.Pos.Y); 
-    const int startZ = MIN(InStart.Pos.Z, InEnd.Pos.Z);
-    const int endX = MAX(InStart.Pos.X, InEnd.Pos.X); 
-    const int endY = MAX(InStart.Pos.Y, InEnd.Pos.Y); 
-    const int endZ = MAX(InStart.Pos.Z, InEnd.Pos.Z);
+    const uint8 startX = MIN(InStart.Pos.X, InEnd.Pos.X); 
+    const uint8 startY = MIN(InStart.Pos.Y, InEnd.Pos.Y); 
+    const uint8 startZ = MIN(InStart.Pos.Z, InEnd.Pos.Z);
+    const uint8 endX = MAX(InStart.Pos.X, InEnd.Pos.X); 
+    const uint8 endY = MAX(InStart.Pos.Y, InEnd.Pos.Y); 
+    const uint8 endZ = MAX(InStart.Pos.Z, InEnd.Pos.Z);
     
-    for (int x = startX; x <= endX; x++)
+    for (uint8 x = startX; x <= endX; x++)
     {
-        for (int y = startY; y <= endY; y++)
+        for (uint8 y = startY; y <= endY; y++)
         {
-            for (int z = startZ; z <= endZ; z++)
+            for (uint8 z = startZ; z <= endZ; z++)
             {
                 if (InVal == 0)
                 {
-                    data.erase(Coord(x, y, z).Key)
+                    data.erase(Coord(x, y, z).Key);
                 }
-                
-                InVal == 0 ?
-                   data.erase(Coord(x, y, z).Key) :
-                   data[Coord(x, y, z).Key] = InVal;
+                else
+                {
+                    data[Coord(x, y, z).Key] = InVal;
 
-                
+                    // Set cached bound
+                    minB.x = MIN(x, minB.x);
+                    minB.y = MIN(y, minB.y);
+                    minB.z = MIN(z, minB.z);
+                    maxB.x = MAX(x, maxB.x);
+                    maxB.y = MAX(y, maxB.y);
+                    maxB.z = MAX(z, maxB.z);
+                }
             }
         }
     }
@@ -212,7 +229,10 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         CHECK_CONTINUE(entry.second == 0)
         cubes.emplace_back(InComponent.CoordToPos(entry.first, world));
     }
-    Physics::Manager::Get().AddCubes(InID, cubes, InComponent.Scale.Get()); 
+    Physics::Manager::Get().AddCubes(InID, cubes, InComponent.Scale.Get());
+
+    // Dress the volume
+    InComponent.Dresser.Get().Dress(InComponent, *this); 
 }
 
 void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
@@ -234,6 +254,9 @@ void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double I
         transforms.emplace_back(InComponent.CoordToPos(entry.first, world));
     }
     DrawCubes(transforms, false);
+
+    // Draw dress
+    InComponent.Dresser.Get().Draw();
 }
 void ECS::SysCubeVolume::DrawCubes(const Vector<Mat4F>& InTransforms, bool InEditMesh) const
 {

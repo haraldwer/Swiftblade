@@ -3,8 +3,7 @@
 #include "RoomSubEditorManager.h"
 #include "Engine/ECS/Entity.h"
 #include "Engine/ECS/Manager.h"
-#include "Engine/ECS/Systems/Transform.h"
-#include "Game/ECS/CubeVolume.h"
+#include "Game/ECS/Volume/CubeVolume.h"
 
 void RoomSubEditor::SetOwner(RoomSubEditorManager* InOwner)
 {

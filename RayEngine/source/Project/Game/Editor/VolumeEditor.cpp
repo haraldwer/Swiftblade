@@ -3,7 +3,7 @@
 #include "Engine/ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Rendering/Instances/CameraInstance.h"
-#include "Game/ECS/CubeVolume.h"
+#include "Game/ECS/Volume/CubeVolume.h"
 #include "ImGui/imgui.h"
 
 void VolumeEditor::Init()
@@ -51,7 +51,7 @@ void VolumeEditor::Update(double InDelta)
             struct VolumeChange
             {
                 ECS::ID VolumeID; 
-                ECS::Volume OriginalVolume; 
+                ECS::CubeVolumeData OriginalVolume; 
                 Coord Start;
                 Coord End;
             };

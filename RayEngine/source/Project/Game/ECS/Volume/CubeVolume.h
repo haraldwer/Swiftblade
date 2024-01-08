@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CubeVolumeDresser.h"
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
 #include "Engine/Rendering/Instances/MeshInstance.h"
@@ -38,6 +39,7 @@ namespace ECS
     struct CubeVolume : Component<CubeVolume>
     {
         PROPERTY_D(float, Scale, 1.0f);
+        PROPERTY(CubeVolumeDresser, Dresser); 
         
         CubeVolumeData Data;
 
@@ -47,8 +49,8 @@ namespace ECS
         void Serialize(SerializeObj& InOutObj) const override;
         bool Deserialize(const DeserializeObj& InObj) override;
         
-        Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld);
-        Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld);
+        Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld) const;
+        Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) const;
     };
 
     class SysCubeVolume : public System<CubeVolume>
@@ -68,7 +70,8 @@ namespace ECS
     private:
         
         MeshInstance BlockMesh; 
-        MeshInstance EditMesh; 
+        MeshInstance EditMesh;
+
     };
 }
 

@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Game/ECS/CubeVolume.h"
+#include "Game/ECS/Volume/CubeVolume.h"
 
 void RoomSubEditorManager::Init(const RoomType InType)
 {

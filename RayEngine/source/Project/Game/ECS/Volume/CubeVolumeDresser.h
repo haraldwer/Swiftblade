@@ -7,25 +7,38 @@
 
 namespace ECS
 {
+    class SysCubeVolume;
+}
+
+namespace ECS
+{
     struct CubeVolume;
 }
 
+/*
 struct DressData : PropertyOwner<DressData>
+{
+    PROPERTY(ResModel, Model);
+    PROPERTY(ResRM, Material);
+};
+
+struct DressVisuals : PropertyOwner<DressVisuals>
 {
     // For each type, there should be a dress piece
     // For now, start with flat wall
-
-    PROPERTY(ResModel, FlatWall);
+    PROPERTY(DressData, FlatWall);
 };
+*/
 
 struct CubeVolumeDresser : PropertyOwner<CubeVolumeDresser>
 {
-    void Dress(const ECS::CubeVolume& InVolume);
+    void Dress(const ECS::CubeVolume& InVolume, const ECS::SysCubeVolume& InSys);
     void Draw(); 
 
-    PROPERTY(DressData, VisualData); 
+    //PROPERTY(DressVisuals, VisualData); 
     
 private:
+    uint8 EvaluateDress(const Array<uint8, 8>& InNeighbors) const;
     
     struct ModelData
     {

@@ -33,3 +33,8 @@ inline unsigned int DefaultInitializationValue<unsigned int>()
     return 0;
 }
 
+template<>
+inline unsigned char DefaultInitializationValue<unsigned char>()
+{
+    return 0;
+}

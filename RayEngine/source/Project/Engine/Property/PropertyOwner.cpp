@@ -110,7 +110,12 @@ uint16 PropertyOwnerBase::PtrToOff(PropertyBase* InPtr) const
     const uint64 propertyAddr = reinterpret_cast<uint64>(InPtr);
     const uint64 thisAddr = reinterpret_cast<uint64>(this);
     const uint64 diff = propertyAddr - thisAddr;
+
+    // For some reason, some classes are not close in memory to their members. I suspect this is due to optimization.
+    // But what's the consequence of not doing this assert? An incorrect reinterpret-cast!
+    // Maybe there is a way to disable this specific optimization? 
     CHECK_ASSERT(diff > 1000, "Address difference too great, something is wrong");
+
     return static_cast<uint16>(diff);
 }
 
