@@ -25,6 +25,6 @@ void main()
     if (cameraFade < 0.01)
         discard; 
         
-    vec3 color = vec3(cameraFade);
+    vec3 color = vec3(0.0f, 0.0f, 1.0f) * cameraFade;
     finalColor = vec4(color, 1.0f);
 }

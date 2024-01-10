@@ -11,7 +11,6 @@ void Utility::SetWorkingDir()
         String file = curr.filename().string();
         curr = curr.parent_path();
     }
-    LOG("Test 123 123 123")
     LOG("Setting working directory to \"" + curr.string() + "\"");
     std::filesystem::current_path(curr.concat("\\content")); 
 }
@@ -44,6 +43,11 @@ bool Utility::WriteFile(const String& InPath, const String& InContent)
     out << InContent;
     out.close();
     return true;
+}
+
+bool Utility::FileExists(const String& InPath)
+{
+    return std::filesystem::exists(InPath);
 }
 
 Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
