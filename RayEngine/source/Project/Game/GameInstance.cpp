@@ -67,7 +67,7 @@ void GameInstance::Update(double InDelta)
         DebugCamera.Update(InDelta); 
 }
 
-void GameInstance::DrawUI()
+void GameInstance::Draw()
 {
     Menus.Draw(); 
 }

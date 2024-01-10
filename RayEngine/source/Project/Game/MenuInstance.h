@@ -7,5 +7,5 @@ class MenuInstance : public Engine::Instance
 public: 
     void Init() override;
     void Update(double InDelta) override;
-    void DrawUI() override;
+    void Draw() override;
 };

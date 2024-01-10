@@ -15,7 +15,13 @@
 void BlueprintEditor::Init()
 {
     Instance::Init();
-    SetBP(ResBlueprint("Blueprints/untitled.json"));
+    Config.LoadConfig();
+    SetBP(Config.Blueprint);
+}
+
+void BlueprintEditor::Deinit()
+{
+    Config.SaveConfig();
 }
 
 void BlueprintEditor::SetBP(const ResBlueprint& InBP)
@@ -23,8 +29,9 @@ void BlueprintEditor::SetBP(const ResBlueprint& InBP)
     if (InstanceID != ECS::InvalidID)
         ECS::Manager::Get().DestroyEntity(InstanceID);
     
-    Blueprint = InBP;
-    if (BlueprintResource* bp = Blueprint.Get())
+    Config.Blueprint = InBP;
+    Config.SaveConfig();
+    if (BlueprintResource* bp = Config.Blueprint.Get().Get())
         InstanceID = bp->Instantiate();
 
     SelectedID = InstanceID; 
@@ -41,7 +48,7 @@ void BlueprintEditor::Update(double InDelta)
     if (IsKeyDown(KEY_LEFT_CONTROL))
     {
         if (IsKeyPressed(KEY_S))
-            if (BlueprintResource* bp = Blueprint.Get())
+            if (BlueprintResource* bp = Config.Blueprint.Get().Get())
                 bp->Save(InstanceID); 
         
         if (IsKeyPressed(KEY_P))
@@ -49,19 +56,19 @@ void BlueprintEditor::Update(double InDelta)
     }
 }
 
-void BlueprintEditor::DrawUI()
+void BlueprintEditor::Draw()
 {
 }
 
-void BlueprintEditor::DrawDebug()
+void BlueprintEditor::DrawDebugUI()
 {
     if (ImGui::Begin("Blueprint Editor"))
     {
-        if (Blueprint.Edit("BP"))
-            SetBP(Blueprint);
+        if (Config.Blueprint.Edit())
+            SetBP(Config.Blueprint);
         ImGui::SameLine();
         if (ImGui::Button("Save"))
-            if (BlueprintResource* bp = Blueprint.Get())
+            if (BlueprintResource* bp = Config.Blueprint.Get().Get())
                 bp->Save(InstanceID);
 
         ImGui::Spacing();

@@ -1,6 +1,7 @@
 ﻿#include "Manager.h"
 
 #include "Impl.h"
+#include "ImGui/imgui.h"
 
 Resource::Base* Resource::Manager::GetResource(const String& InIdentifier)
 {
@@ -61,3 +62,14 @@ void Resource::Manager::Deinit()
     }
     Resources.clear();
 }
+
+void Resource::Manager::DrawDebugUI()
+{
+    if (ImGui::Begin("Resources"))
+    {
+        for (const auto& res : Resources)
+            ImGui::Text(res.first.c_str());
+    }
+    ImGui::End();
+}
+

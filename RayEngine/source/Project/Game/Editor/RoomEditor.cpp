@@ -83,7 +83,7 @@ void RoomEditor::Update(double InDelta)
         Engine::Manager::Get().Pop(); 
 }
 
-void RoomEditor::DrawUI()
+void RoomEditor::Draw()
 {
     CHECK_ASSERT(!UI, "UI Invalid");
     
@@ -92,7 +92,7 @@ void RoomEditor::DrawUI()
     SubEditorManager.UpdateUI(Camera.IsFullyControlling());
 }
 
-void RoomEditor::DrawDebug()
+void RoomEditor::DrawDebugUI()
 {
     if (ImGui::Begin("Room Editor"))
     {

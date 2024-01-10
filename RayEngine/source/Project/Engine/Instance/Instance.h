@@ -14,8 +14,7 @@ namespace Engine
         virtual void Init() = 0;
         virtual void Deinit() = 0;
         virtual void Update(double InDelta) {}
-        virtual void DrawUI() {}
-        virtual void DrawDebug() {}
+        virtual void Draw() {}
         
         virtual bool IsEditor() const { return false; } 
         
@@ -23,7 +22,6 @@ namespace Engine
         {
             return *reinterpret_cast<Rendering::LogicScene*>(&RenderScene);
         }
-
 
     private:
         Rendering::Scene RenderScene;

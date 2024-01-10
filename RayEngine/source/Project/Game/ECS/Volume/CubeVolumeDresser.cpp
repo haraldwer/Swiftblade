@@ -75,7 +75,6 @@ void CubeVolumeDresser::Dress(const ECS::CubeVolume& InVolume, const ECS::SysCub
 
 uint8 CubeVolumeDresser::EvaluateDress(const Array<uint8, 8>& InNeighbors) const
 {
-    // Flat wall
 
     const auto test = [](const Set<uint8>& InValid, const Array<uint8, 8>& InNeighbors)
     {
@@ -86,6 +85,7 @@ uint8 CubeVolumeDresser::EvaluateDress(const Array<uint8, 8>& InNeighbors) const
     };
 
     
+    // Flat wall
     if (test({0, 1, 4, 5}, InNeighbors))
         return 1;
 

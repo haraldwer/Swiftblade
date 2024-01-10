@@ -14,7 +14,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Update(double InDelta) override;
-    void DrawUI() override;
+    void Draw() override;
     
     void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
     void SetState(const GameState& InState);

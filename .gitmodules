@@ -1,3 +1,6 @@
 [submodule "RayEngine/source/ImGui/FileBrowser"]
 	path = RayEngine/source/ImGui/FileBrowser
 	url = https://github.com/haraldwer/ImGui-FileBrowser
+[submodule "RayEngine/source/Project/Engine/Editor/FileBrowser"]
+	path = RayEngine/source/Project/Engine/Editor/FileBrowser
+	url = https://github.com/haraldwer/ImGui-FileBrowser
