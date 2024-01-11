@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Editor/DebugWindow/DebugUI.h"
+#include "..\Editor\Debugging\Window.h"
 #include "Utility/Singelton.h"
 #include "Utility/Time/Timer.h"
 
@@ -7,7 +7,7 @@ namespace Resource
 {
     struct Base;
     
-    class Manager : public Utility::Singelton<Manager, true>, public DebugUI
+    class Manager : public Utility::Singelton<Manager, true>, public Debug::Window
     {
     public:
 
@@ -18,7 +18,7 @@ namespace Resource
         void HotReload(int InNum) const;
         void Deinit();
 
-        void DrawDebugUI() override;
+        void DrawDebugWindow() override;
         
     private:
         Map<String, Base*> Resources;

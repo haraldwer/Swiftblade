@@ -3,7 +3,7 @@
 #include "CubeVolume.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Instance.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Engine/Rendering/Debug/Draw.h"
 
 void CubeVolumeDresser::Dress(const ECS::CubeVolume& InVolume, const ECS::SysCubeVolume& InSys)
 {

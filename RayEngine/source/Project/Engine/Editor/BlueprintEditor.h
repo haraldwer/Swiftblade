@@ -1,6 +1,6 @@
 #pragma once
 #include "EditorCamera.h"
-#include "DebugWindow/DebugUI.h"
+#include "Debugging\Window.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Instance/Instance.h"
 
@@ -13,7 +13,7 @@ struct BlueprintEditorConfig : PropertyOwner<BlueprintEditorConfig>
     void SaveConfig() const { Save(Path); }
 };
 
-class BlueprintEditor : public Engine::Instance, public DebugUI
+class BlueprintEditor : public Engine::Instance, public Debug::Window
 {
     friend class BlueprintDebugUI;
 public:
@@ -22,7 +22,7 @@ public:
     void Deinit() override;
     void Update(double InDelta) override;
     void Draw() override;
-    void DrawDebugUI() override;
+    void DrawDebugWindow() override;
     bool IsEditor() const override { return true; }
     
     void SetBP(const ResBlueprint& InBP);

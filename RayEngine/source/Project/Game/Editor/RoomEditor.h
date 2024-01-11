@@ -4,7 +4,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Scene/Scene.h"
 #include "RoomSubEditorManager.h"
-#include "Engine/Editor/DebugWindow/DebugUI.h"
+#include "Engine/Editor/Debugging/Window.h"
 
 struct RoomEditorConfig : PropertyOwner<RoomEditorConfig>
 {
@@ -16,7 +16,7 @@ struct RoomEditorConfig : PropertyOwner<RoomEditorConfig>
     void SaveConfig() const { Save(Path); }
 };
 
-class RoomEditor : public Engine::Instance, public DebugUI
+class RoomEditor : public Engine::Instance, public Debug::Window
 {
 
 public:
@@ -24,7 +24,7 @@ public:
     void Deinit() override;
     void Update(double InDelta) override;
     void Draw() override;
-    void DrawDebugUI() override;
+    void DrawDebugWindow() override;
     bool IsEditor() const override { return true; }
 
 private:

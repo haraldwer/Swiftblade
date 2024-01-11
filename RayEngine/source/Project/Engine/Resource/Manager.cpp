@@ -63,7 +63,7 @@ void Resource::Manager::Deinit()
     Resources.clear();
 }
 
-void Resource::Manager::DrawDebugUI()
+void Resource::Manager::DrawDebugWindow()
 {
     if (ImGui::Begin("Resources"))
     {

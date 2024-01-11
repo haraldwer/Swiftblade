@@ -60,7 +60,7 @@ void BlueprintEditor::Draw()
 {
 }
 
-void BlueprintEditor::DrawDebugUI()
+void BlueprintEditor::DrawDebugWindow()
 {
     if (ImGui::Begin("Blueprint Editor"))
     {

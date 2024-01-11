@@ -6,7 +6,7 @@
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Engine/Rendering/Debug/Draw.h"
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "Utility/Math/AngleConversion.h"
 #include "Utility/Math/Geometry/Plane.h"

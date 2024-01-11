@@ -4,7 +4,7 @@
 #include "Engine/Instance/Manager.h"
 #include "Engine/Physics/CollisionShape.h"
 #include "Engine/Physics/Manager.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Engine/Rendering/Debug/Draw.h"
 
 void ECS::SysCollider::Init(EntityID InEntity, Collider& InComponent)
 {

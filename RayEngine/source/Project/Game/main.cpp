@@ -1,6 +1,6 @@
 
 #include "Engine/Editor/BlueprintEditor.h"
-#include "Engine/Editor/DebugWindow/DebugUIManager.h"
+#include "..\Engine\Editor\Debugging\Manager.h"
 #include "Engine/Input/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Rendering/Renderer.h"
@@ -16,7 +16,7 @@ int main()
     
     // Renderer and resource manager are shared between instances
     Rendering::Renderer renderer;
-    DebugUIManager debugUI; 
+    Debug::Manager debugUI; 
     Resource::Manager resourceManager;
     Engine::Manager instanceManager;
     Input::Manager inputManager;

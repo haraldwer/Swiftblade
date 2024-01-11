@@ -92,7 +92,7 @@ void RoomEditor::Draw()
     SubEditorManager.UpdateUI(Camera.IsFullyControlling());
 }
 
-void RoomEditor::DrawDebugUI()
+void RoomEditor::DrawDebugWindow()
 {
     if (ImGui::Begin("Room Editor"))
     {
