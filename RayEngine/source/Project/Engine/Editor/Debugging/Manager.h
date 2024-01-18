@@ -15,7 +15,7 @@ namespace Debug
         void DrawDebugWindow();
         bool Enabled() const { return DebugEnabled; }
         
-        void Register(Window* InWindow) { PendingRegister.insert(InWindow); }
+        void Register(Window* InWindow);
         void Unregister(Window* InWindow);
 
     private:

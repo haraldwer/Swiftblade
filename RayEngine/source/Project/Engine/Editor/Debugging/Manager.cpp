@@ -16,7 +16,8 @@ void Debug::Manager::DrawDebugWindow()
 {
     for (auto w : PendingRegister)
     {
-        const String name = w->DebugWindowName(); 
+        const String name = w->DebugWindowName();
+        CHECK_ASSERT(NameToWindow.contains(name), "Window already registered"); 
         NameToWindow[name] = w;
         WindowToName[w] = name; 
         if (Config.OpenWindows.Get().contains(name))
@@ -72,6 +73,12 @@ void Debug::Manager::DrawDebugWindow()
             ImGui::End(); 
         }
     }
+}
+
+void Debug::Manager::Register(Window* InWindow)
+{
+    CHECK_ASSERT(WindowToName.contains(InWindow), "Window already registered"); 
+    PendingRegister.insert(InWindow);
 }
 
 void Debug::Manager::Unregister(Window* InWindow)
