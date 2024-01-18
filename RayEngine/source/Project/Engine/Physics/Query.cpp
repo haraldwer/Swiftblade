@@ -9,7 +9,7 @@
 #include "QueryFilter.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Rendering/Renderer.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Engine/Rendering/Debug/Draw.h"
 #include "Utility/PhysXUtility.h"
 
 Physics::QueryResult::Hit Physics::QueryResult::ClosestHit() const

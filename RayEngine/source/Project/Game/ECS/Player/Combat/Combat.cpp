@@ -2,7 +2,7 @@
 
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Engine/Rendering/Debug/Draw.h"
 #include "Game/ECS/Enemies/Enemy.h"
 #include "Game/ECS/Player/Weapon/Weapon.h"
 

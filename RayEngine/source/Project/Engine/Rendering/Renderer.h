@@ -6,7 +6,7 @@
 
 namespace Rendering
 {
-    class Renderer : public Utility::Singelton<Renderer, true>
+    class Renderer : public Utility::Singelton<Renderer, true>, public Debug::Window
     {
 
     public:
@@ -19,6 +19,9 @@ namespace Rendering
         void BeginVirtualFrame(const RenderTexture2D* InTarget = nullptr);
         void RenderScenes(double InDelta);
         void EndVirtualFrame();
+
+        String DebugWindowName() const override { return "Viewport"; }
+        void DrawDebugWindow() override;
 
         void BeginFrame();
         void EndFrame();
@@ -45,6 +48,8 @@ namespace Rendering
         }
 
     private:
+
+        void CreateVirtualTarget(int InUnscaledWidth, int InUnscaledHeight);
 
         Config CurrConfig; 
         Vector<Scene> Scenes;

@@ -24,7 +24,7 @@ namespace Utility
     void SameLine();
     bool AddButton();
     bool RemoveButton();
-    
+
     template <class T>
     bool Edit(const String& InName, Vector<T>& InOutData)
     {
@@ -42,6 +42,22 @@ namespace Utility
                 InOutData.pop_back();
             EndList();
         }
+        return edited; 
+    }
+    
+    template <class T>
+    bool Edit(const String& InName, Set<T>& InOutData)
+    {
+        // Convert to array
+        Vector<T> arr = Vector<T>(InOutData.begin(), InOutData.end());
+
+        // Edit array
+        const bool edited = Edit(InName, arr);
+
+        // Convert back
+        if (edited)
+            InOutData = Set<T>(arr.begin(), arr.end());
+        
         return edited; 
     }
 

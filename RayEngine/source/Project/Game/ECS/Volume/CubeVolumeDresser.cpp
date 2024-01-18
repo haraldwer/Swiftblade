@@ -66,7 +66,7 @@ void CubeVolumeDresser::Dress(const ECS::CubeVolume& InVolume, const ECS::SysCub
     {
         auto& data = Instances.emplace_back();
         data.Instances = p.second;
-        num += p.second.size();
+        num += static_cast<int>(p.second.size());
         data.Mesh.Model = model;
         data.Mesh.Material = material;
     }
@@ -78,7 +78,7 @@ uint8 CubeVolumeDresser::EvaluateDress(const Array<uint8, 8>& InNeighbors) const
 
     const auto test = [](const Set<uint8>& InValid, const Array<uint8, 8>& InNeighbors)
     {
-        for (int i = 0; i < 8; i++)
+        for (uint8 i = 0; i < 8; i++)
             if (InValid.contains(i) != InNeighbors[i])
                 return false;
         return true; 

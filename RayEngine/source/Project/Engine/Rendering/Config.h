@@ -1,10 +1,10 @@
 #pragma once
-#include "..\Property\Property.h"
-#include "Engine/Property/PropertyOwner.h"
+
+#include "Engine/BaseConfig.h"
 
 namespace Rendering
 {
-    struct Config : PropertyOwner<Config>
+    struct Config : BaseConfig<Config>
     {
         PROPERTY_D(int, Width, 1600);
         PROPERTY_D(int, Height, 900);
@@ -14,8 +14,6 @@ namespace Rendering
         PROPERTY_D(bool, VSync, true);
         PROPERTY_D(bool, MSAA, true);
 
-        inline static const String Path = "Configs/C_Rendering.json";
-        void LoadConfig() { Load(Path); }
-        void SaveConfig() const { Save(Path); }
+        String Name() const override { return "Rendering"; };
     };
 }

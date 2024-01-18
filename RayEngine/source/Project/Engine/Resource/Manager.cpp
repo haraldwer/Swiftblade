@@ -65,30 +65,37 @@ void Resource::Manager::Deinit()
 
 void Resource::Manager::DrawDebugWindow()
 {
-    if (ImGui::Begin("Resources"))
+    ImGui::Text(String("Total resources: " + std::to_string(Resources.size())).c_str());
+
+    int c = 0;
+    for (auto r : Resources)
+        if (r.second->Loaded)
+            c++; 
+    ImGui::Text(String("Loaded resources: " + std::to_string(c)).c_str());
+
+    static bool showOnlyLoaded = true;
+    ImGui::Checkbox("Show only loaded", &showOnlyLoaded); 
+    
+    if (ImGui::BeginTable("Resources", 3, ImGuiTableFlags_Borders))
     {
-        ImGui::Text(String("Total: " + std::to_string(Resources.size())).c_str());
-        if (ImGui::BeginTable("Resources", 3, ImGuiTableFlags_Borders))
+        ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("Count", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Loaded", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableHeadersRow();
+        
+        for (const auto& res : Resources)
         {
-            ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch);
-            ImGui::TableSetupColumn("Count", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn("Loaded", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableHeadersRow();
-            
-            for (const auto& res : Resources)
-            {
-                ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                ImGui::Text(res.first.c_str());
-                ImGui::TableNextColumn();
-                CHECK_CONTINUE(!res.second); 
-                ImGui::Text(std::to_string(res.second->Count).c_str());
-                ImGui::TableNextColumn();
-                ImGui::Text(res.second->Loaded ? "True" : "False");
-            }
-            ImGui::EndTable(); 
+            CHECK_CONTINUE(showOnlyLoaded && !res.second->Loaded);
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text(res.first.c_str());
+            ImGui::TableNextColumn();
+            CHECK_CONTINUE(!res.second); 
+            ImGui::Text(std::to_string(res.second->Count).c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text(res.second->Loaded ? "True" : "False");
         }
+        ImGui::EndTable(); 
     }
-    ImGui::End();
 }
 

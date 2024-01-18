@@ -1,6 +1,5 @@
 
-#include "Engine/Editor/BlueprintEditor.h"
-#include "..\Engine\Editor\Debugging\Manager.h"
+#include "Engine/Editor/Debugging/Manager.h"
 #include "Engine/Input/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Rendering/Renderer.h"
@@ -14,17 +13,18 @@ int main()
 {
     Utility::SetWorkingDir();
     
-    // Renderer and resource manager are shared between instances
+    // These things are shared between instances
+    Debug::Manager debugManager;
     Rendering::Renderer renderer;
-    Debug::Manager debugUI; 
     Resource::Manager resourceManager;
     Engine::Manager instanceManager;
     Input::Manager inputManager;
     
+    debugManager.Init();
     renderer.Init();
 
     // Push game instance by default
-    instanceManager.Push<BlueprintEditor>();
+    instanceManager.Push<MenuInstance>();
 
     // Timekeeping
     double tickTimer = 0.0;
@@ -85,13 +85,14 @@ int main()
         instance->Draw();
         renderer.EndVirtualFrame();
         renderer.BeginFrame();
-        debugUI.DrawDebugUI();
+        debugManager.DrawDebugWindow();
         renderer.EndFrame(); 
     }
     
+    debugManager.Deinit();
     instanceManager.Clear(); 
     renderer.Deinit();
-    resourceManager.Deinit(); 
+    resourceManager.Deinit();
     
     return 0;
 }

@@ -3,10 +3,10 @@
 
 Debug::Window::Window()
 {
-    Debug::Manager::Get().Register(this); 
+    Manager::Get().Register(this); 
 }
 
 Debug::Window::~Window()
 {
-    Debug::Manager::Get().Unregister(this); 
+    Manager::Get().Unregister(this); 
 }

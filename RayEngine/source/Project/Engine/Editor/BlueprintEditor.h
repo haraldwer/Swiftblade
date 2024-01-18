@@ -1,16 +1,14 @@
 #pragma once
 #include "EditorCamera.h"
 #include "Debugging\Window.h"
+#include "..\BaseConfig.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Instance/Instance.h"
 
-struct BlueprintEditorConfig : PropertyOwner<BlueprintEditorConfig>
+struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
 {
     PROPERTY_D(ResBlueprint, Blueprint, "Blueprints/untitled.json");
-
-    inline static const String Path = "Configs/C_BlueprintEditor.json";
-    void LoadConfig() { Load(Path); }
-    void SaveConfig() const { Save(Path); }
+    String Name() const override { return "BPEditor"; }
 };
 
 class BlueprintEditor : public Engine::Instance, public Debug::Window
@@ -23,6 +21,7 @@ public:
     void Update(double InDelta) override;
     void Draw() override;
     void DrawDebugWindow() override;
+    String DebugWindowName() const override { return "Blueprint Editor"; }
     bool IsEditor() const override { return true; }
     
     void SetBP(const ResBlueprint& InBP);

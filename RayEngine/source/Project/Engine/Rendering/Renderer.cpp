@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Engine/Editor/Debugging/Manager.h"
 #include "ImGui/rlImGui.h"
 #include "ImGui\imgui_themes.h"
 #include "Engine/Editor/Gizmo/ImGuizmo.h"
@@ -46,36 +47,68 @@ void Renderer::RenderScenes(double InDelta)
 
 void Renderer::EndVirtualFrame()
 {
-    
     EndTextureMode();
+}
+
+void Renderer::DrawDebugWindow()
+{
+    // Adjust size
+    const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+    const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+    const ImVec2 size = { vMax.x - vMin.x, vMax.y - vMin.y };
+    if (static_cast<int>(size.x) != VirtualTarget.texture.width ||
+        static_cast<int>(size.y) != VirtualTarget.texture.height)
+        CreateVirtualTarget(static_cast<int>(size.x), static_cast<int>(size.y)); 
+    
+    rlImGuiImageRenderTexture(&VirtualTarget);
 }
 
 void Renderer::BeginFrame()
 {
     BeginDrawing(); 
-    ClearBackground(DARKGRAY);
+
+    const bool debugDraw = IsDebugWindowOpen() && Debug::Manager::Get().Enabled(); 
     
-    // Blip
-    const Vec2F windowSize = GetWindowSize();
-    const float virtualRatio = windowSize.x / windowSize.y;
-    const Rectangle sourceRec = {
-        0.0f, 0.0f,
-        static_cast<float>(VirtualTarget.texture.width),
-        -static_cast<float>(VirtualTarget.texture.height)
-    };
-    const Rectangle destRec = {
-        -virtualRatio,
-        -virtualRatio,
-        windowSize.x + (virtualRatio * 2),
-        windowSize.y + (virtualRatio * 2)
-    };
-    DrawTexturePro(
-        VirtualTarget.texture,
-        sourceRec,
-        destRec,
-        { 0.0, 0.0 },
-        0.0,
-        WHITE);
+    // Blip if not debug drawing
+    if (debugDraw)
+    {
+        ClearBackground(Color(13, 14, 15, 255));
+    }
+    else
+    {
+        ClearBackground(DARKGRAY);
+        const Vec2F windowSize = GetWindowSize();
+
+        // Adjust size
+        if (static_cast<int>(windowSize.x) != VirtualTarget.texture.width ||
+            static_cast<int>(windowSize.y) != VirtualTarget.texture.height)
+            CreateVirtualTarget(
+                static_cast<int>(windowSize.x),
+                static_cast<int>(windowSize.y)); 
+
+        // Flip and blip
+        const float virtualRatio = windowSize.x / windowSize.y;
+        const Rectangle sourceRec = {
+            0.0f, 0.0f,
+            static_cast<float>(VirtualTarget.texture.width),
+            -static_cast<float>(VirtualTarget.texture.height)
+        };
+        const Rectangle destRec = {
+            -virtualRatio,
+            -virtualRatio,
+            windowSize.x + (virtualRatio * 2),
+            windowSize.y + (virtualRatio * 2)
+        };
+        DrawTexturePro(
+            VirtualTarget.texture,
+            sourceRec,
+            destRec,
+            { 0.0, 0.0 },
+            0.0,
+            WHITE);
+
+        DrawFPS(10, 10); 
+    }
     
     rlImGuiBegin();
     ImGui::PushDefaultFont();
@@ -86,7 +119,6 @@ void Renderer::EndFrame()
 {
     ImGui::PopDefaultFont(); 
     rlImGuiEnd();
-    DrawFPS(10, 10);
     EndDrawing(); 
 }
 
@@ -125,16 +157,21 @@ void Renderer::ApplyConfig(const Config& InConfig)
     SetTargetFPS(InConfig.TargetFPS);
 
     // Recreate render target
-    UnloadRenderTexture(VirtualTarget);
-
-    // The height is already set
-    // Calculate the width based on aspect
-    const float aspect = static_cast<float>(CurrConfig.Width) / static_cast<float>(CurrConfig.Height);
-    const int virtualWidth = CurrConfig.RenderSize ?
-        static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : CurrConfig.Width; 
-    const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : CurrConfig.Height;
-    VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
+    CreateVirtualTarget(CurrConfig.Width, CurrConfig.Height);
     
     LOG("Render config applied");
     CurrConfig.SaveConfig();
+}
+
+void Renderer::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscaledHeight)
+{
+    UnloadRenderTexture(VirtualTarget);
+    
+    // The height is already set
+    // Calculate the width based on aspect
+    const float aspect = static_cast<float>(InUnscaledWidth) / static_cast<float>(InUnscaledHeight);
+    const int virtualWidth = CurrConfig.RenderSize ?
+        static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : InUnscaledWidth; 
+    const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : InUnscaledHeight;
+    VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
 }

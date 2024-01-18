@@ -20,9 +20,3 @@ Tasks:
 [[0 - Object switching in object edit mode]]
 [[0 - Arena editing]]
 [[0 - Score]]
-
-
-
-More fun stuff: 
-[[0 - Player animator]]
-[[0 - Combat state machine]]

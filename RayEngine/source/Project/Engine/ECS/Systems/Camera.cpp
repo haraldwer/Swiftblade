@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 #include "Transform.h"
-#include "Engine/Rendering/Debug/DebugDraw.h"
+#include "Engine/Rendering/Debug/Draw.h"
 #include "game/GameInstance.h"
 #include "Utility/RayUtility.h"
 

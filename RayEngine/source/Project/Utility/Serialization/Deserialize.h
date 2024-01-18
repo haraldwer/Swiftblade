@@ -38,6 +38,19 @@ namespace Utility
         return true; 
     }
 
+    template <class T>
+    bool ReadValue(const GenericVal& InVal, Set<T>& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected arr");
+        for (auto& entry : InVal.GetArray())
+        {
+            T data; 
+            ReadValue(entry, data);
+            OutData.insert(data); 
+        }
+        return true; 
+    }
+
     template <class K, class V>
     bool ReadValue(const GenericVal& InVal, Map<K, V>& OutData)
     {

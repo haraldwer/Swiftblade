@@ -62,25 +62,21 @@ void BlueprintEditor::Draw()
 
 void BlueprintEditor::DrawDebugWindow()
 {
-    if (ImGui::Begin("Blueprint Editor"))
-    {
-        if (Config.Blueprint.Edit())
-            SetBP(Config.Blueprint);
-        ImGui::SameLine();
-        if (ImGui::Button("Save"))
-            if (BlueprintResource* bp = Config.Blueprint.Get().Get())
-                bp->Save(InstanceID);
+    if (Config.Blueprint.Edit())
+        SetBP(Config.Blueprint);
+    ImGui::SameLine();
+    if (ImGui::Button("Save"))
+        if (BlueprintResource* bp = Config.Blueprint.Get().Get())
+            bp->Save(InstanceID);
 
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-        EditHierarhcy(SelectedID);
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-        EditComponents(SelectedID); 
-    }
-    ImGui::End();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    EditHierarhcy(SelectedID);
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    EditComponents(SelectedID);
 }
 
 void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)

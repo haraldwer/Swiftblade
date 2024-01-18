@@ -94,26 +94,22 @@ void RoomEditor::Draw()
 
 void RoomEditor::DrawDebugWindow()
 {
-    if (ImGui::Begin("Room Editor"))
-    {
-        if (Camera.IsControlling())
-            ImGui::SetWindowFocus(nullptr); 
-        
-        if (CurrConfig.Edit())
-            OpenScene();
-        
-        ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
-        ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
+    if (Camera.IsControlling())
+        ImGui::SetWindowFocus(nullptr); 
+    
+    if (CurrConfig.Edit())
+        OpenScene();
+    
+    ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
+    ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
 
-        SubEditorManager.DebugDraw(Camera.IsFullyControlling()); 
-        
-        if (ImGui::Button("Save"))
-            SaveRoom(); 
-        ImGui::SameLine();
-        if (ImGui::Button("Play"))
-            PlayScene();
-    }
-    ImGui::End(); 
+    SubEditorManager.DebugDraw(Camera.IsFullyControlling()); 
+    
+    if (ImGui::Button("Save"))
+        SaveRoom(); 
+    ImGui::SameLine();
+    if (ImGui::Button("Play"))
+        PlayScene(); 
 }
 
 void RoomEditor::OpenScene()

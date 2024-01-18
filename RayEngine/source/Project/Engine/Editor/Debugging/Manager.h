@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Config.h"
 #include "Window.h"
 #include "Utility/Singelton.h"
 
@@ -7,12 +9,20 @@ namespace Debug
     class Manager : public Utility::Singelton<Manager, true>
     {
     public:
-        void DrawDebugUI() const;
+        void Init();
+        void Deinit();
         
-        void Register(Window* InWindow);
+        void DrawDebugWindow();
+        bool Enabled() const { return DebugEnabled; }
+        
+        void Register(Window* InWindow) { PendingRegister.insert(InWindow); }
         void Unregister(Window* InWindow);
 
     private:
-        Set<Window*> Windows; 
+        bool DebugEnabled = true;
+        Set<Window*> PendingRegister;
+        Map<String, Window*> NameToWindow;
+        Map<Window*, String> WindowToName;
+        Config Config;
     };
 }

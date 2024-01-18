@@ -1,22 +1,20 @@
 ﻿#pragma once
 
 #include "RoomSubEditor.h"
+#include "..\..\Engine\BaseConfig.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Property/Property.h"
 #include "Engine/Property/PropertyOwner.h"
 #include "Utility/History/History.h"
 
-struct RoomObjectEditorConfig : PropertyOwner<RoomObjectEditorConfig>
+struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 {
     PROPERTY(int, BPIndex);
     PROPERTY_C(Vector<ResBlueprint>, Blueprints, Vector<ResBlueprint>({
         ResBlueprint("Blueprints/BP_PhysCube.json"),
         ResBlueprint("Gameplay/Enemies/BP_Enemy.json")
     }));
-    
-    inline static const String Path = "Configs/C_RoomObjectEditor.json";
-    void LoadConfig() { Load(Path); }
-    void SaveConfig() const { Save(Path); }
+    String Name() const override { return "RoomObjectEditor"; }
 };
 
 class RoomObjectEditor : public RoomSubEditor

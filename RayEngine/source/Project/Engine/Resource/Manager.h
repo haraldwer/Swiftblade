@@ -19,6 +19,7 @@ namespace Resource
         void Deinit();
 
         void DrawDebugWindow() override;
+        String DebugWindowName() const override { return "Resources"; }
         
     private:
         Map<String, Base*> Resources;

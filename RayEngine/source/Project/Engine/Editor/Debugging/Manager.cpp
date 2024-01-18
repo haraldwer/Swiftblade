@@ -1,18 +1,82 @@
 #include "Manager.h"
 
-void Debug::Manager::DrawDebugUI() const
+#include "ImGui/imgui.h"
+
+void Debug::Manager::Init()
 {
-    for (const auto w : Windows)
-        if (w->IsDebugUIOpen())
-            w->DrawDebugWindow();
+    Config.LoadConfig();
 }
 
-void Debug::Manager::Register(Window* InWindow)
+void Debug::Manager::Deinit()
 {
-    Windows.insert(InWindow);
+    Config.SaveConfig();
+}
+
+void Debug::Manager::DrawDebugWindow()
+{
+    for (auto w : PendingRegister)
+    {
+        const String name = w->DebugWindowName(); 
+        NameToWindow[name] = w;
+        WindowToName[w] = name; 
+        if (Config.OpenWindows.Get().contains(name))
+            w->ToggleDebugWindow();
+    }
+    PendingRegister.clear();
+
+    if (IsKeyPressed(KEY_F2))
+        DebugEnabled = !DebugEnabled;
+
+    CHECK_RETURN(!DebugEnabled); 
+
+    // Update open state
+    auto& openWindows = Config.OpenWindows.Get();
+    for (const auto& w : NameToWindow)
+    {
+        if (w.second->IsDebugWindowOpen())
+            openWindows.insert(w.first);
+        else
+            openWindows.erase(w.first);
+    }
+
+    // Menu bar
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            for (const auto w : NameToWindow)
+            {
+                String item = w.second->DebugWindowName();
+                if (w.second->IsDebugWindowOpen())
+                    item += " X";
+                if (ImGui::MenuItem(item.c_str()))
+                    w.second->ToggleDebugWindow(); 
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::Text((" | FPS: " + std::to_string(GetFPS())).c_str());
+        ImGui::EndMainMenuBar();
+    }
+
+    // Dockspace
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
+    // Windows
+    for (const auto w : NameToWindow)
+    {
+        if (w.second->IsDebugWindowOpen())
+        {
+            if (ImGui::Begin(w.second->DebugWindowName().c_str()))
+                w.second->DrawDebugWindow();
+            ImGui::End(); 
+        }
+    }
 }
 
 void Debug::Manager::Unregister(Window* InWindow)
 {
-    Windows.erase(InWindow);
+    const String name = WindowToName[InWindow];
+    WindowToName.erase(InWindow); 
+    NameToWindow.erase(name); 
 }
