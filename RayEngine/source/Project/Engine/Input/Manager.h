@@ -1,21 +1,30 @@
 ﻿#pragma once
-#include "Context.h"
+
+#include "Config.h"
 #include "Utility/Singelton.h"
+#include "Engine/Editor/Debugging/Window.h"
 
 namespace Input
 {
-    // TODO: Shouldnt be a global singelton
-    class Manager : public Utility::Singelton<Manager, true>
+    class Manager : public Utility::Singelton<Manager>, public Debug::Window
     {
     public:
+        void Init();
         void Update();
+        void UpdateAction(Action& InAction);
         
-        void Add(const Context& InContext);
-        void Remove(const String& InContext);
+        void Push(const String& InContext);
+        void Pop(const String& InContext);
+        
         const Action& Action(const String& InAction, const String& InContext = "Player");
 
+        String DebugWindowName() const override { return "Input"; }
+        void DrawDebugWindow() override;
+
     private:
-        Vector<Context> Stack;
+        
+        Vector<String> ContextStack;
+        Config Config; 
 
         // TODO: Input buffering
         // TODO: Consuming input

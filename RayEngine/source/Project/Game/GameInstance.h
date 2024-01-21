@@ -22,6 +22,7 @@ public:
 private:
 
     Physics::Manager Physics;
+    ECS::Manager ECS; 
     SceneInstance SceneInstance;
     RoomManager RoomManager;
     GameState State; 

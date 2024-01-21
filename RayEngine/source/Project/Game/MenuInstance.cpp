@@ -4,12 +4,13 @@
 
 void MenuInstance::Init()
 {
+    Instance::Init();
     Menus.Push<MenuMain>();
 }
 
 void MenuInstance::Update(const double InDelta)
 {
-    Menus.Update(InDelta); 
+    Instance::Update(InDelta); 
 }
 
 void MenuInstance::Draw()

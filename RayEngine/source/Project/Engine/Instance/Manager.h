@@ -22,7 +22,7 @@ namespace Engine
             return ptr;
         }
 
-        InstanceBase* Top() const
+        Instance* Top() const
         {
             CHECK_RETURN(Stack.empty(), nullptr)
             return Stack[Stack.size() - 1].Ptr;
@@ -81,7 +81,7 @@ namespace Engine
         struct Entry
         {
             int Context = -1;
-            InstanceBase* Ptr = nullptr; 
+            Instance* Ptr = nullptr; 
         };
         Vector<Entry> Queue;
         Vector<Entry> Stack;

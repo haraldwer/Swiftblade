@@ -218,7 +218,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
     EditMesh.Material = ResRM("Editor/RM_EditCube.json");
     EditMesh.Model = ResModel("Defaults/M_Cube.obj");
     
-    if (Engine::InstanceBase::Get().IsEditor())
+    if (Engine::Instance::Get().IsEditor())
         return;
     
     // Add collision cubes
@@ -237,7 +237,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 {
-    if (Engine::InstanceBase::Get().IsEditor())
+    if (Engine::Instance::Get().IsEditor())
         return;
     Physics::Manager::Get().ClearCubes(InID); 
 }
@@ -260,7 +260,7 @@ void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double I
 }
 void ECS::SysCubeVolume::DrawCubes(const Vector<Mat4F>& InTransforms, bool InEditMesh) const
 {
-    Engine::InstanceBase::Get().GetRenderScene().AddMeshes(
+    Engine::Instance::Get().GetRenderScene().AddMeshes(
         InEditMesh ? EditMesh : BlockMesh,
         InTransforms);
 }

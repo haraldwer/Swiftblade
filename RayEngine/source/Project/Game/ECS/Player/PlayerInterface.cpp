@@ -1,7 +1,7 @@
 ﻿#include "PlayerInterface.h"
 
 #include "Player.h"
-#include "Input.h"
+#include "PlayerInput.h"
 #include "PlayerCamera.h"
 #include "Movement/Movement.h"
 #include "Weapon/Weapon.h"
@@ -54,9 +54,9 @@ ECS::Movement& ECS::PlayerInterface::GetMovement() const
     return *ptr;
 }
 
-ECS::Input& ECS::PlayerInterface::GetInput() const
+ECS::PlayerInput& ECS::PlayerInterface::GetInput() const
 {
-    auto* ptr = Manager::Get().GetComponent<Input>(GetPlayerID());
+    auto* ptr = Manager::Get().GetComponent<PlayerInput>(GetPlayerID());
     CHECK_ASSERT(!ptr, "Invalid input");
     return *ptr;
 }

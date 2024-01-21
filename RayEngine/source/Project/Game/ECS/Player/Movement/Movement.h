@@ -8,7 +8,7 @@ class MovementStateMachine;
 
 namespace ECS
 {
-    class Input;
+    class PlayerInput;
 
     class Movement : public UniqueComponent<Movement>, public PlayerInterface   
     {

@@ -12,28 +12,40 @@ namespace Input
         DOWN,
         RELEASED
     };
+
+    enum class KeyType : uint8
+    {
+        KEYBOARD = 0,
+        GAMEPAD_BUTTON,
+        GAMEPAD_AXIS,
+        MOUSE_BUTTON,
+        MOUSE_AXIS
+    };
     
     struct Action : PropertyOwner<Action>
     {
         friend class Manager; 
+        friend class Context; 
         
-        bool Pressed() const { return Valid && State == State::PRESSED; }
-        bool Down()  const { return Valid && State == State::PRESSED || State == State::DOWN; } 
-        bool Released() const { return Valid && State == State::RELEASED; }
-        float Axis() const { return static_cast<float>(Valid) * Value * static_cast<float>(Down()); }
+        bool Pressed() const { return Key >= 0 && State == State::PRESSED; }
+        bool Down()  const { return Key >= 0 && State == State::PRESSED || State == State::DOWN; } 
+        bool Released() const { return Key >= 0 && State == State::RELEASED; }
+        float Axis() const { return static_cast<float>(Key >= 0) * Value * static_cast<float>(Down()); }
 
-        PROPERTY(String, Name); 
-        PROPERTY_D(int, Key, 0);
-        
         static Action& Invalid()
         {
             static Action a;
-            a.Valid = false; 
-            return a; 
+            a = Action(); 
+            return a;  
         }
 
     private:
-        bool Valid = true; 
+        
+        PROPERTY(String, Name); 
+        PROPERTY_D(int, Key, -1);
+        PROPERTY_D(uint8, KeyType, 0)
+        PROPERTY_D(float, Deadzone, 0.1f)
+        
         State State = State::UP;
         float Value = 0.0f; 
     };

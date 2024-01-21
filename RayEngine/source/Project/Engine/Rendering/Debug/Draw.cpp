@@ -5,7 +5,7 @@
 
 void Rendering::DebugLine(const Vec3F& InStart, const Vec3F& InEnd, Color InColor)
 {
-    Engine::InstanceBase::Get().GetRenderScene().AddDebugLine({
+    Engine::Instance::Get().GetRenderScene().AddDebugLine({
         InStart,
         InEnd,
         InColor
@@ -14,7 +14,7 @@ void Rendering::DebugLine(const Vec3F& InStart, const Vec3F& InEnd, Color InColo
 
 void Rendering::DebugSphere(const Vec3F& InPos, const float InRadius, const Color InColor, const int InRings, const int InSlices)
 {
-    Engine::InstanceBase::Get().GetRenderScene().AddDebugShape({
+    Engine::Instance::Get().GetRenderScene().AddDebugShape({
         DebugShapeInstance::Type::SPHERE,
         InPos,
         QuatF::Identity(),
@@ -28,7 +28,7 @@ void Rendering::DebugSphere(const Vec3F& InPos, const float InRadius, const Colo
 
 void Rendering::DebugBox(const Vec3F& InPos, const Vec3F& InExtent, Color InColor)
 {
-    Engine::InstanceBase::Get().GetRenderScene().AddDebugShape({
+    Engine::Instance::Get().GetRenderScene().AddDebugShape({
         DebugShapeInstance::Type::BOX,
         InPos,
         QuatF::Identity(),
@@ -39,7 +39,7 @@ void Rendering::DebugBox(const Vec3F& InPos, const Vec3F& InExtent, Color InColo
 
 void Rendering::DebugCapsule(const Vec3F& InPos, const QuatF& InRot, float InRadius, float InHeight, Color InColor, int InSlices)
 {
-    Engine::InstanceBase::Get().GetRenderScene().AddDebugShape({
+    Engine::Instance::Get().GetRenderScene().AddDebugShape({
         DebugShapeInstance::Type::CAPSULE,
         InPos,
         InRot,

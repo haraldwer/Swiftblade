@@ -6,7 +6,7 @@
 #include "Engine/UI/Elements/Label.h"
 #include "Engine/UI/Elements/List.h"
 #include "Game/GameInstance.h"
-#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/PlayerInput.h"
 
 void MenuDeath::Init()
 {
@@ -23,7 +23,7 @@ void MenuDeath::Init()
     UI = builder.Build();
     
     // Disable player input and show mouse
-    ECS::Input::Blocked = true;
+    ECS::PlayerInput::Blocked = true;
     if (IsCursorHidden())
         ShowCursor();
 

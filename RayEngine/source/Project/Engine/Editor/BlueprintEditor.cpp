@@ -15,12 +15,15 @@
 void BlueprintEditor::Init()
 {
     Instance::Init();
+    ECS.Init();
     Config.LoadConfig();
     SetBP(Config.Blueprint);
 }
 
 void BlueprintEditor::Deinit()
 {
+    Instance::Deinit();
+    ECS.Deinit();
     Config.SaveConfig();
 }
 
@@ -39,11 +42,14 @@ void BlueprintEditor::SetBP(const ResBlueprint& InBP)
 
 void BlueprintEditor::Update(double InDelta)
 {
-    Time.Tick(InDelta);
-    
+    Instance::Update(InDelta);
+
     // Update
     ECS.Update(Time.Delta());
     Camera.Update(InDelta);
+
+    if (InstanceID == ECS::InvalidID)
+        return; 
     
     if (IsKeyDown(KEY_LEFT_CONTROL))
     {
@@ -64,6 +70,10 @@ void BlueprintEditor::DrawDebugWindow()
 {
     if (Config.Blueprint.Edit())
         SetBP(Config.Blueprint);
+
+    if (InstanceID == ECS::InvalidID)
+        return; 
+    
     ImGui::SameLine();
     if (ImGui::Button("Save"))
         if (BlueprintResource* bp = Config.Blueprint.Get().Get())

@@ -11,7 +11,7 @@ namespace ECS
     struct Rigidbody;
     struct Collider;
     
-    class Input;
+    class PlayerInput;
     class Movement;
     class Player;
     class SysPlayer;
@@ -31,7 +31,7 @@ namespace ECS
         Transform& GetCameraTransform() const;
         Transform& GetColliderTransform() const;
         Movement& GetMovement() const;
-        Input& GetInput() const;
+        PlayerInput& GetInput() const;
         Collider& GetCollider() const;
         Rigidbody& GetRB() const;
         PlayerCamera& GetPlayerCamera() const;

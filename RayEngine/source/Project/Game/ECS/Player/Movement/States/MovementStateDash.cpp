@@ -2,7 +2,7 @@
 
 #include "MovementStateIdle.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
-#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/PlayerInput.h"
 
 Type MovementStateDash::Check()
 {

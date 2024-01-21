@@ -6,11 +6,12 @@
 #include "Engine/Instance/Manager.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
-#include "ECS/Player/Input.h"
+#include "ECS/Player/PlayerInput.h"
 
 void GameInstance::Init()
 {
     Instance::Init();
+    ECS.Init();
     Physics.Init();
 
     if (!StartScene.Identifier().empty())
@@ -39,15 +40,15 @@ void GameInstance::Init()
 void GameInstance::Deinit()
 {
     SceneInstance.Destroy();
-    Instance::Deinit();
+    ECS.Deinit(); 
     Physics.Deinit();
+    Instance::Deinit();
 }
 
 void GameInstance::Update(double InDelta)
 {
-    Time.Tick(InDelta);
+    Instance::Update(InDelta); 
     
-    // Update
     const double scaledDelta = Time.Delta();
     
     // TODO: Pre-update for movement logic
@@ -60,7 +61,7 @@ void GameInstance::Update(double InDelta)
     {
         bUseDebugCamera = !bUseDebugCamera;
         DebugCamera.SetReference(GetRenderScene().GetCamera());
-        ECS::Input::Blocked = bUseDebugCamera; 
+        ECS::PlayerInput::Blocked = bUseDebugCamera; 
     }
     
     if (bUseDebugCamera)

@@ -8,7 +8,7 @@
 struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
 {
     PROPERTY_D(ResBlueprint, Blueprint, "Blueprints/untitled.json");
-    String Name() const override { return "BPEditor"; }
+    String Name() const override { return "BlueprintEditor"; }
 };
 
 class BlueprintEditor : public Engine::Instance, public Debug::Window
@@ -37,5 +37,7 @@ private:
     EditorCamera Camera;
     BlueprintEditorConfig Config;
     ECS::EntityID InstanceID = ECS::InvalidID; 
-    ECS::EntityID SelectedID = ECS::InvalidID;  
+    ECS::EntityID SelectedID = ECS::InvalidID;
+
+    ECS::Manager ECS; 
 };

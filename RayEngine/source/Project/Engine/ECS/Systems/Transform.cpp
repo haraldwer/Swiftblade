@@ -176,9 +176,8 @@ bool ECS::Transform::Deserialize(const DeserializeObj& InObj)
 
 void ECS::Transform::Serialize(SerializeObj& InOutObj) const
 {
-    Component::Serialize(InOutObj);
-
     // Custom transform serialization
+    InOutObj.StartObject();
     const Vec3F p = LocalMat.GetPosition();
     const QuatF r = LocalMat.GetRotation();
     const Vec3F s = LocalMat.GetScale();
@@ -188,6 +187,7 @@ void ECS::Transform::Serialize(SerializeObj& InOutObj) const
         Utility::Serialize(InOutObj, "Rotation", r);
     if (s != Vec3F::One())
         Utility::Serialize(InOutObj, "Scale", s);
+    InOutObj.EndObject();
 }
 
 String ECS::Transform::ToString(Space InSpace) const

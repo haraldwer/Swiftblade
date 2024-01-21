@@ -17,11 +17,8 @@ void Debug::Manager::DrawDebugWindow()
     for (auto w : PendingRegister)
     {
         const String name = w->DebugWindowName();
-        CHECK_ASSERT(NameToWindow.contains(name), "Window already registered"); 
-        NameToWindow[name] = w;
+        Windows[name].push_back(w);
         WindowToName[w] = name; 
-        if (Config.OpenWindows.Get().contains(name))
-            w->ToggleDebugWindow();
     }
     PendingRegister.clear();
 
@@ -29,29 +26,21 @@ void Debug::Manager::DrawDebugWindow()
         DebugEnabled = !DebugEnabled;
 
     CHECK_RETURN(!DebugEnabled); 
-
-    // Update open state
-    auto& openWindows = Config.OpenWindows.Get();
-    for (const auto& w : NameToWindow)
-    {
-        if (w.second->IsDebugWindowOpen())
-            openWindows.insert(w.first);
-        else
-            openWindows.erase(w.first);
-    }
-
+    
     // Menu bar
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
         {
-            for (const auto w : NameToWindow)
+            for (const auto& entry : Windows)
             {
-                String item = w.second->DebugWindowName();
-                if (w.second->IsDebugWindowOpen())
-                    item += " X";
-                if (ImGui::MenuItem(item.c_str()))
-                    w.second->ToggleDebugWindow(); 
+                CHECK_CONTINUE(entry.second.empty());
+                auto& w = entry.second.back();
+                CHECK_CONTINUE(!w);
+                const String name = w->DebugWindowName();
+                const bool open = IsOpen(name); 
+                if (ImGui::MenuItem((name + (open ? " X" : "")).c_str()))
+                    SetOpen(name, !open); 
             }
             ImGui::EndMenu();
         }
@@ -64,12 +53,15 @@ void Debug::Manager::DrawDebugWindow()
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
     // Windows
-    for (const auto w : NameToWindow)
+    for (const auto& entry : Windows)
     {
-        if (w.second->IsDebugWindowOpen())
+        CHECK_CONTINUE(entry.second.empty());
+        auto& w = entry.second.back();
+        CHECK_CONTINUE(!w); 
+        if (IsOpen(w->DebugWindowName()))
         {
-            if (ImGui::Begin(w.second->DebugWindowName().c_str()))
-                w.second->DrawDebugWindow();
+            if (ImGui::Begin(w->DebugWindowName().c_str()))
+                w->DrawDebugWindow();
             ImGui::End(); 
         }
     }
@@ -77,13 +69,31 @@ void Debug::Manager::DrawDebugWindow()
 
 void Debug::Manager::Register(Window* InWindow)
 {
-    CHECK_ASSERT(WindowToName.contains(InWindow), "Window already registered"); 
     PendingRegister.insert(InWindow);
 }
 
-void Debug::Manager::Unregister(Window* InWindow)
+void Debug::Manager::Unregister(const Window* InWindow)
 {
-    const String name = WindowToName[InWindow];
+    const String name = WindowToName[InWindow]; 
     WindowToName.erase(InWindow); 
-    NameToWindow.erase(name); 
+    auto& vec = Windows[name];
+    for (int i = static_cast<int>(vec.size()) - 1; i >= 0; i--)
+        if (vec[i] == InWindow || !vec[i])
+            vec.erase(vec.begin() + i);
+    if (Windows[name].empty())
+        Windows.erase(name);
+}
+
+bool Debug::Manager::IsOpen(const String& InWindow) const
+{
+    return Config.OpenWindows.Get().contains(InWindow);
+}
+
+void Debug::Manager::SetOpen(const String& InWindow, bool InOpen)
+{
+    Set<String>& set = Config.OpenWindows.Get();
+    if (InOpen)
+        set.insert(InWindow);
+    else
+        set.erase(InWindow); 
 }

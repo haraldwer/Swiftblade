@@ -20,5 +20,5 @@ void SysMesh::Update(EntityID InEntity, Mesh& InComponent, double InDelta)
         t.World()
     };
 
-    Engine::InstanceBase::Get().GetRenderScene().AddMesh(m);
+    Engine::Instance::Get().GetRenderScene().AddMesh(m);
 }

@@ -67,10 +67,9 @@ void Renderer::BeginFrame()
 {
     BeginDrawing(); 
 
-    const bool debugDraw = IsDebugWindowOpen() && Debug::Manager::Get().Enabled(); 
-    
     // Blip if not debug drawing
-    if (debugDraw)
+    const auto& debugMan = Debug::Manager::Get();
+    if (debugMan.IsOpen(DebugWindowName()) && debugMan.Enabled())
     {
         ClearBackground(Color(13, 14, 15, 255));
     }
@@ -107,7 +106,8 @@ void Renderer::BeginFrame()
             0.0,
             WHITE);
 
-        DrawFPS(10, 10); 
+        if (!Debug::Manager::Get().Enabled())
+            DrawFPS(10, 10); 
     }
     
     rlImGuiBegin();

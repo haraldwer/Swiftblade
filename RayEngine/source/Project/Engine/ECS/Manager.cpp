@@ -250,9 +250,7 @@ void Manager::Serialize(const EntityID InID, SerializeObj& OutObj, const bool In
 
         // Write data
         OutObj.Key("Data");
-        OutObj.StartObject();
         sys.second->Serialize(InID, OutObj);
-        OutObj.EndObject();
         
         OutObj.EndObject();
     }

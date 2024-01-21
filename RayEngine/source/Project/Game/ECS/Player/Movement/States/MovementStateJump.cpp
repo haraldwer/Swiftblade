@@ -2,7 +2,7 @@
 
 #include "MovementStateAir.h"
 #include "MovementStateWall.h"
-#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
 Type MovementStateJump::Check()

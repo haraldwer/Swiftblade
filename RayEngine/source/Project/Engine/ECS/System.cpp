@@ -6,7 +6,7 @@
 bool ECS::SystemBase::ShouldUpdate() const
 {
     return
-        !Engine::InstanceBase::Get().IsEditor() &&
+        !Engine::Instance::Get().IsEditor() &&
         !Utility::Time::Get().IsPaused();
 }
 

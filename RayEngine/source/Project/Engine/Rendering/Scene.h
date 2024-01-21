@@ -32,6 +32,7 @@ namespace Rendering
         Vector<DebugLineInstance> DebugLines;
     };
 
+    // Logic interface
     class LogicScene : public Scene
     {
     public:
@@ -43,6 +44,7 @@ namespace Rendering
         void AddDebugLine(const DebugLineInstance& InLine) { DebugLines.push_back(InLine); }
     };
 
+    // Render interface
     class RenderScene : public Scene
     {
     public:

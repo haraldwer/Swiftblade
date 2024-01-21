@@ -1,0 +1,10 @@
+{
+	"Contexts":[{
+			"Name":"Player",
+			"Actions":[{
+					"Name":"Jump"
+				}
+			]
+		}
+	]
+}

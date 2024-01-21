@@ -15,7 +15,7 @@
 #include "Game/ECS/RoomConnection.h"
 #include "Game/ECS/Enemies/Enemy.h"
 #include "Game/ECS/Enemies/EnemySpawner.h"
-#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 #include "Game/ECS/Player/Player.h"
@@ -57,7 +57,7 @@ NameMap[String(#x)] = var; } \
     REG_ENTITY_SYSTEM(EnemySpawner);
     
     REG_UNIQUE_COMPONENT(Player);
-    REG_UNIQUE_COMPONENT(Input);
+    REG_UNIQUE_COMPONENT(PlayerInput);
     REG_UNIQUE_COMPONENT(Movement);
     REG_UNIQUE_COMPONENT(PlayerCamera);
     REG_UNIQUE_COMPONENT(Weapon);

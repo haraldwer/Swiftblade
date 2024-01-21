@@ -1,6 +1,6 @@
 #include "Player.h"
 
-#include "Input.h"
+#include "PlayerInput.h"
 #include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -17,8 +17,10 @@
 
 void ECS::Player::Init()
 {
-    if (Engine::InstanceBase::Get().IsEditor())
+    if (Engine::Instance::Get().IsEditor())
         return; 
+
+    Input::Manager::Get().Push("Player");
     
     // Find camera and collider
     const auto& trans = Get<Transform>(GetID());

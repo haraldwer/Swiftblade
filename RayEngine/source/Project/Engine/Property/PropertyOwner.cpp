@@ -21,12 +21,14 @@ Map<String, PropertyBase*> PropertyOwnerBase::GetProperties() const
 
 void PropertyOwnerBase::Serialize(SerializeObj& InOutObj) const
 {
+    InOutObj.StartObject();
     for (const auto& p : GetPropertyMap())
     {
         const PropertyBase* ptr = OffToPtr(p.second);
         CHECK_ASSERT(!ptr, "Invalid property");
         ptr->Serialize(InOutObj);
     }
+    InOutObj.EndObject();
 }
 
 bool PropertyOwnerBase::Deserialize(const DeserializeObj& InObj)
@@ -66,9 +68,7 @@ bool PropertyOwnerBase::Save(const String& InPath) const
     //  Json writer
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
-    writer.StartObject();
     Serialize(writer); 
-    writer.EndObject();
     const String result = Utility::FormatJson(s.GetString());
     return Utility::WriteFile(InPath, result);
 }

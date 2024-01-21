@@ -10,12 +10,6 @@ namespace Debug
 
         virtual void DrawDebugWindow() = 0;
         virtual String DebugWindowName() const = 0; 
-
-        bool IsDebugWindowOpen() const { return Open; };
-        void ToggleDebugWindow() { Open = !Open; }
-
-    private:
-        bool Open = false;
     };
 }
 

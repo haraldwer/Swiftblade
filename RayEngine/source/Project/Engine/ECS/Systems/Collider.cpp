@@ -8,14 +8,14 @@
 
 void ECS::SysCollider::Init(EntityID InEntity, Collider& InComponent)
 {
-    if (Engine::InstanceBase::Get().IsEditor())
+    if (Engine::Instance::Get().IsEditor())
         return; 
     Physics::Manager::Get().Add(InEntity); 
 }
 
 void ECS::SysCollider::Deinit(EntityID InEntity, Collider& InComponent)
 {
-    if (Engine::InstanceBase::Get().IsEditor())
+    if (Engine::Instance::Get().IsEditor())
         return; 
     Physics::Manager::Get().Remove(InEntity); 
 }
@@ -47,7 +47,7 @@ void ECS::SysCollider::Update(EntityID InID, Collider& InComponent, double InDel
 bool ECS::SysCollider::ShouldUpdate() const
 {
     // Show debug visualization in editor
-    return Engine::InstanceBase::Get().IsEditor();
+    return Engine::Instance::Get().IsEditor();
 }
 
 void ECS::SysCollider::UpdateShape(EntityID InEntity) const

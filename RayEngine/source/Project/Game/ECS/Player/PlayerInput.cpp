@@ -1,15 +1,15 @@
-﻿#include "Input.h"
+﻿#include "PlayerInput.h"
 
 #include "Engine/ECS/Systems/Transform.h"
 #include "Movement/Movement.h"
 
-void ECS::Input::Deinit()
+void ECS::PlayerInput::Deinit()
 {
     if (IsCursorHidden())
         ShowCursor();
 }
 
-void ECS::Input::Update(double InDelta)
+void ECS::PlayerInput::Update(double InDelta)
 {
     if (Blocked)
         return;

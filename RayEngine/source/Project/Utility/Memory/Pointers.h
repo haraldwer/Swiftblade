@@ -83,7 +83,7 @@ namespace Utility
             if (Ref)
             {
                 Ref->Count++;
-                LOG("Increment, new count: " + std::to_string(Ref->Count));
+                //LOG("Increment, new count: " + std::to_string(Ref->Count));
             }
         }
         
@@ -92,11 +92,11 @@ namespace Utility
             if (!Ref)
                 return; 
             Ref->Count--;
-            LOG("Decrement, new count: " + std::to_string(Ref->Count)); 
+            //LOG("Decrement, new count: " + std::to_string(Ref->Count)); 
             CHECK_ASSERT(Ref->Count < 0, "Negative ref count");
             if (!Ref->Count && !Ref->WeakCount)
             {
-                LOG("Destroying ref"); 
+                //LOG("Destroying ref"); 
                 Ref->destroy();
                 delete Ref;
                 Ref = nullptr;

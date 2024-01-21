@@ -5,9 +5,6 @@
 				"Name":"Player"
 			}
 		},{
-			"Name":"Input",
-			"Data":{}
-		},{
 			"Name":"Transform",
 			"Data":{
 				"Position":[
@@ -28,6 +25,9 @@
 			"Data":{}
 		},{
 			"Name":"Player",
+			"Data":{}
+		},{
+			"Name":"PlayerInput",
 			"Data":{}
 		},{
 			"Name":"Movement",

@@ -5,7 +5,7 @@
 
 namespace ECS
 {
-    class Input : public UniqueComponent<Input>, public PlayerInterface 
+    class PlayerInput : public UniqueComponent<PlayerInput>, public PlayerInterface 
     {
     public:
         

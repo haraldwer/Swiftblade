@@ -1,7 +1,7 @@
 ﻿#include "MovementStateAir.h"
 
 #include "MovementStateIdle.h"
-#include "Game/ECS/Player/Input.h"
+#include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
 Type MovementStateAir::Update(double InDT)

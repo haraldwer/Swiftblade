@@ -11,7 +11,7 @@ bool PhysicsMaterialResource::Load(const String& InPath)
     if (!PropertyOwnerBase::Load(InPath))
         return false;
 
-    if (Engine::InstanceBase::Get().IsEditor())
+    if (Engine::Instance::Get().IsEditor())
         return false; 
     
     const auto& man = Physics::Manager::Get();

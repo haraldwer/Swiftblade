@@ -11,6 +11,7 @@
 void RoomEditor::Init()
 {
     Instance::Init();
+    ECS.Init();
     CurrConfig.LoadConfig();
     
     OpenScene();
@@ -37,14 +38,15 @@ void RoomEditor::Deinit()
     CurrConfig.SaveConfig();
     SubEditorManager.Deinit();
     Camera.Deinit();
+    ECS.Deinit();
     Instance::Deinit();
 }
 
 void RoomEditor::Update(double InDelta)
 {
-    CHECK_ASSERT(!UI, "UI Invalid"); 
+    Instance::Update(InDelta);
     
-    Time.Tick(InDelta);
+    CHECK_ASSERT(!UI, "UI Invalid"); 
     
     // Update
     ECS.Update(Time.Delta());

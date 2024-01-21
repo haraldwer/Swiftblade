@@ -40,6 +40,7 @@ private:
     
     // Scene stuff
     SceneInstance Scene;
+    ECS::Manager ECS; 
 
-    ObjectPtr<UI::Instance> UI; 
+    ObjectPtr<UI::Instance> UI;
 };
