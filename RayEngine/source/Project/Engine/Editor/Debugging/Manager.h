@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Config.h"
+#include "ReferenceViewer.h"
 #include "Window.h"
 #include "Utility/Singelton.h"
 
@@ -24,5 +25,7 @@ namespace Debug
         Map<String, Window*> NameToWindow;
         Map<Window*, String> WindowToName;
         Config Config;
+
+        ReferenceViewer References; 
     };
 }
