@@ -34,7 +34,7 @@ public:
         return Utility::Deserialize(InObj, GetName(), Data); 
     }
 
-    bool Edit() override
+    bool Edit(uint32 InOffset = 0) override
     {
         return Utility::Edit(GetName(), Data); 
     }

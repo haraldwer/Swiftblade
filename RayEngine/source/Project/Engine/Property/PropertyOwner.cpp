@@ -53,11 +53,12 @@ bool PropertyOwnerBase::Deserialize(const GenericVal& InVal)
 bool PropertyOwnerBase::Edit(const String& InName)
 {
     bool edited = false;
+    const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this));
     for (const auto& p : GetPropertyMap())
     {
         PropertyBase* ptr = OffToPtr(p.second);
         CHECK_ASSERT(!ptr, "Invalid property");
-        if (ptr->Edit())
+        if (ptr->Edit(offset))
             edited = true;
     }
     return edited;

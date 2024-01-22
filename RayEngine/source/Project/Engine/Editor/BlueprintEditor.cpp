@@ -79,42 +79,40 @@ void BlueprintEditor::DrawDebugWindow()
         if (BlueprintResource* bp = Config.Blueprint.Get().Get())
             bp->Save(InstanceID);
 
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
     EditHierarhcy(SelectedID);
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
     EditComponents(SelectedID);
 }
 
 void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)
 {
     const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-    ImGui::Text("Hierarchy"); 
-    if (ImGui::BeginSection("Hierarchy"))
-        HierarchyNode(InstanceID); 
-    ImGui::EndSection();
-    
-    if (ImGui::Button(Text("Add child").c_str()))
+    ImGui::SeparatorText("Hierarchy"); 
+    //if (ImGui::BeginSection("Hierarchy"))
     {
-        // Add children?
-        const ECS::EntityID child = ECS.CreateEntity();
-        auto& transSys = ECS.GetSystem<ECS::SysTransform>();
-        transSys.Register(child, false); 
-        transSys.SetupHierarchy(InID, child, ECS::Transform::Space::LOCAL, false);
-    }
-    
-    if (InID != InstanceID)
-    {
-        ImGui::SameLine();
-        if (ImGui::Button(Text("Remove selected").c_str()))
+        HierarchyNode(InstanceID);
+        ImGui::Spacing(); 
+        
+        if (ImGui::Button(Text("Add child").c_str()))
         {
-            ECS.DestroyEntity(InID);
-            SelectedID = InstanceID; 
+            // Add children?
+            const ECS::EntityID child = ECS.CreateEntity();
+            auto& transSys = ECS.GetSystem<ECS::SysTransform>();
+            transSys.Register(child, false); 
+            transSys.SetupHierarchy(InID, child, ECS::Transform::Space::LOCAL, false);
         }
-    }
+        
+        if (InID != InstanceID)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button(Text("Remove selected").c_str()))
+            {
+                ECS.DestroyEntity(InID);
+                SelectedID = InstanceID; 
+            }
+        }
+    } 
+    
+    //ImGui::EndSection();
 }
 
 void BlueprintEditor::HierarchyNode(ECS::EntityID InID)
@@ -153,14 +151,14 @@ String BlueprintEditor::Text(const String& InString) const
 
 void BlueprintEditor::EditComponents(ECS::EntityID InID)
 {
+    ImGui::SeparatorText("Components");
+    
     if (InID == ECS::InvalidID)
     {
         ImGui::Text("Invalid instance");
         SelectedID = InstanceID;
         return; 
     }
-
-    ImGui::Text("Components");
     
     // Component list
     for (auto sys : ECS.GetAllSystems())

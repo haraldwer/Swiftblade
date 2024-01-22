@@ -25,7 +25,7 @@ namespace Input
     struct Action : PropertyOwner<Action>
     {
         friend class Manager; 
-        friend class Context; 
+        friend struct Context; 
         
         bool Pressed() const { return Key >= 0 && State == State::PRESSED; }
         bool Down()  const { return Key >= 0 && State == State::PRESSED || State == State::DOWN; } 
@@ -41,7 +41,7 @@ namespace Input
 
     private:
         
-        PROPERTY(String, Name); 
+        PROPERTY_D(String, Name, "Unnamed"); 
         PROPERTY_D(int, Key, -1);
         PROPERTY_D(uint8, KeyType, 0)
         PROPERTY_D(float, Deadzone, 0.1f)

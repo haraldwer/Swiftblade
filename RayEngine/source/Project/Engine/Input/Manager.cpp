@@ -2,6 +2,7 @@
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
+#include "ImGui/imgui_themes.h"
 
 void Input::Manager::Push(const String& InContext)
 {
@@ -124,9 +125,17 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
 
 void Input::Manager::DrawDebugWindow()
 {
-    if (ImGui::CollapsingHeader("Stack"))
+    if (ImGui::Button("Load"))
+        Config.LoadConfig();
+    ImGui::SameLine();
+    if (ImGui::Button("Save"))
+        Config.SaveConfig();
+    
+    static String selectedContext;  
+    if (!ContextStack.empty())
     {
-        if (ImGui::BeginSection("Stack2"))
+        ImGui::SeparatorText("Contexts");
+        if (ImGui::BeginListBox("##Stack", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
         {
             for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
             {
@@ -135,19 +144,72 @@ void Input::Manager::DrawDebugWindow()
                 CHECK_ASSERT(find == Config.CachedContexts.end(), "Unknown context");
                 Context& context = Config.Contexts.Get()[find->second];
                 String text = name + (context.Blocking ? " (blocking)" : "");
-                if (ImGui::TreeNodeEx((text + "##StackEntry_" + std::to_string(i)).c_str()))
+                const bool selected = context.Name.Get() == selectedContext;
+                if (ImGui::Selectable((text + "##StackEntry_" + std::to_string(i)).c_str(), selected))
                 {
+                    selectedContext = context.Name; 
                     if (context.Blocking)
                         ImGui::Indent(10); 
-                    ImGui::TreePop(); 
                 } 
             }
+            ImGui::EndListBox();
         }
-        ImGui::EndSection();
     }
 
-    Config.Edit("Contexts");
+    ImGui::SeparatorText("Contexts");
+    if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+    {
+        for (Context& context : Config.Contexts.Get())
+        {
+            const bool selected = context.Name.Get() == selectedContext; 
+            if (ImGui::Selectable((context.Name.Get() + "##ContextEntry").c_str(), selected))
+            {
+                selectedContext = context.Name; 
+                if (context.Blocking)
+                    ImGui::Indent(10); 
+            }
+        }
+        ImGui::EndListBox();
+    }
+    
+    if (!selectedContext.empty())
+    {
+        const auto find = Config.CachedContexts.find(selectedContext);
+        if (find != Config.CachedContexts.end())
+        {
+            ImGui::SeparatorText("Context");
+            Context& context = Config.Contexts.Get()[find->second];
+            context.Name.Edit();
+            context.Blocking.Edit();
 
-    if (ImGui::Button("Save"))
-        Config.SaveConfig();
+            static int selectedAction;
+            auto& actions = context.Actions.Get();
+            if (ImGui::BeginListBox("##Actions", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+            {
+                for (int i = 0; i < actions.size(); i++)
+                {
+                    const bool selected = i == selectedAction; 
+                    if (ImGui::Selectable((actions[i].Name.Get() + "##" + std::to_string(i)).c_str(), selected))
+                        selectedAction = i; 
+                }
+                if (ImGui::Button("Add"))
+                    actions.emplace_back();
+                if (!actions.empty())
+                {
+                    ImGui::SameLine();
+                   if (ImGui::Button("Remove"))
+                       actions.erase(actions.begin() + selectedAction);
+                } 
+                ImGui::EndListBox();
+            }
+
+            // Edit selected action
+            if (selectedAction >= 0 && selectedAction < actions.size())
+            {
+                ImGui::SeparatorText("Action");
+                auto& action = actions[selectedAction];
+                action.Edit(); 
+            }
+        }
+    }
 }
