@@ -184,6 +184,7 @@ void Input::Manager::DrawDebugWindow()
 
             static int selectedAction;
             auto& actions = context.Actions.Get();
+            ImGui::Text("Actions:");
             if (ImGui::BeginListBox("##Actions", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
             {
                 for (int i = 0; i < actions.size(); i++)
@@ -208,7 +209,37 @@ void Input::Manager::DrawDebugWindow()
             {
                 ImGui::SeparatorText("Action");
                 auto& action = actions[selectedAction];
-                action.Edit(); 
+                action.Name.Edit(1);
+                
+                static bool changing = false;
+                const char* keyTypes[]
+                {
+                    "KEYBOARD",
+                    "GAMEPAD_BUTTON",
+                    "GAMEPAD_AXIS",
+                    "MOUSE_BUTTON",
+                    "MOUSE_AXIS"
+                };
+                
+                if (changing)
+                {
+                    const int newKey = GetKeyPressed(); 
+                    if (newKey)
+                    {
+                        changing = false;
+                        action.Key = newKey; 
+                    }
+                }
+                else
+                {
+                    ImGui::Text((String("Key: ") + std::to_string(action.Key.Get())).c_str());
+                    ImGui::SameLine();
+                    if (ImGui::Button("Change"))
+                        changing = true;
+                }
+                
+                action.Deadzone.Edit(1);
+                
             }
         }
     }

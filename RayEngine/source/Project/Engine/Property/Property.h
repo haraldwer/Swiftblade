@@ -36,7 +36,7 @@ public:
 
     bool Edit(uint32 InOffset = 0) override
     {
-        return Utility::Edit(GetName(), Data); 
+        return Utility::Edit(GetName(), Data, InOffset); 
     }
 
     // Comparisons
