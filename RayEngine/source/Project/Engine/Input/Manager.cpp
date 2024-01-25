@@ -134,8 +134,8 @@ void Input::Manager::DrawDebugWindow()
     static String selectedContext;  
     if (!ContextStack.empty())
     {
-        ImGui::SeparatorText("Contexts");
-        if (ImGui::BeginListBox("##Stack", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+        ImGui::SeparatorText("Stack");
+        if (ImGui::BeginListBox("##Stack", ImVec2(-FLT_MIN, 3 * ImGui::GetTextLineHeightWithSpacing())))
         {
             for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
             {
@@ -157,7 +157,7 @@ void Input::Manager::DrawDebugWindow()
     }
 
     ImGui::SeparatorText("Contexts");
-    if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+    if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 3 * ImGui::GetTextLineHeightWithSpacing())))
     {
         for (Context& context : Config.Contexts.Get())
         {
@@ -220,9 +220,14 @@ void Input::Manager::DrawDebugWindow()
                     "MOUSE_BUTTON",
                     "MOUSE_AXIS"
                 };
+
+                int keyType = action.KeyType.Get();
+                ImGui::ListBox("Type", &keyType, keyTypes, 5, 5);
+                action.KeyType = static_cast<uint8>(keyType); 
                 
                 if (changing)
                 {
+                    ImGui::Text("Changing key..."); 
                     const int newKey = GetKeyPressed(); 
                     if (newKey)
                     {
@@ -237,9 +242,25 @@ void Input::Manager::DrawDebugWindow()
                     if (ImGui::Button("Change"))
                         changing = true;
                 }
-                
                 action.Deadzone.Edit(1);
-                
+
+                String state;
+                switch (action.State)
+                {
+                case State::UP:
+                    state = "UP";
+                    break;
+                case State::PRESSED:
+                    state = "PRESSED";
+                    break;
+                case State::DOWN:
+                    state = "DOWN";
+                    break;
+                case State::RELEASED:
+                    state = "RELEASED";
+                    break;
+                }
+                ImGui::Text(("State: " + state).c_str());
             }
         }
     }

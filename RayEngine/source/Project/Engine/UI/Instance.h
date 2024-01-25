@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Elements/Container.h"
+#include "Engine/EventScopes.h"
+#include "Engine/Rendering/RenderEventData.h"
 
 namespace UI
 {
@@ -8,6 +10,7 @@ namespace UI
         friend class Builder;
         
     public:
+        void Init() override;
         void Invalidate() override;
         
         template <class T = Element>
@@ -32,5 +35,6 @@ namespace UI
         
     private:
         Map<String, WeakPtr<Element>> NamedElements;
+        GlobalEvent<OnCreateVirtualTargetData>::Callback OnCreateVirtualTarget;
     };
 }

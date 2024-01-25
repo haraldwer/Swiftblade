@@ -2,7 +2,26 @@
 	"Contexts":[{
 			"Name":"Player",
 			"Actions":[{
-					"Name":"Jump"
+					"Name":"Jump",
+					"Key":32
+				},{
+					"Name":"Dash",
+					"Key":340
+				},{
+					"Name":"Crouch",
+					"Key":341
+				},{
+					"Name":"Forward",
+					"Key":87
+				},{
+					"Name":"Back",
+					"Key":83
+				},{
+					"Name":"Left",
+					"Key":65
+				},{
+					"Name":"Right",
+					"Key":68
 				}
 			]
 		}

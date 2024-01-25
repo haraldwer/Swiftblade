@@ -1,8 +1,10 @@
 #pragma once
+
 #include "EditorCamera.h"
-#include "Debugging\Window.h"
-#include "..\BaseConfig.h"
+#include "Debugging/Window.h"
+#include "Engine/BaseConfig.h"
 #include "Engine/Blueprints/Blueprint.h"
+#include "Engine/ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
 
 struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
@@ -19,7 +21,6 @@ public:
     void Init() override;
     void Deinit() override;
     void Update(double InDelta) override;
-    void Draw() override;
     void DrawDebugWindow() override;
     String DebugWindowName() const override { return "Blueprint Editor"; }
     bool IsEditor() const override { return true; }

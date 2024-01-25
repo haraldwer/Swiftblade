@@ -1,4 +1,5 @@
 
+#include "Engine/EventScopes.h"
 #include "Engine/Editor/Debugging/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Rendering/Renderer.h"
@@ -17,6 +18,7 @@ int main()
     Rendering::Renderer renderer;
     Resource::Manager resourceManager;
     Engine::Manager instanceManager;
+    GlobalEventManager eventManager;
     
     debugManager.Init();
     renderer.Init();

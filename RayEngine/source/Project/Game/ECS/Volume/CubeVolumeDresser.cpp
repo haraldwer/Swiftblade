@@ -1,6 +1,7 @@
 #include "CubeVolumeDresser.h"
 
 #include "CubeVolume.h"
+#include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Rendering/Debug/Draw.h"

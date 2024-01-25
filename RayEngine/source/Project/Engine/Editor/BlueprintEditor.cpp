@@ -62,10 +62,6 @@ void BlueprintEditor::Update(double InDelta)
     }
 }
 
-void BlueprintEditor::Draw()
-{
-}
-
 void BlueprintEditor::DrawDebugWindow()
 {
     if (Config.Blueprint.Edit())
@@ -85,9 +81,7 @@ void BlueprintEditor::DrawDebugWindow()
 
 void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)
 {
-    const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
     ImGui::SeparatorText("Hierarchy"); 
-    //if (ImGui::BeginSection("Hierarchy"))
     {
         HierarchyNode(InstanceID);
         ImGui::Spacing(); 
@@ -111,8 +105,6 @@ void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)
             }
         }
     } 
-    
-    //ImGui::EndSection();
 }
 
 void BlueprintEditor::HierarchyNode(ECS::EntityID InID)

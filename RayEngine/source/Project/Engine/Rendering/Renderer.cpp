@@ -1,9 +1,12 @@
 #include "Renderer.h"
 
+#include "RenderEventData.h"
+#include "Engine/EventScopes.h"
 #include "Engine/Editor/Debugging/Manager.h"
 #include "ImGui/rlImGui.h"
 #include "ImGui\imgui_themes.h"
 #include "Engine/Editor/Gizmo/ImGuizmo.h"
+#include "Utility/Events/Event.h"
 
 using namespace Rendering;
 
@@ -165,6 +168,10 @@ void Renderer::ApplyConfig(const Config& InConfig)
 
 void Renderer::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscaledHeight)
 {
+    OnCreateVirtualTargetData data;
+    data.PreviousHeight = VirtualTarget.texture.height; 
+    data.PreviousWidth = VirtualTarget.texture.width; 
+    
     UnloadRenderTexture(VirtualTarget);
     
     // The height is already set
@@ -174,4 +181,9 @@ void Renderer::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscal
         static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : InUnscaledWidth; 
     const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : InUnscaledHeight;
     VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
+
+    data.NewHeight = VirtualTarget.texture.height; 
+    data.NewWidth = VirtualTarget.texture.width;
+    GlobalEvent<OnCreateVirtualTargetData> event;
+    event.Invoke(data);
 }

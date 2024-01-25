@@ -77,7 +77,6 @@ namespace Engine
 
     private:
 
-
         struct Entry
         {
             int Context = -1;

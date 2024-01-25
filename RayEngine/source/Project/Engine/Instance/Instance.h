@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/ECS/Manager.h"
+#include "Engine/EventScopes.h"
 #include "Engine/Input/Manager.h"
 #include "Engine/Menu/Manager.h"
 #include "Engine/Rendering/Scene.h"
@@ -46,5 +46,6 @@ namespace Engine
         
     private:
         Rendering::Scene RenderScene;
+        InstanceEventManager EventManager;
     };
 }

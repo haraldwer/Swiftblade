@@ -1,9 +1,6 @@
 {
 	"OpenWindows":[
 		"Blueprint Editor",
-		"Input",
-		"Reference Viewer",
-		"Resources",
 		"Viewport"
 	]
 }
