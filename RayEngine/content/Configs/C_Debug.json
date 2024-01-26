@@ -1,6 +1,7 @@
 {
 	"OpenWindows":[
 		"Blueprint Editor",
+		"Input",
 		"Viewport"
 	]
 }

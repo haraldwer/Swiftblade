@@ -12,7 +12,7 @@ void Debug::Manager::Deinit()
     Config.SaveConfig();
 }
 
-void Debug::Manager::DrawDebugWindow()
+void Debug::Manager::Frame()
 {
     for (auto w : PendingRegister)
     {

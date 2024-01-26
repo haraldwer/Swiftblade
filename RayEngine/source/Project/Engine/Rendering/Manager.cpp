@@ -1,6 +1,6 @@
-#include "Renderer.h"
+#include "Manager.h"
 
-#include "RenderEventData.h"
+#include "RenderEvents.h"
 #include "Engine/EventScopes.h"
 #include "Engine/Editor/Debugging/Manager.h"
 #include "ImGui/rlImGui.h"
@@ -10,7 +10,7 @@
 
 using namespace Rendering;
 
-void Renderer::Init()
+void Manager::Init()
 {
     CurrConfig.LoadConfig();
     ApplyConfig(CurrConfig); 
@@ -22,51 +22,61 @@ void Renderer::Init()
     SetExitKey(KEY_F4);
 }
 
-void Renderer::Deinit()
+void Manager::Deinit()
 {
-    // TODO: Cleanup rendering
     UnloadRenderTexture(VirtualTarget);
     rlImGuiShutdown();
     CloseWindow();
 }
 
-bool Renderer::ShouldClose()
+bool Manager::ShouldClose()
 {
     return WindowShouldClose();
 }
 
-void Renderer::BeginVirtualFrame(const RenderTexture2D* InTarget)
+void Manager::BeginVirtualFrame(const RenderTexture2D* InTarget)
 {
     BeginTextureMode(InTarget ? *InTarget : VirtualTarget);
     ClearBackground(DARKGRAY);
 }
 
-void Renderer::RenderScenes(double InDelta)
-{
-    // TODO: Interpolate render instances
-    for (auto s : Scenes)
-        reinterpret_cast<RenderScene*>(&s)->Render();
-}
-
-void Renderer::EndVirtualFrame()
+void Manager::EndVirtualFrame()
 {
     EndTextureMode();
 }
 
-void Renderer::DrawDebugWindow()
+void Manager::DrawDebugWindow()
 {
     // Adjust size
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
     const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-    const ImVec2 size = { vMax.x - vMin.x, vMax.y - vMin.y };
-    if (static_cast<int>(size.x) != VirtualTarget.texture.width ||
-        static_cast<int>(size.y) != VirtualTarget.texture.height)
-        CreateVirtualTarget(static_cast<int>(size.x), static_cast<int>(size.y)); 
-    
-    rlImGuiImageRenderTexture(&VirtualTarget);
+    const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
+    if ((size - ViewportSize).LengthSqr() > 1.0f)
+        CreateVirtualTarget(
+            static_cast<int>(size.x),
+            static_cast<int>(size.y));
+
+    // Blip to imgui window
+    rlImGuiImageRect(
+        &VirtualTarget.texture,
+        size.x,
+        size.y,
+        Rectangle{ 0,0,
+            static_cast<float>(VirtualTarget.texture.width),
+            -static_cast<float>(VirtualTarget.texture.height)
+        });
+
+    // Calculate viewport pos
+    const ImVec2 windowPos = ImGui::GetWindowPos();
+    ViewportPosition = { vMin.x + windowPos.x, vMin.y + windowPos.y };
 }
 
-void Renderer::BeginFrame()
+void Manager::SubmitScene(const Scene& InScene) const
+{
+    reinterpret_cast<const RenderScene*>(&InScene)->Render();
+}
+
+void Manager::BeginFrame()
 {
     BeginDrawing(); 
 
@@ -80,10 +90,10 @@ void Renderer::BeginFrame()
     {
         ClearBackground(DARKGRAY);
         const Vec2F windowSize = GetWindowSize();
+        ViewportPosition = Vec2F::Zero(); 
 
         // Adjust size
-        if (static_cast<int>(windowSize.x) != VirtualTarget.texture.width ||
-            static_cast<int>(windowSize.y) != VirtualTarget.texture.height)
+        if ((windowSize - ViewportSize).LengthSqr() > 1.0f)
             CreateVirtualTarget(
                 static_cast<int>(windowSize.x),
                 static_cast<int>(windowSize.y)); 
@@ -110,7 +120,7 @@ void Renderer::BeginFrame()
             WHITE);
 
         if (!Debug::Manager::Get().Enabled())
-            DrawFPS(10, 10); 
+            DrawFPS(10, 10);
     }
     
     rlImGuiBegin();
@@ -118,24 +128,15 @@ void Renderer::BeginFrame()
     ImGuizmo::BeginFrame();
 }
 
-void Renderer::EndFrame()
+void Manager::EndFrame()
 {
     ImGui::PopDefaultFont(); 
     rlImGuiEnd();
-    EndDrawing(); 
+    EndDrawing();
+    //SwapScreenBuffer();
 }
 
-void Renderer::Clear()
-{
-    Scenes.clear();
-}
-
-void Renderer::Push(const Scene& InScene)
-{
-    Scenes.push_back(InScene);
-}
-
-void Renderer::ApplyConfig(const Config& InConfig)
+void Manager::ApplyConfig(const Config& InConfig)
 {
     CurrConfig = InConfig;
     
@@ -166,11 +167,37 @@ void Renderer::ApplyConfig(const Config& InConfig)
     CurrConfig.SaveConfig();
 }
 
-void Renderer::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscaledHeight)
+Vec2F Manager::GetWindowSize() const
+{
+    return {
+        static_cast<float>(CurrConfig.Width),
+        static_cast<float>(CurrConfig.Height)
+    };
+}
+
+Vec2F Manager::GetViewportSize() const
+{
+    return ViewportSize; 
+}
+
+Vec2F Manager::GetViewportPosition() const
+{
+    return ViewportPosition; 
+}
+
+Vec2F Manager::GetResolution() const
+{
+    return {
+        static_cast<float>(VirtualTarget.texture.width),
+        static_cast<float>(VirtualTarget.texture.height)
+    };
+}
+
+void Manager::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscaledHeight)
 {
     OnCreateVirtualTargetData data;
     data.PreviousHeight = VirtualTarget.texture.height; 
-    data.PreviousWidth = VirtualTarget.texture.width; 
+    data.PreviousWidth = VirtualTarget.texture.width;
     
     UnloadRenderTexture(VirtualTarget);
     
@@ -181,6 +208,10 @@ void Renderer::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscal
         static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : InUnscaledWidth; 
     const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : InUnscaledHeight;
     VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
+    ViewportSize = {
+        static_cast<float>(InUnscaledWidth),
+        static_cast<float>(InUnscaledHeight)
+    };
 
     data.NewHeight = VirtualTarget.texture.height; 
     data.NewWidth = VirtualTarget.texture.width;

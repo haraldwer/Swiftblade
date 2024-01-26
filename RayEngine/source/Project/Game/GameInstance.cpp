@@ -45,9 +45,9 @@ void GameInstance::Deinit()
     Instance::Deinit();
 }
 
-void GameInstance::Update(double InDelta)
+void GameInstance::Logic(double InDelta)
 {
-    Instance::Update(InDelta); 
+    Instance::Logic(InDelta); 
     
     const double scaledDelta = Time.Delta();
     
@@ -68,9 +68,9 @@ void GameInstance::Update(double InDelta)
         DebugCamera.Update(InDelta); 
 }
 
-void GameInstance::Draw()
+void GameInstance::Frame(double InDelta)
 {
-    Menus.Draw(); 
+    Instance::Frame(InDelta);
 }
 
 void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)

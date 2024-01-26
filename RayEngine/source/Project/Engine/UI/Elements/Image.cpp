@@ -4,7 +4,7 @@ void UI::Image::Draw()
 {
     const Rect rect = GetRect();
     DrawRect(rect);
-    const Rect view = ToViewport(rect);
+    const Rect view = ReferenceToViewport(rect);
     if (const auto textureRes = Texture.Get())
         if (const auto texture = textureRes->Get())
             DrawTexturePro(

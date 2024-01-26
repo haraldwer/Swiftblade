@@ -6,6 +6,4 @@ class MenuInstance : public Engine::Instance
 {
 public: 
     void Init() override;
-    void Update(double InDelta) override;
-    void Draw() override;
 };

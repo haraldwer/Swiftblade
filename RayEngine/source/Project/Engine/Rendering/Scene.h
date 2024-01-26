@@ -48,7 +48,7 @@ namespace Rendering
     class RenderScene : public Scene
     {
     public:
-        void Render();
+        void Render() const;
     private:
         void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices) const;
         

@@ -48,7 +48,7 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     return entry;
 }
 
-void RenderScene::Render()
+void RenderScene::Render() const
 {
     BeginMode3D(Utility::Ray::ConvertCamera(Cam));
     

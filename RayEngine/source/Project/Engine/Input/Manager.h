@@ -11,6 +11,7 @@ namespace Input
     public:
         void Init();
         void Update();
+        void Frame();
         void UpdateAction(Action& InAction);
         
         void Push(const String& InContext);

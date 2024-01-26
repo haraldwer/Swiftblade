@@ -1,7 +1,7 @@
 ﻿#include "Element.h"
 
 #include "Container.h"
-#include "Engine/Rendering/Renderer.h"
+#include "Engine/Rendering/Manager.h"
 
 void UI::Element::Init()
 {
@@ -30,7 +30,7 @@ void UI::Element::RefreshRect(const Rect& InContainer)
 bool UI::Element::IsHovered() const
 {
     const Vector2 mp = GetMousePosition();
-    const Vec2F relative = FromScreen({ mp.x, mp.y });
+    const Vec2F relative = ScreenToViewport({ mp.x, mp.y });
     return
         relative.x > CachedRect.Start.x &&
         relative.x < CachedRect.End.x &&
@@ -45,7 +45,7 @@ bool UI::Element::IsClicked() const
 
 UI::Rect UI::Element::GetReferenceRect()
 {
-    const Vec2F res = Rendering::Renderer::Get().GetResolution();
+    const Vec2F res = Rendering::Manager::Get().GetResolution();
     const float aspect = res.x / res.y; 
     return {
         Vec2F::Zero(),
@@ -56,12 +56,12 @@ UI::Rect UI::Element::GetReferenceRect()
     };
 }
 
-UI::Rect UI::Element::ToViewport(const Rect& InRect)
+UI::Rect UI::Element::ReferenceToViewport(const Rect& InRect)
 {
-    return { ToViewport(InRect.Start), ToViewport(InRect.End) };    
+    return { ReferenceToViewport(InRect.Start), ReferenceToViewport(InRect.End) };    
 }
 
-Vec2F UI::Element::ToViewport(const Vec2F& InVec)
+Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
 {
     // Convert rect from reference space to screen relative
     // First, convert to 0 - 1 space
@@ -69,16 +69,19 @@ Vec2F UI::Element::ToViewport(const Vec2F& InVec)
     // TODO: Also consider ref start
     // TODO: Fix stretching
     
-    const Vec2F res = Rendering::Renderer::Get().GetResolution();
+    const Vec2F res = Rendering::Manager::Get().GetResolution();
     const Rect ref = GetReferenceRect();
     return {
         (InVec / ref.End) * res,
     };
 }
 
-Vec2F UI::Element::FromScreen(const Vec2F& InScreenPos)
+Vec2F UI::Element::ScreenToViewport(const Vec2F& InScreenPos)
 {
-    const Vec2F absolute = InScreenPos / Rendering::Renderer::Get().GetWindowSize();
+    // From screen to reference space
+    auto& renderer = Rendering::Manager::Get();
+    const Vec2F viewportPos = InScreenPos - renderer.GetViewportPosition(); 
+    const Vec2F absolute = viewportPos / renderer.GetViewportSize();
     const Rect ref = GetReferenceRect();
     return absolute * ref.End; 
 }
@@ -124,9 +127,9 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 void UI::Element::DrawRect(const Rect& InRect)
 {
     return; 
-    const Rect screenRect = ToViewport(InRect);
-    const Vec2F size = screenRect.End - screenRect.Start;
-    const Vec2F pos = screenRect.Start;
+    const Rect view = ReferenceToViewport(InRect);
+    const Vec2F size = view.End - view.Start;
+    const Vec2F pos = view.Start;
     DrawRectangleLines(
         static_cast<int>(pos.x + 0.5f),
         static_cast<int>(pos.y + 0.5f),

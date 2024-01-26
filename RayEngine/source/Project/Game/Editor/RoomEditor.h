@@ -21,8 +21,8 @@ class RoomEditor : public Engine::Instance, public Debug::Window
 public:
     void Init() override;
     void Deinit() override;
-    void Update(double InDelta) override;
-    void Draw() override;
+    void Logic(double InDelta) override;
+    void Frame(double InDelta) override;
     
     void DrawDebugWindow() override;
     String DebugWindowName() const override { return "Room Editor"; }

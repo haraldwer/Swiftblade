@@ -12,8 +12,8 @@ namespace Debug
     public:
         void Init();
         void Deinit();
+        void Frame();
         
-        void DrawDebugWindow();
         bool Enabled() const { return DebugEnabled; }
         
         void Register(Window* InWindow);

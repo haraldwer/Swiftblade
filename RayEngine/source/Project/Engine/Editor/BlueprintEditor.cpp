@@ -40,9 +40,9 @@ void BlueprintEditor::SetBP(const ResBlueprint& InBP)
     SelectedID = InstanceID; 
 }
 
-void BlueprintEditor::Update(double InDelta)
+void BlueprintEditor::Logic(double InDelta)
 {
-    Instance::Update(InDelta);
+    Instance::Logic(InDelta);
 
     // Update
     ECS.Update(Time.Delta());

@@ -11,33 +11,16 @@ namespace Engine
     class Instance : public Utility::Singelton<Instance>
     {
     public:
-        virtual ~Instance() = default;
+        ~Instance() override = default;
+
+        virtual void Init();
+        virtual void Deinit();
+        virtual void Logic(double InDelta);
+        virtual void Frame(double InDelta);
         
-        virtual void Init()
-        {
-            Input.Init();
-        }
-        
-        virtual void Deinit()
-        {
-            Menus.Clear();
-        }
-        
-        virtual void Update(double InDelta)
-        {
-            Time.Tick(InDelta);
-            Input.Update(); 
-            Menus.Update(InDelta);
-        }
-        
-        virtual void Draw() {}
-        
-        virtual bool IsEditor() const { return false; } 
-        
-        Rendering::LogicScene& GetRenderScene()
-        {
-            return *reinterpret_cast<Rendering::LogicScene*>(&RenderScene);
-        }
+        virtual bool IsEditor() const { return false; }
+
+        Rendering::LogicScene& GetRenderScene();
 
     protected:
         Utility::Time Time;

@@ -8,7 +8,7 @@
 #include "Manager.h"
 #include "QueryFilter.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Rendering/Renderer.h"
+#include "Engine/Rendering/Manager.h"
 #include "Engine/Rendering/Debug/Draw.h"
 #include "Utility/PhysXUtility.h"
 

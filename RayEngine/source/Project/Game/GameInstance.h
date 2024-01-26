@@ -13,8 +13,8 @@ class GameInstance : public Engine::Instance
 public:
     void Init() override;
     void Deinit() override;
-    void Update(double InDelta) override;
-    void Draw() override;
+    void Logic(double InDelta) override;
+    void Frame(double InDelta) override; 
     
     void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
     void SetState(const GameState& InState);

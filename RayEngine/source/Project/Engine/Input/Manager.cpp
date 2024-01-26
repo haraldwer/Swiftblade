@@ -60,9 +60,18 @@ void Input::Manager::Init()
 
 void Input::Manager::Update()
 {
+    // TODO: Handle normal events
+    //PollInputEvents();
+    
     for (auto& context : Config.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
+}
+
+void Input::Manager::Frame()
+{
+    // TODO: Handle mouse movement
+    // Queue all other events
 }
 
 void Input::Manager::UpdateAction(Input::Action& InAction)

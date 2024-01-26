@@ -42,9 +42,9 @@ void RoomEditor::Deinit()
     Instance::Deinit();
 }
 
-void RoomEditor::Update(double InDelta)
+void RoomEditor::Logic(double InDelta)
 {
-    Instance::Update(InDelta);
+    Instance::Logic(InDelta);
     
     CHECK_ASSERT(!UI, "UI Invalid"); 
     
@@ -85,7 +85,7 @@ void RoomEditor::Update(double InDelta)
         Engine::Manager::Get().Pop(); 
 }
 
-void RoomEditor::Draw()
+void RoomEditor::Frame(double InDelta)
 {
     CHECK_ASSERT(!UI, "UI Invalid");
     

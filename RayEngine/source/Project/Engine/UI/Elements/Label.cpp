@@ -27,10 +27,10 @@ void UI::Label::Draw()
         LERP(startPos.x, endPos.x, Centering.x),
         LERP(startPos.y, endPos.y, Centering.y)
     };
-    const Vec2F viewPos = ToViewport(pos); 
+    const Vec2F viewPos = ReferenceToViewport(pos); 
 
     // Difference in size between reference and view
-    const Rect view = ToViewport(rect); 
+    const Rect view = ReferenceToViewport(rect); 
     const float orgSize = (rect.End - rect.Start).Length();
     const float viewSize = (view.End - view.Start).Length();
     const float sizeScale = viewSize / orgSize;
