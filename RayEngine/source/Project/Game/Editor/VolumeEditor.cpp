@@ -29,8 +29,8 @@ void VolumeEditor::Update(double InDelta)
         PlaceStart = trace.Key;
 
         // Press to set target cube
-        if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
-            IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
+        if ((Input::Action::Get("LM").Pressed() ||
+            Input::Action::Get("RM").Pressed()))
         {
             Placing = true; 
         }
@@ -42,11 +42,11 @@ void VolumeEditor::Update(double InDelta)
     if (Placing)
     {
         // Release to place cubes
-        if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) &&
-            !IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        if (!Input::Action::Get("LM").Down() &&
+            !Input::Action::Get("RM").Pressed())
         {
             Placing = false;
-            const uint8 val = IsMouseButtonReleased(MOUSE_BUTTON_LEFT) ? 1 : 0;
+            const uint8 val = Input::Action::Get("LM").Released() ? 1 : 0;
 
             struct VolumeChange
             {

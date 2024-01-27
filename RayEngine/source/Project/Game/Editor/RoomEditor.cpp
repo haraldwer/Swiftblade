@@ -45,25 +45,12 @@ void RoomEditor::Deinit()
 
 void RoomEditor::Logic(double InDelta)
 {
+    CHECK_ASSERT(!UI, "UI Invalid");
+    
     Instance::Logic(InDelta);
-    
-    CHECK_ASSERT(!UI, "UI Invalid"); 
-    
-    // Update
+    UpdateCamera(InDelta);
     ECS.Update(Time.Delta());
-    Camera.Update(InDelta);
     UI->Update();
-    
-    if (Input::Action::Get("EditorCamera").Pressed())
-    {
-        bUseEditorCamera = !bUseEditorCamera;
-        if (bUseEditorCamera)
-            Camera.Enter(GetRenderScene().GetCamera());
-        else
-            Camera.Exit(); 
-    }
-    if (bUseEditorCamera)
-        Camera.Update(InDelta); 
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
     if (IsKeyPressed(KEY_ONE) || UI->Get("ModeVolume").IsClicked())
@@ -75,14 +62,14 @@ void RoomEditor::Logic(double InDelta)
     if (newMode != SubEditorMode::COUNT)
         SubEditorManager.SetMode(newMode); 
     
-    SubEditorManager.Update(InDelta, bUseEditorCamera);
+    SubEditorManager.Update(InDelta, bEditCameraMode);
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
     {
-        if (Input::Action::Get("Save"))
+        if (Input::Action::Get("Save").Pressed())
             SaveRoom();
-        if (Input::Action::Get("Play"))
+        if (Input::Action::Get("Play").Pressed())
             PlayScene();
     }
 
@@ -122,6 +109,33 @@ void RoomEditor::DrawDebugWindow()
     ImGui::SameLine();
     if (ImGui::Button("Play"))
         PlayScene(); 
+}
+
+void RoomEditor::UpdateCamera(double InDelta)
+{
+    const bool previousUseCamera = bUseEditorCamera;
+    if (Input::Action::Get("EditorCamera").Pressed())
+    {
+        bUseEditorCamera = !bUseEditorCamera;
+        bEditCameraMode = bUseEditorCamera;
+    }
+    
+    const Input::Action& rm = Input::Action::Get("RM"); 
+    if (rm.Pressed())
+        bUseEditorCamera = true;
+    if (rm.Released())
+    {
+        bUseEditorCamera = false;
+        bEditCameraMode = false;
+    }
+
+    if (bUseEditorCamera != previousUseCamera)
+    {
+        bUseEditorCamera ?
+            Camera.Enter() :
+            Camera.Exit(); 
+    }
+    Camera.Update(InDelta);
 }
 
 void RoomEditor::OpenScene()

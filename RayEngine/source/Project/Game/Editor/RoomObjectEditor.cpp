@@ -43,10 +43,10 @@ void RoomObjectEditor::Update(double InDelta)
     const QuatF rot = trans->GetRotation();
     trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 20.0f * static_cast<float>(InDelta)));
 
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if (Input::Action::Get("LM").Pressed())
         PlaceObject();
 
-    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+    if (Input::Action::Get("RM").Pressed())
         RemoveObject();
 }
 

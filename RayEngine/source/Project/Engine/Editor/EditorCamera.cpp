@@ -10,11 +10,11 @@ void EditorCamera::Update(double InDelta)
     
     // Calculate rotation
     const Vec2F mouseDelta = {
-        Input::Action::Get("LookHorizontal").Axis(),
-        Input::Action::Get("LookVertical").Axis()
+        man.Action("LookHorizontal", "EditorCamera").Axis(),
+        man.Action("LookVertical", "EditorCamera").Axis()
     };
     TargetState.Rotation +=
-        Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.005f *
+        Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.0025f *
         static_cast<float>(!ctrl);
     TargetState.Rotation.x = CLAMP(
         Utility::Math::DegreesToRadians(-90.0f),
@@ -67,8 +67,12 @@ void EditorCamera::Enter(const CameraInstance& InCamera)
     TargetState.Position = InCamera.Position;
     TargetState.Rotation = InCamera.Rotation.Euler();
     TargetState.FOV = InCamera.FOV;
-    CurrentState = TargetState;
+    Enter(); 
+}
 
+void EditorCamera::Enter()
+{
+    CurrentState = TargetState;
     Input::Manager::Get().Push("Default");
     Input::Manager::Get().Push("EditorCamera");
 }

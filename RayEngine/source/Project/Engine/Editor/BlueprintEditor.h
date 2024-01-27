@@ -28,6 +28,7 @@ public:
     void SetBP(const ResBlueprint& InBP);
 
 private:
+    void UpdateCamera(double InDelta);
 
     void EditComponents(ECS::EntityID InID);
     void EditHierarhcy(ECS::EntityID InID);
@@ -40,5 +41,6 @@ private:
     ECS::EntityID InstanceID = ECS::InvalidID; 
     ECS::EntityID SelectedID = ECS::InvalidID;
 
-    ECS::Manager ECS; 
+    ECS::Manager ECS;
+    bool bUseEditorCamera = false;
 };

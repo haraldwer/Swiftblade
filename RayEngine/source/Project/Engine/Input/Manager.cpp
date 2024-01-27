@@ -6,7 +6,6 @@
 
 void Input::Manager::Push(const String& InContext)
 {
-    CHECK_ASSERT(!ContextStack.empty() && ContextStack.back() == InContext, "Context already at top");
     const auto find = Config.CachedContexts.find(InContext);
     CHECK_ASSERT(find == Config.CachedContexts.end(), "Unknown context");
     ContextStack.push_back(InContext);

@@ -31,7 +31,7 @@ int main()
     Utility::Timer timer;
     constexpr double tickRate = 300.0; 
     constexpr double fixedDelta = 1.0 / tickRate;
-    constexpr double maxFrameTickTime = 10.0;
+    constexpr double maxFrameTickTime = 0.5;
     
     while (true)
     {

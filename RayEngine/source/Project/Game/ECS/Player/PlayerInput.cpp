@@ -4,15 +4,6 @@
 #include "Engine/Input/Manager.h"
 #include "Movement/Movement.h"
 
-void ECS::PlayerInput::Deinit()
-{
-}
-
-void ECS::PlayerInput::Init()
-{
-    
-}
-
 void ECS::PlayerInput::Update(double InDelta)
 {
     auto& trans = Get<Transform>(GetID());
@@ -37,7 +28,7 @@ void ECS::PlayerInput::Update(double InDelta)
         forward * (static_cast<float>(Input::Action::Get("Forward").Down()) - static_cast<float>(Input::Action::Get("Backward").Down()));
     MoveInput = input.xz;
 
-    JumpInput = Input::Action::Get("Jump").Pressed();
+    JumpInput = Input::Action::Get("Jump").Down();
     CrouchInput = Input::Action::Get("Crouch").Down();
     DashInput = Input::Action::Get("Dash").Down();
 }

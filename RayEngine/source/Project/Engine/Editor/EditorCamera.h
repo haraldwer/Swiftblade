@@ -11,6 +11,7 @@ public:
     void Deinit();
 
     void Enter(const CameraInstance& InCamera);
+    void Enter();
     void Exit();
     
     Vec3F GetPosition() const { return TargetState.Position; }

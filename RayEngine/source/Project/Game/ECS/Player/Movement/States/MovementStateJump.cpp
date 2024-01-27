@@ -19,7 +19,7 @@ Type MovementStateJump::Check()
     }
     
     if (GetInput().JumpInput && CanJump())
-            return GetType();
+        return GetType();
     return Type::None();
 }
 

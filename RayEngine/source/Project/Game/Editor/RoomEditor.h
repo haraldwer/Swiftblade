@@ -30,6 +30,7 @@ public:
     bool IsEditor() const override { return true; }
 
 private:
+    void UpdateCamera(double InDelta);
     void OpenScene();
     void PlayScene();
     void SaveRoom();
@@ -44,5 +45,6 @@ private:
     ECS::Manager ECS; 
 
     ObjectPtr<UI::Instance> UI;
-    bool bUseEditorCamera;
+    bool bUseEditorCamera = false;
+    bool bEditCameraMode = false;
 };
