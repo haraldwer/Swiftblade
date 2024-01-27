@@ -10,12 +10,10 @@ namespace ECS
     public:
         
         void Deinit() override;
+        void Init() override;
         void Update(double InDelta) override;
-        inline static bool Blocked = false; 
 
-        // TODO: Action mapping and input buffering
-        // TODO: Fix weird sensitivity bug
-        // TODO: Improve blocking logic
+        // TODO: input buffering
         
         bool JumpInput = false;
         bool CrouchInput = false;
@@ -27,7 +25,7 @@ namespace ECS
         
     private:
         
-        PROPERTY_C(float, Sensitivity, 0.005f);
+        PROPERTY_C(float, Sensitivity, 0.0025f);
         
     };
 }

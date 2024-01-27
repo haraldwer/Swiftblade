@@ -44,4 +44,5 @@ private:
     ECS::Manager ECS; 
 
     ObjectPtr<UI::Instance> UI;
+    bool bUseEditorCamera;
 };

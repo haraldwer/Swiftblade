@@ -24,14 +24,17 @@
 					"Key":68
 				},{
 					"Name":"LookHorizontal",
+					"KeyType":4,
 					"Key":0
 				},{
 					"Name":"LookVertical",
+					"KeyType":4,
 					"Key":1
 				}
 			],
 			"CursorVisible":false
 		},{
+			"Blocking":true,
 			"Name":"Default",
 			"Actions":[{
 					"Name":"LM",
@@ -62,6 +65,7 @@
 				}
 			]
 		},{
+			"Blocking":true,
 			"Name":"EditorCamera",
 			"Actions":[{
 					"Name":"Control",
@@ -74,7 +78,7 @@
 					"Name":"Forward",
 					"Key":87
 				},{
-					"Name":"Back",
+					"Name":"Backward",
 					"Key":83
 				},{
 					"Name":"Left",
@@ -94,8 +98,17 @@
 				},{
 					"Name":"DecreaseFOV",
 					"Key":81
+				},{
+					"Name":"LookHorizontal",
+					"KeyType":4,
+					"Key":0
+				},{
+					"Name":"LookVertical",
+					"KeyType":4,
+					"Key":1
 				}
-			]
+			],
+			"CursorVisible":false
 		}
 	]
 }

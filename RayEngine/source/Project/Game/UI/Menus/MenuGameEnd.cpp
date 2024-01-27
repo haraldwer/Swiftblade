@@ -24,9 +24,16 @@ void MenuGameEnd::Init()
     UI = builder.Build();
 
     // Disable player input and show mouse
-    ECS::PlayerInput::Blocked = true;
-    if (IsCursorHidden())
-        ShowCursor(); 
+    Input::Manager::Get().Push("Default"); 
+
+    // Freeze the game
+    Utility::Time::Get().SetPause(true);
+}
+
+void MenuGameEnd::Deinit()
+{
+    Instance::Deinit();
+    Input::Manager::Get().Pop("Default"); 
 }
 
 void MenuGameEnd::Update(double InDelta)

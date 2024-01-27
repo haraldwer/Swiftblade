@@ -33,12 +33,12 @@ void GameInstance::Init()
         State.PlayerID = ECS.CreateEntity(); 
         bp->Instantiate(StartPlayerPos, {}, State.PlayerID);
     }
-
-    DebugCamera.SetRequireHold(false); 
 }
 
 void GameInstance::Deinit()
 {
+    if (bUseDebugCamera)
+        DebugCamera.Exit();
     SceneInstance.Destroy();
     ECS.Deinit(); 
     Physics.Deinit();
@@ -55,15 +55,16 @@ void GameInstance::Logic(double InDelta)
     if (!Time.IsPaused())
         Physics.Update(scaledDelta);
     ECS.Update(scaledDelta);
-    Menus.Update(scaledDelta);
-    
+
+    // Debug camera
     if (Input::Action::Get("EditorCamera").Pressed())
     {
         bUseDebugCamera = !bUseDebugCamera;
-        DebugCamera.SetReference(GetRenderScene().GetCamera());
-        ECS::PlayerInput::Blocked = bUseDebugCamera; 
+        if (bUseDebugCamera)
+            DebugCamera.Enter(GetRenderScene().GetCamera());
+        else
+            DebugCamera.Exit(); 
     }
-    
     if (bUseDebugCamera)
         DebugCamera.Update(InDelta); 
 }

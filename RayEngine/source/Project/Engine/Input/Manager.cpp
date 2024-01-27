@@ -1,7 +1,7 @@
 ﻿#include "Manager.h"
+#include "Engine/Rendering/Manager.h"
 
 #include "ImGui/imgui.h"
-#include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_themes.h"
 
 void Input::Manager::Push(const String& InContext)
@@ -25,17 +25,12 @@ void Input::Manager::Pop(const String& InContext)
     CHECK_ASSERT(true, "Failed to pop context"); 
 }
 
-const Input::Action& Input::Manager::Action(const String& InAction, const String& InContext)
+const Input::Action& Input::Manager::Action(const String& InAction, const String& InContext) const
 {
     CHECK_ASSERT(ContextStack.empty(), "Stack empty")
     for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
     {
-        // Get context
-        auto contextFind = Config.CachedContexts.find(ContextStack[i]);
-        CHECK_ASSERT(contextFind == Config.CachedContexts.end(), "Unknown context");
-        auto& context = Config.Contexts.Get()[contextFind->second];
-
-        // If correct context
+        auto& context = GetContext(ContextStack[i]);
         if (context.Name.Get() == InContext)
         {
             // Find action
@@ -43,8 +38,6 @@ const Input::Action& Input::Manager::Action(const String& InAction, const String
             if (actionFind != context.CachedActions.end())
                 return context.Actions.Get()[actionFind->second]; 
         }
-
-        // If blocking
         if (context.Blocking)
             return Action::Invalid();
     }
@@ -56,7 +49,6 @@ void Input::Manager::Init()
     Config.LoadConfig();
     Config.UpdateCache();
     Push("Default");
-    Push("EditorCamera");
 }
 
 void Input::Manager::Update()
@@ -65,13 +57,13 @@ void Input::Manager::Update()
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
 
-    ContextStack.
+    if (MouseDelta.length() > 0.1f)
+        MouseDelta = Vec2F::Zero();
 }
 
 void Input::Manager::Frame()
 {
-    // TODO: Handle mouse movement
-    // Queue all other events
+    UpdateCursorState();
 }
 
 void Input::Manager::UpdateAction(Input::Action& InAction)
@@ -92,41 +84,45 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
     // State change
     const int key = InAction.Key.Get();
     bool down = false;
-    float value = 0.0f; 
-    switch (static_cast<KeyType>(InAction.KeyType.Get()))
+    float value = 0.0f;
+    if (IsWindowFocused())
     {
-    case KeyType::KEYBOARD:
-        down = IsKeyDown(key);
-        break;
-    case KeyType::GAMEPAD_BUTTON:
-        down = IsGamepadButtonDown(0, key);
-        break;
-    case KeyType::GAMEPAD_AXIS:
-        value = GetGamepadAxisMovement(0, key); 
-        break;
-    case KeyType::MOUSE_BUTTON:
-        down = IsMouseButtonDown(key);
-        break;
-    case KeyType::MOUSE_AXIS:
-        switch (key)
+        switch (static_cast<KeyType>(InAction.KeyType.Get()))
         {
-        case 0: 
-            value = GetMouseDelta().x;
+        case KeyType::KEYBOARD:
+            down = IsKeyDown(key);
             break;
-        case 1: 
-            value = GetMouseDelta().y;
+        case KeyType::GAMEPAD_BUTTON:
+            down = IsGamepadButtonDown(0, key);
             break;
-        case 2: 
-            value = GetMouseWheelMoveV().x;
+        case KeyType::GAMEPAD_AXIS:
+            value = GetGamepadAxisMovement(0, key); 
             break;
-        case 3: 
-            value = GetMouseWheelMoveV().y;
-            break; 
+        case KeyType::MOUSE_BUTTON:
+            down = IsMouseButtonDown(key);
+            break;
+        case KeyType::MOUSE_AXIS:
+            switch (key)
+            {
+            case 0: 
+                value = MouseDelta.x;
+                break;
+            case 1: 
+                value = MouseDelta.y;
+                break;
+            case 2: 
+                value = GetMouseWheelMoveV().x;
+                break;
+            case 3: 
+                value = GetMouseWheelMoveV().y;
+                break; 
+            }
+            break;
         }
-        break;
     }
     if (!down)
-        down = value > InAction.Deadzone; 
+        down = abs(value) > InAction.Deadzone;
+    InAction.Value = value; 
     if (down != InAction.Down())
         InAction.State = down ?
             State::PRESSED : State::RELEASED;
@@ -149,11 +145,9 @@ void Input::Manager::DrawDebugWindow()
             for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
             {
                 const String& name = ContextStack[i]; 
-                auto find = Config.CachedContexts.find(name);
-                CHECK_ASSERT(find == Config.CachedContexts.end(), "Unknown context");
-                Context& context = Config.Contexts.Get()[find->second];
-                String text = name + (context.Blocking ? " (blocking)" : "");
-                const bool selected = context.Name.Get() == selectedContext;
+                auto& context = GetContext(name);
+                const String text = name + (context.Blocking ? " (blocking)" : "");
+                const bool selected = name == selectedContext;
                 if (ImGui::Selectable((text + "##StackEntry_" + std::to_string(i)).c_str(), selected))
                 {
                     selectedContext = context.Name; 
@@ -285,12 +279,43 @@ void Input::Manager::DrawDebugWindow()
                     break;
                 }
                 ImGui::Text(("State: " + state).c_str());
+                ImGui::Text(("Axis: " + std::to_string(action.Value)).c_str());
             }
         }
     }
 }
 
-Input::Context* Input::Manager::FindContext(String InName) const
+void Input::Manager::UpdateCursorState()
 {
+    CHECK_RETURN(ContextStack.empty());
     
+    const auto md = GetMouseDelta(); 
+    MouseDelta += Vec2F( md.x, md.y );
+    
+    // Refresh cursor visibility
+    auto& context = GetContext(ContextStack.back());
+    if (context.CursorVisible)
+    {
+        if (IsCursorHidden())
+            ShowCursor();
+    }
+    else
+    {
+        if (!IsCursorHidden())
+            HideCursor();
+        const auto& renderer = Rendering::Manager::Get();
+        const Vec2F viewportSize = renderer.GetViewportSize();
+        const Vec2F targetMousePos = renderer.GetViewportPosition() + viewportSize * 0.5f;
+        const auto currentMousePos = GetMousePosition();
+        const float targetMouseDist = (Vec2F(currentMousePos.x, currentMousePos.y) - targetMousePos).length; 
+        if (targetMouseDist > MIN(viewportSize.x, viewportSize.y) * 0.25f) 
+            SetMousePosition(static_cast<int>(targetMousePos.x), static_cast<int>(targetMousePos.y)); 
+    }
+}
+
+const Input::Context& Input::Manager::GetContext(const String& InName) const
+{
+    const auto contextFind = Config.CachedContexts.find(InName);
+    CHECK_ASSERT(contextFind == Config.CachedContexts.end(), "Unknown context");
+    return Config.Contexts.Get()[contextFind->second];
 }

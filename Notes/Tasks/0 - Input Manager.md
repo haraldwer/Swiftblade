@@ -3,4 +3,5 @@ Supports:
 - Keybinds
 - Input contexts & blocking
 - Visual debugging
+- Mouse visibility
 - 

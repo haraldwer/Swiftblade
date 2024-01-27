@@ -8,13 +8,10 @@ public:
     EditorCamera() = default;
 
     void Update(double InDelta);
-    void Deinit() const;
-    
-    void SetRequireHold(bool InHold) { RequireHold = InHold; }
-    void ToggleRequireHold() { RequireHold = !RequireHold; }
-    bool IsControlling() const;
-    bool IsFullyControlling() const;
-    void SetReference(const CameraInstance& InCamera);
+    void Deinit();
+
+    void Enter(const CameraInstance& InCamera);
+    void Exit();
     
     Vec3F GetPosition() const { return TargetState.Position; }
 
@@ -30,7 +27,6 @@ private:
 
     State TargetState;
     State CurrentState;
-    bool RequireHold = true;
-    Vec2F CursorPos; 
+    Vec2F CursorPos;
     
 };

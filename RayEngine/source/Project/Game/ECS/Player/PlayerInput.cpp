@@ -6,21 +6,15 @@
 
 void ECS::PlayerInput::Deinit()
 {
-    if (IsCursorHidden())
-        ShowCursor();
+}
+
+void ECS::PlayerInput::Init()
+{
+    
 }
 
 void ECS::PlayerInput::Update(double InDelta)
 {
-    if (Blocked)
-        return;
-    
-    if (!IsWindowFocused())
-        return; 
-    
-    if (!IsCursorHidden())
-        HideCursor();
-    
     auto& trans = Get<Transform>(GetID());
 
     // Camera rotation

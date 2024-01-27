@@ -17,17 +17,19 @@ namespace Input
         void Push(const String& InContext);
         void Pop(const String& InContext);
         
-        const Action& Action(const String& InAction, const String& InContext);
+        const Action& Action(const String& InAction, const String& InContext) const;
 
         String DebugWindowName() const override { return "Input"; }
         void DrawDebugWindow() override;
 
     private:
 
-        Context* FindContext(String InName) const;
+        void UpdateCursorState();
+        const Context& GetContext(const String& InName) const;
         
         Vector<String> ContextStack;
         Config Config; 
+        Vec2F MouseDelta;
 
         // TODO: Input buffering
         // TODO: Consuming input
