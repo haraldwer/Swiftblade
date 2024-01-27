@@ -52,14 +52,13 @@ int main()
         timer = Utility::Timer();
         
         // Update
-        //tickTimer = MIN(tickTimer + delta, maxFrameTickTime);
-        //while (tickTimer >= 0)
-        //{
-        //    tickTimer -= fixedDelta;
-        //    instance->Logic(fixedDelta);
-        //}
-
-        instance->Logic(delta);
+        tickTimer = MIN(tickTimer + delta, maxFrameTickTime);
+        while (tickTimer >= 0)
+        {
+            tickTimer -= fixedDelta;
+            instance->Logic(fixedDelta);
+            debugManager.Logic();
+        }
 
         if (renderer.ShouldClose())
             break;
@@ -71,7 +70,7 @@ int main()
 
         // Render to screen
         renderer.BeginFrame();
-        debugManager.Frame();
+        debugManager.Frame(delta);
         renderer.EndFrame(); 
     }
     

@@ -57,7 +57,7 @@ void GameInstance::Logic(double InDelta)
     ECS.Update(scaledDelta);
     Menus.Update(scaledDelta);
     
-    if (IsKeyPressed(KEY_TAB))
+    if (Input::Action::Get("EditorCamera").Pressed())
     {
         bUseDebugCamera = !bUseDebugCamera;
         DebugCamera.SetReference(GetRenderScene().GetCamera());

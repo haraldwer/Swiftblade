@@ -51,13 +51,13 @@ void BlueprintEditor::Logic(double InDelta)
     if (InstanceID == ECS::InvalidID)
         return; 
     
-    if (IsKeyDown(KEY_LEFT_CONTROL))
+    if (Input::Action::Get("Ctrl").Down())
     {
-        if (IsKeyPressed(KEY_S))
+        if (Input::Action::Get("Save"))
             if (BlueprintResource* bp = Config.Blueprint.Get().Get())
                 bp->Save(InstanceID); 
         
-        if (IsKeyPressed(KEY_P))
+        if (Input::Action::Get("Play"))
             Engine::Manager::Get().Push<GameInstance>();
     }
 }

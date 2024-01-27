@@ -1,5 +1,6 @@
 #include "Manager.h"
 
+#include "Engine/Input/Action.h"
 #include "ImGui/imgui.h"
 
 void Debug::Manager::Init()
@@ -12,7 +13,12 @@ void Debug::Manager::Deinit()
     Config.SaveConfig();
 }
 
-void Debug::Manager::Frame()
+void Debug::Manager::Logic()
+{
+    LogicCounter++; 
+}
+
+void Debug::Manager::Frame(double InDeltaTime)
 {
     for (auto w : PendingRegister)
     {
@@ -46,6 +52,16 @@ void Debug::Manager::Frame()
         }
 
         ImGui::Text((" | FPS: " + std::to_string(GetFPS())).c_str());
+
+        // Calculate ticks per frame
+        const double lerp = MIN(2.0f * InDeltaTime, 1.0f);
+        TPF = LERP(TPF, static_cast<double>(LogicCounter), lerp);
+        const double tps = TPF / InDeltaTime;
+        LogicCounter = 0;
+        
+        ImGui::Text((" TPS: " + std::to_string(tps).substr(0, 3)).c_str());
+        ImGui::Text((" TPF: " + std::to_string(TPF).substr(0, 3)).c_str());
+        
         ImGui::EndMainMenuBar();
     }
 

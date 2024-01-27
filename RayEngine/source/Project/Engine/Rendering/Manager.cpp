@@ -133,7 +133,6 @@ void Manager::EndFrame()
     ImGui::PopDefaultFont(); 
     rlImGuiEnd();
     EndDrawing();
-    //SwapScreenBuffer();
 }
 
 void Manager::ApplyConfig(const Config& InConfig)

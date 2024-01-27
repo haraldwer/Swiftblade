@@ -14,12 +14,15 @@ void EditorCamera::Update(double InDelta)
             CursorPos = { pos.x, pos.y };
             HideCursor();
         }
+
+        auto& man = Input::Manager::Get();
+        const bool ctrl = man.Action("Control", "EditorCamera").Down(); 
         
         const auto mouseDelta = GetMouseDelta();
         SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
         TargetState.Rotation +=
             Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.005f *
-            static_cast<float>(!IsKeyDown(KEY_LEFT_CONTROL));
+            static_cast<float>(!ctrl);
         TargetState.Rotation.x = CLAMP(
             Utility::Math::DegreesToRadians(-90.0f),
             Utility::Math::DegreesToRadians(90.0f),
@@ -35,16 +38,23 @@ void EditorCamera::Update(double InDelta)
         
         // Add position
         const Vec3F posDelta =
-            (up * (static_cast<float>(IsKeyDown(KEY_E)) - static_cast<float>(IsKeyDown(KEY_Q))) +
-            right * (static_cast<float>(IsKeyDown(KEY_D)) - static_cast<float>(IsKeyDown(KEY_A))) +
-            forward * (static_cast<float>(IsKeyDown(KEY_W)) - static_cast<float>(IsKeyDown(KEY_S)))) * 
-            static_cast<float>(!IsKeyDown(KEY_LEFT_CONTROL));
+            (up * (
+                static_cast<float>(man.Action("Up", "EditorCamera").Down()) -
+                static_cast<float>(man.Action("Down", "EditorCamera").Down())) +
+            right * (
+                static_cast<float>(man.Action("Right", "EditorCamera").Down()) -
+                static_cast<float>(man.Action("Left", "EditorCamera").Down())) +
+            forward * (
+                static_cast<float>(man.Action("Forward", "EditorCamera").Down()) -
+                static_cast<float>(man.Action("Back", "EditorCamera").Down()))) * 
+            static_cast<float>(!ctrl);
         TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * TargetState.MovementSpeed;
         
         // FOV
-        TargetState.FOV +=
-            (static_cast<float>(IsKeyDown(KEY_Z)) - static_cast<float>(IsKeyDown(KEY_X))) *
-            static_cast<float>(!IsKeyDown(KEY_LEFT_CONTROL)) * 
+        TargetState.FOV += (
+                static_cast<float>(man.Action("IncreaseFOV", "EditorCamera").Down()) -
+                static_cast<float>(man.Action("DecreaseFOV", "EditorCamera").Down())) *
+            static_cast<float>(!ctrl) * 
             static_cast<float>(InDelta) * 30.0f;
     }
     else
@@ -83,7 +93,7 @@ void EditorCamera::Deinit() const
 
 bool EditorCamera::IsControlling() const
 {
-    return (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) || !RequireHold) && IsWindowFocused();
+    return (Input::Action::Get("RM").Down() || !RequireHold) && IsWindowFocused();
 }
 
 bool EditorCamera::IsFullyControlling() const

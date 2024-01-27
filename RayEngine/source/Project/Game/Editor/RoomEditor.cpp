@@ -53,7 +53,7 @@ void RoomEditor::Logic(double InDelta)
     Camera.Update(InDelta);
     UI->Update();
     
-    if (IsKeyPressed(KEY_TAB))
+    if (Input::Action::Get("EditorCamera").Pressed())
         Camera.ToggleRequireHold();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
@@ -69,11 +69,11 @@ void RoomEditor::Logic(double InDelta)
     SubEditorManager.Update(InDelta, Camera.IsFullyControlling());
 
     // Keyboard shortcuts
-    if (IsKeyDown(KEY_LEFT_CONTROL))
+    if (Input::Action::Get("Ctrl").Down())
     {
-        if (IsKeyPressed(KEY_S))
+        if (Input::Action::Get("Save"))
             SaveRoom();
-        if (IsKeyPressed(KEY_P))
+        if (Input::Action::Get("Play"))
             PlayScene();
     }
 

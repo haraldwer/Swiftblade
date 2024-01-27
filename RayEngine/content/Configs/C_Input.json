@@ -14,6 +14,59 @@
 					"Name":"Forward",
 					"Key":87
 				},{
+					"Name":"Backward",
+					"Key":83
+				},{
+					"Name":"Left",
+					"Key":65
+				},{
+					"Name":"Right",
+					"Key":68
+				}
+			]
+		},{
+			"Name":"Default",
+			"Actions":[{
+					"Name":"LM",
+					"KeyType":3,
+					"Key":0
+				},{
+					"Name":"RM",
+					"KeyType":3,
+					"Key":1
+				},{
+					"Name":"EditorCamera",
+					"Key":258
+				},{
+					"Name":"Debug",
+					"Key":291
+				},{
+					"Name":"Back",
+					"Key":256
+				},{
+					"Name":"Ctrl",
+					"Key":341
+				},{
+					"Name":"Save",
+					"Key":83
+				},{
+					"Name":"Play",
+					"Key":80
+				}
+			]
+		},{
+			"Name":"EditorCamera",
+			"Actions":[{
+					"Name":"Control",
+					"Key":341
+				},{
+					"Name":"RM",
+					"KeyType":3,
+					"Key":1
+				},{
+					"Name":"Forward",
+					"Key":87
+				},{
 					"Name":"Back",
 					"Key":83
 				},{
@@ -22,6 +75,18 @@
 				},{
 					"Name":"Right",
 					"Key":68
+				},{
+					"Name":"Up",
+					"Key":69
+				},{
+					"Name":"Down",
+					"Key":81
+				},{
+					"Name":"IncreaseFOV",
+					"Key":81
+				},{
+					"Name":"DecreaseFOV",
+					"Key":81
 				}
 			]
 		}

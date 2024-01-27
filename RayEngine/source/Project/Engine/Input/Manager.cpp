@@ -48,21 +48,19 @@ const Input::Action& Input::Manager::Action(const String& InAction, const String
         if (context.Blocking)
             return Action::Invalid();
     }
-    LOG("Unable to find input action " + InAction + " in context " + InContext);
     return Action::Invalid();
 }
 
 void Input::Manager::Init()
 {
     Config.LoadConfig();
-    Config.UpdateCache(); 
+    Config.UpdateCache();
+    Push("Default");
+    Push("EditorCamera");
 }
 
 void Input::Manager::Update()
 {
-    // TODO: Handle normal events
-    //PollInputEvents();
-    
     for (auto& context : Config.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
@@ -105,7 +103,7 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
         value = GetGamepadAxisMovement(0, key); 
         break;
     case KeyType::MOUSE_BUTTON:
-        down = IsMouseButtonDown(key); 
+        down = IsMouseButtonDown(key);
         break;
     case KeyType::MOUSE_AXIS:
         switch (key)
@@ -168,7 +166,8 @@ void Input::Manager::DrawDebugWindow()
     ImGui::SeparatorText("Contexts");
     if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 3 * ImGui::GetTextLineHeightWithSpacing())))
     {
-        for (Context& context : Config.Contexts.Get())
+        auto& contexts = Config.Contexts.Get();
+        for (Context& context : contexts)
         {
             const bool selected = context.Name.Get() == selectedContext; 
             if (ImGui::Selectable((context.Name.Get() + "##ContextEntry").c_str(), selected))
@@ -177,6 +176,13 @@ void Input::Manager::DrawDebugWindow()
                 if (context.Blocking)
                     ImGui::Indent(10); 
             }
+        }
+        if (ImGui::Button("Add"))
+        {
+            Context c;
+            c.Name = "Unnamed";
+            contexts.push_back(c);
+            Config.UpdateCache(); 
         }
         ImGui::EndListBox();
     }
@@ -203,12 +209,18 @@ void Input::Manager::DrawDebugWindow()
                         selectedAction = i; 
                 }
                 if (ImGui::Button("Add"))
+                {
                     actions.emplace_back();
+                    context.UpdateCache();
+                }
                 if (!actions.empty())
                 {
                     ImGui::SameLine();
                    if (ImGui::Button("Remove"))
+                   {
                        actions.erase(actions.begin() + selectedAction);
+                       context.UpdateCache(); 
+                   }
                 } 
                 ImGui::EndListBox();
             }

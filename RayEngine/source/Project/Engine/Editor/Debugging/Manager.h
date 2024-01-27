@@ -4,6 +4,7 @@
 #include "ReferenceViewer.h"
 #include "Window.h"
 #include "Utility/Singelton.h"
+#include "Utility/Time/Timer.h"
 
 namespace Debug
 {
@@ -12,7 +13,8 @@ namespace Debug
     public:
         void Init();
         void Deinit();
-        void Frame();
+        void Logic();
+        void Frame(double InDeltaTime);
         
         bool Enabled() const { return DebugEnabled; }
         
@@ -29,6 +31,10 @@ namespace Debug
         Map<const Window*, String> WindowToName;
         Config Config;
 
-        ReferenceViewer References; 
+        ReferenceViewer References;
+
+        // Logic tick counter
+        int LogicCounter = 0;
+        double TPF = 0.0; 
     };
 }

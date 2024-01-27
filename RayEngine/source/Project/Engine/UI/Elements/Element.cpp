@@ -1,6 +1,7 @@
 ﻿#include "Element.h"
 
 #include "Container.h"
+#include "Engine/Input/Manager.h"
 #include "Engine/Rendering/Manager.h"
 
 void UI::Element::Init()
@@ -40,7 +41,7 @@ bool UI::Element::IsHovered() const
 
 bool UI::Element::IsClicked() const
 {
-    return IsHovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+    return IsHovered() && Input::Action::Get("LM").Pressed();
 }
 
 UI::Rect UI::Element::GetReferenceRect()

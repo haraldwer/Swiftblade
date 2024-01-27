@@ -33,18 +33,15 @@ void ECS::PlayerInput::Update(double InDelta)
     const Mat4F rotMat = Mat4F(trans.GetRotation());
     const Vec3F right = (rotMat.Right() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized() * -1.0f;
     const Vec3F forward = (rotMat.Forward() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized();
-
-
-    auto& man = Input::Manager::Get();
     
     // Movement input
     const Vec3F input =
-        right * (static_cast<float>(man.Action("Right").Down()) - static_cast<float>(man.Action("Left").Down())) +
-        forward * (static_cast<float>(man.Action("Forward").Down()) - static_cast<float>(man.Action("Back").Down()));
+        right * (static_cast<float>(Input::Action::Get("Right").Down()) - static_cast<float>(Input::Action::Get("Left").Down())) +
+        forward * (static_cast<float>(Input::Action::Get("Forward").Down()) - static_cast<float>(Input::Action::Get("Backward").Down()));
     MoveInput = input.xz;
 
-    JumpInput = man.Action("Jump").Pressed();
-    CrouchInput = man.Action("Crouch").Down();
-    DashInput = man.Action("Dash").Down();
+    JumpInput = Input::Action::Get("Jump").Pressed();
+    CrouchInput = Input::Action::Get("Crouch").Down();
+    DashInput = Input::Action::Get("Dash").Down();
 }
 

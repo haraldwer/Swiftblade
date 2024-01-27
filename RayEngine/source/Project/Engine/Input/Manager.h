@@ -17,7 +17,7 @@ namespace Input
         void Push(const String& InContext);
         void Pop(const String& InContext);
         
-        const Action& Action(const String& InAction, const String& InContext = "Player");
+        const Action& Action(const String& InAction, const String& InContext);
 
         String DebugWindowName() const override { return "Input"; }
         void DrawDebugWindow() override;

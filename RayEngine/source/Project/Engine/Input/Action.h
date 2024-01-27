@@ -32,12 +32,16 @@ namespace Input
         bool Released() const { return Key >= 0 && State == State::RELEASED; }
         float Axis() const { return static_cast<float>(Key >= 0) * Value * static_cast<float>(Down()); }
 
+        operator bool() const { return Key >= 0; }
+        
         static Action& Invalid()
         {
             static Action a;
             a = Action(); 
             return a;  
         }
+
+        static const Action& Get(const String& Action, const String& Context = "");
 
     private:
         
