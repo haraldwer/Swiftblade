@@ -65,7 +65,7 @@
 				}
 			]
 		},{
-			"Blocking":true,
+			"Blocking":false,
 			"Name":"EditorCamera",
 			"Actions":[{
 					"Name":"Control",

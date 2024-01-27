@@ -69,10 +69,12 @@ void EditorCamera::Enter(const CameraInstance& InCamera)
     TargetState.FOV = InCamera.FOV;
     CurrentState = TargetState;
 
+    Input::Manager::Get().Push("Default");
     Input::Manager::Get().Push("EditorCamera");
 }
 
 void EditorCamera::Exit()
 {
     Input::Manager::Get().Pop("EditorCamera");
+    Input::Manager::Get().Pop("Default");
 }
