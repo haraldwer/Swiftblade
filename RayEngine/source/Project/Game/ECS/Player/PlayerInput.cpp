@@ -24,8 +24,11 @@ void ECS::PlayerInput::Update(double InDelta)
     auto& trans = Get<Transform>(GetID());
 
     // Camera rotation
-    const auto mouseDelta = GetMouseDelta();
-    SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
+    const Vec2F mouseDelta = {
+        Input::Action::Get("LookHorizontal").Axis(),
+        Input::Action::Get("LookVertical").Axis()
+    };
+    
     Vec2F rotDelta = Vec2F(mouseDelta.y, mouseDelta.x * -1.0f) * Sensitivity.Get();
     RotInput = rotDelta;  
 

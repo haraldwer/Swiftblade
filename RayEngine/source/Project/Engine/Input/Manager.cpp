@@ -64,6 +64,8 @@ void Input::Manager::Update()
     for (auto& context : Config.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
+
+    ContextStack.
 }
 
 void Input::Manager::Frame()
@@ -196,6 +198,7 @@ void Input::Manager::DrawDebugWindow()
             Context& context = Config.Contexts.Get()[find->second];
             context.Name.Edit();
             context.Blocking.Edit();
+            context.CursorVisible.Edit(); 
 
             static int selectedAction;
             auto& actions = context.Actions.Get();
@@ -285,4 +288,9 @@ void Input::Manager::DrawDebugWindow()
             }
         }
     }
+}
+
+Input::Context* Input::Manager::FindContext(String InName) const
+{
+    
 }

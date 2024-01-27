@@ -22,8 +22,15 @@
 				},{
 					"Name":"Right",
 					"Key":68
+				},{
+					"Name":"LookHorizontal",
+					"Key":0
+				},{
+					"Name":"LookVertical",
+					"Key":1
 				}
-			]
+			],
+			"CursorVisible":false
 		},{
 			"Name":"Default",
 			"Actions":[{

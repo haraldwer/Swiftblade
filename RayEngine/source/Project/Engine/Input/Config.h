@@ -10,6 +10,7 @@ namespace Input
         PROPERTY(String, Name);
         PROPERTY(Vector<Action>, Actions);
         PROPERTY_D(bool, Blocking, false);
+        PROPERTY_D(bool, CursorVisible, true);
         
         void UpdateCache();
         Map<String, int32> CachedActions;

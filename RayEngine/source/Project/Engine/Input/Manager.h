@@ -23,6 +23,8 @@ namespace Input
         void DrawDebugWindow() override;
 
     private:
+
+        Context* FindContext(String InName) const;
         
         Vector<String> ContextStack;
         Config Config; 
