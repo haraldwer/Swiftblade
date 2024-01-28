@@ -1,14 +1,16 @@
 #version 330
 
-// Default uniforms
+// Uniforms
 uniform mat4 mvp;
 uniform mat4 matNormal;
 
+// In
 in vec3 vertexPosition;
 in vec2 vertexTexCoord;
 in vec3 vertexNormal;
 in mat4 instanceTransform;
 
+// Out
 out vec3 worldPosition;
 out vec3 worldNormal;
 out vec3 objectPosition; 

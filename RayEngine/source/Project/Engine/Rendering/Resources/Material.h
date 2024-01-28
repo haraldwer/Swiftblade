@@ -14,6 +14,8 @@ public:
     
     PROPERTY_D(ResShader, Shader, "Defaults/SH_Default");
     PROPERTY_D(bool, TwoSided, false);
+
+    // TODO: Material properties
     
 private:
 

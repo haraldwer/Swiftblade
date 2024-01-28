@@ -16,9 +16,12 @@ public:
     bool Edit(const String& InName) { return false; };
 
 private:
+    String LoadShaderFile(const String& InPath);
+    String ProcessIncludes(const String& InShaderCode, const String& InPath);
+    
     String Identifier; 
     Shader* Ptr = nullptr;
-    
+    Set<String> IncludeGuard;
 };
 
 typedef Resource::Ref<ShaderResource> ResShader;  

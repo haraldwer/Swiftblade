@@ -15,8 +15,8 @@ int main()
     
     // These things are shared between instances
     Debug::Manager debugManager;
-    Rendering::Manager renderer;
     Resource::Manager resourceManager;
+    Rendering::Manager renderer;
     Engine::Manager instanceManager;
     GlobalEventManager eventManager;
     

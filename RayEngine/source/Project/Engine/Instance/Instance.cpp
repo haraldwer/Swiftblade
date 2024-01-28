@@ -9,13 +9,13 @@ void Engine::Instance::Init()
 
 void Engine::Instance::Deinit()
 {
-    RenderScene = Rendering::Scene();
+    RenderScene = Rendering::RenderScene();
     Menus.Clear();
 }
 
 void Engine::Instance::Logic(double InDelta)
 {
-    RenderScene = Rendering::Scene();
+    RenderScene = Rendering::RenderScene();
     Time.Tick(InDelta);
     Input.Update(); 
     Menus.Update(InDelta);
@@ -28,7 +28,7 @@ void Engine::Instance::Frame(double InDelta)
     Menus.Draw();
 }
 
-Rendering::LogicScene& Engine::Instance::GetRenderScene()
+Rendering::RenderScene& Engine::Instance::GetRenderScene()
 {
-    return *reinterpret_cast<Rendering::LogicScene*>(&RenderScene);
+    return *reinterpret_cast<Rendering::RenderScene*>(&RenderScene);
 }

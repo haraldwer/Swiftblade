@@ -1,12 +1,12 @@
 #include "Manager.h"
 
+#include "Engine/Editor/Debugging/Manager.h"
+
 #include "RenderEvents.h"
 #include "Engine/EventScopes.h"
-#include "Engine/Editor/Debugging/Manager.h"
 #include "ImGui/rlImGui.h"
 #include "ImGui\imgui_themes.h"
 #include "Engine/Editor/Gizmo/ImGuizmo.h"
-#include "Utility/Events/Event.h"
 
 using namespace Rendering;
 
@@ -24,7 +24,7 @@ void Manager::Init()
 
 void Manager::Deinit()
 {
-    UnloadRenderTexture(VirtualTarget);
+    Renderer = SceneRenderer(); 
     rlImGuiShutdown();
     CloseWindow();
 }
@@ -34,10 +34,10 @@ bool Manager::ShouldClose()
     return WindowShouldClose();
 }
 
-void Manager::BeginVirtualFrame(const RenderTexture2D* InTarget)
+void Manager::BeginVirtualFrame()
 {
-    BeginTextureMode(InTarget ? *InTarget : VirtualTarget);
-    ClearBackground(DARKGRAY);
+    BeginTextureMode(VirtualTarget);
+    ClearBackground(BLACK);
 }
 
 void Manager::EndVirtualFrame()
@@ -52,18 +52,18 @@ void Manager::DrawDebugWindow()
     const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
     const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
     if ((size - ViewportSize).LengthSqr() > 1.0f)
-        CreateVirtualTarget(
+        SetViewportSize(
             static_cast<int>(size.x),
             static_cast<int>(size.y));
 
-    // Blip to imgui window
+    // Send to ImGui
     rlImGuiImageRect(
         &VirtualTarget.texture,
         size.x,
         size.y,
         Rectangle{ 0,0,
-            static_cast<float>(VirtualTarget.texture.width),
-            -static_cast<float>(VirtualTarget.texture.height)
+            RenderResolution.width,
+            -RenderResolution.height
         });
 
     // Calculate viewport pos
@@ -71,9 +71,9 @@ void Manager::DrawDebugWindow()
     ViewportPosition = { vMin.x + windowPos.x, vMin.y + windowPos.y };
 }
 
-void Manager::SubmitScene(const Scene& InScene) const
+void Manager::SubmitScene(const RenderScene& InScene)
 {
-    reinterpret_cast<const RenderScene*>(&InScene)->Render();
+    Renderer.Render(InScene, VirtualTarget); 
 }
 
 void Manager::BeginFrame()
@@ -94,7 +94,7 @@ void Manager::BeginFrame()
 
         // Adjust size
         if ((windowSize - ViewportSize).LengthSqr() > 1.0f)
-            CreateVirtualTarget(
+            SetViewportSize(
                 static_cast<int>(windowSize.x),
                 static_cast<int>(windowSize.y)); 
 
@@ -102,8 +102,8 @@ void Manager::BeginFrame()
         const float virtualRatio = windowSize.x / windowSize.y;
         const Rectangle sourceRec = {
             0.0f, 0.0f,
-            static_cast<float>(VirtualTarget.texture.width),
-            -static_cast<float>(VirtualTarget.texture.height)
+            RenderResolution.width,
+            -RenderResolution.height
         };
         const Rectangle destRec = {
             -virtualRatio,
@@ -160,7 +160,7 @@ void Manager::ApplyConfig(const Config& InConfig)
     SetTargetFPS(InConfig.TargetFPS);
 
     // Recreate render target
-    CreateVirtualTarget(CurrConfig.Width, CurrConfig.Height);
+    SetViewportSize(CurrConfig.Width, CurrConfig.Height);
     
     LOG("Render config applied");
     CurrConfig.SaveConfig();
@@ -187,33 +187,39 @@ Vec2F Manager::GetViewportPosition() const
 Vec2F Manager::GetResolution() const
 {
     return {
-        static_cast<float>(VirtualTarget.texture.width),
-        static_cast<float>(VirtualTarget.texture.height)
+        static_cast<float>(RenderResolution.width),
+        static_cast<float>(RenderResolution.height)
     };
 }
 
-void Manager::CreateVirtualTarget(const int InUnscaledWidth, const int InUnscaledHeight)
+void Manager::SetViewportSize(const int InUnscaledWidth, const int InUnscaledHeight)
 {
-    OnCreateVirtualTargetData data;
-    data.PreviousHeight = VirtualTarget.texture.height; 
-    data.PreviousWidth = VirtualTarget.texture.width;
-    
-    UnloadRenderTexture(VirtualTarget);
+    OnSetViewportSize data;
+    data.PreviousRenderResolution = RenderResolution;
+    data.PreviousViewportSize = ViewportSize;
     
     // The height is already set
     // Calculate the width based on aspect
-    const float aspect = static_cast<float>(InUnscaledWidth) / static_cast<float>(InUnscaledHeight);
-    const int virtualWidth = CurrConfig.RenderSize ?
-        static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : InUnscaledWidth; 
-    const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : InUnscaledHeight;
-    VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
     ViewportSize = {
         static_cast<float>(InUnscaledWidth),
         static_cast<float>(InUnscaledHeight)
     };
+    
+    const float aspect = static_cast<float>(InUnscaledWidth) / static_cast<float>(InUnscaledHeight);
+    const int virtualWidth = CurrConfig.RenderSize ?
+        static_cast<int>(static_cast<float>(CurrConfig.RenderSize) * aspect) : InUnscaledWidth; 
+    const int virtualHeight = CurrConfig.RenderSize ? CurrConfig.RenderSize : InUnscaledHeight;
+    RenderResolution = {
+        static_cast<float>(virtualWidth),
+        static_cast<float>(virtualHeight)
+    };
 
-    data.NewHeight = VirtualTarget.texture.height; 
-    data.NewWidth = VirtualTarget.texture.width;
-    GlobalEvent<OnCreateVirtualTargetData> event;
+    // Setup the renderer with the new resolution
+    UnloadRenderTexture(VirtualTarget);
+    VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
+
+    data.NewRenderResolution = RenderResolution;
+    data.NewViewportSize = ViewportSize;
+    GlobalEvent<OnSetViewportSize> event;
     event.Invoke(data);
 }

@@ -1,30 +1,22 @@
 #version 330
 
-// Default uniforms
+// Uniforms
 uniform vec3 cameraPosition;
 
+// In
 in vec3 worldPosition;
 in vec3 worldNormal;
-in vec3 objectPosition; 
-in vec4 screenPosition; 
+in vec3 objectPosition;
+in vec4 screenPosition;
 
-out vec4 finalColor;
+// Out
+layout (location = 0) out vec3 OutPosition;
+layout (location = 1) out vec3 OutNormal;
+layout (location = 2) out vec4 OutColor;
 
 void main()
 {
-    // Calculate final fragment color
-    vec3 cameraDifference = cameraPosition - worldPosition;
-    float cameraDistance = length(cameraDifference);
-    vec3 cameraDirection = cameraDifference / cameraDistance;
-    float cameraDot = dot(cameraDirection, worldNormal);
-
-    const float startFade = 1.0f;
-    const float fadeDist = 50.0f;
-    float cameraDistanceFade = 1.0f - clamp((cameraDistance - startFade) / fadeDist, 0.0f, 1.0f); 
-    float cameraFade = mix(cameraDistanceFade, cameraDot * cameraDistanceFade, 0.5f);
-    if (cameraFade < 0.01)
-        discard; 
-        
-    vec3 color = vec3(0.0f, 0.0f, 1.0f) * cameraFade;
-    finalColor = vec4(color, 1.0f);
+    OutPosition = worldPosition;
+    OutNormal = worldNormal;
+    OutColor = vec4(0.0, 0.0, 1.0, 1.0);
 }

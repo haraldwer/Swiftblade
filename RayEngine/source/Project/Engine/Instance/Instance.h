@@ -2,7 +2,7 @@
 #include "Engine/EventScopes.h"
 #include "Engine/Input/Manager.h"
 #include "Engine/Menu/Manager.h"
-#include "Engine/Rendering/Scene.h"
+#include "..\Rendering\RenderScene.h"
 #include "Utility/Singelton.h"
 #include "Utility/Time/Time.h"
 
@@ -20,7 +20,7 @@ namespace Engine
         
         virtual bool IsEditor() const { return false; }
 
-        Rendering::LogicScene& GetRenderScene();
+        Rendering::RenderScene& GetRenderScene();
 
     protected:
         Utility::Time Time;
@@ -28,7 +28,7 @@ namespace Engine
         Input::Manager Input;
         
     private:
-        Rendering::Scene RenderScene;
+        Rendering::RenderScene RenderScene;
         InstanceEventManager EventManager;
     };
 }

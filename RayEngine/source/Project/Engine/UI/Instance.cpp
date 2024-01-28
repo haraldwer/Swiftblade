@@ -7,7 +7,7 @@ void UI::Instance::Init()
     Container::Init();
 
     // When virtual target is recreated, invalidate hierarchy
-    OnCreateVirtualTarget.Bind([&](const OnCreateVirtualTargetData& InData)
+    OnCreateVirtualTarget.Bind([&](const OnSetViewportSize& InData)
     {
         Invalidate(); 
     });

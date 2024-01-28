@@ -1,62 +1,68 @@
-#include "Scene.h"
+#include "SceneRenderer.h"
 
 #include "raymath.h"
+#include "RenderScene.h"
 #include "rlgl.h"
-#include "Utility/Hash.h"
+#include "ImGui/imgui.h"
+#include "ImGui/rlImGui.h"
 #include "Utility/RayUtility.h"
 
-using namespace Rendering;
-
-void MeshCollection::AddMesh(const MeshInstance& InInstance)
+void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTexture2D& InVirtualTarget)
 {
-    auto& entry = GetEntry(InInstance);
-    entry.Transforms.push_back(InInstance.Transform);
-}
-
-void MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
-{
-    Entry& entry = GetEntry(InInstance);
-    entry.Transforms.reserve(entry.Transforms.size() + InTransforms.size());
-    entry.Transforms.insert(entry.Transforms.end(), InTransforms.begin(), InTransforms.end());
-}
-
-MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
-{
-    const String matID = InInstance.Material.Identifier();
-    const String modelID = InInstance.Model.Identifier();
-
-    union Union
-    {
-        struct Res
-        {
-            uint32 Material;
-            uint32 Model;
-        } Resource;
-        uint64 Key = 0;
-    } hash;
-    
-    hash.Resource.Material = Utility::Hash(matID); 
-    hash.Resource.Model = Utility::Hash(modelID);
-    
-    Entry& entry = Entries[hash.Key];
-    if (!entry.Initialized)
-    {
-        entry.Material = InInstance.Material;
-        entry.Model = InInstance.Model;
-        entry.Initialized = true; 
-    }
-    return entry;
-}
-
-void RenderScene::Render() const
-{
-    BeginMode3D(Utility::Ray::ConvertCamera(Cam));
-    
     // TODO: Sub-tick camera movement
     // TODO: Depth sorting
+    // TODO: Scene target composing with multiple targets
+    // TODO: Customizable render pipeline
+    
+    SceneTarget.TrySetup(InVirtualTarget);
 
+    // Draw to SceneTarget
+    DrawEntries(InScene, SceneTarget);
+
+    BeginTextureMode(InVirtualTarget);
+    DrawDeferredScene(InScene, SceneTarget, DeferredShader);
+    DrawDebug(InScene);
+}
+
+Rendering::SceneRenderer::~SceneRenderer()
+{
+    // Unload targets
+    SceneTarget.Unload();
+}
+
+void Rendering::SceneRenderer::DrawDebugWindow()
+{
+    for (auto& buff : SceneTarget.GetBuffers())
+    {
+        if (ImGui::CollapsingHeader(buff.Name.c_str()))
+        {
+            // Adjust size
+            const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+            const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+            const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
+            const float mul = static_cast<float>(buff.Tex.width) / size.width;
+            
+            // Send to ImGui
+            rlImGuiImageRect(
+                &buff.Tex,
+                static_cast<int>(size.x),
+                static_cast<int>(static_cast<float>(buff.Tex.height) / mul),
+                Rectangle{ 0,0,
+                    static_cast<float>(buff.Tex.width),
+                    static_cast<float>(-buff.Tex.height)
+                });
+        }
+    }
+}
+
+void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
+{
+    InSceneTarget.BeginWrite();
+    
+    BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
+    
     // Instanced rendering
-    for (auto& entry : Meshes.Entries)
+    for (auto& entry : InScene.Meshes.Entries)
     {
         const Mesh* meshes = nullptr;
         int32 meshCount = 0;
@@ -86,54 +92,19 @@ void RenderScene::Render() const
         CHECK_CONTINUE(meshCount == 0);
         CHECK_CONTINUE(!shader);
         CHECK_CONTINUE(entry.second.Transforms.empty());
-        
+
+        // Data has been prepared for this entry
+        // Time to draw all the instances
         for (int i = 0; i < meshCount; i++)
-            DrawInstances(meshes[i], *shader, entry.second.Transforms);
+            DrawInstances(meshes[i], *shader, entry.second.Transforms, InScene.Cam.Position);
     }
-    
-    for (auto& shape : DebugShapes)
-    {
-        switch (shape.Type)
-        {
-        case DebugShapeInstance::Type::SPHERE:
-            DrawSphereWires(
-                Utility::Ray::ConvertVec(shape.Pos),
-                shape.Data.x,
-                static_cast<int>(shape.Data.y),
-                static_cast<int>(shape.Data.z),
-                shape.Color);
-            break;
-        case DebugShapeInstance::Type::BOX:
-            DrawCubeWiresV(
-                Utility::Ray::ConvertVec(shape.Pos),
-                Utility::Ray::ConvertVec(shape.Data),
-                shape.Color);
-            break;
-        case DebugShapeInstance::Type::CAPSULE:
-            const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
-            const auto start = Utility::Ray::ConvertVec(shape.Pos + dir);
-            const auto end = Utility::Ray::ConvertVec(shape.Pos - dir);
-            DrawCapsuleWires(
-                start,
-                end,
-                shape.Data.x,
-                static_cast<int>(shape.Data.z),
-                static_cast<int>(shape.Data.z) / 2,
-                shape.Color);
-            break;
-        }
-    }
-
-    for (auto& line : DebugLines)
-        DrawLine3D(
-            Utility::Ray::ConvertVec(line.Start),
-            Utility::Ray::ConvertVec(line.End),
-            line.Color);
-
+    rlEnableBackfaceCulling(); 
     EndMode3D();
+
+    InSceneTarget.EndWrite(); 
 }
 
-void RenderScene::DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices) const
+void Rendering::SceneRenderer::DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition)
 {
     int instances = static_cast<int>(InMatrices.size());
     
@@ -142,7 +113,7 @@ void RenderScene::DrawInstances(const Mesh& InMesh, const Shader& InShader, cons
     rlEnableShader(InShader.id);
         
     const int cameraPos = GetShaderLocation(InShader, "cameraPosition");
-    SetShaderValue(InShader, cameraPos, Cam.Position.data, SHADER_UNIFORM_VEC3);
+    SetShaderValue(InShader, cameraPos, InCameraPosition.data, SHADER_UNIFORM_VEC3);
     
     // Get a copy of current matrices to work with,
     // just in case stereo render is required, and we need to modify them
@@ -289,4 +260,79 @@ void RenderScene::DrawInstances(const Mesh& InMesh, const Shader& InShader, cons
 
     // Remove instance transforms buffer
     rlUnloadVertexBuffer(instancesVboId);
+}
+
+void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, const ResShader& InShader)
+{
+    BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
+    rlDisableDepthTest();
+    rlDisableColorBlend();
+
+    // Set shader
+    const auto shaderResource = InShader.Get();
+    CHECK_ASSERT(!shaderResource, "Shader resource invalid");
+    const Shader* shader = shaderResource->Get();
+    CHECK_ASSERT(!shader, "Shader invalid");
+    rlEnableShader(shader->id);
+    
+    // Bind textures
+    InSceneTarget.Bind(*shader, 0);
+    
+    // Set uniforms
+    const int cameraPos = GetShaderLocation(*shader, "cameraPosition");
+    SetShaderValue(*shader, cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3);
+    
+    // Draw fullscreen quad
+    rlLoadDrawQuad();
+    rlDisableShader();
+    
+    rlEnableColorBlend();
+    rlEnableDepthTest();
+    EndMode3D();
+}
+
+void Rendering::SceneRenderer::DrawDebug(const RenderScene& InScene)
+{
+    BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
+    
+    for (auto& shape : InScene.DebugShapes)
+    {
+        switch (shape.Type)
+        {
+        case DebugShapeInstance::Type::SPHERE:
+            DrawSphereWires(
+                Utility::Ray::ConvertVec(shape.Pos),
+                shape.Data.x,
+                static_cast<int>(shape.Data.y),
+                static_cast<int>(shape.Data.z),
+                shape.Color);
+            break;
+        case DebugShapeInstance::Type::BOX:
+            DrawCubeWiresV(
+                Utility::Ray::ConvertVec(shape.Pos),
+                Utility::Ray::ConvertVec(shape.Data),
+                shape.Color);
+            break;
+        case DebugShapeInstance::Type::CAPSULE:
+            const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
+            const auto start = Utility::Ray::ConvertVec(shape.Pos + dir);
+            const auto end = Utility::Ray::ConvertVec(shape.Pos - dir);
+            DrawCapsuleWires(
+                start,
+                end,
+                shape.Data.x,
+                static_cast<int>(shape.Data.z),
+                static_cast<int>(shape.Data.z) / 2,
+                shape.Color);
+            break;
+        }
+    }
+
+    for (auto& line : InScene.DebugLines)
+        DrawLine3D(
+            Utility::Ray::ConvertVec(line.Start),
+            Utility::Ray::ConvertVec(line.End),
+            line.Color);
+
+    EndMode3D();
 }

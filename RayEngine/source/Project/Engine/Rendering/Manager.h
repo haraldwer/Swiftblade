@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Utility/Singelton.h"
-#include "Scene.h"
+#include "RenderScene.h"
 #include "Config.h"
+#include "SceneRenderer.h"
 
 namespace Rendering
 {
@@ -16,7 +17,7 @@ namespace Rendering
         bool ShouldClose();
 
         // Draw to virtual target
-        void BeginVirtualFrame(const RenderTexture2D* InTarget = nullptr);
+        void BeginVirtualFrame();
         void EndVirtualFrame();
 
         // Draw to viewport
@@ -33,16 +34,19 @@ namespace Rendering
         String DebugWindowName() const override { return "Viewport"; }
         void DrawDebugWindow() override;
         
-        void SubmitScene(const Scene& InScene) const;
+        void SubmitScene(const RenderScene& InScene);
 
     private:
 
-        void CreateVirtualTarget(int InUnscaledWidth, int InUnscaledHeight);
-
+        void SetViewportSize(int InUnscaledWidth, int InUnscaledHeight);
+        
         Config CurrConfig; 
-        RenderTexture2D VirtualTarget = RenderTexture2D();
         Vec2F ViewportPosition;
         Vec2F ViewportSize;
+        Vec2F RenderResolution;
+        
+        SceneRenderer Renderer;
+        RenderTexture2D VirtualTarget = RenderTexture2D();
     };
 }
 

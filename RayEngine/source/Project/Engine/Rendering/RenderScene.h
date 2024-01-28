@@ -23,18 +23,9 @@ namespace Rendering
         Entry& GetEntry(const MeshInstance& InInstance);
     };
     
-    class Scene
+    class RenderScene
     {
-    protected:
-        CameraInstance Cam = {};
-        MeshCollection Meshes;
-        Vector<DebugShapeInstance> DebugShapes;
-        Vector<DebugLineInstance> DebugLines;
-    };
-
-    // Logic interface
-    class LogicScene : public Scene
-    {
+        friend class SceneRenderer; 
     public:
         void SetCamera(const CameraInstance& InCamera) { Cam = InCamera; }
         const CameraInstance& GetCamera() const { return Cam; }
@@ -42,16 +33,12 @@ namespace Rendering
         void AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms) { Meshes.AddMeshes(InMesh, InTransforms); }
         void AddDebugShape(const DebugShapeInstance& InShape) { DebugShapes.push_back(InShape); }
         void AddDebugLine(const DebugLineInstance& InLine) { DebugLines.push_back(InLine); }
-    };
 
-    // Render interface
-    class RenderScene : public Scene
-    {
-    public:
-        void Render() const;
     private:
-        void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices) const;
-        
+        CameraInstance Cam = {};
+        MeshCollection Meshes;
+        Vector<DebugShapeInstance> DebugShapes;
+        Vector<DebugLineInstance> DebugLines;
     };
 }
 

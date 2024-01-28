@@ -139,7 +139,7 @@ void Input::Manager::DrawDebugWindow()
     if (!ContextStack.empty())
     {
         ImGui::SeparatorText("Stack");
-        if (ImGui::BeginListBox("##Stack", ImVec2(-FLT_MIN, 3 * ImGui::GetTextLineHeightWithSpacing())))
+        if (ImGui::BeginListBox("##Stack", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
         {
             for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
             {
@@ -159,7 +159,7 @@ void Input::Manager::DrawDebugWindow()
     }
 
     ImGui::SeparatorText("Contexts");
-    if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 3 * ImGui::GetTextLineHeightWithSpacing())))
+    if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
     {
         auto& contexts = Config.Contexts.Get();
         for (Context& context : contexts)

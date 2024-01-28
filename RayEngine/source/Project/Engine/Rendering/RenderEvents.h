@@ -1,9 +1,9 @@
 #pragma once
 
-struct OnCreateVirtualTargetData
+struct OnSetViewportSize
 {
-    int PreviousWidth;
-    int PreviousHeight;
-    int NewWidth;
-    int NewHeight;
+    Vec2F PreviousRenderResolution;
+    Vec2F NewRenderResolution;
+    Vec2F PreviousViewportSize;
+    Vec2F NewViewportSize;
 };

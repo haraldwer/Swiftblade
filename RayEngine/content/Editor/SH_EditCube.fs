@@ -1,14 +1,18 @@
 #version 330
 
-// Default uniforms
+// Uniforms
 uniform vec3 cameraPosition;
 
+// In
 in vec3 worldPosition;
 in vec3 worldNormal;
-in vec3 objectPosition; 
-in vec4 screenPosition; 
+in vec3 objectPosition;
+in vec4 screenPosition;
 
-out vec4 finalColor;
+// Out
+layout (location = 0) out vec3 OutPosition;
+layout (location = 1) out vec3 OutNormal;
+layout (location = 2) out vec4 OutColor;
 
 void main()
 {
@@ -17,8 +21,9 @@ void main()
         abs(objectPosition.y)),
         abs(objectPosition.z));
     if (dist < 0.8f)
-        discard; 
+        discard;
 
-    vec3 color = vec3(1.0f, 0.0f, 0.0f);
-    finalColor = vec4(vec3(color), 1.0f);
+    OutPosition = worldPosition;
+    OutNormal = worldNormal;
+    OutColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

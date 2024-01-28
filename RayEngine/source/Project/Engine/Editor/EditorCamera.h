@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Rendering/Scene.h"
+#include "..\Rendering\RenderScene.h"
 
 class EditorCamera
 {
