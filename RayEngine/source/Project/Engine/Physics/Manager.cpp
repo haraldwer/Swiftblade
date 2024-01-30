@@ -7,6 +7,8 @@
 #include "Engine/ECS/Systems/Transform.h"
 
 // Main physx includes
+#include "Engine/Profiling/Manager.h"
+
 #include "Utility/PhysXUtility.h"
 #include "physx/PxPhysicsAPI.h"
 
@@ -92,6 +94,8 @@ void Physics::Manager::Deinit()
 
 void Physics::Manager::Update(double InDelta) const
 {
+    PROFILE_SCOPE_BEGIN("Physics");
+    
     const auto& ecs = ECS::Manager::Get();
     const auto updatePhysTrans = [](const ECS::Manager& InECS, ECS::EntityID InKey, auto* InInstance)
     {
@@ -124,6 +128,8 @@ void Physics::Manager::Update(double InDelta) const
         const Mat4F mat = Mat4F(p, q, t->GetScale());
         t->SetWorld(mat); 
     }
+
+    PROFILE_SCOPE_END();
 }
 
 void Physics::Manager::Add(const ECS::EntityID InID)

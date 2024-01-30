@@ -3,6 +3,7 @@
 #include "raymath.h"
 #include "RenderScene.h"
 #include "rlgl.h"
+#include "Engine/Profiling/Manager.h"
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
 #include "Utility/RayUtility.h"
@@ -15,10 +16,10 @@ void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTe
     // TODO: Customizable render pipeline
     
     SceneTarget.TrySetup(InVirtualTarget);
-
+    
     // Draw to SceneTarget
     DrawEntries(InScene, SceneTarget);
-
+    
     BeginTextureMode(InVirtualTarget);
     DrawDeferredScene(InScene, SceneTarget, DeferredShader);
     DrawDebug(InScene);
@@ -57,6 +58,8 @@ void Rendering::SceneRenderer::DrawDebugWindow()
 
 void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
 {
+    PROFILE_SCOPE_BEGIN("DrawEntries")
+    
     InSceneTarget.BeginWrite();
     
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
@@ -101,7 +104,9 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
     rlEnableBackfaceCulling(); 
     EndMode3D();
 
-    InSceneTarget.EndWrite(); 
+    InSceneTarget.EndWrite();
+    
+    PROFILE_SCOPE_END()
 }
 
 void Rendering::SceneRenderer::DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition)
@@ -264,6 +269,8 @@ void Rendering::SceneRenderer::DrawInstances(const Mesh& InMesh, const Shader& I
 
 void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, const ResShader& InShader)
 {
+    PROFILE_SCOPE_BEGIN("DrawDeferredScene")
+    
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
     rlDisableDepthTest();
     rlDisableColorBlend();
@@ -289,10 +296,14 @@ void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, con
     rlEnableColorBlend();
     rlEnableDepthTest();
     EndMode3D();
+
+    PROFILE_SCOPE_END()
 }
 
 void Rendering::SceneRenderer::DrawDebug(const RenderScene& InScene)
 {
+    PROFILE_SCOPE_BEGIN("DrawDebug")
+    
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
     
     for (auto& shape : InScene.DebugShapes)
@@ -335,4 +346,6 @@ void Rendering::SceneRenderer::DrawDebug(const RenderScene& InScene)
             line.Color);
 
     EndMode3D();
+
+    PROFILE_SCOPE_END()
 }

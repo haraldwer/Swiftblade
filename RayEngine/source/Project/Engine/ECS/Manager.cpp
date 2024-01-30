@@ -1,4 +1,5 @@
 #include "Manager.h"
+#include "Engine/Profiling/Manager.h"
 
 #include <algorithm>
 #include <unordered_map>
@@ -42,15 +43,24 @@ void Manager::Deinit()
     SortedSystems.clear();
     SystemMap.clear();
     ComponentMap.clear();
-    NameMap.clear(); 
+    NameToSystem.clear(); 
 }
 
 void Manager::Update(const double InDelta)
 {
+    PROFILE_SCOPE_BEGIN("ECS Update");
+    
     for (SystemBase* system : SortedSystems)
+    {
         if (system->ShouldUpdate())
+        {
+            PROFILE_SCOPE_BEGIN(SystemToName[system]);
             system->UpdateSystem(InDelta);
+            PROFILE_SCOPE_END();
+        }
+    }
     DestroyPending();
+    PROFILE_SCOPE_END();
 }
 
 EntityID Manager::CreateEntity()
@@ -93,8 +103,8 @@ void Manager::DestroyPending()
 
 SystemBase* Manager::GetSystem(const String& InComponentName)
 {
-    const auto find = NameMap.find(InComponentName);
-    CHECK_ASSERT(find == NameMap.end(), "Unable to find system");
+    const auto find = NameToSystem.find(InComponentName);
+    CHECK_ASSERT(find == NameToSystem.end(), "Unable to find system");
     CHECK_ASSERT(!find->second, "System null");
     return find->second;
 }

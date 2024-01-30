@@ -45,7 +45,7 @@ namespace ECS
         SystemBase* GetSystem(const String& InComponentName);
         SystemBase* GetSystem(const Utility::Type& InType, bool InIsCompHash);
         
-        const Map<String, SystemBase*>& GetAllSystems() const { return NameMap; }
+        const Map<String, SystemBase*>& GetAllSystems() const { return NameToSystem; }
         std::set<EntityID> GetAllEntities() { return Entities; }
 
         void Deserialize(EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects);
@@ -72,7 +72,8 @@ namespace ECS
         // Component type -> System ptr
         Map<Utility::TypeHash, SystemBase*> ComponentMap;
         // System name -> system ptr
-        Map<String, SystemBase*> NameMap;
+        Map<String, SystemBase*> NameToSystem;
+        Map<SystemBase*, String> SystemToName;
         Vector<SystemBase*> SortedSystems; 
 
         // List of all entities

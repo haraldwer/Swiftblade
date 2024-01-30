@@ -2,6 +2,7 @@
 #include "Engine/EventScopes.h"
 #include "Engine/Editor/Debugging/Manager.h"
 #include "Engine/Instance/Manager.h"
+#include "Engine/Profiling/Manager.h"
 #include "Engine/Rendering/Manager.h"
 #include "Engine/Resource/Manager.h"
 #include "Utility/Time/Time.h"
@@ -15,6 +16,7 @@ int main()
     
     // These things are shared between instances
     Debug::Manager debugManager;
+    Profiling::Manager profilingManager;
     Resource::Manager resourceManager;
     Rendering::Manager renderer;
     Engine::Manager instanceManager;
@@ -35,6 +37,9 @@ int main()
     
     while (true)
     {
+        profilingManager.Frame();
+        PROFILE_SCOPE_BEGIN("Update");
+        
         resourceManager.Update();
         
         // Update instances
@@ -55,23 +60,37 @@ int main()
         tickTimer = MIN(tickTimer + delta, maxFrameTickTime);
         while (tickTimer >= 0)
         {
+            PROFILE_SCOPE_BEGIN("Logic");
             tickTimer -= fixedDelta;
             instance->Logic(fixedDelta);
             debugManager.Logic();
+            PROFILE_SCOPE_END();
         }
 
         if (renderer.ShouldClose())
             break;
 
-        // Render to target texture
-        renderer.BeginVirtualFrame();
-        instance->Frame(delta);
-        renderer.EndVirtualFrame();
+        {
+            PROFILE_SCOPE_BEGIN("Rendering");
 
-        // Render to screen
-        renderer.BeginFrame();
-        debugManager.Frame(delta);
-        renderer.EndFrame(); 
+            {
+                // Render to target texture
+                PROFILE_SCOPE_BEGIN("Virtual frame");
+                renderer.BeginVirtualFrame();
+                instance->Frame(delta);
+                renderer.EndVirtualFrame();
+                PROFILE_SCOPE_END();
+            }
+
+            // Render to screen
+            renderer.BeginFrame();
+            debugManager.Frame(delta);
+            renderer.EndFrame();
+            
+            PROFILE_SCOPE_END("Rendering");
+        }
+
+        PROFILE_SCOPE_END("Update");
     }
     
     debugManager.Deinit();

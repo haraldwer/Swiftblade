@@ -46,3 +46,25 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     }
     return entry;
 }
+
+void StaticMeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
+{
+}
+
+void RenderScene::AddStaticMeshes(uint32 InStaticID, const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms)
+{
+}
+
+void RenderScene::RemoveStaticMeshes(uint32 InStaticID)
+{
+}
+
+void RenderScene::Clear(const bool InKeepStatic)
+{
+    Cam = {};
+    Meshes = {};
+    if (!InKeepStatic)
+        StaticMeshes = {};
+    DebugShapes = {};
+    DebugLines = {};
+}
