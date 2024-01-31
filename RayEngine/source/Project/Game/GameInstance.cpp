@@ -71,6 +71,7 @@ void GameInstance::Logic(double InDelta)
 
 void GameInstance::Frame(double InDelta)
 {
+    ECS.Frame(InDelta); 
     Instance::Frame(InDelta);
 }
 

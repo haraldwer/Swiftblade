@@ -16,6 +16,7 @@ namespace ECS
         void Init();
         void Deinit(); 
         void Update(double InDelta); 
+        void Frame(double InDelta); 
 
         EntityID CreateEntity();
         void DestroyEntity(EntityID InEntity);

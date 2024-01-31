@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 #include "System.h"
-#include "Engine/Instance/Instance.h"
 #include "Systems/Attributes.h"
 #include "Systems/Transform.h"
 
@@ -16,7 +15,7 @@ void Manager::Init()
     RegisterSystems();
     SortSystems();
     for (SystemBase* system : SortedSystems)
-        system->InitSystem();
+        system->SystemInit();
 }
 
 void Manager::SortSystems()
@@ -54,8 +53,25 @@ void Manager::Update(const double InDelta)
     {
         if (system->ShouldUpdate())
         {
-            PROFILE_SCOPE_BEGIN(SystemToName[system]);
-            system->UpdateSystem(InDelta);
+            PROFILE_SCOPE_BEGIN(SystemToName[system] + "::Update");
+            system->SystemUpdate(InDelta);
+            PROFILE_SCOPE_END();
+        }
+    }
+    DestroyPending();
+    PROFILE_SCOPE_END();
+}
+
+void Manager::Frame(const double InDelta)
+{
+    PROFILE_SCOPE_BEGIN("ECS Frame");
+    
+    for (SystemBase* system : SortedSystems)
+    {
+        if (system->ShouldUpdate())
+        {
+            PROFILE_SCOPE_BEGIN(SystemToName[system] + "::Frame");
+            system->SystemFrame(InDelta);
             PROFILE_SCOPE_END();
         }
     }

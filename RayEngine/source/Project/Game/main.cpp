@@ -70,27 +70,22 @@ int main()
         if (renderer.ShouldClose())
             break;
 
-        {
-            PROFILE_SCOPE_BEGIN("Rendering");
+        PROFILE_SCOPE_BEGIN("Rendering");
 
-            {
-                // Render to target texture
-                PROFILE_SCOPE_BEGIN("Virtual frame");
-                renderer.BeginVirtualFrame();
-                instance->Frame(delta);
-                renderer.EndVirtualFrame();
-                PROFILE_SCOPE_END();
-            }
+        // Render to target texture
+        PROFILE_SCOPE_BEGIN("Virtual frame");
+        renderer.BeginVirtualFrame();
+        instance->Frame(delta);
+        renderer.EndVirtualFrame();
+        PROFILE_SCOPE_END();
 
-            // Render to screen
-            renderer.BeginFrame();
-            debugManager.Frame(delta);
-            renderer.EndFrame();
-            
-            PROFILE_SCOPE_END("Rendering");
-        }
-
-        PROFILE_SCOPE_END("Update");
+        // Render to screen
+        renderer.BeginFrame();
+        debugManager.Frame(delta);
+        renderer.EndFrame();
+        
+        PROFILE_SCOPE_END();
+        PROFILE_SCOPE_END();
     }
     
     debugManager.Deinit();

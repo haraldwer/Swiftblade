@@ -242,7 +242,7 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
     Physics::Manager::Get().ClearCubes(InID); 
 }
 
-void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent, double InDelta)
+void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent, double InDelta)
 {
     // Add  render cubes
     const Mat4F world = Get<Transform>(InID).World();
