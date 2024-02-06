@@ -1,9 +1,24 @@
 {
 	"Components":[{
-		"Name":"CubeVolume",
-		"Data":{}
-	},{
-		"Name":"Transform",
-		"Data":{}
-	}]
+			"Name":"Attributes",
+			"Data":{
+				"Name":"CubeVolume"
+			}
+		},{
+			"Name":"Transform",
+			"Data":{}
+		},{
+			"Name":"VolumeDresser",
+			"Data":{
+				"Data":[{
+						"Name":"Wall"
+					}
+				]
+			}
+		},{
+			"Name":"CubeVolume",
+			"Data":{},
+			"Data":""
+		}
+	]
 }

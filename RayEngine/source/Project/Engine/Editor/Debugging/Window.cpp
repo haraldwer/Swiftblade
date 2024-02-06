@@ -10,3 +10,8 @@ Debug::Window::~Window()
 {
     Manager::Get().Unregister(this); 
 }
+
+bool Debug::Window::IsDebugWindowOpen() const
+{
+    return Manager::Get().IsOpen(DebugWindowName()); 
+}

@@ -62,6 +62,7 @@ public:
         T instance;
         
         // Set instance
+        PropertyOwnerBase* prevInstance = Instance; 
         Instance = &instance;
         
         // Create new copy
@@ -71,7 +72,7 @@ public:
         new (&instance) T();
         
         // Reset instance 
-        Instance = nullptr;
+        Instance = prevInstance;
     }
     
 private:

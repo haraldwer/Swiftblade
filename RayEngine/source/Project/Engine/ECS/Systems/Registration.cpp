@@ -50,6 +50,7 @@ SystemToName[var] = String(#x); }
 
     // Game systems
     REG_ENTITY_SYSTEM(CubeVolume);
+    REG_ENTITY_SYSTEM(VolumeDresser);
     REG_ENTITY_SYSTEM(RoomConnection);
     REG_ENTITY_SYSTEM(Checkpoint);
     REG_ENTITY_SYSTEM(SectionEnd);

@@ -38,8 +38,8 @@ void Physics::PersistentPhysics::TryInit()
         PVD->connect(*transport,PxPvdInstrumentationFlag::eALL);
     }
 
-    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(),true,PVD);
-    Dispatcher = PxDefaultCpuDispatcherCreate(2); 
+    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
+    Dispatcher = PxDefaultCpuDispatcherCreate(0); 
 }
 
 Physics::PersistentPhysics::~PersistentPhysics()
@@ -96,6 +96,7 @@ void Physics::Manager::Update(double InDelta) const
 {
     PROFILE_SCOPE_BEGIN("Physics");
     
+    PROFILE_SCOPE_BEGIN("Trans -> PxTrans");
     const auto& ecs = ECS::Manager::Get();
     const auto updatePhysTrans = [](const ECS::Manager& InECS, ECS::EntityID InKey, auto* InInstance)
     {
@@ -113,10 +114,14 @@ void Physics::Manager::Update(double InDelta) const
         updatePhysTrans(ecs, instance.first, instance.second);
     for (const auto& instance : Dynamics)
         updatePhysTrans(ecs, instance.first, instance.second);
+    PROFILE_SCOPE_END();
 
+    PROFILE_SCOPE_BEGIN("Simulate");
     Scene->simulate(static_cast<PxReal>(InDelta));
     Scene->fetchResults(true);
+    PROFILE_SCOPE_END();
 
+    PROFILE_SCOPE_BEGIN("PxTrans -> Trans");
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
@@ -128,6 +133,7 @@ void Physics::Manager::Update(double InDelta) const
         const Mat4F mat = Mat4F(p, q, t->GetScale());
         t->SetWorld(mat); 
     }
+    PROFILE_SCOPE_END();
 
     PROFILE_SCOPE_END();
 }
@@ -369,7 +375,7 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
     return nullptr;
 }
 
-void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions, float InScale)
+void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, float InScale)
 {
     // Create cube owner
     if (!CubeOwner)
@@ -395,15 +401,17 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPosit
         InScale);
 
     auto& shapes = CubeShapes[InID]; 
-    for (const Vec3F& pos : InPositions)
+    for (const Mat4F& trans : InTransforms)
     {
         PxShape* shape = Persistent.Physics->createShape(
            *geometry,
            *material,
            true);
-        shape->userData = ECS::EntityToPtr(InID); 
-        PxVec3 pxPos = Utility::PhysX::ConvertVec(pos);
-        shape->setLocalPose(PxTransform(pxPos));
+        shape->userData = ECS::EntityToPtr(InID);
+        const PxTransform pose = PxTransform(
+            Utility::PhysX::ConvertVec(trans.GetPosition()),
+            Utility::PhysX::ConvertQuat(trans.GetRotation()));
+        shape->setLocalPose(pose);
         CubeOwner->attachShape(*shape); 
         shapes.push_back(shape); 
     }

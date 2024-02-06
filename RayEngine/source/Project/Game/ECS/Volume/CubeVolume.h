@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CubeVolumeDresser.h"
+#include "VolumeDresser.h"
 #include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
 #include "Engine/Rendering/Instances/MeshInstance.h"
@@ -38,14 +38,17 @@ namespace ECS
     
     struct CubeVolume : Component<CubeVolume>
     {
-        PROPERTY_D(float, Scale, 1.0f);
-        PROPERTY(CubeVolumeDresser, Dresser); 
-        
+        PROPERTY_D(float, Scale, 1.0f); 
+
+        // Manually serialized / deserialized
         CubeVolumeData Data;
 
-        Utility::Math::Vector3<uint8> MinBounds;
-        Utility::Math::Vector3<uint8> MaxBounds;
+        Utility::Math::Vector3<uint8> CachedMinBounds;
+        Utility::Math::Vector3<uint8> CachedMaxBounds;
+        Vector<Mat4F> CachedCubeTransforms;
 
+        void UpdateCache(const Mat4F& InWorld);
+        
         void Serialize(SerializeObj& InOutObj) const override;
         bool Deserialize(const DeserializeObj& InObj) override;
         
@@ -67,11 +70,11 @@ namespace ECS
         void DrawCubes(const Vector<Mat4F>& InTransforms, bool InEditMesh) const;
 
         bool ShouldUpdate() const override { return true; }
-    private:
+        int GetPriority() const override { return -101; }
         
+    private:
         MeshInstance BlockMesh; 
         MeshInstance EditMesh;
-
     };
 }
 

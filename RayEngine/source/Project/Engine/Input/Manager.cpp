@@ -1,7 +1,9 @@
 ﻿#include "Manager.h"
+#include "Engine/Profiling/Manager.h"
 #include "Engine/Rendering/Manager.h"
 
 #include "ImGui/imgui.h"
+#include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_themes.h"
 
 void Input::Manager::Push(const String& InContext)
@@ -26,6 +28,7 @@ void Input::Manager::Pop(const String& InContext)
 
 const Input::Action& Input::Manager::Action(const String& InAction, const String& InContext) const
 {
+    PROFILE_SCOPE_BEGIN("Input Action")
     CHECK_ASSERT(ContextStack.empty(), "Stack empty")
     for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
     {
@@ -35,11 +38,15 @@ const Input::Action& Input::Manager::Action(const String& InAction, const String
             // Find action
             auto actionFind = context.CachedActions.find(InAction);
             if (actionFind != context.CachedActions.end())
-                return context.Actions.Get()[actionFind->second]; 
+            {
+                PROFILE_SCOPE_END();
+                return context.Actions.Get()[actionFind->second];
+            } 
         }
         if (context.Blocking)
-            return Action::Invalid();
+            break; 
     }
+    PROFILE_SCOPE_END();
     return Action::Invalid();
 }
 
@@ -56,7 +63,7 @@ void Input::Manager::Update()
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
 
-    if (MouseDelta.length() > 0.1f)
+    if (MouseDelta.length() > 0.0001f)
         MouseDelta = Vec2F::Zero();
 }
 
@@ -293,23 +300,20 @@ void Input::Manager::UpdateCursorState()
     
     // Refresh cursor visibility
     auto& context = GetContext(ContextStack.back());
-    if (context.CursorVisible)
+    if (context.CursorVisible == IsCursorHidden())
     {
-        if (IsCursorHidden())
-            ShowCursor();
+        if (context.CursorVisible)
+        {
+            EnableCursor();
+        }
+        else
+        {
+            DisableCursor();
+        }
     }
-    else
-    {
-        if (!IsCursorHidden())
-            HideCursor();
-        const auto& renderer = Rendering::Manager::Get();
-        const Vec2F viewportSize = renderer.GetViewportSize();
-        const Vec2F targetMousePos = renderer.GetViewportPosition() + viewportSize * 0.5f;
-        const auto currentMousePos = GetMousePosition();
-        const float targetMouseDist = (Vec2F(currentMousePos.x, currentMousePos.y) - targetMousePos).length; 
-        if (targetMouseDist > MIN(viewportSize.x, viewportSize.y) * 0.25f) 
-            SetMousePosition(static_cast<int>(targetMousePos.x), static_cast<int>(targetMousePos.y)); 
-    }
+
+    if (!context.CursorVisible)
+        ImGui::ClearActiveID();
 }
 
 const Input::Context& Input::Manager::GetContext(const String& InName) const

@@ -63,7 +63,7 @@ namespace Physics
         void Add(ECS::EntityID InID);
         void Remove(ECS::EntityID InID);
         
-        void AddCubes(ECS::EntityID InID, const Vector<Vec3F>& InPositions, float InScale);
+        void AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, float InScale);
         void ClearCubes(ECS::EntityID InID);
 
         static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);

@@ -37,7 +37,6 @@ namespace Input
         static Action& Invalid()
         {
             static Action a;
-            a = Action(); 
             return a;  
         }
 

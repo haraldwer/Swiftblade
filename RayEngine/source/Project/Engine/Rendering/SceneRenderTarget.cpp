@@ -33,8 +33,9 @@ void SceneRenderTarget::TrySetup(const RenderTexture& InRenderTexture)
             RL_ATTACHMENT_TEXTURE2D,
             0); 
 
-    DepthBuffer = rlLoadTextureDepth(Width, Height, true);
-    rlFramebufferAttach(FrameBuffer, DepthBuffer, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
+    int depthID = InRenderTexture.depth.id;
+    CHECK_ASSERT(depthID == 0, "Invalid depth texture");
+    rlFramebufferAttach(FrameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
     
     CHECK_ASSERT(!rlFramebufferComplete(FrameBuffer), "Framebuffer incomplete"); 
 }
@@ -44,7 +45,8 @@ void SceneRenderTarget::Unload()
     for (const Buffer& buff : Buffers)
         rlUnloadTexture(buff.Tex.id);
     Buffers.clear(); 
-    
+
+    rlFramebufferAttach(FrameBuffer, 0, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
     rlUnloadFramebuffer(FrameBuffer);
     FrameBuffer = 0;
     Width = 0;
@@ -74,12 +76,6 @@ void SceneRenderTarget::Bind(const Shader& InShader, int InStartSlot) const
         rlActiveTextureSlot(InStartSlot + i);
         rlEnableTexture(buff.Tex.id);
     }
-}
-
-void SceneRenderTarget::BlitDepth() const
-{
-    rlBlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, 0x00000100); // GL_DEPTH_BUFFER_BIT
-    rlDisableFramebuffer();
 }
 
 void SceneRenderTarget::CreateBuffer(const String& InName, const PixelFormat InPixelFormat)

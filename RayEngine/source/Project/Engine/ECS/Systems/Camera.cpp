@@ -13,10 +13,12 @@ void SysCamera::Update(EntityID InEntity, Camera& InComponent, double InDelta)
     const CameraInstance c {
         t.GetPosition(),
         t.GetRotation(),
-        InComponent.FOV };
+        InComponent.FOV,
+        InComponent.Far,
+        InComponent.Near };
 
     // TODO: Camera manager
-    Engine::Instance::Get().GetRenderScene().SetCamera(c);
+    Engine::Instance::Get().GetRenderScene().SetCamera(c, true);
 
     if (Engine::Instance::Get().IsEditor())
         Rendering::DebugSphere(t.GetPosition());

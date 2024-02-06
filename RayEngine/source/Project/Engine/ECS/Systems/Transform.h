@@ -4,10 +4,17 @@
 #include "Engine/ECS/Component.h"
 #include "Utility/StringConversion.h"
 
+namespace Physics
+{
+    class Manager; 
+}
+
 namespace ECS
 {
     struct Transform : Component<Transform>
     {
+        friend Physics::Manager;
+        
         enum class Space : uint8
         {
             LOCAL,

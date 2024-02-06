@@ -9,7 +9,8 @@ namespace Debug
         virtual ~Window();
 
         virtual void DrawDebugWindow() = 0;
-        virtual String DebugWindowName() const = 0; 
+        virtual String DebugWindowName() const = 0;
+        bool IsDebugWindowOpen() const;
     };
 }
 

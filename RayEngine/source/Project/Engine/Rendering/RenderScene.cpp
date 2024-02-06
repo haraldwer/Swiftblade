@@ -8,7 +8,6 @@ void MeshCollection::AddMesh(const MeshInstance& InInstance)
 {
     auto& entry = GetEntry(InInstance);
     entry.Transforms.push_back(InInstance.Transform);
-    // TODO: Culling
 }
 
 void MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
@@ -16,7 +15,6 @@ void MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4
     Entry& entry = GetEntry(InInstance);
     entry.Transforms.reserve(entry.Transforms.size() + InTransforms.size());
     entry.Transforms.insert(entry.Transforms.end(), InTransforms.begin(), InTransforms.end());
-    // TODO: Culling
 }
 
 MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
@@ -47,24 +45,50 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     return entry;
 }
 
-void StaticMeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
+void RenderScene::SetCamera(const CameraInstance& InCamera, bool InUpdateFrustum)
 {
+    Cam = InCamera;
+    if (InUpdateFrustum)
+        Frustum.ConstructFrustum(InCamera);
 }
 
-void RenderScene::AddStaticMeshes(uint32 InStaticID, const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms)
+void RenderScene::AddMesh(const MeshInstance& InMesh)
 {
+    const Vec3F scale = InMesh.Transform.GetScale();
+    const float maxScale = MAX(MAX(scale.x, scale.y), scale.z);
+    if (Frustum.CheckSphere(InMesh.Transform.GetPosition(), maxScale))
+        Meshes.AddMesh(InMesh);
 }
 
-void RenderScene::RemoveStaticMeshes(uint32 InStaticID)
+void RenderScene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd)
 {
+    if (InBoxStart != Vec3F::Zero() || InBoxEnd != Vec3F::Zero())
+    {
+        const Vec3F halfDiff = (InBoxEnd - InBoxStart) * 0.5f;
+        const Vec3F center = InBoxStart + halfDiff;
+        if (!Frustum.CheckBox(center.x, center.y, center.z, halfDiff.x, halfDiff.y, halfDiff.z))
+            return;
+    }
+    Meshes.AddMeshes(InMesh, InTransforms);
 }
 
-void RenderScene::Clear(const bool InKeepStatic)
+void RenderScene::AddDebugShape(const DebugShapeInstance& InShape)
+{
+    if (Frustum.CheckPoint(InShape.Pos))
+        DebugShapes.push_back(InShape);
+}
+
+void RenderScene::AddDebugLine(const DebugLineInstance& InLine)
+{
+    const Vec3F diff = InLine.End - InLine.Start; 
+    if (Frustum.CheckCube(InLine.Start + diff * 0.5f, diff.Length()))
+        DebugLines.push_back(InLine);
+}
+
+void RenderScene::Clear()
 {
     Cam = {};
     Meshes = {};
-    if (!InKeepStatic)
-        StaticMeshes = {};
     DebugShapes = {};
     DebugLines = {};
 }

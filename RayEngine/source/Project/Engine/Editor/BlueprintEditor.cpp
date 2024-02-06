@@ -16,6 +16,7 @@ void BlueprintEditor::Init()
 {
     Instance::Init();
     ECS.Init();
+    EditorCamera.Toggle(); 
     Config.LoadConfig();
     SetBP(Config.Blueprint);
 }
@@ -45,8 +46,8 @@ void BlueprintEditor::Logic(double InDelta)
     Instance::Logic(InDelta);
 
     // Update
-    UpdateCamera(InDelta);
     ECS.Update(Time.Delta());
+    EditorCamera.Update(InDelta);
 
     if (InstanceID == ECS::InvalidID)
         return; 
@@ -61,29 +62,6 @@ void BlueprintEditor::Logic(double InDelta)
             Engine::Manager::Get().Push<GameInstance>();
     }
 }
-
-
-void BlueprintEditor::UpdateCamera(double InDelta)
-{
-    const bool previousUseCamera = bUseEditorCamera;
-    if (Input::Action::Get("EditorCamera").Pressed())
-        bUseEditorCamera = !bUseEditorCamera;
-    
-    const Input::Action& rm = Input::Action::Get("RM"); 
-    if (rm.Pressed())
-        bUseEditorCamera = true;
-    if (rm.Released())
-        bUseEditorCamera = false;
-
-    if (bUseEditorCamera != previousUseCamera)
-    {
-        bUseEditorCamera ?
-            Camera.Enter() :
-            Camera.Exit(); 
-    }
-    Camera.Update(InDelta);
-}
-
 
 void BlueprintEditor::DrawDebugWindow()
 {

@@ -13,6 +13,8 @@ void RoomEditor::Init()
     Instance::Init();
     ECS.Init();
     CurrConfig.LoadConfig();
+    EditorCamera.Toggle(); 
+    EditorCamera.SetAlwaysEnabled(true);
     
     OpenScene();
     SubEditorManager.SetMode(SubEditorMode::VOLUME);
@@ -37,8 +39,6 @@ void RoomEditor::Deinit()
 {
     CurrConfig.SaveConfig();
     SubEditorManager.Deinit();
-    if (bUseEditorCamera)
-        Camera.Exit(); 
     ECS.Deinit();
     Instance::Deinit();
 }
@@ -48,8 +48,8 @@ void RoomEditor::Logic(double InDelta)
     CHECK_ASSERT(!UI, "UI Invalid");
     
     Instance::Logic(InDelta);
-    UpdateCamera(InDelta);
     ECS.Update(Time.Delta());
+    EditorCamera.Update(InDelta);
     UI->Update();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
@@ -62,7 +62,7 @@ void RoomEditor::Logic(double InDelta)
     if (newMode != SubEditorMode::COUNT)
         SubEditorManager.SetMode(newMode); 
     
-    SubEditorManager.Update(InDelta, bEditCameraMode);
+    SubEditorManager.Update(InDelta, EditorCamera.IsControlling());
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
@@ -78,22 +78,22 @@ void RoomEditor::Logic(double InDelta)
     if (UI->Get("Play").IsClicked())
         PlayScene();
     if (UI->Get("Exit").IsClicked())
-        Engine::Manager::Get().Pop(); 
+        Engine::Manager::Get().Pop();
 }
 
 void RoomEditor::Frame(double InDelta)
 {
+    ECS.Frame(InDelta); 
     Instance::Frame(InDelta);
     
     CHECK_ASSERT(!UI, "UI Invalid");
     UI->Draw();
-    
-    SubEditorManager.UpdateUI(bUseEditorCamera);
+    SubEditorManager.UpdateUI(EditorCamera.IsControlling());
 }
 
 void RoomEditor::DrawDebugWindow()
 {
-    if (bUseEditorCamera)
+    if (EditorCamera.IsControlling())
         ImGui::SetWindowFocus(nullptr); 
     
     if (CurrConfig.Edit())
@@ -102,40 +102,13 @@ void RoomEditor::DrawDebugWindow()
     ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
     ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
 
-    SubEditorManager.DebugDraw(bUseEditorCamera); 
+    SubEditorManager.DebugDraw(EditorCamera.IsControlling()); 
     
     if (ImGui::Button("Save"))
         SaveRoom(); 
     ImGui::SameLine();
     if (ImGui::Button("Play"))
         PlayScene(); 
-}
-
-void RoomEditor::UpdateCamera(double InDelta)
-{
-    const bool previousUseCamera = bUseEditorCamera;
-    if (Input::Action::Get("EditorCamera").Pressed())
-    {
-        bUseEditorCamera = !bUseEditorCamera;
-        bEditCameraMode = bUseEditorCamera;
-    }
-    
-    const Input::Action& rm = Input::Action::Get("RM"); 
-    if (rm.Pressed())
-        bUseEditorCamera = true;
-    if (rm.Released())
-    {
-        bUseEditorCamera = false;
-        bEditCameraMode = false;
-    }
-
-    if (bUseEditorCamera != previousUseCamera)
-    {
-        bUseEditorCamera ?
-            Camera.Enter() :
-            Camera.Exit(); 
-    }
-    Camera.Update(InDelta);
 }
 
 void RoomEditor::OpenScene()
@@ -157,7 +130,7 @@ void RoomEditor::OpenScene()
 void RoomEditor::PlayScene()
 {
     if (GameInstance* game = Engine::Manager::Get().Push<GameInstance>())
-        game->PlayScene(CurrConfig.Scene, Camera.GetPosition());
+        game->PlayScene(CurrConfig.Scene, EditorCamera.GetPosition());
 }
 
 void RoomEditor::SaveRoom()

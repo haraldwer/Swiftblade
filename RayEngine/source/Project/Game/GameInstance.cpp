@@ -37,8 +37,6 @@ void GameInstance::Init()
 
 void GameInstance::Deinit()
 {
-    if (bUseDebugCamera)
-        DebugCamera.Exit();
     SceneInstance.Destroy();
     ECS.Deinit(); 
     Physics.Deinit();
@@ -50,23 +48,10 @@ void GameInstance::Logic(double InDelta)
     Instance::Logic(InDelta); 
     
     const double scaledDelta = Time.Delta();
-    
-    // TODO: Pre-update for movement logic
     if (!Time.IsPaused())
         Physics.Update(scaledDelta);
     ECS.Update(scaledDelta);
-
-    // Debug camera
-    if (Input::Action::Get("EditorCamera").Pressed())
-    {
-        bUseDebugCamera = !bUseDebugCamera;
-        if (bUseDebugCamera)
-            DebugCamera.Enter(GetRenderScene().GetCamera());
-        else
-            DebugCamera.Exit(); 
-    }
-    if (bUseDebugCamera)
-        DebugCamera.Update(InDelta); 
+    EditorCamera.Update(InDelta); 
 }
 
 void GameInstance::Frame(double InDelta)

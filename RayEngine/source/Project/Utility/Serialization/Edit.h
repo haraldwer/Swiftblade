@@ -65,6 +65,20 @@ namespace Utility
         
         return edited; 
     }
+    
+    template <class T, int Size>
+    bool Edit(const String& InName, Array<T, Size>& InOutData, uint32 InOffset = 0)
+    {
+        bool edited = false; 
+        if (BeginList(InName, InOffset))
+        {
+            for (auto& data : InOutData)
+                if (Edit(("##" + InName).c_str(), data, InOffset))
+                    edited = true;
+            EndList();
+        }
+        return edited; 
+    }
 
     template <class Key, class Val>
     bool Edit(const String& InName, Map<Key, Val>& InOutData, uint32 InOffset = 0)

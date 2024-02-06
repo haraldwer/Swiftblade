@@ -9,14 +9,15 @@ public:
 
     void Update(double InDelta);
     void Deinit();
-
-    void Enter(const CameraInstance& InCamera);
-    void Enter();
-    void Exit();
     
     Vec3F GetPosition() const { return TargetState.Position; }
-
+    bool IsControlling() const { return bUseEditCamera && bInputEnabled; }
+    void SetAlwaysEnabled(bool InEnabled) { bAlwaysEnabled = InEnabled; }
+    void Toggle();
+    
 private:
+
+    void UpdateMovement(double InDelta); 
     
     struct State
     {
@@ -29,5 +30,10 @@ private:
     State TargetState;
     State CurrentState;
     Vec2F CursorPos;
+
+    bool bUseEditCamera = false;
+    bool bInputEnabled = false;
+    bool bRequireHold = true;
+    bool bAlwaysEnabled = false;
     
 };

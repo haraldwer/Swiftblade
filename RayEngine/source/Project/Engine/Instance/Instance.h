@@ -3,6 +3,7 @@
 #include "Engine/Input/Manager.h"
 #include "Engine/Menu/Manager.h"
 #include "..\Rendering\RenderScene.h"
+#include "Engine/Editor/EditorCamera.h"
 #include "Utility/Singelton.h"
 #include "Utility/Time/Time.h"
 
@@ -27,8 +28,13 @@ namespace Engine
         Menu::Manager Menus;
         Input::Manager Input;
         
+        void UpdateEditorCamera(double InDelta);
+        EditorCamera EditorCamera;
+        
+        
     private:
         Rendering::RenderScene RenderScene;
         InstanceEventManager EventManager;
+
     };
 }

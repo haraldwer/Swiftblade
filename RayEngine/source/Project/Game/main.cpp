@@ -5,7 +5,6 @@
 #include "Engine/Profiling/Manager.h"
 #include "Engine/Rendering/Manager.h"
 #include "Engine/Resource/Manager.h"
-#include "Utility/Time/Time.h"
 
 #include "Game/MenuInstance.h"
 #include "Utility/File/File.h"

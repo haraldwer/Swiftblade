@@ -9,6 +9,7 @@ void Engine::Instance::Init()
 
 void Engine::Instance::Deinit()
 {
+    EditorCamera.Deinit(); 
     RenderScene = Rendering::RenderScene();
     Menus.Clear();
 }

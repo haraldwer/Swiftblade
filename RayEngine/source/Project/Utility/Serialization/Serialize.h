@@ -28,6 +28,15 @@ namespace Utility
         InOutObj.EndArray();
     }
 
+    template <class T, int Size>
+    void WriteValue(SerializeObj& InOutObj, const Array<T, Size>& InData)
+    {
+        InOutObj.StartArray();
+        for (auto& entry : InData)
+            WriteValue(InOutObj, entry);
+        InOutObj.EndArray();
+    }
+
     template <class T>
     void WriteValue(SerializeObj& InOutObj, const Set<T>& InData)
     {

@@ -14,8 +14,7 @@ namespace Profiling
         
         String DebugWindowName() const override { return "Profiler"; }
         void DrawDebugWindow() override;
-
-
+    
     private:
         struct ScopeData
         {
@@ -23,6 +22,7 @@ namespace Profiling
             String Function;
             int Calls = 0;
             size_t Depth = 0; 
+            size_t ExecutionOrder = 0;
             double TotalTime = 0.0;
             Utility::Timer Timer; 
         };
@@ -32,6 +32,11 @@ namespace Profiling
 
         Utility::Timer FrameTimer;
         double PreviousFrameTime = 0.0;
+        Vector<float> Histogram;
+        float SmoothMax = 0.0f; 
+        float SmoothMin = 0.0f; 
+
+        Utility::Timer UpdateStatTimer;
     };
 }
 

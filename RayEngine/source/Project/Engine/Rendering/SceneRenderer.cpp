@@ -33,6 +33,10 @@ Rendering::SceneRenderer::~SceneRenderer()
 
 void Rendering::SceneRenderer::DrawDebugWindow()
 {
+    ImGui::Text(("Meshes: " + std::to_string(MeshDrawCount)).c_str()); 
+    ImGui::Text(("Debug shapes: " + std::to_string(DebugDrawCount)).c_str());
+    ImGui::Checkbox("DebugDraw##SceneRenderer", &DebugDraw);
+    
     for (auto& buff : SceneTarget.GetBuffers())
     {
         if (ImGui::CollapsingHeader(buff.Name.c_str()))
@@ -65,6 +69,7 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
     
     // Instanced rendering
+    MeshDrawCount = 0; 
     for (auto& entry : InScene.Meshes.Entries)
     {
         const Mesh* meshes = nullptr;
@@ -99,7 +104,10 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
         // Data has been prepared for this entry
         // Time to draw all the instances
         for (int i = 0; i < meshCount; i++)
+        {
+            MeshDrawCount += entry.second.Transforms.size(); 
             DrawInstances(meshes[i], *shader, entry.second.Transforms, InScene.Cam.Position);
+        }
     }
     rlEnableBackfaceCulling(); 
     EndMode3D();
@@ -304,6 +312,13 @@ void Rendering::SceneRenderer::DrawDebug(const RenderScene& InScene)
 {
     PROFILE_SCOPE_BEGIN("DrawDebug")
     
+    if (!DebugDraw)
+    {
+        DebugDrawCount = 0;
+        PROFILE_SCOPE_END()
+        return; 
+    }
+    
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
     
     for (auto& shape : InScene.DebugShapes)
@@ -344,6 +359,8 @@ void Rendering::SceneRenderer::DrawDebug(const RenderScene& InScene)
             Utility::Ray::ConvertVec(line.Start),
             Utility::Ray::ConvertVec(line.End),
             line.Color);
+    
+    DebugDrawCount = InScene.DebugShapes.size() + InScene.DebugLines.size();
 
     EndMode3D();
 

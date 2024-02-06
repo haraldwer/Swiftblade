@@ -14,12 +14,15 @@ namespace Rendering
         String DebugWindowName() const override { return "Scene Rendering"; }
         
     private:
-        static void DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
+        void DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
         static void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition);
         static void DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, const ResShader& InShader);
-        static void DrawDebug(const RenderScene& InScene);
+        void DrawDebug(const RenderScene& InScene);
 
         SceneRenderTarget SceneTarget;
-        ResShader DeferredShader = ResShader("Defaults/SH_Deferred_Default"); 
+        ResShader DeferredShader = ResShader("Defaults/SH_Deferred_Default");
+        int MeshDrawCount = 0;
+        int DebugDrawCount = 0;
+        bool DebugDraw = true; 
     };
 }

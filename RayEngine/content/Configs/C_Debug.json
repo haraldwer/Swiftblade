@@ -2,6 +2,7 @@
 	"OpenWindows":[
 		"Blueprint Editor",
 		"Room Editor",
+		"Scene Rendering",
 		"Viewport"
 	]
 }

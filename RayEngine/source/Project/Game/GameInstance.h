@@ -26,9 +26,6 @@ private:
     SceneInstance SceneInstance;
     RoomManager RoomManager;
     GameState State; 
-
-    bool bUseDebugCamera = false; 
-    EditorCamera DebugCamera;
     
     ResScene StartScene;
     Vec3F StartPlayerPos; 

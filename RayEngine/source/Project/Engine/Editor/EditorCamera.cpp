@@ -5,6 +5,66 @@
 
 void EditorCamera::Update(double InDelta)
 {
+    if (Input::Action::Get("EditorCamera").Pressed())
+    {
+        if (bAlwaysEnabled)
+            bRequireHold = !bRequireHold; 
+        else
+            Toggle();
+    }
+
+    const bool previousEnableInput = bInputEnabled;
+    const Input::Action& rm = Input::Action::Get("RM"); 
+    bInputEnabled = bUseEditCamera && (!bRequireHold || rm.Down());  
+    if (bInputEnabled != previousEnableInput)
+    {
+        if (bInputEnabled)
+        {
+            Input::Manager::Get().Push("EditorCamera");
+        }
+        else
+        {
+            Input::Manager::Get().Pop("EditorCamera");
+        }
+    }
+
+    if (bUseEditCamera)
+        UpdateMovement(InDelta); 
+}
+
+void EditorCamera::Deinit()
+{
+    if (bInputEnabled)
+        Input::Manager::Get().Pop("EditorCamera");
+    bInputEnabled = false;
+    if (bUseEditCamera)
+        Input::Manager::Get().Pop("Default");
+    bUseEditCamera = false;
+}
+
+void EditorCamera::Toggle()
+{
+    bUseEditCamera = !bUseEditCamera;
+    if (bUseEditCamera)
+    {
+        auto& cam = Engine::Instance::Get().GetRenderScene().GetCamera();
+        if (cam.FOV > 1.0f)
+        {
+            TargetState.Position = cam.Position;
+            TargetState.Rotation = cam.Rotation.Euler();
+            TargetState.FOV = cam.FOV;
+        }
+        CurrentState = TargetState;
+        Input::Manager::Get().Push("Default");
+    }
+    else
+    {
+        Input::Manager::Get().Pop("Default");
+    }
+}
+
+void EditorCamera::UpdateMovement(double InDelta)
+{
     auto& man = Input::Manager::Get();
     const bool ctrl = man.Action("Control", "EditorCamera").Down(); 
     
@@ -57,28 +117,7 @@ void EditorCamera::Update(double InDelta)
     CurrentState.MovementSpeed = LERP(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * (float)InDelta);
     
     // Set camera
-    BlueprintEditor::Get().GetRenderScene().SetCamera({
-        CurrentState.Position, QuatF::FromEuler(CurrentState.Rotation), CurrentState.FOV
-    });
-}
-
-void EditorCamera::Enter(const CameraInstance& InCamera)
-{
-    TargetState.Position = InCamera.Position;
-    TargetState.Rotation = InCamera.Rotation.Euler();
-    TargetState.FOV = InCamera.FOV;
-    Enter(); 
-}
-
-void EditorCamera::Enter()
-{
-    CurrentState = TargetState;
-    Input::Manager::Get().Push("Default");
-    Input::Manager::Get().Push("EditorCamera");
-}
-
-void EditorCamera::Exit()
-{
-    Input::Manager::Get().Pop("EditorCamera");
-    Input::Manager::Get().Pop("Default");
+    Engine::Instance::Get().GetRenderScene().SetCamera({
+       CurrentState.Position, QuatF::FromEuler(CurrentState.Rotation), CurrentState.FOV
+   }, false);
 }
