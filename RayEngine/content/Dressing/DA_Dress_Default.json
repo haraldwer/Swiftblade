@@ -1,6 +1,7 @@
 {
 	"Data":[{
 			"Name":"Wall",
+			"Model":"Dressing\\M_Wall.obj",
 			"Test":[
 				1,
 				1,
@@ -13,6 +14,7 @@
 			]
 		},{
 			"Name":"Ceiling",
+			"Model":"Dressing\\M_Ceiling.obj",
 			"Test":[
 				0,
 				0,
@@ -25,6 +27,7 @@
 			]
 		},{
 			"Name":"Floor",
+			"Model":"Dressing\\M_Floor.obj",
 			"Test":[
 				1,
 				1,
@@ -36,7 +39,8 @@
 				0
 			]
 		},{
-			"Name":"Outer_Corner",
+			"Name":"Wall_Corner_Outer",
+			"Model":"Dressing\\M_Wall_Corner_Outer.obj",
 			"Test":[
 				0,
 				0,
@@ -48,31 +52,8 @@
 				0
 			]
 		},{
-			"Name":"Outer_Corner_Bottom",
-			"Test":[
-				1,
-				1,
-				1,
-				1,
-				0,
-				0,
-				1,
-				0
-			]
-		},{
-			"Name":"Outer_Corner_Top",
-			"Test":[
-				0,
-				0,
-				1,
-				0,
-				1,
-				1,
-				1,
-				1
-			]
-		},{
-			"Name":"Inner_Corner",
+			"Name":"Wall_Corner_Inner",
+			"Model":"Dressing\\M_Wall_Corner_Inner.obj",
 			"Test":[
 				0,
 				1,
@@ -82,6 +63,188 @@
 				1,
 				1,
 				1
+			]
+		},{
+			"Name":"Ledge",
+			"Model":"Dressing\\M_Ledge.obj",
+			"Test":[
+				1,
+				1,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},{
+			"Name":"Ledge_Corner_Inner",
+			"Model":"Dressing\\M_Ledge_Corner_Inner.obj",
+			"Test":[
+				1,
+				1,
+				1,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},{
+			"Name":"Ledge_Corner_Outer",
+			"Model":"Dressing\\M_Ledge_Corner_Outer.obj",
+			"Test":[
+				1,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+			]
+		},{
+			"Name":"Floor_Batten",
+			"Model":"Dressing\\M_Floor_Batten.obj",
+			"Test":[
+				1,
+				1,
+				1,
+				1,
+				1,
+				1,
+				0,
+				0
+			]
+		},{
+			"Name":"Floor_Batten_Corner_Outer",
+			"Model":"Dressing\\M_Floor_Batten_Corner_Outer.obj",
+			"Test":[
+				1,
+				1,
+				1,
+				1,
+				1,
+				0,
+				0,
+				0
+			]
+		},{
+			"Name":"Floor_Batten_Corner_Inner",
+			"Model":"Dressing\\M_Floor_Batten_Corner_Inner.obj",
+			"Test":[
+				1,
+				1,
+				1,
+				1,
+				1,
+				1,
+				1,
+				0
+			]
+		},{
+			"Name":"Ceiling_Batten",
+			"Model":"Dressing\\M_Ceiling_Batten.obj",
+			"Test":[
+				1,
+				1,
+				0,
+				0,
+				1,
+				1,
+				1,
+				1
+			]
+		},{
+			"Name":"Ceiling_Batten_Corner_Inner",
+			"Model":"Dressing\\M_Ceiling_Batten_Corner_Inner.obj",
+			"Test":[
+				1,
+				1,
+				1,
+				0,
+				1,
+				1,
+				1,
+				1
+			]
+		},{
+			"Name":"Ceiling_Batten_Corner_Outer",
+			"Model":"Dressing\\M_Ceiling_Batten_Corner_Outer.obj",
+			"Test":[
+				1,
+				0,
+				0,
+				0,
+				1,
+				1,
+				1,
+				1
+			]
+		},{
+			"Name":"Overhang",
+			"Model":"Dressing\\M_Overhang.obj",
+			"Test":[
+				0,
+				0,
+				0,
+				0,
+				1,
+				1,
+				0,
+				0
+			]
+		},{
+			"Name":"Overhang_Corner_Inner",
+			"Model":"Dressing\\M_Overhang_Corner_Inner.obj",
+			"Test":[
+				0,
+				0,
+				0,
+				0,
+				1,
+				1,
+				1,
+				0
+			]
+		},{
+			"Name":"Overhang_Corner_Outer",
+			"Model":"Dressing\\M_Overhang_Corner_Outer.obj",
+			"Test":[
+				0,
+				0,
+				0,
+				0,
+				1,
+				0,
+				0,
+				0
+			]
+		},{
+			"Name":"Wall_Corner_Overhang",
+			"Model":"Dressing\\M_Wall_Corner_Overhang.obj",
+			"Test":[
+				0,
+				0,
+				1,
+				0,
+				0,
+				0,
+				1,
+				1
+			]
+		},{
+			"Name":"Wall_Corner_Ledge",
+			"Model":"Dressing\\M_Wall_Corner_Ledge.obj",
+			"Test":[
+				0,
+				0,
+				1,
+				1,
+				0,
+				0,
+				1,
+				0
 			]
 		}
 	]

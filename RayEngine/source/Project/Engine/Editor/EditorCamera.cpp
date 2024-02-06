@@ -118,6 +118,10 @@ void EditorCamera::UpdateMovement(double InDelta)
     
     // Set camera
     Engine::Instance::Get().GetRenderScene().SetCamera({
-       CurrentState.Position, QuatF::FromEuler(CurrentState.Rotation), CurrentState.FOV
-   }, false);
+       CurrentState.Position,
+        QuatF::FromEuler(CurrentState.Rotation),
+        CurrentState.FOV,
+        50.0f,
+        0.01f
+   });
 }

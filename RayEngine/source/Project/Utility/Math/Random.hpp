@@ -23,7 +23,7 @@ namespace Utility
 		class Random
 		{
 		public: 
-			Random();
+			Random() = default;
 			Random(const int InSeed)
 			{
 				seed.seed(InSeed);
@@ -45,8 +45,8 @@ namespace Utility
 		template <class T>
 		T Random::Range(const T InMin, const T InMax)
 		{
-			std::uniform_real_distribution<T> distribution(InMin, InMax);
-			return distribution(seed); 
+			std::uniform_real_distribution<double> distribution(InMin, InMax);
+			return static_cast<T>(distribution(seed)); 
 		}
 
 		template <>

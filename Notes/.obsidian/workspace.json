@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/0 - Combat state machine.md",
+                "file": "Tasks/2 - Child property serialization issue.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Tasks/0 - Combat state machine.md",
+                "file": "Tasks/2 - Child property serialization issue.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Tasks/0 - Combat state machine.md",
+                "file": "Tasks/2 - Child property serialization issue.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Tasks/0 - Combat state machine.md"
+                "file": "Tasks/2 - Child property serialization issue.md"
               }
             }
           }
@@ -146,8 +146,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "1fc93849a5de3ca6",
+  "active": "99326411889e7499",
   "lastOpenFiles": [
+    "Tasks/2 - Child overrides.md",
+    "Tasks/2 - Child property serialization issue.md",
+    "Tasks/0 - Combat state machine.md",
     "Tasks/0 - Dealing damage.md",
     "Tasks/0 - Object switching in object edit mode.md",
     "Tasks/0 - Optimize scene overrides.md",
@@ -158,7 +161,6 @@
     "Tasks/Archive/0 - Menu input blocking.md",
     "Tasks/Archive/0 - Input Manager.md",
     "Milestones/Milestone 5 (Dec 27).md",
-    "Tasks/0 - Combat state machine.md",
     "Milestones/Milestone 4 (Dec 21).md",
     "Tasks/0 - Enemy spawner.md",
     "Tasks/0 - Basic Enemy.md",
@@ -172,8 +174,6 @@
     "Tasks/Archive/0 - Leaderboard UI.md",
     "Tasks/0 - Score.md",
     "Planning/Release.md",
-    "Planning/Game Creation Process.md",
-    "Planning/Conditions.md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

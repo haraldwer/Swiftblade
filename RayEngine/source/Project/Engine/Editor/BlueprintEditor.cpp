@@ -63,6 +63,12 @@ void BlueprintEditor::Logic(double InDelta)
     }
 }
 
+void BlueprintEditor::Frame(double InDelta)
+{
+    ECS.Frame(InDelta); 
+    Instance::Frame(InDelta);
+}
+
 void BlueprintEditor::DrawDebugWindow()
 {
     if (Config.Blueprint.Edit())

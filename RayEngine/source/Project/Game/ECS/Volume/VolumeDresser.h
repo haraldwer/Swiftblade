@@ -48,9 +48,9 @@ public:
     int GetPriority() const override { return -102; }
     bool ShouldUpdate() const override { return true; }
     
-    void Dress(ECS::EntityID InID);
+    void Dress(ECS::EntityID InID, bool InRandomize = false);
     
 private:
-    bool EvaluateCoord(const Vector<DressEntry>& InDressData, const Array<uint8, 8>& InNeighbors, uint8& OutDress, uint8& OutRotation) const;
+    bool EvaluateCoord(const Vector<DressEntry>& InDressData, const Array<uint8, 8>& InNeighbors, uint8& OutDress, uint8& OutVariation) const;
     
 };

@@ -45,11 +45,10 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     return entry;
 }
 
-void RenderScene::SetCamera(const CameraInstance& InCamera, bool InUpdateFrustum)
+void RenderScene::SetCamera(const CameraInstance& InCamera)
 {
     Cam = InCamera;
-    if (InUpdateFrustum)
-        Frustum.ConstructFrustum(InCamera);
+    Frustum.ConstructFrustum(InCamera);
 }
 
 void RenderScene::AddMesh(const MeshInstance& InMesh)

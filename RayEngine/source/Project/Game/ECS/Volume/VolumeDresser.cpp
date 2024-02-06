@@ -6,6 +6,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Rendering/Debug/Draw.h"
 #include "ImGui/imgui.h"
+#include "Utility/Math/Random.hpp"
 
 void SysVolumeDresser::Init(ECS::EntityID InID, VolumeDresser& InComponent)
 {
@@ -32,7 +33,7 @@ bool SysVolumeDresser::Edit(ECS::EntityID InID)
         return result;
 
     if (ImGui::Button("Dress##DressData"))
-        Dress(InID);
+        Dress(InID, true);
     ImGui::SameLine(); 
     if (ImGui::Button("Save##DressData"))
         if (dresser.Data.Save(dresser.DressPath))
@@ -111,9 +112,10 @@ bool SysVolumeDresser::Edit(ECS::EntityID InID)
     return result; 
 }
 
-void SysVolumeDresser::Dress(ECS::EntityID InID)
+void SysVolumeDresser::Dress(ECS::EntityID InID, bool InRandomize)
 {
     LOG("Dressing volume")
+    Utility::Timer dressTimer = Utility::Timer();
     
     // Get components
     const ECS::Transform& trans = Get<ECS::Transform>(InID);
@@ -134,12 +136,27 @@ void SysVolumeDresser::Dress(ECS::EntityID InID)
         Vec3F MinBounds = Vec3F(99999999.9f);
         Vec3F MaxBounds = Vec3F(-99999999.9f);
     };
+
+    static Random rand; 
+    Utility::Math::Vector3<uint8> minBounds = InRandomize ?
+        Utility::Math::Vector3(
+            rand.Range<uint8>(0, 10),
+            rand.Range<uint8>(0, 10),
+            rand.Range<uint8>(0, 10)) :
+            volume.CachedMinBounds;
+    Utility::Math::Vector3<uint8> maxBounds = InRandomize ?
+        Utility::Math::Vector3(
+            rand.Range<uint8>(minBounds.x, 20),
+            rand.Range<uint8>(minBounds.y, 20),
+            rand.Range<uint8>(minBounds.z, 20)) :
+            volume.CachedMaxBounds;
+    
     Map<uint8, TempDressEntry> pending;
-    for (uint8 x = volume.CachedMinBounds.x; x <= volume.CachedMaxBounds.x + 1; x++)
+    for (uint8 x = minBounds.x; x <= maxBounds.x + 1; x++)
     {
-        for (uint8 y = volume.CachedMinBounds.y; y <= volume.CachedMaxBounds.y + 1; y++)
+        for (uint8 y = minBounds.y; y <= maxBounds.y + 1; y++)
         {
-            for (uint8 z = volume.CachedMinBounds.z; z <= volume.CachedMaxBounds.z + 1; z++)
+            for (uint8 z = minBounds.z; z <= maxBounds.z + 1; z++)
             {
                 // For each position
                 // Evaluate neighbours
@@ -149,10 +166,12 @@ void SysVolumeDresser::Dress(ECS::EntityID InID)
                         (y + yOff < 1) ||
                         (z + zOff < 1))
                         return static_cast<uint8>(0);
+                    
                     const Coord pos = Coord(
                         x + xOff - 1,
                         y + yOff - 1,
                         z + zOff - 1);
+                    
                     const auto find = volume.Data.find(pos.Key);
                     if (find != volume.Data.end())
                         return static_cast<uint8>(find->second);
@@ -170,13 +189,12 @@ void SysVolumeDresser::Dress(ECS::EntityID InID)
                 neighbors[6] = getVal(1, 1, 1);
                 neighbors[7] = getVal(0, 1, 1); 
 
-                uint8 rotation = 0;
+                uint8 variation = 0;
                 uint8 dress = 0;
-                if (!EvaluateCoord(dressData, neighbors, dress, rotation))
+                if (!EvaluateCoord(dressData, neighbors, dress, variation))
                     continue;
                 
                 // Depending on neighbours, select config
-                QuatF rot = QuatF::FromEuler(Vec3F(0.0f, PI_FLOAT * static_cast<float>(rotation) * 0.5f, 0.0f)); 
                 Vec3F pos = volume.CoordToPos(Coord(x, y, z), world) - Vec3F::One();
                 if (dress == static_cast<uint8>(-1))
                 {
@@ -184,8 +202,10 @@ void SysVolumeDresser::Dress(ECS::EntityID InID)
                     continue;
                 }
 
+                QuatF rot = QuatF::FromEuler(Vec3F(0.0f, PI_FLOAT * static_cast<float>(variation) * 0.5f, 0.0f)); 
+                Vec3F scale = Vec3F(1.0f, 1.0f, 1.0f);//((variation > 3) ? -1.0f : 1.0f)); 
                 auto& entry = pending[dress]; 
-                entry.Arr.emplace_back(pos, rot, Vec3F(1.0f, 1.0f, 1.0f));
+                entry.Arr.emplace_back(pos, rot, scale);
 
                 // Update bounds
                 entry.MinBounds.x = MIN(entry.MinBounds.x, pos.x);
@@ -212,25 +232,26 @@ void SysVolumeDresser::Dress(ECS::EntityID InID)
         data.Instances = p.second.Arr;
         num += static_cast<int>(p.second.Arr.size());
     }
-    LOG("Dressing complete, instances: " + std::to_string(num));
+    LOG("Dressing complete. Took " + std::to_string(dressTimer.Ellapsed()) + "s. Instances: " + std::to_string(num));
 }
 
-bool SysVolumeDresser::EvaluateCoord(const Vector<DressEntry>& InDressData, const Array<uint8, 8>& InNeighbors, uint8& OutDress, uint8& OutRotation) const
+bool SysVolumeDresser::EvaluateCoord(const Vector<DressEntry>& InDressData, const Array<uint8, 8>& InNeighbors, uint8& OutDress, uint8& OutVariation) const
 {
     const auto Evaluate = [&](const Array<uint8, 8>& InValid, uint8 InResultingDress) {
         
-        const auto EvaluateRotation = [&](const uint8 InRotation) {
+        const auto EvaluateRotation = [&](const uint8 InVariation) {
             
             // Rotate array index
-            const auto RotationConvert = [&](const uint8 InIndex) {
-                const uint8 rot = ((InIndex % 4) + InRotation) % 4;
+            const auto VariationConvert = [&](const uint8 InIndex) {
+                const uint8 rot = ((InIndex % 4) + (InVariation % 4)) % 4;
+                //const uint8 flipped = (InVariation < 3) ? rot : (3 - rot);
                 const uint8 vert = ((InIndex / 4) * 4);
                 return static_cast<uint8>(rot + vert); 
             };
 
             // Compare array
             for (uint8 i = 0; i < 8; i++)
-                if (InValid[i] != InNeighbors[RotationConvert(i)])
+                if (InValid[VariationConvert(i)] != InNeighbors[i])
                     return false;
             return true; 
         };
@@ -240,16 +261,17 @@ bool SysVolumeDresser::EvaluateCoord(const Vector<DressEntry>& InDressData, cons
         {
             if (EvaluateRotation(rot))
             {
-                OutRotation = rot;
+                OutVariation = rot;
                 OutDress = InResultingDress;
-                LOG("Rotation: " + std::to_string(rot));
                 return true; 
             }
         }
         return false; 
     };
 
-    if (InNeighbors == Array<uint8, 8>({ 0, 0, 0, 0, 0, 0, 0, 0 }))
+    if (InNeighbors == Array<uint8, 8>({ 0, 0, 0, 0, 0, 0, 0, 0 }) ||
+        InNeighbors == Array<uint8, 8>({ 1, 1, 1, 1, 1, 1, 1, 1 }))
+        
         return false; 
 
     for (uint8 i = 0; i < InDressData.size(); i++)

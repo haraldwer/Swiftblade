@@ -28,7 +28,7 @@ namespace Rendering
     {
         friend class SceneRenderer; 
     public:
-        void SetCamera(const CameraInstance& InCamera, bool InUpdateFrustum);
+        void SetCamera(const CameraInstance& InCamera);
         const CameraInstance& GetCamera() const { return Cam; }
         
         void AddMesh(const MeshInstance& InMesh);
