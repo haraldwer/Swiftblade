@@ -40,6 +40,8 @@ void Physics::PersistentPhysics::TryInit()
 
     Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
     Dispatcher = PxDefaultCpuDispatcherCreate(0); 
+    
+    ScratchBlock = _aligned_malloc(ScratchBlockSize, ScratchBlockAlignment); 
 }
 
 Physics::PersistentPhysics::~PersistentPhysics()
@@ -55,6 +57,12 @@ Physics::PersistentPhysics::~PersistentPhysics()
         PX_RELEASE(PVD);
     }
     PX_RELEASE(Foundation);
+
+    if (ScratchBlock)
+    {
+        _aligned_free(ScratchBlock);
+        ScratchBlock = nullptr; 
+    }
 }
 
 void Physics::Manager::Init()
@@ -67,8 +75,8 @@ void Physics::Manager::Init()
     PxSceneDesc sceneDesc(Persistent.Physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, 0.0f, 0.0f); // Apply gravity manually
     sceneDesc.cpuDispatcher	= Persistent.Dispatcher;
-    sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
-    sceneDesc.staticKineFilteringMode = PxPairFilteringMode::eKEEP;
+    sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eSUPPRESS;
+    sceneDesc.staticKineFilteringMode = PxPairFilteringMode::eSUPPRESS;
     sceneDesc.filterShader = Callback::contactReportFilterShader;
     sceneDesc.simulationEventCallback = Callback; 
     
@@ -117,7 +125,11 @@ void Physics::Manager::Update(double InDelta) const
     PROFILE_SCOPE_END();
 
     PROFILE_SCOPE_BEGIN("Simulate");
-    Scene->simulate(static_cast<PxReal>(InDelta));
+    Scene->simulate(
+        static_cast<PxReal>(InDelta),
+        nullptr,
+        Persistent.ScratchBlock,
+        Persistent.ScratchBlockSize);
     Scene->fetchResults(true);
     PROFILE_SCOPE_END();
 

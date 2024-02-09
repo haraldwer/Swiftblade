@@ -48,6 +48,10 @@ namespace Physics
         physx::PxFoundation* Foundation = nullptr;
         physx::PxPhysics* Physics = nullptr;
         physx::PxDefaultCpuDispatcher* Dispatcher = nullptr;
+
+        static constexpr size_t ScratchBlockSize = 16384 * 2;
+        static constexpr size_t ScratchBlockAlignment = 16;
+        void* ScratchBlock = nullptr;
     };
     
     class Manager : public Utility::Singelton<Manager>

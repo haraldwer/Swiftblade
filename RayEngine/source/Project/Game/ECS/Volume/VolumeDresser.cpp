@@ -20,7 +20,7 @@ void SysVolumeDresser::Frame(ECS::EntityID InID, VolumeDresser& InComponent, dou
     auto& rs = Engine::Instance::Get().GetRenderScene(); 
     for (auto& mesh : InComponent.Instances)
         rs.AddMeshes(mesh.Mesh, mesh.Instances, mesh.MinBounds, mesh.MaxBounds);
-
+    
     for (const Vec3F& missing : InComponent.DebugMissing)
         Rendering::DebugSphere(missing, 0.5f);
 }
@@ -203,9 +203,8 @@ void SysVolumeDresser::Dress(ECS::EntityID InID, bool InRandomize)
                 }
 
                 QuatF rot = QuatF::FromEuler(Vec3F(0.0f, PI_FLOAT * static_cast<float>(variation) * 0.5f, 0.0f)); 
-                Vec3F scale = Vec3F(1.0f, 1.0f, 1.0f);//((variation > 3) ? -1.0f : 1.0f)); 
                 auto& entry = pending[dress]; 
-                entry.Arr.emplace_back(pos, rot, scale);
+                entry.Arr.emplace_back(pos, rot, Vec3F::One());
 
                 // Update bounds
                 entry.MinBounds.x = MIN(entry.MinBounds.x, pos.x);

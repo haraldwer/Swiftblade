@@ -43,6 +43,5 @@ namespace Physics
     public:
         static QueryResult Trace(const TraceParams& InParams);
         static QueryResult Sweep(const SweepParams& InParams);
-        static void GetChildEntities(const ECS::EntityID InParent, Set<ECS::EntityID>& OutSet); 
     };
 }

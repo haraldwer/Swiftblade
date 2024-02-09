@@ -61,8 +61,8 @@ namespace Utility
 			Matrix4x4(const Vector3<Type>& p, const Quaternion<Type>& q, const Vector3<Type>& s) : Matrix4x4()
 			{
 				SetPosition(p);
-				SetScale(s);
 				SetRotation(q);
+				SetScale(s);
 			}
 
 			Matrix4x4(const Vector3<Type>& p) : Matrix4x4()

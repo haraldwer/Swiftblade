@@ -246,6 +246,58 @@
 				1,
 				0
 			]
+		},{
+			"Name":"Wall_Corner_Overhang_Mirrored",
+			"Model":"Dressing\\M_Wall_Corner_Overhang_Mirrored.obj",
+			"Test":[
+				0,
+				0,
+				0,
+				1,
+				0,
+				0,
+				1,
+				1
+			]
+		},{
+			"Name":"Wall_Corner_Ledge_Mirrored",
+			"Model":"Dressing\\M_Wall_Corner_Ledge_Mirrored.obj",
+			"Test":[
+				0,
+				0,
+				1,
+				1,
+				0,
+				0,
+				0,
+				1
+			]
+		},{
+			"Name":"Ledge_Corner_Intersection",
+			"Model":"Dressing\\M_Ledge_Corner_Intersection.obj",
+			"Test":[
+				0,
+				1,
+				1,
+				1,
+				0,
+				0,
+				0,
+				1
+			]
+		},{
+			"Name":"Ledge_Corner_Intersection_Mirrored",
+			"Model":"Dressing\\M_Ledge_Corner_Intersection_Mirrored.obj",
+			"Test":[
+				1,
+				0,
+				1,
+				1,
+				0,
+				0,
+				1,
+				0
+			]
 		}
 	]
 }

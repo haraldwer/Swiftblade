@@ -37,7 +37,8 @@ namespace Physics
                 }
 
                 // Both kinematic
-                // if (physx::PxFilterObjectIsKinematic(attributes0) && physx::PxFilterObjectIsKinematic(attributes1))
+                if (physx::PxFilterObjectIsKinematic(attributes0) && physx::PxFilterObjectIsKinematic(attributes1))
+                    return physx::PxFilterFlag::eKILL;
                 
                 // Normal
                 pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT
@@ -55,14 +56,20 @@ namespace Physics
             PX_UNUSED((pairHeader));
             for (physx::PxU32 i = 0; i < nbPairs; i++)
             {
+                const bool found = pairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+                const bool lost = pairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
+                if (!found && !lost)
+                    continue; 
+
+                // Create contact struct
                 Contact c;
                 const void* userData0 = pairs[i].shapes[0]->userData;
                 const void* userData1 = pairs[i].shapes[1]->userData;
                 c.Target = ECS::PtrToEntity(userData0);
                 c.Self = ECS::PtrToEntity(userData1);
-                
-                const physx::PxU32 contactCount = pairs[i].contactCount;
-                if (contactCount)
+
+                // Get contact points 
+                if (const physx::PxU32 contactCount = pairs[i].contactCount)
                 {
                     static Vector<physx::PxContactPairPoint> contactPoints;
                     contactPoints.resize(contactCount);
@@ -78,10 +85,8 @@ namespace Physics
                 }
                 
                 // Send contact to gameplay!
-                if (pairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
-                    RegisterContact(c, Contact::Event::BEGIN);
-                if (pairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
-                    RegisterContact(c, Contact::Event::END);
+                if (found) RegisterContact(c, Contact::Event::BEGIN);
+                if (lost) RegisterContact(c, Contact::Event::END);
             }
         }
         
@@ -89,19 +94,22 @@ namespace Physics
         {
             for (physx::PxU32 i = 0; i < count; i++)
             {
+                const bool found = pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+                const bool lost = pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
+                if (!found && !lost)
+                    continue; 
+                
+                // Create contact struct
+                Contact c;
                 const physx::PxShape* triggeredShape = pairs[i].triggerShape;
                 const physx::PxShape* triggerActivator = pairs[i].otherShape;
-				
-                Contact c;
                 c.Self = ECS::PtrToEntity(triggerActivator->userData);
                 c.Target = ECS::PtrToEntity(triggeredShape->userData);
                 c.IsTrigger = true;
 
                 // Send contact to gameplay!
-                if (pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
-                    RegisterContact(c, Contact::Event::BEGIN);
-                if (pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
-                    RegisterContact(c, Contact::Event::END);
+                if (found) RegisterContact(c, Contact::Event::BEGIN);
+                if (lost) RegisterContact(c, Contact::Event::END);
             }
         }
 
@@ -131,7 +139,7 @@ namespace Physics
                         sys.second->OnEndContact(InContact);
                         break;
                     }
-                }                
+                }
             };
 
             func(InContact, InEvent);

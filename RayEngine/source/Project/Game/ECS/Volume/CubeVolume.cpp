@@ -253,7 +253,6 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent, double InDelta)
 {
-    return; 
     // Calculate bounds
     const Mat4F world = Get<Transform>(InComponent.GetID()).World();
     const Coord minCoord = Coord(
