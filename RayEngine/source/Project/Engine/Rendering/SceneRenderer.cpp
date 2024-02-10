@@ -125,7 +125,7 @@ void Rendering::SceneRenderer::DrawInstances(const Mesh& InMesh, const Shader& I
     //-----------------------------------------------------
     rlEnableShader(InShader.id);
         
-    const int cameraPos = GetShaderLocation(InShader, "cameraPosition");
+    const int cameraPos = GetShaderLocation(InShader, "CameraPosition");
     SetShaderValue(InShader, cameraPos, InCameraPosition.data, SHADER_UNIFORM_VEC3);
     
     // Get a copy of current matrices to work with,
@@ -294,8 +294,10 @@ void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, con
     InSceneTarget.Bind(*shader, 0);
     
     // Set uniforms
-    const int cameraPos = GetShaderLocation(*shader, "cameraPosition");
+    const int cameraPos = GetShaderLocation(*shader, "CameraPosition");
     SetShaderValue(*shader, cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3);
+    const int resolution = GetShaderLocation(*shader, "Resolution");
+    SetShaderValue(*shader, resolution, InSceneTarget.Size().data, SHADER_UNIFORM_VEC2);
     
     // Draw fullscreen quad
     rlLoadDrawQuad();

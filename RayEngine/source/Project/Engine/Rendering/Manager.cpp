@@ -138,16 +138,6 @@ void Manager::EndFrame()
 void Manager::ApplyConfig(const Config& InConfig)
 {
     CurrConfig = InConfig;
-    
-    unsigned flags = 0;
-    if (InConfig.Fullscreen)
-        flags |= FLAG_FULLSCREEN_MODE;
-    if (InConfig.VSync)
-        flags |= FLAG_VSYNC_HINT;
-    if (InConfig.MSAA)
-        flags |= FLAG_MSAA_4X_HINT;
-    flags |= FLAG_WINDOW_ALWAYS_RUN;
-    SetWindowState(flags);
 
     // Create window
     if (IsWindowReady())
@@ -156,6 +146,16 @@ void Manager::ApplyConfig(const Config& InConfig)
         CurrConfig.Width,
         CurrConfig.Height,
         "RayEngine");
+    
+    unsigned flags = 0;
+    if (InConfig.Fullscreen)
+        flags |= FLAG_BORDERLESS_WINDOWED_MODE;
+    if (InConfig.VSync)
+        flags |= FLAG_VSYNC_HINT;
+    if (InConfig.MSAA)
+        flags |= FLAG_MSAA_4X_HINT;
+    flags |= FLAG_WINDOW_ALWAYS_RUN;
+    SetWindowState(flags);
     
     SetTargetFPS(InConfig.TargetFPS);
 

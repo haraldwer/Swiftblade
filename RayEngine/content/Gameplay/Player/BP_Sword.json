@@ -16,7 +16,9 @@
 			"Overrides":{
 				"Components":[{
 						"Name":"Mesh",
-						"Data":{}
+						"Data":{
+							"Material":"Gameplay\\Player\\RM_Sword.json"
+						}
 					},{
 						"Name":"Attributes",
 						"Data":{

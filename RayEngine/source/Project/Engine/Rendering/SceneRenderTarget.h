@@ -18,7 +18,8 @@ public:
     void Bind(const Shader& InShader, int InStartSlot) const;
     
     const Vector<Buffer>& GetBuffers() const { return Buffers; }
-
+    Vec2F Size() const { return { static_cast<float>(Width), static_cast<float>(Height) }; }
+    
 private: 
 
     void CreateBuffer(const String& InName, PixelFormat InPixelFormat);

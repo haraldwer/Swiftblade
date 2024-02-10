@@ -20,7 +20,7 @@ void SceneRenderTarget::TrySetup(const RenderTexture& InRenderTexture)
     
     // Create the textures
     CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
-    CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+    CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
     CreateBuffer("TexColor", PIXELFORMAT_UNCOMPRESSED_R4G4B4A4);
     
     // Attach to framebuffer
