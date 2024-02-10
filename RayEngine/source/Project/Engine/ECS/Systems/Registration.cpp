@@ -19,6 +19,7 @@
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 #include "Game/ECS/Player/Player.h"
+#include "Game/ECS/Player/Animation/Animator.h"
 #include "Game/ECS/Player/Weapon/Weapon.h"
 #include "Game/ECS/Player/Combat/Combat.h"
 
@@ -65,6 +66,7 @@ SystemToName[var] = String(#x); }
     REG_UNIQUE_COMPONENT(PlayerCamera);
     REG_UNIQUE_COMPONENT(Weapon);
     REG_UNIQUE_COMPONENT(Combat);
+    REG_UNIQUE_COMPONENT(Animator);
     
 #undef REG_ENTITY_SYSTEM
 #undef REG_UNIQUE_COMPONENT

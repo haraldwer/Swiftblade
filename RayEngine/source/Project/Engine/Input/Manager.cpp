@@ -1,5 +1,4 @@
 ﻿#include "Manager.h"
-#include "Engine/Profiling/Manager.h"
 #include "Engine/Rendering/Manager.h"
 
 #include "ImGui/imgui.h"
@@ -26,9 +25,20 @@ void Input::Manager::Pop(const String& InContext)
     CHECK_ASSERT(true, "Failed to pop context"); 
 }
 
-const Input::Action& Input::Manager::Action(const String& InAction, const String& InContext) const
+
+const Input::Action& Input::Manager::GetAction(const String& InAction, const String& InContext) const
 {
-    PROFILE_SCOPE_BEGIN("Input Action")
+    if (!InContext.empty())
+        return GetActionInternal(InAction, InContext);
+    if (auto& playerAction = GetActionInternal(InAction, "Player"))
+        return playerAction;
+    if (auto& defaultAction = GetActionInternal(InAction, "Default"))
+        return defaultAction;
+    return Action::Invalid();
+}
+
+const Input::Action& Input::Manager::GetActionInternal(const String& InAction, const String& InContext) const
+{
     CHECK_ASSERT(ContextStack.empty(), "Stack empty")
     for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
     {
@@ -38,15 +48,11 @@ const Input::Action& Input::Manager::Action(const String& InAction, const String
             // Find action
             auto actionFind = context.CachedActions.find(InAction);
             if (actionFind != context.CachedActions.end())
-            {
-                PROFILE_SCOPE_END();
                 return context.Actions.Get()[actionFind->second];
-            } 
         }
         if (context.Blocking)
             break; 
     }
-    PROFILE_SCOPE_END();
     return Action::Invalid();
 }
 

@@ -1,9 +1,7 @@
 {
 	"OpenWindows":[
 		"Blueprint Editor",
-		"Profiler",
 		"Room Editor",
-		"Scene Rendering",
 		"Viewport"
 	]
 }

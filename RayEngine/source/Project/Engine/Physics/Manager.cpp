@@ -5,10 +5,9 @@
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "Engine/Profiling/Profile.h"
 
 // Main physx includes
-#include "Engine/Profiling/Manager.h"
-
 #include "Utility/PhysXUtility.h"
 #include "physx/PxPhysicsAPI.h"
 

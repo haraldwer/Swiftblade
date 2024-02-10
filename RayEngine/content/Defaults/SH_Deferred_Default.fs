@@ -29,7 +29,7 @@ vec4 EdgeDetection(vec3 InWorldPosition, vec3 InWorldNormal, vec3 InOriginalColo
     float value = 0.0f;
     float totalValue = 0.0f;
     
-    int samples = 32;
+    int samples = 16;
     float maxOffset = 5.0f;
     for (int i = 0; i < samples; i++)
     {

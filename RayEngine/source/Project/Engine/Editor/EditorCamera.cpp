@@ -66,12 +66,12 @@ void EditorCamera::Toggle()
 void EditorCamera::UpdateMovement(double InDelta)
 {
     auto& man = Input::Manager::Get();
-    const bool ctrl = man.Action("Control", "EditorCamera").Down(); 
+    const bool ctrl = man.GetAction("Control", "EditorCamera").Down(); 
     
     // Calculate rotation
     const Vec2F mouseDelta = {
-        man.Action("LookHorizontal", "EditorCamera").Axis(),
-        man.Action("LookVertical", "EditorCamera").Axis()
+        man.GetAction("LookHorizontal", "EditorCamera").Axis(),
+        man.GetAction("LookVertical", "EditorCamera").Axis()
     };
     TargetState.Rotation +=
         Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.0025f *
@@ -92,21 +92,21 @@ void EditorCamera::UpdateMovement(double InDelta)
     // Add position
     const Vec3F posDelta =
         (up * (
-            static_cast<float>(man.Action("Up", "EditorCamera").Down()) -
-            static_cast<float>(man.Action("Down", "EditorCamera").Down())) +
+            static_cast<float>(man.GetAction("Up", "EditorCamera").Down()) -
+            static_cast<float>(man.GetAction("Down", "EditorCamera").Down())) +
         right * (
-            static_cast<float>(man.Action("Right", "EditorCamera").Down()) -
-            static_cast<float>(man.Action("Left", "EditorCamera").Down())) +
+            static_cast<float>(man.GetAction("Right", "EditorCamera").Down()) -
+            static_cast<float>(man.GetAction("Left", "EditorCamera").Down())) +
         forward * (
-            static_cast<float>(man.Action("Forward", "EditorCamera").Down()) -
-            static_cast<float>(man.Action("Backward", "EditorCamera").Down()))) * 
+            static_cast<float>(man.GetAction("Forward", "EditorCamera").Down()) -
+            static_cast<float>(man.GetAction("Backward", "EditorCamera").Down()))) * 
         static_cast<float>(!ctrl);
     TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * TargetState.MovementSpeed;
     
     // FOV
     TargetState.FOV += (
-            static_cast<float>(man.Action("IncreaseFOV", "EditorCamera").Down()) -
-            static_cast<float>(man.Action("DecreaseFOV", "EditorCamera").Down())) *
+            static_cast<float>(man.GetAction("IncreaseFOV", "EditorCamera").Down()) -
+            static_cast<float>(man.GetAction("DecreaseFOV", "EditorCamera").Down())) *
         static_cast<float>(!ctrl) * 
         static_cast<float>(InDelta) * 30.0f;
 

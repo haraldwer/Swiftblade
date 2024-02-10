@@ -1,5 +1,4 @@
 #include "Manager.h"
-#include "Engine/Profiling/Manager.h"
 
 #include <algorithm>
 #include <unordered_map>
@@ -7,6 +6,7 @@
 #include "System.h"
 #include "Systems/Attributes.h"
 #include "Systems/Transform.h"
+#include "Engine/Profiling/Profile.h"
 
 using namespace ECS; 
 

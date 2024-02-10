@@ -84,13 +84,13 @@ Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
 
 Physics::QueryResult Physics::Query::Sweep(const SweepParams& InParams)
 {
-    Vec3F diff = (InParams.End - InParams.Start);
-    Vec3F dir = diff.GetNormalized();
-    float length = diff.Length();
+    const Vec3F diff = (InParams.End - InParams.Start);
+    const Vec3F dir = diff.GetNormalized();
+    const float length = diff.Length();
     
     QueryResult result;
     
-    physx::PxGeometry* geometry = Manager::GetGeometry(InParams.Shape, InParams.ShapeData, InParams.Pose.GetScale());
+    const physx::PxGeometry* geometry = Manager::GetGeometry(InParams.Shape, InParams.ShapeData, InParams.Pose.GetScale());
     CHECK_RETURN(!geometry, result);
 
     const physx::PxTransform pose = physx::PxTransform(
@@ -101,16 +101,22 @@ Physics::QueryResult Physics::Query::Sweep(const SweepParams& InParams)
     physx::PxSweepHit hits[numHits];
     physx::PxSweepBuffer buff(hits, numHits);
     
-    physx::PxHitFlags flags = physx::PxHitFlag::eDEFAULT;
-    physx::PxQueryFilterData filterData;
-    filterData.flags |= physx::PxQueryFlag::ePREFILTER; // Enable filter 
-    static QueryFilter filter;
+    const physx::PxHitFlags flags = physx::PxHitFlag::eDEFAULT;
+    const physx::PxQueryFlags queryFlags = 
+        physx::PxQueryFlag::eSTATIC |
+        physx::PxQueryFlag::eDYNAMIC |
+        physx::PxQueryFlag::ePREFILTER; // Enable filter 
+    const physx::PxQueryFilterData filterData =
+        physx::PxQueryFilterData(queryFlags);
+    
+    QueryFilter filter;
     filter.SetIgnoredEntities(InParams.IgnoredEntities);
     physx::PxQueryFilterCallback* filterCallback = &filter;
     
     // TODO: Filtering
-    CHECK_ASSERT(!Manager::Get().Scene, "Invalid scene");
-    Manager::Get().Scene->sweep(
+    auto scene = Manager::Get().Scene;
+    CHECK_ASSERT(!scene, "Invalid scene");
+    scene->sweep(
         *geometry,
         pose,
         Utility::PhysX::ConvertVec(dir),
@@ -120,21 +126,21 @@ Physics::QueryResult Physics::Query::Sweep(const SweepParams& InParams)
         filterData,
         filterCallback);
 
+    result.IsHit = buff.nbTouches > 0;
+    result.Hits.reserve(buff.nbTouches);
     for (int i = 0; i < static_cast<int>(buff.nbTouches); i++)
     {
-        auto& touch = buff.touches[i];
-
+        const physx::PxSweepHit& touch = buff.touches[i];
+        
         if (!(static_cast<uint8>(touch.shape->getFlags()) &
             static_cast<uint8>(physx::PxShapeFlag::eSCENE_QUERY_SHAPE)))
                 continue;
 
-        auto& hit = result.Hits.emplace_back(); 
+        QueryResult::Hit& hit = result.Hits.emplace_back(); 
         hit.Distance = touch.distance;
         hit.Position = Utility::PhysX::ConvertVec(touch.position);
         hit.Normal = Utility::PhysX::ConvertVec(touch.normal);
         hit.Entity = ECS::PtrToEntity(touch.shape->userData);
-        result.Hits.push_back(hit);
-        result.IsHit = true;
     }
 
     return result;

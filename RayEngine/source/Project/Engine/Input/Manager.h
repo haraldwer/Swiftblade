@@ -16,13 +16,14 @@ namespace Input
         
         void Push(const String& InContext);
         void Pop(const String& InContext);
-        
-        const Action& Action(const String& InAction, const String& InContext) const;
+
+        const Action& GetAction(const String& InAction, const String& InContext = "") const;
 
         String DebugWindowName() const override { return "Input"; }
         void DrawDebugWindow() override;
 
     private:
+        const Action& GetActionInternal(const String& InAction, const String& InContext) const;
 
         void UpdateCursorState();
         const Context& GetContext(const String& InName) const;

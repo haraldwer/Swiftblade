@@ -6,6 +6,7 @@
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
+#include "Engine/Profiling/Profile.h"
 #include "Engine/Rendering/Debug/Draw.h"
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "Utility/Math/AngleConversion.h"
@@ -30,9 +31,11 @@ void ECS::Movement::Deinit()
 void ECS::Movement::Update(double InDelta)
 {
     GroundSnap();
-    
+
+    PROFILE_SCOPE_BEGIN("StateMachine");
     if (StateMachine)
         StateMachine->Update(InDelta);
+    PROFILE_SCOPE_END();
 }
 
 void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
@@ -189,9 +192,11 @@ double ECS::Movement::TimeSinceLeftGround() const
 }
 
 void ECS::Movement::GroundSnap()
-{    
+{
     CHECK_RETURN(!OnGround);
     CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
+    
+    PROFILE_SCOPE_BEGIN("GroundSnap");
     
     OnGround = false;
     
@@ -214,36 +219,46 @@ void ECS::Movement::GroundSnap()
         Rendering::DebugCapsule(params.Start, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, RED); 
         Rendering::DebugCapsule(params.End, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, BLUE);
     }
+
     
-    // Sweep 
+    // Sweep
+    PROFILE_SCOPE_BEGIN("Sweep");
     const Physics::QueryResult result = Physics::Query::Sweep(params);
-    CHECK_RETURN(!result.IsHit);
-    for (auto hit : result.DistanceSorted())
+    PROFILE_SCOPE_END();
+    
+    PROFILE_SCOPE_BEGIN("ProcessHits");
+    if (result.IsHit);
     {
-        if (CheckGroundHit(hit.Normal))
+        for (auto hit : result.DistanceSorted())
         {
-            // Set location
-            OnGround = true;
-            GroundTimestamp = GetTime(); 
+            if (CheckGroundHit(hit.Normal))
+            {
+                // Set location
+                OnGround = true;
+                GroundTimestamp = GetTime(); 
     
-            const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.Distance; 
-            transform.SetPosition(newPos);
+                const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.Distance; 
+                transform.SetPosition(newPos);
     
-            // Flatten velocity
-            auto& rb = GetRB();
-            Vec3F vel = rb.GetVelocity(); 
-            rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
+                // Flatten velocity
+                auto& rb = GetRB();
+                Vec3F vel = rb.GetVelocity(); 
+                rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
             
-            if (debugDraw)
-                Rendering::DebugCapsule(
-                    transform.GetPosition(),
-                    params.Pose.GetRotation(),
-                    params.ShapeData.x,
-                    params.ShapeData.y,
-                    GREEN);
-            return;
-        } 
+                if (debugDraw)
+                    Rendering::DebugCapsule(
+                        transform.GetPosition(),
+                        params.Pose.GetRotation(),
+                        params.ShapeData.x,
+                        params.ShapeData.y,
+                        GREEN);
+                break;
+            } 
+        }
     }
+    PROFILE_SCOPE_END();
+
+    PROFILE_SCOPE_END();
 }
 
 bool ECS::Movement::CheckGroundHit(const Vec3F& InNormal) const

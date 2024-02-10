@@ -8,10 +8,12 @@ void ECS::PlayerInput::Update(double InDelta)
 {
     auto& trans = Get<Transform>(GetID());
 
+    Input::Manager& man = Input::Manager::Get(); 
+    
     // Camera rotation
     const Vec2F mouseDelta = {
-        Input::Action::Get("LookHorizontal").Axis(),
-        Input::Action::Get("LookVertical").Axis()
+        man.GetAction("LookHorizontal").Axis(),
+        man.GetAction("LookVertical").Axis()
     };
     
     Vec2F rotDelta = Vec2F(mouseDelta.y, mouseDelta.x * -1.0f) * Sensitivity.Get();
@@ -24,12 +26,12 @@ void ECS::PlayerInput::Update(double InDelta)
     
     // Movement input
     const Vec3F input =
-        right * (static_cast<float>(Input::Action::Get("Right").Down()) - static_cast<float>(Input::Action::Get("Left").Down())) +
-        forward * (static_cast<float>(Input::Action::Get("Forward").Down()) - static_cast<float>(Input::Action::Get("Backward").Down()));
+        right * (static_cast<float>(man.GetAction("Right").Down()) - static_cast<float>(man.GetAction("Left").Down())) +
+        forward * (static_cast<float>(man.GetAction("Forward").Down()) - static_cast<float>(man.GetAction("Backward").Down()));
     MoveInput = input.xz;
 
-    JumpInput = Input::Action::Get("Jump").Down();
-    CrouchInput = Input::Action::Get("Crouch").Down();
-    DashInput = Input::Action::Get("Dash").Down();
+    JumpInput = man.GetAction("Jump").Down();
+    CrouchInput = man.GetAction("Crouch").Down();
+    DashInput = man.GetAction("Dash").Down();
 }
 

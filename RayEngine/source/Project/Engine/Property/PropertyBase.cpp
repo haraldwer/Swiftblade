@@ -4,7 +4,8 @@
 
 PropertyBase::PropertyBase(const String& InName) : Name(InName)
 {
-    PropertyOwnerBase::AddProperty(this); 
+    if (!ConstructingProperty)
+        PropertyOwnerBase::AddProperty(this); 
 }
 
 const String& PropertyBase::GetName() const

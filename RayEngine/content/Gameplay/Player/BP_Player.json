@@ -1,5 +1,8 @@
 {
 	"Components":[{
+			"Name":"Animator",
+			"Data":{}
+		},{
 			"Name":"Attributes",
 			"Data":{
 				"Name":"Player"

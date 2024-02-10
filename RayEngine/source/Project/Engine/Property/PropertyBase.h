@@ -13,6 +13,10 @@ public:
     
     virtual bool operator==(const PropertyBase& InOther) const;
 
+protected:
+    static inline bool ConstructingProperty = false;
+    
 private:
-    String Name; // Should the property know about its own name?  
+    String Name; // Should the property know about its own name?
+
 };

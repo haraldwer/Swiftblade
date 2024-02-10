@@ -20,7 +20,7 @@ class MovementStateMachine : public StateMachine
 {
 public:
 
-    void Init();
+    void Init() override;
     
     Utility::Type GetDefaultStateType() override { return Utility::GetType<MovementStateIdle>(); }    
     

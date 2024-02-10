@@ -3,7 +3,7 @@
 #include "raymath.h"
 #include "RenderScene.h"
 #include "rlgl.h"
-#include "Engine/Profiling/Manager.h"
+#include "Engine/Profiling/Profile.h"
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
 #include "Utility/RayUtility.h"

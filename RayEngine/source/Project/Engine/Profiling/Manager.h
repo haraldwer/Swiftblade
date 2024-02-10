@@ -39,6 +39,3 @@ namespace Profiling
         Utility::Timer UpdateStatTimer;
     };
 }
-
-#define PROFILE_SCOPE_BEGIN(name) { Profiling::Manager::Get().Begin(name, String(__FUNCTION__) + "::" + std::to_string(__LINE__)); }
-#define PROFILE_SCOPE_END() { Profiling::Manager::Get().End(); }

@@ -3,6 +3,7 @@
 #include "Engine/Editor/Debugging/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Profiling/Manager.h"
+#include "Engine/Profiling/Profile.h"
 #include "Engine/Rendering/Manager.h"
 #include "Engine/Resource/Manager.h"
 
