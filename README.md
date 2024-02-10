@@ -1,11 +1,35 @@
+# Introduction
+Swiftblade is a first-person movement-focused speedrunning game.
+
+The game runs in a home-made engine that I call RayEngine, which I've built using Raylib, a C library for making games. 
+Complete list of libraries / tools used:
+ - Raylib 5.0
+ - PhysX 5.1.0
+ - Nakama 3.20.1
+ - ImGui (docking branch)
+ - rapidjson
+ - Blender (for modelling)
+ - Rider (IDE)
+
+Here are some features of the engine: 
+ - Dense, single-threaded ECS
+ - Property serialization
+ - Deferred rendering
+ - A custom UI library
+ - Resource management with hot reloading
+ - Isolated engine instances
+ - Fixed tick rate
+ - A basic profiler
+ - An input manager with input mapping
 
 # Prerequsites
 - CMake
 - A c++ compiler
 
 # Setup
-1. Call gen.bat
-2. Open the project
+1. Call ``RayEngine/gen.bat`` 
+2. Open ``RayEngine/build/RayEngine.sln``
+Or call CMake manually.
 
 # Standards
 Code: 
@@ -34,13 +58,13 @@ namespace Context
 ```
 Files:
 ```
-Folder
+content/Folder
 	FileName.h
 	FileName.cpp
 	FileName.hpp
 ```
 
-# Principles
+## Principles
 No external dependencies
 Interactions limited to sandbox environments
 Examples:
