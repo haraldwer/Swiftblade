@@ -7,7 +7,7 @@ class Weapon;
 namespace ECS
 {
     struct Transform;
-    struct Camera;
+    struct CameraComponent;
     struct Rigidbody;
     struct Collider;
     
@@ -35,7 +35,7 @@ namespace ECS
         Collider& GetCollider() const;
         Rigidbody& GetRB() const;
         PlayerCamera& GetPlayerCamera() const;
-        Camera& GetCamera() const;
+        CameraComponent& GetCamera() const;
         Weapon* GetSword() const;
 
         static double GetTime();

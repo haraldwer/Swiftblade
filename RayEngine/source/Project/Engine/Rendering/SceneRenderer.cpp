@@ -72,7 +72,7 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
     MeshDrawCount = 0; 
     for (auto& entry : InScene.Meshes.Entries)
     {
-        const Mesh* meshes = nullptr;
+        const ::Mesh* meshes = nullptr;
         int32 meshCount = 0;
         if (const auto resModel = entry.second.Model.Get())
         {
@@ -117,7 +117,7 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
     PROFILE_SCOPE_END()
 }
 
-void Rendering::SceneRenderer::DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition)
+void Rendering::SceneRenderer::DrawInstances(const ::Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition)
 {
     int instances = static_cast<int>(InMatrices.size());
     

@@ -5,6 +5,9 @@
 
 namespace Input
 {
+    class Manager;
+    struct Context;
+    
     enum class State
     {
         UP,
@@ -24,8 +27,8 @@ namespace Input
     
     struct Action : PropertyOwner<Action>
     {
-        friend class Manager; 
-        friend struct Context; 
+        friend Manager; 
+        friend Context; 
         
         bool Pressed() const { return Key >= 0 && State == State::PRESSED; }
         bool Down()  const { return Key >= 0 && State == State::PRESSED || State == State::DOWN; } 

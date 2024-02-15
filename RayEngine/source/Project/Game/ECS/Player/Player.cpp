@@ -1,7 +1,7 @@
 #include "Player.h"
 
 #include "PlayerInput.h"
-#include "Engine/ECS/Systems/Camera.h"
+#include "Engine/ECS/Systems/CameraComponent.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
@@ -28,7 +28,7 @@ void ECS::Player::Init()
     {
         if (TryGet<Collider>(child))
             ColliderID = child;
-        if (TryGet<Camera>(child))
+        if (TryGet<CameraComponent>(child))
             CameraID = child; 
     }
 

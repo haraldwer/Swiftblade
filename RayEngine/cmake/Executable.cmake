@@ -9,7 +9,8 @@ add_executable(${PROJECT_NAME} ${sources})
 # Compile options
 set_target_properties(${PROJECT_NAME} 
   PROPERTIES 
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/)
+    UNITY_BUILD true) # Unity builds
+target_compile_options(${PROJECT_NAME} PUBLIC /MP) # Multithreading
 
 # Copy DLL files to exe folder
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

@@ -7,7 +7,7 @@
 #include "Weapon/Weapon.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/ECS/Systems/Camera.h"
+#include "Engine/ECS/Systems/CameraComponent.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Game/GameState.h"
@@ -82,9 +82,9 @@ ECS::PlayerCamera& ECS::PlayerInterface::GetPlayerCamera() const
     return *ptr;
 }
 
-ECS::Camera& ECS::PlayerInterface::GetCamera() const
+ECS::CameraComponent& ECS::PlayerInterface::GetCamera() const
 {
-    auto* ptr = Manager::Get().GetComponent<Camera>(GetPlayer().GetCameraID());
+    auto* ptr = Manager::Get().GetComponent<CameraComponent>(GetPlayer().GetCameraID());
     CHECK_ASSERT(!ptr, "Invalid camera");
     return *ptr;
 }

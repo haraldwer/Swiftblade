@@ -8,9 +8,7 @@
 #include "ImGui\imgui_themes.h"
 #include "Engine/Editor/Gizmo/ImGuizmo.h"
 
-using namespace Rendering;
-
-void Manager::Init()
+void Rendering::Manager::Init()
 {
     CurrConfig.LoadConfig();
     ApplyConfig(CurrConfig); 
@@ -22,30 +20,30 @@ void Manager::Init()
     SetExitKey(KEY_F4);
 }
 
-void Manager::Deinit()
+void Rendering::Manager::Deinit()
 {
     Renderer = SceneRenderer(); 
     rlImGuiShutdown();
     CloseWindow();
 }
 
-bool Manager::ShouldClose()
+bool Rendering::Manager::ShouldClose()
 {
     return WindowShouldClose();
 }
 
-void Manager::BeginVirtualFrame()
+void Rendering::Manager::BeginVirtualFrame()
 {
     BeginTextureMode(VirtualTarget);
     ClearBackground(BLACK);
 }
 
-void Manager::EndVirtualFrame()
+void Rendering::Manager::EndVirtualFrame()
 {
     EndTextureMode();
 }
 
-void Manager::DrawDebugWindow()
+void Rendering::Manager::DrawDebugWindow()
 {
     // Adjust size
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
@@ -71,12 +69,12 @@ void Manager::DrawDebugWindow()
     ViewportPosition = { vMin.x + windowPos.x, vMin.y + windowPos.y };
 }
 
-void Manager::SubmitScene(const RenderScene& InScene)
+void Rendering::Manager::SubmitScene(const RenderScene& InScene)
 {
     Renderer.Render(InScene, VirtualTarget); 
 }
 
-void Manager::BeginFrame()
+void Rendering::Manager::BeginFrame()
 {
     BeginDrawing(); 
 
@@ -128,14 +126,14 @@ void Manager::BeginFrame()
     ImGuizmo::BeginFrame();
 }
 
-void Manager::EndFrame()
+void Rendering::Manager::EndFrame()
 {
     ImGui::PopDefaultFont(); 
     rlImGuiEnd();
     EndDrawing();
 }
 
-void Manager::ApplyConfig(const Config& InConfig)
+void Rendering::Manager::ApplyConfig(const Config& InConfig)
 {
     CurrConfig = InConfig;
 
@@ -166,7 +164,7 @@ void Manager::ApplyConfig(const Config& InConfig)
     CurrConfig.SaveConfig();
 }
 
-Vec2F Manager::GetWindowSize() const
+Vec2F Rendering::Manager::GetWindowSize() const
 {
     return {
         static_cast<float>(CurrConfig.Width),
@@ -174,17 +172,17 @@ Vec2F Manager::GetWindowSize() const
     };
 }
 
-Vec2F Manager::GetViewportSize() const
+Vec2F Rendering::Manager::GetViewportSize() const
 {
     return ViewportSize; 
 }
 
-Vec2F Manager::GetViewportPosition() const
+Vec2F Rendering::Manager::GetViewportPosition() const
 {
     return ViewportPosition; 
 }
 
-Vec2F Manager::GetResolution() const
+Vec2F Rendering::Manager::GetResolution() const
 {
     return {
         static_cast<float>(RenderResolution.width),
@@ -192,7 +190,7 @@ Vec2F Manager::GetResolution() const
     };
 }
 
-void Manager::SetViewportSize(const int InUnscaledWidth, const int InUnscaledHeight)
+void Rendering::Manager::SetViewportSize(const int InUnscaledWidth, const int InUnscaledHeight)
 {
     OnSetViewportSize data;
     data.PreviousRenderResolution = RenderResolution;

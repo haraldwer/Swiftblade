@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include "CameraComponent.h"
 
 #include "Transform.h"
 #include "Engine/Rendering/Debug/Draw.h"
@@ -7,7 +7,7 @@
 
 using namespace ECS; 
 
-void SysCamera::Update(EntityID InEntity, Camera& InComponent, double InDelta)
+void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent, double InDelta)
 {
     const Transform& t = Get<Transform>(InEntity);
     const CameraInstance c {

@@ -28,6 +28,8 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
   endif()
 endif()
 
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
+
 # Projects
 add_subdirectory(source/ImGui)
 add_subdirectory(source/Project)

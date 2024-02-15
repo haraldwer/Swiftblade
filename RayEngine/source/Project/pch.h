@@ -49,6 +49,7 @@
 #define RAYGUI_IMPLEMENTATION
 #define IMGUI_IMPLEMENTATION
 #define IMGUI_DISABLE_WIN32_FUNCTIONS
+#define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <set>
 #include <array>

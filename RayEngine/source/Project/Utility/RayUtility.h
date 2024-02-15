@@ -57,9 +57,9 @@ namespace Utility
             return con; 
         }
 
-        inline Camera ConvertCamera(const CameraInstance& InCamera)
+        inline ::Camera ConvertCamera(const CameraInstance& InCamera)
         {
-            Camera cam;
+            ::Camera cam;
             cam.fovy = InCamera.FOV;
             cam.position = ConvertVec(InCamera.Position);
             cam.projection = CAMERA_PERSPECTIVE;

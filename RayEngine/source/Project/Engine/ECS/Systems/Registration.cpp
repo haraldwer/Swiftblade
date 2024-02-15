@@ -5,7 +5,7 @@
 
 #include "Mesh.h"
 #include "Transform.h"
-#include "Camera.h"
+#include "CameraComponent.h"
 #include "Collider.h"
 #include "Rigidbody.h"
 #include "Game/ECS/Checkpoint.h"
@@ -45,7 +45,7 @@ SystemToName[var] = String(#x); }
     REG_ENTITY_SYSTEM(Attributes);
     REG_ENTITY_SYSTEM(Transform);
     REG_ENTITY_SYSTEM(Mesh);
-    REG_ENTITY_SYSTEM(Camera);
+    REG_ENTITY_SYSTEM(CameraComponent);
     REG_ENTITY_SYSTEM(Collider);
     REG_ENTITY_SYSTEM(Rigidbody);
 

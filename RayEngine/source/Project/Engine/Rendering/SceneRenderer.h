@@ -15,7 +15,7 @@ namespace Rendering
         
     private:
         void DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
-        static void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition);
+        static void DrawInstances(const ::Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition);
         static void DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, const ResShader& InShader);
         void DrawDebug(const RenderScene& InScene);
 
