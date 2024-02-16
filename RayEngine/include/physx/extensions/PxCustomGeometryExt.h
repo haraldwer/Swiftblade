@@ -32,8 +32,8 @@
   @{
 */
 
-#include <physx/geometry/PxCustomGeometry.h>
-#include <physx/geometry/PxGjkQuery.h>
+#include <geometry/PxCustomGeometry.h>
+#include <geometry/PxGjkQuery.h>
 
 #if !PX_DOXYGEN
 namespace physx
@@ -81,7 +81,7 @@ public:
 		float margin;
 
 		// Substitute geometry
-		virtual bool useSubstituteGeometry(PxGeometryHolder& geom, PxTransform& preTransform, const PxContactPoint& p, const PxTransform& pose0, const PxVec3& pos1) const = 0;
+		virtual bool useSubstituteGeometry(PxGeometryHolder& geom, PxTransform& preTransform, const PxContactPoint& p, const PxTransform& pose0) const = 0;
 	};
 	/// \endcond
 
@@ -140,7 +140,7 @@ public:
 		int axis;
 
 		// Substitute geometry
-		virtual bool useSubstituteGeometry(PxGeometryHolder& geom, PxTransform& preTransform, const PxContactPoint& p, const PxTransform& pose0, const PxVec3& pos1) const;
+		virtual bool useSubstituteGeometry(PxGeometryHolder& geom, PxTransform& preTransform, const PxContactPoint& p, const PxTransform& pose0) const;
 
 		// Radius at height
 		float getRadiusAtHeight(float height) const;
@@ -202,7 +202,7 @@ public:
 		int axis;
 
 		// Substitute geometry
-		virtual bool useSubstituteGeometry(PxGeometryHolder& geom, PxTransform& preTransform, const PxContactPoint& p, const PxTransform& pose0, const PxVec3& pos1) const;
+		virtual bool useSubstituteGeometry(PxGeometryHolder& geom, PxTransform& preTransform, const PxContactPoint& p, const PxTransform& pose0) const;
 
 		// Radius at height
 		float getRadiusAtHeight(float height) const;
