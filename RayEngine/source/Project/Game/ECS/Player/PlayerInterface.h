@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/Entity.h"
 
+class Animator;
 class Weapon;
 
 namespace ECS
@@ -20,6 +21,9 @@ namespace ECS
     
     class PlayerInterface
     {
+    public:
+        virtual ~PlayerInterface() = default;
+
     protected:
         
         // Base getters
@@ -31,6 +35,7 @@ namespace ECS
         Transform& GetCameraTransform() const;
         Transform& GetColliderTransform() const;
         Movement& GetMovement() const;
+        Animator& GetAnimator() const;
         PlayerInput& GetInput() const;
         Collider& GetCollider() const;
         Rigidbody& GetRB() const;

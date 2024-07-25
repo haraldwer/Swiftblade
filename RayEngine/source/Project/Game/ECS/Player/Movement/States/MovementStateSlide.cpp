@@ -1,10 +1,7 @@
 ﻿#include "MovementStateSlide.h"
 
-#include "MovementStateCrouch.h"
-#include "MovementStateIdle.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
-#include "Engine/ECS/Systems/Transform.h"
-#include "Game/ECS/Player/PlayerInput.h"
+#include "Game/ECS/Player/Animation/States/AnimationStateSlide.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
 Type MovementStateSlide::Check()
@@ -65,7 +62,12 @@ void MovementStateSlide::Exit()
     GetMovement().SetCrouch(false);
 }
 
-bool MovementStateSlide::CheckInput()
+Type MovementStateSlide::GetAnimationState() const
+{
+    return Type::Get<AnimationStateSlide>();
+}
+
+bool MovementStateSlide::CheckInput() const
 {
     auto input = GetInput().MoveInput; 
     

@@ -2,7 +2,6 @@
 
 #include "Utility/StateMachine/StateBase.h"
 
-
 void MovementStateMachine::Init()
 {
     const auto addState = [&](auto& InState)
@@ -21,13 +20,4 @@ void MovementStateMachine::Init()
     addState(Vault);
     
     StateMachine::Init();
-}
-
-void MovementStateMachine::OnBeginContact(const Physics::Contact& InContact)
-{
-    // How to test this? 
-}
-
-void MovementStateMachine::OnEndContact(const Physics::Contact& InContact)
-{
 }

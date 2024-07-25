@@ -30,7 +30,8 @@ public:
 
     void Init() override;
     void Update(double InDelta) override;
-    
+    void TryOverrideState(const Type& InAnimState) const;
+
 private: 
     
     ObjectPtr<AnimationStateMachine> StateMachine; 

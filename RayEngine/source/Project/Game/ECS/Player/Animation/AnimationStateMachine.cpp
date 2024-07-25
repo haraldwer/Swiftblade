@@ -8,7 +8,9 @@ void AnimationStateMachine::Init()
         States.emplace_back(reinterpret_cast<StateBase*>(&InState));
     };
     
-    addState(Idle); 
+    addState(Default); 
+    addState(Slide); 
+    addState(InAir); 
     
     StateMachine::Init();
 }

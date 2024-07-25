@@ -1,7 +1,7 @@
 #include "StateMachine.h"
 
-#include <algorithm>
 #include "StateBase.h"
+#include <algorithm>
 
 void StateMachine::Init()
 {

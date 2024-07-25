@@ -1,6 +1,5 @@
 ﻿#include "MovementStateJump.h"
 
-#include "MovementStateAir.h"
 #include "MovementStateWall.h"
 #include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/Movement/Movement.h"
@@ -55,6 +54,11 @@ void MovementStateJump::Enter()
             params.Direction = wallState->GetWallNormal();
     
     movement.Jump(params);
+}
+
+Type MovementStateJump::GetAnimationState() const
+{
+    return Type::Get<AnimationStateInAir>(); 
 }
 
 bool MovementStateJump::CanJump() const

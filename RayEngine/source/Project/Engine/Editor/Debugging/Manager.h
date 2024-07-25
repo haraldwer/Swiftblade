@@ -4,7 +4,6 @@
 #include "ReferenceViewer.h"
 #include "Window.h"
 #include "Utility/Singelton.h"
-#include "Utility/Time/Timer.h"
 
 namespace Debug
 {
@@ -25,7 +24,7 @@ namespace Debug
         void SetOpen(const String& InWindow, bool InOpen);
 
     private:
-        bool DebugEnabled = true;
+        bool DebugEnabled = false;
         Set<Window*> PendingRegister;
         Map<String, Vector<Window*>> Windows;
         Map<const Window*, String> WindowToName;

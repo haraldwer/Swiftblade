@@ -14,8 +14,6 @@ public:
 	// Override with default state
 	virtual Utility::Type GetDefaultStateType() = 0;
 
-	template <class T>
-	bool SetState();
 	bool SetState(const Utility::Type& InType);
 	bool TryOverrideState(const Utility::Type& InType);
 	
@@ -31,12 +29,6 @@ protected:
 	Vector<StateBase*> States;
 	Map<Utility::TypeHash, StateBase*> TypeMap;
 };
-
-template <class T>
-bool StateMachine::SetState()
-{
-	return SetStatePtr(GetState<T>());
-}
 
 template <class T>
 T* StateMachine::GetState() const

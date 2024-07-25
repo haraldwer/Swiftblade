@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Game/ECS/Player/PlayerInterface.h"
 #include "Engine/ECS/UniqueComponent.h"
+#include "Game/ECS/Player/PlayerInterface.h"
 #include "Utility/Time/Time.h"
 
 class MovementStateMachine;
@@ -17,6 +17,7 @@ namespace ECS
         void Deinit() override;
         void Update(double InDelta) override;
         void OnBeginContact(const Physics::Contact& InContact) override;
+        Type GetDesiredAnimationState() const;
 
         bool Edit(const String& InName = "") override;
         void DebugDraw() const;
@@ -51,7 +52,7 @@ namespace ECS
 
         struct SlowdownParams
         {
-            float Slowdown = 0.0005f; 
+            float Slowdown = 0.0007f; 
         };
         void Slowdown(double InDelta, const SlowdownParams& InParams = SlowdownParams()) const;
 

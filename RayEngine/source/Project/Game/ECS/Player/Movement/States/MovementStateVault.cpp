@@ -1,14 +1,14 @@
 #include "MovementStateVault.h"
 
-#include "MovementStateAir.h"
-#include "MovementStateIdle.h"
-#include "MovementStateWall.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
 #include "Engine/Rendering/Debug/Draw.h"
-#include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/Movement/Movement.h"
+#include "Game/ECS/Player/PlayerInput.h"
+#include "MovementStateAir.h"
+#include "MovementStateIdle.h"
+#include "MovementStateWall.h"
 
 Type MovementStateVault::Check()
 {

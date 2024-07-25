@@ -1,16 +1,17 @@
 ﻿#include "PlayerInterface.h"
 
-#include "Player.h"
-#include "PlayerInput.h"
-#include "PlayerCamera.h"
-#include "Movement/Movement.h"
-#include "Weapon/Weapon.h"
 #include "Engine/ECS/Manager.h"
-#include "Engine/ECS/Systems/Transform.h"
 #include "Engine/ECS/Systems/CameraComponent.h"
-#include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Collider.h"
+#include "Engine/ECS/Systems/Rigidbody.h"
+#include "Engine/ECS/Systems/Transform.h"
 #include "Game/GameState.h"
+#include "Movement/Movement.h"
+#include "Animation/Animator.h"
+#include "Player.h"
+#include "PlayerCamera.h"
+#include "PlayerInput.h"
+#include "Weapon/Weapon.h"
 
 ECS::Player& ECS::PlayerInterface::GetPlayer() const
 {
@@ -54,6 +55,13 @@ ECS::Movement& ECS::PlayerInterface::GetMovement() const
     return *ptr;
 }
 
+Animator& ECS::PlayerInterface::GetAnimator() const
+{
+    auto* ptr = Manager::Get().GetComponent<Animator>(GetPlayerID());
+    CHECK_ASSERT(!ptr, "Invalid animator");
+    return *ptr;
+}
+
 ECS::PlayerInput& ECS::PlayerInterface::GetInput() const
 {
     auto* ptr = Manager::Get().GetComponent<PlayerInput>(GetPlayerID());
@@ -78,7 +86,7 @@ ECS::Rigidbody& ECS::PlayerInterface::GetRB() const
 ECS::PlayerCamera& ECS::PlayerInterface::GetPlayerCamera() const
 {
     auto* ptr = Manager::Get().GetComponent<PlayerCamera>(GetPlayerID());
-    CHECK_ASSERT(!ptr, "Invalid camera");
+    CHECK_ASSERT(!ptr, "Invalid player camera");
     return *ptr;
 }
 

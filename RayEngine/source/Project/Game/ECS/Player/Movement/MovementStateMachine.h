@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "Utility/StateMachine/StateMachine.h"
 #include "States/MovementStateAir.h"
 #include "States/MovementStateCrouch.h"
 #include "States/MovementStateDash.h"
@@ -10,6 +9,7 @@
 #include "States/MovementStateSlide.h"
 #include "States/MovementStateVault.h"
 #include "States/MovementStateWall.h"
+#include "Utility/StateMachine/StateMachine.h"
 
 namespace Physics
 {
@@ -24,9 +24,6 @@ public:
     
     Utility::Type GetDefaultStateType() override { return Utility::GetType<MovementStateIdle>(); }    
     
-    void OnBeginContact(const Physics::Contact& InContact);
-    void OnEndContact(const Physics::Contact& InContact);
-
 private:
 
     MovementStateIdle Idle;

@@ -1,7 +1,5 @@
 ﻿#include "MovementStateCrouch.h"
 
-#include "MovementStateIdle.h"
-#include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 
 Type MovementStateCrouch::Update(double InDT)

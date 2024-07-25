@@ -1,17 +1,18 @@
 #pragma once
-#include "States/AnimationStateIdle.h"
+#include "States/AnimationStateDefault.h"
+#include "States/AnimationStateInAir.h"
+#include "States/AnimationStateSlide.h"
 #include "Utility/StateMachine/StateMachine.h"
 
 class AnimationStateMachine : public StateMachine
 {
 public:
-
     void Init() override;
-    
-    Utility::Type GetDefaultStateType() override { return Utility::GetType<AnimationStateIdle>(); }
+    Utility::Type GetDefaultStateType() override { return Utility::GetType<AnimationStateDefault>(); }
 
 private:
-
-    AnimationStateIdle Idle; 
+    AnimationStateDefault Default; 
+    AnimationStateSlide Slide; 
+    AnimationStateInAir InAir; 
     
 };

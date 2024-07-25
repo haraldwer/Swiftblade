@@ -9,8 +9,9 @@ class MovementStateSlide : public MovementState<MovementStateSlide>
     void Enter() override;
     void Exit() override;
     int32 Priority() const override { return 4; }
+    Type GetAnimationState() const override;
 
-    bool CheckInput(); 
+    bool CheckInput() const; 
     
     PROPERTY_C(float, Speed, 30.0f);
     PROPERTY_C(float, SpeedThreshold, 15.0f);

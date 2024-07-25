@@ -1,7 +1,5 @@
 ﻿#include "Movement.h"
 
-#include "MovementStateMachine.h"
-#include "Game/ECS/Player/PlayerInput.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -9,6 +7,7 @@
 #include "Engine/Profiling/Profile.h"
 #include "Engine/Rendering/Debug/Draw.h"
 #include "Game/ECS/Player/PlayerCamera.h"
+#include "MovementStateMachine.h"
 #include "Utility/Math/AngleConversion.h"
 #include "Utility/Math/Geometry/Plane.h"
 #include "Utility/StateMachine/StateMachine.h"
@@ -52,6 +51,11 @@ void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
             break;
         }
     }
+}
+
+Type ECS::Movement::GetDesiredAnimationState() const
+{
+    return Type::None(); 
 }
 
 bool ECS::Movement::Edit(const String& InName)
@@ -227,7 +231,7 @@ void ECS::Movement::GroundSnap()
     PROFILE_SCOPE_END();
     
     PROFILE_SCOPE_BEGIN("ProcessHits");
-    if (result.IsHit);
+    if (result.IsHit)
     {
         for (auto hit : result.DistanceSorted())
         {

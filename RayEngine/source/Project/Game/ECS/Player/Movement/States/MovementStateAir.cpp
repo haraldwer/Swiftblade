@@ -1,8 +1,9 @@
 ﻿#include "MovementStateAir.h"
 
-#include "MovementStateIdle.h"
-#include "Game/ECS/Player/PlayerInput.h"
 #include "Game/ECS/Player/Movement/Movement.h"
+#include "Game/ECS/Player/PlayerInput.h"
+#include "MovementStateIdle.h"
+#include "Game/ECS/Player/Animation/States/AnimationStateInAir.h"
 
 Type MovementStateAir::Update(double InDT)
 {
@@ -26,4 +27,9 @@ Type MovementStateAir::Update(double InDT)
     if (!movement.IsInAir())
         return Type::Get<MovementStateIdle>(); 
     return Type::None(); 
+}
+
+Type MovementStateAir::GetAnimationState() const
+{
+    return Type::Get<AnimationStateInAir>();
 }
