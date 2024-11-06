@@ -6,5 +6,5 @@ class MenuGameEnd : Menu::Instance
 public:
     void Init() override;
     void Deinit() override;
-    void Update(double InDelta) override;
+    void Update() override;
 };

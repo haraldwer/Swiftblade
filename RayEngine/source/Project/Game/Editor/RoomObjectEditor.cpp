@@ -34,7 +34,7 @@ void RoomObjectEditor::Update(double InDelta)
     if (TargetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
-        trans->SetPosition(LERP(currPos, TargetPos, 20.0f * static_cast<float>(InDelta)));
+        trans->SetPosition(Utility::Math::Lerp(currPos, TargetPos, 20.0f * static_cast<float>(InDelta)));
     } 
 
     // Rotate object!

@@ -3,12 +3,8 @@
 #include "Shaders/SH_Random.si"
 #include "Shaders/SH_HSV.si"
 
-// Uniforms
-uniform sampler2D TexPosition;
-uniform sampler2D TexNormal;
-uniform sampler2D TexColor;
-uniform vec3 CameraPosition;
-uniform vec2 Resolution;
+#include "Shaders/SH_FrameUniforms.si"
+#include "Shaders/SH_DeferredTextures.si"
 
 // In
 in vec2 TexCoord;
@@ -85,6 +81,12 @@ vec4 EdgeDetection(vec3 InWorldPosition, vec3 InWorldNormal, vec3 InOriginalColo
 
 void main()
 {
+    // Check deferred ID
+    uint texID = (uint)texture(TexDeferredID, TexCoord).r;
+    if (texID == DeferredID)
+        discard;
+
+
     // Sample textures
     vec3 worldPosition = texture(TexPosition, TexCoord).rgb;
     vec3 worldNormal = texture(TexNormal, TexCoord).xyz;

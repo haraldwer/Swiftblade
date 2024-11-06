@@ -11,7 +11,7 @@ namespace Menu
 
         virtual void Init() = 0; 
         virtual void Deinit() {} 
-        virtual void Update(double InDelta) {}
+        virtual void Update() {}
         virtual void Draw();
         
         virtual bool IsBlocking() const { return true; }

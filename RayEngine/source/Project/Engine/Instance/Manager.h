@@ -54,6 +54,7 @@ namespace Engine
                         delete top.Ptr;
                     }
                     Stack.pop_back();
+                    Utility::SingeltonContext::Value = -1;
 
                     // Set context
                     if (!Stack.empty())

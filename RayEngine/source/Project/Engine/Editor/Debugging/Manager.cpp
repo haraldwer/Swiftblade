@@ -54,8 +54,8 @@ void Debug::Manager::Frame(double InDeltaTime)
         ImGui::Text((" | FPS: " + std::to_string(GetFPS())).c_str());
 
         // Calculate ticks per frame
-        const double lerp = MIN(2.0f * InDeltaTime, 1.0f);
-        TPF = LERP(TPF, static_cast<double>(LogicCounter), lerp);
+        const double lerp = Utility::Math::Min(2.0f * static_cast<float>(InDeltaTime), 1.0f);
+        TPF = Utility::Math::Lerp(TPF, static_cast<double>(LogicCounter), lerp);
         const double tps = TPF / InDeltaTime;
         LogicCounter = 0;
         

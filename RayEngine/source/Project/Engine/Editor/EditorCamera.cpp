@@ -76,7 +76,7 @@ void EditorCamera::UpdateMovement(double InDelta)
     TargetState.Rotation +=
         Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.0025f *
         static_cast<float>(!ctrl);
-    TargetState.Rotation.x = CLAMP(
+    TargetState.Rotation.x = Utility::Math::Clamp(
         Utility::Math::DegreesToRadians(-90.0f),
         Utility::Math::DegreesToRadians(90.0f),
         TargetState.Rotation.x);  
@@ -87,7 +87,7 @@ void EditorCamera::UpdateMovement(double InDelta)
     const Vec3F forward = rotMat.Forward();
 
     const float ScrollDelta = GetMouseWheelMove() * 0.1f;
-    TargetState.MovementSpeed = CLAMP(TargetState.MovementSpeed + ScrollDelta * (50.0f + TargetState.MovementSpeed * 0.5f), 1.0f, 300.0f);
+    TargetState.MovementSpeed = Utility::Math::Clamp(TargetState.MovementSpeed + ScrollDelta * (50.0f + TargetState.MovementSpeed * 0.5f), 1.0f, 300.0f);
     
     // Add position
     const Vec3F posDelta =
@@ -112,9 +112,9 @@ void EditorCamera::UpdateMovement(double InDelta)
 
     // TODO: Interp account for dt
     CurrentState.Rotation = TargetState.Rotation;
-    CurrentState.Position = LERP(CurrentState.Position, TargetState.Position, 10.0f * (float)InDelta);
-    CurrentState.FOV = LERP(CurrentState.FOV, TargetState.FOV, 10.0f * (float)InDelta);
-    CurrentState.MovementSpeed = LERP(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * (float)InDelta);
+    CurrentState.Position = Utility::Math::Lerp(CurrentState.Position, TargetState.Position, 10.0f * static_cast<float>(InDelta));
+    CurrentState.FOV = Utility::Math::Lerp(CurrentState.FOV, TargetState.FOV, 10.0f * static_cast<float>(InDelta));
+    CurrentState.MovementSpeed = Utility::Math::Lerp(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * static_cast<float>(InDelta));
     
     // Set camera
     Engine::Instance::Get().GetRenderScene().SetCamera({

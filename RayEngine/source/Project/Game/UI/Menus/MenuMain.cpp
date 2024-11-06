@@ -38,7 +38,7 @@ void MenuMain::Init()
         UI->Get<UI::Instance>(b).Get<UI::Label>("Text").SetText(b);
 }
 
-void MenuMain::Update(double InDelta)
+void MenuMain::Update()
 {
     CHECK_RETURN(!UI)
     

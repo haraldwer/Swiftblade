@@ -50,7 +50,7 @@ Utility::Timepoint ShaderResource::GetEditTime() const
         return fs;
     if (fs == Utility::Timepoint())
         return vs;
-    return MAX(vs, fs); 
+    return Utility::Math::Max(vs, fs); 
 }
 
 Shader* ShaderResource::Get() const

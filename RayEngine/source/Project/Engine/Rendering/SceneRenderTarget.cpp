@@ -22,6 +22,7 @@ void SceneRenderTarget::TrySetup(const RenderTexture& InRenderTexture)
     CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
     CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
     CreateBuffer("TexColor", PIXELFORMAT_UNCOMPRESSED_R4G4B4A4);
+    CreateBuffer("TexDeferredID", PIXELFORMAT_UNCOMPRESSED_R32);
     
     // Attach to framebuffer
     rlActiveDrawBuffers(static_cast<int>(Buffers.size())); // Count - Depth

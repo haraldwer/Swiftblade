@@ -106,8 +106,8 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 
     // Calculate anchor point
     const Vec2F anchor = {
-        LERP(parent.Start.x, parent.End.x, Transform.Anchor.x),
-        LERP(parent.Start.y, parent.End.y, Transform.Anchor.y)
+        Utility::Math::Lerp(parent.Start.x, parent.End.x, Transform.Anchor.x),
+        Utility::Math::Lerp(parent.Start.y, parent.End.y, Transform.Anchor.y)
     };
     
     // Calculate position and size
@@ -117,10 +117,10 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     
     // And blend to container using alignment
     Rect result;
-    result.Start.x = LERP(absolute.Start.x, parent.Start.x, Transform.Alignment.Horizontal.x);
-    result.Start.y = LERP(absolute.Start.y, parent.Start.y, Transform.Alignment.Vertical.x);
-    result.End.x = LERP(absolute.End.x, parent.End.x, Transform.Alignment.Horizontal.y);
-    result.End.y = LERP(absolute.End.y, parent.End.y, Transform.Alignment.Vertical.y);
+    result.Start.x = Utility::Math::Lerp(absolute.Start.x, parent.Start.x, Transform.Alignment.Horizontal.x);
+    result.Start.y = Utility::Math::Lerp(absolute.Start.y, parent.Start.y, Transform.Alignment.Vertical.x);
+    result.End.x = Utility::Math::Lerp(absolute.End.x, parent.End.x, Transform.Alignment.Horizontal.y);
+    result.End.y = Utility::Math::Lerp(absolute.End.y, parent.End.y, Transform.Alignment.Vertical.y);
     
     return result; 
 }

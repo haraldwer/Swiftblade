@@ -24,8 +24,8 @@ void UI::Label::Draw()
     const Vec2F startPos = rect.Start;
     const Vec2F endPos = rect.End - CachedSize;
     const Vec2F pos {
-        LERP(startPos.x, endPos.x, Centering.x),
-        LERP(startPos.y, endPos.y, Centering.y)
+        Utility::Math::Lerp(startPos.x, endPos.x, Centering.x),
+        Utility::Math::Lerp(startPos.y, endPos.y, Centering.y)
     };
     const Vec2F viewPos = ReferenceToViewport(pos); 
 

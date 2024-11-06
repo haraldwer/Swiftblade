@@ -24,3 +24,8 @@ Utility::Timepoint ModelResource::GetEditTime() const
 {
     return Utility::GetFileWriteTime(Identifier);
 }
+
+uint32 ModelResource::Hash() const
+{
+    return Utility::Hash(Identifier);
+}

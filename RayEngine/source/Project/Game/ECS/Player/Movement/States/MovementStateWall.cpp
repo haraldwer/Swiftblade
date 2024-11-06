@@ -4,7 +4,6 @@
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
-#include "Engine/Rendering/Debug/Draw.h"
 #include "Game/ECS/Player/Movement/Movement.h"
 #include "Game/ECS/Player/PlayerInput.h"
 #include "MovementStateAir.h"
@@ -37,7 +36,7 @@ Type MovementStateWall::Update(double InDT)
     // Interp wall normal
     if (TargetWallNormal.LengthSqr() > 0.1f)
     {
-        CurrentWallNormal = LERP(CurrentWallNormal, TargetWallNormal, NormalInterpSpeed * static_cast<float>(InDT));
+        CurrentWallNormal = Utility::Math::Lerp(CurrentWallNormal, TargetWallNormal, NormalInterpSpeed * static_cast<float>(InDT));
         CurrentWallNormal = CurrentWallNormal.GetNormalized();
     }
 
@@ -119,7 +118,7 @@ bool MovementStateWall::CheckWall()
 
         // Prioritize hits close to WallNormal
         const float dot = InHit.Normal.Dot(TargetWallNormal);
-        const float clamped = CLAMP(dot, 0.0f, 1.0f); 
+        const float clamped = Utility::Math::Clamp(dot, 0.0f, 1.0f); 
         // If wallNormal is set
         const float normalMul = isCurrent ? clamped : 1.0f;
         

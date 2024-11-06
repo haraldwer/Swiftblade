@@ -40,7 +40,7 @@ void MenuLeaderboard::Init()
      UI = builder.Build(); 
 }
 
-void MenuLeaderboard::Update(double InDelta)
+void MenuLeaderboard::Update()
 {
     
 }

@@ -57,7 +57,7 @@ int main()
         timer = Utility::Timer();
         
         // Update
-        tickTimer = MIN(tickTimer + delta, maxFrameTickTime);
+        tickTimer = Utility::Math::Min(tickTimer + delta, maxFrameTickTime);
         while (tickTimer >= 0)
         {
             PROFILE_SCOPE_BEGIN("Logic");

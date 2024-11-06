@@ -17,12 +17,12 @@ void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
         CHECK_CONTINUE(entry.second == 0);
         const Coord coord = Coord(entry.first);
         CachedCubeTransforms.emplace_back(CoordToPos(entry.first, InWorld));
-        CachedMinBounds.x = MIN(coord.Pos.X, CachedMinBounds.x);
-        CachedMinBounds.y = MIN(coord.Pos.Y, CachedMinBounds.y);
-        CachedMinBounds.z = MIN(coord.Pos.Z, CachedMinBounds.z);
-        CachedMaxBounds.x = MAX(coord.Pos.X, CachedMaxBounds.x);
-        CachedMaxBounds.y = MAX(coord.Pos.Y, CachedMaxBounds.y);
-        CachedMaxBounds.z = MAX(coord.Pos.Z, CachedMaxBounds.z);
+        CachedMinBounds.x = Utility::Math::Min(coord.Pos.X, CachedMinBounds.x);
+        CachedMinBounds.y = Utility::Math::Min(coord.Pos.Y, CachedMinBounds.y);
+        CachedMinBounds.z = Utility::Math::Min(coord.Pos.Z, CachedMinBounds.z);
+        CachedMaxBounds.x = Utility::Math::Max(coord.Pos.X, CachedMaxBounds.x);
+        CachedMaxBounds.y = Utility::Math::Max(coord.Pos.Y, CachedMaxBounds.y);
+        CachedMaxBounds.z = Utility::Math::Max(coord.Pos.Z, CachedMaxBounds.z);
     }
 }
 
@@ -144,12 +144,12 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     auto& minB = v.CachedMinBounds;
     auto& maxB = v.CachedMaxBounds;
     
-    const uint8 startX = MIN(InStart.Pos.X, InEnd.Pos.X); 
-    const uint8 startY = MIN(InStart.Pos.Y, InEnd.Pos.Y); 
-    const uint8 startZ = MIN(InStart.Pos.Z, InEnd.Pos.Z);
-    const uint8 endX = MAX(InStart.Pos.X, InEnd.Pos.X); 
-    const uint8 endY = MAX(InStart.Pos.Y, InEnd.Pos.Y); 
-    const uint8 endZ = MAX(InStart.Pos.Z, InEnd.Pos.Z);
+    const uint8 startX = Utility::Math::Min(InStart.Pos.X, InEnd.Pos.X); 
+    const uint8 startY = Utility::Math::Min(InStart.Pos.Y, InEnd.Pos.Y); 
+    const uint8 startZ = Utility::Math::Min(InStart.Pos.Z, InEnd.Pos.Z);
+    const uint8 endX = Utility::Math::Max(InStart.Pos.X, InEnd.Pos.X); 
+    const uint8 endY = Utility::Math::Max(InStart.Pos.Y, InEnd.Pos.Y); 
+    const uint8 endZ = Utility::Math::Max(InStart.Pos.Z, InEnd.Pos.Z);
     
     for (uint8 x = startX; x <= endX; x++)
     {
@@ -166,12 +166,12 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
                     data[Coord(x, y, z).Key] = InVal;
 
                     // Set cached bound
-                    minB.x = MIN(x, minB.x);
-                    minB.y = MIN(y, minB.y);
-                    minB.z = MIN(z, minB.z);
-                    maxB.x = MAX(x, maxB.x);
-                    maxB.y = MAX(y, maxB.y);
-                    maxB.z = MAX(z, maxB.z);
+                    minB.x = Utility::Math::Min(x, minB.x);
+                    minB.y = Utility::Math::Min(y, minB.y);
+                    minB.z = Utility::Math::Min(z, minB.z);
+                    maxB.x = Utility::Math::Max(x, maxB.x);
+                    maxB.y = Utility::Math::Max(y, maxB.y);
+                    maxB.z = Utility::Math::Max(z, maxB.z);
                 }
             }
         }
@@ -209,12 +209,12 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
     auto& v = Get<CubeVolume>(InID);
     const Mat4F world = Get<Transform>(InID).World();
 
-    const int startX = MIN(InStart.Pos.X, InEnd.Pos.X); 
-    const int startY = MIN(InStart.Pos.Y, InEnd.Pos.Y); 
-    const int startZ = MIN(InStart.Pos.Z, InEnd.Pos.Z);
-    const int endX = MAX(InStart.Pos.X, InEnd.Pos.X); 
-    const int endY = MAX(InStart.Pos.Y, InEnd.Pos.Y); 
-    const int endZ = MAX(InStart.Pos.Z, InEnd.Pos.Z);
+    const int startX = Utility::Math::Min(InStart.Pos.X, InEnd.Pos.X); 
+    const int startY = Utility::Math::Min(InStart.Pos.Y, InEnd.Pos.Y); 
+    const int startZ = Utility::Math::Min(InStart.Pos.Z, InEnd.Pos.Z);
+    const int endX = Utility::Math::Max(InStart.Pos.X, InEnd.Pos.X); 
+    const int endY = Utility::Math::Max(InStart.Pos.Y, InEnd.Pos.Y); 
+    const int endZ = Utility::Math::Max(InStart.Pos.Z, InEnd.Pos.Z);
 
     Vector<Mat4F> matrices; 
     for (int x = startX; x <= endX; x++)   

@@ -13,13 +13,13 @@ Type AnimationStateDefault::Update(double InDT)
     const float interpSpeed = 30.0f;
     
     const float hSpeed = (GetRB().GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f)).Length();
-    const float alpha = MIN(hSpeed * 0.1f, 1.0f);
+    const float alpha = Utility::Math::Min(hSpeed * 0.1f, 1.0f);
     const float time = static_cast<float>(Utility::Time::Get().Total());
     const float curve = sinf(time * frequency);
     
     const float desiredRoll = curve * alpha * scale;
-    const float lerp = MIN(1.0f, interpSpeed * static_cast<float>(InDT));
-    CurrentRoll = LERP(CurrentRoll, desiredRoll, lerp); 
+    const float lerp = Utility::Math::Min(1.0f, interpSpeed * static_cast<float>(InDT));
+    CurrentRoll = Utility::Math::Lerp(CurrentRoll, desiredRoll, lerp); 
     
     auto& camTrans = GetCameraTransform();
     const QuatF localRot = camTrans.GetRotation(ECS::Transform::Space::LOCAL);
@@ -29,7 +29,7 @@ Type AnimationStateDefault::Update(double InDT)
         ECS::Transform::Space::LOCAL);
     
     const float desiredHeight = (1.0f - abs(curve)) * height * alpha;
-    CurrentHeight = LERP(CurrentHeight, desiredHeight, lerp); 
+    CurrentHeight = Utility::Math::Lerp(CurrentHeight, desiredHeight, lerp); 
     camTrans.SetPosition(
         Vec3F::Up() * (1.0f + CurrentHeight),
         ECS::Transform::Space::LOCAL);

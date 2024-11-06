@@ -9,7 +9,7 @@ namespace Menu
     {
     public:
         
-        void Update(double InDelta)
+        void Update()
         {
             UpdatePending();
             
@@ -18,7 +18,7 @@ namespace Menu
             {
                 const auto ptr = Stack[i].Get();
                 CHECK_CONTINUE(!ptr);
-                ptr->Update(InDelta);
+                ptr->Update();
                 if (ptr->IsBlocking())
                     break; 
             }

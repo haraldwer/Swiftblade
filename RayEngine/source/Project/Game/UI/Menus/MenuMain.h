@@ -5,5 +5,5 @@ class MenuMain : Menu::Instance
 {
 public:
     void Init() override;
-    void Update(double InDelta) override;
+    void Update() override;
 };

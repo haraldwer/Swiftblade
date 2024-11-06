@@ -80,7 +80,7 @@ void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
     // Set camera rotation
     float camRot = camTrans.GetRotation().Euler().x; 
     camRot += InInput.x * InParams.SensitivityMultiplier.x;
-    camRot = CLAMP(
+    camRot = Utility::Math::Clamp(
         Utility::Math::DegreesToRadians(-90.0f),
         Utility::Math::DegreesToRadians(90.0f),
         camRot);
@@ -147,7 +147,7 @@ void ECS::Movement::VelocityClamp(double InDelta, const VelocityClampParams& InP
     const Vec3F clampedFlatVel = flatVel.GetNormalized() * newSpeed;
     
     // Vertical raw clamp
-    float clampedVertVel = CLAMP(vel.y, -InParams.MaxVerticalSpeed, InParams.MaxVerticalSpeed); 
+    float clampedVertVel = Utility::Math::Clamp(vel.y, -InParams.MaxVerticalSpeed, InParams.MaxVerticalSpeed); 
     rb.SetVelocity(Vec3F(clampedFlatVel.x, clampedVertVel, clampedFlatVel.z));
 }
 

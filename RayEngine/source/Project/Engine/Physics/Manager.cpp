@@ -370,14 +370,14 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
     case Shape::CAPSULE:
         {
             static PxCapsuleGeometry capsule;
-            const float rScale = MAX(InScale.x, InScale.z);
+            const float rScale = Utility::Math::Max(InScale.x, InScale.z);
             capsule = PxCapsuleGeometry(InShapeData.x * rScale, InShapeData.y * InScale.y);
             return &capsule;
         }
     case Shape::SPHERE:
         {
             static PxSphereGeometry sphere;
-            const float rScale = MAX(MAX(InScale.x, InScale.y), InScale.z);
+            const float rScale = Utility::Math::Max(Utility::Math::Max(InScale.x, InScale.y), InScale.z);
             sphere = PxSphereGeometry(InShapeData.x * rScale);
             return &sphere;
         }

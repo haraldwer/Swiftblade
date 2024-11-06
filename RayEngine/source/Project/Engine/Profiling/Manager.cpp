@@ -69,9 +69,9 @@ void Profiling::Manager::DrawDebugWindow()
     }
     if (!Histogram.empty())
         avg /= Histogram.size();
-    const float lerp = MIN(FrameTimer.Ellapsed() * 4.0f, 1.0f);
-    SmoothMax = LERP(SmoothMax, max, lerp); 
-    SmoothMin = LERP(SmoothMin, min, lerp); 
+    const float lerp = Utility::Math::Min(static_cast<float>(FrameTimer.Ellapsed()) * 4.0f, 1.0f);
+    SmoothMax = Utility::Math::Lerp(SmoothMax, max, lerp); 
+    SmoothMin = Utility::Math::Lerp(SmoothMin, min, lerp); 
     if (toBeRemoved > 0)
         Histogram.erase(Histogram.begin(), Histogram.begin() + toBeRemoved);
 

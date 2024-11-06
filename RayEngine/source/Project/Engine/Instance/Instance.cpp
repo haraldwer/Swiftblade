@@ -19,7 +19,7 @@ void Engine::Instance::Logic(double InDelta)
     RenderScene = Rendering::RenderScene();
     Time.Tick(InDelta);
     Input.Update(); 
-    Menus.Update(InDelta);
+    Menus.Update();
 }
 
 void Engine::Instance::Frame(double InDelta)

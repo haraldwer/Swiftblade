@@ -18,7 +18,7 @@ namespace Rendering
         void DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
         void DrawDebug(const RenderScene& InScene);
         
-        void SetShaderValues(const Shader* InShader, const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
+        void SetShaderValues(const Shader* InShader, const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, uint32 InDeferredID);
         void SetCustomShaderValues(const Shader* InShader);
 
         SceneRenderTarget SceneTarget;

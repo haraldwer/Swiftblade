@@ -36,7 +36,7 @@ void MenuGameEnd::Deinit()
     Input::Manager::Get().Pop("Default"); 
 }
 
-void MenuGameEnd::Update(double InDelta)
+void MenuGameEnd::Update()
 {
     CHECK_RETURN(!UI);
     

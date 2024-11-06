@@ -73,6 +73,8 @@ using Map = std::unordered_map<Key, Val>;
 using String = std::string; 
 
 #include "Utility/Math/Macros.h"
+#include "Utility/Math/Basic.h"
+#include "Utility/Math/Lerp.h"
 #include "Utility/Utility.h"
 #include "Utility/NumericalTypes.h"
 

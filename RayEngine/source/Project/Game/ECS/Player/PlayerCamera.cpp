@@ -15,7 +15,7 @@ void ECS::PlayerCamera::Update(double InDelta)
 {
     // Interpolate crouch offset
 
-    CrouchOffset = LERP(CrouchOffset, TargetCrouchOffset, static_cast<float>(InDelta) * CrouchInterpSpeed);
+    CrouchOffset = Utility::Math::Lerp(CrouchOffset, TargetCrouchOffset, static_cast<float>(InDelta) * CrouchInterpSpeed);
     const Vec3F offset = Vec3F::Up() * CrouchOffset;
     
     auto& camTrans = GetCameraTransform();

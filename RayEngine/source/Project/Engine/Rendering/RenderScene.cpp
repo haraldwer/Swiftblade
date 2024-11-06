@@ -41,12 +41,12 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     {
         entry.Material = InInstance.Material;
         entry.Model = InInstance.Model;
+        entry.DeferredID = mat->DeferredHash();
         entry.Initialized = true;
 
         // Add to deferred
-        uint32 deferredHash = mat->DeferredHash();
-        if (!DeferredShaders.contains(deferredHash))
-            DeferredShaders[deferredHash] = mat->DeferredShader.Get();
+        if (!DeferredShaders.contains(entry.DeferredID))
+            DeferredShaders[entry.DeferredID] = mat->DeferredShader.Get();
     }
     
     return entry;
@@ -66,7 +66,7 @@ void RenderScene::SetTime(const double InTime)
 void RenderScene::AddMesh(const MeshInstance& InMesh)
 {
     const Vec3F scale = InMesh.Transform.GetScale();
-    const float maxScale = MAX(MAX(scale.x, scale.y), scale.z);
+    const float maxScale = Utility::Math::Max(Utility::Math::Max(scale.x, scale.y), scale.z);
     if (Frustum.CheckSphere(InMesh.Transform.GetPosition(), maxScale))
         Meshes.AddMesh(InMesh);
 }

@@ -35,7 +35,7 @@ void MenuDeath::Deinit()
     Input::Manager::Get().Pop("Default"); 
 }
 
-void MenuDeath::Update(double InDelta)
+void MenuDeath::Update()
 {
     CHECK_RETURN(!UI);
 

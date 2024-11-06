@@ -1,4 +1,5 @@
-﻿
+﻿#pragma once
+
 namespace Utility
 {
     namespace Math
@@ -26,7 +27,7 @@ namespace Utility
         template<class T>
         T Saturate(const T InValue)
         {
-            return Min(Max(InValue, 0.0f), 1.0f);
+            return Min(Max(InValue, static_cast<T>(0.0)), static_cast<T>(1.0));
         }
 
 
