@@ -15,12 +15,13 @@ namespace Rendering
         
     private:
         void DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
-        static void DrawInstances(const ::Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition);
-        static void DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, const ResShader& InShader);
+        void DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
         void DrawDebug(const RenderScene& InScene);
+        
+        void SetShaderValues(const Shader* InShader, const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
+        void SetCustomShaderValues(const Shader* InShader);
 
         SceneRenderTarget SceneTarget;
-        ResShader DeferredShader = ResShader("Defaults/SH_Deferred_Default");
         int MeshDrawCount = 0;
         int DebugDrawCount = 0;
         bool DebugDraw = true; 

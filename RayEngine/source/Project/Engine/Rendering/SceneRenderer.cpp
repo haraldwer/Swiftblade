@@ -1,12 +1,11 @@
 #include "SceneRenderer.h"
 
-#include "raymath.h"
-#include "RenderScene.h"
-#include "rlgl.h"
 #include "Engine/Profiling/Profile.h"
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
+#include "RaylibRenderUtility.h"
 #include "Utility/RayUtility.h"
+#include "Utility/Time/Time.h"
 
 void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTexture2D& InVirtualTarget)
 {
@@ -21,7 +20,7 @@ void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTe
     DrawEntries(InScene, SceneTarget);
     
     BeginTextureMode(InVirtualTarget);
-    DrawDeferredScene(InScene, SceneTarget, DeferredShader);
+    DrawDeferredScene(InScene, SceneTarget);
     DrawDebug(InScene);
 }
 
@@ -60,6 +59,35 @@ void Rendering::SceneRenderer::DrawDebugWindow()
     }
 }
 
+
+void Rendering::SceneRenderer::SetShaderValues(const Shader* InShader, const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
+{
+    CHECK_RETURN(!InShader);
+    
+    // Camera
+    const int cameraPos = GetShaderLocation(*InShader, "CameraPosition");
+    SetShaderValue(*InShader, cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3);
+
+    // Time
+    const int timePos = GetShaderLocation(*InShader, "Time");
+    float time = static_cast<float>(InScene.Time);
+    SetShaderValue(*InShader, timePos, &time, SHADER_UNIFORM_FLOAT);
+
+    // Resolution
+    const int resolution = GetShaderLocation(*InShader, "Resolution");
+    SetShaderValue(*InShader, resolution, InSceneTarget.Size().data, SHADER_UNIFORM_VEC2);
+}
+
+void Rendering::SceneRenderer::SetCustomShaderValues(const Shader* InShader) // Floats and vectors
+{
+    CHECK_RETURN(!InShader);
+    //for (auto& val : values)
+    //{
+    //    const int pos = GetShaderLocation(*InShader, val.Name);
+    //    SetShaderValue(*InShader, pos, val.Data, SHADER_UNIFORM_FLOAT);
+    //}
+}
+
 void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
@@ -89,7 +117,7 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
         const Shader* shader = nullptr; 
         if (const auto resMat = entry.second.Material.Get())
         {
-            if (const auto resShader = resMat->Shader.Get().Get())
+            if (const auto resShader = resMat->SurfaceShader.Get().Get())
                 shader =resShader->Get();
             resMat->TwoSided ?
                 rlDisableBackfaceCulling() :
@@ -101,13 +129,21 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
         CHECK_CONTINUE(!shader);
         CHECK_CONTINUE(entry.second.Transforms.empty());
 
+        // Enable shader
+        rlEnableShader(shader->id);
+        SetShaderValues(shader, InScene, InSceneTarget);
+        SetCustomShaderValues(shader);
+        
         // Data has been prepared for this entry
         // Time to draw all the instances
         for (int i = 0; i < meshCount; i++)
         {
-            MeshDrawCount += entry.second.Transforms.size(); 
-            DrawInstances(meshes[i], *shader, entry.second.Transforms, InScene.Cam.Position);
+            MeshDrawCount += static_cast<int>(entry.second.Transforms.size());
+            RaylibRenderUtility::DrawInstances(meshes[i], *shader, entry.second.Transforms, InScene.Cam.Position);
         }
+
+        // Disable shader
+        rlDisableShader();
     }
     rlEnableBackfaceCulling(); 
     EndMode3D();
@@ -117,165 +153,7 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
     PROFILE_SCOPE_END()
 }
 
-void Rendering::SceneRenderer::DrawInstances(const ::Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices, const Vec3F& InCameraPosition)
-{
-    int instances = static_cast<int>(InMatrices.size());
-    
-    // Send required data to shader (matrices, values)
-    //-----------------------------------------------------
-    rlEnableShader(InShader.id);
-        
-    const int cameraPos = GetShaderLocation(InShader, "CameraPosition");
-    SetShaderValue(InShader, cameraPos, InCameraPosition.data, SHADER_UNIFORM_VEC3);
-    
-    // Get a copy of current matrices to work with,
-    // just in case stereo render is required, and we need to modify them
-    // NOTE: At this point the modelview matrix just contains the view matrix (camera)
-    // That's because BeginMode3D() sets it and there is no model-drawing function
-    // that modifies it, all use rlPushMatrix() and rlPopMatrix()
-    Matrix matModel = MatrixIdentity();
-    Matrix matView = rlGetMatrixModelview();
-    Matrix matModelView = MatrixIdentity();
-    Matrix matProjection = rlGetMatrixProjection();
-    
-    // Upload view and projection matrices (if locations available)
-    if (InShader.locs[SHADER_LOC_MATRIX_VIEW] != -1)
-        rlSetUniformMatrix(InShader.locs[SHADER_LOC_MATRIX_VIEW], matView);
-    if (InShader.locs[SHADER_LOC_MATRIX_PROJECTION] != -1)
-        rlSetUniformMatrix(InShader.locs[SHADER_LOC_MATRIX_PROJECTION], matProjection);
-        
-    // Enable mesh VAO to attach new buffer
-    rlEnableVertexArray(InMesh.vaoId);
-
-    // This could alternatively use a static VBO and either glMapBuffer() or glBufferSubData().
-    // It isn't clear which would be reliably faster in all cases and on all platforms,
-    // anecdotally glMapBuffer() seems very slow (syncs) while glBufferSubData() seems
-    // no faster, since we're transferring all the transform matrices anyway
-    unsigned int instancesVboId = 0;
-    int bufferSize = instances * sizeof(Mat4F);
-    instancesVboId = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
-
-    // Instances transformation matrices are send to shader attribute location: SHADER_LOC_MATRIX_MODEL
-    for (unsigned int i = 0; i < 4; i++)
-    {
-        rlEnableVertexAttribute(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i);
-        rlSetVertexAttribute(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i, 4, RL_FLOAT, 0, sizeof(Mat4F), (void *)(i*sizeof(Vec4F)));
-        rlSetVertexAttributeDivisor(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i, 1);
-    }
-
-    rlDisableVertexBuffer();
-    rlDisableVertexArray();
-
-    // Accumulate internal matrix transform (push/pop) and view matrix
-    // NOTE: In this case, model instance transformation must be computed in the shader
-    matModelView = MatrixMultiply(rlGetMatrixTransform(), matView);
-
-    // Upload model normal matrix (if locations available)
-    if (InShader.locs[SHADER_LOC_MATRIX_NORMAL] != -1)
-        rlSetUniformMatrix(InShader.locs[SHADER_LOC_MATRIX_NORMAL], MatrixTranspose(MatrixInvert(matModel)));
-    //-----------------------------------------------------
-
-    // Try binding vertex array objects (VAO)
-    // or use VBOs if not possible
-    if (!rlEnableVertexArray(InMesh.vaoId))
-    {
-        // Bind mesh VBO data: vertex position (shader-location = 0)
-        rlEnableVertexBuffer(InMesh.vboId[0]);
-        rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_POSITION], 3, RL_FLOAT, 0, 0, 0);
-        rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_POSITION]);
-
-        // Bind mesh VBO data: vertex texcoords (shader-location = 1)
-        rlEnableVertexBuffer(InMesh.vboId[1]);
-        rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD01], 2, RL_FLOAT, 0, 0, 0);
-        rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD01]);
-
-        if (InShader.locs[SHADER_LOC_VERTEX_NORMAL] != -1)
-        {
-            // Bind mesh VBO data: vertex normals (shader-location = 2)
-            rlEnableVertexBuffer(InMesh.vboId[2]);
-            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_NORMAL], 3, RL_FLOAT, 0, 0, 0);
-            rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_NORMAL]);
-        }
-
-        // Bind mesh VBO data: vertex colors (shader-location = 3, if available)
-        if (InShader.locs[SHADER_LOC_VERTEX_COLOR] != -1)
-        {
-            if (InMesh.vboId[3] != 0)
-            {
-                rlEnableVertexBuffer(InMesh.vboId[3]);
-                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR], 4, RL_UNSIGNED_BYTE, 1, 0, 0);
-                rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR]);
-            }
-            else
-            {
-                // Set default value for unused attribute
-                // NOTE: Required when using default shader and no VAO support
-                float value[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-                rlSetVertexAttributeDefault(InShader.locs[SHADER_LOC_VERTEX_COLOR], value, SHADER_ATTRIB_VEC4, 4);
-                rlDisableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR]);
-            }
-        }
-
-        // Bind mesh VBO data: vertex tangents (shader-location = 4, if available)
-        if (InShader.locs[SHADER_LOC_VERTEX_TANGENT] != -1)
-        {
-            rlEnableVertexBuffer(InMesh.vboId[4]);
-            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TANGENT], 4, RL_FLOAT, 0, 0, 0);
-            rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TANGENT]);
-        }
-
-        // Bind mesh VBO data: vertex texcoords2 (shader-location = 5, if available)
-        if (InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02] != -1)
-        {
-            rlEnableVertexBuffer(InMesh.vboId[5]);
-            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02], 2, RL_FLOAT, 0, 0, 0);
-            rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02]);
-        }
-
-        if (InMesh.indices != NULL)
-            rlEnableVertexBufferElement(InMesh.vboId[6]);
-    }
-
-    // WARNING: Disable vertex attribute color input if mesh can not provide that data (despite location being enabled in shader)
-    if (InMesh.vboId[3] == 0)
-        rlDisableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR]);
-
-    int eyeCount = rlIsStereoRenderEnabled() ? 2 : 1;
-    for (int eye = 0; eye < eyeCount; eye++)
-    {
-        // Calculate model-view-projection matrix (MVP)
-        Matrix matModelViewProjection = MatrixIdentity();
-        if (eyeCount == 1) matModelViewProjection = MatrixMultiply(matModelView, matProjection);
-        else
-        {
-            // Setup current eye viewport (half screen width)
-            rlViewport(eye*rlGetFramebufferWidth()/2, 0, rlGetFramebufferWidth()/2, rlGetFramebufferHeight());
-            matModelViewProjection = MatrixMultiply(MatrixMultiply(matModelView, rlGetMatrixViewOffsetStereo(eye)), rlGetMatrixProjectionStereo(eye));
-        }
-
-        // Send combined model-view-projection matrix to shader
-        rlSetUniformMatrix(InShader.locs[SHADER_LOC_MATRIX_MVP], matModelViewProjection);
-
-        // Draw mesh instanced
-        if (InMesh.indices != NULL)
-            rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount*3, 0, instances);
-        else
-            rlDrawVertexArrayInstanced(0, InMesh.vertexCount, instances);
-    }
-
-    // Disable all possible vertex array objects (or VBOs)
-    rlDisableVertexArray();
-    rlDisableVertexBuffer();
-    rlDisableVertexBufferElement();
-
-    // Disable shader program
-    rlDisableShader();
-
-    // Remove instance transforms buffer
-    rlUnloadVertexBuffer(instancesVboId);
-}
-
-void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, const ResShader& InShader)
+void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
     
@@ -283,26 +161,27 @@ void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, con
     rlDisableDepthTest();
     rlDisableColorBlend();
 
-    // Set shader
-    const auto shaderResource = InShader.Get();
-    CHECK_ASSERT(!shaderResource, "Shader resource invalid");
-    const Shader* shader = shaderResource->Get();
-    CHECK_ASSERT(!shader, "Shader invalid");
-    rlEnableShader(shader->id);
-    
-    // Bind textures
-    InSceneTarget.Bind(*shader, 0);
-    
-    // Set uniforms
-    const int cameraPos = GetShaderLocation(*shader, "CameraPosition");
-    SetShaderValue(*shader, cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3);
-    const int resolution = GetShaderLocation(*shader, "Resolution");
-    SetShaderValue(*shader, resolution, InSceneTarget.Size().data, SHADER_UNIFORM_VEC2);
-    
-    // Draw fullscreen quad
-    rlLoadDrawQuad();
-    rlDisableShader();
-    
+    // TODO: For every shader 
+    for (auto& entry : InScene.Meshes.DeferredShaders)
+    {
+        // Set shader
+        const auto shaderResource = entry.second.Get();
+        CHECK_CONTINUE(!shaderResource);
+        const Shader* shader = shaderResource->Get();
+        CHECK_CONTINUE(!shader);
+        
+        rlEnableShader(shader->id);
+        SetShaderValues(shader, InScene, InSceneTarget);
+
+        // Bind textures
+        InSceneTarget.Bind(*shader, 0);
+        
+        // Draw fullscreen quad
+        rlLoadDrawQuad();
+        rlDisableShader();
+    }
+
+    // Reset
     rlEnableColorBlend();
     rlEnableDepthTest();
     EndMode3D();

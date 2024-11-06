@@ -13,10 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Milestones/Milestone 5 (Dec 27).md",
+                "file": "Tasks/2 - New rendering setup.md",
                 "mode": "source",
                 "source": false
-              }
+              },
+              "icon": "lucide-file",
+              "title": "2 - New rendering setup"
             }
           }
         ]
@@ -39,7 +41,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
             }
           },
           {
@@ -54,7 +58,9 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "Search"
             }
           },
           {
@@ -62,7 +68,9 @@
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {}
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
             }
           }
         ]
@@ -85,7 +93,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Milestones/Milestone 5 (Dec 27).md",
+                "file": "Tasks/1 - Editor UI.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -93,7 +101,9 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 1 - Editor UI"
             }
           },
           {
@@ -102,10 +112,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Milestones/Milestone 5 (Dec 27).md",
+                "file": "Tasks/1 - Editor UI.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 1 - Editor UI"
             }
           },
           {
@@ -116,7 +128,9 @@
               "state": {
                 "sortOrder": "frequency",
                 "useHierarchy": true
-              }
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
             }
           },
           {
@@ -125,8 +139,10 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Milestones/Milestone 5 (Dec 27).md"
-              }
+                "file": "Tasks/1 - Editor UI.md"
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 1 - Editor UI"
             }
           }
         ]
@@ -148,32 +164,32 @@
   },
   "active": "1fc93849a5de3ca6",
   "lastOpenFiles": [
-    "Tasks/2 - Child property serialization issue.md",
-    "Tasks/2 - Child overrides.md",
-    "Tasks/0 - Combat state machine.md",
-    "Tasks/0 - Dealing damage.md",
-    "Tasks/0 - Object switching in object edit mode.md",
-    "Tasks/0 - Optimize scene overrides.md",
-    "Tasks/0 - Player animator.md",
     "Tasks/1 - Editor UI.md",
-    "Tasks/1 - Inline resource editing.md",
-    "Tasks/1 - Optimize renderscene gathering.md",
-    "Tasks/Archive/0 - Menu input blocking.md",
-    "Tasks/Archive/0 - Input Manager.md",
-    "Milestones/Milestone 5 (Dec 27).md",
-    "Milestones/Milestone 4 (Dec 21).md",
-    "Tasks/0 - Enemy spawner.md",
+    "Tasks/2 - New rendering setup.md",
+    "Tasks/0 - Default shading.md",
     "Tasks/0 - Basic Enemy.md",
-    "Planning/Timeline.md",
     "Tasks/0 - Arena editing.md",
-    "Milestones/Milestone 3 (Nov 29).md",
-    "Tasks/Archive/0 - Double jump.md",
-    "Tasks/Archive/0 - Ledge vaulting.md",
-    "Tasks/Archive/1 - Walljump boost.md",
-    "Tasks/Archive/1 - Improved ground snapping.md",
-    "Tasks/Archive/0 - Leaderboard UI.md",
-    "Tasks/0 - Score.md",
-    "Planning/Release.md",
+    "Design/Idea.md",
+    "Design/Pitch.md",
+    "Design/GDD.md",
+    "Planning/Timeline.md",
+    "Planning/Testing.md",
+    "Planning/Game Creation Process.md",
+    "Planning/Conditions.md",
+    "Pipelines/Tools.md",
+    "Pipelines/Logic.md",
+    "Pipelines/Content.md",
+    "Pipelines/Administrative.md",
+    "Milestones/Milestone 5 (Dec 27).md",
+    "Milestones/Milestone 6 (.md",
+    "Tasks/Archive/0 - Dealing damage.md",
+    "Tasks/2 - Remove deltas everywhere.md",
+    "Tasks/2 - Enum properties.md",
+    "Tasks/2 - Child property serialization issue.md",
+    "Tasks/Backlog.md",
+    "Documentation.md",
+    "Milestones/Milestone 2 (Nov 15).md",
+    "Milestones/Milestone 4 (Dec 21).md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

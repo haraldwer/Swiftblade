@@ -19,6 +19,7 @@ namespace Rendering
             bool Initialized = false;
         };
         Map<uint64, Entry> Entries;
+        Map<uint32, ResShader> DeferredShaders;
         
     private:
         Entry& GetEntry(const MeshInstance& InInstance);
@@ -29,6 +30,7 @@ namespace Rendering
         friend class SceneRenderer; 
     public:
         void SetCamera(const CameraInstance& InCamera);
+        void SetTime(double InTime);
         const CameraInstance& GetCamera() const { return Cam; }
         
         void AddMesh(const MeshInstance& InMesh);
@@ -43,7 +45,8 @@ namespace Rendering
         MeshCollection Meshes;
         Vector<DebugShapeInstance> DebugShapes;
         Vector<DebugLineInstance> DebugLines;
-        Frustum Frustum; 
+        Frustum Frustum;
+        double Time = 0.0f; 
         
     };
 }

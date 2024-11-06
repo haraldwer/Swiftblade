@@ -18,8 +18,11 @@ void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent,
         InComponent.Near };
 
     // TODO: Camera manager
-    Engine::Instance::Get().GetRenderScene().SetCamera(c);
+    auto i = Engine::Instance::Get();
+    auto s = i.GetRenderScene(); 
+    s.SetCamera(c);
+    s.SetTime(Utility::Time::Get().Total());
 
-    if (Engine::Instance::Get().IsEditor())
+    if (i.IsEditor())
         Rendering::DebugSphere(t.GetPosition());
 }

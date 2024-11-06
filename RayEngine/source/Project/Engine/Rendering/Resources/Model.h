@@ -15,6 +15,8 @@ public:
 
     bool Save(const String& InPath) { return false; };
     bool Edit(const String& InName) { return false; };
+
+    uint32 Hash() const;
     
 private:
     String Identifier; 

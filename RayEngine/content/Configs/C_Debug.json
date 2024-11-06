@@ -1,10 +1,6 @@
 {
 	"OpenWindows":[
 		"Blueprint Editor",
-		"Input",
-		"Profiler",
-		"Room Editor",
-		"Scene Rendering",
-		"Viewport"
+		"Room Editor"
 	]
 }

@@ -27,22 +27,22 @@ Type MovementStateSlide::Update(double InDT)
     
     if (!movement.IsOnGround())
     {
-        LOG("Exit side becaus not on ground")
+        LOG("Exit side because not on ground")
         return Type::Get<MovementStateIdle>();
     }
     if (!movement.IsCrouching())
     {
-        LOG("Exit side becaus not crouching")
+        LOG("Exit side because not crouching")
         return Type::Get<MovementStateIdle>();
     }
     if (!input.CrouchInput)
     {
-        LOG("Exit side becaus does not want to crouch")
+        LOG("Exit side because does not want to crouch")
         return Type::Get<MovementStateIdle>();
     }
     if (!CheckInput())
     {
-        LOG("Exit side becaus no input")
+        LOG("Exit side because no input")
         return Type::Get<MovementStateIdle>();
     }
     

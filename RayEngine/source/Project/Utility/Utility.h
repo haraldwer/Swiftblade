@@ -7,7 +7,7 @@
 #define CONCAT(A, B) CONCAT_INTERNAL(A, B)
 
 #define LOG_CONSOLE(text) { TraceLog(LOG_INFO, String(String(text) + " | " + String(__FUNCTION__) + "::" + std::to_string(__LINE__)).c_str()); }
-#define LOG(text) LOG_CONSOLE(text);
+#define LOG(text) LOG_CONSOLE(text)
 
 #define CHECK_ASSERT(condition, text) \
 assert(!(condition) && text);
