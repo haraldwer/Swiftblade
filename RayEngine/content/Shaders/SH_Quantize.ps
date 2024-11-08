@@ -22,22 +22,21 @@ void main()
         discard;
     
     vec3 hsv = rgb2hsv(color.rgb);
-    vec3 quantized = GetQuantized(color.rgb, 8);
+    vec3 quantized = GetQuantized(color.rgb, 10);
     Output = vec4(hsv2rgb(quantized), 1.0);
     
-    vec4 pixelCoord = PixelizeTexCoord();
+    vec3 pixelCoord = PixelizeTexCoord();
     vec3 pixelColor = texture(TexFrame, pixelCoord.xy).rgb;
     vec3 pixelHsv = rgb2hsv(pixelColor);
     vec3 pixelQuantized = GetQuantized(pixelColor, 10);
     
-    float threshold = (1.0 / 8.0) * 0.5;
-    vec3 dist = abs(quantized - pixelQuantized);
+    float threshold = (1.0 / 10.0) * 0.3;
+    vec3 dist = abs(quantized - pixelHsv);
     if (dist.z > threshold)
     {
-        vec2 pixelDist = (pixelCoord.xy - TexCoord) * pixelCoord.zw;
-        if (length(pixelDist) < 0.4)
+        if (pixelCoord.z < 0.4)
         {
-            Output = vec4(hsv2rgb(pixelQuantized), 1.0);
+            Output = vec4(hsv2rgb(pixelHsv), 1.0);
             return;
         }
     }

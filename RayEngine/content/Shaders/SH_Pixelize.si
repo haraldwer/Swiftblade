@@ -9,7 +9,7 @@
 // Sample from pixel to current until finding a good match 
 // Is pixel position different from original position?
 
-const float PIXELS = 8.0f;
+const float PIXELS = 16.0f;
 const float PIXEL_DEPTH_STEP = 10.0f;
 const float PIXEL_MAX_DIST = 0.05f;
 const float PIXEL_DEPTH_OFFSET_SCALE = 1.5f;
@@ -25,7 +25,7 @@ float CalculatePixelSize(vec3 InWorldPos)
     return PIXELS * stepDepth;
 }
 
-vec4 PixelizeTexCoord()
+vec3 PixelizeTexCoord()
 {
     vec3 originalWorldPosition = texture(TexPosition, TexCoord).xyz;
     vec2 pixelSize = vec2(CalculatePixelSize(originalWorldPosition));
@@ -64,5 +64,6 @@ vec4 PixelizeTexCoord()
             break;
         }
     }
-    return vec4(finalPixelCoord, pixelSize);
+    float dist = length((finalPixelCoord.xy - TexCoord) * pixelSize);
+    return vec3(finalPixelCoord, dist);
 }

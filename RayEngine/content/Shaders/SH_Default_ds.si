@@ -29,13 +29,13 @@ void Default()
     vec3 cameraDifference = CameraPosition - worldPosition;
     float cameraDistance = length(cameraDifference);
     vec3 cameraDirection = cameraDifference / cameraDistance;
-    float cameraDot = dot(cameraDirection, worldNormal);
+    float cameraDot = pow(dot(cameraDirection, worldNormal), 0.5);
 
     // Fade
     float cameraDistanceFade = DistanceFade(cameraDistance);
     float cameraFade = mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
     float aoFade = pow(texture(TexAO, TexCoord).x, 0.5);
-    color.rgb *= max(0.2, 1.0 - aoFade);
+    color.rgb *= 1.0 - aoFade;
 
     Output = vec4(color.rgb * vec3(cameraFade), 1.0);
 }

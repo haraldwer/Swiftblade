@@ -7,10 +7,10 @@ in vec2 TexCoord;
 out vec4 Output;
 
 const int ssaoIterations = 12;
-const float ssaoIntensity = 2.0f;
+const float ssaoIntensity = 0.5f;
 const float ssaoScale = 1.0f;
 const float ssaoBias = 0.2f;
-const float ssaoSampleRad = 3.0f;
+const float ssaoSampleRad = 2.0f;
 
 const vec3 mod3 = vec3(.1031,.11369,.13787);
 
@@ -82,6 +82,6 @@ void main()
 { 
      float new = SSAO();
      float prev = texture(TexAO, TexCoord).x;
-     float l = 0.005;
+     float l = 0.1;
      Output = vec4(new * l + prev * (1.0 - l));
 }
