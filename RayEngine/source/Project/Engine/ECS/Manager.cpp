@@ -45,7 +45,7 @@ void Manager::Deinit()
     NameToSystem.clear(); 
 }
 
-void Manager::Update(const double InDelta)
+void Manager::Update()
 {
     PROFILE_SCOPE_BEGIN("ECS Update");
     
@@ -54,7 +54,7 @@ void Manager::Update(const double InDelta)
         if (system->ShouldUpdate())
         {
             PROFILE_SCOPE_BEGIN(SystemToName[system] + "::Update");
-            system->SystemUpdate(InDelta);
+            system->SystemUpdate();
             PROFILE_SCOPE_END();
         }
     }
@@ -62,7 +62,7 @@ void Manager::Update(const double InDelta)
     PROFILE_SCOPE_END();
 }
 
-void Manager::Frame(const double InDelta)
+void Manager::Frame()
 {
     PROFILE_SCOPE_BEGIN("ECS Frame");
     
@@ -71,7 +71,7 @@ void Manager::Frame(const double InDelta)
         if (system->ShouldUpdate())
         {
             PROFILE_SCOPE_BEGIN(SystemToName[system] + "::Frame");
-            system->SystemFrame(InDelta);
+            system->SystemFrame();
             PROFILE_SCOPE_END();
         }
     }

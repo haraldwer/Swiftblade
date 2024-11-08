@@ -1,12 +1,14 @@
 #pragma once
 #include "RenderScene.h"
-#include "SceneRenderTarget.h"
+#include "RenderTarget.h"
 
 namespace Rendering
 {
     class SceneRenderer : Debug::Window
     {
     public:
+        void Init();
+        void Setup(const RenderTexture2D& InVirtualTarget);
         void Render(const RenderScene& InScene, const RenderTexture2D& InVirtualTarget);
         ~SceneRenderer() override;
 
@@ -14,16 +16,26 @@ namespace Rendering
         String DebugWindowName() const override { return "Scene Rendering"; }
         
     private:
-        void DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
-        void DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget);
+        void DrawEntries(const RenderScene& InScene, const RenderTarget& InSceneTarget);
+        static void DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
+        static void DrawPostProcessing(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers, const ResShader& InShader);
         void DrawDebug(const RenderScene& InScene);
-        
-        void SetShaderValues(const Shader* InShader, const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, uint32 InDeferredID);
-        void SetCustomShaderValues(const Shader* InShader);
+        static void Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer);
 
-        SceneRenderTarget SceneTarget;
+        static void SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID);
+        static void SetCustomShaderValues(ShaderResource& InShader);
+
+        RenderTarget SceneTarget;
+        RenderTarget FrameTarget;
+        RenderTarget QuantizeTarget;        
+        std::array<RenderTarget, 2> SSAOTargets;
+        uint32 CurrentSSAOTarget = 0;
+        
         int MeshDrawCount = 0;
         int DebugDrawCount = 0;
-        bool DebugDraw = true; 
+        bool DebugDraw = true;
+
+        ResShader SSAOShader; 
+        ResShader QuantizeShader; 
     };
 }

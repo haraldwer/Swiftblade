@@ -12,8 +12,8 @@ public:
     bool Load(const String& InPath) override;
     Utility::Timepoint GetEditTime() const; 
     
-    PROPERTY_D(ResShader, SurfaceShader, "Defaults/SH_Default");
-    PROPERTY_D(ResShader, DeferredShader, "Defaults/SH_Deferred_Default");
+    PROPERTY_D(ResShader, SurfaceShader, "Shaders/SH_Default");
+    PROPERTY_D(ResShader, DeferredShader, "Shaders/SH_Default.ds");
     PROPERTY_D(bool, TwoSided, false);
 
     // TODO: Material properties

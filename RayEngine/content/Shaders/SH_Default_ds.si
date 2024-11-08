@@ -1,0 +1,41 @@
+﻿
+#include "Shaders/SH_FrameUniforms.si"
+#include "Shaders/SH_TextureUniforms.si"
+
+#include "Shaders/SH_Random.si"
+#include "Shaders/SH_HSV.si"
+#include "Shaders/SH_DeferredID.si"
+
+in vec2 TexCoord;
+out vec4 Output;
+
+const float DIST_FADE_START = 20.0;
+const float DIST_FADE_END = 50.0;
+const float FADE_DOT_PART = 0.1; 
+
+float DistanceFade(float InCameraDistance)
+{
+    return 1.0f - clamp((InCameraDistance - DIST_FADE_START) / (DIST_FADE_END - DIST_FADE_START), 0.0f, 1.0f);
+}
+
+void Default()
+{
+    // Sample textures
+    vec3 worldPosition = texture(TexPosition, TexCoord.xy).rgb;
+    vec3 worldNormal = texture(TexNormal, TexCoord.xy).xyz;
+    vec4 color = texture(TexColor, TexCoord.xy).rgba;
+    
+    // Camera distance and dot
+    vec3 cameraDifference = CameraPosition - worldPosition;
+    float cameraDistance = length(cameraDifference);
+    vec3 cameraDirection = cameraDifference / cameraDistance;
+    float cameraDot = dot(cameraDirection, worldNormal);
+
+    // Fade
+    float cameraDistanceFade = DistanceFade(cameraDistance);
+    float cameraFade = mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
+    float aoFade = pow(texture(TexAO, TexCoord).x, 0.5);
+    color.rgb *= max(0.2, 1.0 - aoFade);
+
+    Output = vec4(color.rgb * vec3(cameraFade), 1.0);
+}

@@ -5,7 +5,7 @@
 #include "Game/ECS/Player/Movement/Movement.h"
 #include "Utility/Time/Time.h"
 
-Type AnimationStateDefault::Update(double InDT)
+Type AnimationStateDefault::Update()
 {
     const float scale = 0.02f; 
     const float height = 0.3f;
@@ -18,7 +18,8 @@ Type AnimationStateDefault::Update(double InDT)
     const float curve = sinf(time * frequency);
     
     const float desiredRoll = curve * alpha * scale;
-    const float lerp = Utility::Math::Min(1.0f, interpSpeed * static_cast<float>(InDT));
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    const float lerp = Utility::Math::Min(1.0f, interpSpeed * dt);
     CurrentRoll = Utility::Math::Lerp(CurrentRoll, desiredRoll, lerp); 
     
     auto& camTrans = GetCameraTransform();

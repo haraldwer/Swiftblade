@@ -9,7 +9,7 @@ public:
 
 	virtual void Init();
 	virtual void Deinit();
-	virtual void Update(double InDelta); 
+	virtual void Update(); 
 	
 	// Override with default state
 	virtual Utility::Type GetDefaultStateType() = 0;

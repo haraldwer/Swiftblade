@@ -66,7 +66,7 @@ namespace ECS
         
         void Init(EntityID InID, CubeVolume& InComponent) override;
         void Deinit(EntityID InID, CubeVolume& InComponent) override;
-        void Frame(EntityID InID, CubeVolume& InComponent, double InDelta) override;
+        void Frame(EntityID InID, CubeVolume& InComponent) override;
         void DrawCubes(const Vector<Mat4F>& InTransforms, bool InEditMesh) const;
 
         bool ShouldUpdate() const override { return true; }

@@ -1,5 +1,4 @@
 #pragma once
-#include "..\Rendering\RenderScene.h"
 
 class EditorCamera
 {
@@ -7,7 +6,7 @@ public:
 
     EditorCamera() = default;
 
-    void Update(double InDelta);
+    void Update();
     void Deinit();
     
     Vec3F GetPosition() const { return TargetState.Position; }
@@ -17,7 +16,7 @@ public:
     
 private:
 
-    void UpdateMovement(double InDelta); 
+    void UpdateMovement(); 
     
     struct State
     {

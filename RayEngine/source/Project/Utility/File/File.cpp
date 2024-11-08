@@ -31,7 +31,13 @@ String Utility::ReadFile(const String& InPath)
         out.append(buf, 0, stream.gcount());
     }
     out.append(buf, 0, stream.gcount());
-    return out;
+
+    // Remove weird characters at start
+    size_t off = 0;
+    while (off < out.length() && out[off] < 0)
+        off++;
+    
+    return out.substr(off);
 }
 
 bool Utility::WriteFile(const String& InPath, const String& InContent)

@@ -3,7 +3,7 @@
 #include "BlueprintEditor.h"
 #include "Utility/Math/AngleConversion.h"
 
-void EditorCamera::Update(double InDelta)
+void EditorCamera::Update()
 {
     if (Input::Action::Get("EditorCamera").Pressed())
     {
@@ -29,7 +29,7 @@ void EditorCamera::Update(double InDelta)
     }
 
     if (bUseEditCamera)
-        UpdateMovement(InDelta); 
+        UpdateMovement(); 
 }
 
 void EditorCamera::Deinit()
@@ -63,8 +63,10 @@ void EditorCamera::Toggle()
     }
 }
 
-void EditorCamera::UpdateMovement(double InDelta)
+void EditorCamera::UpdateMovement()
 {
+    float dt = Utility::Time::Get().Unscaled();
+    
     auto& man = Input::Manager::Get();
     const bool ctrl = man.GetAction("Control", "EditorCamera").Down(); 
     
@@ -101,20 +103,20 @@ void EditorCamera::UpdateMovement(double InDelta)
             static_cast<float>(man.GetAction("Forward", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("Backward", "EditorCamera").Down()))) * 
         static_cast<float>(!ctrl);
-    TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(InDelta) * TargetState.MovementSpeed;
+    TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(dt) * TargetState.MovementSpeed;
     
     // FOV
     TargetState.FOV += (
             static_cast<float>(man.GetAction("IncreaseFOV", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("DecreaseFOV", "EditorCamera").Down())) *
         static_cast<float>(!ctrl) * 
-        static_cast<float>(InDelta) * 30.0f;
+        static_cast<float>(dt) * 30.0f;
 
     // TODO: Interp account for dt
     CurrentState.Rotation = TargetState.Rotation;
-    CurrentState.Position = Utility::Math::Lerp(CurrentState.Position, TargetState.Position, 10.0f * static_cast<float>(InDelta));
-    CurrentState.FOV = Utility::Math::Lerp(CurrentState.FOV, TargetState.FOV, 10.0f * static_cast<float>(InDelta));
-    CurrentState.MovementSpeed = Utility::Math::Lerp(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * static_cast<float>(InDelta));
+    CurrentState.Position = Utility::Math::Lerp(CurrentState.Position, TargetState.Position, 10.0f * static_cast<float>(dt));
+    CurrentState.FOV = Utility::Math::Lerp(CurrentState.FOV, TargetState.FOV, 10.0f * static_cast<float>(dt));
+    CurrentState.MovementSpeed = Utility::Math::Lerp(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * static_cast<float>(dt));
     
     // Set camera
     Engine::Instance::Get().GetRenderScene().SetCamera({

@@ -8,12 +8,16 @@
 #include "Engine/Rendering/Debug/Draw.h"
 #include "Game/ECS/Player/PlayerCamera.h"
 #include "MovementStateMachine.h"
+#include "Engine/Instance/Instance.h"
 #include "Utility/Math/AngleConversion.h"
 #include "Utility/Math/Geometry/Plane.h"
 #include "Utility/StateMachine/StateMachine.h"
 
 void ECS::Movement::Init()
 {
+    if (Engine::Instance::Get().IsEditor())
+        return;
+    
     StateMachine = new MovementStateMachine();
     StateMachine->Init();
 }
@@ -27,13 +31,16 @@ void ECS::Movement::Deinit()
     }
 }
 
-void ECS::Movement::Update(double InDelta)
+void ECS::Movement::Update()
 {
+    if (Engine::Instance::Get().IsEditor())
+        return;
+    
     GroundSnap();
 
     PROFILE_SCOPE_BEGIN("StateMachine");
     if (StateMachine)
-        StateMachine->Update(InDelta);
+        StateMachine->Update();
     PROFILE_SCOPE_END();
 }
 

@@ -45,7 +45,7 @@ void ECS::Player::Init()
     }
 }
 
-void ECS::Player::Update(double InDelta)
+void ECS::Player::Update()
 {
     const auto& t = Get<Transform>(GetID());
     if (t.GetPosition().y < -30.0f)

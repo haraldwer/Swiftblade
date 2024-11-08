@@ -46,16 +46,16 @@ void GameInstance::Logic(double InDelta)
 {
     Instance::Logic(InDelta); 
     
-    const double scaledDelta = Time.Delta();
     if (!Time.IsPaused())
-        Physics.Update(scaledDelta);
-    ECS.Update(scaledDelta);
-    EditorCamera.Update(InDelta); 
+        Physics.Update();
+    ECS.Update();
+    EditorCamera.Update(); 
 }
 
 void GameInstance::Frame(double InDelta)
 {
-    ECS.Frame(InDelta); 
+    Time.Tick(InDelta);
+    ECS.Frame(); 
     Instance::Frame(InDelta);
 }
 

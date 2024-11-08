@@ -6,7 +6,7 @@
 
 using namespace ECS;
 
-void SysMesh::Frame(EntityID InEntity, Mesh& InComponent, double InDelta)
+void SysMesh::Frame(EntityID InEntity, Mesh& InComponent)
 {
     // TODO: Static component optimization
     

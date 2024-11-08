@@ -17,7 +17,7 @@ Type MovementStateSlide::Check()
     return Type::None(); 
 }
 
-Type MovementStateSlide::Update(double InDT)
+Type MovementStateSlide::Update()
 {
     const auto& input = GetInput();
     const auto& movement = GetMovement();

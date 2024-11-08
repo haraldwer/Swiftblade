@@ -27,7 +27,7 @@ public:
 
     virtual void Init() {}
     virtual void Deinit() {}
-    virtual void Update(double InDelta) {}
+    virtual void Update() {}
     virtual void UpdateUI(bool InIsCameraControlling) {}
     virtual void DebugDraw(bool InIsCameraControlling) {}
     virtual void Enter() {}

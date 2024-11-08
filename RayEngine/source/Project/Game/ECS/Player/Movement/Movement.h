@@ -15,7 +15,7 @@ namespace ECS
     public:
         void Init() override;
         void Deinit() override;
-        void Update(double InDelta) override;
+        void Update() override;
         void OnBeginContact(const Physics::Contact& InContact) override;
         Type GetDesiredAnimationState() const;
 

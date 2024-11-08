@@ -20,7 +20,7 @@ class SysEnemy : public ECS::System<Enemy>
 
 public:
 
-    void Update(ECS::EntityID InID, Enemy& InComponent, double InDelta) override;
+    void Update(ECS::EntityID InID, Enemy& InComponent) override;
     
     void Spawn(ECS::EntityID InSpawnerID);
     void ApplyDamage(ECS::EntityID InEnemy, ECS::EntityID InDamageDealer);

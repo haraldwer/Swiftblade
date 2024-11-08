@@ -5,7 +5,7 @@
 class AnimationStateDefault : public AnimationState<AnimationStateDefault>
 {
 public: 
-    Type Update(double InDT) override;
+    Type Update() override;
     
 private:
     float CurrentRoll = 0.0f; 

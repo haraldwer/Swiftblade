@@ -38,7 +38,7 @@ void StateMachine::Deinit()
 			state->Deinit();
 }
 
-void StateMachine::Update(double InDelta)
+void StateMachine::Update()
 {
 	// Check conditions for every state
 	// Prioritize later states
@@ -56,7 +56,7 @@ void StateMachine::Update(double InDelta)
 	// Update current state
 	StateBase* statePtr = GetCurrentState();
 	CHECK_RETURN_LOG(!statePtr, "No current state");
-	if (const Utility::Type newState = statePtr->Update(InDelta))
+	if (const Utility::Type newState = statePtr->Update())
 		SetState(newState);
 }
 

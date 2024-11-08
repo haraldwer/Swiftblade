@@ -1,0 +1,14 @@
+﻿
+const int ID_PRECISION = 1000000;
+
+float DeferredIDToTexID(int InDeferredID)
+{
+    return float(InDeferredID % ID_PRECISION) / ID_PRECISION;
+}
+
+bool CheckID(float InTexID, int InDeferredID)
+{
+    return false;
+    float ID = DeferredIDToTexID(InDeferredID);
+    return abs(InTexID - ID) > (1.0 / ID_PRECISION) / 2.0;
+}

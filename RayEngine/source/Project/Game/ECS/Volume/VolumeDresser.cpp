@@ -10,9 +10,9 @@ void SysVolumeDresser::Dress(ECS::EntityID InID)
     // Dress!
 }
 
-void SysVolumeDresser::Frame(ECS::EntityID InID, VolumeDresser& InComponent, double InDelta)
+void SysVolumeDresser::Frame(ECS::EntityID InID, VolumeDresser& InComponent)
 {
-    System::Frame(InID, InComponent, InDelta);
+    System::Frame(InID, InComponent);
 }
 
 bool SysVolumeDresser::Edit(ECS::EntityID InID)

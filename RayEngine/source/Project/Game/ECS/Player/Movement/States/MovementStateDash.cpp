@@ -13,7 +13,7 @@ Type MovementStateDash::Check()
     return Type::None(); 
 }
 
-Type MovementStateDash::Update(double InDT)
+Type MovementStateDash::Update()
 {
     GetRB().SetVelocity(Direction * Speed.Get());
     if (GetTimeSinceEnter() > Duration)

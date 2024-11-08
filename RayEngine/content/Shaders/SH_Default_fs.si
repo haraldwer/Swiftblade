@@ -1,0 +1,25 @@
+﻿
+#include "Shaders/SH_FrameUniforms.si"
+#include "Shaders/SH_DeferredID.si"
+
+// In
+in vec3 WorldPosition;
+in vec3 WorldNormal;
+in vec3 ObjectPosition;
+in vec4 ScreenPosition;
+
+// Out
+layout (location = 0) out vec3 OutPosition;
+layout (location = 1) out vec4 OutScreenPosition;
+layout (location = 2) out vec3 OutNormal;
+layout (location = 3) out vec4 OutColor;
+layout (location = 4) out vec4 OutDeferredData;
+
+void Default()
+{
+    OutPosition = WorldPosition;
+    OutScreenPosition = ScreenPosition;
+    OutNormal = WorldNormal;
+    OutColor = vec4(1.0);
+    OutDeferredData = vec4(DeferredIDToTexID(DeferredID), 0.0, 0.0, 1.0);
+}

@@ -48,8 +48,8 @@ void RoomEditor::Logic(double InDelta)
     CHECK_ASSERT(!UI, "UI Invalid");
     
     Instance::Logic(InDelta);
-    ECS.Update(Time.Delta());
-    EditorCamera.Update(InDelta);
+    ECS.Update();
+    EditorCamera.Update();
     UI->Update();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
@@ -62,7 +62,7 @@ void RoomEditor::Logic(double InDelta)
     if (newMode != SubEditorMode::COUNT)
         SubEditorManager.SetMode(newMode); 
     
-    SubEditorManager.Update(InDelta, EditorCamera.IsControlling());
+    SubEditorManager.Update(EditorCamera.IsControlling());
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
@@ -83,7 +83,8 @@ void RoomEditor::Logic(double InDelta)
 
 void RoomEditor::Frame(double InDelta)
 {
-    ECS.Frame(InDelta); 
+    Time.Tick(InDelta);
+    ECS.Frame(); 
     Instance::Frame(InDelta);
     
     CHECK_ASSERT(!UI, "UI Invalid");

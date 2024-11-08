@@ -10,7 +10,7 @@ public:
 	
 	virtual void Init() {}
 	virtual void Deinit() {}
-	virtual Utility::Type Update(double InDT) { return {}; }
+	virtual Utility::Type Update() { return {}; }
 	virtual Utility::Type Check() { return {}; }
 	
 	virtual void Enter() {}

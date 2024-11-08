@@ -1,0 +1,48 @@
+﻿
+// Uniforms
+uniform mat4 mvp;
+uniform mat4 matNormal;
+
+// In
+in vec3 vertexPosition;
+in vec2 vertexTexCoord;
+in vec3 vertexNormal;
+in mat4 instanceTransform;
+
+// Out
+out vec3 WorldPosition;
+out vec3 WorldNormal;
+out vec3 ObjectPosition;
+out vec4 ScreenPosition;
+
+const float DISTORT_DIST_MUL = 0.5;
+const float DISTORT_DIST_POW = 0.7;
+const float DISTORT_PUSH_MUL = 0.3;
+
+vec2 DistortedScreenPosition(vec4 InScreenPosition)
+{
+    // Push things outwards based on distance from screen center
+    // Closer to center = more push 
+    float dist = distance(InScreenPosition.xy, vec2(0.0)) / InScreenPosition.z;
+    float clamped = clamp(dist * DISTORT_DIST_MUL, 0.0, 1.0);
+    float push = pow(clamped, DISTORT_DIST_POW) * DISTORT_PUSH_MUL;
+    float compensation = pow(1.5 * DISTORT_DIST_MUL, DISTORT_DIST_POW) * DISTORT_PUSH_MUL;
+    return InScreenPosition.xy * vec2(1.0 - push + compensation);
+}
+
+void Default()
+{
+    vec3 objectNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0)));
+    WorldNormal = normalize(mat3(instanceTransform) * objectNormal);
+    ObjectPosition = vertexPosition;
+    WorldPosition = vec3(instanceTransform * vec4(vertexPosition, 1.0));
+
+    // Calculate final vertex position
+    mat4 mvpi = mvp * instanceTransform;
+    ScreenPosition = mvpi * vec4(vertexPosition, 1.0);
+    
+    // Distort
+    ScreenPosition.xy = DistortedScreenPosition(ScreenPosition);
+    
+    gl_Position = ScreenPosition;
+}

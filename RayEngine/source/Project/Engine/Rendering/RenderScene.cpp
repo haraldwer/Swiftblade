@@ -31,9 +31,10 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
 
     // Create hash
     auto mat = InInstance.Material.Get();
-    auto model = InInstance.Model.Get();
-    hash.Resource.MaterialHash = mat->SurfaceHash(); 
-    hash.Resource.ModelHash = model->Hash();
+    if (mat)
+        hash.Resource.MaterialHash = mat->SurfaceHash();
+    if (auto model = InInstance.Model.Get())
+        hash.Resource.ModelHash = model->Hash();
 
     // Add entry
     Entry& entry = Entries[hash.Key];
@@ -41,11 +42,12 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     {
         entry.Material = InInstance.Material;
         entry.Model = InInstance.Model;
-        entry.DeferredID = mat->DeferredHash();
+        if (mat)
+            entry.DeferredID = mat->DeferredHash();
         entry.Initialized = true;
 
         // Add to deferred
-        if (!DeferredShaders.contains(entry.DeferredID))
+        if (!DeferredShaders.contains(entry.DeferredID) && entry.DeferredID != 0)
             DeferredShaders[entry.DeferredID] = mat->DeferredShader.Get();
     }
     

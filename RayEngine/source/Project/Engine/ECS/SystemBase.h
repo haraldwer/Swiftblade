@@ -31,8 +31,8 @@ namespace ECS
         // Can be overriden by T
         
         virtual void SystemInit() = 0;
-        virtual void SystemUpdate(double InDelta) = 0;
-        virtual void SystemFrame(double InDelta) = 0;
+        virtual void SystemUpdate() = 0;
+        virtual void SystemFrame() = 0;
         virtual bool ShouldUpdate() const;
         virtual void OnBeginContact(const Physics::Contact& InContact) {}
         virtual void OnEndContact(const Physics::Contact& InContact) {}

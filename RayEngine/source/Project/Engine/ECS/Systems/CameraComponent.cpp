@@ -7,7 +7,7 @@
 
 using namespace ECS; 
 
-void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent, double InDelta)
+void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent)
 {
     const Transform& t = Get<Transform>(InEntity);
     const CameraInstance c {

@@ -99,7 +99,7 @@ void Physics::Manager::Deinit()
     PX_RELEASE(Scene);
 }
 
-void Physics::Manager::Update(double InDelta) const
+void Physics::Manager::Update() const
 {
     PROFILE_SCOPE_BEGIN("Physics");
     
@@ -124,8 +124,9 @@ void Physics::Manager::Update(double InDelta) const
     PROFILE_SCOPE_END();
 
     PROFILE_SCOPE_BEGIN("Simulate");
+    double delta = Utility::Time::Get().Delta();
     Scene->simulate(
-        static_cast<PxReal>(InDelta),
+        static_cast<PxReal>(delta),
         nullptr,
         Persistent.ScratchBlock,
         Persistent.ScratchBlockSize);

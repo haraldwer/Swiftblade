@@ -4,7 +4,7 @@
 #include "Engine/Input/Manager.h"
 #include "Movement/Movement.h"
 
-void ECS::PlayerInput::Update(double InDelta)
+void ECS::PlayerInput::Update()
 {
     auto& trans = Get<Transform>(GetID());
 

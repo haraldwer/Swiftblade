@@ -5,5 +5,5 @@
 class AnimationStateInAir : public AnimationState<AnimationStateInAir>
 {
 public:
-    Type Update(double InDT) override;
+    Type Update() override;
 };

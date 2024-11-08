@@ -1,6 +1,6 @@
 ﻿#include "AnimationStateSlide.h"
 
-Type AnimationStateSlide::Update(double InDT)
+Type AnimationStateSlide::Update()
 {
     return Type::None(); 
 }

@@ -46,7 +46,7 @@ void RoomConnectionEditor::Deinit()
     }
 }
 
-void RoomConnectionEditor::Update(double InDelta)
+void RoomConnectionEditor::Update()
 {
 }
 

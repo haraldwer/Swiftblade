@@ -1,5 +1,0 @@
-
-uniform sampler2D TexPosition;
-uniform sampler2D TexNormal;
-uniform sampler2D TexColor;
-uniform sampler2D TexDeferredID;

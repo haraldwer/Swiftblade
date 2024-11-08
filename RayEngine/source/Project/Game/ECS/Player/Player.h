@@ -11,7 +11,7 @@ namespace ECS
     {
     public:
         void Init() override;
-        void Update(double InDelta) override;
+        void Update() override;
         void OnBeginContact(const Physics::Contact& InContact) override;
         int GetPriority() const override { return 20; }
 

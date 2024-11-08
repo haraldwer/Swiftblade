@@ -11,11 +11,11 @@ void ECS::PlayerCamera::Init()
     OriginalPosition = GetCameraTransform().GetPosition(Transform::Space::LOCAL); 
 }
 
-void ECS::PlayerCamera::Update(double InDelta)
+void ECS::PlayerCamera::Update()
 {
     // Interpolate crouch offset
-
-    CrouchOffset = Utility::Math::Lerp(CrouchOffset, TargetCrouchOffset, static_cast<float>(InDelta) * CrouchInterpSpeed);
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    CrouchOffset = Utility::Math::Lerp(CrouchOffset, TargetCrouchOffset, dt * CrouchInterpSpeed);
     const Vec3F offset = Vec3F::Up() * CrouchOffset;
     
     auto& camTrans = GetCameraTransform();

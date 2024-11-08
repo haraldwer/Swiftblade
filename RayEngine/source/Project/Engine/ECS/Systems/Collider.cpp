@@ -20,7 +20,7 @@ void ECS::SysCollider::Deinit(EntityID InEntity, Collider& InComponent)
     Physics::Manager::Get().Remove(InEntity); 
 }
 
-void ECS::SysCollider::Update(EntityID InID, Collider& InComponent, double InDelta)
+void ECS::SysCollider::Update(EntityID InID, Collider& InComponent)
 {
     auto& t = Get<Transform>(InID);
     switch (static_cast<Physics::Shape>(InComponent.Shape.Get())) {

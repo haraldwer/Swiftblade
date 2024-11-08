@@ -18,7 +18,7 @@ Type MovementStateWall::Check()
     return Type::None(); 
 }
 
-Type MovementStateWall::Update(double InDT)
+Type MovementStateWall::Update()
 {
     // Is still close to wall?
     if (!CheckWall())
@@ -33,10 +33,12 @@ Type MovementStateWall::Update(double InDT)
     if (!movement.IsInAir())
         return Type::Get<MovementStateIdle>();
 
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    
     // Interp wall normal
     if (TargetWallNormal.LengthSqr() > 0.1f)
     {
-        CurrentWallNormal = Utility::Math::Lerp(CurrentWallNormal, TargetWallNormal, NormalInterpSpeed * static_cast<float>(InDT));
+        CurrentWallNormal = Utility::Math::Lerp(CurrentWallNormal, TargetWallNormal, NormalInterpSpeed * static_cast<float>(dt));
         CurrentWallNormal = CurrentWallNormal.GetNormalized();
     }
 
@@ -46,8 +48,8 @@ Type MovementStateWall::Update(double InDT)
     
     movement.Look(input.RotInput);
     if (!movement.Move(input.MoveInput, move))
-        movement.Slowdown(InDT); 
-    movement.VelocityClamp(InDT);
+        movement.Slowdown(dt); 
+    movement.VelocityClamp(dt);
     
     return Type::None(); 
 }

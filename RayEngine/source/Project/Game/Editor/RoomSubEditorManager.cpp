@@ -44,12 +44,12 @@ void RoomSubEditorManager::Deinit()
     History.Clear();
 }
 
-void RoomSubEditorManager::Update(const double InDelta, const bool InIsCameraControlling)
+void RoomSubEditorManager::Update(const bool InIsCameraControlling)
 {
     CHECK_RETURN(CubeVolume == ECS::InvalidID);
     
     if (InIsCameraControlling)
-        GetSubEditor(Mode).Update(InDelta);
+        GetSubEditor(Mode).Update();
 
     // Keyboard shortcuts
     if (IsKeyDown(KEY_LEFT_CONTROL))

@@ -16,7 +16,7 @@ class SysVolumeDresser : public ECS::System<VolumeDresser>
 public:
     void Init(ECS::EntityID InID, VolumeDresser& InComponent) override;
     void Dress(ECS::EntityID InID);
-    void Frame(ECS::EntityID InID, VolumeDresser& InComponent, double InDelta) override;
+    void Frame(ECS::EntityID InID, VolumeDresser& InComponent) override;
     bool Edit(ECS::EntityID InID) override;
     int GetPriority() const override { return -102; }
     bool ShouldUpdate() const override { return true; }

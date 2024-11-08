@@ -22,10 +22,10 @@ Type MovementStateJump::Check()
     return Type::None();
 }
 
-Type MovementStateJump::Update(double InDT)
+Type MovementStateJump::Update()
 {
     if (const auto air = GetState<MovementStateAir>())
-        air->Update(InDT);
+        air->Update();
     return Type::Get<MovementStateAir>(); 
 }
 

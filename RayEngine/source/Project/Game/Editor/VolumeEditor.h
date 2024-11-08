@@ -6,7 +6,7 @@ class VolumeEditor : public RoomSubEditor
 {
 public: 
     void Init() override;
-    void Update(double InDelta) override;
+    void Update() override;
     void UpdateUI(bool InIsCameraControlling) override;
     void DebugDraw(bool InIsCameraControlling) override;
 

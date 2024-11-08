@@ -24,6 +24,7 @@ void Engine::Instance::Logic(double InDelta)
 
 void Engine::Instance::Frame(double InDelta)
 {
+    Time.Tick(InDelta);
     Input.Frame();
     Rendering::Manager::Get().SubmitScene(RenderScene); 
     Menus.Draw();
@@ -31,5 +32,5 @@ void Engine::Instance::Frame(double InDelta)
 
 Rendering::RenderScene& Engine::Instance::GetRenderScene()
 {
-    return *reinterpret_cast<Rendering::RenderScene*>(&RenderScene);
+    return RenderScene;
 }

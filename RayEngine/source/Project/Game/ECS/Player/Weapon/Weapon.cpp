@@ -9,7 +9,7 @@ void Weapon::Init()
     StartPos = Get<ECS::Transform>().GetPosition(); 
 }
 
-void Weapon::Update(double InDelta)
+void Weapon::Update()
 {
     auto& t = Get<ECS::Transform>();
     if (t.GetParent() == ECS::InvalidID)

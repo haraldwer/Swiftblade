@@ -15,7 +15,7 @@ namespace ECS
     class SysCameraComponent : public System<CameraComponent>
     {
     public:
-        void Update(EntityID InEntity, CameraComponent& InComponent, double InDelta) override;
+        void Update(EntityID InEntity, CameraComponent& InComponent) override;
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -99; }
     };

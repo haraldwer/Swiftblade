@@ -5,7 +5,7 @@
 #include "MovementStateIdle.h"
 #include "Game/ECS/Player/Animation/States/AnimationStateInAir.h"
 
-Type MovementStateAir::Update(double InDT)
+Type MovementStateAir::Update()
 {
     const auto& input = GetInput();
     const auto& movement = GetMovement();
@@ -19,10 +19,11 @@ Type MovementStateAir::Update(double InDT)
     ECS::Movement::VelocityClampParams vel;
     vel.MaxSpeed = 20.0f;
     vel.ClampSlowdown = 0.005f; 
-    
+
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
     if (!movement.Move(input.MoveInput, move))
-        movement.Slowdown(InDT, slowdown);
-    movement.VelocityClamp(InDT, vel);
+        movement.Slowdown(dt, slowdown);
+    movement.VelocityClamp(dt, vel);
     
     if (!movement.IsInAir())
         return Type::Get<MovementStateIdle>(); 

@@ -9,7 +9,7 @@ namespace ECS
     {
     public:
         
-        void Update(double InDelta) override;
+        void Update() override;
 
         // TODO: input buffering
         

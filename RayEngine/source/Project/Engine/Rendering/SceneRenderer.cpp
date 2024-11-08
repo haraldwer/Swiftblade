@@ -5,7 +5,46 @@
 #include "ImGui/rlImGui.h"
 #include "RaylibRenderUtility.h"
 #include "Utility/RayUtility.h"
-#include "Utility/Time/Time.h"
+
+void Rendering::SceneRenderer::Init()
+{
+    SSAOShader = ResShader("Shaders/SH_SSAO.ps"); 
+    QuantizeShader = ResShader("Shaders/SH_Quantize.ps");
+}
+
+void Rendering::SceneRenderer::Setup(const RenderTexture2D& InVirtualTarget)
+{
+    if (SceneTarget.TryBeginSetup(InVirtualTarget))
+    {
+        SceneTarget.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
+        SceneTarget.CreateBuffer("TexScreenPosition", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
+        SceneTarget.CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        SceneTarget.CreateBuffer("TexColor", PIXELFORMAT_UNCOMPRESSED_R4G4B4A4);
+        SceneTarget.CreateBuffer("TexDeferredData", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
+        SceneTarget.EndSetup(InVirtualTarget);
+    }
+
+    if (FrameTarget.TryBeginSetup(InVirtualTarget))
+    {
+        FrameTarget.CreateBuffer("TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        FrameTarget.EndSetup(InVirtualTarget);
+    }
+    
+    if (QuantizeTarget.TryBeginSetup(InVirtualTarget))
+    {
+        QuantizeTarget.CreateBuffer("TexQuantize", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        QuantizeTarget.EndSetup(InVirtualTarget);
+    }
+    
+    for (auto& target : SSAOTargets)
+    {
+        if (target.TryBeginSetup(InVirtualTarget))
+        {
+            target.CreateBuffer("TexAO", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+            target.EndSetup(InVirtualTarget);
+        }
+    }
+}
 
 void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTexture2D& InVirtualTarget)
 {
@@ -14,13 +53,30 @@ void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTe
     // TODO: Scene target composing with multiple targets
     // TODO: Customizable render pipeline
 
-    SceneTarget.TrySetup(InVirtualTarget);
+    rlEnableDepthTest();
+    
+    Setup(InVirtualTarget);    
 
     // Draw to SceneTarget
     DrawEntries(InScene, SceneTarget);
+    
+    rlDisableDepthTest();
+    
+    // Collect AO
+    auto& prevSSAOTarget = SSAOTargets[CurrentSSAOTarget];
+    CurrentSSAOTarget = (CurrentSSAOTarget + 1) % 2;
+    auto& newSSAOTarget = SSAOTargets[CurrentSSAOTarget];
+    DrawPostProcessing(InScene, newSSAOTarget, { &SceneTarget, &prevSSAOTarget }, SSAOShader);
+    
+    // Draw to FrameTarget, quantize
+    DrawDeferredScene(InScene, FrameTarget, { &SceneTarget, &newSSAOTarget });
+    DrawPostProcessing(InScene, QuantizeTarget, { &SceneTarget, &newSSAOTarget, &FrameTarget }, QuantizeShader);
 
+    rlEnableDepthTest();
+    
     BeginTextureMode(InVirtualTarget);
-    DrawDeferredScene(InScene, SceneTarget);
+    Blip(InVirtualTarget, QuantizeTarget);
+    
     DrawDebug(InScene);
 }
 
@@ -36,65 +92,73 @@ void Rendering::SceneRenderer::DrawDebugWindow()
     ImGui::Text(("Debug shapes: " + std::to_string(DebugDrawCount)).c_str());
     ImGui::Checkbox("DebugDraw##SceneRenderer", &DebugDraw);
 
-    for (auto& buff : SceneTarget.GetBuffers())
+    auto func = [](const RenderTarget& InTarget, String InName)
     {
-        if (ImGui::CollapsingHeader(buff.Name.c_str()))
+        if (ImGui::CollapsingHeader(InName.c_str()))
         {
-            // Adjust size
-            const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-            const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-            const Vec2F size = {vMax.x - vMin.x, vMax.y - vMin.y};
-            const float mul = static_cast<float>(buff.Tex.width) / size.width;
+            auto& buffs = InTarget.GetBuffers();
+            for (auto& buff : buffs)
+            {
+                // Adjust size
+                const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+                const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+                const Vec2F size = {vMax.x - vMin.x, vMax.y - vMin.y};
+                const float mul = static_cast<float>(buff.Tex.width) / size.width;
 
-            // Send to ImGui
-            rlImGuiImageRect(
-                &buff.Tex,
-                static_cast<int>(size.x),
-                static_cast<int>(static_cast<float>(buff.Tex.height) / mul),
-                Rectangle{
-                    0, 0,
-                    static_cast<float>(buff.Tex.width),
-                    static_cast<float>(-buff.Tex.height)
-                });
+                // Send to ImGui
+                rlImGuiImageRect(
+                    &buff.Tex,
+                    static_cast<int>(size.x),
+                    static_cast<int>(static_cast<float>(buff.Tex.height) / mul),
+                    Rectangle{
+                        0, 0,
+                        static_cast<float>(buff.Tex.width),
+                        static_cast<float>(-buff.Tex.height)
+                    });
+                ImGui::TableNextColumn();
+            }
         }
-    }
+    };
+    func(SceneTarget, "Scene");
+    func(SSAOTargets[CurrentSSAOTarget], "SSAO");
+    func(FrameTarget, "Frame");
+    func(QuantizeTarget, "Quantize");
 }
 
 
-void Rendering::SceneRenderer::SetShaderValues(const Shader* InShader, const RenderScene& InScene, const SceneRenderTarget& InSceneTarget, uint32 InDeferredID)
+void Rendering::SceneRenderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID)
 {
-    CHECK_RETURN(!InShader);
+    auto ptr = InShader.Get();
+    CHECK_RETURN(!ptr);
 
-    const int cameraPos = GetShaderLocation(*InShader, "CameraPosition");
-    SetShaderValue(*InShader, cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3);
+    const int cameraPos = InShader.GetLocation("CameraPosition");
+    if (cameraPos >= 0)
+        rlSetUniform(cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3, 1);
 
-    const int timePos = GetShaderLocation(*InShader, "Time");
+    const int timePos =  InShader.GetLocation("Time");
     float time = static_cast<float>(InScene.Time);
-    SetShaderValue(*InShader, timePos, &time, SHADER_UNIFORM_FLOAT);
+    if (timePos >= 0)
+        rlSetUniform(timePos, &time, SHADER_UNIFORM_FLOAT, 1);
 
-    const int resolution = GetShaderLocation(*InShader, "Resolution");
-    SetShaderValue(*InShader, resolution, InSceneTarget.Size().data, SHADER_UNIFORM_VEC2);
+    const int resolution =  InShader.GetLocation("Resolution");
+    if (resolution >= 0)
+        rlSetUniform(resolution, InSceneTarget.Size().data, SHADER_UNIFORM_VEC2, 1);
 
-    const int idPos = GetShaderLocation(*InShader, "DeferredID");
-    SetShaderValue(*InShader, idPos, &InDeferredID, SHADER_UNIFORM_INT);
+    const int idPos =  InShader.GetLocation("DeferredID");
+    const int32 deferredID = static_cast<int32>(InDeferredID);
+    if (idPos >= 0)
+        rlSetUniform(idPos, &deferredID, SHADER_UNIFORM_INT, 1);
 }
 
-void Rendering::SceneRenderer::SetCustomShaderValues(const Shader* InShader) // Floats and vectors
+void Rendering::SceneRenderer::SetCustomShaderValues(ShaderResource& InShader)
 {
-    CHECK_RETURN(!InShader);
-    //for (auto& val : values)
-    //{
-    //    const int pos = GetShaderLocation(*InShader, val.Name);
-    //    SetShaderValue(*InShader, pos, val.Data, SHADER_UNIFORM_FLOAT);
-    //}
 }
 
-void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
+void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const RenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
 
-    InSceneTarget.BeginWrite();
-
+    InSceneTarget.BeginWrite(); 
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
 
     // Instanced rendering
@@ -115,23 +179,23 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
             }
         }
 
-        const Shader* shader = nullptr;
-        if (const auto resMat = entry.second.Material.Get())
-        {
-            if (const auto resShader = resMat->SurfaceShader.Get().Get())
-                shader = resShader->Get();
-            resMat->TwoSided ? rlDisableBackfaceCulling() : rlEnableBackfaceCulling();
-        }
-
         CHECK_CONTINUE(!meshes);
         CHECK_CONTINUE(meshCount == 0);
-        CHECK_CONTINUE(!shader);
         CHECK_CONTINUE(entry.second.Transforms.empty());
+        
+        const MaterialResource* resMat = entry.second.Material.Get();
+        CHECK_CONTINUE(!resMat);
+        ShaderResource* resShader = resMat->SurfaceShader.Get().Get();
+        CHECK_CONTINUE(!resShader);
+        Shader* shader = resShader->Get();
+        CHECK_CONTINUE(!shader);
+
+        resMat->TwoSided ? rlDisableBackfaceCulling() : rlEnableBackfaceCulling();
 
         // Enable shader
         rlEnableShader(shader->id);
-        SetShaderValues(shader, InScene, InSceneTarget, entry.second.DeferredID);
-        SetCustomShaderValues(shader);
+        SetShaderValues(*resShader, InScene, InSceneTarget, entry.second.DeferredID);
+        SetCustomShaderValues(*resShader);
 
         // Data has been prepared for this entry
         // Time to draw all the instances
@@ -146,44 +210,69 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Sce
     }
     rlEnableBackfaceCulling();
     EndMode3D();
-
     InSceneTarget.EndWrite();
 
     PROFILE_SCOPE_END()
 }
 
-void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, const SceneRenderTarget& InSceneTarget)
+void Rendering::SceneRenderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
 
-    BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
-    rlDisableDepthTest();
-    rlDisableColorBlend();
-
+    InTarget.BeginWrite();
     for (auto& entry : InScene.Meshes.DeferredShaders)
     {
-        // Set shader
-        const auto shaderResource = entry.second.Get();
+        ShaderResource* shaderResource = entry.second.Get();
         CHECK_CONTINUE(!shaderResource);
         const Shader* shader = shaderResource->Get();
         CHECK_CONTINUE(!shader);
 
         rlEnableShader(shader->id);
-        SetShaderValues(shader, InScene, InSceneTarget, entry.first);
+        SetShaderValues(*shaderResource, InScene, InTarget, entry.first);
+        
+        RenderTarget::Slot bindOffset;
+        for (auto& b : InBuffers)
+            if (b) b->Bind(*shaderResource, bindOffset);
 
-        // Bind textures
-        InSceneTarget.Bind(*shader, 0);
-
-        // Draw fullscreen quad
         rlLoadDrawQuad();
+        
+        RenderTarget::Slot unbindOffset;
+        for (auto& b : InBuffers)
+            if (b) b->Unbind(*shaderResource, unbindOffset);
+        
         rlDisableShader();
     }
+    InTarget.EndWrite();
+    
+    PROFILE_SCOPE_END()
+}
 
-    // Reset
-    rlEnableColorBlend();
-    rlEnableDepthTest();
-    EndMode3D();
+void Rendering::SceneRenderer::DrawPostProcessing(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers, const ResShader& InShader)
+{
+    PROFILE_SCOPE_BEGIN("DrawPostProcessing")
 
+    ShaderResource* shaderResource = InShader.Get();
+    CHECK_ASSERT(!shaderResource, "Failed to find shader resource");
+    const Shader* shader = shaderResource->Get();
+    CHECK_ASSERT(!shader, "Failed to get shader");
+
+    InTarget.BeginWrite();
+    rlEnableShader(shader->id);
+    SetShaderValues(*shaderResource, InScene, InTarget, 0);
+    
+    RenderTarget::Slot bindOffset;
+    for (auto& b : InBuffers)
+        if (b) b->Bind(*shaderResource, bindOffset);
+
+    rlLoadDrawQuad();
+
+    RenderTarget::Slot unbindOffset;
+    for (auto& b : InBuffers)
+        if (b) b->Unbind(*shaderResource, unbindOffset);
+    
+    rlDisableShader();
+    InTarget.EndWrite(); 
+    
     PROFILE_SCOPE_END()
 }
 
@@ -244,4 +333,20 @@ void Rendering::SceneRenderer::DrawDebug(const RenderScene& InScene)
     EndMode3D();
 
     PROFILE_SCOPE_END()
+}
+
+void Rendering::SceneRenderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
+{
+    // Flip and blip
+    const Rectangle sourceRec = {
+        0.0f, 0.0f,
+        static_cast<float>(InTarget.texture.width),
+        -static_cast<float>(InTarget.texture.height)
+    };
+    
+    DrawTextureRec(
+        InBuffer.GetBuffers()[0].Tex,
+        sourceRec,
+        { 0, 0 },
+        WHITE);
 }

@@ -18,6 +18,8 @@ void Rendering::Manager::Init()
     ImGui::LoadFont();
 
     SetExitKey(KEY_F4);
+
+    Renderer.Init(); 
 }
 
 void Rendering::Manager::Deinit()

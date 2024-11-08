@@ -18,7 +18,7 @@ public:
     
     void Init(RoomType InType);
     void Deinit();
-    void Update(double InDelta, bool InIsCameraControlling);
+    void Update(bool InIsCameraControlling);
     void UpdateUI(bool InIsCameraControlling);
     void DebugDraw(bool InIsCameraControlling);
     

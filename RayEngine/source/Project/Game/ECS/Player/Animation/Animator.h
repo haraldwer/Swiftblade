@@ -29,7 +29,7 @@ class Animator : public ECS::UniqueComponent<Animator>, public ECS::PlayerInterf
 public:
 
     void Init() override;
-    void Update(double InDelta) override;
+    void Update() override;
     void TryOverrideState(const Type& InAnimState) const;
 
 private: 

@@ -2,15 +2,16 @@
 
 #include "Game/ECS/Player/Movement/Movement.h"
 
-Type MovementStateRun::Update(double InDT)
+Type MovementStateRun::Update()
 {
     const auto& input = GetInput();
     const auto& movement = GetMovement();
 
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
     movement.Look(input.RotInput);
     if (!movement.Move(input.MoveInput))
-        movement.Slowdown(InDT); 
-    movement.VelocityClamp(InDT);
+        movement.Slowdown(dt); 
+    movement.VelocityClamp(dt);
     
     if (input.MoveInput.Length() < 0.5f)
         return Type::Get<MovementStateIdle>();

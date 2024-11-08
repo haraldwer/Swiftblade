@@ -2,7 +2,7 @@
 
 #include "Game/ECS/Player/Movement/Movement.h"
 
-Type MovementStateCrouch::Update(double InDT)
+Type MovementStateCrouch::Update()
 {
     const auto& input = GetInput();
     const auto& movement = GetMovement();
@@ -12,11 +12,12 @@ Type MovementStateCrouch::Update(double InDT)
     ECS::Movement::VelocityClampParams vel;
     vel.MaxSpeed *= 0.5f;
     vel.ClampSlowdown *= 0.1f; 
-    
+
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
     movement.Look(input.RotInput);
     if (!movement.Move(input.MoveInput, move))
-        movement.Slowdown(InDT); 
-    movement.VelocityClamp(InDT, vel);
+        movement.Slowdown(dt); 
+    movement.VelocityClamp(dt, vel);
     
     if (!movement.IsOnGround())
         return Type::Get<MovementStateIdle>();

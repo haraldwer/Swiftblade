@@ -15,13 +15,16 @@ public:
     bool Save(const String& InPath) { return false; };
     bool Edit(const String& InName) { return false; };
 
+    int GetLocation(const String& InValue);
+
 private:
     String LoadShaderFile(const String& InPath);
     String ProcessIncludes(const String& InShaderCode, const String& InPath);
     
     String Identifier; 
     Shader* Ptr = nullptr;
-    Set<String> IncludeGuard;
+    Set<String> Includes;
+    Map<String, int> Locations;
 };
 
 typedef Resource::Ref<ShaderResource> ResShader;  

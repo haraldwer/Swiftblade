@@ -31,7 +31,8 @@ namespace Resource
         bool Load() override
         {
             if (Loaded)
-                return true; 
+                return true;
+            Data.Unload();
             Loaded = Data.Load(Identifier);
             if (Loaded)
                 EditTimestamp = Data.GetEditTime();

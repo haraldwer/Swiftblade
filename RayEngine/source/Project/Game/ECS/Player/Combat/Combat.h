@@ -5,7 +5,7 @@
 class Combat : public ECS::UniqueComponent<Combat>, public ECS::PlayerInterface
 {
 public:
-    void Update(double InDelta) override;
+    void Update() override;
 
 private:
     PROPERTY_C(float, DamageSweepSize, 1.0f)

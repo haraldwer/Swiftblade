@@ -227,7 +227,7 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
 {
-    BlockMesh.Material = ResRM("Defaults/RM_Default.json");
+    BlockMesh.Material = ResRM("Dressing/RM_StoneWall.json");
     BlockMesh.Model = ResModel("Defaults/M_Cube.obj");
 
     EditMesh.Material = ResRM("Editor/RM_EditCube.json");
@@ -251,7 +251,7 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
     Physics::Manager::Get().ClearCubes(InID); 
 }
 
-void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent, double InDelta)
+void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
 {
     // Calculate bounds
     const Mat4F world = Get<Transform>(InComponent.GetID()).World();

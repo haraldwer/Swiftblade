@@ -1,6 +1,7 @@
 {
 	"OpenWindows":[
 		"Blueprint Editor",
-		"Room Editor"
+		"Room Editor",
+		"Scene Rendering"
 	]
 }

@@ -11,7 +11,7 @@ void VolumeEditor::Init()
     // TODO: If there is none, maybe create one?
 }
 
-void VolumeEditor::Update(double InDelta)
+void VolumeEditor::Update()
 {
     // If in cube edit mode, add / remove cubes
     

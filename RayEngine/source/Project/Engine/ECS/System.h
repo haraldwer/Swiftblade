@@ -15,19 +15,19 @@ namespace ECS
         // - Implement - //  
         virtual void Init(EntityID InID, T& InComponent) {}
         virtual void Deinit(EntityID InID, T& InComponent) {}
-        virtual void Update(EntityID InID, T& InComponent, double InDelta) {}
-        virtual void Frame(EntityID InID, T& InComponent, double InDelta) {}
+        virtual void Update(EntityID InID, T& InComponent) {}
+        virtual void Frame(EntityID InID, T& InComponent) {}
 
         void SystemInit() override {}
-        void SystemUpdate(const double InDelta) override
+        void SystemUpdate() override
         {
             for (const auto& id : Translation)
-                Update(id.first, GetInternal(id.second), InDelta);
+                Update(id.first, GetInternal(id.second));
         }
-        void SystemFrame(const double InDelta) override
+        void SystemFrame() override
         {
             for (const auto& id : Translation)
-                Frame(id.first, GetInternal(id.second), InDelta);
+                Frame(id.first, GetInternal(id.second));
         }
 
         // - Helpers - //

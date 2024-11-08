@@ -6,7 +6,7 @@
 #include "Game/ECS/Enemies/Enemy.h"
 #include "Game/ECS/Player/Weapon/Weapon.h"
 
-void Combat::Update(double InDelta)
+void Combat::Update()
 {
     const auto sword = GetSword();
     CHECK_RETURN(!sword); 

@@ -1,4 +1,4 @@
 {
-	"Shader":"Editor/SH_EditCube",
+	"SurfaceShader":"Editor/SH_EditCube",
 	"TwoSided":true
 }

@@ -38,13 +38,13 @@ Type MovementStateVault::Check()
     return Type::Get<MovementStateVault>();
 }
 
-Type MovementStateVault::Update(double InDT)
+Type MovementStateVault::Update()
 {
     // Move towards Y
     // Input has to be above a threshold and in the right direction
 
     if (const auto air = GetState<MovementStateAir>())
-        air->Update(InDT);
+        air->Update();
 
     ECS::Rigidbody& rb = GetRB();
     const Vec3F vel = rb.GetVelocity();

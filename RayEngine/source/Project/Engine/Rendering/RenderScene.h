@@ -16,7 +16,7 @@ namespace Rendering
             Vector<Mat4F> Transforms;
             ResModel Model;
             ResRM Material;
-            uint32 DeferredID;
+            uint32 DeferredID = 0;
             bool Initialized = false;
         };
         Map<uint64, Entry> Entries;

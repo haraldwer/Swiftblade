@@ -46,8 +46,8 @@ void BlueprintEditor::Logic(double InDelta)
     Instance::Logic(InDelta);
 
     // Update
-    ECS.Update(Time.Delta());
-    EditorCamera.Update(InDelta);
+    ECS.Update();
+    EditorCamera.Update();
 
     if (InstanceID == ECS::InvalidID)
         return; 
@@ -65,7 +65,8 @@ void BlueprintEditor::Logic(double InDelta)
 
 void BlueprintEditor::Frame(double InDelta)
 {
-    ECS.Frame(InDelta); 
+    Time.Tick(InDelta);
+    ECS.Frame(); 
     Instance::Frame(InDelta);
 }
 

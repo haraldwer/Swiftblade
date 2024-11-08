@@ -5,14 +5,15 @@
 #include "MovementStateAir.h"
 #include "MovementStateRun.h"
 
-Type MovementStateIdle::Update(double InDT)
+Type MovementStateIdle::Update()
 {
     const auto& input = GetInput();
     const auto& movement = GetMovement();
 
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
     movement.Look(input.RotInput);
-    movement.Slowdown(InDT);
-    movement.VelocityClamp(InDT);
+    movement.Slowdown(dt);
+    movement.VelocityClamp(dt);
 
     if (movement.IsInAir())
         return Type::Get<MovementStateAir>();

@@ -28,9 +28,7 @@ namespace Engine
         Menu::Manager Menus;
         Input::Manager Input;
         
-        void UpdateEditorCamera(double InDelta);
         EditorCamera EditorCamera;
-        
         
     private:
         Rendering::RenderScene RenderScene;

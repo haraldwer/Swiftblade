@@ -10,11 +10,11 @@ void Animator::Init()
     StateMachine->Init();
 }
 
-void Animator::Update(double InDelta)
+void Animator::Update()
 {
     PROFILE_SCOPE_BEGIN("StateMachine");
     if (StateMachine)
-        StateMachine->Update(InDelta);
+        StateMachine->Update();
     PROFILE_SCOPE_END();
 }
 

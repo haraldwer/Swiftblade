@@ -17,7 +17,7 @@ namespace ECS
         
         virtual void Init() {}
         virtual void Deinit() {}
-        virtual void Update(double InDelta) {}
+        virtual void Update() {}
         virtual void OnBeginContact(const Physics::Contact& InContact) {}
         virtual void OnEndContact(const Physics::Contact& InContact) {}
         virtual int GetPriority() const { return 0; }
@@ -71,9 +71,9 @@ namespace ECS
             InComponent.Deinit(); 
         }
 
-        void Update(EntityID InID, T& InComponent, double InDelta) override
+        void Update(EntityID InID, T& InComponent) override
         {
-            InComponent.Update(InDelta); 
+            InComponent.Update(); 
         }
 
         int GetPriority() const override

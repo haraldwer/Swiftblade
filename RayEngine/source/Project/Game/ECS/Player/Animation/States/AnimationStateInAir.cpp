@@ -1,6 +1,6 @@
 ﻿#include "AnimationStateInAir.h"
 
-Type AnimationStateInAir::Update(double InDT)
+Type AnimationStateInAir::Update()
 {
     return Type::None(); 
 }

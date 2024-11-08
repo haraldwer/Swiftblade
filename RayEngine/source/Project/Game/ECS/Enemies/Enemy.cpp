@@ -6,7 +6,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Game/GameState.h"
 
-void SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent, double InDelta)
+void SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
 {
     auto& trans = Get<ECS::Transform>(InID);
     const ECS::EntityID player = GameState::Get().GetPlayerID();

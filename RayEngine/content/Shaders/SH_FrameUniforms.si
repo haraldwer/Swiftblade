@@ -2,4 +2,4 @@
 uniform vec3 CameraPosition;
 uniform float Time;
 uniform vec2 Resolution;
-uniform uint DeferredID;
+uniform int DeferredID;

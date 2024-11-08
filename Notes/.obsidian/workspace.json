@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/2 - New rendering setup.md",
+                "file": "Tasks/2 - Enum properties.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2 - New rendering setup"
+              "title": "2 - Enum properties"
             }
           }
         ]
@@ -162,10 +162,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "1fc93849a5de3ca6",
+  "active": "99326411889e7499",
   "lastOpenFiles": [
+    "Tasks/Archive/2 - New rendering setup.md",
     "Tasks/1 - Editor UI.md",
-    "Tasks/2 - New rendering setup.md",
     "Tasks/0 - Default shading.md",
     "Tasks/0 - Basic Enemy.md",
     "Tasks/0 - Arena editing.md",

@@ -3,7 +3,7 @@
 
 class MovementStateIdle : public MovementState<MovementStateIdle>
 {
-    Type Update(double InDT) override;
+    Type Update() override;
     int32 Priority() const override { return 0; }
     Type GetAnimationState() const override;
 };

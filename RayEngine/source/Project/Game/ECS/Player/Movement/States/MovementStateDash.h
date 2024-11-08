@@ -5,7 +5,7 @@
 class MovementStateDash : public MovementState<MovementStateDash>
 {
     Type Check() override;
-    Type Update(double InDT) override;
+    Type Update() override;
     void Enter() override;
     int32 Priority() const override { return 7; }
     

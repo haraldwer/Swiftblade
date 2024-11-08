@@ -22,26 +22,28 @@ void RoomObjectEditor::Deinit()
     Config.SaveConfig(); 
 }
 
-void RoomObjectEditor::Update(double InDelta)
+void RoomObjectEditor::Update()
 {
     CHECK_RETURN(ObjectID == ECS::InvalidID)
 
     auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(ObjectID);
     CHECK_RETURN(!trans);
 
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    
     // Move object using trace 
     TargetPos = GetTraceLocation();
     if (TargetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
-        trans->SetPosition(Utility::Math::Lerp(currPos, TargetPos, 20.0f * static_cast<float>(InDelta)));
+        trans->SetPosition(Utility::Math::Lerp(currPos, TargetPos, 20.0f * dt));
     } 
 
     // Rotate object!
     if (IsKeyPressed(KEY_R))
         TargetRot.y += PI_FLOAT * 0.25f;
     const QuatF rot = trans->GetRotation();
-    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 20.0f * static_cast<float>(InDelta)));
+    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 20.0f * dt));
 
     if (Input::Action::Get("LM").Pressed())
         PlaceObject();

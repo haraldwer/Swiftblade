@@ -41,6 +41,6 @@ namespace ECS
     class SysRigidbody : public System<Rigidbody>
     {
     public:
-        void Update(EntityID InID, Rigidbody& InComponent, double InDelta) override;
+        void Update(EntityID InID, Rigidbody& InComponent) override;
     };
 }
