@@ -75,7 +75,7 @@ int main()
         // Render to target texture
         PROFILE_SCOPE_BEGIN("Virtual frame");
         renderer.BeginVirtualFrame();
-        instance->Frame(delta);
+        instance->Frame();
         renderer.EndVirtualFrame();
         PROFILE_SCOPE_END();
 

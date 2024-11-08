@@ -35,14 +35,11 @@ void Default()
     vec3 objectNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0)));
     WorldNormal = normalize(mat3(instanceTransform) * objectNormal);
     ObjectPosition = vertexPosition;
-    WorldPosition = vec3(instanceTransform * vec4(vertexPosition, 1.0));
-
-    // Calculate final vertex position
-    mat4 mvpi = mvp * instanceTransform;
-    ScreenPosition = mvpi * vec4(vertexPosition, 1.0);
+    WorldPosition = (instanceTransform * vec4(vertexPosition, 1.0)).xyz;
+    ScreenPosition = mvp * vec4(WorldPosition, 1.0);
     
     // Distort
-    ScreenPosition.xy = DistortedScreenPosition(ScreenPosition);
+    //ScreenPosition.xy = DistortedScreenPosition(ScreenPosition);
     
     gl_Position = ScreenPosition;
 }

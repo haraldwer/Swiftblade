@@ -5,7 +5,7 @@
 
 void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InView, float InFar, Vec3F InPos)
 {
-	const Mat4F matrix = InView * InProj;
+	const Mat4F matrix = Mat4F::GetInverse(InView) * InProj;
 
 	auto& near = Planes[0];
 	auto& far = Planes[1];
@@ -28,20 +28,7 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 
 void Rendering::Frustum::ConstructFrustum(const CameraInstance& InCam)
 {
-	const Mat4F trans = Mat4F(InCam.Position, InCam.Rotation, Vec3F::One());
-	const Mat4F view = Mat4F::GetInverse(trans);
-	
-	Mat4F proj = Mat4F();
-	const Vec2F size = Manager::Get().GetViewportSize();
-	const float aspect = size.x / size.y;
-	const float base = 1.0f / tanf(Utility::Math::DegreesToRadians(InCam.FOV));
-	proj(0, 0) = base;
-	proj(1, 1) = aspect * base;
-	const float dist = InCam.Far / (InCam.Far - InCam.Near);
-	proj(2, 2) = dist;
-	proj(3, 2) = -InCam.Near * dist;
-	proj(2, 3) = 1;
-	proj(3, 3) = 0;
-
+	Mat4F view = InCam.GetViewMatrix();
+	Mat4F proj = InCam.GetProjectionMatrix(Manager::Get().GetViewportSize());
 	ConstructFrustum(proj, view, InCam.Far, InCam.Position);
 }

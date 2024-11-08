@@ -81,11 +81,10 @@ void RoomEditor::Logic(double InDelta)
         Engine::Manager::Get().Pop();
 }
 
-void RoomEditor::Frame(double InDelta)
+void RoomEditor::Frame()
 {
-    Time.Tick(InDelta);
     ECS.Frame(); 
-    Instance::Frame(InDelta);
+    Instance::Frame();
     
     CHECK_ASSERT(!UI, "UI Invalid");
     UI->Draw();

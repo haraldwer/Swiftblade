@@ -21,7 +21,6 @@ void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent)
     auto& i = Engine::Instance::Get();
     auto& s = i.GetRenderScene(); 
     s.SetCamera(c);
-    s.SetTime(Utility::Time::Get().Total());
 
     if (i.IsEditor())
         Rendering::DebugSphere(t.GetPosition());

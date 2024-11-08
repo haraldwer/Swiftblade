@@ -78,10 +78,28 @@ float SSAO()
      return finalAO * finalAO;
 }
 
+vec2 ScreenPosToCoord(vec3 InScreenPos)
+{
+     return (InScreenPos.xy / InScreenPos.z) * vec2(0.5) + vec2(0.5);
+}
+
+vec2 GetPreviousScreenCoord()
+{
+     vec3 screenPos = texture(TexScreenPosition, TexCoord).xyz;
+     vec4 prevScreenPos = WorldToPrevScreen * vec4(texture(TexPosition, TexCoord).xyz, 1.0);
+     vec2 prevCoords = ScreenPosToCoord(prevScreenPos.xyz);
+     return clamp(prevCoords, 0.001, 0.999);
+}
+
 void main()
 { 
      float new = SSAO();
-     float prev = texture(TexAO, TexCoord).x;
-     float l = 0.1;
-     Output = vec4(new * l + prev * (1.0 - l));
+     float prev = texture(TexAO, GetPreviousScreenCoord()).r;
+     
+     Output = vec4(0.0, 0.0, 0.0, 1.0);
+     
+     float l = 0.001;
+     Output.r = new * l + prev * (1.0 - l);
+     Output.g = prev * 100;
+     Output.b = new * 100;
 }

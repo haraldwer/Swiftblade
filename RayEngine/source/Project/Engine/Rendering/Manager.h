@@ -34,7 +34,7 @@ namespace Rendering
         String DebugWindowName() const override { return "Viewport"; }
         void DrawDebugWindow() override;
         
-        void SubmitScene(const RenderScene& InScene);
+        void SubmitScene(RenderScene& InScene);
 
     private:
 

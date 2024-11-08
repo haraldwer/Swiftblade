@@ -16,17 +16,16 @@ void Engine::Instance::Deinit()
 
 void Engine::Instance::Logic(double InDelta)
 {
-    RenderScene = Rendering::RenderScene();
+    RenderScene.Clear();
     Time.Tick(InDelta);
     Input.Update(); 
     Menus.Update();
 }
 
-void Engine::Instance::Frame(double InDelta)
+void Engine::Instance::Frame()
 {
-    Time.Tick(InDelta);
     Input.Frame();
-    Rendering::Manager::Get().SubmitScene(RenderScene); 
+    Rendering::Manager::Get().SubmitScene(RenderScene);
     Menus.Draw();
 }
 

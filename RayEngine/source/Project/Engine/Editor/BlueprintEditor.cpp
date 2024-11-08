@@ -63,11 +63,10 @@ void BlueprintEditor::Logic(double InDelta)
     }
 }
 
-void BlueprintEditor::Frame(double InDelta)
+void BlueprintEditor::Frame()
 {
-    Time.Tick(InDelta);
     ECS.Frame(); 
-    Instance::Frame(InDelta);
+    Instance::Frame();
 }
 
 void BlueprintEditor::DrawDebugWindow()

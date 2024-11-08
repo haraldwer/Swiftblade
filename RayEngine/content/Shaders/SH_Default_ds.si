@@ -9,6 +9,21 @@
 in vec2 TexCoord;
 out vec4 Output;
 
+float SquaredLength(vec2 InDist)
+{
+    return InDist.x * InDist.x + InDist.y * InDist.y;
+}
+
+float SquaredLength(vec3 InDist)
+{
+    return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z;
+}
+
+float Pow2(float InValue)
+{
+    return InValue * InValue;
+}
+
 const float DIST_FADE_START = 20.0;
 const float DIST_FADE_END = 50.0;
 const float FADE_DOT_PART = 0.1; 
@@ -18,12 +33,10 @@ float DistanceFade(float InCameraDistance)
     return 1.0f - clamp((InCameraDistance - DIST_FADE_START) / (DIST_FADE_END - DIST_FADE_START), 0.0f, 1.0f);
 }
 
-void Default()
+float SurfaceFade()
 {
-    // Sample textures
     vec3 worldPosition = texture(TexPosition, TexCoord.xy).rgb;
     vec3 worldNormal = texture(TexNormal, TexCoord.xy).xyz;
-    vec4 color = texture(TexColor, TexCoord.xy).rgba;
     
     // Camera distance and dot
     vec3 cameraDifference = CameraPosition - worldPosition;
@@ -33,9 +46,25 @@ void Default()
 
     // Fade
     float cameraDistanceFade = DistanceFade(cameraDistance);
-    float cameraFade = mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
+    return mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
+}
+
+void Default()
+{
+    vec4 deferredData = texture(TexDeferredData, TexCoord);
+    if (CheckID(deferredData.r, DeferredID))
+        discard;
+    
+    // Sample textures
+    vec4 color = texture(TexColor, TexCoord.xy).rgba;
+    if (color.a < 0.01)
+        discard;
+    
+    float fade = SurfaceFade();
+    color.rgb *= fade;
+    
     float aoFade = pow(texture(TexAO, TexCoord).x, 0.5);
     color.rgb *= 1.0 - aoFade;
 
-    Output = vec4(color.rgb * vec3(cameraFade), 1.0);
+    Output = vec4(color.rgb, 1.0);
 }

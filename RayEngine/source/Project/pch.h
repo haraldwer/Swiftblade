@@ -77,6 +77,7 @@ using String = std::string;
 #include "Utility/Math/Macros.h"
 #include "Utility/Math/Basic.h"
 #include "Utility/Math/Lerp.h"
+#include "Utility/Math/AngleConversion.h"
 #include "Utility/Utility.h"
 #include "Utility/NumericalTypes.h"
 

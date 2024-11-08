@@ -4,10 +4,5 @@
 
 void main()
 {
-    // Check deferred ID
-    vec4 deferredData = texture(TexDeferredData, TexCoord); 
-    if (CheckID(deferredData.r, DeferredID))
-        discard;
-    
     Default(); 
 }

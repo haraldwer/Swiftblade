@@ -1,5 +1,8 @@
 
 uniform vec3 CameraPosition;
 uniform float Time;
+uniform float Delta;
 uniform vec2 Resolution;
 uniform int DeferredID;
+uniform mat4 WorldToPrevScreen;
+

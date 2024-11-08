@@ -52,11 +52,10 @@ void GameInstance::Logic(double InDelta)
     EditorCamera.Update(); 
 }
 
-void GameInstance::Frame(double InDelta)
+void GameInstance::Frame()
 {
-    Time.Tick(InDelta);
     ECS.Frame(); 
-    Instance::Frame(InDelta);
+    Instance::Frame();
 }
 
 void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)

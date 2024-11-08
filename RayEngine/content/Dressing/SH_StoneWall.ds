@@ -4,21 +4,15 @@
 void main()
 {
     // Check deferred ID
-    vec4 deferredData = texture(TexDeferredData, TexCoord);
-    if (CheckID(deferredData.r, DeferredID))
-        discard;
+    Default();
     
-    // Sample textures
-    vec3 worldPosition = texture(TexPosition, TexCoord.xy).rgb;
-    vec3 worldNormal = texture(TexNormal, TexCoord.xy).xyz;
-    vec4 color = texture(TexColor, TexCoord.xy).rgba;
-
     float noiseScale = 0.5;
     float yStepNoiseScale = 0.1;
     float yStepScale = 1.2;
     float yTileScale = 1.3;
     float bigNoiseScale = 0.1;
 
+    vec3 worldPosition = texture(TexPosition, TexCoord.xy).rgb;
     float noise = abs(SimplexNoise3D(worldPosition * noiseScale));
     noise = pow(noise, 0.5);
     float yStep = worldPosition.y + SimplexNoise3D(worldPosition * yStepNoiseScale) * yStepScale;
@@ -26,19 +20,5 @@ void main()
     float bigNoise = SimplexNoise3D(worldPosition * bigNoiseScale);
     noise *= bigNoise * step(0.2, bigNoise);
     noise *= step(0.1, noise); 
-    color.rgb = vec3(0.6 + noise * 0.5);
-
-    // Camera distance and dot
-    vec3 cameraDifference = CameraPosition - worldPosition;
-    float cameraDistance = length(cameraDifference);
-    vec3 cameraDirection = cameraDifference / cameraDistance;
-    float cameraDot = pow(dot(cameraDirection, worldNormal), 0.5);
-
-    // Fade
-    float cameraDistanceFade = DistanceFade(cameraDistance);
-    float cameraFade = mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
-    float aoFade = pow(texture(TexAO, TexCoord).x, 0.5);
-    color.rgb *= 1.0 - aoFade;
-
-    Output = vec4(color.rgb * vec3(cameraFade), color.a); 
+    Output.rgb *= vec3(0.6 + noise * 0.5);
 }

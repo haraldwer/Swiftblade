@@ -21,7 +21,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Logic(double InDelta) override;
-    void Frame(double InDelta) override;
+    void Frame() override;
     void DrawDebugWindow() override;
     String DebugWindowName() const override { return "Blueprint Editor"; }
     bool IsEditor() const override { return true; }

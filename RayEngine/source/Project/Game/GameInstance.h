@@ -14,7 +14,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Logic(double InDelta) override;
-    void Frame(double InDelta) override; 
+    void Frame() override; 
     
     void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
     void SetState(const GameState& InState);

@@ -4,6 +4,21 @@
 
 using namespace Rendering;
 
+void RenderScene::BeginFrame()
+{
+    double newTime = Utility::Time::Get().Total();
+    Delta = newTime - Time; 
+    Time = newTime;
+}
+
+void RenderScene::Clear()
+{
+    Cam = {};
+    Meshes = {};
+    DebugShapes = {};
+    DebugLines = {};
+}
+
 void MeshCollection::AddMesh(const MeshInstance& InInstance)
 {
     auto& entry = GetEntry(InInstance);
@@ -60,11 +75,6 @@ void RenderScene::SetCamera(const CameraInstance& InCamera)
     Frustum.ConstructFrustum(InCamera);
 }
 
-void RenderScene::SetTime(const double InTime)
-{
-    Time = InTime;
-}
-
 void RenderScene::AddMesh(const MeshInstance& InMesh)
 {
     const Vec3F scale = InMesh.Transform.GetScale();
@@ -96,13 +106,4 @@ void RenderScene::AddDebugLine(const DebugLineInstance& InLine)
     const Vec3F diff = InLine.End - InLine.Start; 
     if (Frustum.CheckCube(InLine.Start + diff * 0.5f, diff.Length()))
         DebugLines.push_back(InLine);
-}
-
-void RenderScene::Clear()
-{
-    Cam = {};
-    Meshes = {};
-    DebugShapes = {};
-    DebugLines = {};
-    Time = 0.0f;
 }

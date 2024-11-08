@@ -17,13 +17,13 @@ namespace Rendering
         
     private:
         void DrawEntries(const RenderScene& InScene, const RenderTarget& InSceneTarget);
-        static void DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
-        static void DrawPostProcessing(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers, const ResShader& InShader);
+        void DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
+        void DrawPostProcessing(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers, const ResShader& InShader);
         void DrawDebug(const RenderScene& InScene);
         static void Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer);
 
-        static void SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID);
-        static void SetCustomShaderValues(ShaderResource& InShader);
+        void SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID);
+        void SetCustomShaderValues(ShaderResource& InShader);
 
         RenderTarget SceneTarget;
         RenderTarget FrameTarget;
@@ -36,6 +36,9 @@ namespace Rendering
         bool DebugDraw = true;
 
         ResShader SSAOShader; 
-        ResShader QuantizeShader; 
+        ResShader QuantizeShader;
+
+        Mat4F PreviousMVP = { };
+        Mat4F PendingMVP = { };
     };
 }

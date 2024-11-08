@@ -71,8 +71,9 @@ void Rendering::Manager::DrawDebugWindow()
     ViewportPosition = { vMin.x + windowPos.x, vMin.y + windowPos.y };
 }
 
-void Rendering::Manager::SubmitScene(const RenderScene& InScene)
+void Rendering::Manager::SubmitScene(RenderScene& InScene)
 {
+    InScene.BeginFrame(); 
     Renderer.Render(InScene, VirtualTarget); 
 }
 

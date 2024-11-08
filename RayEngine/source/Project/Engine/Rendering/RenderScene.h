@@ -31,7 +31,6 @@ namespace Rendering
         friend class SceneRenderer; 
     public:
         void SetCamera(const CameraInstance& InCamera);
-        void SetTime(double InTime);
         const CameraInstance& GetCamera() const { return Cam; }
         
         void AddMesh(const MeshInstance& InMesh);
@@ -39,6 +38,7 @@ namespace Rendering
         void AddDebugShape(const DebugShapeInstance& InShape);
         void AddDebugLine(const DebugLineInstance& InLine);
 
+        void BeginFrame();
         void Clear();
         
     private:
@@ -47,8 +47,9 @@ namespace Rendering
         Vector<DebugShapeInstance> DebugShapes;
         Vector<DebugLineInstance> DebugLines;
         Frustum Frustum;
-        double Time = 0.0f; 
         
+        double Delta = 0.0f;
+        double Time = 0.0f;
     };
 }
 

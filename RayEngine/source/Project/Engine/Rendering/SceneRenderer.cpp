@@ -5,6 +5,7 @@
 #include "ImGui/rlImGui.h"
 #include "RaylibRenderUtility.h"
 #include "Utility/RayUtility.h"
+#include "rlgl.h"
 
 void Rendering::SceneRenderer::Init()
 {
@@ -92,17 +93,16 @@ void Rendering::SceneRenderer::DrawDebugWindow()
     ImGui::Text(("Debug shapes: " + std::to_string(DebugDrawCount)).c_str());
     ImGui::Checkbox("DebugDraw##SceneRenderer", &DebugDraw);
 
-    auto func = [](const RenderTarget& InTarget, String InName)
+    auto func = [](const RenderTarget& InTarget, const String& InName)
     {
         if (ImGui::CollapsingHeader(InName.c_str()))
         {
-            auto& buffs = InTarget.GetBuffers();
-            for (auto& buff : buffs)
+            for (auto& buff : InTarget.GetBuffers())
             {
                 // Adjust size
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
                 const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-                const Vec2F size = {vMax.x - vMin.x, vMax.y - vMin.y};
+                const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
                 const float mul = static_cast<float>(buff.Tex.width) / size.width;
 
                 // Send to ImGui
@@ -125,29 +125,40 @@ void Rendering::SceneRenderer::DrawDebugWindow()
     func(QuantizeTarget, "Quantize");
 }
 
+template <class T>
+void SetValue(ShaderResource& InShader, const String& InName, T InValue, const int InType)
+{
+    const int loc = InShader.GetLocation(InName);
+    if (loc >= 0)
+        rlSetUniform(loc, &InValue, InType, 1);
+}
+
+void SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
+{
+    const int loc = InShader.GetLocation(InName);
+    if (loc >= 0)
+        rlSetUniformMatrix(loc, InValue);
+}
 
 void Rendering::SceneRenderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID)
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    const int cameraPos = InShader.GetLocation("CameraPosition");
-    if (cameraPos >= 0)
-        rlSetUniform(cameraPos, InScene.Cam.Position.data, SHADER_UNIFORM_VEC3, 1);
+    SetValue(InShader, "CameraPosition", InScene.Cam.Position, SHADER_UNIFORM_VEC3);
+    SetValue(InShader, "Time", InScene.Time, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, "Delta", InScene.Delta, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, "Resolution", InSceneTarget.Size(), SHADER_UNIFORM_VEC2);
+    SetValue(InShader, "DeferredID", static_cast<int32>(InDeferredID), SHADER_UNIFORM_INT);
 
-    const int timePos =  InShader.GetLocation("Time");
-    float time = static_cast<float>(InScene.Time);
-    if (timePos >= 0)
-        rlSetUniform(timePos, &time, SHADER_UNIFORM_FLOAT, 1);
-
-    const int resolution =  InShader.GetLocation("Resolution");
-    if (resolution >= 0)
-        rlSetUniform(resolution, InSceneTarget.Size().data, SHADER_UNIFORM_VEC2, 1);
-
-    const int idPos =  InShader.GetLocation("DeferredID");
-    const int32 deferredID = static_cast<int32>(InDeferredID);
-    if (idPos >= 0)
-        rlSetUniform(idPos, &deferredID, SHADER_UNIFORM_INT, 1);
+    //Mat4F prevView = InScene.PrevCam.GetViewMatrix();
+    //Mat4F prevProj = InScene.PrevCam.GetProjectionMatrix(InSceneTarget.Size());
+    //Mat4F view = InScene.Cam.GetViewMatrix();
+    //Mat4F proj = InScene.Cam.GetProjectionMatrix(InSceneTarget.Size());
+    //
+    //Mat4F inv = Mat4F::Transpose(Mat4F::GetInverse(prevProj) * prevView);
+    //Matrix worldToPrevScreen = Utility::Ray::ConvertMat(inv);
+    SetValue(InShader, "WorldToPrevScreen", Utility::Ray::ConvertMat(PreviousMVP));
 }
 
 void Rendering::SceneRenderer::SetCustomShaderValues(ShaderResource& InShader)
@@ -161,6 +172,11 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Ren
     InSceneTarget.BeginWrite(); 
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
 
+    Mat4F view = Utility::Ray::ConvertBack(rlGetMatrixModelview());
+    Mat4F proj = Utility::Ray::ConvertBack(rlGetMatrixProjection());
+    PreviousMVP = PendingMVP;
+    PendingMVP = view * proj;
+    
     // Instanced rendering
     MeshDrawCount = 0;
     for (auto& entry : InScene.Meshes.Entries)
@@ -208,6 +224,7 @@ void Rendering::SceneRenderer::DrawEntries(const RenderScene& InScene, const Ren
         // Disable shader
         rlDisableShader();
     }
+    
     rlEnableBackfaceCulling();
     EndMode3D();
     InSceneTarget.EndWrite();

@@ -7,4 +7,24 @@ struct CameraInstance
     float FOV;
     float Far;
     float Near;
+
+    Mat4F GetViewMatrix() const
+    {
+        return Mat4F(Position, Rotation, Vec3F::One());
+    }
+    
+    Mat4F GetProjectionMatrix(Vec2F InSize) const
+    {
+        Mat4F proj = Mat4F();
+        const float aspect = InSize.x / InSize.y;
+        const float base = 1.0f / tanf(Utility::Math::DegreesToRadians(FOV));
+        proj(0, 0) = base;
+        proj(1, 1) = aspect * base;
+        const float dist = Far / (Far - Near);
+        proj(2, 2) = dist;
+        proj(3, 2) = -Near * dist;
+        proj(2, 3) = 1;
+        proj(3, 3) = 0;
+        return proj;
+    }
 };
