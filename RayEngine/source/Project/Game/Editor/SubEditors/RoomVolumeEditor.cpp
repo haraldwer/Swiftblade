@@ -37,7 +37,7 @@ void RoomVolumeEditor::Update()
     struct VolumeChange
     {
         ECS::ID VolumeID; 
-        ECS::CubeVolumeData OriginalVolume; 
+        CubeVolumeData OriginalVolume; 
         Coord Start;
         Coord End;
     };

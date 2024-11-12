@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Engine/ECS/Entity.h"
-#include "Game/ECS/Volume/CubeVolume.h"
 
 class RoomSubEditorManager;
 

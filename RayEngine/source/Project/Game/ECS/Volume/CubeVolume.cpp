@@ -127,6 +127,39 @@ Vec3F ECS::CubeVolume::GetCenter(bool InStart) const
     return CoordToPos(Coord(255 / 2, 255 / 2, (255 / 2) * static_cast<uint8>(!InStart)));
 }
 
+Coord ECS::CubeVolume::TryOffset(Coord InCoord, Vec3I InOffset)
+{
+    Vec3I pos = {
+        InCoord.Pos.X,
+        InCoord.Pos.Y,
+        InCoord.Pos.Z
+    };
+    Vec3I newPos = pos + InOffset;
+    if (newPos.x < 0 ||
+        newPos.y < 0 ||
+        newPos.z < 0 ||
+        newPos.x > static_cast<uint8>(-1) ||
+        newPos.y > static_cast<uint8>(-1) ||
+        newPos.z > static_cast<uint8>(-1))
+        return Coord(0);
+    return Coord(
+        static_cast<uint8>(newPos.x),
+        static_cast<uint8>(newPos.y),
+        static_cast<uint8>(newPos.z));
+}
+
+Array<Coord, 6> ECS::CubeVolume::GetNeighbors(const Coord InCoord)
+{
+    Array<Coord, 6> result;
+    result[0] = TryOffset(InCoord,{ 1, 0, 0 });
+    result[1] = TryOffset(InCoord,{ -1, 0, 0 });
+    result[2] = TryOffset(InCoord,{ 0, 1, 0 });
+    result[3] = TryOffset(InCoord,{ 0, -1, 0 });
+    result[4] = TryOffset(InCoord,{ 0, 0, 1 });
+    result[5] = TryOffset(InCoord,{ 0, 0, -1 });
+    return result;
+}
+
 uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
 {
     auto& v = Get<CubeVolume>(InID);

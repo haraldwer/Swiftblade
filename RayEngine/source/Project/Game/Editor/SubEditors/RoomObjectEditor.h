@@ -1,9 +1,9 @@
 ﻿#pragma once
 
+#include "../RoomSubEditor.h"
 #include "Engine/BaseConfig.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Property/Property.h"
-#include "../RoomSubEditor.h"
 
 struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 {

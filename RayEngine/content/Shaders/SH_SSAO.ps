@@ -8,28 +8,25 @@
 in vec2 TexCoord;
 out vec4 Output;
 
-const int ITERATIONS = 16;
-const float INTENSITY = 1.0f;
-const float RADIUS = 0.5f;
-const float SAMPLE_DISTANCE_SCALE = 0.5f;
+const int ITERATIONS = 4;
+const float INTENSITY = 0.08f;
+const float RADIUS = 1.0f;
+const float SAMPLE_DISTANCE_SCALE = 1.0f;
 const float SAMPLE_DISTANCE_BIAS = 0.05f;
 const float SAMPLE_NORMAL_BIAS = 0.1f;
-const float NEAR_START_FADE = 1.0;
-const float NEAR_END_FADE = 2.5;
+const float NEAR_START_FADE = 3.0;
+const float NEAR_END_FADE = 5.0;
 
 const float POSITION_THRESHOLD = 1.0;
 const float DEPTH_THRESHOLD = 1.0;
-const float INCREASE_LERP = 1.0;
-const float DECREASE_LERP = 10.0;
+const float LERP_SPEED = 20.0;
+const float MERGE_WEIGHT_CURR = 3.0;
+const float MERGE_WEIGHT_PREV = 2.0;
+const float MERGE_WEIGHT_PREV_PREV = 1.0;
 
 vec3 SSAOPosition(vec2 uv)
 {
      return texture(TexPosition, uv).xyz;
-}
-
-float SSAODepth(vec2 uv)
-{
-     return texture(TexScreenPosition, uv).z;
 }
 
 vec3 SSAONormal(vec2 uv)
@@ -37,13 +34,20 @@ vec3 SSAONormal(vec2 uv)
      return texture(TexNormal, uv).xyz;
 }
 
-float SSAOIteration(vec2 InCoord, vec2 InOffset, vec3 InStartPosition, vec3 InStartNormal, float InStartDepth)
+float SSAODepthSqr(vec3 InPos)
+{
+     vec3 diff = InPos - CameraPosition;
+     return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+}
+
+float SSAOIteration(vec2 InCoord, vec2 InOffset, vec3 InStartPosition, vec3 InStartNormal, float InStartDepthSqr)
 {
      vec2 coord = clamp(InCoord + InOffset, 0.0001, 0.9999);
+     vec3 pos = SSAOPosition(coord);
      
      // Depth test
-     float depth = SSAODepth(coord);
-     if (InStartDepth < depth || depth < NEAR_START_FADE)
+     float depthSqr = SSAODepthSqr(pos);
+     if (InStartDepthSqr < depthSqr || depthSqr < NEAR_START_FADE * NEAR_START_FADE)
           return 0.0;
      
      vec3 diff = SSAOPosition(coord) - InStartPosition;
@@ -57,17 +61,15 @@ float SSAOIteration(vec2 InCoord, vec2 InOffset, vec3 InStartPosition, vec3 InSt
      vec3 direction = diff / distance;
      float normalDot = clamp(dot(InStartNormal, direction) - SAMPLE_NORMAL_BIAS, 0.0, 1.0);
 
-     // Distance fade
-     float fade = clamp((depth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
-     
-     return clamp(normalDot * distPart * fade, 0.0, 1.0);
+     return clamp(normalDot * distPart, 0.0, 1.0);
 }
 
 float SSAO()
 {
      vec3 startPosition = SSAOPosition(TexCoord);
      vec3 startNormal = SSAONormal(TexCoord);
-     float startDepth = texture(TexScreenPosition, TexCoord).z;
+     float startDepthSqr = SSAODepthSqr(startPosition);
+     float startDepth = sqrt(startDepthSqr);
      
      float inv = 1.0f / ITERATIONS;
      float rStep = inv * RADIUS / startDepth;
@@ -78,8 +80,8 @@ float SSAO()
      {
           radius += rStep;
           vec2 uv = (Random2(TexCoord + radius + Time) - 0.5) * 2.0;
-          ao += SSAOIteration(TexCoord, uv * radius, startPosition, startNormal, startDepth); 
-     }
+          ao += SSAOIteration(TexCoord, uv * radius, startPosition, startNormal, startDepthSqr); 
+     }    
      float finalAO = clamp(ao * INTENSITY * inv, 0.0, 1.0);
      return finalAO;
 }
@@ -88,9 +90,13 @@ void main()
 {
      float ssao = SSAO();
      
-     float prev = 0.0;
      vec3 currPos = texture(TexPosition, TexCoord).xyz;
      float currDepth = texture(TexScreenPosition, TexCoord).z;
+     float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
+     
+     float accumulated = 0.0;
+     float prev = 0.0;
+     float prevPrev = 0.0;
      vec2 prevCoord = GetPreviousScreenCoord(currPos, NearFar.x);
      if (prevCoord.x > 0.0 && prevCoord.x < 1.0 && 
          prevCoord.y > 0.0 && prevCoord.y < 1.0)
@@ -100,19 +106,32 @@ void main()
           {
                vec3 prevPos = texture(TexPosition, prevCoord).xyz; 
                float diff = length(currPos - prevPos);
-               if (diff < POSITION_THRESHOLD) 
-                    prev = texture(TexAO, prevCoord).r;
+               if (diff < POSITION_THRESHOLD)
+               {
+                    vec4 val = texture(TexAO, prevCoord).rgba;
+                    accumulated = val.g;
+                    prev = val.b;
+                    prevPrev = val.a;
+               }
           }
      }
      
      Output = vec4(vec3(0.0), 1.0);
-     float lerp = INCREASE_LERP;
-     if (ssao < prev)
-          lerp = DECREASE_LERP;
-     float l = clamp(lerp * Delta, 0.0f, 1.0f);
-     Output.r = ssao * l + prev * (1.0f - l);
      
-     // Debug output
-     Output.g = prev * 100.0;
-     Output.b = ssao * 100.0;
+     float merged = max(max(ssao, prev), prevPrev);
+     
+     float accLerp = clamp(LERP_SPEED * Delta, 0.0f, 1.0f);
+     accumulated = merged * accLerp + accumulated * (1.0f - accLerp);
+     
+     // Accumulate
+     // Also, merge current and previous
+     // Show max
+     
+     Output.r = mix(merged, accumulated, 0.8f);
+     Output.r *= fade; // Fade is a post-thing
+     
+     // For next frame:
+     Output.g = accumulated; // Store accumulated
+     Output.b = ssao; // Store as prev
+     Output.a = prev; // Store as prevPrev
 }

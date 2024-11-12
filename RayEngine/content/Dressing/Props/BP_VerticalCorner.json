@@ -1,0 +1,17 @@
+﻿{
+	"Components":[{
+		"Name":"Mesh",
+		"Data":{
+			"Material":"Dressing\\RM_StoneWall.json"
+		}
+	},{
+		"Name":"Attributes",
+		"Data":{
+			"Name":"VerticalCornerProp"
+		}
+	},{
+		"Name":"Transform",
+		"Data":{}
+	}
+	]
+}

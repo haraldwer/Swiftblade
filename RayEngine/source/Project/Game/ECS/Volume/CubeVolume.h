@@ -1,46 +1,12 @@
 #pragma once
 
+#include "Coord.h"
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 #include "Engine/Rendering/Instances/MeshInstance.h"
 
-struct Coord
-{
-    Coord()
-    {
-    }
-    
-    Coord(const uint8 InX, const uint8 InY, const uint8 InZ)
-    {
-        Pos.X = InX;
-        Pos.Y = InY;
-        Pos.Z = InZ;
-        Pos.Padding = 0; 
-    }
-
-    Coord(const uint32 InKey) : Key(InKey) {}
-
-    struct Vec
-    {
-        uint8 X;
-        uint8 Y;
-        uint8 Z;
-        uint8 Padding; 
-    };
-        
-    union
-    {
-        Vec Pos;
-        uint32 Key = 0; 
-    };
-};
-
 namespace ECS
 {
-    typedef Map<uint32, uint8> CubeVolumeData;
-
-    
-    
     struct CubeVolume : Component<CubeVolume>
     {
         PROPERTY_D(float, Scale, 1.0f); 
@@ -60,6 +26,9 @@ namespace ECS
         Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld = Mat4F()) const;
         Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld = Mat4F()) const;
         Vec3F GetCenter(bool InStart) const;
+
+        static Coord TryOffset(Coord InCoord, Vec3I InOffset);
+        static Array<Coord, 6> GetNeighbors(Coord InCoord);
     };
 
     class SysCubeVolume : public System<CubeVolume>
