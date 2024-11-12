@@ -1,11 +1,11 @@
 ﻿#include "RoomEditor.h"
 
 #include "Engine/ECS/Systems/Transform.h"
-#include "Game/GameInstance.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/UI/Builder.h"
 #include "Engine/UI/Elements/List.h"
 #include "Engine/UI/Elements/RectImage.h"
+#include "Game/GameInstance.h"
 #include "ImGui/imgui.h"
 
 void RoomEditor::Init()
@@ -13,11 +13,12 @@ void RoomEditor::Init()
     Instance::Init();
     ECS.Init();
     CurrConfig.LoadConfig();
-    EditorCamera.Toggle(); 
-    EditorCamera.SetAlwaysEnabled(true);
     
     OpenScene();
-    SubEditorManager.SetMode(SubEditorMode::VOLUME);
+    SubEditorManager.SetMode(SubEditorMode::PATH);
+    
+    EditorCamera.Toggle(); 
+    EditorCamera.SetAlwaysEnabled(true);
 
     // Create UI
     UI::Builder builder = UI::Builder()
@@ -31,8 +32,7 @@ void RoomEditor::Init()
                 .Add(UI::Image(ResTexture("UI/T_ModeVolume.png")), "ModeVolume")
                 .Add(UI::Image(ResTexture("UI/T_ModeObject.png")), "ModeObject")
                 .Add(UI::Image(ResTexture("UI/T_ModeConnection.png")), "ModeConnection");
-    
-    UI = builder.Build(); 
+    UI = builder.Build();
 }
 
 void RoomEditor::Deinit()
@@ -58,7 +58,7 @@ void RoomEditor::Logic(double InDelta)
     if (IsKeyPressed(KEY_TWO) || UI->Get("ModeObject").IsClicked())
         newMode = SubEditorMode::OBJECTS;
     if (IsKeyPressed(KEY_THREE) || UI->Get("ModeConnection").IsClicked())
-        newMode = SubEditorMode::CONNECTIONS;
+        newMode = SubEditorMode::PATH;
     if (newMode != SubEditorMode::COUNT)
         SubEditorManager.SetMode(newMode); 
     
@@ -88,7 +88,7 @@ void RoomEditor::Frame()
     
     CHECK_ASSERT(!UI, "UI Invalid");
     UI->Draw();
-    SubEditorManager.UpdateUI(EditorCamera.IsControlling());
+    SubEditorManager.Frame(EditorCamera.IsControlling());
 }
 
 void RoomEditor::DrawDebugWindow()
@@ -119,12 +119,10 @@ void RoomEditor::OpenScene()
     ECS.DestroyPending();
 
     if (const auto scene = CurrConfig.Scene.Get().Get())
-    { 
         Scene = scene->Create();
-        
-        SubEditorManager.Init(CurrConfig.IsArena ?
-            RoomType::ARENA : RoomType::ROOM); 
-    }
+    
+    SubEditorManager.Init(CurrConfig.IsArena ?
+        RoomType::ARENA : RoomType::ROOM); 
 }
 
 void RoomEditor::PlayScene()

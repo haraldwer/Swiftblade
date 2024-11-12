@@ -1,12 +1,12 @@
 ﻿#include "RoomManager.h"
 
-#include "RandomWeightedCollection.h"
-#include "RoomConfig.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Game/GameState.h"
 #include "Game/ECS/RoomConnection.h"
+#include "Game/GameState.h"
+#include "RoomConfig.h"
 #include "Utility/Math/Random.hpp"
+#include "Utility/RandomWeightedCollection.h"
 
 void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
 {
@@ -49,8 +49,8 @@ void RoomManager::LoadConfig()
 
     // How far has the player come?
     const auto& state = GameState::Get();
-    RandomWeightedCollection<ResScene> roomCollection(state.Seed);
-    RandomWeightedCollection<ResScene> arenaCollection(state.Seed);
+    Utility::RandomWeightedCollection<ResScene> roomCollection(state.Seed);
+    Utility::RandomWeightedCollection<ResScene> arenaCollection(state.Seed);
     for (auto& room : config.Rooms.Get())
         roomCollection.Add(room);
     for (auto& arena : config.Arenas.Get())

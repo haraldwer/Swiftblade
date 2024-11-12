@@ -1,9 +1,9 @@
-﻿
+﻿#version 330
+
 #include "Shaders/SH_Default_ds.si"
 
 void main()
 {
-    // Check deferred ID
     Default();
     
     float noiseScale = 0.5;

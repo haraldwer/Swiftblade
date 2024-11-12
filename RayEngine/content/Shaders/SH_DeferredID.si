@@ -8,7 +8,6 @@ float DeferredIDToTexID(int InDeferredID)
 
 bool CheckID(float InTexID, int InDeferredID)
 {
-    return false;
     float ID = DeferredIDToTexID(InDeferredID);
     return abs(InTexID - ID) > (1.0 / ID_PRECISION) / 2.0;
 }

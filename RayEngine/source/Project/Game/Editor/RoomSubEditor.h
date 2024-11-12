@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/ECS/Entity.h"
+#include "Game/ECS/Volume/CubeVolume.h"
 
 class RoomSubEditorManager;
 
@@ -28,7 +29,7 @@ public:
     virtual void Init() {}
     virtual void Deinit() {}
     virtual void Update() {}
-    virtual void UpdateUI(bool InIsCameraControlling) {}
+    virtual void Frame(bool InIsCameraControlling) {}
     virtual void DebugDraw(bool InIsCameraControlling) {}
     virtual void Enter() {}
     virtual void Exit() {}
@@ -39,9 +40,14 @@ public:
     ECS::CubeVolume& GetVolume() const;
     Utility::History& GetHistory() const;
 
-    RoomType GetType();
+    RoomType GetType() const;
+    Vec3F UpdateCameraTrace();
 
+protected:
+    RoomSubEditorManager* Owner = nullptr;
+    
 private:
     
-    RoomSubEditorManager* Owner = nullptr; 
+    Vec3F LastTracePos;
+    
 };

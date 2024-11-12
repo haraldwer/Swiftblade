@@ -118,13 +118,17 @@ Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) cons
 {
     // Transform to local space
     Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition(); 
-    
     Vec3F p = localP * (1.0f / (Scale * 2.0f));
-
-    return Coord(
+    return {
         static_cast<uint8>(p.x),
         static_cast<uint8>(p.y),
-        static_cast<uint8>(p.z));
+        static_cast<uint8>(p.z)
+    };
+}
+
+Vec3F ECS::CubeVolume::GetCenter(bool InStart) const
+{
+    return CoordToPos(Coord(255 / 2, 255 / 2, (255 / 2) * static_cast<uint8>(!InStart)));
 }
 
 uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
@@ -178,7 +182,6 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     }
 
     v.UpdateCache(Get<Transform>(InID).World());
-    GetSystem<SysVolumeDresser>().Dress(InID); 
 }
 
 Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist)
@@ -187,19 +190,30 @@ Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& 
     const auto& volume = v.Data;
 
     // Convert pos
-    Vec3F origin = InPos * (1.0f / (v.Scale * 2.0f));
+    Vec3F origin = InPos * (1.0f / (v.Scale.Get() * 2.0f));
     
     Coord last = 0;
     int count = 0; 
-    for (const auto& intersect : GridIntersection(origin, InDir, v.CachedMaxBounds))
+    for (const auto& intersect : GridIntersection(origin, InDir, 1000.0f))
     {
-        const Coord c = Coord(intersect.x, intersect.y, intersect.z);
+        uint8 max = -1; 
+        if (intersect.x < 0 ||
+            intersect.y < 0 ||
+            intersect.z < 0 ||
+            intersect.x >= max ||
+            intersect.y >= max ||
+            intersect.z >= max)
+            continue; 
+        const Coord c = Coord(
+            static_cast<uint8>(intersect.x),
+            static_cast<uint8>(intersect.y),
+            static_cast<uint8>(intersect.z));
         const auto find = volume.find(c.Key);
         const bool block = find != volume.end() && find->second != 0; 
         if (block || count == InMaxDist)
-            return c;
+            return last.Key != 0 ? last : c;
         last = c;
-        count++; 
+        count++;
     }
     return last;
 }
@@ -220,7 +234,13 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
     for (int x = startX; x <= endX; x++)   
         for (int y = startY; y <= endY; y++)   
             for (int z = startZ; z <= endZ; z++)
-                matrices.emplace_back(v.CoordToPos(Coord(x, y, z), world));
+                matrices.emplace_back(
+                    v.CoordToPos(Coord(
+                        static_cast<uint8>(x),
+                        static_cast<uint8>(y),
+                        static_cast<uint8>(z)), world),
+                    QuatF::Identity(),
+                    Vec3F(1.01f));
     
     DrawCubes(matrices, true);
 }

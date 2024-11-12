@@ -18,11 +18,13 @@ public:
 
     // TODO: Material properties
     
-    uint32 SurfaceHash() const;
-    uint32 DeferredHash() const;
+    uint32 Hash();
+    uint32 DeferredHash();
     
 private:
 
+    uint32 CachedHash = 0;
+    uint32 CachedDeferredHash = 0;
     String Identifier; 
     
 };

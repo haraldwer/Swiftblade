@@ -2,35 +2,34 @@
 
 #include "Shaders/SH_FrameUniforms.si"
 #include "Shaders/SH_TextureUniforms.si"
+#include "Shaders/SH_Random.si"
+#include "Shaders/SH_Utility.si"
 
 in vec2 TexCoord;
 out vec4 Output;
 
-const int ssaoIterations = 12;
-const float ssaoIntensity = 0.5f;
-const float ssaoScale = 1.0f;
-const float ssaoBias = 0.2f;
-const float ssaoSampleRad = 2.0f;
+const int ITERATIONS = 16;
+const float INTENSITY = 1.0f;
+const float RADIUS = 0.5f;
+const float SAMPLE_DISTANCE_SCALE = 0.5f;
+const float SAMPLE_DISTANCE_BIAS = 0.05f;
+const float SAMPLE_NORMAL_BIAS = 0.1f;
+const float NEAR_START_FADE = 1.0;
+const float NEAR_END_FADE = 2.5;
 
-const vec3 mod3 = vec3(.1031,.11369,.13787);
-
-float SSAOHash12(vec2 p)
-{
-     vec3 p3  = fract(vec3(p.xyx) * mod3);
-     p3 += dot(p3, p3.yzx + 19.19f);
-     return fract((p3.x + p3.y) * p3.z);
-}
-
-vec2 SSAOHash22(vec2 p)
-{
-     vec3 p3 = fract(vec3(p.xyx) * mod3);
-     p3 += dot(p3, p3.yzx + 19.19f);
-     return fract(vec2((p3.x + p3.y) * p3.z, (p3.x + p3.z) * p3.y));
-}
+const float POSITION_THRESHOLD = 1.0;
+const float DEPTH_THRESHOLD = 1.0;
+const float INCREASE_LERP = 1.0;
+const float DECREASE_LERP = 10.0;
 
 vec3 SSAOPosition(vec2 uv)
 {
      return texture(TexPosition, uv).xyz;
+}
+
+float SSAODepth(vec2 uv)
+{
+     return texture(TexScreenPosition, uv).z;
 }
 
 vec3 SSAONormal(vec2 uv)
@@ -38,81 +37,82 @@ vec3 SSAONormal(vec2 uv)
      return texture(TexNormal, uv).xyz;
 }
 
-float SSAOIteration(vec2 tcoord, vec2 uv, vec3 position, vec3 cnorm)
+float SSAOIteration(vec2 InCoord, vec2 InOffset, vec3 InStartPosition, vec3 InStartNormal, float InStartDepth)
 {
-     vec3 diff = SSAOPosition(tcoord + uv) - position;
-     float l = length(diff);
-     vec3 v = diff / l;
-     float d = l * ssaoScale;
-     float ao = clamp(dot(cnorm, v) - ssaoBias, 0.0, 1.0) * (1.0f / (1.0f + d));
-     return ao;
+     vec2 coord = clamp(InCoord + InOffset, 0.0001, 0.9999);
+     
+     // Depth test
+     float depth = SSAODepth(coord);
+     if (InStartDepth < depth || depth < NEAR_START_FADE)
+          return 0.0;
+     
+     vec3 diff = SSAOPosition(coord) - InStartPosition;
+
+     // Position
+     float distance = length(diff);
+     float distPart = (1.0f / (1.0f + distance)) * SAMPLE_DISTANCE_SCALE;
+     distPart *= clamp((distance / SAMPLE_DISTANCE_BIAS) - SAMPLE_DISTANCE_BIAS, 0.0, 1.0);
+     
+     // Normal
+     vec3 direction = diff / distance;
+     float normalDot = clamp(dot(InStartNormal, direction) - SAMPLE_NORMAL_BIAS, 0.0, 1.0);
+
+     // Distance fade
+     float fade = clamp((depth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
+     
+     return clamp(normalDot * distPart * fade, 0.0, 1.0);
 }
 
 float SSAO()
 {
-     vec3 p = SSAOPosition(TexCoord);
-     float depth = p.z;
-     float iterations = ssaoIterations;
-     if(iterations < 1.0f)
-          return 0.0f;
-
-     float goldenAngle = 2.4f;
-     float inv = 1.0f / iterations;
-     float rad = ssaoSampleRad / depth;
-     float rStep = inv * rad;
-     vec3 n = SSAONormal(TexCoord);
-
-     float rotatePhase = SSAOHash12( TexCoord * 100.0f * Time) * 6.28;
-     float radius = 0.0f;
+     vec3 startPosition = SSAOPosition(TexCoord);
+     vec3 startNormal = SSAONormal(TexCoord);
+     float startDepth = texture(TexScreenPosition, TexCoord).z;
+     
+     float inv = 1.0f / ITERATIONS;
+     float rStep = inv * RADIUS / startDepth;
+     
      float ao = 0.0f;
-     vec2 spiralUV = vec2(0.0f, 0.0f);
-
-     for (int j = 0; j < iterations; ++j)
+     float radius = 0.0f;
+     for (int j = 0; j < ITERATIONS; ++j)
      {
-          spiralUV = vec2(cos(rotatePhase), sin(rotatePhase));
           radius += rStep;
-          ao += SSAOIteration(TexCoord, spiralUV * radius, p, n);
-          rotatePhase += goldenAngle;
+          vec2 uv = (Random2(TexCoord + radius + Time) - 0.5) * 2.0;
+          ao += SSAOIteration(TexCoord, uv * radius, startPosition, startNormal, startDepth); 
      }
-     float finalAO = clamp(ao * ssaoIntensity * inv * (iterations / ssaoIterations), 0.0, 1.0);
-     return finalAO * finalAO;
-}
-
-vec2 ScreenPosToCoord(vec3 InScreenPos)
-{
-     return (InScreenPos.xy / InScreenPos.z) * vec2(0.5) + vec2(0.5);
-}
-
-vec2 GetPreviousScreenCoord()
-{
-     vec3 pos = texture(TexPosition, TexCoord).xyz;
-     vec4 prevScreenPos = WorldToPrevScreen * vec4(pos, 1.0);
-     vec2 prevCoords = ScreenPosToCoord(prevScreenPos.xyz);
-     return clamp(prevCoords, 0.0, 1.0);
+     float finalAO = clamp(ao * INTENSITY * inv, 0.0, 1.0);
+     return finalAO;
 }
 
 void main()
 {
-     float val = SSAO();
+     float ssao = SSAO();
      
-     vec2 coord = GetPreviousScreenCoord();
      float prev = 0.0;
-     if (coord.x > 0.0 && coord.x < 1.0 && 
-         coord.y > 0.0 && coord.y < 1.0)
+     vec3 currPos = texture(TexPosition, TexCoord).xyz;
+     float currDepth = texture(TexScreenPosition, TexCoord).z;
+     vec2 prevCoord = GetPreviousScreenCoord(currPos, NearFar.x);
+     if (prevCoord.x > 0.0 && prevCoord.x < 1.0 && 
+         prevCoord.y > 0.0 && prevCoord.y < 1.0)
      {
-         float threshold = 0.1;
-         vec3 currentPos = texture(TexPosition, TexCoord).xyz;
-         vec3 prevPos = texture(TexPosition, coord).xyz;
-         float diff = length(currentPos - prevPos);
-         if (diff < threshold) 
-            prev = texture(TexAO, coord).r;
+          float prevDepth = texture(TexScreenPosition, prevCoord).z;
+          if (prevDepth - currDepth < DEPTH_THRESHOLD)
+          {
+               vec3 prevPos = texture(TexPosition, prevCoord).xyz; 
+               float diff = length(currPos - prevPos);
+               if (diff < POSITION_THRESHOLD) 
+                    prev = texture(TexAO, prevCoord).r;
+          }
      }
      
-     Output = vec4(0.0, 0.0, 0.0, 1.0);
+     Output = vec4(vec3(0.0), 1.0);
+     float lerp = INCREASE_LERP;
+     if (ssao < prev)
+          lerp = DECREASE_LERP;
+     float l = clamp(lerp * Delta, 0.0f, 1.0f);
+     Output.r = ssao * l + prev * (1.0f - l);
      
-     float l = 0.3;
-     Output.r = val * l + prev * (1.0 - l);
-     Output.g = prev * 100;
-     //Output.b = val * 100;
-     //Output.gb = GetPreviousScreenCoord();
+     // Debug output
+     Output.g = prev * 100.0;
+     Output.b = ssao * 100.0;
 }

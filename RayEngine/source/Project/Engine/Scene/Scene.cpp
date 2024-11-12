@@ -99,9 +99,20 @@ bool Scene::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
 bool Scene::Load(const String& InIdentifier)
 {
     Identifier = InIdentifier;
-    const String fileContent = Utility::ReadFile(InIdentifier);
-    CHECK_RETURN_LOG(fileContent.empty(), "Scene file empty", false);
     Doc = rapidjson::Document();
+    if (!Utility::FileExists(InIdentifier))
+    {
+        Doc.Parse("{}");
+        LOG("Scene file does not exist");
+        return true;
+    }
+    const String fileContent = Utility::ReadFile(InIdentifier);
+    if (fileContent.empty())
+    {
+        Doc.Parse("{}");
+        LOG("Scene file empty")
+        return true;
+    }
     Doc.Parse(fileContent.c_str());
     return true;
 }

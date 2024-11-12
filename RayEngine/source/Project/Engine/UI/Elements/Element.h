@@ -22,6 +22,9 @@ namespace UI
         Rect GetRect() const { return CachedRect; }
         virtual void RefreshRect(const Rect& InContainer);
         
+        Transform GetTransform() const { return Transform; }
+        void SetTransform(const Transform& InTransform);
+        
         bool IsHovered() const;
         bool IsClicked() const;
         

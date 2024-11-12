@@ -28,6 +28,7 @@ namespace Rendering
         RenderTarget SceneTarget;
         RenderTarget FrameTarget;
         RenderTarget QuantizeTarget;        
+        RenderTarget FXAATarget;
         std::array<RenderTarget, 2> SSAOTargets;
         uint32 CurrentSSAOTarget = 0;
         
@@ -37,6 +38,7 @@ namespace Rendering
 
         ResShader SSAOShader; 
         ResShader QuantizeShader;
+        ResShader FXAAShader;
 
         Mat4F PreviousMVP = { };
         Mat4F PendingMVP = { };

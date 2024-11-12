@@ -32,18 +32,18 @@ void RoomObjectEditor::Update()
     float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Move object using trace 
-    TargetPos = GetTraceLocation();
+    TargetPos = UpdateCameraTrace();
     if (TargetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
-        trans->SetPosition(Utility::Math::Lerp(currPos, TargetPos, 20.0f * dt));
+        trans->SetPosition(Lerp(currPos, TargetPos, 50.0f * dt));
     } 
 
     // Rotate object!
-    if (IsKeyPressed(KEY_R))
+    if (Input::Action::Get("Rotate").Pressed())
         TargetRot.y += PI_FLOAT * 0.25f;
     const QuatF rot = trans->GetRotation();
-    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 20.0f * dt));
+    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 50.0f * dt));
 
     if (Input::Action::Get("LM").Pressed())
         PlaceObject();
@@ -52,7 +52,7 @@ void RoomObjectEditor::Update()
         RemoveObject();
 }
 
-void RoomObjectEditor::UpdateUI(bool InIsCameraControlling)
+void RoomObjectEditor::Frame(bool InIsCameraControlling)
 {
 }
 
@@ -241,16 +241,4 @@ ECS::EntityID RoomObjectEditor::CreateObject(const int InIndex, const Mat4F& InM
         return id;
     }
     return ECS::InvalidID;
-}
-
-Vec3F RoomObjectEditor::GetTraceLocation() const
-{
-    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-    const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
-    const Coord trace = sys.Trace(
-        GetVolumeID(),
-        cam.Position,
-        Mat4F(cam.Rotation).Forward(),
-        static_cast<int32>(PlaceDist));
-    return GetVolume().CoordToPos(trace, Mat4F());
 }

@@ -25,22 +25,25 @@ void RoomSubEditorManager::Init(const RoomType InType)
         if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(CubeVolume))
             cubeTrans->SetWorld(Mat4F());
     
+    PathEditor.SetOwner(this); 
+    GenEditor.SetOwner(this); 
     VolumeEditor.SetOwner(this); 
     ObjectEditor.SetOwner(this); 
-    ConnectionEditor.SetOwner(this); 
 
     Type = InType; 
     
+    PathEditor.Init(); 
+    GenEditor.Init(); 
     VolumeEditor.Init();
     ObjectEditor.Init();
-    ConnectionEditor.Init(); 
 }
 
 void RoomSubEditorManager::Deinit()
 {
+    PathEditor.Deinit();
+    GenEditor.Deinit();
     VolumeEditor.Deinit();
     ObjectEditor.Deinit();
-    ConnectionEditor.Deinit();
     History.Clear();
 }
 
@@ -52,19 +55,19 @@ void RoomSubEditorManager::Update(const bool InIsCameraControlling)
         GetSubEditor(Mode).Update();
 
     // Keyboard shortcuts
-    if (IsKeyDown(KEY_LEFT_CONTROL))
+    if (Input::Action::Get("Ctrl").Down())
     {
-        if (IsKeyPressed(KEY_Z))
+        if (Input::Action::Get("Undo").Pressed())
             History.Undo();
-        if (IsKeyPressed(KEY_Y))
+        if (Input::Action::Get("Redo").Pressed())
             History.Redo();
     }
 }
 
-void RoomSubEditorManager::UpdateUI(const bool InIsCameraControlling)
+void RoomSubEditorManager::Frame(const bool InIsCameraControlling)
 {
     CHECK_RETURN(CubeVolume == ECS::InvalidID);
-    GetSubEditor(Mode).UpdateUI(InIsCameraControlling);
+    GetSubEditor(Mode).Frame(InIsCameraControlling);
 }
 
 void RoomSubEditorManager::DebugDraw(bool InIsCameraControlling)
@@ -84,14 +87,16 @@ RoomSubEditor& RoomSubEditorManager::GetSubEditor(const SubEditorMode InMode)
 {
     switch (InMode)
     {
+    case SubEditorMode::GEN:
+        return GenEditor;
+    case SubEditorMode::PATH:
+        return PathEditor; 
     case SubEditorMode::VOLUME:
         return VolumeEditor;
     case SubEditorMode::OBJECTS:
         return ObjectEditor; 
-    case SubEditorMode::CONNECTIONS:
-        return ConnectionEditor; 
     }
-    return VolumeEditor; 
+    return ObjectEditor; 
 }
 
 bool RoomSubEditorManager::IgnoreSave(const ECS::EntityID InID) const

@@ -8,6 +8,7 @@ bool ModelResource::Load(const String& InIdentifier)
     Ptr = new Model(); 
     *Ptr = LoadModel(("../content/" + InIdentifier).c_str());
     Identifier = InIdentifier;
+    CachedHash = Utility::Hash(Identifier);
     return true;
 }
 
@@ -16,7 +17,8 @@ bool ModelResource::Unload()
     if (Ptr)
         UnloadModel(*Ptr);
     delete Ptr;
-    Ptr = nullptr; 
+    Ptr = nullptr;
+    CachedHash = 0;
     return true; 
 }
 
@@ -27,5 +29,5 @@ Utility::Timepoint ModelResource::GetEditTime() const
 
 uint32 ModelResource::Hash() const
 {
-    return Utility::Hash(Identifier);
+    return CachedHash;
 }

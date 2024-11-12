@@ -3,30 +3,16 @@
 #include "Shaders/SH_TextureUniforms.si"
 
 #include "Shaders/SH_Random.si"
+#include "Shaders/SH_Utility.si"
 #include "Shaders/SH_HSV.si"
 #include "Shaders/SH_DeferredID.si"
 
 in vec2 TexCoord;
 out vec4 Output;
 
-float SquaredLength(vec2 InDist)
-{
-    return InDist.x * InDist.x + InDist.y * InDist.y;
-}
-
-float SquaredLength(vec3 InDist)
-{
-    return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z;
-}
-
-float Pow2(float InValue)
-{
-    return InValue * InValue;
-}
-
 const float DIST_FADE_START = 20.0;
 const float DIST_FADE_END = 50.0;
-const float FADE_DOT_PART = 0.1; 
+const float FADE_DOT_PART = 0.3; 
 
 float DistanceFade(float InCameraDistance)
 {
@@ -42,7 +28,7 @@ float SurfaceFade()
     vec3 cameraDifference = CameraPosition - worldPosition;
     float cameraDistance = length(cameraDifference);
     vec3 cameraDirection = cameraDifference / cameraDistance;
-    float cameraDot = pow(dot(cameraDirection, worldNormal), 0.5);
+    float cameraDot = dot(cameraDirection, worldNormal);
 
     // Fade
     float cameraDistanceFade = DistanceFade(cameraDistance);

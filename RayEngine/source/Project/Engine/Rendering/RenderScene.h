@@ -47,7 +47,7 @@ namespace Rendering
         Vector<DebugShapeInstance> DebugShapes;
         Vector<DebugLineInstance> DebugLines;
         Frustum Frustum;
-        
+
         double Delta = 0.0f;
         double Time = 0.0f;
     };

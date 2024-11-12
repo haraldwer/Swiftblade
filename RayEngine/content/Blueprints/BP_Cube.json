@@ -2,7 +2,7 @@
 	"Components":[{
 			"Name":"Mesh",
 			"Data":{
-				"Material":"Dressing\\RM_StoneWall.json"
+				"Material":"Defaults\\RM_Default.json"
 			}
 		},{
 			"Name":"Attributes",

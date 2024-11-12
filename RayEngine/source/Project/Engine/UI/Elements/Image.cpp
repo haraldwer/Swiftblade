@@ -21,6 +21,6 @@ void UI::Image::Draw()
                     view.End.y - view.Start.y
                 },
                 { 0.0f, 0.0f },
-                0.0f,
+                Transform.Rotation,
                 WHITE);
 }

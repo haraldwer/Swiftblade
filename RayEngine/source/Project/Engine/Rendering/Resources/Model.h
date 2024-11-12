@@ -19,7 +19,8 @@ public:
     uint32 Hash() const;
     
 private:
-    String Identifier; 
+    uint32 CachedHash = 0;
+    String Identifier;
     Model* Ptr = nullptr; 
 };
 

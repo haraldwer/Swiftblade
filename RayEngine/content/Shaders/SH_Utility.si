@@ -1,0 +1,29 @@
+﻿
+#include "Shaders/SH_ScreenDistortion.si"
+
+vec2 ScreenPosToCoord(vec3 InScreenPos, float InNear)
+{
+    return (InScreenPos.xy / (InScreenPos.z + InNear)) * vec2(0.5 - InNear / InScreenPos.z) + vec2(0.5);
+}
+
+vec2 GetPreviousScreenCoord(vec3 InWorldPosition, float InNear)
+{
+    vec4 screenPos = WorldToPrevScreen * vec4(InWorldPosition, 1.0);
+    screenPos.xyz = DistortedScreenPosition(screenPos.xyz);
+    return ScreenPosToCoord(screenPos.xyz, InNear);
+}
+
+float SquaredLength(vec2 InDist)
+{
+    return InDist.x * InDist.x + InDist.y * InDist.y;
+}
+
+float SquaredLength(vec3 InDist)
+{
+    return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z;
+}
+
+float Pow2(float InValue)
+{
+    return InValue * InValue;
+}

@@ -11,7 +11,7 @@ namespace Rendering
         PROPERTY_D(int, RenderSize, 0);
         PROPERTY_D(int, TargetFPS, 0);
         PROPERTY_D(bool, Fullscreen, false);
-        PROPERTY_D(bool, VSync, false);
+        PROPERTY_D(bool, VSync, true);
         PROPERTY_D(bool, MSAA, true);
 
         String Name() const override { return "Rendering"; };

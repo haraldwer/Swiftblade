@@ -62,6 +62,15 @@
 				},{
 					"Name":"Play",
 					"Key":80
+				},{
+					"Name":"Rotate",
+					"Key":82
+				},{
+					"Name":"Undo",
+					"Key":90
+				},{
+					"Name":"Redo",
+					"Key":89
 				}
 			]
 		},{

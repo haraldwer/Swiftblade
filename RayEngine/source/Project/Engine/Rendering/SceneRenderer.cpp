@@ -11,6 +11,7 @@ void Rendering::SceneRenderer::Init()
 {
     SSAOShader = ResShader("Shaders/SH_SSAO.ps"); 
     QuantizeShader = ResShader("Shaders/SH_Quantize.ps");
+    FXAAShader = ResShader("Shaders/SH_FXAA.ps");
 }
 
 void Rendering::SceneRenderer::Setup(const RenderTexture2D& InVirtualTarget)
@@ -30,11 +31,17 @@ void Rendering::SceneRenderer::Setup(const RenderTexture2D& InVirtualTarget)
         FrameTarget.CreateBuffer("TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
         FrameTarget.EndSetup(InVirtualTarget);
     }
-    
+
     if (QuantizeTarget.TryBeginSetup(InVirtualTarget))
     {
         QuantizeTarget.CreateBuffer("TexQuantize", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
         QuantizeTarget.EndSetup(InVirtualTarget);
+    }
+
+    if (FXAATarget.TryBeginSetup(InVirtualTarget))
+    {
+        FXAATarget.CreateBuffer("TexFXAA", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        FXAATarget.EndSetup(InVirtualTarget);
     }
     
     for (auto& target : SSAOTargets)
@@ -72,11 +79,12 @@ void Rendering::SceneRenderer::Render(const RenderScene& InScene, const RenderTe
     // Draw to FrameTarget, quantize
     DrawDeferredScene(InScene, FrameTarget, { &SceneTarget, &newSSAOTarget });
     DrawPostProcessing(InScene, QuantizeTarget, { &SceneTarget, &newSSAOTarget, &FrameTarget }, QuantizeShader);
+    DrawPostProcessing(InScene, FXAATarget, { &QuantizeTarget }, FXAAShader);
 
     rlEnableDepthTest();
     
     BeginTextureMode(InVirtualTarget);
-    Blip(InVirtualTarget, QuantizeTarget);
+    Blip(InVirtualTarget, FXAATarget);
     
     DrawDebug(InScene);
 }
@@ -123,14 +131,14 @@ void Rendering::SceneRenderer::DrawDebugWindow()
     func(SSAOTargets[CurrentSSAOTarget], "SSAO");
     func(FrameTarget, "Frame");
     func(QuantizeTarget, "Quantize");
+    func(FXAATarget, "FXAA");
 }
 
-template <class T>
-void SetValue(ShaderResource& InShader, const String& InName, T InValue, const int InType)
+void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
-        rlSetUniform(loc, &InValue, InType, 1);
+        rlSetUniform(loc, InValue, InType, 1);
 }
 
 void SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
@@ -145,19 +153,16 @@ void Rendering::SceneRenderer::SetShaderValues(ShaderResource& InShader, const R
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    SetValue(InShader, "CameraPosition", InScene.Cam.Position, SHADER_UNIFORM_VEC3);
-    SetValue(InShader, "Time", InScene.Time, SHADER_UNIFORM_FLOAT);
-    SetValue(InShader, "Delta", InScene.Delta, SHADER_UNIFORM_FLOAT);
-    SetValue(InShader, "Resolution", InSceneTarget.Size(), SHADER_UNIFORM_VEC2);
-    SetValue(InShader, "DeferredID", static_cast<int32>(InDeferredID), SHADER_UNIFORM_INT);
-
-    //Mat4F prevView = InScene.PrevCam.GetViewMatrix();
-    //Mat4F prevProj = InScene.PrevCam.GetProjectionMatrix(InSceneTarget.Size());
-    //Mat4F view = InScene.Cam.GetViewMatrix();
-    //Mat4F proj = InScene.Cam.GetProjectionMatrix(InSceneTarget.Size());
-    //
-    //Mat4F inv = Mat4F::Transpose(Mat4F::GetInverse(prevProj) * prevView);
-    //Matrix worldToPrevScreen = Utility::Ray::ConvertMat(inv);
+    SetValue(InShader, "CameraPosition", &InScene.Cam.Position.data[0], SHADER_UNIFORM_VEC3);
+    Vec2F nearFar = { InScene.Cam.Near, InScene.Cam.Far };
+    SetValue(InShader, "NearFar", &nearFar.data[0], SHADER_UNIFORM_VEC2);
+    const float time = static_cast<float>(InScene.Time); 
+    SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
+    const float delta = static_cast<float>(InScene.Delta); 
+    SetValue(InShader, "Delta", &delta, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, "Resolution", &InSceneTarget.Size().data[0], SHADER_UNIFORM_VEC2);
+    const int id = static_cast<int32>(InDeferredID);
+    SetValue(InShader, "DeferredID", &id, SHADER_UNIFORM_INT);
     SetValue(InShader, "WorldToPrevScreen", Utility::Ray::ConvertMat(PreviousMVP));
 }
 

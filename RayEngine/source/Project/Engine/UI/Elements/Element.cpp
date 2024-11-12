@@ -28,6 +28,11 @@ void UI::Element::RefreshRect(const Rect& InContainer)
     CachedRect = CalculateRect(InContainer);
 }
 
+void UI::Element::SetTransform(const UI::Transform& InTransform)
+{
+    Transform = InTransform;
+}
+
 bool UI::Element::IsHovered() const
 {
     const Vector2 mp = GetMousePosition();

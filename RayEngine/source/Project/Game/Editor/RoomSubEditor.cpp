@@ -1,9 +1,9 @@
 ﻿#include "RoomSubEditor.h"
 
-#include "RoomSubEditorManager.h"
 #include "Engine/ECS/Entity.h"
 #include "Engine/ECS/Manager.h"
 #include "Game/ECS/Volume/CubeVolume.h"
+#include "RoomSubEditorManager.h"
 
 void RoomSubEditor::SetOwner(RoomSubEditorManager* InOwner)
 {
@@ -31,7 +31,23 @@ Utility::History& RoomSubEditor::GetHistory() const
     return Owner->GetHistory();
 }
 
-RoomType RoomSubEditor::GetType()
+RoomType RoomSubEditor::GetType() const
 {
     return Owner->GetType();
+}
+
+Vec3F RoomSubEditor::UpdateCameraTrace()
+{
+    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
+    const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
+    Coord coord = sys.Trace(
+        GetVolumeID(),
+        cam.Position,
+        Mat4F(cam.Rotation).Forward(),
+        7);
+
+    Vec3F pos = GetVolume().CoordToPos(coord);
+    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    LastTracePos = Lerp(LastTracePos, pos, 50.0f * dt);
+    return LastTracePos;
 }

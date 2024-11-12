@@ -1,0 +1,65 @@
+﻿#version 330
+
+#include "Shaders/SH_Default_ds.si"
+
+vec2 AxisStep(float InAxis, vec3 InPos, float InScale, float InOffset, float InSizeRandomStrength, float InPadding)
+{
+    float randomness = 0.0;
+        //PerlinNoise3D(InPos * 0.9) * 0.0 +
+        //PerlinNoise3D(InPos * 0.2) * 0.0;
+    float stepSize = InScale + randomness * InSizeRandomStrength;
+    
+    InAxis += Random(InOffset) * 10.0 * stepSize;
+    
+    float steps = round(InAxis * stepSize);
+    float step = pow(abs(fract(InAxis * stepSize) - 0.5) * 2.0 - InPadding, 0.2);
+    return vec2(step, steps); 
+}
+
+void main()
+{
+    Default();
+
+    vec3 pos = texture(TexPosition, TexCoord.xy).rgb;
+    float scale = 1.0;
+
+    vec2 heightBricks = AxisStep(pos.y, pos, scale * 1.0, 0.0, 1.0, 0.07);
+    vec2 xBricks = AxisStep(pos.x, pos, scale * 0.5, heightBricks.y, 0.6, 0.05); 
+    vec2 zBricks = AxisStep(pos.z, pos, scale * 0.5, heightBricks.y, 0.6, 0.05); 
+    
+    float brick = 
+        xBricks.x *
+        zBricks.x * 
+        heightBricks.x;
+    
+    float brickFade = Random(vec3(xBricks.y, zBricks.y, heightBricks.y));
+    float edgeNoise = abs(PerlinNoise3D(pos * 2));
+    brick -= edgeNoise * 0.2 * (1.0 - brick);
+    brick = clamp(brick, 0.0, 1.0);
+    
+    vec3 normal = texture(TexNormal, TexCoord.xy).rgb;
+    float bigNoise = SimplexNoise3D(pos * 0.1);
+    bigNoise += abs(normal.y) * 0.5;
+    brick *= step(0.2, bigNoise * brick);
+    
+    // Select color
+    float cement = 30.0f / 255.0f;
+    float stone = 150.0f / 255.0f;
+    float hueMix = step(0.4, brick); 
+    float hue = mix(cement, stone, hueMix);
+    float cementSat = clamp(bigNoise * 1, 0.0, 1.0) * 0.4;
+    float sat = mix(cementSat, 0.2, step(0.4, brick));
+    
+    // Do shadow
+    float shadow = brick;
+    shadow = mix(shadow, shadow * brickFade, 0.5);
+    shadow = pow(shadow, 2);
+    shadow *= 1.0;
+    shadow += 0.3;
+    shadow = clamp(shadow, 0.1, 0.5);
+    
+    vec3 color = hsv2rgb(vec3(hue, sat, shadow));
+    
+    Output.rgb *= color;
+    //Output.rgb *= vec3(brick);
+}

@@ -1,12 +1,15 @@
 #pragma once
 
-#include "VolumeDresser.h"
-#include "Engine/ECS/System.h"
 #include "Engine/ECS/Component.h"
+#include "Engine/ECS/System.h"
 #include "Engine/Rendering/Instances/MeshInstance.h"
 
 struct Coord
 {
+    Coord()
+    {
+    }
+    
     Coord(const uint8 InX, const uint8 InY, const uint8 InZ)
     {
         Pos.X = InX;
@@ -52,8 +55,9 @@ namespace ECS
         void Serialize(SerializeObj& InOutObj) const override;
         bool Deserialize(const DeserializeObj& InObj) override;
         
-        Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld) const;
-        Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) const;
+        Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld = Mat4F()) const;
+        Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld = Mat4F()) const;
+        Vec3F GetCenter(bool InStart) const;
     };
 
     class SysCubeVolume : public System<CubeVolume>
