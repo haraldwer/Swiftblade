@@ -26,10 +26,8 @@ void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
     }
 }
 
-void ECS::CubeVolume::Serialize(SerializeObj& InOutObj) const
-{
-    Component::Serialize(InOutObj);
-    
+void ECS::CubeVolume::CustomSerialize(SerializeObj& InOutObj) const
+{   
     Map<uint8, Vector<uint32>> entries;
     for (const auto& entry : Data)
     {
@@ -49,10 +47,8 @@ void ECS::CubeVolume::Serialize(SerializeObj& InOutObj) const
     Utility::Serialize(InOutObj, "Data", result); 
 }
 
-bool ECS::CubeVolume::Deserialize(const DeserializeObj& InObj)
+bool ECS::CubeVolume::CustomDeserialize(const DeserializeObj& InObj)
 {
-    const bool result = Component::Deserialize(InObj);
-
     // Unpack
     String data;
     Utility::Deserialize(InObj, "Data", data);
@@ -99,7 +95,7 @@ bool ECS::CubeVolume::Deserialize(const DeserializeObj& InObj)
         index = find + 1; 
     }
 
-    return result; 
+    return true; 
 }
 
 Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld) const
@@ -120,9 +116,9 @@ Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) cons
     Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition(); 
     Vec3F p = localP * (1.0f / (Scale * 2.0f));
     return {
-        static_cast<uint8>(p.x),
-        static_cast<uint8>(p.y),
-        static_cast<uint8>(p.z)
+        static_cast<uint8>(round(p.x)),
+        static_cast<uint8>(round(p.y)),
+        static_cast<uint8>(round(p.z))
     };
 }
 

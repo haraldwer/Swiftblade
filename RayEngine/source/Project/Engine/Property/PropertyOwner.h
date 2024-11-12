@@ -12,10 +12,13 @@ public:
     static void AddProperty(PropertyBase* InProperty);
     Map<String, PropertyBase*> GetProperties() const;
 
-    virtual void Serialize(SerializeObj& InOutObj) const;
-    virtual bool Deserialize(const DeserializeObj& InObj);
+    virtual void CustomSerialize(SerializeObj& InOutObj) const {}
+    virtual bool CustomDeserialize(const DeserializeObj& InObj) { return true; }
+    virtual bool Edit(const String& InName = "");
+    
+    void Serialize(SerializeObj& InOutObj) const;
+    bool Deserialize(const DeserializeObj& InObj);
     bool Deserialize(const GenericVal& InVal);
-    virtual bool Edit(const String& InName = ""); 
 
     virtual bool Save(const String& InPath) const;
     virtual bool Load(const String& InPath);

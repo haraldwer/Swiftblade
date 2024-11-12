@@ -37,7 +37,9 @@ struct Coord
 
 namespace ECS
 {
-    typedef Map<uint32, uint8> CubeVolumeData; 
+    typedef Map<uint32, uint8> CubeVolumeData;
+
+    
     
     struct CubeVolume : Component<CubeVolume>
     {
@@ -52,8 +54,8 @@ namespace ECS
 
         void UpdateCache(const Mat4F& InWorld);
         
-        void Serialize(SerializeObj& InOutObj) const override;
-        bool Deserialize(const DeserializeObj& InObj) override;
+        void CustomSerialize(SerializeObj& InOutObj) const override;
+        bool CustomDeserialize(const DeserializeObj& InObj) override;
         
         Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld = Mat4F()) const;
         Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld = Mat4F()) const;

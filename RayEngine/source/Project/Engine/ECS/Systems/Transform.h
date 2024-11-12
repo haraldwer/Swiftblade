@@ -44,8 +44,8 @@ namespace ECS
         void AddChild(EntityID InID, Space InSpace = Space::WORLD) const;
         void RemoveChild(EntityID InID, Space InSpace = Space::WORLD) const; 
         
-        bool Deserialize(const DeserializeObj& InObj) override;
-        void Serialize(SerializeObj& InOutObj) const override;
+        bool CustomDeserialize(const DeserializeObj& InObj) override;
+        void CustomSerialize(SerializeObj& InOutObj) const override;
         String ToString(Space InSpace = Space::WORLD) const;
 
     protected:

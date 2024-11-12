@@ -33,7 +33,14 @@ private:
     Vector<Coord> Path;
     Set<uint32> PathSet;
 
-    Map<uint32, uint32> QueuedCoords;
+    struct QueuedEntry
+    {
+        uint32 Coord = 0;
+        uint32 Ref = 0;
+    };
+    
+    Vector<QueuedEntry> QueuedCoords;
+    Map<uint32, uint32> NextQueue;
     Map<uint32, Set<uint32>> CheckedCoords;
     Map<uint32, uint8> Result;
     

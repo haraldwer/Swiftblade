@@ -19,7 +19,7 @@ void RoomPathEditor::Init()
             StartEntity = connection;
     }
     
-    Vec3F center = GetVolume().GetCenter(true);
+    Vec3F center = GetVolume().GetCenter(true) + Vec3F(1.0, -1.0, 1.0);
     
     if (StartEntity == ECS::InvalidID)
     {
@@ -59,7 +59,7 @@ void RoomPathEditor::Update()
     float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Move object using trace 
-    TargetPos = UpdateCameraTrace() - Vec3F::Up() * 1.0f + Vec3F::Forward() * 1.0f;
+    TargetPos = UpdateCameraTrace() + Vec3F(1.0, -1.0, 1.0);
     if (TargetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();

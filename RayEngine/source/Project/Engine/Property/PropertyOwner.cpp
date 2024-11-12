@@ -28,6 +28,7 @@ void PropertyOwnerBase::Serialize(SerializeObj& InOutObj) const
         CHECK_ASSERT(!ptr, "Invalid property");
         ptr->Serialize(InOutObj);
     }
+    CustomSerialize(InOutObj);
     InOutObj.EndObject();
 }
 
@@ -41,6 +42,8 @@ bool PropertyOwnerBase::Deserialize(const DeserializeObj& InObj)
         if (!ptr->Deserialize(InObj))
             success = false;
     }
+    if (!CustomDeserialize(InObj))
+        success = false;
     return success;
 }
 

@@ -153,11 +153,9 @@ void SysTransform::Deinit(EntityID InID, Transform& InComponent)
     SetupHierarchy(InvalidID, InID, Transform::Space::WORLD, false);
 }
 
-bool ECS::Transform::Deserialize(const DeserializeObj& InObj)
+bool ECS::Transform::CustomDeserialize(const DeserializeObj& InObj)
 {
     bool success = true;
-    if (!Component::Deserialize(InObj))
-        success = false; 
 
     // Custom transform deserialization
     Vec3F p = LocalMat.GetPosition();
@@ -174,10 +172,9 @@ bool ECS::Transform::Deserialize(const DeserializeObj& InObj)
     return success;
 }
 
-void ECS::Transform::Serialize(SerializeObj& InOutObj) const
+void ECS::Transform::CustomSerialize(SerializeObj& InOutObj) const
 {
     // Custom transform serialization
-    InOutObj.StartObject();
     const Vec3F p = LocalMat.GetPosition();
     const QuatF r = LocalMat.GetRotation();
     const Vec3F s = LocalMat.GetScale();
@@ -187,7 +184,6 @@ void ECS::Transform::Serialize(SerializeObj& InOutObj) const
         Utility::Serialize(InOutObj, "Rotation", r);
     if (s != Vec3F::One())
         Utility::Serialize(InOutObj, "Scale", s);
-    InOutObj.EndObject();
 }
 
 String ECS::Transform::ToString(Space InSpace) const

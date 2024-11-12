@@ -45,6 +45,7 @@ void RoomGenEditor::Enter()
     Path.clear();
     PathSet.clear();
     QueuedCoords.clear();
+    NextQueue.clear();
     CheckedCoords.clear();
     Result.clear();
     VolumeDepth = 0;
@@ -63,7 +64,7 @@ void RoomGenEditor::GeneratePath()
     auto& v = GetVolume();
     if (auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(StartEntity))
     {
-        start = v.PosToCoord(t->GetPosition());
+        start = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
         if (coord.Key == 0)
             coord = start;
     }
@@ -71,9 +72,7 @@ void RoomGenEditor::GeneratePath()
     Coord target = 0;
     if (auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(EndEntity))
     {
-        target = v.PosToCoord(t->GetPosition());
-        target.Pos.X += 1;
-        target.Pos.Y += 1;
+        target = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
     }
     
     if (coord.Key == target.Key)
@@ -180,13 +179,13 @@ void RoomGenEditor::GenerateVolume()
     {
         CheckedCoords.clear();
         Result.clear();
+        NextQueue.clear();
         VolumeDepth = 0;
-        for (uint32 c : PathSet)
-            QueuedCoords[c] = c; 
+        for (const uint32 c : PathSet)
+            QueuedCoords.push_back({c, c}); 
     }
 
     auto& v = GetVolume();
-    Map<uint32, uint32> nextQueue;
     
     auto tryQueueEntry = [&](Coord InBase, Coord InReference, const Vec3I& InDirection)
     {
@@ -207,16 +206,30 @@ void RoomGenEditor::GenerateVolume()
         if (CheckedCoords[InReference.Key].contains(c.Key))
             return;
         CheckedCoords[InReference.Key].insert(c.Key); 
-        nextQueue[c.Key] = InReference.Key;
+        NextQueue[c.Key] = InReference.Key;
     };
     
     auto evaluateCoord = [&](Coord InCoord, Coord InReference, uint8& InOutValue) -> bool
     {
         // Start and end
-        if (InCoord.Pos.Z < Path.front().Pos.Z ||
-            InCoord.Pos.Z > Path.back().Pos.Z)
+        Coord front = Path.front();
+        Coord back = Path.back();
+        if (InCoord.Pos.Z <= front.Pos.Z ||
+            InCoord.Pos.Z >= back.Pos.Z)
         {
-            InOutValue = 0;
+            if (InCoord.Pos.Z == front.Pos.Z || InCoord.Pos.Z == back.Pos.Z)
+            {
+                Coord comp = InCoord.Pos.Z == front.Pos.Z ? front : back;
+                if (InCoord.Pos.X - comp.Pos.X > 0 ||
+                    InCoord.Pos.X - comp.Pos.X < -1 ||
+                    InCoord.Pos.Y - comp.Pos.Y > 2 ||
+                    InCoord.Pos.Y - comp.Pos.Y < 0)
+                {
+                    InOutValue = 1; // Wall
+                    return false;
+                }
+                return true; // Continue, to get ground below entrance
+            }
             return false;
         }
 
@@ -224,22 +237,26 @@ void RoomGenEditor::GenerateVolume()
         if (Result.contains(InCoord.Key))
             InOutValue = Result[InCoord.Key];
         
+        // Entrance and exit ground cap
+        bool checkHeight = true;
+        if (abs(InCoord.Pos.X - front.Pos.X) < 1 &&
+            abs(InCoord.Pos.Z - front.Pos.Z) < 1)
+            if (InCoord.Pos.Y >= front.Pos.Y)
+                checkHeight = false;
+        if (abs(InCoord.Pos.X - back.Pos.X) < 1 &&
+            abs(InCoord.Pos.Z - back.Pos.Z) < 1)
+            if (InCoord.Pos.Y >= back.Pos.Y)
+                checkHeight = false;
+        
         // Height
-        const int height = InCoord.Pos.Y - InReference.Pos.Y;
-        if (height > 7 || height < 0)
-            return false;
+        if (checkHeight)
+        {
+            const int height = InCoord.Pos.Y - InReference.Pos.Y;
+            if (height > 7 || height < 0)
+                return false;
+        }
 
         // Distance
-        //Vec2F pos = {
-        //    static_cast<float>(InCoord.Pos.X),
-        //    static_cast<float>(InCoord.Pos.Z) };
-        //Vec2F refPos = {
-        //    static_cast<float>(InReference.Pos.X),
-        //    static_cast<float>(InReference.Pos.Z) };
-        //Vec2F diff = pos - refPos;
-        //if ((diff).LengthSqr() > 5 * 5)
-        //    return false;
-        
         if (!(abs(InCoord.Pos.X - InReference.Pos.X) < 7 &&
             abs(InCoord.Pos.Z - InReference.Pos.Z) < 7))
             return false;
@@ -247,35 +264,48 @@ void RoomGenEditor::GenerateVolume()
         InOutValue = 0;
         return true;
     };
-    
-    for (auto& c : QueuedCoords)
-    {
-        uint8 val = 0;
-        bool success = evaluateCoord(c.first, c.second, val);
 
-        uint8& existingValue = Result[c.first];
+    for (int i = 0; i < 100; i++)
+    {
+        if (QueuedCoords.empty())
+            break;
+        QueuedEntry entry = QueuedCoords.front();
+        QueuedCoords.erase(QueuedCoords.begin());
+        
+        uint8 val = 0;
+        bool success = evaluateCoord(entry.Coord, entry.Ref, val);
+
+        uint8& existingValue = Result[entry.Coord];
         if (existingValue != val)
         {
             existingValue = val;
             if (val > 0)
-                v.Data[c.first] = val;
-            else if (v.Data.contains(c.first))
-                v.Data.erase(c.first);
+                v.Data[entry.Coord] = val;
+            else if (v.Data.contains(entry.Coord))
+                v.Data.erase(entry.Coord);
         }
 
         if (!success)
             continue;
         
-        tryQueueEntry(c.first, c.second, { 1, 0, 0 });
-        tryQueueEntry(c.first, c.second, { -1, 0, 0 });
-        tryQueueEntry(c.first, c.second, { 0, 1, 0 });
-        tryQueueEntry(c.first, c.second, { 0, -1, 0 });
-        tryQueueEntry(c.first, c.second, { 0, 0, 1 });
-        tryQueueEntry(c.first, c.second, { 0, 0, -1 });
+        tryQueueEntry(entry.Coord, entry.Ref, { 1, 0, 0 });
+        tryQueueEntry(entry.Coord, entry.Ref, { -1, 0, 0 });
+        tryQueueEntry(entry.Coord, entry.Ref, { 0, 1, 0 });
+        tryQueueEntry(entry.Coord, entry.Ref, { 0, -1, 0 });
+        tryQueueEntry(entry.Coord, entry.Ref, { 0, 0, 1 });
+        tryQueueEntry(entry.Coord, entry.Ref, { 0, 0, -1 });
     }
-    QueuedCoords = nextQueue;
-    v.UpdateCache(Mat4F());
-    VolumeDepth++;
+
+    if (QueuedCoords.empty())
+    {
+        for (auto& q : NextQueue)
+            QueuedCoords.push_back({q.first, q.second});
+        NextQueue.clear();
+        
+        VolumeDepth++;
+        v.UpdateCache(Mat4F());
+    }
+
     if (QueuedCoords.empty())
     {
         v.Data.clear();
