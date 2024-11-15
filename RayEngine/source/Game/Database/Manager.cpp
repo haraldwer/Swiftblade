@@ -13,7 +13,7 @@ void DB::Manager::Init()
     RtClient = Client->createRtClient();
     
     // Typically you would get the system's unique device identifier here.
-    const String deviceId = "e872f976-34c1-4c41-88fe-fd6aef118782";
+    const String deviceId = "DeviceID";
     
     auto loginFailedCallback = [](const Nakama::NError& error)
     {
@@ -24,7 +24,6 @@ void DB::Manager::Init()
     {
         LOG("Successfully authenticated: " + session->getAuthToken());
         RtClient->connect(session, true);
-
     };
 
     // Authenticate with the Nakama server using Device Authentication.
@@ -37,13 +36,26 @@ void DB::Manager::Init()
         loginFailedCallback);
 }
 
+void DB::Manager::Deinit()
+{
+    if (RtClient)
+    {
+        if (RtClient->isConnected())
+            RtClient->disconnect();
+        RtClient = nullptr;
+    }
+
+    if (Client)
+    {
+        Client->disconnect();
+        Client = nullptr; 
+    }
+}
+
 void DB::Manager::Update()
 {
     Client->tick();
-    
     if (RtClient)
-    {
         RtClient->tick();
-    }
-
 }
+
