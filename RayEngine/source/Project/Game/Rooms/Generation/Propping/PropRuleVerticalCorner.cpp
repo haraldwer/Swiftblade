@@ -4,6 +4,8 @@
 
 bool PropRuleVerticalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord)
 {
+    return false;
+    
     if (!InVolume.Data.contains(InCoord.Key))
         return false;
     

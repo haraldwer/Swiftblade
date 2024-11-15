@@ -106,4 +106,3 @@ typedef Utility::Math::Quaternion<float> QuatF;
 typedef Utility::Math::Random Random; 
 
 #include "Utility/JsonUtility.h"
-#include "Utility/Enum/BetterEnums.h"

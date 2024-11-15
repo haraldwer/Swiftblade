@@ -4,10 +4,10 @@
 
 bool PropRuleHorizontalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord)
 {
+    return false;
+    
     if (!InVolume.Data.contains(InCoord.Key))
         return false;
-
-    return false;
     
     // 0right 1left 2up 3down 4forward 5back
     auto neighbors = ECS::CubeVolume::GetNeighbors(InCoord);

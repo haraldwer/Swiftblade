@@ -2,11 +2,11 @@
 
 #include "Engine/Editor/Debugging/Manager.h"
 
-#include "RenderEvents.h"
-#include "Engine/EventScopes.h"
-#include "ImGui/rlImGui.h"
-#include "ImGui\imgui_themes.h"
 #include "Engine/Editor/Gizmo/ImGuizmo.h"
+#include "Engine/EventScopes.h"
+#include "ImGui/imgui_themes.h"
+#include "ImGui/rlImGui.h"
+#include "RenderEvents.h"
 
 void Rendering::Manager::Init()
 {
