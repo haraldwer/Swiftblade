@@ -3,5 +3,5 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/include/physx
     ${CMAKE_SOURCE_DIR}/source
-    ${CMAKE_SOURCE_DIR}/source/Project
+    ${PROJECT_SOURCE_DIR}
 )
