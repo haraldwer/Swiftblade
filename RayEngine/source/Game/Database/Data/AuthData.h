@@ -11,7 +11,7 @@ enum class AuthMethod : uint8
 
 struct AuthData : DB::DBData<AuthData>  
 {
-	PROPERTY_D(AuthMethod, Method, AuthMethod::DEVICE);
+	//PROPERTY_D(AuthMethod, Method, AuthMethod::DEVICE);
 	PROPERTY(String, User);
 	PROPERTY(String, Token);
 };

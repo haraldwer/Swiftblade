@@ -31,8 +31,8 @@ namespace DB
 
 	struct LBData : DBData<LBData>
 	{
-		PROPERTY_D(LBType, Type, LBType::PERSONAL);
-		PROPERTY_D(LBSeed, SeedType, LBSeed::ANY);
+		//PROPERTY_D(LBType, Type, LBType::PERSONAL);
+		//PROPERTY_D(LBSeed, SeedType, LBSeed::ANY);
 		PROPERTY_D(int32, Seed, -1);
 		PROPERTY(Vector<LBEntry>, Entries); 
 	};
@@ -49,17 +49,18 @@ namespace DB
 
 	struct LBRequest : DBData<LBData>
 	{
-		PROPERTY_D(LBType, Type, LBType::PERSONAL);
-		PROPERTY_D(LBSeed, SeedType, LBSeed::ANY);
+		//PROPERTY_D(LBType, Type, LBType::PERSONAL);
+		//PROPERTY_D(LBSeed, SeedType, LBSeed::ANY);
 		PROPERTY_D(int32, Seed, -1);
 		PROPERTY_D(int32, Entries, 10);
 
 		bool operator==(const LBRequest& anOther) const
 		{
-			return Type == anOther.Type &&
-				SeedType == anOther.SeedType &&
-				Seed == anOther.Seed &&
-				Entries == anOther.Entries;
+			return true;
+			//return Type == anOther.Type &&
+			//	SeedType == anOther.SeedType &&
+			//	Seed == anOther.Seed &&
+			//	Entries == anOther.Entries;
 		}
 	};
 
