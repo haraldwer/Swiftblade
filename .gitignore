@@ -12,7 +12,14 @@ CTestTestfile.cmake
 _deps
 
 # Rider
-.idea/*
+RayEngine/.idea/*
 
 # Build
-build/*
+RayEngine/build/*
+
+# Imgui
+imgui.ini
+
+# Nakama
+.cookie
+
