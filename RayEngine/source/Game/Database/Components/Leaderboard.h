@@ -1,8 +1,9 @@
 #pragma once
+#include "Component.h"
 
 namespace DB
 {
-    class Leaderboard
+    class Leaderboard : public Component
     {
     public:
         

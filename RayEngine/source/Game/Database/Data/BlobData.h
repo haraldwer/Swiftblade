@@ -14,9 +14,9 @@ namespace DB
 	struct BlobData : DBData<BlobData>
 	{
 		PROPERTY_D(bool, Initialized, false); 
-		PROPERTY(BlobSeed, SeedData);
-		PROPERTY(BlobLB, LBData);
-		PROPERTY(BlobToombstone, myToombstoneData);
+		//PROPERTY(BlobSeed, SeedData);
+		//PROPERTY(BlobLB, LBData);
+		//PROPERTY(BlobToombstone, myToombstoneData);
 	};
 }
 

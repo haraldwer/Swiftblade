@@ -44,9 +44,8 @@ private:
 template <class T>
 class PropertyOwner : public PropertyOwnerBase
 {
-
 public:
-
+    
     PropertyOwner()
     {
         Reg(); 
@@ -54,25 +53,24 @@ public:
     
     static void Reg()
     {
-        CHECK_RETURN(Instance);
-        
         // Only do once
         static bool hasRegistered = false;
         CHECK_RETURN(hasRegistered); 
-        hasRegistered = true; 
+        hasRegistered = true;
         
-        // Local T instance 
-        T instance;
+        // Cache instance, use recursion as stack 
+        PropertyOwnerBase* prevInstance = Instance;
+
+        // Allocate memory
+        T* ptr = static_cast<T*>(malloc(sizeof(T)));
         
         // Set instance
-        PropertyOwnerBase* prevInstance = Instance; 
-        Instance = &instance;
+        Instance = ptr;
         
         // Create new copy
         // Will run constructor
         // And properties will be added
-        instance.~T();
-        new (&instance) T();
+        new (ptr) T();
         
         // Reset instance 
         Instance = prevInstance;

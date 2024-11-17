@@ -10,7 +10,7 @@ bool BlueprintResource::Load(const String& InIdentifier)
     Identifier = InIdentifier;
     const String fileContent = Utility::ReadFile(InIdentifier);
     CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty", false);
-    Doc = rapidjson::Document();
+    Doc = DocumentObj();
     Doc.Parse(fileContent.c_str());
     CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid object", false);
     return true;
@@ -18,7 +18,7 @@ bool BlueprintResource::Load(const String& InIdentifier)
 
 bool BlueprintResource::Unload()
 {
-    Doc = rapidjson::Document();
+    Doc = DocumentObj();
     return true;
 }
 

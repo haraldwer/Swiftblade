@@ -3,37 +3,26 @@
 
 void DB::Manager::Init()
 {
-    // Create client
     Nakama::NClientParameters params;
-    params.serverKey = "defaultkey";
-    params.host = "127.0.0.1";
+    params.serverKey = "defaultkey"; // TODO: 
+    params.host = "127.0.0.1"; // TODO: 
     params.port = Nakama::DEFAULT_PORT;
     Client = createDefaultClient(params);
-    
+    CHECK_ASSERT(!Client, "Failed to create client");
     RtClient = Client->createRtClient();
+    CHECK_ASSERT(!Client, "Failed to create realtime client");
     
-    // Typically you would get the system's unique device identifier here.
-    const String deviceId = "DeviceID";
+    Auth.Init(this);
     
-    auto loginFailedCallback = [](const Nakama::NError& error)
+    OnLoggedIn.Bind([](const OnLoginSuccess& OnSuccess)
     {
-        LOG("An error occurred: " + error.message);
-    };
+        // Delay initialization until authenticated
+        auto& man = Get();
+        man.Blob.Init(&man); 
+        man.LB.Init(&man);
+    });
 
-    auto loginSucceededCallback = [&](const Nakama::NSessionPtr& session)
-    {
-        LOG("Successfully authenticated: " + session->getAuthToken());
-        RtClient->connect(session, true);
-    };
-
-    // Authenticate with the Nakama server using Device Authentication.
-    Client->authenticateDevice(
-        deviceId,
-        nonstd::nullopt,
-        nonstd::nullopt,
-        {},
-        loginSucceededCallback,
-        loginFailedCallback);
+    LOG("DB initialized");
 }
 
 void DB::Manager::Deinit()
@@ -50,6 +39,10 @@ void DB::Manager::Deinit()
         Client->disconnect();
         Client = nullptr; 
     }
+
+    LB.Deinit();
+    Blob.Deinit();
+    Auth.Deinit();
 }
 
 void DB::Manager::Update()
@@ -58,4 +51,3 @@ void DB::Manager::Update()
     if (RtClient)
         RtClient->tick();
 }
-

@@ -2,17 +2,17 @@
 #include "Components/Authentication.h"
 #include "Components/Blob.h"
 #include "Components/Leaderboard.h"
-
-namespace Nakama
-{
-    class NClientInterface;
-    class NRtClientInterface;
-}
+#include "NakamaTypes.h"
+#include "Utility/Events/Event.h"
+#include "Utility/Events/Manager.h"
 
 namespace DB
 {
-    class Manager : public Utility::Singelton<Manager>
+    class Manager : public Utility::Singelton<Manager>, public Utility::EventManager
     {
+        friend class Component;
+        friend class Authentication;
+        
     public:
         void Init();
         void Update();
@@ -23,9 +23,13 @@ namespace DB
         Blob Blob;
         
     private:
-        std::shared_ptr<Nakama::NClientInterface> Client = nullptr; 
-        std::shared_ptr<Nakama::NRtClientInterface> RtClient = nullptr;
+        Client Client = nullptr; 
+        RtClient RtClient = nullptr;
+        Session Session = nullptr;
 
-        
+        Utility::Event<OnLoginSuccess, Manager, int>::Callback OnLoggedIn;
     };
+
+    template <class EventT, class CallbackT = int>
+    using AuthEvent = Utility::Event<EventT, Manager, CallbackT>;
 }

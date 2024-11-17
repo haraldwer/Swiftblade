@@ -61,7 +61,7 @@ namespace Utility
 
         int Count()
         {
-            return Entries.size();
+            return static_cast<int>(Entries.size());
         }
 
     private:
