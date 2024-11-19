@@ -11,6 +11,7 @@ public:
     // Property registration
     static void AddProperty(PropertyBase* InProperty);
     Map<String, PropertyBase*> GetProperties() const;
+    virtual size_t Size() const = 0;
 
     virtual void CustomSerialize(SerializeObj& InOutObj) const {}
     virtual bool CustomDeserialize(const DeserializeObj& InObj) { return true; }
@@ -29,7 +30,7 @@ public:
 protected:
 
     // Property map owned by template  
-    virtual Map<String, uint16>& GetPropertyMap() const = 0; 
+    virtual Map<String, uint16>& GetPropertyMap() const = 0;
     uint16 PtrToOff(PropertyBase* InPtr) const;
     PropertyBase* OffToPtr(uint16 InOff) const;
 
@@ -41,7 +42,7 @@ private:
     void AddPropertyInternal(PropertyBase* InProperty) const;
 };
 
-template <class T>
+template <class TSelf>
 class PropertyOwner : public PropertyOwnerBase
 {
 public:
@@ -58,11 +59,11 @@ public:
         CHECK_RETURN(hasRegistered); 
         hasRegistered = true;
         
+        // Allocate memory
+        TSelf* ptr = static_cast<TSelf*>(malloc(sizeof(TSelf)));
+        
         // Cache instance, use recursion as stack 
         PropertyOwnerBase* prevInstance = Instance;
-
-        // Allocate memory
-        T* ptr = static_cast<T*>(malloc(sizeof(T)));
         
         // Set instance
         Instance = ptr;
@@ -70,11 +71,14 @@ public:
         // Create new copy
         // Will run constructor
         // And properties will be added
-        new (ptr) T();
+        new (ptr) TSelf();
         
-        // Reset instance 
+        // Reset instance
+        free(ptr);
         Instance = prevInstance;
     }
+
+    size_t Size() const override { return sizeof(TSelf); }
     
 private:
 

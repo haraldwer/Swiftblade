@@ -6,7 +6,7 @@
 
 void PropertyOwnerBase::AddProperty(PropertyBase* InProperty)
 {
-    CHECK_RETURN(!Instance); 
+    CHECK_RETURN(!Instance);
     CHECK_ASSERT(!InProperty, "Property null");
     Instance->AddPropertyInternal(InProperty);
 }
@@ -106,7 +106,9 @@ bool PropertyOwnerBase::operator==(const PropertyOwnerBase& InOther) const
 
 void PropertyOwnerBase::AddPropertyInternal(PropertyBase* InProperty) const
 {
-    GetPropertyMap()[InProperty->GetName()] = PtrToOff(InProperty);
+    uint16 off = PtrToOff(InProperty);
+    if (off != static_cast<uint16>(-1))
+        GetPropertyMap()[InProperty->GetName()] = off;
 }
 
 uint16 PropertyOwnerBase::PtrToOff(PropertyBase* InPtr) const
@@ -115,10 +117,7 @@ uint16 PropertyOwnerBase::PtrToOff(PropertyBase* InPtr) const
     const uint64 thisAddr = reinterpret_cast<uint64>(this);
     const uint64 diff = propertyAddr - thisAddr;
 
-    // For some reason, some classes are not close in memory to their members. I suspect this is due to optimization.
-    // But what's the consequence of not doing this assert? An incorrect reinterpret-cast!
-    // Maybe there is a way to disable this specific optimization? 
-    CHECK_ASSERT(diff > 1000, "Address difference too great, something is wrong");
+    CHECK_RETURN_LOG(diff > Size(), "Address difference too great, tried to register property from another class", static_cast<uint16>(-1));
 
     return static_cast<uint16>(diff);
 }
