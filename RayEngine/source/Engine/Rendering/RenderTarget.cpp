@@ -15,7 +15,7 @@ bool RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture)
     Height = InRenderTexture.texture.height;
 
     // Create framebuffer
-    FrameBuffer = rlLoadFramebuffer(Width, Height);
+    FrameBuffer = rlLoadFramebuffer();
     CHECK_ASSERT(!FrameBuffer, "Unable to create framebuffer"); 
     rlEnableFramebuffer(FrameBuffer);
 

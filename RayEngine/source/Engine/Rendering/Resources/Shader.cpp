@@ -23,7 +23,7 @@ bool ShaderResource::Load(const String& InIdentifier)
         const String fsCode = LoadShaderFile(InIdentifier);
         LOG("Compiling shader fs: " +  InIdentifier + " vs: " + vsFile)
         *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
-        if (!IsShaderReady(*Ptr))
+        if (!IsShaderValid(*Ptr))
             return false;
     }
     else
@@ -38,7 +38,7 @@ bool ShaderResource::Load(const String& InIdentifier)
         const String fsCode = LoadShaderFile(fsFile);
         LOG("Compiling shader fs: " +  fsFile + " vs: " + vsFile)
         *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
-        if (!IsShaderReady(*Ptr))
+        if (!IsShaderValid(*Ptr))
             return false;
         Ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*Ptr, "mvp");
         Ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*Ptr, "instanceTransform");
@@ -67,7 +67,7 @@ Utility::Timepoint ShaderResource::GetEditTime() const
 
 Shader* ShaderResource::Get() const
 {
-    if (Ptr && IsShaderReady(*Ptr))
+    if (Ptr && IsShaderValid(*Ptr))
         return Ptr;
     if (Identifier.ends_with(".ds"))
     {

@@ -5,7 +5,7 @@ project(RayEngine)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Raylib
-set(RAYLIB_VERSION 5.0)
+set(RAYLIB_VERSION 5.5)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
   include(FetchContent)
@@ -20,7 +20,7 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     FetchContent_Populate(raylib)
     set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
     set(SUPPORT_CAMERA_SYSTEM OFF) # no camera
-    set(OPENGL_VERSION 4.3) # OpenGL version
+    set(OPENGL_VERSION OFF) # OpenGL version
     set(SUPPORT_DEFAULT_FONT OFF) # skip font
     set(SUPPORT_GESTURES_SYSTEM OFF) # skip gestures
     set(SUPPORT_MOUSE_GESTURES OFF) # skip gestures

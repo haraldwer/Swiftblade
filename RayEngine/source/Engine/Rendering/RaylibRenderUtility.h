@@ -43,7 +43,7 @@ namespace RaylibRenderUtility
         for (unsigned int i = 0; i < 4; i++)
         {
             rlEnableVertexAttribute(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i);
-            rlSetVertexAttribute(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i, 4, RL_FLOAT, false, sizeof(Mat4F), reinterpret_cast<void*>(i * sizeof(Vec4F)));
+            rlSetVertexAttribute(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i, 4, RL_FLOAT, false, sizeof(Mat4F), static_cast<int>(i * sizeof(Vec4F)));
             rlSetVertexAttributeDivisor(InShader.locs[SHADER_LOC_MATRIX_MODEL] + i, 1);
         }
 
@@ -65,19 +65,19 @@ namespace RaylibRenderUtility
         {
             // Bind mesh VBO data: vertex position (shader-location = 0)
             rlEnableVertexBuffer(InMesh.vboId[0]);
-            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_POSITION], 3, RL_FLOAT, false, 0, nullptr);
+            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_POSITION], 3, RL_FLOAT, false, 0, 0);
             rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_POSITION]);
 
             // Bind mesh VBO data: vertex texcoords (shader-location = 1)
             rlEnableVertexBuffer(InMesh.vboId[1]);
-            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD01], 2, RL_FLOAT, false, 0, nullptr);
+            rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD01], 2, RL_FLOAT, false, 0, 0);
             rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD01]);
 
             if (InShader.locs[SHADER_LOC_VERTEX_NORMAL] != -1)
             {
                 // Bind mesh VBO data: vertex normals (shader-location = 2)
                 rlEnableVertexBuffer(InMesh.vboId[2]);
-                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_NORMAL], 3, RL_FLOAT, false, 0, nullptr);
+                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_NORMAL], 3, RL_FLOAT, false, 0, 0);
                 rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_NORMAL]);
             }
 
@@ -87,7 +87,7 @@ namespace RaylibRenderUtility
                 if (InMesh.vboId[3] != 0)
                 {
                     rlEnableVertexBuffer(InMesh.vboId[3]);
-                    rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR], 4, RL_UNSIGNED_BYTE, true, 0, nullptr);
+                    rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR], 4, RL_UNSIGNED_BYTE, true, 0, 0);
                     rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_COLOR]);
                 }
                 else
@@ -104,7 +104,7 @@ namespace RaylibRenderUtility
             if (InShader.locs[SHADER_LOC_VERTEX_TANGENT] != -1)
             {
                 rlEnableVertexBuffer(InMesh.vboId[4]);
-                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TANGENT], 4, RL_FLOAT, false, 0, nullptr);
+                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TANGENT], 4, RL_FLOAT, false, 0, 0);
                 rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TANGENT]);
             }
 
@@ -112,7 +112,7 @@ namespace RaylibRenderUtility
             if (InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02] != -1)
             {
                 rlEnableVertexBuffer(InMesh.vboId[5]);
-                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02], 2, RL_FLOAT, false, 0, nullptr);
+                rlSetVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02], 2, RL_FLOAT, false, 0, 0);
                 rlEnableVertexAttribute(InShader.locs[SHADER_LOC_VERTEX_TEXCOORD02]);
             }
 
