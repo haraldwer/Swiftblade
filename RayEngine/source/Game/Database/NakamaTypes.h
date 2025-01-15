@@ -6,7 +6,9 @@ namespace Nakama
     class NClientInterface;
     class NRtClientInterface;
     struct NError;
+    struct NRpc;
     using NStorageObjects = std::vector<struct NStorageObject>;
+    using NStorageObjectAcks = std::vector<struct NStorageObjectAck>;
 }
 
 namespace DB

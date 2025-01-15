@@ -1,4 +1,5 @@
 #pragma once
+#include "DBData.h"
 
 namespace DB
 {
@@ -62,6 +63,21 @@ namespace DB
 				Entries == anOther.Entries;
 		}
 	};
+
+	// - Broadcasts - //
+	
+	struct OnListSuccess
+	{
+		LBData InData;
+	};
+
+	struct OnWriteSuccess
+	{
+		String InResult;
+	};
+	
+	struct OnListError : OnError {};
+	struct OnWriteError : OnError {};
 
 	// - Blob - //
 

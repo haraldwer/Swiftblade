@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Config.h"
+#include "Pipeline.h"
 #include "RenderScene.h"
-#include "SceneRenderer.h"
 #include "Utility/Singelton.h"
 
 namespace Rendering
@@ -46,7 +46,7 @@ namespace Rendering
         Vec2F ViewportSize;
         Vec2F RenderResolution;
         
-        SceneRenderer Renderer;
+        Pipeline Pipeline;
         RenderTexture2D VirtualTarget = RenderTexture2D();
         Utility::Timer FrameTimer;
     };

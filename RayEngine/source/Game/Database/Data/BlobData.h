@@ -1,8 +1,6 @@
 #pragma once
 
 #include "DBData.h"
-#include "LBData.h"
-#include "ToombstoneData.h"
 
 namespace DB
 {
@@ -18,5 +16,10 @@ namespace DB
 		//PROPERTY(BlobLB, LBData);
 		//PROPERTY(BlobToombstone, myToombstoneData);
 	};
+
+	struct OnBlobReadSuccess { };
+	struct OnBlobWriteSuccess { };
+	struct OnBlobReadError : OnError {};
+	struct OnBlobWriteError : OnError {};
 }
 

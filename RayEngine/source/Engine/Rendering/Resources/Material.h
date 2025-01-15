@@ -13,6 +13,7 @@ public:
     PROPERTY_D(ResShader, SurfaceShader, "Shaders/SH_Default");
     PROPERTY_D(ResShader, DeferredShader, "Shaders/SH_Default.ds");
     PROPERTY_D(bool, TwoSided, false);
+    PROPERTY_D(bool, Transparent, false);
 
     // TODO: Material properties
     

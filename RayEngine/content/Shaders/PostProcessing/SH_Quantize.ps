@@ -1,13 +1,13 @@
 ﻿#version 330
 
-#include "Shaders/SH_FrameUniforms.si"
-#include "Shaders/SH_TextureUniforms.si"
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
 
 in vec2 TexCoord;
 out vec4 Output;
 
-#include "Shaders/SH_Pixelize.si"
-#include "Shaders/SH_HSV.si"
+#include "Shaders/Utility/SH_Pixelize.si"
+#include "Shaders/Utility/SH_HSV.si"
 
 vec3 GetQuantized(vec3 InColor, float InPrec)
 {
@@ -20,6 +20,8 @@ void main()
     vec4 color = texture(TexFrame, TexCoord).rgba;
     if (color.a < 0.1)
         discard;
+    
+    Output = color;
     
     vec3 hsv = rgb2hsv(color.rgb);
     vec3 quantized = GetQuantized(color.rgb, 10);

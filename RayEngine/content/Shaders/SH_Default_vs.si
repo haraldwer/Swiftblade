@@ -1,5 +1,5 @@
 ﻿
-#include "Shaders/SH_ScreenDistortion.si"
+#include "Shaders/Utility/SH_ScreenDistortion.si"
 
 // Uniforms
 uniform mat4 mvp;
@@ -12,21 +12,17 @@ in vec3 vertexNormal;
 in mat4 instanceTransform;
 
 // Out
-out vec3 WorldPosition;
+out vec4 WorldPosition;
 out vec3 WorldNormal;
 out vec3 ObjectPosition;
-out vec4 ScreenPosition;
 
 void Default()
 {
-    vec3 objectNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0)));
+    vec3 objectNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0f)));
     WorldNormal = normalize(mat3(instanceTransform) * objectNormal);
-    ObjectPosition = vertexPosition;
-    WorldPosition = (instanceTransform * vec4(vertexPosition, 1.0)).xyz;
-    ScreenPosition = mvp * vec4(WorldPosition, 1.0);
-    
-    // Distort
-    ScreenPosition.xyz = DistortedScreenPosition(ScreenPosition.xyz);
-    
-    gl_Position = ScreenPosition;
+    ObjectPosition = (instanceTransform * vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
+    WorldPosition = (instanceTransform * vec4(vertexPosition, 1.0f));
+    vec4 screenPos = mvp * WorldPosition;
+    gl_Position = screenPos;
+    WorldPosition.w = screenPos.z; // Store linear depth
 }

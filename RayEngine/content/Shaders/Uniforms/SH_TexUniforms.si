@@ -1,8 +1,9 @@
 
 uniform sampler2D TexPosition;
-uniform sampler2D TexScreenPosition;
 uniform sampler2D TexNormal;
 uniform sampler2D TexColor;
+uniform sampler2D TexVelocity;
 uniform sampler2D TexDeferredData;
+
 uniform sampler2D TexAO;
 uniform sampler2D TexFrame;

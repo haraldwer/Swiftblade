@@ -7,8 +7,8 @@ void MenuInstance::Init()
     Instance::Init();
     Menus.Push<MenuMain>();
     DB.Init();
-    
-    AuthData auth;
+
+    DB::AuthData auth;
     auth.User = "TestUser";
     auth.Create = true;
     DB.Auth.Authenticate(auth);

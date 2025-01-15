@@ -1,18 +1,18 @@
 ﻿
-#include "Shaders/SH_FrameUniforms.si"
-#include "Shaders/SH_TextureUniforms.si"
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
 
-#include "Shaders/SH_Random.si"
-#include "Shaders/SH_Utility.si"
-#include "Shaders/SH_HSV.si"
-#include "Shaders/SH_DeferredID.si"
+#include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_HSV.si"
+#include "Shaders/Utility/SH_DeferredID.si"
 
 in vec2 TexCoord;
 out vec4 Output;
 
 const float DIST_FADE_START = 20.0;
 const float DIST_FADE_END = 50.0;
-const float FADE_DOT_PART = 0.3; 
+const float FADE_DOT_PART = 0.2; 
 
 float DistanceFade(float InCameraDistance)
 {

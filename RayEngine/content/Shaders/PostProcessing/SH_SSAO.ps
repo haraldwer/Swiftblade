@@ -1,16 +1,16 @@
 ﻿#version 330
 
-#include "Shaders/SH_FrameUniforms.si"
-#include "Shaders/SH_TextureUniforms.si"
-#include "Shaders/SH_Random.si"
-#include "Shaders/SH_Utility.si"
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_Utility.si"
 
 in vec2 TexCoord;
 out vec4 Output;
 
 const int ITERATIONS = 4;
 const float INTENSITY = 0.08f;
-const float RADIUS = 1.0f;
+const float RADIUS = 0.5f;
 const float SAMPLE_DISTANCE_SCALE = 1.0f;
 const float SAMPLE_DISTANCE_BIAS = 0.05f;
 const float SAMPLE_NORMAL_BIAS = 0.1f;
@@ -90,29 +90,24 @@ void main()
 {
      float ssao = SSAO();
      
-     vec3 currPos = texture(TexPosition, TexCoord).xyz;
-     float currDepth = texture(TexScreenPosition, TexCoord).z;
+     vec4 currPos = texture(TexPosition, TexCoord);
+     float currDepth = currPos.w;
      float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
      
      float accumulated = 0.0;
      float prev = 0.0;
      float prevPrev = 0.0;
-     vec2 prevCoord = GetPreviousScreenCoord(currPos, NearFar.x);
-     if (prevCoord.x > 0.0 && prevCoord.x < 1.0 && 
-         prevCoord.y > 0.0 && prevCoord.y < 1.0)
-     {
-          float prevDepth = texture(TexScreenPosition, prevCoord).z;
-          if (prevDepth - currDepth < DEPTH_THRESHOLD)
+     vec2 prevCoord = GetPrevCoord(currPos.xyz);
+     vec4 prevPos = texture(TexPosition, prevCoord);
+     if (prevPos.w - currDepth < DEPTH_THRESHOLD)
+     { 
+          float diff = length(currPos.xyz - prevPos.xyz);
+          if (diff < POSITION_THRESHOLD)
           {
-               vec3 prevPos = texture(TexPosition, prevCoord).xyz; 
-               float diff = length(currPos - prevPos);
-               if (diff < POSITION_THRESHOLD)
-               {
-                    vec4 val = texture(TexAO, prevCoord).rgba;
-                    accumulated = val.g;
-                    prev = val.b;
-                    prevPrev = val.a;
-               }
+               vec4 val = texture(TexAO, prevCoord).rgba;
+               accumulated = val.g;
+               prev = val.b;
+               prevPrev = val.a;
           }
      }
      

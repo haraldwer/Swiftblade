@@ -31,5 +31,5 @@ namespace DB
     };
 
     template <class EventT, class CallbackT = int>
-    using AuthEvent = Utility::Event<EventT, Manager, CallbackT>;
+    using DBEvent = Utility::Event<EventT, Manager, CallbackT>;
 }

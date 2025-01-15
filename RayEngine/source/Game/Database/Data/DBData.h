@@ -8,4 +8,10 @@ namespace DB
         // Custom db stuff here
         
     };
+
+    struct OnError
+    {
+        String InCode;
+        String InMessage;
+    };
 }

@@ -8,7 +8,12 @@
 void DB::Authentication::Authenticate(const AuthData& InData) const
 {
     Client& client = GetClient();
-    CHECK_RETURN_LOG(!client, "Invalid client");
+    if (!client)
+    {
+        LOG("Invalid client");
+        DBEvent<OnLoginError> loginFailed;
+        loginFailed.Invoke({ "" , "Invalid client" });
+    }
 
     auto fail = [&](const Nakama::NError& InError)
     {
@@ -51,7 +56,7 @@ void DB::Authentication::OnSuccess() const
     Session& session = GetSession();
     CHECK_RETURN_LOG(!session, "Invalid session");
     LOG("Successfully authenticated: " + session->getAuthToken());
-    AuthEvent<OnLoginSuccess> loginSuccess;
+    DBEvent<OnLoginSuccess> loginSuccess;
     loginSuccess.Invoke({});
 
     RtClient& rtClient = GetRealtimeClient();
@@ -62,7 +67,7 @@ void DB::Authentication::OnSuccess() const
 void DB::Authentication::OnFailed(const Nakama::NError& InError) const
 {
     LOG("An error occurred: " + InError.message);
-    AuthEvent<OnLoginFailed> loginFailed;
+    DBEvent<OnLoginError> loginFailed;
     loginFailed.Invoke({ GetErrorString(InError) , InError.message });
 }
 

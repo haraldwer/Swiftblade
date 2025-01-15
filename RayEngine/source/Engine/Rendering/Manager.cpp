@@ -21,12 +21,12 @@ void Rendering::Manager::Init()
 
     SetExitKey(KEY_F4);
 
-    Renderer.Init(); 
+    Pipeline.Init(); 
 }
 
 void Rendering::Manager::Deinit()
 {
-    Renderer = SceneRenderer(); 
+    Pipeline = Rendering::Pipeline();
     rlImGuiShutdown();
     CloseWindow();
 }
@@ -75,8 +75,8 @@ void Rendering::Manager::DrawDebugWindow()
 
 void Rendering::Manager::SubmitScene(RenderScene& InScene)
 {
-    InScene.BeginFrame(); 
-    Renderer.Render(InScene, VirtualTarget); 
+    InScene.BeginFrame();
+    Pipeline.Render(InScene, VirtualTarget);
 }
 
 void Rendering::Manager::BeginFrame()

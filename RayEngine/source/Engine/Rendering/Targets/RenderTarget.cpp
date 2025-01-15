@@ -1,7 +1,18 @@
 ﻿#include "RenderTarget.h"
 
-#include "Resources/Shader.h"
+#include "Rendering/Resources/Shader.h"
 #include "rlgl.h"
+
+bool RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, PixelFormat InFormat)
+{
+    if (TryBeginSetup(InTarget))
+    {
+        CreateBuffer(InName, InFormat);
+        EndSetup(InTarget);
+        return true;
+    }
+    return false;
+}
 
 bool RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture)
 {
@@ -61,11 +72,14 @@ void RenderTarget::Unload()
     Height = 0; 
 }
 
-void RenderTarget::BeginWrite() const
+void RenderTarget::BeginWrite(bool InClear) const
 {
     rlEnableFramebuffer(FrameBuffer);
-    rlClearColor(0, 0, 0, 0);
-    rlClearScreenBuffers();
+    if (InClear)
+    {
+        rlClearColor(0, 0, 0, 0);
+        rlClearScreenBuffers();
+    }
     rlDisableColorBlend();
 }
 
@@ -75,18 +89,19 @@ void RenderTarget::EndWrite() const
     rlEnableColorBlend();
 }
 
-void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots) const
+void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
     for (const auto& buff : Buffers)
     {
-            
         InOutSlots.Index++;
-        int loc = InShader.GetLocation(buff.Name);
+        int loc = InShader.GetLocation(buff.Name + InPostfix);
         CHECK_CONTINUE(loc < 0);
         
         InOutSlots.Loc++;
+        rlTextureParameters(buff.Tex.id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
+        rlTextureParameters(buff.Tex.id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
         rlActiveTextureSlot(InOutSlots.Loc);
         rlEnableTexture(buff.Tex.id);
         rlSetUniform(loc, &InOutSlots.Loc, RL_SHADER_UNIFORM_SAMPLER2D, 1); // NOTE: Default texture is always activated as GL_TEXTURE0
@@ -94,14 +109,14 @@ void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots) const
     }
 }
 
-void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots) const
+void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
     for (const auto& buff : Buffers)
     {
         InOutSlots.Index++;
-        int loc = InShader.GetLocation(buff.Name);
+        int loc = InShader.GetLocation(buff.Name + InPostfix);
         CHECK_CONTINUE(loc < 0);
         
         InOutSlots.Loc++;
@@ -120,7 +135,7 @@ void RenderTarget::CreateBuffer(const String& InName, const PixelFormat InPixelF
     buffer.Tex.id = rlLoadTexture(nullptr, Width, Height, InPixelFormat, 1); 
     buffer.Tex.width = Width;
     buffer.Tex.height = Height;
-    buffer.Tex.mipmaps = 1;
+    buffer.Tex.mipmaps = 0;
     buffer.Tex.format = InPixelFormat;
 }
 

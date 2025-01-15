@@ -1,0 +1,79 @@
+#version 330
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_DeferredOut.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Uniforms/SH_PrevTexUniforms.si"
+#include "Shaders/Utility/SH_DeferredID.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+in vec2 TexCoord;
+
+void main()
+{
+    // Copy scene data!
+    vec4 worldPosition = texture(TexPosition, TexCoord);
+    vec4 deferredData = texture(TexDeferredData, TexCoord);
+    OutPosition = worldPosition;
+    OutDeferredData = deferredData;
+    OutVelocity = texture(TexVelocity, TexCoord).xyz;
+    OutNormal = texture(TexNormal, TexCoord).xyz;
+    OutColor = texture(TexColor, TexCoord);
+    
+    // Working values
+    float lifetime = deferredData.g;
+    vec2 fireCoord = TexCoord;
+    
+    // Sample previous position
+    vec2 prevCoord = GetPrevCoord(worldPosition.xyz);
+    float prevLifetime = texture(TexDeferredDataPrev, prevCoord).g;
+    if (prevLifetime > lifetime)
+    {
+        fireCoord = prevCoord; 
+        lifetime = prevLifetime;
+    }
+    
+    // Sample nearby pixels
+    vec2 pixelScale = vec2(1.0f) / Resolution;
+    vec2 vel = vec2(0.0f, -5.0f);
+    float growthScale = 2.0f;
+    vec2 offsets[] = {
+        vec2( 1, 0),
+        vec2(-1, 0),
+        vec2( 0, 1),
+        vec2( 0,-1),
+        vec2( 0.7, 0.7),
+        vec2(-0.7, 0.7),
+        vec2( 0.7,-0.7),
+        vec2(-0.7,-0.7)
+    };
+    for (int i = 0; i < 8; i++)
+    {
+        vec2 coord = prevCoord + (offsets[i] * growthScale + vel) * pixelScale;
+        vec4 prevData = texture(TexDeferredDataPrev, coord);
+        float expandedLifetime = prevData.g;
+        if (expandedLifetime > lifetime)
+        {
+            lifetime = expandedLifetime;
+            fireCoord = coord;
+        }
+    }
+    
+    if (lifetime < 0.01f)
+        return;
+
+    // Copy values from fire coord
+    if (fireCoord != TexCoord)
+    {
+        OutDeferredData = texture(TexDeferredDataPrev, fireCoord);
+        OutPosition = texture(TexPositionPrev, fireCoord);
+        OutPosition.w = min(worldPosition.w, OutPosition.w);
+        OutNormal = texture(TexNormalPrev, fireCoord).xyz;
+    }
+
+    float TOTAL_LIFETIME = 0.1f;
+    
+    float light = 0.3f + lifetime * 0.2f; 
+    OutColor.rgb = vec3(light, light, 1.0f);
+    OutDeferredData.g = lifetime - Delta / TOTAL_LIFETIME;
+}

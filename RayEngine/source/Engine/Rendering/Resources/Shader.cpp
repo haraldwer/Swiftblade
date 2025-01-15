@@ -19,8 +19,8 @@ bool ShaderResource::Load(const String& InIdentifier)
         if (!Utility::FileExists(InIdentifier))
             return false; 
         const String vsFile = "Shaders/SH_Fullscreen.vs";
-        const String vsCode = LoadShaderFile(vsFile);
-        const String fsCode = LoadShaderFile(InIdentifier);
+        const String vsCode = LoadShaderFile(vsFile, VSIncludes);
+        const String fsCode = LoadShaderFile(InIdentifier, FSIncludes);
         LOG("Compiling shader fs: " +  InIdentifier + " vs: " + vsFile)
         *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
         if (!IsShaderValid(*Ptr))
@@ -34,8 +34,8 @@ bool ShaderResource::Load(const String& InIdentifier)
         const String fsDefault = "Shaders/SH_Default.fs";
         const String vsFile = Utility::FileExists(vs) ? vs : vsDefault;
         const String fsFile = Utility::FileExists(fs) ? fs : fsDefault;
-        const String vsCode = LoadShaderFile(vsFile);
-        const String fsCode = LoadShaderFile(fsFile);
+        const String vsCode = LoadShaderFile(vsFile, VSIncludes);
+        const String fsCode = LoadShaderFile(fsFile, FSIncludes);
         LOG("Compiling shader fs: " +  fsFile + " vs: " + vsFile)
         *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
         if (!IsShaderValid(*Ptr))
@@ -52,7 +52,8 @@ bool ShaderResource::Unload()
         UnloadShader(*Ptr);
     delete Ptr;
     Ptr = nullptr;
-    Includes.clear();
+    FSIncludes.clear();
+    VSIncludes.clear();
     Locations.clear();
     return true;
 }
@@ -60,7 +61,9 @@ bool ShaderResource::Unload()
 Utility::Timepoint ShaderResource::GetEditTime() const
 {
     Utility::Timepoint max = Utility::Timepoint::min(); 
-    for (String path : Includes)
+    for (String path : FSIncludes)
+        max = Utility::Math::Max(max, Utility::GetFileWriteTime(path));
+    for (String path : VSIncludes)
         max = Utility::Math::Max(max, Utility::GetFileWriteTime(path));
     return  max;
 }
@@ -100,18 +103,18 @@ int ShaderResource::GetLocation(const String& InValue)
     return loc; 
 }
 
-String ShaderResource::LoadShaderFile(const String& InPath)
+String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InIncludes)
 {
-    Includes.clear(); 
+    InIncludes.clear();
     String shader = Utility::ReadFile(InPath);
-    shader = ProcessIncludes(shader, InPath);
+    shader = ProcessIncludes(shader, InPath, InIncludes);
     // TODO: Defines
     return shader;
 }
 
-String ShaderResource::ProcessIncludes(const String& InShaderCode, const String& InPath)
+String ShaderResource::ProcessIncludes(const String& InShaderCode, const String& InPath, Set<String>& InIncludes)
 {
-    Includes.insert(InPath);
+    InIncludes.insert(InPath);
     
     String processedShader;
     size_t searchOffset = 0;
@@ -129,10 +132,10 @@ String ShaderResource::ProcessIncludes(const String& InShaderCode, const String&
 
         if (Utility::FileExists(includePath))
         {
-            if (!Includes.contains(includePath))
+            if (!InIncludes.contains(includePath))
             {
                 const String includeContent = Utility::ReadFile(includePath);
-                const String processedInclude = ProcessIncludes(includeContent, includePath);
+                const String processedInclude = ProcessIncludes(includeContent, includePath, InIncludes);
                 processedShader += processedInclude; 
             }
         }

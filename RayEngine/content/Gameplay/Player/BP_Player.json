@@ -60,6 +60,26 @@
 						"Name":"CameraComponent",
 						"Data":{}
 					}
+				],
+				"Children":[{
+						"Overrides":{
+							"Components":[{
+									"Name":"Mesh",
+									"Data":{
+										"Material":"Dressing\\Skybox\\RM_Skybox.json"
+									}
+								},{
+									"Name":"Attributes",
+									"Data":{
+										"Name":"Skybox"
+									}
+								},{
+									"Name":"Transform",
+									"Data":{}
+								}
+							]
+						}
+					}
 				]
 			}
 		},{

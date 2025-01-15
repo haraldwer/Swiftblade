@@ -1,0 +1,8 @@
+﻿
+vec3 DistortedScreenPosition(vec3 InScreenPosition)
+{
+    // Push things outwards based on distance from screen center
+    // Closer to center = more push
+    
+    return InScreenPosition;
+}
