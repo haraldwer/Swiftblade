@@ -17,9 +17,11 @@ namespace ECS
 
         EntityID GetColliderID() const { return ColliderID; }
         EntityID GetCameraID() const { return CameraID; }
-        EntityID GetSwordID() const { return SwordID; }
+        EntityID GetWeaponID() const { return WeaponID; }
+        EntityID GetLeftID() const { return LeftID; }
+        EntityID GetRightID() const { return RightID; }
 
-        void PickupSword(EntityID InSwordID);
+        void PickupWeapon(EntityID InWeaponID);
         void Die();
         
         void TriggerSectionEnd();
@@ -29,7 +31,9 @@ namespace ECS
     private:
         EntityID ColliderID = InvalidID;
         EntityID CameraID = InvalidID;
-        EntityID SwordID = InvalidID;
+        EntityID WeaponID = InvalidID;
+        EntityID LeftID = InvalidID;
+        EntityID RightID = InvalidID;
 
         Utility::Timer PlayTimer; 
     };

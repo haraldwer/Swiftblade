@@ -37,7 +37,10 @@ void BlueprintEditor::SetBP(const ResBlueprint& InBP)
     if (BlueprintResource* bp = Config.Blueprint.Get().Get())
         InstanceID = bp->Instantiate();
 
-    SelectedID = InstanceID; 
+    SelectedID = InstanceID;
+
+    if (auto t = ECS.GetComponent<ECS::Transform>(InstanceID))
+        EditorCamera.SetTarget(t->GetPosition());
 }
 
 void BlueprintEditor::Logic(double InDelta)

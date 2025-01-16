@@ -27,6 +27,7 @@ void ECS::SysCollider::Update(EntityID InID, Collider& InComponent)
     case Physics::Shape::BOX:
         Rendering::DebugBox(
             t.GetPosition(),
+            t.GetRotation(),
             InComponent.ShapeData.Get().xyz * 2.0f);
         break;
     case Physics::Shape::CAPSULE:

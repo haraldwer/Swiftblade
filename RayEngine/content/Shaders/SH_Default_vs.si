@@ -15,14 +15,16 @@ in mat4 instanceTransform;
 out vec4 WorldPosition;
 out vec3 WorldNormal;
 out vec3 ObjectPosition;
+out vec3 VertexPosition;
 
 void Default()
 {
     vec3 objectNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0f)));
     WorldNormal = normalize(mat3(instanceTransform) * objectNormal);
+    VertexPosition = vertexPosition;
     ObjectPosition = (instanceTransform * vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
     WorldPosition = (instanceTransform * vec4(vertexPosition, 1.0f));
     vec4 screenPos = mvp * WorldPosition;
-    gl_Position = screenPos;
+    gl_Position = DistortScreenPos(screenPos);
     WorldPosition.w = screenPos.z; // Store linear depth
 }

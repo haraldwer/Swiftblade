@@ -1,0 +1,37 @@
+﻿#version 330
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+
+uniform sampler2D TexQuantize;
+
+in vec2 TexCoord;
+out vec4 Output;
+
+const float DISTORT_STRENGTH = 1.0f;
+
+vec2 DistortCoord(vec2 InCoord)
+{
+    // Push things outwards based on distance from screen center
+    // Closer to center = more push
+
+    float aspect = Resolution.x / Resolution.y;
+    vec2 pos = (InCoord * 2.0f - vec2(1.0f)) * vec2(aspect, 1.0f);
+    vec2 maxPos = (vec2(0.0f) * 2.0f - vec2(1.0f)) * vec2(aspect, 1.0f);
+    float dist = length(pos);
+    float maxDist = length(maxPos);
+
+    // Function of dist
+    // Zoom in, but zoom in less the further away you are
+    // How far away is furthest? x 1 y 1 ofc -> 
+    float lerp = clamp(dist / maxDist, 0.0, 1.0);
+    float zoom = 1.0f + mix(DISTORT_STRENGTH, 0.0f, lerp);
+    pos *= zoom;
+
+    vec2 newCoord = (pos * vec2(1.0f / aspect, 1.0f) + vec2(1.0f)) / 2.0f;
+    return newCoord;
+}
+
+void main()
+{
+    Output = texture(TexQuantize, DistortCoord(TexCoord));
+}

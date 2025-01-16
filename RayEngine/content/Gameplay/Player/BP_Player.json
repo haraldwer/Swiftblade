@@ -9,13 +9,7 @@
 			}
 		},{
 			"Name":"Transform",
-			"Data":{
-				"Position":[
-					0.0,
-					2.0,
-					0.0
-				]
-			}
+			"Data":{}
 		},{
 			"Name":"Rigidbody",
 			"Data":{
@@ -37,6 +31,9 @@
 			"Data":{}
 		},{
 			"Name":"PlayerCamera",
+			"Data":{}
+		},{
+			"Name":"AnimationPoser",
 			"Data":{}
 		}
 	],
@@ -66,6 +63,7 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
+										"Model":"Defaults/M_Cube_HighPoly.obj",
 										"Material":"Dressing\\Skybox\\RM_Skybox.json"
 									}
 								},{
@@ -103,6 +101,131 @@
 						"Data":{
 							"Material":"Gameplay\\Player\\PM_Player.json",
 							"Shape":1
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Left"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								0.7000000476837158,
+								0.0,
+								1.0
+							]
+						}
+					}
+				],
+				"Children":[{
+						"Overrides":{
+							"Components":[{
+									"Name":"Mesh",
+									"Data":{}
+								},{
+									"Name":"Attributes",
+									"Data":{
+										"Name":"LeftMesh"
+									}
+								},{
+									"Name":"Transform",
+									"Data":{
+										"Rotation":[
+											0.0,
+											0.0,
+											0.0
+										],
+										"Scale":[
+											0.20000000298023224,
+											0.20000000298023224,
+											0.20000000298023224
+										]
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Right"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								-0.699999988079071,
+								0.0,
+								1.0
+							]
+						}
+					}
+				],
+				"Children":[{
+						"Overrides":{
+							"Components":[{
+									"Name":"Mesh",
+									"Data":{}
+								},{
+									"Name":"Attributes",
+									"Data":{
+										"Name":"RightMesh"
+									}
+								},{
+									"Name":"Transform",
+									"Data":{
+										"Rotation":[
+											0.0,
+											0.0,
+											0.0
+										],
+										"Scale":[
+											0.20000000298023224,
+											0.20000000298023224,
+											0.20000000298023224
+										]
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Pose_Idle"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								-0.5,
+								0.0,
+								1.2000000476837158
+							],
+							"Rotation":[
+								7.424866676330566,
+								15.10615062713623,
+								-8.367182731628418
+							],
+							"Scale":[
+								1.0000001192092896,
+								1.0000001192092896,
+								1.0000001192092896
+							]
 						}
 					}
 				]

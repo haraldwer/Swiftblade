@@ -43,6 +43,14 @@ void EditorCamera::Deinit()
     bUseEditCamera = false;
 }
 
+void EditorCamera::SetTarget(Vec3F InPosition, float InDistance)
+{
+    Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();
+    TargetState.Position = InPosition - dir * InDistance;
+    TargetState.Rotation = QuatF::FromDirection(dir).Euler();
+    CurrentState = TargetState;
+}
+
 void EditorCamera::Toggle()
 {
     bUseEditCamera = !bUseEditCamera;

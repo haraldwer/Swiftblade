@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ECS/System.h"
 #include "ECS/Component.h"
+#include "ECS/System.h"
 
 namespace ECS
 {

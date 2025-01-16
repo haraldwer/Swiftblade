@@ -2,6 +2,7 @@
 
 #include "Collider.h"
 #include "ECS/Manager.h"
+#include "Editor/Gizmo/ImGuizmo.h"
 #include "Instance/Instance.h"
 #include "Editor/Gizmo/ImGuizmo_Wrapper.h"
 
@@ -235,6 +236,17 @@ bool SysTransform::EditGizmo(EntityID InID)
     static int gizmoSpace = 1;
     static int gizmoOperation = 0;
     static bool useSnap = true;
+
+    if (!Engine::Instance::Get().GetEditorCamera().IsControlling())
+    {
+        if (IsKeyPressed(KEY_W))
+            gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+        if (IsKeyPressed(KEY_E))
+            gizmoOperation = ImGuizmo::OPERATION::ROTATE;
+        if (IsKeyPressed(KEY_R))
+            gizmoOperation = ImGuizmo::OPERATION::SCALE;
+    }
+    
     Mat4F trans = t.World();
     const bool finishEdit = ImGuizmo::Edit(trans, gizmoSpace, gizmoOperation, useSnap);
     t.SetWorld(trans); 

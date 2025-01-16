@@ -1,13 +1,13 @@
 ﻿#include "Combat.h"
 
 #include "ECS/Enemies/Enemy.h"
-#include "ECS/Player/Weapon/Weapon.h"
+#include "ECS/Player/Combat/Weapon/Weapon.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
 
 void Combat::Update()
 {
-    const auto sword = GetSword();
+    const auto sword = GetWeapon();
     CHECK_RETURN(!sword); 
     
     // Attack
@@ -22,8 +22,8 @@ void Combat::Update()
         params.Shape = Physics::Shape::SPHERE;
         params.ShapeData.xyz = DamageSweepSize;
         params.IgnoredEntities = { GetPlayerID() };
-        if (const auto sword = GetSword())
-            params.IgnoredEntities.insert(sword->GetID());
+        if (const auto weapon = GetWeapon())
+            params.IgnoredEntities.insert(weapon->GetID());
 
         //Rendering::DebugSphere(params.Start, DamageSweepSize, MAGENTA);
         //Rendering::DebugSphere(params.End, DamageSweepSize, MAGENTA);

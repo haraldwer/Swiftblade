@@ -51,13 +51,13 @@ namespace ECS
 
         struct SlowdownParams
         {
-            float Slowdown = 0.0007f; 
+            float Slowdown = 0.0009f; 
         };
         void Slowdown(double InDelta, const SlowdownParams& InParams = SlowdownParams()) const;
 
         struct VelocityClampParams
         {
-            float MaxSpeed = 15.0f;
+            float MaxSpeed = 12.0f;
             float MaxVerticalSpeed = 50.0f;
             float ClampSlowdown = 0.001f;
         };
@@ -65,7 +65,7 @@ namespace ECS
         
         struct CrouchParams
         {
-            float HeightMul = 0.3f; 
+            float HeightMul = 0.01f; 
         };
         void SetCrouch(bool InCrouch, const CrouchParams& InParams = CrouchParams());
 

@@ -30,7 +30,7 @@ void GameInstance::Init()
     if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
     { 
         State.PlayerID = ECS.CreateEntity(); 
-        bp->Instantiate(StartPlayerPos, {}, State.PlayerID);
+        bp->Instantiate(StartPlayerPos + Vec3F::Up() * 2.0f, {}, State.PlayerID);
     }
 }
 

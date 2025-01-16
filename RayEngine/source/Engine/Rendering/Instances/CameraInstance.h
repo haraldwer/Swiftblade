@@ -17,6 +17,8 @@ struct CameraInstance
     {
         Mat4F proj = Mat4F();
         const float aspect = InSize.x / InSize.y;
+        //const float FOVy = atanf(tanf(FOV * 0.5f) / aspect) * 2.0f;
+        //const float FOVx = 2.0f * atanf(tanf(FOV * 0.5f) * aspect);
         const float base = 1.0f / tanf(Utility::Math::DegreesToRadians(FOV));
         proj(0, 0) = base;
         proj(1, 1) = aspect * base;

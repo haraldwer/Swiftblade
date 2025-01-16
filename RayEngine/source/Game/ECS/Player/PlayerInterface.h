@@ -2,9 +2,6 @@
 
 #include "Engine/ECS/Entity.h"
 
-class Animator;
-class Weapon;
-
 namespace ECS
 {
     struct Transform;
@@ -18,6 +15,9 @@ namespace ECS
     class SysPlayer;
     class Manager;
     class PlayerCamera;
+    class Weapon;
+    class Animator;
+    class AnimationPoser;
     
     class PlayerInterface
     {
@@ -32,16 +32,20 @@ namespace ECS
 
         // Specific getters
         Transform& GetPlayerTransform() const;
+        Transform& GetLeftTransform() const;
+        Transform& GetRightTransform() const;
         Transform& GetCameraTransform() const;
         Transform& GetColliderTransform() const;
         Movement& GetMovement() const;
         Animator& GetAnimator() const;
+        AnimationPoser* GetWeaponPoser() const;
+        AnimationPoser& GetHandPoser() const;
         PlayerInput& GetInput() const;
         Collider& GetCollider() const;
         Rigidbody& GetRB() const;
         PlayerCamera& GetPlayerCamera() const;
         CameraComponent& GetCamera() const;
-        Weapon* GetSword() const;
+        Weapon* GetWeapon() const;
 
         static double GetTime();
         

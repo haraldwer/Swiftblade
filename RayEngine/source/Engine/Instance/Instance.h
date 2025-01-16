@@ -21,6 +21,7 @@ namespace Engine
         virtual bool IsEditor() const { return false; }
 
         Rendering::RenderScene& GetRenderScene();
+        EditorCamera& GetEditorCamera() { return EditorCamera; }
 
     protected:
         Utility::Time Time;

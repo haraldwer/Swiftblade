@@ -2,8 +2,8 @@
 
 #include "Component.h"
 #include "Manager.h"
-#include "System.h"
 #include "Physics/Contact.h"
+#include "System.h"
 
 namespace ECS
 {
@@ -21,6 +21,7 @@ namespace ECS
         virtual void OnBeginContact(const Physics::Contact& InContact) {}
         virtual void OnEndContact(const Physics::Contact& InContact) {}
         virtual int GetPriority() const { return 0; }
+        virtual bool ShouldUpdate() const;
 
     protected:
 
@@ -79,7 +80,12 @@ namespace ECS
         int GetPriority() const override
         {
             return T().GetPriority();
-        } 
+        }
+
+        bool ShouldUpdate() const override
+        {
+            return T().ShouldUpdate();
+        }
 
         void OnBeginContact(const Physics::Contact& InContact) override
         {

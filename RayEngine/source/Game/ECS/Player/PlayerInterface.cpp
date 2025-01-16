@@ -1,6 +1,8 @@
 ﻿#include "PlayerInterface.h"
 
+#include "Animation/AnimationPoser.h"
 #include "Animation/Animator.h"
+#include "Combat/Weapon/Weapon.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/CameraComponent.h"
 #include "Engine/ECS/Systems/Collider.h"
@@ -11,7 +13,6 @@
 #include "Player.h"
 #include "PlayerCamera.h"
 #include "PlayerInput.h"
-#include "Weapon/Weapon.h"
 
 ECS::Player& ECS::PlayerInterface::GetPlayer() const
 {
@@ -31,6 +32,20 @@ ECS::Transform& ECS::PlayerInterface::GetPlayerTransform() const
 {
     auto* ptr = Manager::Get().GetComponent<Transform>(GetPlayerID());
     CHECK_ASSERT(!ptr, "Invalid player trans");
+    return *ptr; 
+}
+
+ECS::Transform& ECS::PlayerInterface::GetLeftTransform() const
+{
+    auto* ptr = Manager::Get().GetComponent<Transform>(GetPlayer().GetLeftID());
+    CHECK_ASSERT(!ptr, "Invalid left trans");
+    return *ptr; 
+}
+
+ECS::Transform& ECS::PlayerInterface::GetRightTransform() const
+{
+    auto* ptr = Manager::Get().GetComponent<Transform>(GetPlayer().GetRightID());
+    CHECK_ASSERT(!ptr, "Invalid right trans");
     return *ptr; 
 }
 
@@ -55,10 +70,22 @@ ECS::Movement& ECS::PlayerInterface::GetMovement() const
     return *ptr;
 }
 
-Animator& ECS::PlayerInterface::GetAnimator() const
+ECS::Animator& ECS::PlayerInterface::GetAnimator() const
 {
     auto* ptr = Manager::Get().GetComponent<Animator>(GetPlayerID());
     CHECK_ASSERT(!ptr, "Invalid animator");
+    return *ptr;
+}
+
+ECS::AnimationPoser* ECS::PlayerInterface::GetWeaponPoser() const
+{
+    return Manager::Get().GetComponent<AnimationPoser>(GetPlayer().GetWeaponID());
+}
+
+ECS::AnimationPoser& ECS::PlayerInterface::GetHandPoser() const
+{
+    auto* ptr = Manager::Get().GetComponent<AnimationPoser>(GetPlayerID());
+    CHECK_ASSERT(!ptr, "Invalid hand poser");
     return *ptr;
 }
 
@@ -97,9 +124,9 @@ ECS::CameraComponent& ECS::PlayerInterface::GetCamera() const
     return *ptr;
 }
 
-Weapon* ECS::PlayerInterface::GetSword() const
+ECS::Weapon* ECS::PlayerInterface::GetWeapon() const
 {
-    const EntityID id = GetPlayer().GetSwordID();
+    const EntityID id = GetPlayer().GetWeaponID();
     CHECK_RETURN(id == InvalidID, nullptr); 
     return Manager::Get().GetComponent<Weapon>(id);
 }

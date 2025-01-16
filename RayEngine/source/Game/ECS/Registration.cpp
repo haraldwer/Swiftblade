@@ -7,12 +7,13 @@
 #include "ECS/Enemies/EnemySpawner.h"
 #include "ECS/GameEnd.h"
 #include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/AnimationPoser.h"
 #include "ECS/Player/Combat/Combat.h"
 #include "ECS/Player/Movement/Movement.h"
 #include "ECS/Player/Player.h"
 #include "ECS/Player/PlayerCamera.h"
 #include "ECS/Player/PlayerInput.h"
-#include "ECS/Player/Weapon/Weapon.h"
+#include "ECS/Player/Combat/Weapon/Weapon.h"
 #include "ECS/RoomConnection.h"
 #include "ECS/SectionEnd.h"
 #include "ECS/Volume/CubeVolume.h"
@@ -67,6 +68,7 @@ SystemToName[var] = String(#x); }
     REG_UNIQUE_COMPONENT(Weapon);
     REG_UNIQUE_COMPONENT(Combat);
     REG_UNIQUE_COMPONENT(Animator);
+    REG_UNIQUE_COMPONENT(AnimationPoser);
     
 #undef REG_ENTITY_SYSTEM
 #undef REG_UNIQUE_COMPONENT

@@ -1,8 +1,10 @@
 #include "Player.h"
 
+#include "Combat/Weapon/Weapon.h"
 #include "ECS/Checkpoint.h"
 #include "ECS/GameEnd.h"
 #include "ECS/SectionEnd.h"
+#include "ECS/Systems/Attributes.h"
 #include "Engine/ECS/Systems/CameraComponent.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -10,10 +12,8 @@
 #include "Engine/Menu/Manager.h"
 #include "GameInstance.h"
 #include "GameState.h"
-#include "PlayerInput.h"
 #include "UI/Menus/MenuDeath.h"
 #include "UI/Menus/MenuGameEnd.h"
-#include "Weapon/Weapon.h"
 
 void ECS::Player::Init()
 {
@@ -29,18 +29,24 @@ void ECS::Player::Init()
         if (TryGet<Collider>(child))
             ColliderID = child;
         if (TryGet<CameraComponent>(child))
-            CameraID = child; 
+            CameraID = child;
+        
+        auto& a = Get<Attributes>(child);
+        if (a.Name.Get() == "Left")
+            LeftID = child;
+        if (a.Name.Get() == "Right")
+            RightID = child;
     }
 
     // Create sword
     
     const auto& state = GameState::Get();
-    if (SwordID == InvalidID && (state.Checkpoint > 0 || state.InArena))
+    if (WeaponID == InvalidID && (state.Checkpoint > 0 || state.InArena))
     {
         if (auto bp = ResBlueprint("Gameplay/Player/BP_Sword.json").Get())
         {
-            SwordID = bp->Instantiate();
-            PickupSword(SwordID); 
+            WeaponID = bp->Instantiate();
+            PickupWeapon(WeaponID); 
         }
     }
 }
@@ -65,20 +71,17 @@ void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
         if (GetSystem<SysGameEnd>().Contains(parent))
             TriggerGameEnd();
         if (TryGet<Weapon>(parent))
-            PickupSword(parent); 
+            PickupWeapon(parent); 
     }
 }
 
-void ECS::Player::PickupSword(EntityID InSwordID)
+void ECS::Player::PickupWeapon(EntityID InWeaponID)
 {
-    // Attach sword to player with an offset
-    auto& swordTrans = Get<Transform>(InSwordID);
-    swordTrans.SetParent(GetCameraID());
-    swordTrans.SetPosition(Vec3F(-1.5f, 0.0f, 1.5f), Transform::Space::LOCAL);
-    swordTrans.SetRotation(QuatF::FromEuler(Vec3F(0.0, 0.0, 0.2f)), Transform::Space::LOCAL);
-    SwordID = InSwordID;
+    auto& swordTrans = Get<Transform>(InWeaponID);
+    swordTrans.SetParent(GetID());
+    WeaponID = InWeaponID;
     PlayTimer = Utility::Timer();
-    LOG("Sword attached");
+    LOG("Weapon attached");
 }
 
 void ECS::Player::Die()

@@ -7,6 +7,7 @@
 in vec4 WorldPosition;
 in vec3 WorldNormal;
 in vec3 ObjectPosition;
+in vec3 VertexPosition;
 
 void Default()
 {

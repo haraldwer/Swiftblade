@@ -1,27 +1,16 @@
 ﻿
 #include "Shaders/Utility/SH_ScreenDistortion.si"
 
-vec4 CoordToWorldPos(vec2 InUV, float InDepth)
-{
-    // First do transformation
-    //vec4 screenPos = WorldToPrevScreen * vec4(InWorldPosition, 1.0);
-    // Then change format
-    //screenPos.xy = (1 + screenPos.xy / screenPos.w) / 2;
-    
-    vec2 screenPos = ((InUV * 2) - 1);
-    return ScreenToWorld * vec4(vec3(screenPos, InDepth), 1.0);
-}
-
-vec4 WorldPosToCoord(vec3 InWorldPosition, mat4 InMVP)
+vec2 WorldPosToCoord(vec3 InWorldPosition, mat4 InMVP)
 {    
     vec4 screenPos = WorldToPrevScreen * vec4(InWorldPosition, 1.0);
-    screenPos.xy = (1 + screenPos.xy / screenPos.w) / 2;
-    return screenPos;
+    vec2 coord = (1 + screenPos.xy / screenPos.w) / 2;
+    return DistortCoord(coord);
 }
 
 vec2 GetPrevCoord(vec3 InWorldPosition)
 {
-    return WorldPosToCoord(InWorldPosition, WorldToPrevScreen).xy;
+    return WorldPosToCoord(InWorldPosition, WorldToPrevScreen);
 }
 
 float SquaredLength(vec2 InDist)

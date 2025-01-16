@@ -12,7 +12,7 @@ public:
     double GetExitTimestamp() const { return EnterTimestamp; }
     double GetTimeSinceEnter() const { return GetTime() - GetEnterTimestamp(); }
     double GetTimeSinceExit() const { return GetTime() - GetExitTimestamp(); }
-    
+
 protected:
     
     void Enter() override
@@ -28,5 +28,5 @@ protected:
 private:
     
     double EnterTimestamp = 0.0f;
-    double ExitTimestamp = 0.0f; 
+    double ExitTimestamp = 0.0f;
 };
