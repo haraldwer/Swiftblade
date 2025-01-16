@@ -30,6 +30,10 @@
 					"Name":"LookVertical",
 					"KeyType":4,
 					"Key":1
+				},{
+					"Name":"Strike",
+					"KeyType":3,
+					"Key":0
 				}
 			],
 			"CursorVisible":false

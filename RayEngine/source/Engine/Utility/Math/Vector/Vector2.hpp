@@ -299,6 +299,13 @@ namespace Utility
 				return (*this);
 			}
 
+			bool operator==(const Vector2& in) const
+			{
+				return
+					x == in.x &&
+					y == in.y;
+			}
+
 			operator Vector2Swizzle<Type, 0, 1> &()
 			{
 				return xy;

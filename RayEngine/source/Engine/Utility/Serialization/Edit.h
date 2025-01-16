@@ -18,6 +18,7 @@ namespace Utility
     bool Edit(const String& InName, int32& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, uint8& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, uint32& InOutData, uint32 InOffset = 0);
+    bool Edit(const String& InName, Vec2F& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, Vec3F& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, Vec4F& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, QuatF& InOutData, uint32 InOffset = 0);

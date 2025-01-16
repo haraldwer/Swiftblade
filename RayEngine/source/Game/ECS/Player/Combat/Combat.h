@@ -1,13 +1,20 @@
 ﻿#pragma once
+
 #include "ECS/Player/PlayerInterface.h"
 #include "Engine/ECS/UniqueComponent.h"
 
-class Combat : public ECS::UniqueComponent<Combat>, public ECS::PlayerInterface
-{
-public:
-    void Update() override;
+class CombatStateMachine;
 
-private:
-    PROPERTY_C(float, DamageSweepSize, 1.0f)
-    
-};
+namespace ECS
+{
+    class Combat : public UniqueComponent<Combat>, public PlayerInterface
+    {
+    public:
+        void Init() override;
+        void Update() override;
+        bool Edit(const String& InName = "") override;
+
+    private:
+        ObjectPtr<CombatStateMachine> StateMachine;
+    };
+}

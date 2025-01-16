@@ -35,6 +35,11 @@ bool Utility::Edit(const String& InName, uint32& InOutData, uint32 InOffset)
     return result; 
 }
 
+bool Utility::Edit(const String& InName, Vec2F& InOutData, uint32 InOffset)
+{
+    return ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+}
+
 bool Utility::Edit(const String& InName, Vec3F& InOutData, uint32 InOffset)
 {
     return ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);

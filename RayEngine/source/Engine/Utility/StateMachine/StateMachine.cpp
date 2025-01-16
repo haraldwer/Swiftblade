@@ -60,6 +60,35 @@ void StateMachine::Update()
 		SetState(newState);
 }
 
+bool StateMachine::Edit()
+{
+	String current = "Current: ";
+	if (auto s = GetCurrentState())
+		current += s->GetName();
+	ImGui::Text(current.c_str());
+	bool edited = false;
+	for (StateBase* s : States)
+	{
+		ImGui::Text((String("-- ") + s->GetName() + String(" --")).c_str());
+		if (s->EditState())
+			edited = true;
+	}
+	return edited;
+}
+
+void StateMachine::Serialize(SerializeObj& InOutObj) const
+{
+	for (StateBase* s : States)
+		s->SerializeState(InOutObj);
+}
+
+bool StateMachine::Deserialize(const DeserializeObj& InObj)
+{
+	for (StateBase* s : States)
+		s->DeserializeState(InObj);
+	return true; 
+}
+
 bool StateMachine::SetState(const Utility::Type& InType)
 {
 	CHECK_RETURN(!InType, false);

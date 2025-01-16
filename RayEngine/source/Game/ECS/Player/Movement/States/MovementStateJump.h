@@ -4,6 +4,7 @@
 
 class MovementStateJump : public MovementState<MovementStateJump>
 {
+public:
     Type Check() override;
     Type Update() override;
     void Enter() override;
@@ -14,10 +15,12 @@ class MovementStateJump : public MovementState<MovementStateJump>
     bool CanAirJump() const;
     bool CanGroundJump() const; 
     bool CanWallJump() const;
-    
+
+private:
     PROPERTY_C(float, CoyoteTime, 0.2f);
     PROPERTY_C(float, WallCoyoteTime, 0.4f);
     PROPERTY_C(int, NumAirJumps, 1);
+    PROPERTY_C(ECS::JumpParams, Jump, {});
     
     int AirJumps = 0;
     bool GroundJump = false;

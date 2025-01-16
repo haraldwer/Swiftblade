@@ -28,6 +28,13 @@ void ECS::Animator::TryOverrideState(const Type& InAnimState) const
         StateMachine->TryOverrideState(InAnimState);
 }
 
+bool ECS::Animator::Edit(const String& InName)
+{
+    if (StateMachine)
+        StateMachine->Edit();
+    return UniqueComponent::Edit(InName);
+}
+
 
 Mat4F ECS::Animator::GetPose(const String& InName) const
 {

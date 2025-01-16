@@ -9,7 +9,11 @@ public:
 
 	virtual void Init();
 	virtual void Deinit();
-	virtual void Update(); 
+	virtual void Update();
+	
+	virtual bool Edit();
+	virtual void Serialize(SerializeObj& InOutObj) const;
+	virtual bool Deserialize(const DeserializeObj& InObj);
 	
 	// Override with default state
 	virtual Utility::Type GetDefaultStateType() = 0;

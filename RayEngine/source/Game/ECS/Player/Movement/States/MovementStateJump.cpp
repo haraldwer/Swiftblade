@@ -36,7 +36,6 @@ void MovementStateJump::Enter()
     MovementState::Enter();
     
     auto& movement = GetMovement();
-    ECS::Movement::JumpParams params;
     
     // Add wall force
     const bool ground = CanGroundJump();
@@ -50,11 +49,11 @@ void MovementStateJump::Enter()
         LOG("Air jump!");
         AirJumps++;
     }
-    
+
+    auto params = Jump.Get();
     if (!ground && wall)
         if (const auto wallState = GetState<MovementStateWall>())
             params.Direction = wallState->GetWallNormal();
-    
     movement.Jump(params);
 }
 

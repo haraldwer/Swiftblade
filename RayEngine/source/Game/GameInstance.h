@@ -6,7 +6,7 @@
 #include "GameState.h"
 #include "Rooms/RoomManager.h"
 
-class GameInstance : public Engine::Instance 
+class GameInstance : public Engine::Instance, public Debug::Window
 {
     
 public:
@@ -14,6 +14,9 @@ public:
     void Deinit() override;
     void Logic(double InDelta) override;
     void Frame() override; 
+
+    void DrawDebugWindow() override;
+    String DebugWindowName() const override { return "Gameplay"; }
     
     void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
     void SetState(const GameState& InState);

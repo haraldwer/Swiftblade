@@ -13,11 +13,16 @@ public:
 	virtual Utility::Type Update() { return {}; }
 	virtual Utility::Type Check() { return {}; }
 	
+	virtual bool EditState() { return false; }
+	virtual void SerializeState(SerializeObj& InOutObj) const {}
+	virtual bool DeserializeState(const DeserializeObj& InObj) { return false; }
+	
 	virtual void Enter() {}
 	virtual void Exit() {}
 	
 	virtual int32 Priority() const { return 0; }
 	virtual Utility::Type GetType() const { return {}; }
+	virtual String GetName() const { return ""; }
 
 protected:
 	
@@ -39,11 +44,33 @@ private:
 };
 
 template <class T>
-class State : public StateBase
+class State : public StateBase, public PropertyOwner<T>
 {
 public:
+	~State() override = default;
+	
+	bool EditState() override
+	{
+		return this->Edit("##" + std::to_string(typeid(T).hash_code()));
+	}
+
+	void SerializeState(SerializeObj& InOutObj) const override
+	{
+		return this->Serialize(InOutObj);
+	}
+	
+	bool DeserializeState(const DeserializeObj& InObj) override
+	{
+		return this->Deserialize(InObj);
+	}
+	
 	Utility::Type GetType() const override
 	{
 		return Utility::GetType<T>();
+	}
+	
+	String GetName() const override
+	{
+		return typeid(T).name();
 	}
 };

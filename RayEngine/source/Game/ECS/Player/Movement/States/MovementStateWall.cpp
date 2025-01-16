@@ -43,13 +43,13 @@ Type MovementStateWall::Update()
     }
 
     // Set params
-    ECS::Movement::MoveParams move;
+    auto move = Move.Get();
     move.PlaneNormal = CurrentWallNormal;
     
-    movement.Look(input.RotInput);
+    movement.Look(input.RotInput, Look);
     if (!movement.Move(input.MoveInput, move))
-        movement.Slowdown(dt); 
-    movement.VelocityClamp(dt);
+        movement.Slowdown(dt, Slowdown); 
+    movement.VelocityClamp(dt, VelocityClamp);
     
     return Type::None(); 
 }

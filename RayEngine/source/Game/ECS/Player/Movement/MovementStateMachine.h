@@ -19,13 +19,10 @@ namespace Physics
 class MovementStateMachine : public StateMachine
 {
 public:
-
     void Init() override;
-    
     Utility::Type GetDefaultStateType() override { return Utility::GetType<MovementStateIdle>(); }    
     
 private:
-
     MovementStateIdle Idle;
     MovementStateRun Run;
     MovementStateJump Jump;

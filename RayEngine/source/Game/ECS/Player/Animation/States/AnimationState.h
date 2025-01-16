@@ -2,12 +2,11 @@
 
 #include "ECS/Player/PlayerInterface.h"
 #include "Engine/Utility/StateMachine/StateBase.h"
+#include "Property/PropertyOwner.h"
 
 template <class T> 
-class AnimationState : public State<T>, public PropertyOwner<T>, public ECS::PlayerInterface
+class AnimationState : public State<T>, public ECS::PlayerInterface
 {
-public:
-    
     double GetEnterTimestamp() const { return EnterTimestamp; }
     double GetExitTimestamp() const { return EnterTimestamp; }
     double GetTimeSinceEnter() const { return GetTime() - GetEnterTimestamp(); }

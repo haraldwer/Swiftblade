@@ -10,7 +10,6 @@
 #include "Engine/Rendering/Debug/Draw.h"
 #include "MovementStateMachine.h"
 
-
 void ECS::Movement::Init()
 {
     if (Engine::Instance::Get().IsEditor())
@@ -58,20 +57,6 @@ void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
     }
 }
 
-Type ECS::Movement::GetDesiredAnimationState() const
-{
-    return Type::None(); 
-}
-
-bool ECS::Movement::Edit(const String& InName)
-{
-    bool edited = UniqueComponent::Edit(InName);  
-    //if (StateMachine)
-    //    if (StateMachine->Edit(InName))
-    //        edited = true;  
-    return edited; 
-}
-
 void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
 {
     auto& trans = GetPlayerTransform();
@@ -79,12 +64,12 @@ void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
     
     // Set body rotation
     Vec3F bodyRot = trans.GetRotation().Euler();
-    bodyRot.y += InInput.y * InParams.SensitivityMultiplier.y; 
+    bodyRot.y += InInput.y * InParams.SensitivityMultiplier.Get().y; 
     trans.SetRotation(QuatF::FromEuler(bodyRot));
 
     // Set camera rotation
     float camRot = camTrans.GetRotation().Euler().x; 
-    camRot += InInput.x * InParams.SensitivityMultiplier.x;
+    camRot += InInput.x * InParams.SensitivityMultiplier.Get().x;
     camRot = Utility::Math::Clamp(
         Utility::Math::DegreesToRadians(-90.0f),
         Utility::Math::DegreesToRadians(90.0f),
@@ -115,8 +100,8 @@ void ECS::Movement::Jump(const JumpParams& InParams)
     const auto& rb = GetRB();
     const Vec3F vel = rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f);
     const Vec3F newVel = vel +
-        Vec3F::Up() * InParams.UpVelocity +
-        InParams.Direction * InParams.DirectionalForce; 
+        Vec3F::Up() * InParams.UpVelocity.Get() +
+        InParams.Direction * InParams.DirectionalForce.Get(); 
     rb.SetVelocity(newVel);
     if (OnGround)
     {
@@ -128,7 +113,7 @@ void ECS::Movement::Jump(const JumpParams& InParams)
 
 void ECS::Movement::Slowdown(double InDelta, const SlowdownParams& InParams) const
 {
-    const float slowdown = InParams.Slowdown;
+    const float slowdown = InParams.Friction;
     const float friction = static_cast<float>(std::pow(slowdown, InDelta));
 
     auto& rb = GetRB();
@@ -147,12 +132,12 @@ void ECS::Movement::VelocityClamp(double InDelta, const VelocityClampParams& InP
     const float currentSpeed = flatVel.Length();
     
     // Horizontal friction slowdown
-    const float friction = static_cast<float>(std::pow(InParams.ClampSlowdown, InDelta));
+    const float friction = static_cast<float>(std::pow(InParams.ClampSlowdown.Get(), InDelta));
     const float newSpeed = currentSpeed < InParams.MaxSpeed ? currentSpeed : currentSpeed * friction;
     const Vec3F clampedFlatVel = flatVel.GetNormalized() * newSpeed;
     
     // Vertical raw clamp
-    float clampedVertVel = Utility::Math::Clamp(vel.y, -InParams.MaxVerticalSpeed, InParams.MaxVerticalSpeed); 
+    float clampedVertVel = Utility::Math::Clamp(vel.y, -InParams.MaxVerticalSpeed.Get(), InParams.MaxVerticalSpeed.Get()); 
     rb.SetVelocity(Vec3F(clampedFlatVel.x, clampedVertVel, clampedFlatVel.z));
 }
 
@@ -217,7 +202,7 @@ void ECS::Movement::GroundSnap()
     
     Physics::SweepParams params;
     params.Start = transform.GetPosition();
-    params.End = params.Start - Vec3F::Up() * GroundDist;
+    params.End = params.Start - Vec3F::Up() * GroundDist.Get();
     params.IgnoredEntities = { GetID() };
     params.Shape = static_cast<Physics::Shape>(collider.Shape.Get());
     params.ShapeData = collider.ShapeData;
@@ -229,7 +214,6 @@ void ECS::Movement::GroundSnap()
         Rendering::DebugCapsule(params.End, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, BLUE);
     }
 
-    
     // Sweep
     PROFILE_SCOPE_BEGIN("Sweep");
     const Physics::QueryResult result = Physics::Query::Sweep(params);

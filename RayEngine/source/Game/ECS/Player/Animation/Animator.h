@@ -34,6 +34,7 @@ namespace ECS
         void Init() override;
         void Update() override;
         void TryOverrideState(const Type& InAnimState) const;
+        bool Edit(const String& InName = "") override;
 
         void SetHands(const HandState& InRight, const HandState& InLeft);
         void SetHead(const HeadState& InHead);
@@ -45,9 +46,6 @@ namespace ECS
         Mat4F GetPose(const String& InName) const;
         Mat4F ToCameraSpace(Mat4F InMat, float InWeight);
         static HandState Flip(const HandState& InHand);
-        
-        // Provide some simple animation functions
-
         
     private:
         

@@ -10,20 +10,17 @@ Type MovementStateAir::Update()
     const auto& input = GetInput();
     const auto& movement = GetMovement();
 
-    movement.Look(input.RotInput);
+    movement.Look(input.RotInput, Look);
 
-    ECS::Movement::MoveParams move;
-    move.MovementForce *= 0.7f;
-    ECS::Movement::SlowdownParams slowdown;
-    slowdown.Slowdown = 0.1f;
-    ECS::Movement::VelocityClampParams vel;
-    vel.MaxSpeed = 20.0f;
-    vel.ClampSlowdown = 0.005f; 
+    //move.MovementForce *= 0.7f;
+    //slowdown.Slowdown = 0.1f;
+    //vel.MaxSpeed = 20.0f;
+    //vel.ClampSlowdown = 0.005f; 
 
     float dt = static_cast<float>(Utility::Time::Get().Delta());
-    if (!movement.Move(input.MoveInput, move))
-        movement.Slowdown(dt, slowdown);
-    movement.VelocityClamp(dt, vel);
+    if (!movement.Move(input.MoveInput, Move))
+        movement.Slowdown(dt, Slowdown);
+    movement.VelocityClamp(dt, VelocityClamp);
     
     if (!movement.IsInAir())
         return Type::Get<MovementStateIdle>(); 

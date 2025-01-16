@@ -46,7 +46,8 @@ template <class TSelf>
 class PropertyOwner : public PropertyOwnerBase
 {
 public:
-    
+
+    ~PropertyOwner() override = default;
     PropertyOwner()
     {
         Reg(); 

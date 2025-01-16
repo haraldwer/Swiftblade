@@ -5,17 +5,14 @@
 class MovementStateWall : public MovementState<MovementStateWall>
 {
 public:
-    
-    Vec3F GetWallNormal() const { return CurrentWallNormal; }
-
-private: 
-    
     Type Check() override;
     Type Update() override;
     void Enter() override;
     void Exit() override;
     int32 Priority() const override { return 5; }
-    
+    Vec3F GetWallNormal() const { return CurrentWallNormal; }
+
+private: 
     bool CheckWall();
     bool CheckInput() const;
 
@@ -27,8 +24,12 @@ private:
     PROPERTY_C(float, NormalInterpSpeed, 10.0f);
     PROPERTY_C(float, EnterAirDelay, 0.2f);
 
+    PROPERTY_C(ECS::LookParams, Look, {});
+    PROPERTY_C(ECS::MoveParams, Move, {});
+    PROPERTY_C(ECS::SlowdownParams, Slowdown, {});
+    PROPERTY_C(ECS::VelocityClampParams, VelocityClamp, {});
+
     Vec3F TargetWallNormal;
     Vec3F CurrentWallNormal;
     bool OnWall = false; 
-    
 };

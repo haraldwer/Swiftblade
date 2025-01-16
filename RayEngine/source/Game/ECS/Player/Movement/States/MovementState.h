@@ -1,7 +1,8 @@
 ﻿#pragma once
 
 #include "ECS/Player/PlayerInterface.h"
-#include "Engine/Utility/StateMachine/StateBase.h"
+#include "Property/PropertyOwner.h"
+#include "Utility/StateMachine/StateBase.h"
 
 namespace Physics
 {
@@ -25,7 +26,7 @@ protected:
 };
 
 template <class T>
-class MovementState : public State<T>, public PropertyOwner<T>, public MovementStateBase
+class MovementState : public State<T>, public MovementStateBase
 {
 protected:
     void Enter() override

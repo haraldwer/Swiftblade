@@ -3,6 +3,9 @@
 #include <filesystem>
 
 #include "ECS/Player/PlayerInput.h"
+#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Combat/Combat.h"
+#include "ECS/Player/Movement/Movement.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
@@ -69,4 +72,17 @@ void GameInstance::SetState(const GameState& InState)
     const ECS::EntityID playerID = State.PlayerID;
     State = InState;
     State.PlayerID = playerID; 
+}
+
+void GameInstance::DrawDebugWindow()
+{
+    if (ImGui::CollapsingHeader("Movement"))
+        if (auto m = ECS.GetComponent<ECS::Movement>(State.PlayerID))
+            m->Edit();
+    if (ImGui::CollapsingHeader("Combat"))
+        if (auto c = ECS.GetComponent<ECS::Combat>(State.PlayerID))
+            c->Edit();
+    if (ImGui::CollapsingHeader("Animation"))
+        if (auto a = ECS.GetComponent<ECS::Animator>(State.PlayerID))
+            a->Edit();
 }
