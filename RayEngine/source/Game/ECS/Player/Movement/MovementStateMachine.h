@@ -20,6 +20,7 @@ class MovementStateMachine : public StateMachine
 {
 public:
     void Init() override;
+    String Name() const override { return "Movement"; }
     Utility::Type GetDefaultStateType() override { return Utility::GetType<MovementStateIdle>(); }    
     
 private:

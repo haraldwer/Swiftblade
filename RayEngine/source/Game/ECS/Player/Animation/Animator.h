@@ -34,7 +34,7 @@ namespace ECS
         void Init() override;
         void Update() override;
         void TryOverrideState(const Type& InAnimState) const;
-        bool Edit(const String& InName = "") override;
+        bool EditState() const;
 
         void SetHands(const HandState& InRight, const HandState& InLeft);
         void SetHead(const HeadState& InHead);

@@ -39,6 +39,7 @@ void GameInstance::Init()
 
 void GameInstance::Deinit()
 {
+    State.PlayerID = ECS::InvalidID;
     SceneInstance.Destroy();
     ECS.Deinit(); 
     Physics.Deinit();
@@ -76,13 +77,15 @@ void GameInstance::SetState(const GameState& InState)
 
 void GameInstance::DrawDebugWindow()
 {
+    CHECK_RETURN(State.PlayerID == ECS::InvalidID);
+    
     if (ImGui::CollapsingHeader("Movement"))
         if (auto m = ECS.GetComponent<ECS::Movement>(State.PlayerID))
-            m->Edit();
+            m->EditState();
     if (ImGui::CollapsingHeader("Combat"))
         if (auto c = ECS.GetComponent<ECS::Combat>(State.PlayerID))
-            c->Edit();
+            c->EditState();
     if (ImGui::CollapsingHeader("Animation"))
         if (auto a = ECS.GetComponent<ECS::Animator>(State.PlayerID))
-            a->Edit();
+            a->EditState();
 }

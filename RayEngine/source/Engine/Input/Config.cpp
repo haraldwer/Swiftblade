@@ -8,9 +8,9 @@ void Input::Context::UpdateCache()
         CachedActions[actions[i].Name] = i;
 }
 
-bool Input::Config::Edit(const String& InName)
+bool Input::Config::Edit(const String& InName, uint32 InOffset)
 {
-    if (BaseConfig::Edit(InName))
+    if (BaseConfig::Edit(InName, InOffset))
     {
         UpdateCache();
         return true; 

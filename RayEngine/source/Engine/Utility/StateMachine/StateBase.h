@@ -71,6 +71,6 @@ public:
 	
 	String GetName() const override
 	{
-		return typeid(T).name();
+		return String(typeid(T).name()).substr(String("class ").length());
 	}
 };

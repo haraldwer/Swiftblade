@@ -12,7 +12,7 @@ namespace ECS
     public:
         void Init() override;
         void Update() override;
-        bool Edit(const String& InName = "") override;
+        bool EditState() const;
 
     private:
         ObjectPtr<CombatStateMachine> StateMachine;

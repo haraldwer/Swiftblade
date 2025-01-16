@@ -60,7 +60,7 @@ void StateMachine::Update()
 		SetState(newState);
 }
 
-bool StateMachine::Edit()
+bool StateMachine::Edit(const String& InName, uint32 InOffset)
 {
 	String current = "Current: ";
 	if (auto s = GetCurrentState())
@@ -73,20 +73,29 @@ bool StateMachine::Edit()
 		if (s->EditState())
 			edited = true;
 	}
+	
+	edited = edited || PropertyOwner::Edit(InName, InOffset);
 	return edited;
 }
 
-void StateMachine::Serialize(SerializeObj& InOutObj) const
+void StateMachine::CustomSerialize(SerializeObj& InOutObj) const
 {
 	for (StateBase* s : States)
+	{
+		InOutObj.Key(s->GetName().c_str());
 		s->SerializeState(InOutObj);
+	}
 }
 
-bool StateMachine::Deserialize(const DeserializeObj& InObj)
+bool StateMachine::CustomDeserialize(const DeserializeObj& InObj)
 {
 	for (StateBase* s : States)
-		s->DeserializeState(InObj);
-	return true; 
+	{
+		String name = s->GetName();
+		if (InObj.HasMember(name.c_str()) && InObj[name.c_str()].IsObject())
+			s->DeserializeState(InObj[name.c_str()].GetObj());
+	}
+	return true;
 }
 
 bool StateMachine::SetState(const Utility::Type& InType)

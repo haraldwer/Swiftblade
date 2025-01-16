@@ -9,6 +9,7 @@ class CombatStateMachine  : public StateMachine
 {
 public:
     void Init() override;
+    String Name() const override { return "Combat"; }
     Utility::Type GetDefaultStateType() override { return Utility::GetType<CombatStateIdle>(); }
 
 private:

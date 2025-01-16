@@ -1,10 +1,12 @@
 ﻿#include "Combat.h"
 
 #include "CombatStateMachine.h"
+#include "ImGui/imgui.h"
 
 void ECS::Combat::Init()
 {
     StateMachine = new CombatStateMachine();
+    StateMachine->LoadConfig();
     StateMachine->Init();
 }
 
@@ -14,9 +16,11 @@ void ECS::Combat::Update()
         StateMachine->Update();
 }
 
-bool ECS::Combat::Edit(const String& InName)
+bool ECS::Combat::EditState() const
 {
-    if (StateMachine)
-        StateMachine->Edit();
-    return UniqueComponent::Edit(InName);
+    if (!StateMachine)
+        return false;
+    if (ImGui::Button("Save##Combat"))
+        StateMachine->SaveConfig();
+    return StateMachine->Edit();
 }

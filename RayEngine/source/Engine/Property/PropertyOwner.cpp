@@ -49,14 +49,14 @@ bool PropertyOwnerBase::Deserialize(const DeserializeObj& InObj)
 
 bool PropertyOwnerBase::Deserialize(const GenericVal& InVal)
 {
-    CHECK_RETURN(!InVal.IsObject(), "Incorrect type, expected object");
+    CHECK_RETURN_LOG(!InVal.IsObject(), "Incorrect type, expected object", false);
     return Deserialize(InVal.GetObj());
 }
 
-bool PropertyOwnerBase::Edit(const String& InName)
+bool PropertyOwnerBase::Edit(const String& InName, uint32 InOffset)
 {
     bool edited = false;
-    const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this));
+    const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this)) + InOffset;
     for (const auto& p : GetPropertyMap())
     {
         PropertyBase* ptr = OffToPtr(p.second);

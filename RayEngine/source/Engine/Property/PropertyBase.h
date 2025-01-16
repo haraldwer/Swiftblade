@@ -15,5 +15,4 @@ public:
 
 private:
     String Name; // Should the property know about its own name?
-
 };

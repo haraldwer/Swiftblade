@@ -18,8 +18,10 @@ Type MovementStateJump::Check()
         }
         GroundJump = false;
     }
-    
+
     if (GetInput().JumpInput && CanJump())
+        return GetType();
+    if (GetInput().JumpInputHeld && CanGroundJump())
         return GetType();
     return Type::None();
 }

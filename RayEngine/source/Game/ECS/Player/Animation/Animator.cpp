@@ -5,10 +5,12 @@
 #include "ECS/Player/Player.h"
 #include "ECS/Systems/Transform.h"
 #include "Engine/Profiling/Profile.h"
+#include "ImGui/imgui.h"
 
 void ECS::Animator::Init()
 {
     StateMachine = new AnimationStateMachine();
+    StateMachine->LoadConfig();
     StateMachine->Init();
 }
 
@@ -28,13 +30,14 @@ void ECS::Animator::TryOverrideState(const Type& InAnimState) const
         StateMachine->TryOverrideState(InAnimState);
 }
 
-bool ECS::Animator::Edit(const String& InName)
+bool ECS::Animator::EditState() const
 {
-    if (StateMachine)
-        StateMachine->Edit();
-    return UniqueComponent::Edit(InName);
+    if (!StateMachine)
+        return false;
+    if (ImGui::Button("Save##Animator"))
+        StateMachine->SaveConfig();
+    return StateMachine->Edit();
 }
-
 
 Mat4F ECS::Animator::GetPose(const String& InName) const
 {

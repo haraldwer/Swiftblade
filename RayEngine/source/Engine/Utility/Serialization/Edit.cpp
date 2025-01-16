@@ -97,3 +97,8 @@ bool Utility::RemoveButton(uint32 InOffset)
 {
     return ImGui::Button(GetEditName("-", InOffset).c_str());
 }
+
+bool Utility::MaybeCollapse(const String& InName, uint32 InOffset)
+{
+    return (InName.empty() || InOffset == 0|| ImGui::CollapsingHeader(InName.c_str())); 
+}

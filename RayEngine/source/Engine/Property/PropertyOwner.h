@@ -15,7 +15,7 @@ public:
 
     virtual void CustomSerialize(SerializeObj& InOutObj) const {}
     virtual bool CustomDeserialize(const DeserializeObj& InObj) { return true; }
-    virtual bool Edit(const String& InName = "");
+    virtual bool Edit(const String& InName = "", uint32 InOffset = 0);
     
     void Serialize(SerializeObj& InOutObj) const;
     bool Deserialize(const DeserializeObj& InObj);
@@ -30,7 +30,7 @@ public:
 protected:
 
     // Property map owned by template  
-    virtual Map<String, uint16>& GetPropertyMap() const = 0;
+    virtual OrderedMap<String, uint16>& GetPropertyMap() const = 0;
     uint16 PtrToOff(PropertyBase* InPtr) const;
     PropertyBase* OffToPtr(uint16 InOff) const;
 
@@ -60,22 +60,22 @@ public:
         CHECK_RETURN(hasRegistered); 
         hasRegistered = true;
         
-        // Allocate memory
-        TSelf* ptr = static_cast<TSelf*>(malloc(sizeof(TSelf)));
-        
         // Cache instance, use recursion as stack 
         PropertyOwnerBase* prevInstance = Instance;
+        Instance = nullptr;
+        
+        // Allocate memory
+        static TSelf local;
         
         // Set instance
-        Instance = ptr;
+        Instance = &local;
         
         // Create new copy
         // Will run constructor
         // And properties will be added
-        new (ptr) TSelf();
+        new (&local) TSelf();
         
         // Reset instance
-        free(ptr);
         Instance = prevInstance;
     }
 
@@ -83,10 +83,10 @@ public:
     
 private:
 
-    Map<String, uint16>& GetPropertyMap() const override { return Properties; }
+    OrderedMap<String, uint16>& GetPropertyMap() const override { return Properties; }
     
     // Store memory offset compared to (this)
     // Shared between all instances of the same type T
-    static inline Map<String, uint16> Properties;
+    static inline OrderedMap<String, uint16> Properties;
     
 };

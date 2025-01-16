@@ -55,6 +55,7 @@
 #include <array>
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <string>
 #include <chrono>
 #include <assert.h>
@@ -72,6 +73,8 @@ template <class T, int Size>
 using Array = std::array<T, Size>;
 template <class Key, class Val>
 using Map = std::unordered_map<Key, Val>;
+template <class Key, class Val>
+using OrderedMap = std::map<Key, Val>;
 template <class First, class Second>
 using Tuple = std::tuple<First, Second>;
 using String = std::string; 

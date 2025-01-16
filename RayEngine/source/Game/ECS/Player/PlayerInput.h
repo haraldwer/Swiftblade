@@ -14,6 +14,7 @@ namespace ECS
         // TODO: input buffering
         
         bool JumpInput = false;
+        bool JumpInputHeld = false;
         bool CrouchInput = false;
         bool DashInput = false; 
         Vec2F MoveInput;

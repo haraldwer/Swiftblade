@@ -2,15 +2,19 @@
 
 namespace Utility
 {
-    template <class T>
-    bool Edit(const String& InName, T& InOutData, uint32 InOffset = 0)
-    {
-        return InOutData.Edit(InName);
-    }
-
     inline String GetEditName(const String& InName, uint32 InOffset)
     {
         return InName + "##PropertyEdit_" + std::to_string(InOffset);
+    }
+
+    bool MaybeCollapse(const String& InName, uint32 InOffset);
+    
+    template <class T>
+    bool Edit(const String& InName, T& InOutData, uint32 InOffset = 0)
+    {
+        if (MaybeCollapse(InName, InOffset))
+            return InOutData.Edit(InName, InOffset);
+        return false;
     }
     
     bool Edit(const String& InName, bool& InOutData, uint32 InOffset = 0);
@@ -30,7 +34,7 @@ namespace Utility
     void SameLine();
     bool AddButton(uint32 InOffset);
     bool RemoveButton(uint32 InOffset);
-
+    
     template <class T>
     bool Edit(const String& InName, Vector<T>& InOutData, uint32 InOffset = 0)
     {

@@ -1,0 +1,11 @@
+{
+	"MovementStateIdle":{},
+	"MovementStateRun":{},
+	"MovementStateAir":{},
+	"MovementStateCrouch":{},
+	"MovementStateVault":{},
+	"MovementStateSlide":{},
+	"MovementStateWall":{},
+	"MovementStateJump":{},
+	"MovementStateDash":{}
+}

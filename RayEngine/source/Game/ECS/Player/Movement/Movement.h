@@ -17,7 +17,7 @@ namespace ECS
         void Deinit() override;
         void Update() override;
         void OnBeginContact(const Physics::Contact& InContact) override;
-        bool Edit(const String& InName = "") override;
+        bool EditState() const;
         
         int GetPriority() const override { return 9; }
 

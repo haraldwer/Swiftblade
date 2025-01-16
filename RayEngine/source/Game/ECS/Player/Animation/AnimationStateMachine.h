@@ -8,6 +8,7 @@ class AnimationStateMachine : public StateMachine
 {
 public:
     void Init() override;
+    String Name() const override { return "Animation"; }
     Utility::Type GetDefaultStateType() override { return Utility::GetType<AnimationStateDefault>(); }
 
 private:

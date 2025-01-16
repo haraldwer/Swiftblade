@@ -30,7 +30,8 @@ void ECS::PlayerInput::Update()
         forward * (static_cast<float>(man.GetAction("Forward").Down()) - static_cast<float>(man.GetAction("Backward").Down()));
     MoveInput = input.xz;
 
-    JumpInput = man.GetAction("Jump").Down();
+    JumpInput = man.GetAction("Jump").Pressed();
+    JumpInputHeld = man.GetAction("Jump").Down();
     CrouchInput = man.GetAction("Crouch").Down();
     DashInput = man.GetAction("Dash").Down();
 }
