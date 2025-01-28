@@ -23,9 +23,6 @@ namespace Utility
 					Vector3<Type> up;
 					Vector3<Type> forward;
 				};
-
-				Vector3Swizzle<Type, 0, 4, 8> scale; // make into properties
-				Vector3Swizzle<Type, 3, 7, 8> translation; // make into properties
 			};
 
 			Type& operator()(const int aRow, const int aColumn)

@@ -17,20 +17,20 @@ namespace Rendering
     private:
         Renderer Renderer;
 
-        SwapTarget SceneTargets = SwapTarget(3);
+        RenderTarget SceneTarget;
         SwapTarget SSAOTargets = SwapTarget(2);
-        
+        SwapTarget FireTargets = SwapTarget(2);
         RenderTarget FrameTarget;
         RenderTarget QuantizeTarget;        
-        RenderTarget FXAATarget;
         
         int MeshDrawCount = 0;
         int DebugDrawCount = 0;
         bool DebugDraw = true;
 
+        ResShader FireShader;
+        ResShader FireBlipShader;
         ResShader SSAOShader; 
         ResShader QuantizeShader;
         ResShader FXAAShader;
-        ResShader FireShader;
     };
 }

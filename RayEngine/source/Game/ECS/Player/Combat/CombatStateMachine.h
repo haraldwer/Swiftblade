@@ -1,11 +1,11 @@
 ﻿#pragma once
 
+#include "ECS/Player/PlayerStateMachine.h"
 #include "States/CombatStateIdle.h"
 #include "States/CombatStateStrike.h"
-#include "Utility/StateMachine/StateMachine.h"
 #include "Utility/Type.h"
 
-class CombatStateMachine  : public StateMachine
+class CombatStateMachine  : public PlayerStateMachine
 {
 public:
     void Init() override;

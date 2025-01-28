@@ -21,7 +21,7 @@ public:
     void EndSetup(const RenderTexture& InRenderTexture) const;
     
     void Unload();
-    void BeginWrite(bool InClear = true) const;
+    void BeginWrite(int InBlend = -1, bool InClear = true) const;
     void EndWrite() const;
 
     struct Slot

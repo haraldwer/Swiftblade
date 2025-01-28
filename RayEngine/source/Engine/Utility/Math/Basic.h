@@ -29,7 +29,5 @@ namespace Utility
         {
             return Min(Max(InValue, static_cast<T>(0.0)), static_cast<T>(1.0));
         }
-
-
     }
 }

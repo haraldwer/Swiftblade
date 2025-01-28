@@ -83,7 +83,7 @@ void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
 bool ECS::Movement::Move(const Vec2F& InInput, const MoveParams& InParams) const
 {
     const auto& rb = GetRB(); 
-    CHECK_RETURN(InInput.length() <= InParams.InputDeadzone, false);
+    CHECK_RETURN(InInput.Length() <= InParams.InputDeadzone, false);
     const float force = InParams.MovementForce;
     const Vec2F vec = InInput.GetNormalized() * force;
     Vec3F forceVec = Vec3F(vec.x, 0.0f, vec.y); 
@@ -258,7 +258,7 @@ void ECS::Movement::GroundSnap()
 bool ECS::Movement::CheckGroundHit(const Vec3F& InNormal) const
 {
     // Test ground dot
-    const float dot = InNormal.Dot(Vec3F::Up());
+    const float dot = Vec3F::Dot(InNormal, Vec3F::Up());
     CHECK_RETURN(dot < GroundDot, false);
     return true; 
 }

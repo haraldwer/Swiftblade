@@ -72,7 +72,7 @@ void RenderTarget::Unload()
     Height = 0; 
 }
 
-void RenderTarget::BeginWrite(bool InClear) const
+void RenderTarget::BeginWrite(int InBlend, bool InClear) const
 {
     rlEnableFramebuffer(FrameBuffer);
     if (InClear)
@@ -80,13 +80,13 @@ void RenderTarget::BeginWrite(bool InClear) const
         rlClearColor(0, 0, 0, 0);
         rlClearScreenBuffers();
     }
-    rlDisableColorBlend();
+    InBlend >= 0 ?
+        rlSetBlendMode(BLEND_ALPHA) : rlDisableColorBlend();
 }
 
 void RenderTarget::EndWrite() const
 {
     rlDisableFramebuffer();
-    rlEnableColorBlend();
 }
 
 void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const

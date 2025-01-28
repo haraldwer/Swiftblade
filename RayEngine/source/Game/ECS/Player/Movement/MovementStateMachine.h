@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "ECS/Player/PlayerStateMachine.h"
 #include "States/MovementStateAir.h"
 #include "States/MovementStateCrouch.h"
 #include "States/MovementStateDash.h"
@@ -9,14 +10,13 @@
 #include "States/MovementStateSlide.h"
 #include "States/MovementStateVault.h"
 #include "States/MovementStateWall.h"
-#include "Utility/StateMachine/StateMachine.h"
 
 namespace Physics
 {
     struct Contact;
 }
 
-class MovementStateMachine : public StateMachine
+class MovementStateMachine : public PlayerStateMachine
 {
 public:
     void Init() override;

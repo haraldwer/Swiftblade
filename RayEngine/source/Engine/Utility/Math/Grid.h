@@ -21,7 +21,7 @@ namespace Utility
             // Samma för y och z
             
             float l = 0;
-            Vec3F sx = 1.0f / (rayDirection + 0.0000001f); 
+            Vec3F sx = Vec3F::One() / (rayDirection + 0.0000001f); 
             
             std::vector<Vector3<T>> result;
             while (l < InTraceDist)

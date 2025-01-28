@@ -42,13 +42,13 @@ void Renderer::SetCustomShaderValues(ShaderResource& InShader) const
 {
 }
 
-int Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget)
+int Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
 
     rlEnableDepthTest();
     
-    InSceneTarget.Curr().BeginWrite();
+    InSceneTarget.BeginWrite();
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
 
     Mat4F view = Utility::Ray::ConvertBack(rlGetMatrixModelview());
@@ -93,7 +93,7 @@ int Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget)
 
         // Enable shader
         rlEnableShader(shader->id);
-        SetShaderValues(*resShader, InScene, InSceneTarget.Curr(), entry.second.DeferredID);
+        SetShaderValues(*resShader, InScene, InSceneTarget, entry.second.DeferredID);
         SetCustomShaderValues(*resShader);
 
         // Data has been prepared for this entry
@@ -109,7 +109,7 @@ int Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget)
     }
     
     EndMode3D();
-    InSceneTarget.Curr().EndWrite();
+    InSceneTarget.EndWrite();
     rlEnableBackfaceCulling();
     rlDisableDepthTest();
     
@@ -118,7 +118,7 @@ int Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget)
     return count;
 }
 
-void Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, SwapTarget& InSceneBuffers, const Vector<RenderTarget*>& InBuffers) const
+void Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers) const
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
 
@@ -134,14 +134,12 @@ void Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget&
         SetShaderValues(*shaderResource, InScene, InTarget, entry.first);
         
         RenderTarget::Slot bindOffset;
-        InSceneBuffers.Curr().Bind(*shaderResource, bindOffset);
         for (auto& b : InBuffers)
             if (b) b->Bind(*shaderResource, bindOffset);
 
         rlLoadDrawQuad();
         
         RenderTarget::Slot unbindOffset;
-        InSceneBuffers.Curr().Unbind(*shaderResource, bindOffset);
         for (auto& b : InBuffers)
             if (b) b->Unbind(*shaderResource, unbindOffset);
         
@@ -152,7 +150,7 @@ void Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget&
     PROFILE_SCOPE_END()
 }
 
-void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, bool InClear) const
+void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const
 {
     PROFILE_SCOPE_BEGIN("DrawPostProcessing")
 
@@ -161,7 +159,7 @@ void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& In
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN_LOG(!shader, "Failed to get shader");
 
-    InTarget.BeginWrite(InClear);
+    InTarget.BeginWrite(InBlend, InClear);
     rlEnableShader(shader->id);
     SetShaderValues(*shaderResource, InScene, InTarget, 0);
     
@@ -189,6 +187,8 @@ int Renderer::DrawDebug(const RenderScene& InScene)
 {
     PROFILE_SCOPE_BEGIN("DrawDebug")
 
+    rlEnableColorBlend();
+    
     BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
 
     for (auto& shape : InScene.DebugShapes)

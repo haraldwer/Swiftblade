@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmath>
 #include <cassert>
 
 template<typename Type>

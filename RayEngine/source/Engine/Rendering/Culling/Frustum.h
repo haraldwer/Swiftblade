@@ -9,7 +9,7 @@ namespace Rendering
 	private:
 		static float PlaneDotVec(const Vec4F& InPlane, float InX, float InY, float InZ)
 		{
-			return InPlane.Dot(Vec4F(InX, InY, InZ, 1.0f));
+			return Vec4F::Dot(InPlane, Vec4F(InX, InY, InZ, 1.0f));
 		}
 
 		bool CheckFarDist(float InLengthSqr, float InRadius) const

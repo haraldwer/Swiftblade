@@ -82,10 +82,10 @@ void RoomGenPath::EvaluateDirection(const Coord InNewCoord, const Vec3F& InTarge
     // Dot 
     Vec3F dir = (coordPos - InBasePos).GetNormalized();
     Vec3F targetDir = (InTargetPos - coordPos).GetNormalized();
-    float dot = dir.Dot(targetDir);
+    float dot = Vec3F::Dot(dir, targetDir);
 
     // Last dot
-    float lastDot = Utility::Math::Lerp(1.0f, InLastDir.Dot(dir), 0.7f);
+    float lastDot = Utility::Math::Lerp(1.0f, Vec3F::Dot(InLastDir, dir), 0.7f);
 
     // Randomness factor
     float randomness = 0.6f; 

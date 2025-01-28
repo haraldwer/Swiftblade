@@ -9,10 +9,6 @@ Type MovementStateCrouch::Update()
     const auto& input = GetInput();
     const auto& movement = GetMovement();
 
-    //move.MovementForce *= 0.7f; 
-    //vel.MaxSpeed *= 0.5f;
-    //vel.ClampSlowdown *= 0.1f; 
-
     float dt = static_cast<float>(Utility::Time::Get().Delta());
     movement.Look(input.RotInput, Look);
     if (!movement.Move(input.MoveInput, Move))

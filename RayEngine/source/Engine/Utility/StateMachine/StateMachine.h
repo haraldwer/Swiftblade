@@ -1,21 +1,16 @@
 #pragma once
-#include "BaseConfig.h"
 
 class StateBase; 
 
-class StateMachine : public BaseConfig<StateMachine>
+class StateMachine
 {
 public:
-	~StateMachine() override = default;
+	virtual ~StateMachine() = default;
 
 	virtual void Init();
 	virtual void Deinit();
 	virtual void Update();
 
-	String Name() const override { return "StateMachine"; }
-	bool Edit(const String& InName = "", uint32 InOffset = 0) override;
-	void CustomSerialize(SerializeObj& InOutObj) const override;
-	bool CustomDeserialize(const DeserializeObj& InObj) override;
 	
 	// Override with default state
 	virtual Utility::Type GetDefaultStateType() { return {}; };

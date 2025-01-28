@@ -8,9 +8,9 @@ namespace Rendering
     class Renderer
     {
     public:
-        int DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget);
-        void DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, SwapTarget& InSceneBuffers, const Vector<RenderTarget*>& InBuffers) const;
-        void DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers = {}, bool InClear = true) const;
+        int DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget);
+        void DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers) const;
+        void DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers = {}, int InBlend = -1, bool InClear = true) const;
         static int DrawDebug(const RenderScene& InScene);
         static void Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer);
     

@@ -12,7 +12,7 @@ Type MovementStateSlide::Check()
     const auto& input = GetInput();
     if (GetMovement().IsOnGround() && input.CrouchInput)
     {
-        if (GetRB().GetVelocity().length() > SpeedThreshold &&
+        if (GetRB().GetVelocity().Length() > SpeedThreshold &&
             input.MoveInput.Length() > InputDeadzone)
             return GetType(); 
         return Type::Get<MovementStateCrouch>();
@@ -80,7 +80,7 @@ bool MovementStateSlide::CheckInput() const
     
     // Check input dot
     const Vec3F dir = Vec3F(input.x, 0.0f, input.y).GetNormalized();
-    if (dir.Dot(Direction) < InputDot)
+    if (Vec3F::Dot(dir, Direction) < InputDot)
         return false; 
 
     return true; 

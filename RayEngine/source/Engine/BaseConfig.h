@@ -3,6 +3,7 @@
 template <class T>
 struct BaseConfig : PropertyOwner<T>
 {
+    ~BaseConfig() override = default;
     virtual String Name() const = 0;
     String Path() const { return "Configs/C_" + Name() + ".json"; }
 

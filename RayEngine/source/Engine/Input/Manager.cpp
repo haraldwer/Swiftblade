@@ -69,7 +69,7 @@ void Input::Manager::Update()
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
 
-    if (MouseDelta.length() > 0.0001f)
+    if (MouseDelta.Length() > 0.0001f)
         MouseDelta = Vec2F::Zero();
 }
 

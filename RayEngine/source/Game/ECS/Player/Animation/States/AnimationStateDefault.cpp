@@ -19,7 +19,7 @@ Type AnimationStateDefault::Update()
     float desiredRoll = curve * alpha * scale;
     const float desiredHeight = (1.0f - abs(curve)) * height * alpha;
 
-    desiredRoll += alpha * vel.GetNormalized().Dot(GetPlayerTransform().World().Right()) * leaning;
+    desiredRoll += alpha * Vec3F::Dot(vel.GetNormalized(), GetPlayerTransform().World().Right()) * leaning;
 
     auto& a = GetAnimator();
     HeadState head = a.GetHead();

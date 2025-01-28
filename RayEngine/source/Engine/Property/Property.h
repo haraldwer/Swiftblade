@@ -15,11 +15,7 @@ template <class T>
 class ConstantProperty : public PropertyBase
 {
 public:
-    ConstantProperty(const String& InName, const T& InData) : PropertyBase(InName)
-    {
-        Data = InData;
-        Default = InData;
-    }
+    ConstantProperty(const String& InName, const T& InData) : Data(InData), Default(InData), PropertyBase(InName) { }
     
     void Reset() { Data = Default; }
     T GetDefault() const { return Default; }
@@ -57,7 +53,7 @@ public:
     const T& Get() const { return Data; }
     
 protected:
-
+    
     T& GetData() { return Data; }
     const T& GetData() const { return Data; }
     

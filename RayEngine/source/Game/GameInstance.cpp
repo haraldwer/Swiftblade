@@ -78,6 +78,11 @@ void GameInstance::SetState(const GameState& InState)
 void GameInstance::DrawDebugWindow()
 {
     CHECK_RETURN(State.PlayerID == ECS::InvalidID);
+
+    static float TimeScale = 1.0f;
+    Utility::Edit("TimeScale", TimeScale);
+    if (TimeScale > 0.01f)
+        Utility::Time::Get().SetScale(TimeScale);
     
     if (ImGui::CollapsingHeader("Movement"))
         if (auto m = ECS.GetComponent<ECS::Movement>(State.PlayerID))

@@ -22,7 +22,7 @@ Type MovementStateVault::Check()
         return Type::None();
     
     const Vec2F input = GetInput().MoveInput;
-    if (input.Length < Deadzone)
+    if (input.Length() < Deadzone)
         return Type::None();
     SweepDirection = Vec3F(input.x, 0.0f, input.y).GetNormalized();
 
@@ -53,11 +53,11 @@ Type MovementStateVault::Update()
     //Rendering::DebugSphere(LedgeLocation.y, 0.1f, BLUE);
     
     const Vec2F input = GetInput().MoveInput;
-    if (input.Length < Deadzone)
+    if (input.Length() < Deadzone)
         return Type::Get<MovementStateIdle>();
 
     Vec3F dir = Vec3F(input.x, 0.0f, input.y).GetNormalized();
-    float dot = dir.Dot(SweepDirection);
+    float dot = Vec3F::Dot(dir, SweepDirection);
     if (dot < InputDot)
         return Type::Get<MovementStateIdle>();
 

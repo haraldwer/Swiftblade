@@ -81,10 +81,10 @@ using String = std::string;
 
 #include "Utility/Math/Macros.h"
 #include "Utility/Math/Basic.h"
-#include "Utility/Math/Lerp.h"
 #include "Utility/Math/AngleConversion.h"
 #include "Utility/Utility.h"
 #include "Utility/NumericalTypes.h"
+#include "Utility/Math/Lerp.h"
 
 #include "Utility/Type.h"
 using Type = Utility::Type;
@@ -110,6 +110,7 @@ typedef Utility::Math::Matrix3x3<float> Mat3F;
 typedef Utility::Math::Matrix4x4<float> Mat4F;
 typedef Utility::Math::Quaternion<float> QuatF;
 typedef Utility::Math::Random Random; 
+
 
 #include "Utility/Time/Timepoint.h"
 #include "Utility/Time/Timer.h"

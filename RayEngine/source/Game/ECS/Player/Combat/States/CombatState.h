@@ -1,9 +1,8 @@
 ﻿#pragma once
-#include "ECS/Player/PlayerInterface.h"
-#include "Property/PropertyOwner.h"
-#include "Utility/StateMachine/StateBase.h"
+
+#include "ECS/Player/PlayerState.h"
 
 template <class T> 
-class CombatState : public State<T>, public ECS::PlayerInterface
+class CombatState : public PlayerState<T>
 {
 };

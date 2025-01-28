@@ -6,7 +6,7 @@ class StateBase
 {
 public:
 	virtual ~StateBase() = default;
-	void SetOwner(const ObjectPtr<StateMachine>& InOwner) { Owner = InOwner; }
+	void SetOwner(const WeakPtr<StateMachine>& InOwner) { Owner = InOwner; }
 	
 	virtual void Init() {}
 	virtual void Deinit() {}
@@ -40,7 +40,7 @@ protected:
 
 private:
 
-	ObjectPtr<StateMachine> Owner; 
+	WeakPtr<StateMachine> Owner; 
 };
 
 template <class T>

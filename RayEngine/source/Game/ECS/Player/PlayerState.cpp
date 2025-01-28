@@ -1,8 +1,8 @@
-﻿#include "MovementState.h"
+#include "PlayerState.h"
 
 #include "ECS/Player/Animation/Animator.h"
 
-void MovementStateBase::ApplyAnimationState() const
+void PlayerStateBase::ApplyAnimationState() const
 {
     GetAnimator().TryOverrideState(GetAnimationState());
 }

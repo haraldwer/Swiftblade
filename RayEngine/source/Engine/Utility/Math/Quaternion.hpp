@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 #include "Macros.h"
 #include "SqareRoot.h"
@@ -64,7 +63,7 @@ namespace Utility
 
 			static Quaternion FromDirection(const Vector3<Type>& direction)
 			{
-				const float angle = atan2(direction.x, direction.z); // Note: I expected atan2(z,x) but OP reported success with atan2(x,z) instead! Switch around if you see 90° off.
+				const float angle = atan2(direction.z, direction.x); // Maybe switch
 				Quaternion q; 
 				q.x = 0; 
 				q.y = 1 * sin(angle / 2); 
@@ -183,19 +182,23 @@ namespace Utility
 				return !(*this == q2); 
 			}
 
-			Type Norm()
+			Type Norm() const
 			{
-				return SquareRoot(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
+				return SquareRoot(x * x + y * y + z * z + w * w);
 			}
 
 
 			void Normalize()
 			{
 				Type norm = Norm();
-				this->x /= norm; this->y /= norm; this->z /= norm; this->w /= norm;
+				x /= norm;
+				y /= norm;
+				z /= norm;
+				w /= norm;
 			}
 			
-			static Quaternion Slerp(Quaternion qa, Quaternion qb, Type t) {
+			template <class F>
+			static Quaternion Slerp(Quaternion qa, Quaternion qb, F t) {
 				// quaternion to return
 				qa.Normalize();
 				qb.Normalize();

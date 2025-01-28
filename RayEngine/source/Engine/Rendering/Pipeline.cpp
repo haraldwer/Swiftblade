@@ -10,61 +10,58 @@ void Rendering::Pipeline::Init()
     QuantizeShader = ResShader("Shaders/PostProcessing/SH_Quantize.ps");
     FXAAShader = ResShader("Shaders/PostProcessing/SH_FXAA.ps");
     
-    FireShader = ResShader("Shaders/DeferredProcessing/SH_Fire.ds");
+    FireShader = ResShader("Shaders/PostProcessing/SH_Fire.ps");
+    FireBlipShader = ResShader("Shaders/PostProcessing/SH_FireBlip.ps");
 }
 
 void Rendering::Pipeline::Setup(const RenderTexture2D& InVirtualTarget)
 {
-    for (auto& target : SceneTargets.All())
+    if (SceneTarget.TryBeginSetup(InVirtualTarget))
     {
-        if (target.TryBeginSetup(InVirtualTarget))
-        {
-            target.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
-            target.CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
-            target.CreateBuffer("TexColor", PIXELFORMAT_UNCOMPRESSED_R4G4B4A4);
-            target.CreateBuffer("TexVelocity", PIXELFORMAT_UNCOMPRESSED_R32G32B32);
-            target.CreateBuffer("TexDeferredData", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
-            target.EndSetup(InVirtualTarget);
-        }
+        SceneTarget.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
+        SceneTarget.CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        SceneTarget.CreateBuffer("TexColor", PIXELFORMAT_UNCOMPRESSED_R4G4B4A4);
+        SceneTarget.CreateBuffer("TexVelocity", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+        SceneTarget.CreateBuffer("TexDeferredData", PIXELFORMAT_UNCOMPRESSED_R32G32B32);
+        SceneTarget.EndSetup(InVirtualTarget);
     }
-    
+
     for (auto& target : SSAOTargets.All())
-        target.Setup(InVirtualTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        target.Setup(InVirtualTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    for (auto& target : FireTargets.All())
+        target.Setup(InVirtualTarget, "TexFire", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     FrameTarget.Setup(InVirtualTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
     QuantizeTarget.Setup(InVirtualTarget, "TexQuantize", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-    FXAATarget.Setup(InVirtualTarget, "TexFXAA", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
 }
 
 void Rendering::Pipeline::Render(const RenderScene& InScene, const RenderTexture2D& InVirtualTarget)
 {
     // TODO: Sub-tick camera movement
     // TODO: Depth sorting
-    // TODO: Scene target composing with multiple targets
     // TODO: Customizable render pipeline
 
     Setup(InVirtualTarget);
 
     // Draw to SceneTarget
-    SceneTargets.Iterate(); 
-    MeshDrawCount = Renderer.DrawScene(InScene, SceneTargets);
+    MeshDrawCount = Renderer.DrawScene(InScene, SceneTarget);
 
     // Propagate fire
-    // Draw to current deferred scene
-    // Needs "current" and previous deferred scene
-    SceneTargets.Iterate();
-    Renderer.DrawFullscreen(InScene, SceneTargets.Curr(), FireShader, { &SceneTargets.Prev(1) }, { &SceneTargets.Prev(2) });
+    FireTargets.Iterate();
+    Renderer.DrawFullscreen(InScene, FireTargets.Curr(), FireShader, { &SceneTarget, &FireTargets.Prev() });
     
     // Collect AO
     SSAOTargets.Iterate();
-    Renderer.DrawFullscreen(InScene, SSAOTargets.Curr(), SSAOShader, { &SceneTargets.Curr(), &SSAOTargets.Prev() });
+    Renderer.DrawFullscreen(InScene, SSAOTargets.Curr(), SSAOShader, { &SceneTarget, &SSAOTargets.Prev() });
     
     // Draw to FrameTarget, quantize
-    Renderer.DrawDeferredScene(InScene, FrameTarget, SceneTargets, { &SSAOTargets.Curr() });
-    Renderer.DrawFullscreen(InScene, QuantizeTarget, QuantizeShader, { &SceneTargets.Curr(), &SSAOTargets.Curr(), &FrameTarget });
-    Renderer.DrawFullscreen(InScene, FXAATarget, FXAAShader, { &QuantizeTarget });
+    Renderer.DrawDeferredScene(InScene, FrameTarget, { &SceneTarget, &SSAOTargets.Curr() });
+    Renderer.DrawFullscreen(InScene, FrameTarget, FireBlipShader, { &SceneTarget, &FireTargets.Curr() }, {}, -1, false);
+    Renderer.DrawFullscreen(InScene, QuantizeTarget, QuantizeShader, { &SceneTarget, &SSAOTargets.Curr(), &FrameTarget });
+    Renderer.DrawFullscreen(InScene, FrameTarget, FXAAShader, { &QuantizeTarget });
 
     // Blip FXAA to final target (should maybe skip FXAA target completely?)
-    Renderer.Blip(InVirtualTarget, FXAATarget);
+    // Also handles upscaling?
+    Renderer.Blip(InVirtualTarget, FrameTarget);
 
     DebugDrawCount = 0;
     if (DebugDraw)
@@ -74,13 +71,11 @@ void Rendering::Pipeline::Render(const RenderScene& InScene, const RenderTexture
 Rendering::Pipeline::~Pipeline()
 {
     // Unload targets
-    for (auto& t : SceneTargets.All())
-        t.Unload();
+    SceneTarget.Unload();
     for (auto& t : SSAOTargets.All())
         t.Unload();
     FrameTarget.Unload();
     QuantizeTarget.Unload();
-    FXAATarget.Unload();
 }
 
 void Rendering::Pipeline::DrawDebugWindow()
@@ -116,11 +111,9 @@ void Rendering::Pipeline::DrawDebugWindow()
             }
         }
     };
-    func(SceneTargets.Curr(), "Scene");
-    func(SceneTargets.Prev(), "Scene prev");
-    func(SceneTargets.Prev(2), "Scene prev 2");
+    func(SceneTarget, "Scene");
     func(SSAOTargets.Curr(), "SSAO");
+    func(FireTargets.Curr(), "Fire");
     func(FrameTarget, "Frame");
     func(QuantizeTarget, "Quantize");
-    func(FXAATarget, "FXAA");
 }

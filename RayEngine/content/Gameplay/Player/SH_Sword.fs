@@ -15,5 +15,6 @@ void main()
     vec3 pos = (OutPosition.xyz - ObjectPosition) * 1.0f + ObjectPosition * 0.2f;
     float noise = PerlinNoise3D(pos - vec3(0.0f, Time * 5.0f, 0.0f));
     noise = (noise + 1.0f) / 2.0f;
+    noise = mix(0.2, 1.0, noise);
     OutDeferredData.g = noise;
 }

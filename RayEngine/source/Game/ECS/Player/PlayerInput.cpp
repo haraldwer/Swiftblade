@@ -28,7 +28,7 @@ void ECS::PlayerInput::Update()
     const Vec3F input =
         right * (static_cast<float>(man.GetAction("Right").Down()) - static_cast<float>(man.GetAction("Left").Down())) +
         forward * (static_cast<float>(man.GetAction("Forward").Down()) - static_cast<float>(man.GetAction("Backward").Down()));
-    MoveInput = input.xz;
+    MoveInput = { input.x, input.z };
 
     JumpInput = man.GetAction("Jump").Pressed();
     JumpInputHeld = man.GetAction("Jump").Down();

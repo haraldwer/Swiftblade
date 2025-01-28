@@ -20,7 +20,7 @@ Utility::Type CombatStateStrike::Update()
     params.Start = world.GetPosition() + world.Forward() * 1.0f;
     params.End = params.Start + world.Forward() * 0.1f;
     params.Shape = Physics::Shape::SPHERE;
-    params.ShapeData.xyz = SweepSize;
+    params.ShapeData.xyz = SweepSize.Get();
     params.IgnoredEntities = { GetPlayerID() };
     params.IgnoredEntities.insert(weapon->GetID());
 
@@ -31,7 +31,10 @@ Utility::Type CombatStateStrike::Update()
     auto& enemySys = ECS::Manager::Get().GetSystem<SysEnemy>();
     for (const auto& hit : result.Hits)
         if (enemySys.Contains(hit.Entity))
-            enemySys.ApplyDamage(hit.Entity, weapon->GetID()); 
+            enemySys.ApplyDamage(hit.Entity, weapon->GetID());
+
+    if (GetTimeSinceEnter() > StrikeDuration)
+        return Type::Get<CombatStateIdle>();
     
     return {};
 }
@@ -43,7 +46,8 @@ Utility::Type CombatStateStrike::Check()
     return {};
 }
 
-void CombatStateStrike::Enter()
+Type CombatStateStrike::GetAnimationState() const
 {
-    
+    return {}; // Strike anim
 }
+

@@ -23,24 +23,25 @@ void ECS::SysCollider::Deinit(EntityID InEntity, Collider& InComponent)
 void ECS::SysCollider::Update(EntityID InID, Collider& InComponent)
 {
     auto& t = Get<Transform>(InID);
+    auto& data = InComponent.ShapeData.Get();
     switch (static_cast<Physics::Shape>(InComponent.Shape.Get())) {
     case Physics::Shape::BOX:
         Rendering::DebugBox(
             t.GetPosition(),
             t.GetRotation(),
-            InComponent.ShapeData.Get().xyz * 2.0f);
+            Vec3F(data.x, data.y, data.z) * 2.0f);
         break;
     case Physics::Shape::CAPSULE:
         Rendering::DebugCapsule(
             t.GetPosition(),
             t.GetRotation(),
-            InComponent.ShapeData.Get().x,
-            InComponent.ShapeData.Get().y);
+            data.x,
+            data.y);
         break;
     case Physics::Shape::SPHERE:
         Rendering::DebugSphere(
             t.GetPosition(),
-            InComponent.ShapeData.Get().x);
+            data.x);
         break;
     }
 }

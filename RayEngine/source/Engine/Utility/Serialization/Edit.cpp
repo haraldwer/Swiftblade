@@ -100,5 +100,5 @@ bool Utility::RemoveButton(uint32 InOffset)
 
 bool Utility::MaybeCollapse(const String& InName, uint32 InOffset)
 {
-    return (InName.empty() || InOffset == 0|| ImGui::CollapsingHeader(InName.c_str())); 
+    return (InName.empty() || InOffset == 0|| ImGui::CollapsingHeader(GetEditName(InName, InOffset).c_str())); 
 }

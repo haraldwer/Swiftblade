@@ -62,12 +62,9 @@ public:
         
         // Cache instance, use recursion as stack 
         PropertyOwnerBase* prevInstance = Instance;
-        Instance = nullptr;
-        
+
         // Allocate memory
         static TSelf local;
-        
-        // Set instance
         Instance = &local;
         
         // Create new copy

@@ -112,7 +112,7 @@ void EditorCamera::UpdateMovement()
             static_cast<float>(man.GetAction("Forward", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("Backward", "EditorCamera").Down()))) * 
         static_cast<float>(!ctrl);
-    TargetState.Position += Vec3F(posDelta.normalized) * static_cast<float>(dt) * TargetState.MovementSpeed;
+    TargetState.Position += Vec3F(posDelta.GetNormalized()) * static_cast<float>(dt) * TargetState.MovementSpeed;
     
     // FOV
     TargetState.FOV += (

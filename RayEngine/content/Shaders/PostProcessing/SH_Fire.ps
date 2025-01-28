@@ -1,0 +1,57 @@
+#version 330
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_DeferredID.si"
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_Random.si"
+
+uniform sampler2D TexFire;
+
+in vec2 TexCoord;
+out vec4 Output;
+
+float TOTAL_LIFETIME = 0.2f;
+float GROWTH = 0.1f;
+
+void main()
+{
+    // Deferred G -> Original lifetime?? Effect type??
+    // Grow fire
+
+    vec4 worldPosition = texture(TexPosition, TexCoord);
+    vec4 deferredData = texture(TexDeferredData, TexCoord);
+
+    // Sample previous position
+    vec2 prevCoord = GetPrevCoord(worldPosition.xyz);
+    vec4 fire = texture(TexFire, prevCoord);
+
+    // Lifetime
+    float lifetime = max(deferredData.g, fire.a);
+    
+    // Sample nearby pixels
+    vec2 pixelScale = vec2(1.0f) / Resolution;
+    vec2 offsets[8] = {
+        vec2( 1, 0),
+        vec2(-1, 0),
+        vec2( 0, 1),
+        vec2( 0,-1),
+        vec2( 0.7, 0.7),
+        vec2(-0.7, 0.7),
+        vec2( 0.7,-0.7),
+        vec2(-0.7,-0.7)
+    };
+    for (int i = 0; i < 8; i++)
+    {
+        vec2 coord = prevCoord + offsets[i] * pixelScale;
+        vec4 growFire = texture(TexFire, coord);
+        lifetime = lifetime + growFire.a * GROWTH * Delta;
+    }
+
+    if (lifetime < 0.01f)
+        discard;
+    
+    lifetime = min(lifetime, 1.0f);
+    Output.rgb = vec3(0.5f);
+    Output.a = lifetime - Delta / TOTAL_LIFETIME;
+}

@@ -1,10 +1,10 @@
 #pragma once
+#include "ECS/Player/PlayerStateMachine.h"
 #include "States/AnimationStateDefault.h"
 #include "States/AnimationStateInAir.h"
 #include "States/AnimationStateSlide.h"
-#include "Utility/StateMachine/StateMachine.h"
 
-class AnimationStateMachine : public StateMachine
+class AnimationStateMachine : public PlayerStateMachine
 {
 public:
     void Init() override;

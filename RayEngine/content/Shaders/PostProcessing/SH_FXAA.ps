@@ -44,12 +44,10 @@ vec4 BlurDir(vec2 InBlendDir, vec2 InPixelScale, float InBlendScale)
 
 void main()
 {
-    // 1. Find edges
-
     // Get current pixel
     vec4 color = texture(TexQuantize, TexCoord).rgba;
     Output = color;
-    
+
     vec3 hsv = rgb2hsv(color.rgb);
 
     // Calculate edge direction
@@ -70,15 +68,7 @@ void main()
         abs(dir.y) < EDGE_THRESHOLD)
         return;
 
-    //Output = vec4(0.0f);
-    //Output.a = 1.0;
-    //Output.rg = abs(dir);
-    //return;
-
     // Blur samples should be dependent on edge angle
-    
-    //vec2 blurDir = vec2(dir.y, dir.x); // abs(dir.x) > abs(dir.y) ? vec2(0.0, 1.0) : vec2(1.0, 0.0);
-    //Output = BlurDir(blurDir, pixelScale);
     vec4 blurColor = vec4(0.0f);
     if (abs(dir.x) >= EDGE_THRESHOLD)
         blurColor += BlurDir(vec2(0.0f, 1.0f), pixelScale, abs(dir.x));

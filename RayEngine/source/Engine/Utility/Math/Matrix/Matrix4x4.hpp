@@ -11,7 +11,7 @@ namespace Utility
 {
 	namespace Math
 	{
-		template<typename Type, int row_offset = 0, int column_offset = 0>
+		template<typename Type, int RowOffset = 0, int ColumnOffset = 0>
 		class Matrix4x4
 		{
 		public:
@@ -296,14 +296,31 @@ namespace Utility
 				elements[3][2] = aPosition.z;
 			}
 
+			static Matrix4x4 Lerp(Matrix4x4 InA, Matrix4x4 InB)
+			{
+				Vector3<Type> aP = InA.GetPosition();
+				Vector3<Type> bP = InB.GetPosition();
+				Vector3<Type> lP = Vector3<Type>::Lerp(aP, bP);
+
+				Vector3<Type> aS = InA.GetPosition();
+				Vector3<Type> bS = InB.GetPosition();
+				Vector3<Type> lS = Vector3<Type>::Lerp(aS, bS);
+				
+				Quaternion<Type> aR = InA.GetRotation();
+				Quaternion<Type> bR = InB.GetRotation();
+				Quaternion<Type> lR = Quaternion<Type>::Lerp(aR, bR);
+
+				return Matrix4x4(lP, lR, lS);
+			}
+			
 			Type& operator()(const int aRow, const int aColumn)
 			{
-				return elements[(aRow - row_offset)][(aColumn - column_offset)];
+				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
 			}
 
 			const Type& operator()(const int aRow, const int aColumn) const
 			{
-				return elements[(aRow - row_offset)][(aColumn - column_offset)];
+				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
 			}
 
 			Matrix4x4 operator + (const Matrix4x4& aMatrix) const
@@ -390,17 +407,17 @@ namespace Utility
 
 			Type ScaleX() const
 			{
-				return right.length;
+				return Vector3<Type>(right.x, right.y, right.z).Length();
 			}
 			
 			Type ScaleY() const
 			{
-				return up.length;
+				return Vector3<Type>(up.x, up.y, up.z).Length();
 			}
 
 			Type ScaleZ() const
 			{
-				return forward.length;
+				return Vector3<Type>(forward.x, forward.y, forward.z).Length();
 			}
 
 			Vector3<Type> GetScale() const
@@ -417,17 +434,17 @@ namespace Utility
 			
 			Vector3<Type> Forward() const
 			{
-				return Vector3<Type>(forward.xyz).GetNormalized();
+				return forward.xyz.GetNormalized();
 			}
 			
 			Vector3<Type> Right() const
 			{
-				return Vector3<Type>(right.xyz).GetNormalized();
+				return right.xyz.GetNormalized();
 			}
 			
 			Vector3<Type> Up() const
 			{
-				return Vector3<Type>(up.xyz).GetNormalized();
+				return up.xyz.GetNormalized();
 			}
 			
 			Vector3<Type> TransformPoint(const Vector3<Type>& aPoint) const

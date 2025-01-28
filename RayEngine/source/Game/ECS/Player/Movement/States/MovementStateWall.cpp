@@ -109,17 +109,17 @@ bool MovementStateWall::CheckWall()
     auto processHit = [&](const Physics::QueryResult::Hit& InHit)
     {
         // Check vertical dot
-        const float vertDot = InHit.Normal.Dot(Vec3F::Up());
+        const float vertDot = Vec3F::Dot(InHit.Normal, Vec3F::Up());
         CHECK_RETURN(abs(vertDot) > MaxVerticalDot.Get());
         
         //Rendering::DebugLine(world.GetPosition() + world.Forward(), world.GetPosition() + InHit.Normal + world.Forward(), GREEN);
         
         // Check input dot
-        const float inputDot = inputDir.LengthSqr() > 0.1f ? InHit.Normal.Dot(inputDir * -1.0f) : 1.0f;
+        const float inputDot = inputDir.LengthSqr() > 0.1f ? Vec3F::Dot(InHit.Normal, inputDir * -1.0f) : 1.0f;
         CHECK_RETURN(inputDot < MinWallInputDot.Get());
 
         // Prioritize hits close to WallNormal
-        const float dot = InHit.Normal.Dot(TargetWallNormal);
+        const float dot = Vec3F::Dot(InHit.Normal, TargetWallNormal);
         const float clamped = Utility::Math::Clamp(dot, 0.0f, 1.0f); 
         // If wallNormal is set
         const float normalMul = isCurrent ? clamped : 1.0f;
