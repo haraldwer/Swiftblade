@@ -1,6 +1,7 @@
 ﻿#include "AnimationPoser.h"
 
 #include "ECS/Systems/Attributes.h"
+#include "ECS/Systems/Transform.h"
 #include "Instance/Instance.h"
 
 void ECS::AnimationPoser::Update()
@@ -19,7 +20,7 @@ void ECS::AnimationPoser::VisualizePoses() const
     Mat4F B;
     for (auto c : GetPoses())
     {
-        String name = Get<ECS::Attributes>(c).Name.Get();
+        String name = Get<Attributes>(c).Name.Get();
         if (name.starts_with(VisualizePoseA.Get()) && !VisualizePoseA.Get().empty())
             A = Get<Transform>(c).Local();
         if (name.starts_with(VisualizePoseB.Get()) && !VisualizePoseB.Get().empty())
@@ -67,7 +68,7 @@ Mat4F ECS::AnimationPoser::GetPose(const String& InPose) const
 Vector<ECS::EntityID> ECS::AnimationPoser::GetPoses() const
 {
     Vector<EntityID> ids;
-    auto& t = Get<ECS::Transform>();
+    auto& t = Get<Transform>();
     for (auto c : t.GetChildren())
         if (Get<Attributes>(c).Name.Get().starts_with("Pose_"))
             ids.push_back(c);

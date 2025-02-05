@@ -12,6 +12,8 @@
 #include "Engine/Menu/Manager.h"
 #include "GameInstance.h"
 #include "GameState.h"
+#include "ECS/Obstacles/Obstacle.h"
+#include "ECS/Obstacles/Projectile.h"
 #include "UI/Menus/MenuDeath.h"
 #include "UI/Menus/MenuGameEnd.h"
 
@@ -64,12 +66,16 @@ void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
     const auto parent = t.GetParent(); 
     if (parent != InvalidID)
     {
-        if (GetSystem<SysCheckpoint>().Contains(parent))
+        if (TryGet<Checkpoint>(parent))
             ActivateCheckpoint();
-        if (GetSystem<SysSectionEnd>().Contains(parent))
+        if (TryGet<SectionEnd>(parent))
             TriggerSectionEnd();
-        if (GetSystem<SysGameEnd>().Contains(parent))
+        if (TryGet<GameEnd>(parent))
             TriggerGameEnd();
+        if (TryGet<Obstacle>(parent))
+            Die();
+        if (TryGet<Projectile>(parent))
+            Die();
         if (TryGet<Weapon>(parent))
             PickupWeapon(parent); 
     }

@@ -1,6 +1,8 @@
 ﻿#include "UniqueComponent.h"
 
-bool UniqueComponentBase::ShouldUpdate() const
+#include "Instance/Instance.h"
+
+bool ECS::UniqueComponentBase::ShouldUpdate() const
 {
     return
         !Engine::Instance::Get().IsEditor() &&

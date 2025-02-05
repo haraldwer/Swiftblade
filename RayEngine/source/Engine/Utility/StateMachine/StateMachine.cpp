@@ -3,6 +3,8 @@
 #include "StateBase.h"
 #include <algorithm>
 
+#include "ImGui/imgui.h"
+
 void StateMachine::Init()
 {
 	for (StateBase* state : States)

@@ -1,6 +1,9 @@
 #include "Leaderboard.h"
 
+#include <nakama-cpp/NClientInterface.h>
+
 #include "Database/Manager.h"
+#include "Database/NakamaError.h"
 #include "Database/Data/LBData.h"
 
 void DB::Leaderboard::List(const LBRequest& InRequest)
@@ -52,7 +55,7 @@ void DB::Leaderboard::OnListFailed(const Nakama::NError& InError)
 {
     LOG("An error occurred: " + InError.message);
     DBEvent<OnListError> error;
-    error.Invoke({ DB::GetErrorString(InError), InError.message});
+    error.Invoke({ GetErrorString(InError), InError.message});
 }
 
 void DB::Leaderboard::Write(const LBSubmission& InSubmission)

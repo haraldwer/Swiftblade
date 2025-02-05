@@ -3,22 +3,23 @@
 #include "Profiling/Profile.h"
 #include "RaylibRenderUtility.h"
 #include "rlgl.h"
+#include "Utility/RayUtility.h"
 
-void Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
         rlSetUniform(loc, InValue, InType, 1);
 }
 
-void Renderer::SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
         rlSetUniformMatrix(loc, InValue);
 }
 
-void Renderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID) const
+void Rendering::Renderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
@@ -38,11 +39,11 @@ void Renderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InSc
     SetValue(InShader, "ScreenToWorld", Utility::Ray::ConvertMat(Mat4F::GetInverse(PendingMVP)));
 }
 
-void Renderer::SetCustomShaderValues(ShaderResource& InShader) const
+void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader) const
 {
 }
 
-int Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
+int Rendering::Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
 
@@ -118,7 +119,7 @@ int Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
     return count;
 }
 
-void Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers) const
+void Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, SwapTarget& InSceneBuffers, const Vector<RenderTarget*>& InBuffers) const
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
 
@@ -150,7 +151,7 @@ void Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget&
     PROFILE_SCOPE_END()
 }
 
-void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const
+void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, bool InClear) const
 {
     PROFILE_SCOPE_BEGIN("DrawPostProcessing")
 
@@ -183,7 +184,7 @@ void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& In
     PROFILE_SCOPE_END()
 }
 
-int Renderer::DrawDebug(const RenderScene& InScene)
+int Rendering::Renderer::DrawDebug(const RenderScene& InScene)
 {
     PROFILE_SCOPE_BEGIN("DrawDebug")
 
@@ -237,7 +238,7 @@ int Renderer::DrawDebug(const RenderScene& InScene)
     return static_cast<int>(InScene.DebugShapes.size() + InScene.DebugLines.size());
 }
 
-void Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
+void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
 {
     BeginTextureMode(InTarget);
     
