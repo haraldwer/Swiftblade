@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "Matrix3x3.hpp"
 #include "../Vector/Vector4.hpp"
 #include "../Vector/Vector3.hpp"
 #include "../Quaternion.hpp"
@@ -56,6 +57,12 @@ namespace Utility
 			Matrix4x4(const Matrix4x4& aMatrix)
 			{
 				memcpy(data, aMatrix.data, sizeof(Type) * 16);
+			}
+
+			Matrix4x4(const Matrix3x3<Type, RowOffset, ColumnOffset>& aMatrix)
+			{
+				*this = Matrix4x4();
+				memcpy(data, aMatrix.data, sizeof(Type) * 9);
 			}
 
 			Matrix4x4(const Vector3<Type>& p, const Quaternion<Type>& q, const Vector3<Type>& s) : Matrix4x4()
@@ -228,18 +235,10 @@ namespace Utility
 				SetScale(s);
 			}
 			
-			Matrix4x4 GetRotationMatrix() const
+			Matrix3x3<Type, RowOffset, ColumnOffset> GetRotationMatrix() const
 			{
-				Matrix4x4 rotation;
-				rotation.data[0] = data[0];
-				rotation.data[1] = data[1];
-				rotation.data[2] = data[2];
-				rotation.data[4] = data[4];
-				rotation.data[5] = data[5];
-				rotation.data[6] = data[6];
-				rotation.data[8] = data[8];
-				rotation.data[9] = data[9];
-				rotation.data[10] = data[10];
+				Matrix3x3<Type, RowOffset, ColumnOffset> rotation;
+				memcpy(rotation.data, data, sizeof(Type) * 9);
 				return rotation;
 			}
 
@@ -296,19 +295,20 @@ namespace Utility
 				elements[3][2] = aPosition.z;
 			}
 
-			static Matrix4x4 Lerp(Matrix4x4 InA, Matrix4x4 InB)
+			template <class F>
+			static Matrix4x4 Lerp(Matrix4x4 InA, Matrix4x4 InB, F InT)
 			{
 				Vector3<Type> aP = InA.GetPosition();
 				Vector3<Type> bP = InB.GetPosition();
-				Vector3<Type> lP = Vector3<Type>::Lerp(aP, bP);
+				Vector3<Type> lP = Vector3<Type>::Lerp(aP, bP, InT);
 
-				Vector3<Type> aS = InA.GetPosition();
-				Vector3<Type> bS = InB.GetPosition();
-				Vector3<Type> lS = Vector3<Type>::Lerp(aS, bS);
+				Vector3<Type> aS = InA.GetScale();
+				Vector3<Type> bS = InB.GetScale();
+				Vector3<Type> lS = Vector3<Type>::Lerp(aS, bS, InT);
 				
 				Quaternion<Type> aR = InA.GetRotation();
 				Quaternion<Type> bR = InB.GetRotation();
-				Quaternion<Type> lR = Quaternion<Type>::Lerp(aR, bR);
+				Quaternion<Type> lR = Quaternion<Type>::Slerp(aR, bR, InT);
 
 				return Matrix4x4(lP, lR, lS);
 			}

@@ -1,7 +1,7 @@
 #include "EditorCamera.h"
 
-#include "BlueprintEditor.h"
 #include "Utility/Math/AngleConversion.h"
+#include "Utility/Math/ToStr.h"
 #include "raylib.h"
 
 void EditorCamera::Update()
@@ -43,7 +43,7 @@ void EditorCamera::Deinit()
     bUseEditCamera = false;
 }
 
-void EditorCamera::SetTarget(Vec3F InPosition, float InDistance)
+void EditorCamera::SetTarget(const Vec3F& InPosition, float InDistance)
 {
     Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();
     TargetState.Position = InPosition - dir * InDistance;
@@ -85,8 +85,7 @@ void EditorCamera::UpdateMovement()
         man.GetAction("LookVertical", "EditorCamera").Axis()
     };
     TargetState.Rotation +=
-        Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.0025f *
-        static_cast<float>(!ctrl);
+        Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.0025f * !ctrl;
     TargetState.Rotation.x = Utility::Math::Clamp(
         Utility::Math::DegreesToRadians(-90.0f),
         Utility::Math::DegreesToRadians(90.0f),
@@ -111,21 +110,21 @@ void EditorCamera::UpdateMovement()
         forward * (
             static_cast<float>(man.GetAction("Forward", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("Backward", "EditorCamera").Down()))) * 
-        static_cast<float>(!ctrl);
-    TargetState.Position += Vec3F(posDelta.GetNormalized()) * static_cast<float>(dt) * TargetState.MovementSpeed;
+        !ctrl;
+    TargetState.Position += Vec3F(posDelta.GetNormalized()) * dt * TargetState.MovementSpeed;
     
     // FOV
     TargetState.FOV += (
             static_cast<float>(man.GetAction("IncreaseFOV", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("DecreaseFOV", "EditorCamera").Down())) *
         static_cast<float>(!ctrl) * 
-        static_cast<float>(dt) * 30.0f;
+        dt * 30.0f;
 
     // TODO: Interp account for dt
     CurrentState.Rotation = TargetState.Rotation;
-    CurrentState.Position = Utility::Math::Lerp(CurrentState.Position, TargetState.Position, 10.0f * static_cast<float>(dt));
-    CurrentState.FOV = Utility::Math::Lerp(CurrentState.FOV, TargetState.FOV, 10.0f * static_cast<float>(dt));
-    CurrentState.MovementSpeed = Utility::Math::Lerp(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * static_cast<float>(dt));
+    CurrentState.Position = Utility::Math::Lerp(CurrentState.Position, TargetState.Position, 10.0f * dt);
+    CurrentState.FOV = Utility::Math::Lerp(CurrentState.FOV, TargetState.FOV, 10.0f * dt);
+    CurrentState.MovementSpeed = Utility::Math::Lerp(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * dt); 
     
     // Set camera
     Engine::Instance::Get().GetRenderScene().SetCamera({

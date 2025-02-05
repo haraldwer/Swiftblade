@@ -10,16 +10,17 @@ Utility::Type AnimationStateStrike::Update()
     Mat4F start = a.GetPose("Pose_Strike_Start");
     Mat4F end = a.GetPose("Pose_Strike_End");
 
-    double lerp = 1.0f - time / Duration;
+    float lerp = time / Duration;
+    Mat4F result = Mat4F::Lerp(start, end, lerp);
 
     HandState state;
     state.Interp = 0;
     state.Pose = HandPose::CLOSED;
-    state.Position = start.GetPosition();
-    state.Rotation = start.GetRotation();
+    state.Position = result.GetPosition();
+    state.Rotation = result.GetRotation();
     
     a.SetHead({});
     a.SetHands(state, state);
     
-    return {};
+    return GetType(); 
 }

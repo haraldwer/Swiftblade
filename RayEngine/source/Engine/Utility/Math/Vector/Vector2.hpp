@@ -48,7 +48,10 @@ namespace Utility
 
 			Vector2 GetNormalized() const
 			{
-				return (*this) / Length();
+				const Type l = Length();
+				if (l < SMALL_NUMBER)
+					return Vector2::Zero();
+				return (*this) / l;
 			}
 
 			Vector2& Normalize()

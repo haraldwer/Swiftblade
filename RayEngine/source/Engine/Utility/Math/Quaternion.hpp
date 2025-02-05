@@ -198,22 +198,22 @@ namespace Utility
 			}
 			
 			template <class F>
-			static Quaternion Slerp(Quaternion qa, Quaternion qb, F t) {
+			static Quaternion Slerp(Quaternion InA, Quaternion InB, F InT) {
 				// quaternion to return
-				qa.Normalize();
-				qb.Normalize();
+				InA.Normalize();
+				InB.Normalize();
 				Quaternion qm;
 				// Calculate angle between them.
-				double cosHalfTheta = qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z;
+				double cosHalfTheta = InA.w * InB.w + InA.x * InB.x + InA.y * InB.y + InA.z * InB.z;
 
 				if (cosHalfTheta < 0.0f) {
-					qb.w = -qb.w; qb.x = -qb.x; qb.y = -qb.y; qb.z = qb.z;
+					InB.w = -InB.w; InB.x = -InB.x; InB.y = -InB.y; InB.z = InB.z;
 					cosHalfTheta = -cosHalfTheta;
 				}
 
 				// if qa=qb or qa=-qb then theta = 0 and we can return qa
 				if (abs(cosHalfTheta) >= 1.0f) {
-					qm.w = qa.w; qm.x = qa.x; qm.y = qa.y; qm.z = qa.z;
+					qm.w = InA.w; qm.x = InA.x; qm.y = InA.y; qm.z = InA.z;
 					return qm;
 				}
 				// Calculate temporary values.
@@ -222,19 +222,19 @@ namespace Utility
 				// if theta = 180 degrees then result is not fully defined
 				// we could rotate around any axis normal to qa or qb
 				if (fabs(sinHalfTheta) < 0.00001f) { // fabs is floating point absolute
-					qm.w = (qa.w * 0.5f + qb.w * 0.5f);
-					qm.x = (qa.x * 0.5f + qb.x * 0.5f);
-					qm.y = (qa.y * 0.5f + qb.y * 0.5f);
-					qm.z = (qa.z * 0.5f + qb.z * 0.5f);
+					qm.w = (InA.w * 0.5f + InB.w * 0.5f);
+					qm.x = (InA.x * 0.5f + InB.x * 0.5f);
+					qm.y = (InA.y * 0.5f + InB.y * 0.5f);
+					qm.z = (InA.z * 0.5f + InB.z * 0.5f);
 					return qm;
 				}
-				double ratioA = sin((1 - t) * halfTheta) / sinHalfTheta;
-				double ratioB = sin(t * halfTheta) / sinHalfTheta;
+				double ratioA = sin((1 - InT) * halfTheta) / sinHalfTheta;
+				double ratioB = sin(InT * halfTheta) / sinHalfTheta;
 				//calculate Quaternion.
-				qm.w = (qa.w * static_cast<Type>(ratioA) + qb.w * static_cast<Type>(ratioB));
-				qm.x = (qa.x * static_cast<Type>(ratioA) + qb.x * static_cast<Type>(ratioB));
-				qm.y = (qa.y * static_cast<Type>(ratioA) + qb.y * static_cast<Type>(ratioB));
-				qm.z = (qa.z * static_cast<Type>(ratioA) + qb.z * static_cast<Type>(ratioB));
+				qm.w = (InA.w * static_cast<Type>(ratioA) + InB.w * static_cast<Type>(ratioB));
+				qm.x = (InA.x * static_cast<Type>(ratioA) + InB.x * static_cast<Type>(ratioB));
+				qm.y = (InA.y * static_cast<Type>(ratioA) + InB.y * static_cast<Type>(ratioB));
+				qm.z = (InA.z * static_cast<Type>(ratioA) + InB.z * static_cast<Type>(ratioB));
 				qm.Normalize();
 				return qm;
 			}

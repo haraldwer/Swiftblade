@@ -10,6 +10,7 @@ void AnimationStateMachine::Init()
     addState(Default); 
     addState(Slide); 
     addState(InAir); 
+    addState(Strike); 
     
     StateMachine::Init();
 }

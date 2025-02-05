@@ -61,7 +61,10 @@ namespace Utility
 
 			Vector3 GetNormalized() const
 			{
-				return (*this) / Length();
+				const Type l = Length();
+				if (l < SMALL_NUMBER)
+					return Vector3::Zero();
+				return (*this) / l;
 			}
 
 			Vector3& Normalize()
@@ -99,6 +102,14 @@ namespace Utility
 				return data[index];
 			}
 
+			Vector3& operator = (const Vector3<Type>& InOther)
+			{
+				(*this).x = InOther.x;
+				(*this).y = InOther.y;
+				(*this).z = InOther.z;
+				return *this;
+			}
+			
 			Vector3(const Type& InX, const Type& InY, const Type& InZ) : data{ InX, InY, InZ } {}
 			Vector3(const Type& InValue) : data{ InValue, InValue, InValue } {}
 			Vector3() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}
@@ -113,16 +124,9 @@ namespace Utility
 			static Vector3 One()		{ return { 1, 1, 1 }; }
 		};
 
-		Vector3& operator = (const Vector3& InOther)
-		{
-			x = InOther.x;
-			y = InOther.y;
-			z = InOther.z;
-			return (*this);
-		}
 		
 		template <class Type>
-		bool operator==(const Vector3<Type>& InFirst, const Vector3<Type>& InSecond) const
+		bool operator==(const Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
 			return
 				InFirst.x == InSecond.x &&
@@ -131,71 +135,115 @@ namespace Utility
 		}
 
 		template <class Type>
-		Vector3<Type> operator + (const Vector3<Type>& InOther) const
+		Vector3<Type> operator + (const Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
 			return {
-				x + InOther.x,
-				y + InOther.y,
-				z + InOther.z
+				InFirst.x + InSecond.x,
+				InFirst.y + InSecond.y,
+				InFirst.z + InSecond.z
 			};
 		}
 
 		template <class Type>
-		Vector3<Type>& operator += (const Vector3<Type>& InOther)
+		Vector3<Type>& operator += (Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
-			*this = *this + InOther;
-			return *this;
+			InFirst = InFirst + InSecond;
+			return InFirst;
 		}
 
 		template <class Type>
-		Vector3<Type> operator - (const Vector3<Type>& InOther) const
+		Vector3<Type> operator - (const Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
 			return {
-				x - InOther.x,
-				y - InOther.y,
-				z - InOther.z
+				InFirst.x - InSecond.x,
+				InFirst.y - InSecond.y,
+				InFirst.z - InSecond.z
 			};
 		}
 
 		template <class Type>
-		Vector3<Type>& operator -= (const Vector3<Type>& InOther)
+		Vector3<Type>& operator -= (Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
-			*this = *this - InOther;
-			return *this;
+			InFirst = InFirst - InSecond;
+			return InFirst;
 		}
 
 		template <class Type>
-		Vector3<Type> operator * (const Vector3<Type>& InOther) const
+		Vector3<Type> operator * (const Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
 			return {
-				x * InOther.x,
-				y * InOther.y,
-				z * InOther.z
+				InFirst.x * InSecond.x,
+				InFirst.y * InSecond.y,
+				InFirst.z * InSecond.z
+			};
+		}
+		
+		template <class Type>
+		Vector3<Type>& operator *= (Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
+		{
+			InFirst = InFirst * InSecond;
+			return InFirst;
+		}
+
+		template <class Type>
+		Vector3<Type> operator * (const Vector3<Type>& InFirst, const float InSecond)
+		{
+			return {
+				InFirst.x * InSecond,
+				InFirst.y * InSecond,
+				InFirst.z * InSecond
 			};
 		}
 
 		template <class Type>
-		Vector3<Type>& operator *= (const Vector3<Type>& InOther)
+		Vector3<Type>& operator *= (Vector3<Type>& InFirst, const float InSecond)
 		{
-			*this = *this * InOther;
-			return *this;
+			InFirst = InFirst * InSecond;
+			return InFirst;
 		}
 
 		template <class Type>
-		Vector3<Type> operator / (const Vector3<Type>& InOther) const
+		Vector3<Type> operator * (const float InSecond, const Vector3<Type>& InFirst)
 		{
 			return {
-				x / InOther.x,
-				y / InOther.y,
-				z / InOther.z
+				InFirst.x * InSecond,
+				InFirst.y * InSecond,
+				InFirst.z * InSecond
+			};
+		}
+		
+		template <class Type>
+		Vector3<Type> operator / (const Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
+		{
+			return {
+				InFirst.x / InSecond.x,
+				InFirst.y / InSecond.y,
+				InFirst.z / InSecond.z
 			};
 		}
 
 		template <class Type>
-		Vector3<Type>& operator /= (const Vector3<Type>& InOther)
+		Vector3<Type>& operator /= (Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
-			*this = *this / InOther;
-			return *this;
+			InFirst = InFirst / InSecond;
+			return InFirst;
+		}
+
+		template <class Type>
+		Vector3<Type> operator / (const Vector3<Type>& InFirst, const float InSecond)
+		{
+			return {
+				InFirst.x / InSecond,
+				InFirst.y / InSecond,
+				InFirst.z / InSecond
+			};
+		}
+
+		template <class Type>
+		Vector3<Type>& operator /= (Vector3<Type>& InFirst, const float InSecond)
+		{
+			InFirst = InFirst / InSecond;
+			return InFirst;
 		}
 	}
 }

@@ -2,13 +2,12 @@
 #pragma once
 
 #include "../Vector/Vector3.hpp"
-#include "Matrix4x4.hpp"
 
 namespace Utility
 {
 	namespace Math
 	{
-		template<typename Type, int row_offset = 0, int column_offset = 0>
+		template<typename Type, int RowOffset = 0, int ColumnOffset = 0>
 		class Matrix3x3
 		{
 		public:
@@ -27,12 +26,12 @@ namespace Utility
 
 			Type& operator()(const int aRow, const int aColumn)
 			{
-				return elements[(aRow - row_offset)][(aColumn - column_offset)];
+				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
 			}
 
 			const Type& operator()(const int aRow, const int aColumn) const
 			{
-				return elements[(aRow - row_offset)][(aColumn - column_offset)];
+				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
 			}
 
 			Matrix3x3 operator + (const Matrix3x3& aMatrix) const
@@ -225,21 +224,6 @@ namespace Utility
 			}
 
 			Matrix3x3(const Matrix3x3& aMatrix)
-			{
-				elements[0][0] = aMatrix.elements[0][0];
-				elements[0][1] = aMatrix.elements[0][1];
-				elements[0][2] = aMatrix.elements[0][2];
-
-				elements[1][0] = aMatrix.elements[1][0];
-				elements[1][1] = aMatrix.elements[1][1];
-				elements[1][2] = aMatrix.elements[1][2];
-
-				elements[2][0] = aMatrix.elements[2][0];
-				elements[2][1] = aMatrix.elements[2][1];
-				elements[2][2] = aMatrix.elements[2][2];
-			}
-
-			Matrix3x3(Matrix4x4<Type, row_offset, column_offset> aMatrix)
 			{
 				elements[0][0] = aMatrix.elements[0][0];
 				elements[0][1] = aMatrix.elements[0][1];

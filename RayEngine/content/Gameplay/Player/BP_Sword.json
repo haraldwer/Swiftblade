@@ -13,7 +13,9 @@
 		},{
 			"Name":"AnimationPoser",
 			"Data":{
-				"VisualizationMesh":"Gameplay\\Player\\M_Sword.obj"
+				"VisualizationMesh":"Gameplay\\Player\\M_Sword.obj",
+				"VisualizePoseA":"Pose_Strike_Start",
+				"VisualizePoseB":"Pose_Strike_End"
 			}
 		}
 	],
@@ -22,8 +24,8 @@
 				"Components":[{
 						"Name":"Mesh",
 						"Data":{
-							"Model":"Gameplay\\Player\\M_Sword.obj",
-							"Material":"Gameplay\\Player\\RM_Sword.json"
+							"Material":"Gameplay\\Player\\RM_Sword.json",
+							"Model":"Gameplay\\Player\\M_Sword.obj"
 						}
 					},{
 						"Name":"Attributes",
@@ -34,9 +36,9 @@
 						"Name":"Transform",
 						"Data":{
 							"Rotation":[
-								4.3097390389600974e-17,
+								4.3097397007045874e-17,
 								7.987401246651457e-44,
-								3.998944187844287e-23
+								3.998944503388649e-23
 							],
 							"Scale":[
 								1.0000001192092896,
@@ -66,13 +68,13 @@
 					},{
 						"Name":"Collider",
 						"Data":{
+							"IsTrigger":true,
 							"ShapeData":[
 								1.0,
 								2.0,
 								1.0,
 								1.0
-							],
-							"IsTrigger":true
+							]
 						}
 					}
 				]
@@ -93,13 +95,13 @@
 								0.8000002503395081
 							],
 							"Rotation":[
-								-80.028076171875,
-								-84.95281982421875,
-								-0.003287021303549409
+								-80.02809143066406,
+								-84.952880859375,
+								-0.003257992910221219
 							],
 							"Scale":[
 								1.000002145767212,
-								1.0000017881393433,
+								1.0000016689300537,
 								1.0000011920928955
 							]
 						}
@@ -122,14 +124,72 @@
 								0.9999998807907104
 							],
 							"Rotation":[
-								-70.09205627441406,
-								-103.40518951416016,
-								9.71068286895752
+								-70.09217071533203,
+								-103.40511322021484,
+								9.710667610168457
 							],
 							"Scale":[
 								1.0000030994415283,
 								1.0000051259994507,
 								1.0000040531158447
+							]
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Pose_Strike_Start"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								-0.20000000298023224,
+								0.699999988079071,
+								0.4000000059604645
+							],
+							"Rotation":[
+								-29.999996185302734,
+								-90.00000762939453,
+								20.00000762939453
+							],
+							"Scale":[
+								1.0000003576278687,
+								1.0000001192092896,
+								1.0000004768371582
+							]
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Pose_Strike_End"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								-0.5624244213104248,
+								-0.3817135691642761,
+								-0.5127210021018982
+							],
+							"Rotation":[
+								-75.37774658203125,
+								179.72286987304688,
+								-57.03238296508789
+							],
+							"Scale":[
+								1.0000070333480835,
+								1.0000048875808716,
+								1.000002384185791
 							]
 						}
 					}

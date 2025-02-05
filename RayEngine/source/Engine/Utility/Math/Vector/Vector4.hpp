@@ -83,7 +83,10 @@ namespace Utility
 
 			Vector4 GetNormalized() const
 			{
-				return (*this) / Length();
+				const Type l = Length();
+				if (l < SMALL_NUMBER)
+					return Vector4::Zero();
+				return (*this) / l;
 			}
 
 			Vector4& Normalize()

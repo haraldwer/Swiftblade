@@ -3,6 +3,7 @@
 #include "States/AnimationStateDefault.h"
 #include "States/AnimationStateInAir.h"
 #include "States/AnimationStateSlide.h"
+#include "States/AnimationStateStrike.h"
 
 class AnimationStateMachine : public PlayerStateMachine
 {
@@ -15,5 +16,6 @@ private:
     AnimationStateDefault Default; 
     AnimationStateSlide Slide; 
     AnimationStateInAir InAir; 
+    AnimationStateStrike Strike; 
     
 };

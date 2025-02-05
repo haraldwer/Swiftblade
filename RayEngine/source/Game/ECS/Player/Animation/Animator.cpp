@@ -62,11 +62,7 @@ Mat4F ECS::Animator::ToCameraSpace(Mat4F InMat, float InWeight)
     camSpace.SetPosition(camSpace.GetPosition() - cam.GetPosition());
     camSpace = camSpace * cam.GetRotationMatrix();
     camSpace.SetPosition(camSpace.GetPosition() + cam.GetPosition());
-
-    return Mat4F(
-        Lerp(InMat.GetPosition(), camSpace.GetPosition(), InWeight),
-        QuatF::Slerp(InMat.GetRotation(), camSpace.GetRotation(), InWeight),
-        InMat.GetScale());
+    return Mat4F::Lerp(InMat, camSpace, InWeight);
 }
 
 HandState ECS::Animator::Flip(const HandState& InHand)

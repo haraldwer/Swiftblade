@@ -40,14 +40,10 @@ void ECS::AnimationPoser::VisualizePoses() const
                 VisualizationMat,
                 B });
         if (A != Mat4F() && B != Mat4F())
-        {
-            QuatF rot = QuatF::Slerp(A.GetRotation(), B.GetRotation(), VisualizeLerp.Get());
-            Vec3F pos = Lerp(A.GetPosition(), B.GetPosition(), VisualizeLerp.Get());
             rs.AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                Mat4F(pos, rot, Vec3F::One()) });
-        }
+                Mat4F::Lerp(A, B, VisualizeLerp.Get()) });
         return;
     }
 

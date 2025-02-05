@@ -2,6 +2,7 @@
 
 #include "CombatStateIdle.h"
 #include "ECS/Enemies/Enemy.h"
+#include "ECS/Player/Animation/States/AnimationStateStrike.h"
 #include "ECS/Player/Combat/Weapon/Weapon.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
@@ -48,6 +49,6 @@ Utility::Type CombatStateStrike::Check()
 
 Type CombatStateStrike::GetAnimationState() const
 {
-    return {}; // Strike anim
+    return Type::Get<AnimationStateStrike>();
 }
 
