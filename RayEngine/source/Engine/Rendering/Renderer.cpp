@@ -43,7 +43,7 @@ void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader) const
 {
 }
 
-int Rendering::Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSceneTarget)
+int Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
 
@@ -119,7 +119,7 @@ int Rendering::Renderer::DrawScene(const RenderScene& InScene, SwapTarget& InSce
     return count;
 }
 
-void Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, SwapTarget& InSceneBuffers, const Vector<RenderTarget*>& InBuffers) const
+void Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers) const
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
 
@@ -151,7 +151,7 @@ void Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const Re
     PROFILE_SCOPE_END()
 }
 
-void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, bool InClear) const
+void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const
 {
     PROFILE_SCOPE_BEGIN("DrawPostProcessing")
 
