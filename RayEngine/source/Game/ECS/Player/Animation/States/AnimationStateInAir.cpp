@@ -1,5 +1,9 @@
 ﻿#include "AnimationStateInAir.h"
 
+#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/States.h"
+#include "ECS/Systems/Rigidbody.h"
+
 Type AnimationStateInAir::Update()
 {
     auto& a = GetAnimator();

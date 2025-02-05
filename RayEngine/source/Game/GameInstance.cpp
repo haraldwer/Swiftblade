@@ -9,6 +9,7 @@
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/Scene.h"
+#include "ImGui/imgui.h"
 
 void GameInstance::Init()
 {

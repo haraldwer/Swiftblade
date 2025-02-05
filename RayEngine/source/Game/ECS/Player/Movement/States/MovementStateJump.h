@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Engine/Property/Property.h"
 #include "MovementState.h"
+#include "ECS/Player/Movement/MovementParams.h"
 
 class MovementStateJump : public MovementState<MovementStateJump>
 {

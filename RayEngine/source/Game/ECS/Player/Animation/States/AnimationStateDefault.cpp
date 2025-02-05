@@ -1,5 +1,7 @@
 #include "AnimationStateDefault.h"
 
+#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/States.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 

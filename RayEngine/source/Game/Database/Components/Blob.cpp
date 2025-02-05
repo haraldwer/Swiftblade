@@ -2,6 +2,9 @@
 
 #include <nakama-cpp/NClientInterface.h>
 
+#include "Database/Manager.h"
+#include "Database/NakamaError.h"
+
 void DB::Blob::Init(DB::Manager* InManager)
 {
     Component::Init(InManager);

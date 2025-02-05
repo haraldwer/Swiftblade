@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "MovementState.h"
+#include "ECS/Player/Movement/MovementParams.h"
 
 class MovementStateRun : public MovementState<MovementStateRun>
 {

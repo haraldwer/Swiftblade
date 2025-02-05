@@ -2,10 +2,13 @@
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/UniqueComponent.h"
 
+#include "ECS/Abilities/BoostPad.h"
+#include "ECS/Abilities/GrapplePoint.h"
 #include "ECS/Checkpoint.h"
 #include "ECS/Enemies/Enemy.h"
 #include "ECS/Enemies/EnemySpawner.h"
 #include "ECS/GameEnd.h"
+#include "ECS/Obstacles/Obstacle.h"
 #include "ECS/Player/Animation/Animator.h"
 #include "ECS/Player/Animation/AnimationPoser.h"
 #include "ECS/Player/Combat/Combat.h"
@@ -24,6 +27,7 @@
 #include "Engine/ECS/Systems/Mesh.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "Obstacles/Projectile.h"
 
 using namespace ECS;
 
@@ -57,6 +61,7 @@ SystemToName[var] = String(#x); }
     REG_ENTITY_SYSTEM(Checkpoint);
     REG_ENTITY_SYSTEM(SectionEnd);
     REG_ENTITY_SYSTEM(GameEnd);
+    REG_ENTITY_SYSTEM(Projectile);
 
     REG_ENTITY_SYSTEM(Enemy);
     REG_ENTITY_SYSTEM(EnemySpawner);
@@ -69,6 +74,9 @@ SystemToName[var] = String(#x); }
     REG_UNIQUE_COMPONENT(Combat);
     REG_UNIQUE_COMPONENT(Animator);
     REG_UNIQUE_COMPONENT(AnimationPoser);
+    REG_UNIQUE_COMPONENT(Obstacle);
+    REG_UNIQUE_COMPONENT(BoostPad);
+    REG_UNIQUE_COMPONENT(GrapplePoint);
     
 #undef REG_ENTITY_SYSTEM
 #undef REG_UNIQUE_COMPONENT
