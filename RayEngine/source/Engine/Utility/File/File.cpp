@@ -5,14 +5,15 @@
 
 void Utility::SetWorkingDir()
 {
-    auto curr = std::filesystem::current_path();
+    std::filesystem::path curr = std::filesystem::current_path();
     while (!curr.string().ends_with("RayEngine"))
     {
         String file = curr.filename().string();
         curr = curr.parent_path();
     }
-    LOG("Setting working directory to \"" + curr.string() + "\"");
-    std::filesystem::current_path(curr.concat("\\content")); 
+    std::filesystem::path newDir = curr.concat("\\content");
+    LOG("Setting working directory to \"" + newDir.string() + "\"");
+    std::filesystem::current_path(newDir); 
 }
 
 String Utility::ReadFile(const String& InPath)
