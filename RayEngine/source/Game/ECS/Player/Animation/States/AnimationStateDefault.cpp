@@ -7,40 +7,31 @@
 
 Type AnimationStateDefault::Update()
 {
-    const float scale = 0.02f; 
-    const float height = 0.1f;
-    const float frequency = 12.0f;
-    const float leaning = -0.05f;
-
-    const Vec3F vel = GetRB().GetVelocity();
-    const float hSpeed = (vel * Vec3F(1.0f, 0.0f, 1.0f)).Length();
-    const float alpha = Utility::Math::Min(hSpeed * 0.05f, 1.0f);
-    const float time = static_cast<float>(Utility::Time::Get().Total());
-    const float curve = sinf(time * frequency);
+    constexpr float frequency = 12.0f;
     
-    float desiredRoll = curve * alpha * scale;
-    const float desiredHeight = (1.0f - abs(curve)) * height * alpha;
-
-    desiredRoll += alpha * Vec3F::Dot(vel.GetNormalized(), GetPlayerTransform().World().Right()) * leaning;
-
-    auto& a = GetAnimator();
+    ECS::Animator& a = GetAnimator();
     HeadState head = a.GetHead();
-    head.Tilt = desiredRoll;
-    head.Position = Vec3F::Up() * desiredHeight; 
+    Vec2F headBob = a.HeadBob(0.02f, frequency);
+    head.Tilt = headBob.x;
+    head.Position = Vec3F::Up() * headBob.y; 
     head.Interp = 20.0f;
     a.SetHead(head);
 
     Mat4F idle = a.GetPose("Pose_Idle");
-    HandState hands;
-    hands.Interp = 10.0f;
-    hands.Pose = HandPose::CLOSED;
-    hands.Position = idle.GetPosition();
-    hands.Rotation = idle.GetRotation();
-    HandState flipped = ECS::Animator::Flip(hands);
-    Vec3F velOff = GetRB().GetVelocity() * (Vec3F::Up() * 0.01f + Vec3F::Right() * 0.01f);
-    hands.Position -= velOff;
-    flipped.Position -= velOff;
-    a.SetHands(hands, flipped);
+
+    HandState right;
+    right.Interp = 10.0f;
+    right.Pose = HandPose::OPEN;
+    right.Transform = idle;
+    HandState left = a.Flip(right);
+
+    // Also multiply with hvel
+    
+    
+    right.Transform = a.HandBob(right.Transform, Vec2F(0.2f, 0.1f), frequency, true);
+    left.Transform = a.HandBob(left.Transform, Vec2F(0.2f, 0.1f), frequency, false);
+    
+    a.SetHands(right, left);
     
     return Type::None(); 
 }

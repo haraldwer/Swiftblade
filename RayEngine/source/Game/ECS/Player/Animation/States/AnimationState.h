@@ -4,5 +4,5 @@
 
 template <class T> 
 class AnimationState : public PlayerState<T>
-{
+{ 
 };

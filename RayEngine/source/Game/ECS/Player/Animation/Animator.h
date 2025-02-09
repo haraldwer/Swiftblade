@@ -27,6 +27,9 @@ namespace ECS
         Mat4F GetPose(const String& InName) const;
         Mat4F ToCameraSpace(const Mat4F& InMat, float InWeightconst) const;
         static HandState Flip(const HandState& InHand);
+
+        Vec2F HeadBob(float InScale = 0.02f, float InFrequency = 12.0f, float InHeight = 0.1f, float InLeaning = -0.05) const;
+        Mat4F HandBob(Mat4F InTrans, Vec2F InScale, float InFrequency, bool InRight) const;
         
     private:
         

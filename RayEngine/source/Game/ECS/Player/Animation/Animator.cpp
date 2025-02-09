@@ -3,6 +3,7 @@
 #include "AnimationPoser.h"
 #include "AnimationStateMachine.h"
 #include "ECS/Player/Player.h"
+#include "ECS/Systems/Rigidbody.h"
 #include "ECS/Systems/Transform.h"
 #include "Engine/Profiling/Profile.h"
 #include "ImGui/imgui.h"
@@ -64,23 +65,56 @@ Mat4F ECS::Animator::ToCameraSpace(const Mat4F& InMat, float InWeight) const
 HandState ECS::Animator::Flip(const HandState& InHand)
 {
     HandState result = InHand;
-    Mat4F trans = Mat4F(InHand.Position, InHand.Rotation, Vec3F::One());
-    trans = trans * Mat4F(Vec3F::Zero(), QuatF::Identity(), Vec3F(-1, 1, 1));
-    result.Position = trans.GetPosition();
-    result.Rotation = trans.GetRotation();
+    result.Transform *= Mat4F(Vec3F::Zero(), QuatF::Identity(), Vec3F(-1, 1, 1));
     return result;
+}
+
+Vec2F ECS::Animator::HeadBob(float InScale, float InFrequency, float InHeight, float InLeaning) const
+{
+    const Vec3F vel = GetRB().GetVelocity();
+    const float hSpeed = (vel * Vec3F(1.0f, 0.0f, 1.0f)).Length();
+    const float alpha = Utility::Math::Min(hSpeed * 0.05f, 1.0f);
+    const float time = static_cast<float>(Utility::Time::Get().Total());
+    const float curve = sinf(time * InFrequency);
+    
+    float desiredRoll = curve * alpha * InScale;
+    desiredRoll += alpha * Vec3F::Dot(vel.GetNormalized(), GetPlayerTransform().World().Right()) * InLeaning;
+
+    const float desiredHeight = (1.0f - abs(curve)) * InHeight * alpha;
+    return { desiredRoll, desiredHeight };
+}
+
+Mat4F ECS::Animator::HandBob(Mat4F InTrans, Vec2F InScale, float InFrequency, bool InRight) const
+{
+    const Vec3F vel = GetRB().GetVelocity();
+    
+    const float hSpeed = (vel * Vec3F(1.0f, 0.0f, 1.0f)).Length();
+    const float alpha = Utility::Math::Min(hSpeed * 0.05f, 1.0f);
+    const float time = static_cast<float>(Utility::Time::Get().Total());
+    const float curve = sinf(time * InFrequency + (InRight ? 0.0f : PI_FLOAT));
+
+    InTrans.translation.xyz += Vec3F::Forward() * curve * alpha * InScale.x;
+    InTrans.translation.xyz += Vec3F::Up() * curve * alpha * InScale.y;
+    
+    return InTrans;
 }
 
 void ECS::Animator::UpdateHands()
 {
-    const float dt = static_cast<float>(Utility::Time::Get().Delta());
-    CurrentRight.LerpTo(TargetRight, dt);
-    CurrentLeft.LerpTo(TargetLeft, dt);
 
-    const Mat4F r = Mat4F(CurrentRight.Position, CurrentRight.Rotation, Vec3F::One());
-    const Mat4F l = Mat4F(CurrentLeft.Position, CurrentLeft.Rotation, Vec3F::One());
-    const Mat4F cr = ToCameraSpace(r, CurrentRight.CameraSpace);
-    const Mat4F cl = ToCameraSpace(l, CurrentLeft.CameraSpace);
+    HandState tR = TargetRight;
+    HandState tL = TargetLeft;
+
+    const Vec3F vel = GetRB().GetVelocity();
+    tR.Transform.translation.xyz -= vel * tR.VelocityOffset * 0.01f;
+    tL.Transform.translation.xyz -= vel * tL.VelocityOffset * 0.01f;
+    
+    const float dt = static_cast<float>(Utility::Time::Get().Delta());
+    CurrentRight.LerpTo(tR, dt);
+    CurrentLeft.LerpTo(tL, dt);
+
+    const Mat4F cr = ToCameraSpace(CurrentRight.Transform, CurrentRight.CameraSpace);
+    const Mat4F cl = ToCameraSpace(CurrentLeft.Transform, CurrentLeft.CameraSpace);
     GetRightTransform().SetLocal(cr);
     GetLeftTransform().SetLocal(cl);
     if (auto t = TryGet<Transform>(GetPlayer().GetWeaponID()))

@@ -16,11 +16,11 @@ enum class HandPose
 
 struct HandState
 {
-    Vec3F Position;
-    QuatF Rotation;
+    Mat4F Transform;
     HandPose Pose = HandPose::CLOSED;
     float Interp = 0.0f;
     float CameraSpace = 0.7f;
+    Vec3F VelocityOffset = Vec3F(1.0f, 1.0f, 0.0f);
     
     void LerpTo(const HandState& InTarget, float InDt)
     {
@@ -31,8 +31,7 @@ struct HandState
         }
 
         Interp = Utility::Math::Lerp(Interp, InTarget.Interp, InTarget.Interp * InDt);
-        Position = Utility::Math::Lerp(Position, InTarget.Position, Interp * InDt);
-        Rotation = QuatF::Slerp(Rotation, InTarget.Rotation, Interp * InDt);
+        Transform = Mat4F::Lerp(Transform, InTarget.Transform, Interp * InDt);
         CameraSpace = Utility::Math::Lerp(CameraSpace, InTarget.CameraSpace, Interp * InDt); 
     }
 };

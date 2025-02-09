@@ -1,5 +1,9 @@
 {
 	"AnimationStateDefault":{},
 	"AnimationStateSlide":{},
-	"AnimationStateInAir":{}
+	"AnimationStateInAir":{},
+	"AnimationStateStrike":{
+		"Duration":0.4000000059604645,
+		"LerpPow":1.0
+	}
 }

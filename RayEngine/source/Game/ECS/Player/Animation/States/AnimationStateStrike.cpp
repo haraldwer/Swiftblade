@@ -15,14 +15,14 @@ Utility::Type AnimationStateStrike::Update()
     Mat4F end = a.GetPose("Pose_Strike_End");
 
     float lerp = static_cast<float>(time) / Duration;
-    float lerpPow = pow(lerp, lerpPow);
+    float lerpPow = pow(lerp, LerpPow.Get());
     Mat4F result = Mat4F::Lerp(start, end, lerpPow);
 
     HandState state;
     state.Interp = 0;
     state.Pose = HandPose::CLOSED;
-    state.Position = result.GetPosition();
-    state.Rotation = result.GetRotation();
+    state.VelocityOffset = Vec3F::Zero();
+    state.Transform = result;
     
     a.SetHead({});
     a.SetHands(state, state);
