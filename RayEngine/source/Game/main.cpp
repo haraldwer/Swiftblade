@@ -9,17 +9,11 @@
 
 #include "Engine/Utility/File/File.h"
 #include "Game/MenuInstance.h"
-#include "Utility/File/AssetPackGenerator.h"
 
 int main()
 {
     Utility::SetWorkingDir();
 
-    Utility::AssetPackGenerator packer = Utility::AssetPackGenerator("C:\\Dev\\content");
-    packer.Package();
-
-    return 0;
-    
     // These things are shared between instances
     Debug::Manager debugManager;
     Profiling::Manager profilingManager;

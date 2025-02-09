@@ -38,6 +38,13 @@ bool Utility::ReadValue(const GenericVal& InVal, uint32& OutData)
     return true;
 }
 
+bool Utility::ReadValue(const GenericVal& InVal, uint64& OutData)
+{
+    DESERIALIZE_CHECK_RETURN(!InVal.IsUint(), "Incorrect type, expected uint");
+    OutData = InVal.GetUint();
+    return true;
+}
+
 bool Utility::ReadValue(const GenericVal& InVal, Vec2F& OutData)
 {
     DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");

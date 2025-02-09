@@ -22,6 +22,7 @@ namespace Utility
     bool ReadValue(const GenericVal& InVal, int32& OutData);
     bool ReadValue(const GenericVal& InVal, uint8& OutData);
     bool ReadValue(const GenericVal& InVal, uint32& OutData);
+    bool ReadValue(const GenericVal& InVal, uint64& OutData);
     bool ReadValue(const GenericVal& InVal, Vec2F& OutData);
     bool ReadValue(const GenericVal& InVal, Vec3F& OutData);
     bool ReadValue(const GenericVal& InVal, Vec4F& OutData);

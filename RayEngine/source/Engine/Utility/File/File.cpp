@@ -28,9 +28,8 @@ String Utility::ReadFile(const String& InPath)
     
     auto out = std::string();
     auto buf = std::string(read_size, '\0');
-    while (stream.read(buf.data(), read_size)) {
+    while (stream.read(buf.data(), read_size))
         out.append(buf, 0, stream.gcount());
-    }
     out.append(buf, 0, stream.gcount());
 
     // Remove weird characters at start
