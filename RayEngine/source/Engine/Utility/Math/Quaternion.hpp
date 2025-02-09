@@ -25,9 +25,18 @@ namespace Utility
 				};
 			};
 
+			Quaternion& operator = (const Quaternion& InOther)
+			{
+				(*this).w = InOther.w;
+				(*this).x = InOther.x;
+				(*this).y = InOther.y;
+				(*this).z = InOther.z;
+				return *this;
+			}
+
 			Quaternion() : w(static_cast<Type>(1.0)), x(DefaultInitializationValue<Type>()), y(DefaultInitializationValue<Type>()), z(DefaultInitializationValue<Type>()) {}
 			Quaternion(const Quaternion& q) : w(q.w), x(q.x), y(q.y), z(q.z) {}
-			Quaternion(float ax, float ay, float az, float aw) : w(aw), x(ax), y(ay), z(az) {}
+			Quaternion(float aw, float ax, float ay, float az) : w(aw), x(ax), y(ay), z(az) {}
 			Quaternion(Type angle, const Vector3<Type>& axis)
 			{
 				w = cos(angle / 2);
@@ -60,18 +69,7 @@ namespace Utility
 				q.z = c1 * s2 * c3 - s1 * c2 * s3;
 				return q; 
 			}
-
-			static Quaternion FromDirection(const Vector3<Type>& direction)
-			{
-				const float angle = atan2(direction.z, direction.x); // Maybe switch
-				Quaternion q; 
-				q.x = 0; 
-				q.y = 1 * sin(angle / 2); 
-				q.z = 0;
-				q.w = cos(angle / 2);
-				return q;
-			}
-
+			
 			Vector3<Type> Euler() const
 			{
 				Type heading, attitude, bank;
@@ -98,149 +96,171 @@ namespace Utility
 				bank = atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw);
 				return { bank, heading, attitude };
 			}
-			
-			Quaternion operator*(const Quaternion& q2) const
-			{	
-				Quaternion t;
-				t.x = x * q2.w + y * q2.z - z * q2.y + w * q2.x;
-				t.y = -x * q2.z + y * q2.w + z * q2.x + w * q2.y;
-				t.z = x * q2.y - y * q2.x + z * q2.w + w * q2.z;
-				t.w = -x * q2.x - y * q2.y - z * q2.z + w * q2.w;
-				return t;
-			}
 
-
-			Quaternion operator/(float aFloat) const
+			static Quaternion FromDirection(const Vector3<Type>& direction)
 			{
-				Quaternion t;
-				t.x = x / aFloat;
-				t.y = y / aFloat;
-				t.z = z / aFloat;
-				t.w = w / aFloat;
-				return t;
+				const float angle = atan2(direction.z, direction.x); // Maybe switch
+				Quaternion q; 
+				q.x = 0; 
+				q.y = 1 * sin(angle / 2); 
+				q.z = 0;
+				q.w = cos(angle / 2);
+				return q;
 			}
 
-			Quaternion operator/=(float aFloat)
-			{
-				x /= aFloat;
-				y /= aFloat;
-				z /= aFloat;
-				w /= aFloat;
-				return *this;
-			}
-
-			Quaternion operator*(float aFloat) const
-			{
-				Quaternion t;
-				t.x = x * aFloat;
-				t.y = y * aFloat;
-				t.z = z * aFloat;
-				t.w = w * aFloat;
-				return t;
-			}
-
-			Quaternion operator*=(float aFloat)
-			{
-				x *= aFloat;
-				y *= aFloat;
-				z *= aFloat;
-				w *= aFloat;
-				return *this;
-			}
-
-
-			Quaternion operator+(const Quaternion& q2) const
-			{
-				Quaternion t;
-				t.x += q2.x;
-				t.y += q2.y;
-				t.z += q2.z;
-				t.w += q2.w;
-				return t;
-			}
-
-			Quaternion operator+=(const Quaternion& q2) const
-			{
-				x += q2.x;
-				y += q2.y;
-				z += q2.z;
-				w += q2.w;
-				return *this;
-			}
-
-			bool operator==(const Quaternion& q2) const
-			{
-				return
-					x == q2.x &&
-					y == q2.y &&
-					z == q2.z &&
-					w == q2.w;
-			}
-
-			bool operator!=(const Quaternion& q2) const
-			{
-				return !(*this == q2); 
-			}
-
-			Type Norm() const
+			Type Length() const
 			{
 				return SquareRoot(x * x + y * y + z * z + w * w);
 			}
 
-
-			void Normalize()
+			Quaternion GetNormalized()
 			{
-				Type norm = Norm();
-				x /= norm;
-				y /= norm;
-				z /= norm;
-				w /= norm;
+				Type l = Length();
+				return *this / l;				
+			}
+
+			Quaternion& Normalize()
+			{
+				*this = GetNormalized();
+				return *this;
+			}
+
+			static Type Dot(const Quaternion& InA, const Quaternion& InB)
+			{
+				return InA.w * InB.w + InA.x * InB.x + InA.y * InB.y + InA.z * InB.z;
 			}
 			
 			template <class F>
-			static Quaternion Slerp(Quaternion InA, Quaternion InB, F InT) {
-				// quaternion to return
-				InA.Normalize();
-				InB.Normalize();
-				Quaternion qm;
-				// Calculate angle between them.
-				double cosHalfTheta = InA.w * InB.w + InA.x * InB.x + InA.y * InB.y + InA.z * InB.z;
+			static Quaternion Slerp(Quaternion InA, Quaternion InB, F InT)
+			{
+				// Compute the dot product to check the angle between the quaternions
+				float dot = Quaternion::Dot(InA, InB);
 
-				if (cosHalfTheta < 0.0f) {
-					InB.w = -InB.w; InB.x = -InB.x; InB.y = -InB.y; InB.z = InB.z;
-					cosHalfTheta = -cosHalfTheta;
+				// If the dot product is negative, slerp will take the long way around, so we negate one quaternion
+				if (dot < static_cast<Type>(0.0f)) {
+					InB *= static_cast<Type>(-1.0f);
+					dot = -dot;
 				}
 
-				// if qa=qb or qa=-qb then theta = 0 and we can return qa
-				if (abs(cosHalfTheta) >= 1.0f) {
-					qm.w = InA.w; qm.x = InA.x; qm.y = InA.y; qm.z = InA.z;
-					return qm;
+				// If the dot product is close to 1, use linear interpolation to avoid division by zero
+				const Type THRESHOLD = static_cast<Type>(0.9995f);
+				if (dot > THRESHOLD) {
+					// Linear interpolation (lerp)
+					Quaternion result = InA + (InB - InA) * InT;
+					result.Normalize();
+					return result;
 				}
-				// Calculate temporary values.
-				double halfTheta = acos(cosHalfTheta);
-				double sinHalfTheta = SquareRoot(1.0f - cosHalfTheta * cosHalfTheta);
-				// if theta = 180 degrees then result is not fully defined
-				// we could rotate around any axis normal to qa or qb
-				if (fabs(sinHalfTheta) < 0.00001f) { // fabs is floating point absolute
-					qm.w = (InA.w * 0.5f + InB.w * 0.5f);
-					qm.x = (InA.x * 0.5f + InB.x * 0.5f);
-					qm.y = (InA.y * 0.5f + InB.y * 0.5f);
-					qm.z = (InA.z * 0.5f + InB.z * 0.5f);
-					return qm;
-				}
-				double ratioA = sin((1 - InT) * halfTheta) / sinHalfTheta;
-				double ratioB = sin(InT * halfTheta) / sinHalfTheta;
-				//calculate Quaternion.
-				qm.w = (InA.w * static_cast<Type>(ratioA) + InB.w * static_cast<Type>(ratioB));
-				qm.x = (InA.x * static_cast<Type>(ratioA) + InB.x * static_cast<Type>(ratioB));
-				qm.y = (InA.y * static_cast<Type>(ratioA) + InB.y * static_cast<Type>(ratioB));
-				qm.z = (InA.z * static_cast<Type>(ratioA) + InB.z * static_cast<Type>(ratioB));
-				qm.Normalize();
-				return qm;
+
+				// Compute the angle between the quaternions
+				float theta_0 = std::acos(dot);
+				float theta = theta_0 * InT;
+
+				// Compute the second quaternion
+				Quaternion q2_new = InB - InA * dot;
+				q2_new.Normalize();
+
+				// Perform the slerp interpolation
+				Quaternion result = InA * std::cos(theta) + q2_new * std::sin(theta);
+				result.Normalize();
+
+				return result;
 			}
-
+			
 			static Quaternion Identity() { return Quaternion(); }
 			
 		};
+
+		template <class Type>
+		bool operator==(const Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{
+			return
+				InFirst.x == InSecond.x &&
+				InFirst.y == InSecond.y &&
+				InFirst.z == InSecond.z &&
+				InFirst.w == InSecond.w;
+		}
+
+		template <class Type>
+		Quaternion<Type> operator * (const Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{	
+			Quaternion<Type> t;
+			t.w = InFirst.w * InSecond.w - InFirst.x * InSecond.x - InFirst.y * InSecond.y - InFirst.z * InSecond.z;
+			t.x = InFirst.w * InSecond.x + InFirst.x * InSecond.w + InFirst.y * InSecond.z - InFirst.z * InSecond.y;
+			t.y = InFirst.w * InSecond.y - InFirst.x * InSecond.z + InFirst.y * InSecond.w + InFirst.z * InSecond.x;
+			t.z = InFirst.w * InSecond.z + InFirst.x * InSecond.y - InFirst.y * InSecond.x + InFirst.z * InSecond.w;
+			return t;
+		}
+
+		template <class Type>
+		Quaternion<Type> operator / (const Quaternion<Type>& InFirst, Type InValue)
+		{
+			Quaternion<Type> t;
+			t.w = InFirst.w / InValue;
+			t.x = InFirst.x / InValue;
+			t.y = InFirst.y / InValue;
+			t.z = InFirst.z / InValue;
+			return t;
+		}
+
+		template <class Type>
+		Quaternion<Type>& operator /= (Quaternion<Type>& InFirst, Type InValue)
+		{
+			InFirst = InFirst / InValue;
+			return InFirst;
+		}
+
+		template <class Type>
+		Quaternion<Type> operator * (const Quaternion<Type>& InFirst, Type InValue)
+		{
+			Quaternion<Type> t;
+			t.w = InFirst.w * InValue;
+			t.x = InFirst.x * InValue;
+			t.y = InFirst.y * InValue;
+			t.z = InFirst.z * InValue;
+			return t;
+		}
+
+		template <class Type>
+		Quaternion<Type>& operator *= (Quaternion<Type>& InFirst, Type InValue)
+		{
+			InFirst = InFirst * InValue;
+			return InFirst;
+		}
+
+		template <class Type>
+		Quaternion<Type> operator + (const Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{
+			Quaternion<Type> t;
+			t.w = InFirst.w + InSecond.w;
+			t.x = InFirst.x + InSecond.x;
+			t.y = InFirst.y + InSecond.y;
+			t.z = InFirst.z + InSecond.z;
+			return t;
+		}
+
+		template <class Type>
+		Quaternion<Type>& operator += (Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{
+			InFirst = InFirst + InSecond;
+			return InFirst;
+		}
+
+		template <class Type>
+		Quaternion<Type> operator - (const Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{
+			Quaternion<Type> t;
+			t.w = InFirst.w - InSecond.w;
+			t.x = InFirst.x - InSecond.x;
+			t.y = InFirst.y - InSecond.y;
+			t.z = InFirst.z - InSecond.z;
+			return t;
+		}
+
+		template <class Type>
+		Quaternion<Type> operator -= (const Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{
+			InFirst = InFirst - InSecond;
+			return InFirst;
+		}
 	}
 }

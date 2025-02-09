@@ -14,8 +14,9 @@ Utility::Type AnimationStateStrike::Update()
     Mat4F start = a.GetPose("Pose_Strike_Start");
     Mat4F end = a.GetPose("Pose_Strike_End");
 
-    float lerp = time / Duration;
-    Mat4F result = Mat4F::Lerp(start, end, lerp);
+    float lerp = static_cast<float>(time) / Duration;
+    float lerpPow = pow(lerp, lerpPow);
+    Mat4F result = Mat4F::Lerp(start, end, lerpPow);
 
     HandState state;
     state.Interp = 0;

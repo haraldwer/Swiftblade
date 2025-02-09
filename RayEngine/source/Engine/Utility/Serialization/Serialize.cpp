@@ -30,7 +30,7 @@ void Utility::WriteValue(SerializeObj& InOutObj, const uint32& InData)
 
 void Utility::WriteValue(SerializeObj& InOutObj, const uint64& InData)
 {
-    InOutObj.Uint(InData); 
+    InOutObj.Uint(static_cast<unsigned>(InData)); 
 }
 
 void Utility::WriteValue(SerializeObj& InOutObj, const Vec2F& InData)

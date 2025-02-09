@@ -50,18 +50,14 @@ Mat4F ECS::Animator::GetPose(const String& InName) const
     return GetHandPoser().GetPose(InName);
 }
 
-Mat4F ECS::Animator::ToCameraSpace(Mat4F InMat, float InWeight)
+Mat4F ECS::Animator::ToCameraSpace(const Mat4F& InMat, float InWeight) const
 {
-    auto& t = GetCameraTransform();
-    auto cam = t.Local();
-    auto camSpace = InMat;
+    const Mat4F cam = GetCameraTransform().Local();
+    Mat4F camSpace = InMat;
     
-    // 1. Offset with camera pos
-    // 2. Apply camera rotation
-    // 3. Return to original pos
-    camSpace.SetPosition(camSpace.GetPosition() - cam.GetPosition());
+    camSpace.translation.xyz -= cam.GetPosition();
     camSpace = camSpace * cam.GetRotationMatrix();
-    camSpace.SetPosition(camSpace.GetPosition() + cam.GetPosition());
+    camSpace.translation.xyz += cam.GetPosition();
     return Mat4F::Lerp(InMat, camSpace, InWeight);
 }
 
@@ -77,7 +73,6 @@ HandState ECS::Animator::Flip(const HandState& InHand)
 
 void ECS::Animator::UpdateHands()
 {
-    // TODO: Interp
     const float dt = static_cast<float>(Utility::Time::Get().Delta());
     CurrentRight.LerpTo(TargetRight, dt);
     CurrentLeft.LerpTo(TargetLeft, dt);

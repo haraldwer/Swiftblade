@@ -9,5 +9,6 @@ public:
     int32 Priority() const override { return 1; }
 
 private:
-    PROPERTY_C(float, Duration, 2.0f);
+    PROPERTY_C(float, Duration, 1.0f);
+    PROPERTY_C(float, LerpPow, 2.0f);
 };

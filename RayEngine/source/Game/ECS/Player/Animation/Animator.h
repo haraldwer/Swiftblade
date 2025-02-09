@@ -25,7 +25,7 @@ namespace ECS
         HeadState GetHead() const { return CurrentHead; }
 
         Mat4F GetPose(const String& InName) const;
-        Mat4F ToCameraSpace(Mat4F InMat, float InWeight);
+        Mat4F ToCameraSpace(const Mat4F& InMat, float InWeightconst) const;
         static HandState Flip(const HandState& InHand);
         
     private:

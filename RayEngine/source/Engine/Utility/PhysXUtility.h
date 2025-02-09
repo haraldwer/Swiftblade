@@ -25,12 +25,12 @@ namespace Utility
 
         inline Vec3F ConvertVec(const physx::PxVec3T<float>& InVec)
         {
-            return { InVec.x, InVec.y, InVec.z };
+            return Vec3F(InVec.x, InVec.y, InVec.z);
         }
 
         inline QuatF ConvertQuat(const physx::PxQuatT<float>& InQuat)
         {
-            return { InQuat.x, InQuat.y, InQuat.z, InQuat.w };
+            return QuatF(InQuat.w, InQuat.x, InQuat.y, InQuat.z);
         }
     }
 }

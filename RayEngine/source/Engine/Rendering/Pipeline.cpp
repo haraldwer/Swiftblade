@@ -74,6 +74,8 @@ Rendering::Pipeline::~Pipeline()
     SceneTarget.Unload();
     for (auto& t : SSAOTargets.All())
         t.Unload();
+    for (auto& t : FireTargets.All())
+        t.Unload();
     FrameTarget.Unload();
     QuantizeTarget.Unload();
 }

@@ -54,15 +54,22 @@ namespace Utility
 				elements[3][3] = 1.0f;
 			}
 
-			Matrix4x4(const Matrix4x4& aMatrix)
+			Matrix4x4(const Matrix4x4& InMatrix)
 			{
-				memcpy(data, aMatrix.data, sizeof(Type) * 16);
+				memcpy(data, InMatrix.data, sizeof(Type) * 16);
 			}
 
-			Matrix4x4(const Matrix3x3<Type, RowOffset, ColumnOffset>& aMatrix)
+			Matrix4x4(const Matrix3x3<Type, RowOffset, ColumnOffset>& InMatrix) : Matrix4x4()
 			{
-				*this = Matrix4x4();
-				memcpy(data, aMatrix.data, sizeof(Type) * 9);
+				elements[0][0] = InMatrix.elements[0][0];
+				elements[1][0] = InMatrix.elements[1][0];
+				elements[2][0] = InMatrix.elements[2][0];
+				elements[0][1] = InMatrix.elements[0][1];
+				elements[1][1] = InMatrix.elements[1][1];
+				elements[2][1] = InMatrix.elements[2][1];
+				elements[0][2] = InMatrix.elements[0][2];
+				elements[1][2] = InMatrix.elements[1][2];
+				elements[2][2] = InMatrix.elements[2][2];
 			}
 
 			Matrix4x4(const Vector3<Type>& p, const Quaternion<Type>& q, const Vector3<Type>& s) : Matrix4x4()
@@ -238,7 +245,15 @@ namespace Utility
 			Matrix3x3<Type, RowOffset, ColumnOffset> GetRotationMatrix() const
 			{
 				Matrix3x3<Type, RowOffset, ColumnOffset> rotation;
-				memcpy(rotation.data, data, sizeof(Type) * 9);
+				rotation.elements[0][0] = elements[0][0];
+				rotation.elements[1][0] = elements[1][0];
+				rotation.elements[2][0] = elements[2][0];
+				rotation.elements[0][1] = elements[0][1];
+				rotation.elements[1][1] = elements[1][1];
+				rotation.elements[2][1] = elements[2][1];
+				rotation.elements[0][2] = elements[0][2];
+				rotation.elements[1][2] = elements[1][2];
+				rotation.elements[2][2] = elements[2][2];
 				return rotation;
 			}
 
