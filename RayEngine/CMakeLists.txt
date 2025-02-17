@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5) # FetchContent is available in 3.11+
+cmake_minimum_required(VERSION 3.15)
 project(RayEngine)
 
 # Generate compile_commands.json
@@ -17,14 +17,13 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
   FetchContent_GetProperties(raylib)
   if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
     set(FETCHCONTENT_QUIET NO)
-    FetchContent_Populate(raylib)
+    FetchContent_MakeAvailable(raylib)
     set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
     set(SUPPORT_CAMERA_SYSTEM OFF) # no camera
     set(OPENGL_VERSION OFF) # OpenGL version
     set(SUPPORT_DEFAULT_FONT OFF) # skip font
     set(SUPPORT_GESTURES_SYSTEM OFF) # skip gestures
     set(SUPPORT_MOUSE_GESTURES OFF) # skip gestures
-    add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
   endif()
 endif()
 

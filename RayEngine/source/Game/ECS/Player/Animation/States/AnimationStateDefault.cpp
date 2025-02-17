@@ -14,7 +14,7 @@ Type AnimationStateDefault::Update()
     Vec2F headBob = a.HeadBob(0.02f, frequency);
     head.Tilt = headBob.x;
     head.Position = Vec3F::Up() * headBob.y; 
-    head.Interp = 20.0f;
+    head.Interp = 5.0f;
     a.SetHead(head);
 
     Mat4F idle = a.GetPose("Pose_Idle");

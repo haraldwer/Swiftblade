@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -44,12 +44,9 @@ build number.  See BuildNumber.h for that.
 Each of these three values should stay below 255 because
 sometimes they are stored in a byte.
 */
-/** \addtogroup foundation
-  @{
-*/
 
 #define PX_PHYSICS_VERSION_MAJOR 5
-#define PX_PHYSICS_VERSION_MINOR 3
+#define PX_PHYSICS_VERSION_MINOR 5
 #define PX_PHYSICS_VERSION_BUGFIX 1
 
 /**
@@ -60,4 +57,3 @@ This is to ensure that the application is using the same header version as the l
 
 #endif
 
- /** @} */

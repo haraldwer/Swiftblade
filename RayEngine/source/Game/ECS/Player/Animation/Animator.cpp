@@ -3,6 +3,7 @@
 #include "AnimationPoser.h"
 #include "AnimationStateMachine.h"
 #include "ECS/Player/Player.h"
+#include "ECS/Player/PlayerCamera.h"
 #include "ECS/Systems/Rigidbody.h"
 #include "ECS/Systems/Transform.h"
 #include "Engine/Profiling/Profile.h"
@@ -101,7 +102,6 @@ Mat4F ECS::Animator::HandBob(Mat4F InTrans, Vec2F InScale, float InFrequency, bo
 
 void ECS::Animator::UpdateHands()
 {
-
     HandState tR = TargetRight;
     HandState tL = TargetLeft;
 
@@ -123,17 +123,17 @@ void ECS::Animator::UpdateHands()
 
 void ECS::Animator::UpdateHead()
 {
-    // TODO: Interp
-    CurrentHead = TargetHead;
+    const float dt = static_cast<float>(Utility::Time::Get().Delta());
+    CurrentHead.LerpTo(TargetHead, dt);
+    
     auto& camTrans = GetCameraTransform();
     const QuatF localRot = camTrans.GetRotation(Transform::Space::LOCAL);
     const Vec3F eulerRot = localRot.Euler();
-    camTrans.SetRotation(
-        QuatF::FromEuler(Vec3F(eulerRot.x, eulerRot.y, CurrentHead.Tilt)),
-        Transform::Space::LOCAL);
-    camTrans.SetPosition(
+    Mat4F trans = Mat4F(
         Vec3F::Up() + CurrentHead.Position,
-        Transform::Space::LOCAL);
+        QuatF::FromEuler(Vec3F(eulerRot.x, eulerRot.y, CurrentHead.Tilt)),
+        Vec3F::One());
+    GetPlayerCamera().SetTransform(trans);
 }
 
 void ECS::Animator::SetHands(const HandState& InRight, const HandState& InLeft)

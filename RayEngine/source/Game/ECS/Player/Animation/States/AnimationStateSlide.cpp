@@ -8,8 +8,8 @@ Type AnimationStateSlide::Update()
     auto& a = GetAnimator();
     
     HeadState head;
-    head.Interp = 10.0f;
-    head.Tilt = 0.1f;
+    head.Interp = 5.0f;
+    head.Tilt = 0.02f;
     a.SetHead(head);
     
     Mat4F slide = a.GetPose("Pose_Slide_R");

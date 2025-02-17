@@ -22,16 +22,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #ifndef PX_MATH_H
 #define PX_MATH_H
 
-/** \addtogroup foundation
-@{
-*/
 
 #include "foundation/PxPreprocessor.h"
 
@@ -207,7 +204,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE double PxCos(double a)
 //! \brief compute sine and cosine at the same time
 PX_CUDA_CALLABLE PX_FORCE_INLINE void PxSinCos(const PxF32 a, PxF32& sin, PxF32& cos)
 {
-#if defined(__CUDACC__) && __CUDA_ARCH__ >= 350
+#if PX_CUDA_COMPILER && __CUDA_ARCH__ >= 350
 	__sincosf(a, &sin, &cos);
 #else
 	sin = PxSin(a);
@@ -379,6 +376,5 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE float PxLog(float x)
 } // namespace physx
 #endif
 
-/** @} */
 #endif
 

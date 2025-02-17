@@ -12,11 +12,12 @@ namespace ECS
         int GetPriority() const override { return 8; }
         
         void AddCrouchOffset(float InHeightDiff);
+        void SetTransform(const Mat4F& InTrans);
     
     private:
 
         PROPERTY_D(float, CrouchOffsetMultiplier, 0.5f);
-        PROPERTY_D(float, CrouchInterpSpeed, 10.0f);
+        PROPERTY_D(float, CrouchInterpSpeed, 20.0f);
         
         float CrouchOffset = 0.0f; 
         float TargetCrouchOffset = 0.0f;

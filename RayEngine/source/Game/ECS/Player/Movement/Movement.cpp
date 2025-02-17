@@ -9,6 +9,7 @@
 #include "Engine/Profiling/Profile.h"
 #include "Engine/Rendering/Debug/Draw.h"
 #include "MovementStateMachine.h"
+#include "ECS/Player/Animation/Animator.h"
 
 void ECS::Movement::Init()
 {

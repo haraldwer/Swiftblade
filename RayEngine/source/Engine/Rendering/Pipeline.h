@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Renderer.h"
+#include "Targets/SwapTarget.h"
 
 namespace Rendering
 {

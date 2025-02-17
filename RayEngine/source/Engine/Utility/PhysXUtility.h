@@ -1,11 +1,5 @@
 #pragma once
 
-#define PX_PUBLIC_RELEASE 1
-#define PX_PHYSX_STATIC_LIB
-#define PX_NVTX 0
-#define PX_SUPPORT_PVD 1
-#define PX_SUPPORT_OMNI_PVD 1
-
 #include "foundation/PxVec3.h"
 #include "foundation/PxQuat.h"
 

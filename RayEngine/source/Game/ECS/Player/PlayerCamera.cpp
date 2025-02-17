@@ -16,10 +16,9 @@ void ECS::PlayerCamera::Update()
     // Interpolate crouch offset
     float dt = static_cast<float>(Utility::Time::Get().Delta());
     CrouchOffset = Utility::Math::Lerp(CrouchOffset, TargetCrouchOffset, dt * CrouchInterpSpeed);
-    const Vec3F offset = Vec3F::Up() * CrouchOffset;
-    
+
     auto& camTrans = GetCameraTransform();
-    camTrans.SetPosition(OriginalPosition + offset, Transform::Space::LOCAL); 
+    camTrans.SetPosition(OriginalPosition + Vec3F::Up() * CrouchOffset, Transform::Space::LOCAL); 
 }
 
 void ECS::PlayerCamera::AddCrouchOffset(float InHeightDiff)
@@ -29,4 +28,13 @@ void ECS::PlayerCamera::AddCrouchOffset(float InHeightDiff)
 
     TargetCrouchOffset = InHeightDiff * CrouchOffsetMultiplier;
     CrouchOffset -= InHeightDiff * 0.5f;
+}
+
+void ECS::PlayerCamera::SetTransform(const Mat4F& InTrans)
+{
+    OriginalPosition = InTrans.GetPosition();
+    
+    auto& camTrans = GetCameraTransform();
+    camTrans.SetPosition(OriginalPosition + Vec3F::Up() * CrouchOffset, Transform::Space::LOCAL);
+    camTrans.SetRotation(InTrans.GetRotation(), Transform::Space::LOCAL);
 }

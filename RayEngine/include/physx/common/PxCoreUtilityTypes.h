@@ -22,18 +22,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #ifndef PX_CORE_UTILITY_TYPES_H
 #define PX_CORE_UTILITY_TYPES_H
-/** \addtogroup common
-@{
-*/
 
 #include "foundation/PxAssert.h"
 #include "foundation/PxMemory.h"
+#include "foundation/PxIO.h"
 
 #if !PX_DOXYGEN
 namespace physx
@@ -48,10 +46,10 @@ struct PxStridedData
 
 	<b>Default:</b> 0
 	*/
-	PxU32 stride;
 	const void* data;
+	PxU32 stride;
 
-	PxStridedData() : stride( 0 ), data( NULL ) {}
+	PxStridedData() : data( NULL ), stride(0) {}
 
 	template<typename TDataType>
 	PX_INLINE const TDataType& at( PxU32 idx ) const
@@ -67,22 +65,22 @@ struct PxStridedData
 template<typename TDataType>
 struct PxTypedStridedData
 {
+	TDataType* data;
 	PxU32 stride;
-	const TDataType* data;
 
 	PxTypedStridedData()
-		: stride( 0 )
-		, data( NULL )
+		: data(NULL)
+		, stride(0)
 	{
 	}
 
-	PxTypedStridedData(const TDataType* data_, PxU32 stride_ = 0)
-		: stride(stride_)
-		, data(data_)
+	PxTypedStridedData(TDataType* data_, PxU32 stride_ = 0)
+		: data(data_)
+		, stride(stride_)
 	{
 	}
 	
-	PX_INLINE const TDataType& at(PxU32 idx) const
+	PX_CUDA_CALLABLE PX_INLINE const TDataType& at(PxU32 idx) const
 	{
 		PxU32 theStride(stride);
 		if (theStride == 0)
@@ -90,12 +88,28 @@ struct PxTypedStridedData
 		PxU32 offset(theStride * idx);
 		return *(reinterpret_cast<const TDataType*>(reinterpret_cast<const PxU8*>(data) + offset));
 	}
+	
+	PX_CUDA_CALLABLE PX_INLINE TDataType& atRef(PxU32 idx) 
+	{
+		PxU32 theStride(stride);
+		if (theStride == 0)
+			theStride = sizeof(TDataType);
+		PxU32 offset(theStride * idx);
+		return *(reinterpret_cast<TDataType*>(reinterpret_cast<PxU8*>(data) + offset));
+	}
 };
 
 struct PxBoundedData : public PxStridedData
 {
 	PxU32 count;
 	PxBoundedData() : count( 0 ) {}
+};
+
+template <typename TDataType>
+struct PxTypedBoundedData : public PxTypedStridedData<TDataType>
+{
+	PxU32 count;
+	PxTypedBoundedData() : count(0) {}
 };
 
 template<PxU8 TNumBytes>
@@ -213,5 +227,4 @@ public:
 } // namespace physx
 #endif
 
-/** @} */
 #endif
