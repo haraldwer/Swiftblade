@@ -10,7 +10,8 @@
 Type MovementStateSlide::Check()
 {
     const auto& input = GetInput();
-    if (GetMovement().IsOnGround() && input.CrouchInput)
+    auto& m = GetMovement();
+    if (m.IsOnGround() && input.CrouchInput && !m.IsCrouching())
     {
         if (GetRB().GetVelocity().Length() > SpeedThreshold &&
             input.MoveInput.Length() > InputDeadzone)

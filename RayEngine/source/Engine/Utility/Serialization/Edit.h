@@ -8,6 +8,7 @@ namespace Utility
     }
 
     bool MaybeCollapse(const String& InName, uint32 InOffset);
+    bool Button(const String& InName, uint32 InOffset);
     
     template <class T>
     bool Edit(const String& InName, T& InOutData, uint32 InOffset = 0)

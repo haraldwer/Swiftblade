@@ -19,5 +19,5 @@ void MovementStateMachine::Init()
     addState(Wall);
     addState(Vault);
     
-    StateMachine::Init();
+    PlayerStateMachine::Init();
 }

@@ -23,6 +23,11 @@ float SquaredLength(vec3 InDist)
     return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z;
 }
 
+float SquaredLength(vec4 InDist)
+{
+    return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z + InDist.w * InDist.w;
+}
+
 float Pow2(float InValue)
 {
     return InValue * InValue;

@@ -11,8 +11,10 @@
 
 void ECS::Animator::Init()
 {
+    if (Engine::Instance::Get().IsEditor())
+        return;
+    
     StateMachine = new AnimationStateMachine();
-    StateMachine->LoadConfig();
     StateMachine->Init();
 }
 

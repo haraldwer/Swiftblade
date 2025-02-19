@@ -15,8 +15,11 @@ namespace Profiling
         
         String DebugWindowName() const override { return "Profiler"; }
         void DrawDebugWindow() override;
-    
+        void UpdateCachedList();
+
     private:
+        void DrawEntry(uint32 InHash);
+        
         struct ScopeData
         {
             String Name;
@@ -37,6 +40,14 @@ namespace Profiling
         float SmoothMax = 0.0f; 
         float SmoothMin = 0.0f; 
 
+        Map<uint32, Vector<uint32>> CachedList;
+        uint32 CacheRoot = 0;
+        
         Utility::Timer UpdateStatTimer;
+        bool Paused = false;
+
+        
+        static constexpr float StatRefreshTime = 1.0f;
+        static constexpr float StatHistogramDuration = 1.0f;
     };
 }

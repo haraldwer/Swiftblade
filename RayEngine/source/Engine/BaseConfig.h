@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Utility/Serialization/Edit.h"
+
 template <class T>
 struct BaseConfig : PropertyOwner<T>
 {
@@ -7,10 +9,23 @@ struct BaseConfig : PropertyOwner<T>
     virtual String Name() const = 0;
     String Path() const { return "Configs/C_" + Name() + ".json"; }
 
+    bool Edit(const String& InName = "", uint32 InOffset = 0) override
+    {
+        bool result = PropertyOwner<T>::Edit(InName, InOffset);
+        if (Utility::Button("Save", InOffset))
+            SaveConfig();
+        Utility::SameLine();
+        if (Utility::Button("Load", InOffset))
+            LoadConfig();
+        return result;
+    }
+    
     void LoadConfig()
     {
-        PropertyOwnerBase::Load(Path());
-        LOG("Config loaded: " + Name());
+        if (PropertyOwnerBase::Load(Path()))
+            LOG("Config loaded: " + Name())
+        else
+            LOG("Failed to load config")
     }
 
     bool SaveConfig() const

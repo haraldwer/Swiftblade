@@ -4,6 +4,12 @@
 #include "ImGui/imgui_custom.h"
 #include "Utility/StateMachine/StateBase.h"
 
+void PlayerStateMachine::Init()
+{
+    LoadConfig();
+    StateMachine::Init();
+}
+
 bool PlayerStateMachine::Edit(const String& InName, uint32 InOffset)
 {
     String current = "Current: ";

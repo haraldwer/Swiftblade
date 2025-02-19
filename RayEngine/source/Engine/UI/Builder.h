@@ -71,7 +71,7 @@ namespace UI
             // Create instance
             if (!WorkingInstance)
                 WorkingInstance = new Instance();
-            const ObjectPtr instance = WorkingInstance;
+            const ObjectPtr root = WorkingInstance;
             if (!CurrentContainer)
                 CurrentContainer = WorkingInstance.Get();
             WidgetStack = { WorkingInstance.Get() };
@@ -81,13 +81,13 @@ namespace UI
                 instruction(*this);
 
             // Init
-            instance->Invalidate();
-            instance->Init();
+            root->Invalidate();
+            root->Init();
             
             // Reset pointers
             CurrentContainer = nullptr;
             WorkingInstance = nullptr;
-            return instance; 
+            return root; 
         }
         
     private:
@@ -119,7 +119,7 @@ namespace UI
 
         Vector<std::function<void(Builder&)>> Instructions;
         ObjectPtr<Instance> WorkingInstance;
-        ObjectPtr<Container> CurrentContainer;
+        WeakPtr<Container> CurrentContainer;
         Vector<Instance*> WidgetStack; // For naming
     };
 

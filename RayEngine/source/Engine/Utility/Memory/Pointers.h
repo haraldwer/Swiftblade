@@ -54,7 +54,13 @@ namespace Utility
         ObjectPtr() = default;
         ObjectPtr(T* InPtr) : Ref(RefImpl<T>::Get(InPtr)), Ptr(InPtr) { }
         ObjectPtr(const ObjectPtr& s) : Ptr(s.Ptr), Ref(s.Ref) { Increment(); }
-        ObjectPtr(const ObjectPtr&& s) noexcept : Ptr(s.Ptr), Ref(s.Ref) { Increment(); }
+        ObjectPtr(ObjectPtr&& s) noexcept
+        {
+            Ptr = s.Ptr;
+            Ref = s.Ref;
+            s.Ptr = nullptr;
+            s.Ref = nullptr;
+        }
         ~ObjectPtr() { Decrement(); }
 
         ObjectPtr& operator=(const ObjectPtr& InPtr)
@@ -88,7 +94,6 @@ namespace Utility
             if (Ref)
             {
                 Ref->Count++;
-                //LOG("Increment, new count: " + std::to_string(Ref->Count));
             }
         }
         
@@ -97,11 +102,9 @@ namespace Utility
             if (!Ref)
                 return; 
             CHECK_ASSERT(Ref->Count == 0, "Negative ref count");
-            Ref->Count--;
-            //LOG("Decrement, new count: " + std::to_string(Ref->Count)); 
+            Ref->Count--; 
             if (!Ref->Count && !Ref->WeakCount)
-            {
-                LOG("Destroying ref"); 
+            { 
                 Ref->destroy();
                 delete Ref;
                 Ref = nullptr;
@@ -124,8 +127,12 @@ namespace Utility
         WeakPtr() = default;
         WeakPtr(T* InPtr) : Ref(RefImpl<T>::Get(InPtr)) { Increment(); }
         WeakPtr(const WeakPtr& InPtr) : Ref(InPtr.Ref) { Increment(); }
-        WeakPtr(const WeakPtr&& InPtr) noexcept : Ref(InPtr.Ref) { Increment(); }
         WeakPtr(const ObjectPtr<T>& InPtr) : Ref(InPtr.Ref) { Increment(); }
+        WeakPtr(WeakPtr&& InPtr) noexcept : Ref(InPtr.Ref)
+        {
+            Ref = InPtr.Ref;
+            InPtr.Ref = nullptr;
+        }
         ~WeakPtr() { Decrement(); }
         
         WeakPtr& operator=(const WeakPtr& InPtr)

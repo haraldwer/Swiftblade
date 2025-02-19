@@ -270,8 +270,11 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
                         static_cast<uint8>(z)), world),
                     QuatF::Identity(),
                     Vec3F(1.01f));
-    
-    DrawCubes(matrices, true);
+
+    Engine::Instance::Get().GetRenderScene().AddMeshes(
+            EditMesh,
+            matrices,
+            Vec3F(), Vec3F());
 }
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
@@ -300,7 +303,7 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
     Physics::Manager::Get().ClearCubes(InID); 
 }
 
-void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
+void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent)
 {
     // Calculate bounds
     const Mat4F world = Get<Transform>(InComponent.GetID()).World();
@@ -320,11 +323,4 @@ void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
         InComponent.CachedCubeTransforms,
         min,
         max);
-}
-void ECS::SysCubeVolume::DrawCubes(const Vector<Mat4F>& InTransforms, bool InEditMesh) const
-{
-    Engine::Instance::Get().GetRenderScene().AddMeshes(
-        InEditMesh ? EditMesh : BlockMesh,
-        InTransforms,
-        Vec3F(), Vec3F());
 }

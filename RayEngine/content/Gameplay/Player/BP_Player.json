@@ -13,13 +13,18 @@
 		},{
 			"Name":"Rigidbody",
 			"Data":{
-				"LockRotation":true,
 				"AngularDamping":0.0,
-				"LinearDamping":0.0
+				"LinearDamping":0.0,
+				"LockRotation":true
 			}
 		},{
 			"Name":"Combat",
 			"Data":{}
+		},{
+			"Name":"AnimationPoser",
+			"Data":{
+				"VisualizationMesh":"Gameplay\\Player\\M_Hand_Open.obj"
+			}
 		},{
 			"Name":"Player",
 			"Data":{}
@@ -31,9 +36,6 @@
 			"Data":{}
 		},{
 			"Name":"PlayerCamera",
-			"Data":{}
-		},{
-			"Name":"AnimationPoser",
 			"Data":{}
 		}
 	],
@@ -63,8 +65,8 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
-										"Model":"Defaults/M_Cube_HighPoly.obj",
-										"Material":"Dressing\\Skybox\\RM_Skybox.json"
+										"Material":"Dressing\\Skybox\\RM_Skybox.json",
+										"Model":"Defaults/M_Cube_HighPoly.obj"
 									}
 								},{
 									"Name":"Attributes",
@@ -127,7 +129,9 @@
 						"Overrides":{
 							"Components":[{
 									"Name":"Mesh",
-									"Data":{}
+									"Data":{
+										"Model":"Gameplay\\Player\\M_Hand_Open.obj"
+									}
 								},{
 									"Name":"Attributes",
 									"Data":{
@@ -138,13 +142,13 @@
 									"Data":{
 										"Rotation":[
 											0.0,
-											0.0,
+											-90.0000228881836,
 											0.0
 										],
 										"Scale":[
-											0.20000000298023224,
-											0.20000000298023224,
-											0.20000000298023224
+											1.0000004768371582,
+											1.0,
+											1.0000004768371582
 										]
 									}
 								}
@@ -175,7 +179,9 @@
 						"Overrides":{
 							"Components":[{
 									"Name":"Mesh",
-									"Data":{}
+									"Data":{
+										"Model":"Gameplay\\Player\\M_Hand_Open.obj"
+									}
 								},{
 									"Name":"Attributes",
 									"Data":{
@@ -186,13 +192,13 @@
 									"Data":{
 										"Rotation":[
 											0.0,
-											0.0,
+											-90.00000762939453,
 											0.0
 										],
 										"Scale":[
-											0.20000000298023224,
-											0.20000000298023224,
-											0.20000000298023224
+											1.0000003576278687,
+											1.0,
+											1.0000003576278687
 										]
 									}
 								}

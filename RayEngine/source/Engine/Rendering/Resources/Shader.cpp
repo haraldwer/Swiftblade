@@ -7,9 +7,13 @@
 bool ShaderResource::Load(const String& InIdentifier)
 {
     Identifier = InIdentifier;
-
     Ptr = new Shader();
 
+    auto editTime = GetEditTime();
+    if (FailedCompileTime != Utility::Timepoint())
+        if (FailedCompileTime == editTime)
+            return false;
+    
     // TODO: Load individual shaders
     // Compile shader variations
     
@@ -24,7 +28,10 @@ bool ShaderResource::Load(const String& InIdentifier)
         LOG("Compiling shader fs: " +  InIdentifier + " vs: " + vsFile)
         *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
         if (!IsShaderValid(*Ptr))
-            return false;
+        {
+            FailedCompileTime = GetEditTime();
+            return true;
+        }
     }
     else
     {
@@ -39,10 +46,15 @@ bool ShaderResource::Load(const String& InIdentifier)
         LOG("Compiling shader fs: " +  fsFile + " vs: " + vsFile)
         *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
         if (!IsShaderValid(*Ptr))
-            return false;
+        {
+            FailedCompileTime = GetEditTime();
+            return true;
+        }
         Ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*Ptr, "mvp");
         Ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*Ptr, "instanceTransform");
     }
+
+    FailedCompileTime = Utility::Timepoint();
     return true;
 }
 

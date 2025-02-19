@@ -18,11 +18,8 @@ Type AnimationStateSlide::Update()
     right.Interp = 10.0f;
     right.Pose = HandPose::OPEN;
     right.Transform = slide;
-
-    HandState left;
-    left.Interp = 10.0f;
-    left.Pose = HandPose::OPEN;
-    left.Transform = slide;
+    right.CameraSpace = 0.3f; 
+    HandState left = ECS::Animator::Flip(right);
 
     a.SetHands(right, left);
     

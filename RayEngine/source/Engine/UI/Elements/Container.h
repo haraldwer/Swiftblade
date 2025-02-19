@@ -8,8 +8,7 @@ namespace UI
     {
         friend class Builder; 
     public:
-        Container() = default; 
-        ~Container() override = default; 
+        Container() = default;
         Container(const UI::Transform& InTransform) : Element(InTransform) {}
         void Init() override;
         void Update() override;

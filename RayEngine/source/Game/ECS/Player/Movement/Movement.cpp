@@ -17,7 +17,6 @@ void ECS::Movement::Init()
         return;
     
     StateMachine = new MovementStateMachine();
-    StateMachine->LoadConfig();
     StateMachine->Init();
 }
 

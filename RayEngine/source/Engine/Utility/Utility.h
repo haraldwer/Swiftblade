@@ -9,8 +9,8 @@ namespace Utility
     String DeviceGUID();
 }
 
-#define LOG_CONSOLE(text) { Utility::ExternalLog(String(String(text) + String(" | ") + String(__FUNCTION__) + String("::") + std::to_string(__LINE__)).c_str()); }
-#define LOG(text) LOG_CONSOLE(text)
+#define LOG_CONSOLE(text) { Utility::ExternalLog(String(String(__FUNCTION__) + String("::") + std::to_string(__LINE__) + String(" | ") + String(text)).c_str()); }
+#define LOG(text) { LOG_CONSOLE(text); }
 
 #define CHECK_ASSERT(condition, text) \
 assert(!(condition) && text);

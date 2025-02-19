@@ -6,7 +6,12 @@
 
 using namespace ECS;
 
-void SysMesh::Frame(EntityID InEntity, Mesh& InComponent)
+void SysMesh::SystemFrame()
+{
+    System::SystemFrame();
+}
+
+void SysMesh::Update(EntityID InEntity, Mesh& InComponent)
 {
     // TODO: Static component optimization
     

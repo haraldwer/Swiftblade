@@ -25,6 +25,7 @@ namespace Rendering
         void EndFrame();
         
         void ApplyConfig(const Config& InConfig);
+        Config GetConfig() const { return CurrConfig; }
 
         Vec2F GetWindowSize() const;
         Vec2F GetViewportSize() const;
@@ -35,7 +36,7 @@ namespace Rendering
         void DrawDebugWindow() override;
         
         void SubmitScene(RenderScene& InScene);
-
+    
     private:
 
         void SetViewportSize(int InUnscaledWidth, int InUnscaledHeight);

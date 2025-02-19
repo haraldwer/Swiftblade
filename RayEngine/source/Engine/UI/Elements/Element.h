@@ -10,9 +10,9 @@ namespace UI
     {
         friend class Builder; 
     public:
-        virtual ~Element() = default;
         Element() = default;
         Element(const Transform& InTransform) : Transform(InTransform) {}
+        virtual ~Element() = default;
         
         virtual void Init();
         virtual void Update();
@@ -38,7 +38,7 @@ namespace UI
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
         
-        ObjectPtr<Container> Parent;
+        WeakPtr<Container> Parent;
         Transform Transform = Transform::Fill();
         Rect CachedRect;
     };

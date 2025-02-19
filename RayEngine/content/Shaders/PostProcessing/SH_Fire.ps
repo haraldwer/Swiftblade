@@ -11,8 +11,11 @@ uniform sampler2D TexFire;
 in vec2 TexCoord;
 out vec4 Output;
 
-float TOTAL_LIFETIME = 0.2f;
-float GROWTH = 0.1f;
+const float TOTAL_LIFETIME = 0.1;
+const int VEL_SAMPLES = 8; 
+const float VEL_SCALE = 2;
+const float VEL_UP_SPEED = -3;
+const float SPEED_LIFETIME_DECREASE = 2;
 
 void main()
 {
@@ -21,37 +24,38 @@ void main()
 
     vec4 worldPosition = texture(TexPosition, TexCoord);
     vec4 deferredData = texture(TexDeferredData, TexCoord);
-
-    // Sample previous position
-    vec2 prevCoord = GetPrevCoord(worldPosition.xyz);
-    vec4 fire = texture(TexFire, prevCoord);
-
-    // Lifetime
-    float lifetime = max(deferredData.g, fire.a);
     
-    // Sample nearby pixels
-    vec2 pixelScale = vec2(1.0f) / Resolution;
-    vec2 offsets[8] = {
-        vec2( 1, 0),
-        vec2(-1, 0),
-        vec2( 0, 1),
-        vec2( 0,-1),
-        vec2( 0.7, 0.7),
-        vec2(-0.7, 0.7),
-        vec2( 0.7,-0.7),
-        vec2(-0.7,-0.7)
-    };
-    for (int i = 0; i < 8; i++)
+    // Assume camera distance? 
+    vec3 cameraDiff = worldPosition.xyz - CameraPosition;
+    vec3 cameraDir = cameraDiff / length(cameraDiff);
+    vec3 setDist = CameraPosition + cameraDir * 2.0f;
+    
+    vec4 fire = vec4(0.0);
+    float lifetime = deferredData.g;
+    
+    // Velocity sample
+        
+    vec3 velocity = Voronoi(TexCoord, Time) * VEL_SCALE + vec3(0.0, VEL_UP_SPEED, 0.0);
+    vec2 prevCoord = GetPrevCoord(setDist + velocity * Delta);
+    vec2 velPart = (prevCoord - TexCoord) / VEL_SAMPLES;
+    for (int i = 0; i < VEL_SAMPLES; i++)
     {
-        vec2 coord = prevCoord + offsets[i] * pixelScale;
-        vec4 growFire = texture(TexFire, coord);
-        lifetime = lifetime + growFire.a * GROWTH * Delta;
+        vec2 coord = TexCoord + velPart * i;
+        vec4 velFire = texture(TexFire, coord);
+        if (velFire.a > lifetime)
+        {
+            fire = velFire;
+            lifetime = velFire.a;
+        }
     }
 
-    if (lifetime < 0.01f)
+    lifetime -= Delta / TOTAL_LIFETIME;
+    lifetime -= Delta * length(velocity) * SPEED_LIFETIME_DECREASE;
+    lifetime = clamp(lifetime, 0.0, 1.0); 
+    
+    if (lifetime < 0.05f)
         discard;
     
-    lifetime = min(lifetime, 1.0f);
     Output.rgb = vec3(0.5f);
-    Output.a = lifetime - Delta / TOTAL_LIFETIME;
+    Output.a = lifetime;
 }

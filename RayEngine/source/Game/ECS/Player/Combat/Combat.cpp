@@ -2,11 +2,14 @@
 
 #include "CombatStateMachine.h"
 #include "ImGui/imgui.h"
+#include "Instance/Instance.h"
 
 void ECS::Combat::Init()
 {
+    if (Engine::Instance::Get().IsEditor())
+        return;
+    
     StateMachine = new CombatStateMachine();
-    StateMachine->LoadConfig();
     StateMachine->Init();
 }
 

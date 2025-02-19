@@ -54,7 +54,7 @@ void Rendering::Pipeline::Render(const RenderScene& InScene, const RenderTexture
     Renderer.DrawFullscreen(InScene, SSAOTargets.Curr(), SSAOShader, { &SceneTarget, &SSAOTargets.Prev() });
     
     // Draw to FrameTarget, quantize
-    Renderer.DrawDeferredScene(InScene, FrameTarget, { &SceneTarget, &SSAOTargets.Curr() });
+    DeferredDrawCount = Renderer.DrawDeferredScene(InScene, FrameTarget, { &SceneTarget, &SSAOTargets.Curr() });
     Renderer.DrawFullscreen(InScene, FrameTarget, FireBlipShader, { &SceneTarget, &FireTargets.Curr() }, {}, -1, false);
     Renderer.DrawFullscreen(InScene, QuantizeTarget, QuantizeShader, { &SceneTarget, &SSAOTargets.Curr(), &FrameTarget });
     Renderer.DrawFullscreen(InScene, FrameTarget, FXAAShader, { &QuantizeTarget });
@@ -82,7 +82,18 @@ Rendering::Pipeline::~Pipeline()
 
 void Rendering::Pipeline::DrawDebugWindow()
 {
-    ImGui::Text(("Meshes: " + std::to_string(MeshDrawCount)).c_str());
+    auto c = Manager::Get().GetConfig();
+    if (c.Edit())
+        Manager::Get().ApplyConfig(c);
+
+    ImGui::Text("Draw count");
+    int total = 0;
+    for (auto& entry : MeshDrawCount)
+    {
+        total += entry.second;
+        ImGui::Text((std::to_string(entry.first) + ": " + std::to_string(entry.second)).c_str());
+    }
+    ImGui::Text(("Total: " + std::to_string(total)).c_str());
     ImGui::Text(("Debug shapes: " + std::to_string(DebugDrawCount)).c_str());
     ImGui::Checkbox("DebugDraw##SceneRenderer", &DebugDraw);
 

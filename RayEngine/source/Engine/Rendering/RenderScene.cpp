@@ -19,6 +19,14 @@ void RenderScene::Clear()
     DebugLines = {};
 }
 
+uint32 RenderScene::Count() const
+{
+    uint32 c = 0;
+    for (auto& e : Meshes.Entries)
+        c += e.second.Transforms.size();
+    return c;
+}
+
 void MeshCollection::AddMesh(const MeshInstance& InInstance)
 {
     auto& entry = GetEntry(InInstance);
@@ -28,7 +36,8 @@ void MeshCollection::AddMesh(const MeshInstance& InInstance)
 void MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
 {
     Entry& entry = GetEntry(InInstance);
-    entry.Transforms.reserve(entry.Transforms.size() + InTransforms.size());
+    if (InTransforms.size() > 10)
+        entry.Transforms.resize(entry.Transforms.size() + InTransforms.size());
     entry.Transforms.insert(entry.Transforms.end(), InTransforms.begin(), InTransforms.end());
 }
 

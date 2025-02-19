@@ -141,15 +141,22 @@ void Rendering::Manager::EndFrame()
 
 void Rendering::Manager::ApplyConfig(const Config& InConfig)
 {
+    auto prev = CurrConfig;
     CurrConfig = InConfig;
 
     // Create window
-    if (IsWindowReady())
-        CloseWindow();
-    InitWindow(
-        CurrConfig.Width,
-        CurrConfig.Height,
-        "RayEngine");
+    if (!IsWindowReady() ||
+        prev.Height != CurrConfig.Height ||
+        prev.Width != CurrConfig.Width ||
+        prev.Fullscreen != CurrConfig.Fullscreen)
+    {
+        if (IsWindowReady())
+            CloseWindow();
+        InitWindow(
+            CurrConfig.Width,
+            CurrConfig.Height,
+            "RayEngine");
+    }
     
     unsigned flags = 0;
     if (InConfig.Fullscreen)

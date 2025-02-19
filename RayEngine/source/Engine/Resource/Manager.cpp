@@ -19,33 +19,33 @@ void Resource::Manager::Register(Base* InResource, const String& InIdentifier)
 void Resource::Manager::Update()
 {
     // Only check every 3 seconds
-    CHECK_RETURN(CheckTimer.Ellapsed() < 1.0f)
+    CHECK_RETURN(CheckTimer.Ellapsed() < CheckInterval)
     CheckTimer = Utility::Timer();
-    HotReload(1); 
+    TryUnload();
 }
 
-void Resource::Manager::HotReload(int InNum) const
+void Resource::Manager::TryUnload() const
 {
-    int count = 0; 
+    Vector<String> queue;
+    queue.reserve(Resources.size());
     for (const auto& res : Resources)
+        queue.push_back(res.first);
+
+    for (int i = 0; i < Utility::Math::Min(static_cast<int>(queue.size()), CheckNum); i++)
     {
-        CHECK_CONTINUE(!res.second)
-        CHECK_CONTINUE(!res.second->Loaded)
+        static int index = 0;
+        index = (index + 1) % static_cast<int>(queue.size());
+        
+        auto res = Resources.at(queue[index]);
+        CHECK_CONTINUE(!res)
+        CHECK_CONTINUE(!res->Loaded)
 
-        // Maybe unload? 
-        if (res.second->Count <= 0)
-        {
-            res.second->Unload();
-            continue; 
-        }
-
-        // Maybe reload? 
-        if (res.second->TryHotReload())
-        {
-            count++;
-            if (InNum > 0 && count >= InNum)
-                break; // Only reload a couple at a time
-        }
+        if (res->Count <= 0)
+            res->Unload();
+#ifdef _DEBUG
+        else
+            res->TryHotReload();
+#endif
     }    
 }
 

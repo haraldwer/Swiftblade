@@ -8,21 +8,25 @@
 in vec2 TexCoord;
 out vec4 Output;
 
-const int ITERATIONS = 4;
-const float INTENSITY = 0.08f;
-const float RADIUS = 0.5f;
-const float SAMPLE_DISTANCE_SCALE = 1.0f;
-const float SAMPLE_DISTANCE_BIAS = 0.05f;
-const float SAMPLE_NORMAL_BIAS = 0.1f;
-const float NEAR_START_FADE = 3.0;
+const int ITERATIONS = 4;     
+const float INTENSITY = 0.02;
+const float RADIUS = 500.0;
+const float SAMPLE_DISTANCE_SCALE = 4.0;
+const float SAMPLE_DISTANCE_BIAS = 0.1;
+const float SAMPLE_NORMAL_BIAS = 0.1;
+const float NEAR_START_FADE = 1.0;
 const float NEAR_END_FADE = 5.0;
 
-const float POSITION_THRESHOLD = 1.0;
-const float DEPTH_THRESHOLD = 1.0;
-const float LERP_SPEED = 20.0;
-const float MERGE_WEIGHT_CURR = 3.0;
-const float MERGE_WEIGHT_PREV = 2.0;
-const float MERGE_WEIGHT_PREV_PREV = 1.0;
+const float BLUR_SAMPLES = 32;
+const float BLUR_RADIUS = 0.05;
+
+const float POSITION_THRESHOLD = 2.0;
+const float DEPTH_THRESHOLD = 2.0;
+const float BLUR_LERP_SPEED = 10.0;
+const float ZERO_LERP_SPEED = 1.0;
+const float SSAO_LERP_SPEED = 10.0;
+const float MIN_DELTA = 0.008;
+const float MAX_DELTA = 0.033;
 
 vec3 SSAOPosition(vec2 uv)
 {
@@ -40,21 +44,23 @@ float SSAODepthSqr(vec3 InPos)
      return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 }
 
-float SSAOIteration(vec2 InCoord, vec2 InOffset, vec3 InStartPosition, vec3 InStartNormal, float InStartDepthSqr)
+float SSAOIteration(vec2 InCoord, vec3 InStartPosition, vec3 InStartNormal, float InStartDepthSqr)
 {
-     vec2 coord = clamp(InCoord + InOffset, 0.0001, 0.9999);
-     vec3 pos = SSAOPosition(coord);
+     vec3 pos = SSAOPosition(InCoord);
      
      // Depth test
      float depthSqr = SSAODepthSqr(pos);
-     if (InStartDepthSqr < depthSqr || depthSqr < NEAR_START_FADE * NEAR_START_FADE)
+     if (InStartDepthSqr < depthSqr)
+          return 0.0;
+
+     if (InStartDepthSqr < depthSqr)
           return 0.0;
      
-     vec3 diff = SSAOPosition(coord) - InStartPosition;
+     vec3 diff = pos - InStartPosition;
 
      // Position
      float distance = length(diff);
-     float distPart = (1.0f / (1.0f + distance)) * SAMPLE_DISTANCE_SCALE;
+     float distPart = (1.0 / (1.0 + distance)) * SAMPLE_DISTANCE_SCALE;
      distPart *= clamp((distance / SAMPLE_DISTANCE_BIAS) - SAMPLE_DISTANCE_BIAS, 0.0, 1.0);
      
      // Normal
@@ -71,62 +77,96 @@ float SSAO()
      float startDepthSqr = SSAODepthSqr(startPosition);
      float startDepth = sqrt(startDepthSqr);
      
-     float inv = 1.0f / ITERATIONS;
+     float inv = 1.0 / ITERATIONS;
      float rStep = inv * RADIUS / startDepth;
+     vec2 pixelScale = vec2(1.0f) / Resolution;
      
-     float ao = 0.0f;
-     float radius = 0.0f;
+     float ao = 0.0;
+     float radius = 0.0;
      for (int j = 0; j < ITERATIONS; ++j)
      {
           radius += rStep;
           vec2 uv = (Random2(TexCoord + radius + Time) - 0.5) * 2.0;
-          ao += SSAOIteration(TexCoord, uv * radius, startPosition, startNormal, startDepthSqr); 
+          vec2 coord = clamp(TexCoord + uv * radius * pixelScale, 0.0001, 0.9999);
+          ao += SSAOIteration(coord, startPosition, startNormal, startDepthSqr); 
      }    
-     float finalAO = clamp(ao * INTENSITY * inv, 0.0, 1.0);
+     float finalAO = clamp(ao * inv, 0.0, 1.0);
      return finalAO;
+}
+
+float BlurAccumulation(vec4 InPrevPos, vec2 InPrevCoord)
+{
+     float inv = 1.0 / BLUR_SAMPLES;
+     float rStep = inv * BLUR_RADIUS / InPrevPos.w;
+     vec2 pixelScale = vec2(1.0f) / Resolution;
+     
+     float acc = 0.0;
+     float weight = 0.0;
+     float radius = rStep;
+     for (int j = 0; j < BLUR_SAMPLES; ++j)
+     {
+          radius += rStep;
+          vec2 uv = (Random2(InPrevCoord + radius + Time) - 0.5) * 2.0;
+          vec2 coord = InPrevCoord + uv * radius * pixelScale;
+          if (coord.x < 1.0 && coord.x > 0.0 &&
+               coord.y < 1.0 && coord.y > 0.0)
+          {
+               acc += texture(TexAO, coord).g;
+               weight += 1.0;
+          }
+     }
+     return acc / weight; 
 }
 
 void main()
 {
-     float ssao = SSAO();
+     Output = vec4(vec3(0.0), 1.0);
      
      vec4 currPos = texture(TexPosition, TexCoord);
      float currDepth = currPos.w;
      float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
-     
+     if (fade < 0.01)
+          return;
+
      float accumulated = 0.0;
+     float blurredAccumulated = 0.0;
      float prev = 0.0;
      float prevPrev = 0.0;
      vec2 prevCoord = GetPrevCoord(currPos.xyz);
-     vec4 prevPos = texture(TexPosition, prevCoord);
-     if (prevPos.w - currDepth < DEPTH_THRESHOLD)
-     { 
-          float diff = length(currPos.xyz - prevPos.xyz);
-          if (diff < POSITION_THRESHOLD)
+     if (prevCoord.x < 1.0 && prevCoord.x > 0.0 &&
+          prevCoord.y < 1.0 && prevCoord.y > 0.0)
+     {
+          vec4 prevPos = texture(TexPosition, prevCoord);
+          if (prevPos.w - currDepth < DEPTH_THRESHOLD)
           {
-               vec4 val = texture(TexAO, prevCoord).rgba;
-               accumulated = val.g;
-               prev = val.b;
-               prevPrev = val.a;
+               float diff = SquaredLength(currPos.xyz - prevPos.xyz);
+               if (diff < POSITION_THRESHOLD * POSITION_THRESHOLD)
+               {
+                    vec4 prevVal = texture(TexAO, prevCoord).rgba;
+                    accumulated = prevVal.g;
+                    prev = prevVal.b;
+                    prevPrev = prevVal.a;
+                    blurredAccumulated = BlurAccumulation(prevPos, prevCoord);
+               }
           }
      }
-     
-     Output = vec4(vec3(0.0), 1.0);
-     
+
+     float ssao = SSAO();
      float merged = max(max(ssao, prev), prevPrev);
      
-     float accLerp = clamp(LERP_SPEED * Delta, 0.0f, 1.0f);
-     accumulated = merged * accLerp + accumulated * (1.0f - accLerp);
+     float clampedDelta = clamp(Delta, MIN_DELTA, MAX_DELTA);
+     accumulated = mix(accumulated, blurredAccumulated, BLUR_LERP_SPEED * clampedDelta);
+     if (merged > accumulated)
+          accumulated = mix(accumulated, merged, SSAO_LERP_SPEED * clampedDelta);
+     else
+          accumulated = max(0.0, accumulated - ZERO_LERP_SPEED * clampedDelta);
      
-     // Accumulate
-     // Also, merge current and previous
-     // Show max
-     
-     Output.r = mix(merged, accumulated, 0.8f);
+     Output.r = max(0, (blurredAccumulated - 0.1) / 0.9);
+     Output.r *= INTENSITY;
      Output.r *= fade; // Fade is a post-thing
      
      // For next frame:
-     Output.g = accumulated; // Store accumulated
+     Output.g = accumulated; // Store accumulated      
      Output.b = ssao; // Store as prev
      Output.a = prev; // Store as prevPrev
 }

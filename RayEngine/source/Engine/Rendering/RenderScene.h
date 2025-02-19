@@ -40,7 +40,8 @@ namespace Rendering
 
         void BeginFrame();
         void Clear();
-        
+        uint32 Count() const;
+
     private:
         CameraInstance Cam = {};
         MeshCollection Meshes;

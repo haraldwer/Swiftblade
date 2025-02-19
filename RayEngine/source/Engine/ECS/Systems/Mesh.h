@@ -18,7 +18,8 @@ namespace ECS
     {
         
     public:
-        void Frame(EntityID InEntity, Mesh& InComponent) override;
+        void SystemFrame() override;
+        void Update(EntityID InEntity, Mesh& InComponent) override;
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -100; }
     };

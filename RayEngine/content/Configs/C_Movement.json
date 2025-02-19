@@ -1,24 +1,16 @@
 {
 	"MovementStateIdle":{},
 	"MovementStateRun":{},
-	"MovementStateAir":{
-		"Move":{
-			"MovementForce":100.0
-		},
-		"Slowdown":{
-			"Friction":0.10000000149011612
-		},
-		"VelocityClamp":{
-			"ClampSlowdown":0.004999999888241291,
-			"MaxSpeed":20.0
-		}
-	},
+	"MovementStateAir":{},
 	"MovementStateCrouch":{
 		"Move":{
 			"MovementForce":100.0
 		},
+		"Slowdown":{
+			"Friction":0.0010000000474974513
+		},
 		"VelocityClamp":{
-			"ClampSlowdown":0.10000000149011612,
+			"ClampSlowdown":0.00009999999747378752,
 			"MaxSpeed":6.0
 		}
 	},

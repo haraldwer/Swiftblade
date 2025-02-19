@@ -2,8 +2,8 @@
 
 #include "Profiling/Profile.h"
 #include "RaylibRenderUtility.h"
-#include "rlgl.h"
 #include "Utility/RayUtility.h"
+#include "rlgl.h"
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
@@ -43,7 +43,7 @@ void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader) const
 {
 }
 
-int Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
+Map<uint64, int> Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
 
@@ -58,7 +58,7 @@ int Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InS
     PendingMVP = view * proj;
     
     // Instanced rendering
-    int count = 0;
+    Map<uint64, int> count;
     for (auto& entry : InScene.Meshes.Entries)
     {
         const ::Mesh* meshes = nullptr;
@@ -101,7 +101,7 @@ int Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InS
         // Time to draw all the instances
         for (int i = 0; i < meshCount; i++)
         {
-            count += static_cast<int>(entry.second.Transforms.size());
+            count[entry.first] += static_cast<int>(entry.second.Transforms.size());
             RaylibRenderUtility::DrawInstances(meshes[i], *shader, entry.second.Transforms, InScene.Cam.Position);
         }
 
@@ -119,7 +119,8 @@ int Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InS
     return count;
 }
 
-void Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers) const
+int Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget,
+                                           const Vector<RenderTarget*>& InBuffers) const
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
 
@@ -149,6 +150,8 @@ void Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const Re
     InTarget.EndWrite();
     
     PROFILE_SCOPE_END()
+
+    return InScene.Meshes.DeferredShaders.size();
 }
 
 void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const

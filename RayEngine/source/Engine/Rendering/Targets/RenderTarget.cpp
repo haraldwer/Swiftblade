@@ -80,8 +80,8 @@ void RenderTarget::BeginWrite(int InBlend, bool InClear) const
         rlClearColor(0, 0, 0, 0);
         rlClearScreenBuffers();
     }
-    InBlend >= 0 ?
-        rlSetBlendMode(BLEND_ALPHA) : rlDisableColorBlend();
+    InBlend >= RL_BLEND_ALPHA ?
+        rlSetBlendMode(RL_BLEND_ALPHA) : rlDisableColorBlend();
 }
 
 void RenderTarget::EndWrite() const

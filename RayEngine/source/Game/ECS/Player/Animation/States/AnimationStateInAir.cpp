@@ -17,6 +17,7 @@ Type AnimationStateInAir::Update()
     hands.Transform = a.GetPose("Pose_InAir");
     hands.VelocityOffset.y *= 3.0f;
     hands.Pose = HandPose::OPEN;
+    hands.CameraSpace = 0.5;
     HandState flipped = ECS::Animator::Flip(hands);
     a.SetHands(hands, flipped);
     

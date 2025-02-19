@@ -24,7 +24,8 @@ namespace Rendering
         RenderTarget FrameTarget;
         RenderTarget QuantizeTarget;        
         
-        int MeshDrawCount = 0;
+        Map<uint64, int> MeshDrawCount;
+        int DeferredDrawCount = 0;
         int DebugDrawCount = 0;
         bool DebugDraw = true;
 

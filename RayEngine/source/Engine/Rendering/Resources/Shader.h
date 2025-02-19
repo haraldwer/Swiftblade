@@ -27,6 +27,7 @@ private:
     Set<String> VSIncludes;
     Set<String> FSIncludes;
     Map<String, int> Locations;
+    Utility::Timepoint FailedCompileTime;
 };
 
 typedef Resource::Ref<ShaderResource> ResShader;  

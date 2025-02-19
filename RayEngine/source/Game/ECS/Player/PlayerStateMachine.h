@@ -6,6 +6,7 @@ class PlayerStateMachine : public StateMachine, public BaseConfig<PlayerStateMac
 {
 public:
 	~PlayerStateMachine() override = default;
+	void Init() override;
     String Name() const override { return "StateMachine"; }
     bool Edit(const String& InName = "", uint32 InOffset = 0) override;
     void CustomSerialize(SerializeObj& InOutObj) const override;

@@ -110,3 +110,8 @@ bool Utility::MaybeCollapse(const String& InName, uint32 InOffset)
 {
     return (InName.empty() || InOffset == 0|| ImGui::CollapsingHeader(GetEditName(InName, InOffset).c_str())); 
 }
+
+bool Utility::Button(const String& InName, uint32 InOffset)
+{
+    return ImGui::Button(GetEditName(InName, InOffset).c_str());
+}

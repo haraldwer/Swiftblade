@@ -10,5 +10,5 @@ void CombatStateMachine::Init()
     addState(Idle); 
     addState(Strike); 
     
-    StateMachine::Init();
+    PlayerStateMachine::Init();
 }

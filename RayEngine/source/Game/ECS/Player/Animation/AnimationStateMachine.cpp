@@ -12,5 +12,5 @@ void AnimationStateMachine::Init()
     addState(InAir); 
     addState(Strike); 
     
-    StateMachine::Init();
+    PlayerStateMachine::Init();
 }
