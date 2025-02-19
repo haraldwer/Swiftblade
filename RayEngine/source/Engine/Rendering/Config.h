@@ -13,6 +13,7 @@ namespace Rendering
         PROPERTY_D(bool, Fullscreen, false);
         PROPERTY_D(bool, VSync, false);
         PROPERTY_D(bool, MSAA, false);
+        PROPERTY_D(Vector<String>, GlobalDefines, {})
 
         String Name() const override { return "Rendering"; };
     };

@@ -47,6 +47,8 @@ void main()
     // Get current pixel
     vec4 color = texture(TexQuantize, TexCoord).rgba;
     Output = color;
+    
+    #ifdef FXAA
 
     vec3 hsv = rgb2hsv(color.rgb);
 
@@ -75,4 +77,6 @@ void main()
     if (abs(dir.y) >= EDGE_THRESHOLD)
         blurColor += BlurDir(vec2(1.0f, 0.0f), pixelScale, abs(dir.y));
     Output.rgb = blurColor.rgb / blurColor.a;
+    
+    #endif
 }

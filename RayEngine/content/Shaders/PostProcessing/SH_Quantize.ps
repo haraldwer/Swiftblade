@@ -23,6 +23,8 @@ void main()
     
     Output = color;
     
+    #ifdef QUANTIZE
+    
     vec3 hsv = rgb2hsv(color.rgb);
     vec3 quantized = GetQuantized(color.rgb, 10);
     Output = vec4(hsv2rgb(quantized), 1.0);
@@ -42,4 +44,6 @@ void main()
             return;
         }
     }
+    
+    #endif
 } 

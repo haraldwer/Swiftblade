@@ -238,8 +238,10 @@ void Rendering::Manager::CapFPS()
     int targetFPS = CurrConfig.TargetFPS.Get();
     if (targetFPS > 0)
     {
-        double desiredFrameTime = 1.0 / targetFPS;
+        targetFPS = Utility::Math::Max(targetFPS, 10);
+        double desiredFrameTime = (1.0 / targetFPS) - LeftoverFrameTime;
         while (FrameTimer.Ellapsed() < desiredFrameTime) {}
+        LeftoverFrameTime = FrameTimer.Ellapsed() - desiredFrameTime;
         FrameTimer = {};
     }
 }

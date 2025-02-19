@@ -70,7 +70,7 @@ float SSAOIteration(vec2 InCoord, vec3 InStartPosition, vec3 InStartNormal, floa
      return clamp(normalDot * distPart, 0.0, 1.0);
 }
 
-float SSAO()
+float FrameSSAO()
 {
      vec3 startPosition = SSAOPosition(TexCoord);
      vec3 startNormal = SSAONormal(TexCoord);
@@ -122,6 +122,8 @@ void main()
 {
      Output = vec4(vec3(0.0), 1.0);
      
+     #ifdef SSAO
+     
      vec4 currPos = texture(TexPosition, TexCoord);
      float currDepth = currPos.w;
      float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
@@ -151,7 +153,7 @@ void main()
           }
      }
 
-     float ssao = SSAO();
+     float ssao = FrameSSAO();
      float merged = max(max(ssao, prev), prevPrev);
      
      float clampedDelta = clamp(Delta, MIN_DELTA, MAX_DELTA);
@@ -169,4 +171,6 @@ void main()
      Output.g = accumulated; // Store accumulated      
      Output.b = ssao; // Store as prev
      Output.a = prev; // Store as prevPrev
+     
+     #endif
 }

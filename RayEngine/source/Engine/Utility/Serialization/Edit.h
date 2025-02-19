@@ -44,14 +44,28 @@ namespace Utility
         if (BeginList(InName, InOffset))
         {
             // TODO: Fix naming and format
+            int off = 0;
             for (auto& data : InOutData)
-                if (Edit(("##" + InName).c_str(), data, InOffset))
+            {
+                String name = "##" + InName + std::to_string(off); 
+                if (Edit(name.c_str(), data, InOffset))
                     edited = true;
+                off++;
+            }
             if (AddButton(InOffset))
+            {
                 InOutData.emplace_back();
-            SameLine();
-            if (RemoveButton(InOffset))
-                InOutData.pop_back();
+                edited = true;
+            }
+            if (!InOutData.empty())
+            {
+                SameLine();
+                if (RemoveButton(InOffset))
+                {
+                    InOutData.pop_back();
+                    edited = true;
+                }
+            }
             EndList();
         }
         return edited; 

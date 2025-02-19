@@ -21,13 +21,14 @@ public:
 private:
     String LoadShaderFile(const String& InPath, Set<String>& InIncludes);
     String ProcessIncludes(const String& InShaderCode, const String& InPath, Set<String>& InIncludes);
+    String ProcessDefines(const String& InShaderCode);
     
     String Identifier; 
     Shader* Ptr = nullptr;
     Set<String> VSIncludes;
     Set<String> FSIncludes;
     Map<String, int> Locations;
-    Utility::Timepoint FailedCompileTime;
+    Vector<String> Defines;
 };
 
 typedef Resource::Ref<ShaderResource> ResShader;  

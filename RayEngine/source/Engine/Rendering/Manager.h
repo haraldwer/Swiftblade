@@ -50,6 +50,7 @@ namespace Rendering
         Pipeline Pipeline;
         RenderTexture2D VirtualTarget = RenderTexture2D();
         Utility::Timer FrameTimer;
+        double LeftoverFrameTime = 0;
     };
 }
 
