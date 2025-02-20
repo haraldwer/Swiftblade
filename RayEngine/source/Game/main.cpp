@@ -80,9 +80,11 @@ int main()
         PROFILE_SCOPE_END();
 
         // Render to screen
+        PROFILE_SCOPE_BEGIN("Frame");
         renderer.BeginFrame();
         debugManager.Frame(frameDelta);
         renderer.EndFrame();
+        PROFILE_SCOPE_END();
         
         PROFILE_SCOPE_END();
         PROFILE_SCOPE_END();

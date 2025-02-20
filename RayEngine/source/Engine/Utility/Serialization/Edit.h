@@ -7,14 +7,26 @@ namespace Utility
         return InName + "##PropertyEdit_" + std::to_string(InOffset);
     }
 
-    bool MaybeCollapse(const String& InName, uint32 InOffset);
+    bool MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader);
     bool Button(const String& InName, uint32 InOffset);
+    bool BeginList(const String& InName, uint32 InOffset);
+    void EndList();
+    void SameLine();
+    bool AddButton(uint32 InOffset);
+    bool RemoveButton(uint32 InOffset);
+    void Separator();
     
     template <class T>
     bool Edit(const String& InName, T& InOutData, uint32 InOffset = 0)
     {
-        if (MaybeCollapse(InName, InOffset))
-            return InOutData.Edit(InName, InOffset);
+        bool header = false;
+        if (MaybeCollapse(InName, InOffset, header))
+        {
+            bool result = InOutData.Edit(InName, InOffset);
+            if (header)
+                Separator();
+            return result;
+        }
         return false;
     }
     
@@ -30,12 +42,6 @@ namespace Utility
     bool Edit(const String& InName, QuatF& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, Mat4F& InOutData, uint32 InOffset = 0);
     bool Edit(const String& InName, String& InOutData, uint32 InOffset = 0);
-
-    bool BeginList(const String& InName, uint32 InOffset);
-    void EndList();
-    void SameLine();
-    bool AddButton(uint32 InOffset);
-    bool RemoveButton(uint32 InOffset);
     
     template <class T>
     bool Edit(const String& InName, Vector<T>& InOutData, uint32 InOffset = 0)
@@ -45,8 +51,12 @@ namespace Utility
         {
             // TODO: Fix naming and format
             int off = 0;
+            int moveUp = -1;
             for (auto& data : InOutData)
             {
+                if (Button("^", off))
+                    moveUp = off;
+                SameLine();
                 String name = "##" + InName + std::to_string(off); 
                 if (Edit(name.c_str(), data, InOffset))
                     edited = true;
@@ -67,6 +77,13 @@ namespace Utility
                 }
             }
             EndList();
+
+            if (moveUp > 0)
+            {
+                InOutData.insert(InOutData.begin() + moveUp - 1, InOutData.at(moveUp));
+                InOutData.erase(InOutData.begin() + moveUp + 1);
+                edited = true;
+            }
         }
         return edited; 
     }

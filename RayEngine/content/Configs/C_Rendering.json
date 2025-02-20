@@ -3,5 +3,8 @@
 		"SSAO",
 		"QUANTIZE",
 		"FXAA"
+	],
+	"NoiseTextures":[
+		"Defaults\\T_Noise_Perlin.json"
 	]
 }

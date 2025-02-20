@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseConfig.h"
+#include "Resources/NoiseTexture.h"
 
 namespace Rendering
 {
@@ -14,6 +15,7 @@ namespace Rendering
         PROPERTY_D(bool, VSync, false);
         PROPERTY_D(bool, MSAA, false);
         PROPERTY_D(Vector<String>, GlobalDefines, {})
+        PROPERTY_D(Vector<ResNoiseTex>, NoiseTextures, {})
 
         String Name() const override { return "Rendering"; };
     };

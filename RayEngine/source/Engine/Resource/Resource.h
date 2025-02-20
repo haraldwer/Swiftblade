@@ -109,6 +109,7 @@ namespace Resource
                         Ptr->Data.Save(currID);
                         Ptr->TryHotReload(); 
                     }
+                    Utility::Separator();
                 }
             }
             

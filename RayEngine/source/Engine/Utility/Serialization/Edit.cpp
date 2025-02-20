@@ -106,9 +106,18 @@ bool Utility::RemoveButton(uint32 InOffset)
     return ImGui::Button(GetEditName("-", InOffset).c_str());
 }
 
-bool Utility::MaybeCollapse(const String& InName, uint32 InOffset)
+void Utility::Separator()
 {
-    return (InName.empty() || InOffset == 0|| ImGui::CollapsingHeader(GetEditName(InName, InOffset).c_str())); 
+    ImGui::Separator();
+}
+
+bool Utility::MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader)
+{
+
+    if (InName.empty() || InOffset == 0)
+        return true;
+    OutHeader = ImGui::CollapsingHeader(GetEditName(InName, InOffset).c_str());
+    return OutHeader;
 }
 
 bool Utility::Button(const String& InName, uint32 InOffset)

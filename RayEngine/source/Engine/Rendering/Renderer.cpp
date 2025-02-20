@@ -151,7 +151,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const Ren
     
     PROFILE_SCOPE_END()
 
-    return InScene.Meshes.DeferredShaders.size();
+    return static_cast<uint32>(InScene.Meshes.DeferredShaders.size());
 }
 
 void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const

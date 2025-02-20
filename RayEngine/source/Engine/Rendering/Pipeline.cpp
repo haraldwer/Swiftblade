@@ -1,5 +1,6 @@
 ﻿#include "Pipeline.h"
 
+#include "Manager.h"
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
 #include "Utility/RayUtility.h"

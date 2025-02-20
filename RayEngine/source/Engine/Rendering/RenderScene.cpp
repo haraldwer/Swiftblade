@@ -23,7 +23,7 @@ uint32 RenderScene::Count() const
 {
     uint32 c = 0;
     for (auto& e : Meshes.Entries)
-        c += e.second.Transforms.size();
+        c += static_cast<uint32>(e.second.Transforms.size());
     return c;
 }
 
