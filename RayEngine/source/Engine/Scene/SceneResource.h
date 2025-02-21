@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Resource/Resource.h"
 #include "Blueprints/Blueprint.h"
+#include "Resource/Resource.h"
 
 struct SceneInstance
 {
@@ -10,7 +10,7 @@ struct SceneInstance
     Mat4F Offset;
 };
 
-class Scene
+class SceneResource
 {
 public:
     SceneInstance Create(const Mat4F& InOffset = Mat4F(), bool InIsRoot = true) const;
@@ -28,4 +28,4 @@ protected:
     String Identifier;
 };
 
-typedef Resource::Ref<Scene> ResScene;
+typedef Resource::Ref<SceneResource> ResScene;

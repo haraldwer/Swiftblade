@@ -2,7 +2,7 @@
 
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
-#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneResource.h"
 #include "GameState.h"
 #include "Rooms/RoomManager.h"
 

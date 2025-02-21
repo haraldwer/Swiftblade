@@ -14,8 +14,8 @@ namespace Rendering
         PROPERTY_D(bool, Fullscreen, false);
         PROPERTY_D(bool, VSync, false);
         PROPERTY_D(bool, MSAA, false);
-        PROPERTY_D(Vector<String>, GlobalDefines, {})
-        PROPERTY_D(Vector<ResNoiseTex>, NoiseTextures, {})
+        PROPERTY_D(Vector<String>, GlobalDefines, {});
+        PROPERTY_D((Map<String, ResNoiseTex>), NoiseTextures, {});
 
         String Name() const override { return "Rendering"; };
     };

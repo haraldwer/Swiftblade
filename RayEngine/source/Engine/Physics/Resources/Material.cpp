@@ -8,11 +8,12 @@
 
 bool PhysicsMaterialResource::Load(const String& InPath)
 {
+    Identifier = InPath;
     if (!PropertyOwnerBase::Load(InPath))
         return false;
 
     if (Engine::Instance::Get().IsEditor())
-        return false; 
+        return true; 
     
     const auto& man = Physics::Manager::Get();
     Ptr = man.CreateMaterial(
@@ -20,8 +21,7 @@ bool PhysicsMaterialResource::Load(const String& InPath)
         DynamicFriction,
         Restitution);
 
-    Identifier = InPath;
-    return Ptr;
+    return Ptr != nullptr;
 }
 
 bool PhysicsMaterialResource::Unload()

@@ -8,12 +8,12 @@
 
 bool Resource::Base::BeginEdit(const String& InID)
 {
-    return ImGui::CollapsingHeader(InID.c_str());
+    return true; //ImGui::BeginSection(InID.c_str());
 }
 
 void Resource::Base::EndEdit()
 {
-    ImGui::EndSection(); 
+    //ImGui::EndSection(); 
 }
 
 String Resource::Base::Pick(const String& InLabel, const String& InID)

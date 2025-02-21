@@ -6,6 +6,8 @@
 bool TextureResource::Load(const String& InIdentifier)
 {
     Identifier = InIdentifier;
+    if (Identifier.starts_with("Gen_"))
+        return true;
     Ptr = new Texture();
     *Ptr = LoadTexture(("../Content/" + InIdentifier).c_str());
     return Ptr->id;
@@ -25,5 +27,7 @@ bool TextureResource::Unload()
 
 Utility::Timepoint TextureResource::GetEditTime() const
 {
+    if (Identifier.starts_with("Gen_"))
+        return {};
     return Utility::GetFileWriteTime(Identifier);  
 }

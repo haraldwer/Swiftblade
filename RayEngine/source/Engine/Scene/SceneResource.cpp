@@ -1,4 +1,4 @@
-#include "Scene.h"
+#include "SceneResource.h"
 
 #include "ECS/Manager.h"
 #include "ECS/Systems/Attributes.h"
@@ -14,7 +14,7 @@ void SceneInstance::Destroy()
     Entities.clear();
 }
 
-SceneInstance Scene::Create(const Mat4F& InOffset, bool InIsRoot) const
+SceneInstance SceneResource::Create(const Mat4F& InOffset, bool InIsRoot) const
 {
     SceneInstance instance;
     if (!InIsRoot)
@@ -54,7 +54,7 @@ SceneInstance Scene::Create(const Mat4F& InOffset, bool InIsRoot) const
     return instance; 
 }
 
-bool Scene::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
+bool SceneResource::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
 {
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
@@ -95,7 +95,7 @@ bool Scene::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
     return Utility::WriteFile(Identifier, formatted);
 }
 
-bool Scene::Load(const String& InIdentifier)
+bool SceneResource::Load(const String& InIdentifier)
 {
     Identifier = InIdentifier;
     Doc = rapidjson::Document();
@@ -116,13 +116,13 @@ bool Scene::Load(const String& InIdentifier)
     return true;
 }
 
-bool Scene::Unload()
+bool SceneResource::Unload()
 {
     Doc = rapidjson::Document();
     return true;
 }
 
-Utility::Timepoint Scene::GetEditTime() const
+Utility::Timepoint SceneResource::GetEditTime() const
 {
     return Utility::GetFileWriteTime(Identifier);
 }

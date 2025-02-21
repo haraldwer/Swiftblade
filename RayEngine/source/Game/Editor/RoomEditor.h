@@ -4,7 +4,7 @@
 #include "Engine/ECS/Manager.h"
 #include "Engine/Editor/Debugging/Window.h"
 #include "Engine/Instance/Instance.h"
-#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"
 
 struct RoomEditorConfig : BaseConfig<RoomEditorConfig>

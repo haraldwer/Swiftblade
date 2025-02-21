@@ -59,6 +59,12 @@ namespace Resource
         // Ref counting
         Ref() = default;
         Ref(const Ref& InOther) { *this = InOther; }
+        Ref(Ref&& InOther)
+        {
+            Ptr = InOther.Ptr;
+            InOther.Ptr = nullptr;
+        }
+        
         virtual ~Ref() { Decrement(); }
         Ref& operator=(const Ref& InPtr)
         {
@@ -100,16 +106,19 @@ namespace Resource
             }
         
             // Inline editing
-            if (Editable && Ptr)
+            if (Editable)
             {
-                if (Base::BeginEdit(currID))
+                 if (auto ptr = Get())
                 {
-                    if (Ptr->Data.Edit(InName))
+                    if (Base::BeginEdit(currID))
                     {
-                        Ptr->Data.Save(currID);
-                        Ptr->TryHotReload(); 
+                        if (ptr->Edit(InName))
+                        {
+                            ptr->Save(currID);
+                            Ptr->TryHotReload(); 
+                        }
+                        Base::EndEdit();
                     }
-                    Utility::Separator();
                 }
             }
             

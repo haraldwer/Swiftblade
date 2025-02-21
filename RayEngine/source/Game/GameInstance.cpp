@@ -8,7 +8,7 @@
 #include "ECS/Player/Movement/Movement.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Physics/Manager.h"
-#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneResource.h"
 #include "ImGui/imgui.h"
 
 void GameInstance::Init()

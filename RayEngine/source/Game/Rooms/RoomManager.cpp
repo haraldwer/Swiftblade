@@ -17,7 +17,7 @@ void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
     {
         LOG("Loading scene: " + room.Identifier()); 
         
-        const Scene* scene = room.Get();
+        const SceneResource* scene = room.Get();
         CHECK_CONTINUE(!scene);
         SceneInstance instance = scene->Create(offset, Scenes.empty() && !InApplyRootOffset);
         Scenes.push_back(instance);

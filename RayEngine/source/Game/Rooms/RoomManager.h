@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneResource.h"
 
 class RoomManager
 {

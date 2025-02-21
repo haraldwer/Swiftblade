@@ -7,18 +7,16 @@ struct Texture;
 
 class TextureResource
 {
+    friend class NoiseTextureResource;
 public:
     bool Load(const String& InIdentifier);
     bool Unload();
     Utility::Timepoint GetEditTime() const;
     Texture* Get() const { return Ptr; }
 
-    bool Save(const String& InPath) { return false; };
-    bool Edit(const String& InName) { return false; };
-    
 private:
     String Identifier; 
-    Texture* Ptr = nullptr; 
+    Texture* Ptr = nullptr;
 };
 
 typedef Resource::Ref<TextureResource> ResTexture;  

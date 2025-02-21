@@ -2,11 +2,20 @@
 
 #include "PropertyBase.h"
 
+template<typename> struct RemoveBrackets;
+template<typename T> struct RemoveBrackets<void (T)> {
+    typedef T Type;
+};
+#define REMOVE_BRACKETS(x) RemoveBrackets<void (x)>::Type
+
 // Defines a property
 #define PROPERTY(type, name) Property<type> name = Property<type>(#name, type());
 
+// Specific implementation for enums 
+#define PROPERTY_E(type, name, __VA_ARGS__) EnumProperty<type> name = EnumProperty<type>(#name, type(__VA_ARGS__));
+
 // Defines a property with a default value
-#define PROPERTY_D(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, type(__VA_ARGS__));
+#define PROPERTY_D(type, name, __VA_ARGS__) Property<REMOVE_BRACKETS(type)> name = Property<REMOVE_BRACKETS(type)>(#name, { __VA_ARGS__ });
 
 // Defines a constant property, that can only be changed by Edit() and Deserialize()
 #define PROPERTY_C(type, name, __VA_ARGS__) ConstantProperty<type> name = ConstantProperty<type>(#name, type(__VA_ARGS__));
@@ -15,7 +24,7 @@ template <class T>
 class ConstantProperty : public PropertyBase
 {
 public:
-    ConstantProperty(const String& InName, const T& InData) : Data(InData), Default(InData), PropertyBase(InName) { }
+    ConstantProperty(const String& InName, const T& InData) : PropertyBase(InName), Data(InData), Default(InData) { }
     
     void Reset() { Data = Default; }
     T GetDefault() const { return Default; }
@@ -77,5 +86,43 @@ public:
     {
         this->Data = InData;
         return *this;
+    }
+};
+
+template <class T>
+class EnumProperty : public Property<T>
+{
+public:
+    EnumProperty(const String& InName, const T& InData) : Property<T>(InName, InData) {}
+
+    void Serialize(SerializeObj& InOutObj) const override
+    {
+        if (this->Data != this->Default)
+        {
+            int data = static_cast<int>(this->Data);
+            Utility::Serialize(InOutObj, this->GetName(), data);
+        }
+    }
+    
+    bool Deserialize(const DeserializeObj& InObj) override
+    {
+        int data = static_cast<int>(this->Data);
+        if (Utility::Deserialize(InObj, this->GetName(), data))
+        {
+            this->Data = static_cast<T>(data);
+            return true;
+        }
+        return false;
+    }
+
+    bool Edit(uint32 InOffset = 0) override
+    {
+        int data = static_cast<int>(this->Data);
+        if (Utility::Edit(this->GetName(), data, InOffset))
+        {
+            this->Data = static_cast<T>(data);
+            return true;
+        }
+        return false; 
     }
 };

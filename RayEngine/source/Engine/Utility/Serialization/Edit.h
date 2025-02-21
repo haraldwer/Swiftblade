@@ -57,8 +57,9 @@ namespace Utility
                 if (Button("^", off))
                     moveUp = off;
                 SameLine();
-                String name = "##" + InName + std::to_string(off); 
-                if (Edit(name.c_str(), data, InOffset))
+                String offStr = std::to_string(off + 1);
+                String name = offStr + "##" + InName + offStr; 
+                if (Edit(name.c_str(), data, InOffset + 1234 * off))
                     edited = true;
                 off++;
             }
