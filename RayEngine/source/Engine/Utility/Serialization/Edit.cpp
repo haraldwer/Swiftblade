@@ -78,7 +78,9 @@ bool Utility::Edit(const String& InName, Mat4F& InOutData, uint32 InOffset)
 
 bool Utility::Edit(const String& InName, String& InOutData, uint32 InOffset)
 {
-    return ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
+    String copy = InOutData;
+    ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
+    return InOutData != copy;
 }
 
 bool Utility::BeginList(const String& InName, uint32 InOffset)
@@ -113,7 +115,6 @@ void Utility::Separator()
 
 bool Utility::MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader)
 {
-
     if (InName.empty() || InOffset == 0)
         return true;
     OutHeader = ImGui::CollapsingHeader(GetEditName(InName, InOffset).c_str());

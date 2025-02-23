@@ -20,7 +20,7 @@ public:
     Utility::Timepoint GetEditTime() const;
 
     bool Save(const String& InPath) { return false; };
-    bool Edit(const String& InName) { return false; };
+    bool Edit(const String& InName, uint32 InOffset = 0) { return false; };
     
 protected:
     

@@ -11,8 +11,6 @@ namespace Resource
         virtual bool TryHotReload() = 0;
 
         // Editing
-        static bool BeginEdit(const String& InID);
-        static void EndEdit();
         static String Pick(const String& InLabel, const String& InID);
         static bool SaveButton(const String& InID);
 

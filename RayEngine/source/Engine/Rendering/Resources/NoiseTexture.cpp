@@ -29,6 +29,7 @@ ResTexture NoiseTextureResource::Get() const
 
 bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
 {
+    ImGui::SameLine();
     if (ImGui::Button("Edit"))
         EditorOpen = !EditorOpen;
     if (!EditorOpen)
@@ -43,7 +44,7 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
             const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
             const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
             const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
-            const float minSize = size.x; // Utility::Math::Min(size.x, size.y);
+            const float minSize = size.x; 
             
             // Send to ImGui
             rlImGuiImageRect(
@@ -57,12 +58,14 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
         }
         
         ImGui::Separator();
-        result |= PropertyOwnerBase::Edit(InName);
-        if (result)
+        result |= PropertyOwnerBase::Edit(InName, InOffset);
+        if (ImGui::Button("Generate"))
             Generate();
+        ImGui::SameLine();
         if (ImGui::Button("Save"))
             PropertyOwnerBase::Save(Identifier);
-        if (ImGui::Button("Save and close"))
+        ImGui::SameLine();
+        if (ImGui::Button("Close"))
         {
             EditorOpen = false;
             result = true;
@@ -113,6 +116,7 @@ void NoiseTextureResource::Generate()
 
 void NoiseTextureResource::GeneratePerlin(Color* InData, const int InResolution)
 {
+    static Utility::Timer timer;
     auto& properties = Perlin.Get();
     for (int y = 0; y < InResolution; y++)
     {
@@ -121,7 +125,9 @@ void NoiseTextureResource::GeneratePerlin(Color* InData, const int InResolution)
             // See raylib GenImagePerlinNoise()
             float nx = static_cast<float>(x) * InScale.Get().x / static_cast<float>(InResolution);
             float ny = static_cast<float>(y) * InScale.Get().x / static_cast<float>(InResolution);
-            
+
+            nx += timer.Ellapsed();
+
             float p = stb_perlin_fbm_noise3(nx, ny, 1.0f,
                 properties.Lacunarity,
                 properties.Gain,

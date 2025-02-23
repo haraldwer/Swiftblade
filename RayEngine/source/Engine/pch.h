@@ -65,6 +65,7 @@ namespace Utility::Math
     class Random;
 }
 
+using String = std::string; 
 template <class T>
 using Set = std::set<T>;
 template <class T>
@@ -73,11 +74,12 @@ template <class T, int Size>
 using Array = std::array<T, Size>;
 template <class Key, class Val>
 using Map = std::unordered_map<Key, Val>;
+template <class Val>
+using StringMap = Map<String, Val>;  
 template <class Key, class Val>
 using OrderedMap = std::map<Key, Val>;
 template <class First, class Second>
 using Tuple = std::tuple<First, Second>;
-using String = std::string; 
 
 #include "Utility/Math/Macros.h"
 #include "Utility/Math/Basic.h"

@@ -15,7 +15,7 @@ namespace Debug
         void Logic();
         void Frame(double InDeltaTime);
         
-        bool Enabled() const { return DebugEnabled; }
+        bool Enabled() const { return Config.DebugEnabled; }
         
         void Register(Window* InWindow);
         void Unregister(const Window* InWindow);
@@ -24,7 +24,6 @@ namespace Debug
         void SetOpen(const String& InWindow, bool InOpen);
 
     private:
-        bool DebugEnabled = false;
         Set<Window*> PendingRegister;
         Map<String, Vector<Window*>> Windows;
         Map<const Window*, String> WindowToName;

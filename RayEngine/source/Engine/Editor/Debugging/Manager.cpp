@@ -1,6 +1,5 @@
 #include "Manager.h"
 
-#include "Input/Action.h"
 #include "ImGui/imgui.h"
 
 void Debug::Manager::Init()
@@ -29,9 +28,9 @@ void Debug::Manager::Frame(double InDeltaTime)
     PendingRegister.clear();
 
     if (IsKeyPressed(KEY_F2))
-        DebugEnabled = !DebugEnabled;
+        Config.DebugEnabled = !Config.DebugEnabled;
 
-    CHECK_RETURN(!DebugEnabled); 
+    CHECK_RETURN(!Config.DebugEnabled); 
     
     // Menu bar
     if (ImGui::BeginMainMenuBar())

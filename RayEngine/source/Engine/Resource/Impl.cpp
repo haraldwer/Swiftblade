@@ -6,20 +6,15 @@
 #include "ImGui/imgui_custom.h"
 #include "Editor/FileBrowser/imgui_filebrowser.h"
 
-bool Resource::Base::BeginEdit(const String& InID)
-{
-    return true; //ImGui::BeginSection(InID.c_str());
-}
-
-void Resource::Base::EndEdit()
-{
-    //ImGui::EndSection(); 
-}
-
 String Resource::Base::Pick(const String& InLabel, const String& InID)
 {
-    ImGui::Text((InLabel + ": ").c_str());
-    ImGui::SameLine(); 
+    auto find = InLabel.find_first_of("##");
+    String substr = find == String::npos ? InLabel : InLabel.substr(0, find);
+    if (!substr.empty())
+    {
+        ImGui::Text((substr + ": ").c_str());
+        ImGui::SameLine(); 
+    }
     if (ImGui::Button((InID + "##" + InLabel).c_str()))
         ImGui::OpenFileBrowser(InID);
     String result; 

@@ -24,7 +24,7 @@ namespace Rendering
         void BeginFrame();
         void EndFrame();
         
-        void ApplyConfig(const Config& InConfig);
+        void QueueConfig(const Config& InConfig);
         Config GetConfig() const { return CurrConfig; }
 
         Vec2F GetWindowSize() const;
@@ -38,11 +38,12 @@ namespace Rendering
         void SubmitScene(RenderScene& InScene);
     
     private:
-
+        void ApplyConfig(const Config& InConfig);
         void SetViewportSize(int InUnscaledWidth, int InUnscaledHeight);
         void CapFPS();
         
         Config CurrConfig; 
+        Config QueuedConfig; 
         Vec2F ViewportPosition;
         Vec2F ViewportSize;
         Vec2F RenderResolution;

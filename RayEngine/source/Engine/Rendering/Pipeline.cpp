@@ -85,7 +85,7 @@ void Rendering::Pipeline::DrawDebugWindow()
 {
     auto c = Manager::Get().GetConfig();
     if (c.Edit())
-        Manager::Get().ApplyConfig(c);
+        Manager::Get().QueueConfig(c);
 
     ImGui::Text("Draw count");
     int total = 0;

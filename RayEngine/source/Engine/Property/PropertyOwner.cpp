@@ -56,13 +56,20 @@ bool PropertyOwnerBase::Deserialize(const GenericVal& InVal)
 bool PropertyOwnerBase::Edit(const String& InName, uint32 InOffset)
 {
     bool edited = false;
-    const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this)) + InOffset;
-    for (const auto& p : GetPropertyMap())
+    auto& map = GetPropertyMap();
+    bool header = false;
+    if (map.size() <= 1 || Utility::MaybeCollapse(InName, InOffset, header))
     {
-        PropertyBase* ptr = OffToPtr(p.second);
-        CHECK_ASSERT(!ptr, "Invalid property");
-        if (ptr->Edit(offset))
-            edited = true;
+        const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this)) + InOffset;
+        for (const auto& p : map)
+        {
+            PropertyBase* ptr = OffToPtr(p.second);
+            CHECK_ASSERT(!ptr, "Invalid property");
+            if (ptr->Edit(offset))
+                edited = true;
+        }
+        if (header)
+            Utility::Separator();
     }
     return edited;
 }
@@ -98,8 +105,9 @@ bool PropertyOwnerBase::operator==(const PropertyOwnerBase& InOther) const
     {
         const auto firstPtr = OffToPtr(entry.second);
         const auto secondPtr = InOther.OffToPtr(entry.second);
-        if (!((*firstPtr) == (*secondPtr)))
-            return false; 
+        if (firstPtr && secondPtr)
+            if (!((*firstPtr) == (*secondPtr)))
+                return false; 
     }
     return true; 
 }

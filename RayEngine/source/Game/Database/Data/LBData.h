@@ -42,7 +42,7 @@ namespace DB
 
 	struct LBSubmission : DBData<LBData>
 	{
-		PROPERTY_D(int32, Score, 0.0f);
+		PROPERTY_D(int32, Score, 0);
 		PROPERTY_D(int32, Seed, -1);
 	};
 

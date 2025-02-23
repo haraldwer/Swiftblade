@@ -79,7 +79,11 @@ namespace Resource
 
         void Serialize(SerializeObj& InOutObj) const
         {
-            CHECK_RETURN(!Ptr); 
+            if (!Ptr)
+            {
+                Utility::WriteValue(InOutObj, String());
+                return;
+            }
             Utility::WriteValue(InOutObj, Ptr->Identifier);
         }
         
@@ -108,16 +112,12 @@ namespace Resource
             // Inline editing
             if (Editable)
             {
-                 if (auto ptr = Get())
+                 if (T* ptr = Get())
                 {
-                    if (Base::BeginEdit(currID))
+                    if (ptr->Edit(InName, InOffset))
                     {
-                        if (ptr->Edit(InName))
-                        {
-                            ptr->Save(currID);
-                            Ptr->TryHotReload(); 
-                        }
-                        Base::EndEdit();
+                        ptr->Save(currID);
+                        Ptr->TryHotReload(); 
                     }
                 }
             }

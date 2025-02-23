@@ -2,12 +2,6 @@
 
 #include "PropertyBase.h"
 
-template<typename> struct RemoveBrackets;
-template<typename T> struct RemoveBrackets<void (T)> {
-    typedef T Type;
-};
-#define REMOVE_BRACKETS(x) RemoveBrackets<void (x)>::Type
-
 // Defines a property
 #define PROPERTY(type, name) Property<type> name = Property<type>(#name, type());
 
@@ -15,7 +9,7 @@ template<typename T> struct RemoveBrackets<void (T)> {
 #define PROPERTY_E(type, name, __VA_ARGS__) EnumProperty<type> name = EnumProperty<type>(#name, type(__VA_ARGS__));
 
 // Defines a property with a default value
-#define PROPERTY_D(type, name, __VA_ARGS__) Property<REMOVE_BRACKETS(type)> name = Property<REMOVE_BRACKETS(type)>(#name, { __VA_ARGS__ });
+#define PROPERTY_D(type, name, __VA_ARGS__) Property<type> name = Property<type>(#name, { __VA_ARGS__ });
 
 // Defines a constant property, that can only be changed by Edit() and Deserialize()
 #define PROPERTY_C(type, name, __VA_ARGS__) ConstantProperty<type> name = ConstantProperty<type>(#name, type(__VA_ARGS__));

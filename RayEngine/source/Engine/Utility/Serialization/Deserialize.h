@@ -80,10 +80,9 @@ namespace Utility
             DESERIALIZE_CHECK_RETURN(!entry.HasMember("Val"), "No value");
 
             K key;
-            V val;
             ReadValue(entry["Key"], key);
-            ReadValue(entry["Val"], val);
-            OutData[key] = val; 
+            OutData[key] = V();
+            ReadValue(entry["Val"], OutData[key]);
         }
         return true; 
     }

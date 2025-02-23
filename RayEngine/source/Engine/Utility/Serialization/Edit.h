@@ -19,15 +19,7 @@ namespace Utility
     template <class T>
     bool Edit(const String& InName, T& InOutData, uint32 InOffset = 0)
     {
-        bool header = false;
-        if (MaybeCollapse(InName, InOffset, header))
-        {
-            bool result = InOutData.Edit(InName, InOffset);
-            if (header)
-                Separator();
-            return result;
-        }
-        return false;
+        return InOutData.Edit(InName, InOffset);
     }
     
     bool Edit(const String& InName, bool& InOutData, uint32 InOffset = 0);
@@ -125,20 +117,71 @@ namespace Utility
         bool edited = false; 
         if (BeginList(InName, InOffset))
         {
+            Map<Key, Key> remappings;
+            Vector<Key> removed;
+            static Map<String, Map<Key, uint32>> persistance; // Name -> id -> key
+            auto& idMap = persistance[InName];
+            static uint32 idC = 0;
+            
             for (auto& data : InOutData)
             {
-                Key k = data.first;
-                if (Edit("##Key_" + InName, k, InOffset))
-                    edited = true;
+                // Add id
+                if (!idMap.contains(data.first))
+                {
+                    idMap[data.first] = idC;
+                    idC++;
+                }
+                
+                const uint32 id = idMap[data.first];
+                const String idStr = std::to_string(id);
+
+                if (Button("-##" + idStr, InOffset))
+                    removed.push_back(data.first);
                 SameLine();
-                if (Edit("##Val_" + InName, data.second, InOffset))
+                Key k = data.first;
+                if (Edit("##Key_" + InName + idStr, k, InOffset))
+                    remappings[data.first] = k;
+                SameLine();
+                if (Edit("##Val_" + InName + idStr, data.second, InOffset))
                     edited = true;
             }
+
+            for (auto& rem : removed)
+            {
+                CHECK_CONTINUE(!InOutData.contains(rem));
+                InOutData.erase(rem);
+                idMap.erase(rem);
+            }
+                
+            // Remap edited entries
+            for (auto& remap : remappings)
+            {
+                CHECK_CONTINUE(remap.second == Key());
+                CHECK_CONTINUE(InOutData.contains(remap.second));
+                CHECK_CONTINUE(!InOutData.contains(remap.first));
+                InOutData[remap.second] = InOutData[remap.first];
+                InOutData.erase(remap.first);
+                idMap[remap.second] = idMap[remap.first];
+                idMap.erase(remap.first);
+                edited = true;
+            }
+            
             if (AddButton(InOffset))
-                InOutData[Key()] = Val();
+            {
+                if (!InOutData.contains(Key()))
+                {
+                    InOutData[Key()] = Val();
+                    edited = true;
+                }
+                
+            }
             SameLine();
-            if (RemoveButton(InOffset))
+            if (Button("Clear", InOffset))
+            {
                 InOutData.clear();
+                idMap.clear();
+                edited = true;
+            }
             EndList();
         }
         return edited;

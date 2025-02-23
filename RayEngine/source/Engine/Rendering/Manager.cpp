@@ -12,8 +12,9 @@
 
 void Rendering::Manager::Init()
 {
-    CurrConfig.LoadConfig();
-    ApplyConfig(CurrConfig); 
+    QueuedConfig.LoadConfig();
+    ApplyConfig(QueuedConfig);
+    SetViewportSize(CurrConfig.Width, CurrConfig.Height);
 
     rlImGuiSetup(false);
     ImGui::ThemeMoonlight();
@@ -53,10 +54,9 @@ void Rendering::Manager::DrawDebugWindow()
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
     const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
     const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
-    if ((size - ViewportSize).LengthSqr() > 1.0f)
-        SetViewportSize(
-            static_cast<int>(size.x),
-            static_cast<int>(size.y));
+    SetViewportSize(
+        static_cast<int>(size.x),
+        static_cast<int>(size.y));
 
     // Send to ImGui
     rlImGuiImageRect(
@@ -94,12 +94,9 @@ void Rendering::Manager::BeginFrame()
         ClearBackground(DARKGRAY);
         const Vec2F windowSize = GetWindowSize();
         ViewportPosition = Vec2F::Zero(); 
-
-        // Adjust size
-        if ((windowSize - ViewportSize).LengthSqr() > 1.0f)
-            SetViewportSize(
-                static_cast<int>(windowSize.x),
-                static_cast<int>(windowSize.y)); 
+        SetViewportSize(
+            static_cast<int>(windowSize.x),
+            static_cast<int>(windowSize.y)); 
 
         // Flip and blip
         const float virtualRatio = windowSize.x / windowSize.y;
@@ -136,13 +133,21 @@ void Rendering::Manager::EndFrame()
     ImGui::PopDefaultFont(); 
     rlImGuiEnd();
     EndDrawing();
+    if (CurrConfig != QueuedConfig)
+        ApplyConfig(QueuedConfig);
     CapFPS();
+}
+
+void Rendering::Manager::QueueConfig(const Config& InConfig)
+{
+    QueuedConfig = InConfig;
 }
 
 void Rendering::Manager::ApplyConfig(const Config& InConfig)
 {
     auto prev = CurrConfig;
     CurrConfig = InConfig;
+    QueuedConfig = InConfig;
 
     // Create window
     if (!IsWindowReady() ||
@@ -159,18 +164,15 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
     }
     
     unsigned flags = 0;
-    if (InConfig.Fullscreen)
+    if (CurrConfig.Fullscreen)
         flags |= FLAG_BORDERLESS_WINDOWED_MODE;
-    if (InConfig.VSync)
+    if (CurrConfig.VSync)
         flags |= FLAG_VSYNC_HINT;
-    if (InConfig.MSAA)
+    if (CurrConfig.MSAA)
         flags |= FLAG_MSAA_4X_HINT;
     flags |= FLAG_WINDOW_ALWAYS_RUN;
     SetWindowState(flags);
 
-    // Recreate render target
-    SetViewportSize(CurrConfig.Width, CurrConfig.Height);
-    
     LOG("Render config applied");
     CurrConfig.SaveConfig();
 }
@@ -222,6 +224,12 @@ void Rendering::Manager::SetViewportSize(const int InUnscaledWidth, const int In
         static_cast<float>(virtualWidth),
         static_cast<float>(virtualHeight)
     };
+
+    if (data.PreviousRenderResolution == RenderResolution &&
+        data.PreviousViewportSize == ViewportSize &&
+        VirtualTarget.texture.width == virtualWidth &&
+        VirtualTarget.texture.height == virtualHeight)
+        return;
 
     // Setup the renderer with the new resolution
     UnloadRenderTexture(VirtualTarget);
