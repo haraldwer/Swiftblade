@@ -22,7 +22,7 @@ bool PlayerStateMachine::Edit(const String& InName, uint32 InOffset)
         String str = String("-- ") + s->GetName() + String(" --");
         if (ImGui::CollapsingHeader(str.c_str()))
         {
-            if (ImGui::BeginSection(str.c_str()))
+            if (ImGui::BeginSection(false))
             {
                 if (s->EditState())
                     edited = true;

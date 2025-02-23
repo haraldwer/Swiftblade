@@ -169,7 +169,7 @@ void BlueprintEditor::EditComponents(ECS::EntityID InID)
         const ImGuiTreeNodeFlags flags = 0;
         if (ImGui::CollapsingHeader(Text(sys.first).c_str(), flags))
         {
-            if (ImGui::BeginSection(("Component##" + sys.first).c_str()))
+            if (ImGui::BeginSection(false))
             {
                 sys.second->Edit(InID);
                 if (ImGui::Button(Text("Remove##" + sys.first).c_str()))

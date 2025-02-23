@@ -1,6 +1,7 @@
 ﻿#include "Edit.h"
 
 #include "ImGui/imgui.h"
+#include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_stdlib.h"
 #include "Utility/Math/AngleConversion.h"
 
@@ -83,29 +84,20 @@ bool Utility::Edit(const String& InName, String& InOutData, uint32 InOffset)
     return InOutData != copy;
 }
 
-bool Utility::BeginList(const String& InName, uint32 InOffset)
+bool Utility::BeginSection(const String& InName)
 {
-    return ImGui::BeginListBox(GetEditName(InName, InOffset).c_str());
+    ImGui::Text(InName.c_str());
+    return ImGui::BeginSection(true);
 }
 
-void Utility::EndList()
+void Utility::EndSection()
 {
-    ImGui::EndListBox();
+    ImGui::EndSection();
 }
 
 void Utility::SameLine()
 {
     ImGui::SameLine();
-}
-
-bool Utility::AddButton(uint32 InOffset)
-{
-    return ImGui::Button(GetEditName("+", InOffset).c_str());
-}
-
-bool Utility::RemoveButton(uint32 InOffset)
-{
-    return ImGui::Button(GetEditName("-", InOffset).c_str());
 }
 
 void Utility::Separator()

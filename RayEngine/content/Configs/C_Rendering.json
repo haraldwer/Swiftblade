@@ -4,7 +4,9 @@
 		"QUANTIZE",
 		"FXAA"
 	],
-	"NoiseTextures":[
-		"Defaults\\T_Noise_Perlin.json"
+	"NoiseTextures":[{
+			"Key":"Perlin",
+			"Val":"Defaults\\T_Noise_Perlin.json"
+		}
 	]
 }

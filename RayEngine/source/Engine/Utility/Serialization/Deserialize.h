@@ -63,8 +63,8 @@ namespace Utility
         for (auto& entry : InVal.GetArray())
         {
             T data; 
-            ReadValue(entry, data);
-            OutData.insert(data); 
+            if (ReadValue(entry, data))
+                OutData.insert(data); 
         }
         return true; 
     }
@@ -80,9 +80,10 @@ namespace Utility
             DESERIALIZE_CHECK_RETURN(!entry.HasMember("Val"), "No value");
 
             K key;
-            ReadValue(entry["Key"], key);
-            OutData[key] = V();
-            ReadValue(entry["Val"], OutData[key]);
+            V val;
+            if (ReadValue(entry["Key"], key))
+                if (ReadValue(entry["Val"], val))
+                    OutData[key] = val;
         }
         return true; 
     }

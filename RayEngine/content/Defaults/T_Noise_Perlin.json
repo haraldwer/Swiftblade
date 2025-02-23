@@ -1,7 +1,4 @@
 {
-	"InScale":[
-		5.0,
-		5.0
-	],
-	"Resolution":512
+	"Resolution":512,
+	"WarpDepth":1
 }

@@ -4,7 +4,8 @@
 
 namespace ImGui
 {
-    static ImVec2 CalculateSectionBoundsX(float padding) {
+    static ImVec2 CalculateSectionBoundsX(float padding)
+    {
         auto *window = GetCurrentWindow();
         float windowStart = GetWindowPos().x;
 
@@ -12,26 +13,23 @@ namespace ImGui
             windowStart + GetWindowWidth() - window->WindowPadding.x - padding};
     }
 
-    inline bool BeginSection(const char *title) {
+    inline bool BeginSection(bool InTopPadding)
+    {
         GetWindowDrawList()->ChannelsSplit(2);
 
         // Draw content above the rectangle
         GetWindowDrawList()->ChannelsSetCurrent(1);
 
-        auto padding = GetStyle().WindowPadding;
+        auto padding = GetStyle().WindowPadding * 0.5f;
+        PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
 
         auto *window = GetCurrentWindow();
-        float windowWidth = GetWindowWidth();
-
         auto boundsX = CalculateSectionBoundsX(padding.x);
-
-        // Title will be clipped till the middle
-        // because I am going to have a collapsing
-        // header there
         const float midPoint = boundsX.x + (boundsX.y - boundsX.x) / 2.0f;
 
         // Start from padding position
-        SetCursorPosY(GetCursorPosY() + padding.y);
+        if (InTopPadding)
+            SetCursorPosY(GetCursorPosY() + padding.y);
         BeginGroup();
         if (padding.x > 0) {
             Indent(padding.x);
@@ -48,11 +46,14 @@ namespace ImGui
         PushClipRect(ImVec2(boundsX.x, window->ClipRect.Min.y),
             ImVec2(boundsX.y, window->ClipRect.Max.y), false);
 
+        PopStyleVar();
+        
         return true;
     }
 
-    inline void EndSection() {
-        auto padding = GetStyle().WindowPadding;
+    inline void EndSection()
+    {
+        auto padding = GetStyle().WindowPadding * 0.5f;
 
         PopClipRect();
         if (padding.x > 0) {
@@ -76,10 +77,6 @@ namespace ImGui
             GetColorU32(GetStyleColorVec4(ImGuiCol_ChildBg)),
             0.0f);
         GetWindowDrawList()->ChannelsMerge();
-
-        // Since rectangle is bigger than the box, move the cursor;
-        // so, it starts outside the box
-        SetCursorPosY(GetCursorPosY() + padding.y);
 
         // Then, add default spacing
         Spacing();

@@ -9,8 +9,8 @@ namespace Utility
 
     bool MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader);
     bool Button(const String& InName, uint32 InOffset);
-    bool BeginList(const String& InName, uint32 InOffset);
-    void EndList();
+    bool BeginSection(const String& InName);
+    void EndSection();
     void SameLine();
     bool AddButton(uint32 InOffset);
     bool RemoveButton(uint32 InOffset);
@@ -39,15 +39,19 @@ namespace Utility
     bool Edit(const String& InName, Vector<T>& InOutData, uint32 InOffset = 0)
     {
         bool edited = false; 
-        if (BeginList(InName, InOffset))
+        if (BeginSection(InName))
         {
             // TODO: Fix naming and format
             int off = 0;
             int moveUp = -1;
+            int remove = -1;
             for (auto& data : InOutData)
             {
-                if (Button("^", off))
+                if (Button("^", InOffset + 1234 * off))
                     moveUp = off;
+                SameLine();
+                if (Button("-", InOffset + 1234 * off))
+                    remove = off;
                 SameLine();
                 String offStr = std::to_string(off + 1);
                 String name = offStr + "##" + InName + offStr; 
@@ -55,28 +59,37 @@ namespace Utility
                     edited = true;
                 off++;
             }
-            if (AddButton(InOffset))
+
+            if (Button("+##" + InName, InOffset))
             {
                 InOutData.emplace_back();
                 edited = true;
             }
+            
             if (!InOutData.empty())
             {
                 SameLine();
-                if (RemoveButton(InOffset))
+                if (Button("Clear##" + InName, InOffset))
                 {
-                    InOutData.pop_back();
+                    InOutData.clear();
                     edited = true;
                 }
             }
-            EndList();
-
+            
             if (moveUp > 0)
             {
                 InOutData.insert(InOutData.begin() + moveUp - 1, InOutData.at(moveUp));
                 InOutData.erase(InOutData.begin() + moveUp + 1);
                 edited = true;
             }
+
+            if (remove >= 0)
+            {
+                InOutData.erase(InOutData.begin() + remove);
+                edited = true;
+            }
+            
+            EndSection();
         }
         return edited; 
     }
@@ -101,12 +114,12 @@ namespace Utility
     bool Edit(const String& InName, Array<T, Size>& InOutData, uint32 InOffset = 0)
     {
         bool edited = false; 
-        if (BeginList(InName, InOffset))
+        if (BeginSection(InName))
         {
             for (auto& data : InOutData)
                 if (Edit(("##" + InName).c_str(), data, InOffset))
                     edited = true;
-            EndList();
+            EndSection();
         }
         return edited; 
     }
@@ -115,7 +128,7 @@ namespace Utility
     bool Edit(const String& InName, Map<Key, Val>& InOutData, uint32 InOffset = 0)
     {
         bool edited = false; 
-        if (BeginList(InName, InOffset))
+        if (BeginSection(InName))
         {
             Map<Key, Key> remappings;
             Vector<Key> removed;
@@ -141,7 +154,6 @@ namespace Utility
                 Key k = data.first;
                 if (Edit("##Key_" + InName + idStr, k, InOffset))
                     remappings[data.first] = k;
-                SameLine();
                 if (Edit("##Val_" + InName + idStr, data.second, InOffset))
                     edited = true;
             }
@@ -151,6 +163,7 @@ namespace Utility
                 CHECK_CONTINUE(!InOutData.contains(rem));
                 InOutData.erase(rem);
                 idMap.erase(rem);
+                edited = true;
             }
                 
             // Remap edited entries
@@ -166,7 +179,7 @@ namespace Utility
                 edited = true;
             }
             
-            if (AddButton(InOffset))
+            if (Button("+##" + InName, InOffset))
             {
                 if (!InOutData.contains(Key()))
                 {
@@ -176,13 +189,14 @@ namespace Utility
                 
             }
             SameLine();
-            if (Button("Clear", InOffset))
+            if (Button("Clear##" + InName, InOffset))
             {
                 InOutData.clear();
                 idMap.clear();
                 edited = true;
             }
-            EndList();
+            
+            EndSection();
         }
         return edited;
     }

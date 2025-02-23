@@ -31,7 +31,8 @@ public:
     
     // Some noise properties!
     PROPERTY_D(int, Resolution, 1024);
-    PROPERTY_D(Vec2F, InScale, Vec2F::One());
+    PROPERTY_D(Vec2F, Scale, Vec2F::One());
+    PROPERTY_D(int, WarpDepth, 0);
     PROPERTY_D(int, Type, 0);
     PROPERTY(PerlinProperties, Perlin);
 

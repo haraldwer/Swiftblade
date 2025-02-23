@@ -44,9 +44,38 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
             const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
             const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
             const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
-            const float minSize = size.x; 
+            const float minSize = size.x * 0.5f; 
             
             // Send to ImGui
+            rlImGuiImageRect(
+                tex,
+                static_cast<int>(minSize),
+                static_cast<int>(minSize),
+                Rectangle{ 0,0,
+                    static_cast<float>(tex->width),
+                    -static_cast<float>(tex->height)
+                });
+
+            ImGui::SameLine();
+            rlImGuiImageRect(
+                tex,
+                static_cast<int>(minSize),
+                static_cast<int>(minSize),
+                Rectangle{ 0,0,
+                    static_cast<float>(tex->width),
+                    -static_cast<float>(tex->height)
+                });
+
+            rlImGuiImageRect(
+                tex,
+                static_cast<int>(minSize),
+                static_cast<int>(minSize),
+                Rectangle{ 0,0,
+                    static_cast<float>(tex->width),
+                    -static_cast<float>(tex->height)
+                });
+
+            ImGui::SameLine();
             rlImGuiImageRect(
                 tex,
                 static_cast<int>(minSize),
@@ -118,22 +147,36 @@ void NoiseTextureResource::GeneratePerlin(Color* InData, const int InResolution)
 {
     static Utility::Timer timer;
     auto& properties = Perlin.Get();
+
+    
+    std::function<void(Vec2F InPos)> noise = [&]()
+    {
+        float c=4, a=1; // torus parameters (controlling size)
+        float xt = (c+a*cosf(2*PI_FLOAT*InPos.y))*cosf(2*PI_FLOAT*nx);
+        float yt = (c+a*cosf(2*PI_FLOAT*InPos.y))*sinf(2*PI_FLOAT*nx);
+        float zt = a*sinf(2*PI_FLOAT*ny);
+            
+        float p = stb_perlin_fbm_noise3(xt, yt, zt,
+            properties.Lacunarity,
+            properties.Gain,
+            properties.Octaves);
+            
+        p = Utility::Math::Clamp(p, -1.0f, 1.0f);
+        p = (p + 1.0f) / 2.0f;
+    };
+    
     for (int y = 0; y < InResolution; y++)
     {
         for (int x = 0; x < InResolution; x++)
         {
             // See raylib GenImagePerlinNoise()
-            float nx = static_cast<float>(x) * InScale.Get().x / static_cast<float>(InResolution);
-            float ny = static_cast<float>(y) * InScale.Get().x / static_cast<float>(InResolution);
+            float nx = static_cast<float>(x) * Scale.Get().x / InResolution;
+            float ny = static_cast<float>(y) * Scale.Get().y / InResolution;
 
             nx += timer.Ellapsed();
+            ny += timer.Ellapsed();
 
-            float p = stb_perlin_fbm_noise3(nx, ny, 1.0f,
-                properties.Lacunarity,
-                properties.Gain,
-                properties.Octaves);
-            p = Utility::Math::Clamp(p, -1.0f, 1.0f);
-            p = (p + 1.0f) / 2.0f;
+            
 
             uint8 intensity = static_cast<uint8>(p * 255.0f);
             InData[y * InResolution + x] = { .r = intensity, .g = intensity, .b = intensity, .a = 255};
