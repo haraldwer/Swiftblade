@@ -7,8 +7,12 @@ struct RenderTexture;
 
 enum class NoiseType : uint8
 {
-    PERLIN = 0,
-    VORONOI,
+    OPEN_SIMPLEX_2,
+    OPEN_SIMPLEX_2S,
+    CELLULAR,
+    PERLIN,
+    VALUE_CUBIC,
+    VALUE,
     COUNT
 };
 
@@ -17,6 +21,12 @@ struct PerlinProperties : PropertyOwner<PerlinProperties>
     PROPERTY_D(float, Lacunarity, 2.0f);
     PROPERTY_D(float, Gain, 0.5f);
     PROPERTY_D(int, Octaves, 6);
+    PROPERTY_D(bool, Turbulence, false);
+};
+
+struct VoronoiProperties : PropertyOwner<VoronoiProperties>
+{
+    PROPERTY_D(int, Points, 10);
 };
 
 class NoiseTextureResource : public PropertyOwner<NoiseTextureResource>
@@ -31,15 +41,13 @@ public:
     
     // Some noise properties!
     PROPERTY_D(int, Resolution, 1024);
-    PROPERTY_D(Vec2F, Scale, Vec2F::One());
-    PROPERTY_D(int, WarpDepth, 0);
+    PROPERTY_D(float, Frequency, 1.0f);
     PROPERTY_D(int, Type, 0);
-    PROPERTY(PerlinProperties, Perlin);
+    PROPERTY_D(int, Seed, 0);
 
 private:
-    Texture*& GetTex() const;
     void Generate();
-    void GeneratePerlin(Color* InData, int InResolution);
+    void Generate(Color* InData, int InResolution);
     
     ResTexture Tex;
     String Identifier;

@@ -1,13 +1,15 @@
 #include "NoiseTexture.h"
 
-#include <external/stb_perlin.h>
+#include <FastNoiseLite/FastNoiseLite.h>
+#include <external/stb_image_write.h>
+
+#include "Utility/File/File.h"
 
 bool NoiseTextureResource::Load(const String& InPath)
 {
-    Tex = ResTexture("Gen_" + InPath);
+    Tex = ResTexture(InPath + ".png");
     Identifier = InPath;
-    if (PropertyOwnerBase::Load(InPath))
-        Generate();
+    PropertyOwnerBase::Load(InPath);
     return true;
 }
 
@@ -38,52 +40,55 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
     bool result = false;
     if (ImGui::Begin("Noise Generator"))
     {
-        if (auto& tex = GetTex())
+        if (TextureResource* res = Tex.Get())
         {
-            // Adjust size
-            const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-            const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-            const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
-            const float minSize = size.x * 0.5f; 
+            if (Texture* tex = res->Get())
+            {
+                // Adjust size
+                const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+                const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+                const Vec2F size = { vMax.x - vMin.x, vMax.y - vMin.y };
+                const float minSize = size.x * 0.5f; 
             
-            // Send to ImGui
-            rlImGuiImageRect(
-                tex,
-                static_cast<int>(minSize),
-                static_cast<int>(minSize),
-                Rectangle{ 0,0,
-                    static_cast<float>(tex->width),
-                    -static_cast<float>(tex->height)
-                });
+                // Send to ImGui
+                rlImGuiImageRect(
+                    tex,
+                    static_cast<int>(minSize),
+                    static_cast<int>(minSize),
+                    Rectangle{ 0,0,
+                        static_cast<float>(tex->width),
+                        -static_cast<float>(tex->height)
+                    });
 
-            ImGui::SameLine();
-            rlImGuiImageRect(
-                tex,
-                static_cast<int>(minSize),
-                static_cast<int>(minSize),
-                Rectangle{ 0,0,
-                    static_cast<float>(tex->width),
-                    -static_cast<float>(tex->height)
-                });
+                ImGui::SameLine();
+                rlImGuiImageRect(
+                    tex,
+                    static_cast<int>(minSize),
+                    static_cast<int>(minSize),
+                    Rectangle{ 0,0,
+                        static_cast<float>(tex->width),
+                        -static_cast<float>(tex->height)
+                    });
 
-            rlImGuiImageRect(
-                tex,
-                static_cast<int>(minSize),
-                static_cast<int>(minSize),
-                Rectangle{ 0,0,
-                    static_cast<float>(tex->width),
-                    -static_cast<float>(tex->height)
-                });
+                rlImGuiImageRect(
+                    tex,
+                    static_cast<int>(minSize),
+                    static_cast<int>(minSize),
+                    Rectangle{ 0,0,
+                        static_cast<float>(tex->width),
+                        -static_cast<float>(tex->height)
+                    });
 
-            ImGui::SameLine();
-            rlImGuiImageRect(
-                tex,
-                static_cast<int>(minSize),
-                static_cast<int>(minSize),
-                Rectangle{ 0,0,
-                    static_cast<float>(tex->width),
-                    -static_cast<float>(tex->height)
-                });
+                ImGui::SameLine();
+                rlImGuiImageRect(
+                    tex,
+                    static_cast<int>(minSize),
+                    static_cast<int>(minSize),
+                    Rectangle{ 0,0,
+                        static_cast<float>(tex->width),
+                        -static_cast<float>(tex->height)
+                    });
+            }
         }
         
         ImGui::Separator();
@@ -104,82 +109,89 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
     return result;
 }
 
-Texture*& NoiseTextureResource::GetTex() const
-{
-    TextureResource* res = Tex.Get();
-    CHECK_ASSERT(!res, "Texture resource invalid");
-    return res->Ptr;
-}
-
 void NoiseTextureResource::Generate()
 {
     int res = Resolution;
     Color* data = new Color[res * res];
 
-    if (static_cast<int>(Type.Get()) >= static_cast<int>(NoiseType::COUNT))
+    if (static_cast<int>(Type.Get()) >= static_cast<int>(NoiseType::COUNT) ||
+        static_cast<int>(Type.Get()) < 0)
         Type = 0;
+
+    Generate(data, res);
     
-    switch (static_cast<NoiseType>(Type.Get()))
-    {
-    case NoiseType::PERLIN:
-    default:
-        GeneratePerlin(data, res);
-        break;
-    }
+    // Cache file
+    String filename = Tex.Identifier();
+    int channels = 4;
+    int result = stbi_write_png(filename.c_str(), res, res, channels, data, channels * res);
+    if (result == 1)
+        LOG("Noise texture saved: " + filename);
 
-    Image image = {
-        .data = data,
-        .width = res,
-        .height = res,
-        .mipmaps = 1,
-        .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8
-    };
-
-    auto& tex = GetTex();
-    if (tex)
-        UnloadTexture(*tex);
-    tex = new Texture();
-    *tex = LoadTextureFromImage(image);
-    UnloadImage(image);
+    // Hot reloading handles the tex
 }
 
-void NoiseTextureResource::GeneratePerlin(Color* InData, const int InResolution)
+// Map coord to torus, creating a 3D vector that wraps around
+static Vec3F TorusMapping(const Vec2F& InPos)
 {
-    static Utility::Timer timer;
-    auto& properties = Perlin.Get();
+    float c = 3.0f, a = 1.0f; // torus parameters (controlling size)
+    float xt = (c + a * cosf(2.0f * PI_FLOAT * InPos.y)) * cosf(2.0f * PI_FLOAT * InPos.x);
+    float yt = (c + a * cosf(2.0f * PI_FLOAT * InPos.y)) * sinf(2.0f * PI_FLOAT * InPos.x);
+    float zt = a * sinf(2.0f * PI_FLOAT * InPos.y);
+    return { xt, yt, zt };
+}
 
-    
-    std::function<void(Vec2F InPos)> noise = [&]()
+void NoiseTextureResource::Generate(Color* InData, const int InResolution)
+{
+    FastNoiseLite noise;
+    noise.SetNoiseType(static_cast<FastNoiseLite::NoiseType>(Type.Get()));
+    noise.SetFrequency(Frequency.Get());
+    noise.SetSeed(Seed.Get());
+
+    std::function get = [&](int InX, int InY)
     {
-        float c=4, a=1; // torus parameters (controlling size)
-        float xt = (c+a*cosf(2*PI_FLOAT*InPos.y))*cosf(2*PI_FLOAT*nx);
-        float yt = (c+a*cosf(2*PI_FLOAT*InPos.y))*sinf(2*PI_FLOAT*nx);
-        float zt = a*sinf(2*PI_FLOAT*ny);
-            
-        float p = stb_perlin_fbm_noise3(xt, yt, zt,
-            properties.Lacunarity,
-            properties.Gain,
-            properties.Octaves);
-            
+        Vec2F n = Vec2F(
+                static_cast<float>(InX),
+                static_cast<float>(InY)    
+            ) / static_cast<float>(InResolution);
+        Vec3F pos = TorusMapping(n);
+        float p = noise.GetNoise(pos.x, pos.y, pos.z);
         p = Utility::Math::Clamp(p, -1.0f, 1.0f);
         p = (p + 1.0f) / 2.0f;
+        return static_cast<uint8>(p * 255.0f);
     };
-    
-    for (int y = 0; y < InResolution; y++)
+
+    std::function for_every = [&](const std::function<void(int, int)>& InFunc)
     {
-        for (int x = 0; x < InResolution; x++)
-        {
-            // See raylib GenImagePerlinNoise()
-            float nx = static_cast<float>(x) * Scale.Get().x / InResolution;
-            float ny = static_cast<float>(y) * Scale.Get().y / InResolution;
+        for (int y = 0; y < InResolution; y++)
+            for (int x = 0; x < InResolution; x++)
+                InFunc(x, y);
+    };
 
-            nx += timer.Ellapsed();
-            ny += timer.Ellapsed();
-
-            
-
-            uint8 intensity = static_cast<uint8>(p * 255.0f);
-            InData[y * InResolution + x] = { .r = intensity, .g = intensity, .b = intensity, .a = 255};
-        }
+    switch (static_cast<NoiseType>(Type.Get()))
+    {
+    default:
+        for_every([&](int x, int y) {
+            const uint8 i = get(x, y); 
+            InData[y * InResolution + x] = Color(i, 0, 0, 255);
+        });
+        noise.SetSeed(Seed.Get() + 1);
+        for_every([&](int x, int y) {
+            InData[y * InResolution + x].g = get(x, y); 
+        });
+        noise.SetSeed(Seed.Get() + 2);
+        for_every([&](int x, int y) {
+            InData[y * InResolution + x].b = get(x, y);
+        });
+        break;
+    case NoiseType::CELLULAR:
+        for_every([&](const int x, const int y) {
+            const uint8 i = get(x, y); 
+            InData[y * InResolution + x] = Color(i, 0, 0, 255);
+        });
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_CellValue);
+        for_every([&](const int x, const int y) {
+            InData[y * InResolution + x].g = get(x, y);
+        });
+        break;
     }
 }
