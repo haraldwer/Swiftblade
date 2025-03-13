@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Action.h"
-#include "BaseConfig.h"
 
 namespace Input
 {

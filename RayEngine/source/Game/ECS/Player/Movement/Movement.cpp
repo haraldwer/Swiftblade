@@ -4,12 +4,12 @@
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "Engine/Editor/Debug/Draw.h"
+#include "Engine/Editor/Debug/Profiling/Profile.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Query.h"
-#include "Engine/Profiling/Profile.h"
-#include "Engine/Rendering/Debug/Draw.h"
 #include "MovementStateMachine.h"
-#include "ECS/Player/Animation/Animator.h"
+#include "Utility/Math/Geometry/Plane.h"
 
 void ECS::Movement::Init()
 {
@@ -211,8 +211,8 @@ void ECS::Movement::GroundSnap()
 
     if (debugDraw)
     {
-        Rendering::DebugCapsule(params.Start, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, RED); 
-        Rendering::DebugCapsule(params.End, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y, BLUE);
+        Engine::DebugCapsule(params.Start, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y); 
+        Engine::DebugCapsule(params.End, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y);
     }
 
     // Sweep
@@ -240,12 +240,11 @@ void ECS::Movement::GroundSnap()
                 rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
             
                 if (debugDraw)
-                    Rendering::DebugCapsule(
+                    Engine::DebugCapsule(
                         transform.GetPosition(),
                         params.Pose.GetRotation(),
                         params.ShapeData.x,
-                        params.ShapeData.y,
-                        GREEN);
+                        params.ShapeData.y);
                 break;
             } 
         }

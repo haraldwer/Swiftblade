@@ -3,7 +3,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 set_target_properties(${PROJECT_NAME} 
   PROPERTIES 
     CXX_STANDARD 20
-    UNITY_BUILD true
+    UNITY_BUILD false
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC 

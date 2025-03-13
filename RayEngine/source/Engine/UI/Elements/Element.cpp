@@ -3,6 +3,7 @@
 #include "Container.h"
 #include "Input/Manager.h"
 #include "Rendering/Manager.h"
+#include "raylib.h"
 
 void UI::Element::Init()
 {
@@ -141,5 +142,5 @@ void UI::Element::DrawRect(const Rect& InRect)
         static_cast<int>(pos.y + 0.5f),
         static_cast<int>(size.x + 0.5f),    
         static_cast<int>(size.y + 0.5f),
-        RED);
+        ::RED);
 }

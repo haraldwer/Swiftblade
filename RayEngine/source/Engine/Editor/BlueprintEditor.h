@@ -1,9 +1,7 @@
 #pragma once
 
-#include "EditorCamera.h"
-#include "Debugging/Window.h"
-#include "BaseConfig.h"
 #include "Blueprints/Blueprint.h"
+#include "Core/Debug/Window.h"
 #include "ECS/Manager.h"
 #include "Instance/Instance.h"
 

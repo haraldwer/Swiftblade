@@ -1,6 +1,6 @@
 ﻿#include "Label.h"
 
-#include "Utility/RayUtility.h"
+#include "Core/Utility/RayUtility.h"
 
 void UI::Label::Init()
 {

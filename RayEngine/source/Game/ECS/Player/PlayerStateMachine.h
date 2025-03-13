@@ -1,6 +1,5 @@
 #pragma once
-#include "BaseConfig.h"
-#include "Utility/StateMachine/StateMachine.h"
+#include "Core/StateMachine/StateMachine.h"
 
 class PlayerStateMachine : public StateMachine, public BaseConfig<PlayerStateMachine>
 {

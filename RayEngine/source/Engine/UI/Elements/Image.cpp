@@ -1,5 +1,7 @@
 ﻿#include "Image.h"
 
+#include "raylib.h"
+
 void UI::Image::Draw()
 {
     const Rect rect = GetRect();

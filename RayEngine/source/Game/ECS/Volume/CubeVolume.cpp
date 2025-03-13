@@ -3,7 +3,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
-#include "Utility/Math/Grid.h"
+#include "Utility/Math/Geometry/GridIntersection.h"
 
 void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
 {

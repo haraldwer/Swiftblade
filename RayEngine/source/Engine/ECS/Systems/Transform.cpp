@@ -1,10 +1,11 @@
 #include "Transform.h"
 
 #include "Collider.h"
+#include "raylib.h"
 #include "ECS/Manager.h"
-#include "Editor/Gizmo/ImGuizmo.h"
+#include "Editor/ImGuizmo_Wrapper.h"
+#include "ImGui/Gizmo/ImGuizmo.h"
 #include "Instance/Instance.h"
-#include "Editor/Gizmo/ImGuizmo_Wrapper.h"
 
 using namespace ECS;
 
@@ -190,9 +191,7 @@ void ECS::Transform::CustomSerialize(SerializeObj& InOutObj) const
 String ECS::Transform::ToString(Space InSpace) const
 {
     const Mat4F mat = InSpace == Space::WORLD ? World() : Local();
-    return "Position " + Utility::ToString(mat.GetPosition()) +
-        "\nRotation " + Utility::ToString(mat.GetRotation()) +
-        "\nScale " + Utility::ToString(mat.GetScale()); 
+    return Utility::ToStr(mat); 
 }
 
 bool SysTransform::Edit(const EntityID InID)

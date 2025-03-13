@@ -4,7 +4,7 @@
 #include <physx/PxSimulationEventCallback.h>
 
 #include "Contact.h"
-#include "Utility/PhysXUtility.h"
+#include "PhysXUtility.h"
 
 namespace Physics
 {

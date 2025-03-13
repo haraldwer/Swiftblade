@@ -31,6 +31,9 @@ set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 
 # Projects
 add_subdirectory(source/ImGui)
+add_subdirectory(source/Utility)
+add_subdirectory(source/Core)
+add_subdirectory(source/Rendering)
 add_subdirectory(source/Engine)
 add_subdirectory(source/Game)
 add_subdirectory(content)

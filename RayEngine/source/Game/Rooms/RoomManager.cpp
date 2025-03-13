@@ -3,10 +3,9 @@
 #include "ECS/RoomConnection.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Utility/Math/Random.hpp"
-#include "Engine/Utility/RandomWeightedCollection.h"
 #include "GameState.h"
 #include "RoomConfig.h"
+#include "Utility/Collections/RandomWeightedCollection.h"
 
 void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
 {

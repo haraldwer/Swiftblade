@@ -7,7 +7,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
 #include "Input/Action.h"
-#include "Rendering/Debug/Draw.h"
+#include "Engine/Editor/Debug/Draw.h"
 
 Utility::Type CombatStateStrike::Update()
 {
@@ -25,8 +25,8 @@ Utility::Type CombatStateStrike::Update()
     params.IgnoredEntities = { GetPlayerID() };
     params.IgnoredEntities.insert(weapon->GetID());
 
-    Rendering::DebugSphere(params.Start, SweepSize, MAGENTA);
-    Rendering::DebugSphere(params.End, SweepSize, MAGENTA);
+    Engine::DebugSphere(params.Start, SweepSize);
+    Engine::DebugSphere(params.End, SweepSize);
 
     const auto result = Physics::Query::Sweep(params);
     auto& enemySys = ECS::Manager::Get().GetSystem<SysEnemy>();

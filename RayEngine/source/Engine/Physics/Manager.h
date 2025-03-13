@@ -2,7 +2,7 @@
 
 #include "ECS/entity.h"
 #include "ECS/Manager.h"
-#include "Utility/Singelton.h"
+#include "Core/Utility/Singelton.h"
 
 namespace Physics
 {

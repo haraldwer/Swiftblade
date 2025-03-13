@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "ECS/Volume/Coord.h"
-#include "Engine/Utility/RandomWeightedCollection.h"
+#include "Utility/Collections/RandomWeightedCollection.h"
 #include "RoomGenBase.h"
 
 class RoomGenPath : public RoomGenBase

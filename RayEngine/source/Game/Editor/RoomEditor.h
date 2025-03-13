@@ -1,8 +1,7 @@
 ﻿#pragma once
 
-#include "Engine/BaseConfig.h"
 #include "Engine/ECS/Manager.h"
-#include "Engine/Editor/Debugging/Window.h"
+#include "Core/Debug/Window.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"

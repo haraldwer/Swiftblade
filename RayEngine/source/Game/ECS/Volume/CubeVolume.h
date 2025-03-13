@@ -3,7 +3,7 @@
 #include "Coord.h"
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
-#include "Engine/Rendering/Instances/MeshInstance.h"
+#include "Rendering/Instances/MeshInstance.h"
 
 namespace ECS
 {

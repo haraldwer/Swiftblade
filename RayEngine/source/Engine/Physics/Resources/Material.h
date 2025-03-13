@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Resource/Resource.h"
+#include "Core/Resource/Resource.h"
 
 namespace physx
 {

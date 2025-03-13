@@ -2,7 +2,7 @@
 
 #include <PxRigidDynamic.h>
 
-#include "Utility/PhysXUtility.h"
+#include "Physics/PhysXUtility.h"
 
 void ECS::Rigidbody::AddForce(const Vec3F& InForce) const
 {

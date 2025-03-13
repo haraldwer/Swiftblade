@@ -9,4 +9,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
 target_link_libraries(${PROJECT_NAME} 
     raylib
     ImGui
+    Rendering
+    Utility
+    Core
 )
