@@ -1,6 +1,7 @@
 ﻿#include "Font.h"
 
 #include "Utility/File/File.h"
+#include "raylib.h"
 
 bool FontResource::Load(const String& InIdentifier)
 {

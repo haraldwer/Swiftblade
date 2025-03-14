@@ -1,6 +1,5 @@
 #pragma once
 #include "Engine/Physics/Query.h"
-#include "Engine/Property/Property.h"
 #include "MovementState.h"
 
 class MovementStateVault : public MovementState<MovementStateVault>

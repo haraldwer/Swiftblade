@@ -6,8 +6,9 @@
 #include "ECS/Player/PlayerCamera.h"
 #include "ECS/Systems/Rigidbody.h"
 #include "ECS/Systems/Transform.h"
-#include "Engine/Profiling/Profile.h"
+#include "Engine/Editor/Debug/Profiling/Profile.h"
 #include "ImGui/imgui.h"
+#include "Instance/Instance.h"
 
 void ECS::Animator::Init()
 {

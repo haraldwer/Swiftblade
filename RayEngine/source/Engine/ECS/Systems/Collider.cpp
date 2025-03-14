@@ -1,10 +1,10 @@
 #include "Collider.h"
 
 #include "Transform.h"
+#include "Editor/Debug/Draw.h"
 #include "Instance/Manager.h"
 #include "Physics/CollisionShape.h"
 #include "Physics/Manager.h"
-#include "Rendering/Debug/Draw.h"
 
 void ECS::SysCollider::Init(EntityID InEntity, Collider& InComponent)
 {
@@ -26,20 +26,20 @@ void ECS::SysCollider::Update(EntityID InID, Collider& InComponent)
     auto& data = InComponent.ShapeData.Get();
     switch (static_cast<Physics::Shape>(InComponent.Shape.Get())) {
     case Physics::Shape::BOX:
-        Rendering::DebugBox(
+        Engine::DebugBox(
             t.GetPosition(),
             t.GetRotation(),
             Vec3F(data.x, data.y, data.z) * 2.0f);
         break;
     case Physics::Shape::CAPSULE:
-        Rendering::DebugCapsule(
+        Engine::DebugCapsule(
             t.GetPosition(),
             t.GetRotation(),
             data.x,
             data.y);
         break;
     case Physics::Shape::SPHERE:
-        Rendering::DebugSphere(
+        Engine::DebugSphere(
             t.GetPosition(),
             data.x);
         break;

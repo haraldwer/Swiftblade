@@ -1,5 +1,7 @@
 ﻿#include "RectImage.h"
 
+#include "raylib.h"
+
 void UI::RectImage::Draw()
 {
     const Rect rect = GetRect();
@@ -103,7 +105,7 @@ void UI::RectImage::Draw()
                     },
                     { 0.0f, 0.0f },
                     0.0f,
-                    WHITE);
+                    ::WHITE);
             }
         }
     }

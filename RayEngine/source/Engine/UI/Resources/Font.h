@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#include "Resource/Resource.h"
+#include "Core/Resource/Resource.h"
+
+struct Font;
 
 class FontResource
 {

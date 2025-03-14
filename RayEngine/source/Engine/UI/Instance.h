@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Elements/Container.h"
-#include "EventScopes.h"
 #include "Rendering\RenderEvents.h"
 
 namespace UI

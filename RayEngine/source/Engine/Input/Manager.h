@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Config.h"
-#include "Editor/Debugging/Window.h"
+#include "Core/Debug/Window.h"
 
 namespace Input
 {

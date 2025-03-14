@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Instance.h"
-#include "Utility/Singelton.h"
+#include "Core/Utility/Singelton.h"
 
 namespace Engine
 {

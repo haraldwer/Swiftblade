@@ -6,6 +6,7 @@
 #include "Engine/UI/Elements/List.h"
 #include "Engine/UI/Elements/RectImage.h"
 #include "GameInstance.h"
+#include "raylib.h"
 #include "ImGui/imgui.h"
 
 void RoomEditor::Init()

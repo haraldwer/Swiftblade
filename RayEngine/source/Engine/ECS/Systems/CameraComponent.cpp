@@ -1,8 +1,8 @@
 #include "CameraComponent.h"
 
 #include "Transform.h"
+#include "Editor/Debug/Draw.h"
 #include "Instance/Instance.h"
-#include "Rendering/Debug/Draw.h"
 
 using namespace ECS; 
 
@@ -22,5 +22,5 @@ void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent)
     s.SetCamera(c);
 
     if (i.IsEditor())
-        Rendering::DebugSphere(t.GetPosition());
+        Engine::DebugSphere(t.GetPosition());
 }

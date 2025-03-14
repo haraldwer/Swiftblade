@@ -6,7 +6,7 @@
 #include "System.h"
 #include "Systems/Attributes.h"
 #include "Systems/Transform.h"
-#include "Profiling/Profile.h"
+#include "Engine/Editor/Debug/Profiling/Profile.h"
 
 using namespace ECS; 
 

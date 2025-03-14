@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ECS/Player/PlayerInterface.h"
-#include "Utility/StateMachine/StateBase.h"
+#include "Core/StateMachine/StateBase.h"
 
 class PlayerStateBase : public ECS::PlayerInterface
 {

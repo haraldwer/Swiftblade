@@ -1,14 +1,15 @@
 
-#include "Engine/Editor/Debugging/Manager.h"
-#include "Engine/EventScopes.h"
-#include "Engine/Instance/Manager.h"
-#include "Engine/Profiling/Manager.h"
-#include "Engine/Profiling/Profile.h"
-#include "Engine/Rendering/Manager.h"
-#include "Engine/Resource/Manager.h"
+#include "raylib.h"
 
-#include "Engine/Utility/File/File.h"
+#include "Core/Debug/Manager.h"
+#include "Core/Resource/Manager.h"
+#include "Engine/Editor/Debug/Profiling/Manager.h"
+#include "Engine/Editor/Debug/Profiling/Profile.h"
+#include "Engine/Instance/Manager.h"
+#include "Rendering/Manager.h"
+
 #include "Game/MenuInstance.h"
+#include "Utility/File/File.h"
 
 int main()
 {

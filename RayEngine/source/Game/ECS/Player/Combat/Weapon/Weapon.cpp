@@ -1,8 +1,6 @@
 ﻿#include "Weapon.h"
 
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Rendering/Debug/Draw.h"
-#include "Utility/Time/Time.h"
 
 void ECS::Weapon::Init()
 {

@@ -7,8 +7,8 @@
 
 #include "Manager.h"
 #include "QueryFilter.h"
-#include "Rendering/Debug/Draw.h"
-#include "Utility/PhysXUtility.h"
+#include "Editor/Debug/Draw.h"
+#include "PhysXUtility.h"
 
 Physics::QueryResult::Hit Physics::QueryResult::ClosestHit() const
 {
