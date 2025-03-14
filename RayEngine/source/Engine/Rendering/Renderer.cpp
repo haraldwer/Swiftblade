@@ -5,21 +5,21 @@
 #include "Utility/RayUtility.h"
 #include "rlgl.h"
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
+void Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
         rlSetUniform(loc, InValue, InType, 1);
 }
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
+void Renderer::SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
         rlSetUniformMatrix(loc, InValue);
 }
 
-void Rendering::Renderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID) const
+void Renderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
@@ -37,13 +37,41 @@ void Rendering::Renderer::SetShaderValues(ShaderResource& InShader, const Render
     SetValue(InShader, "WorldToScreen", Utility::Ray::ConvertMat(PendingMVP));
     SetValue(InShader, "WorldToPrevScreen", Utility::Ray::ConvertMat(PreviousMVP));
     SetValue(InShader, "ScreenToWorld", Utility::Ray::ConvertMat(Mat4F::GetInverse(PendingMVP)));
+
+    SetNoiseTextures(InShader);
 }
 
-void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader) const
+void Renderer::SetCustomShaderValues(ShaderResource& InShader) const
 {
 }
 
-Map<uint64, int> Rendering::Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
+void Renderer::SetNoiseTextures(ShaderResource& InShader) const
+{
+    auto c = Rendering::Manager::Get().GetConfig();
+    for (auto& entry : c.NoiseTextures.Get())
+    {
+        auto noiseRes = entry.second.Get();
+        CHECK_CONTINUE(!noiseRes);
+        auto texRes = noiseRes->Get().Get();
+        CHECK_CONTINUE(!texRes);
+        auto tex = texRes->Get();
+        CHECK_CONTINUE(!tex);
+
+        // Bind texture to slot!
+        int loc = InShader.GetLocation(entry.first);
+        CHECK_CONTINUE(loc < 0);
+        
+        rlTextureParameters(tex->id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_LINEAR);
+        rlTextureParameters(tex->id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_LINEAR);
+        
+        rlActiveTextureSlot(loc);
+        rlEnableTexture(tex->id);
+        rlSetUniform(loc, &loc, RL_SHADER_UNIFORM_SAMPLER2D, 1);
+        rlActiveTextureSlot(0);
+    }
+}
+
+Map<uint64, int> Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
 {
     PROFILE_SCOPE_BEGIN("DrawEntries")
 
@@ -119,7 +147,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderScene& InScene, Rend
     return count;
 }
 
-int Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget,
+int Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget,
                                            const Vector<RenderTarget*>& InBuffers) const
 {
     PROFILE_SCOPE_BEGIN("DrawDeferredScene")
@@ -154,7 +182,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderScene& InScene, const Ren
     return static_cast<uint32>(InScene.Meshes.DeferredShaders.size());
 }
 
-void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const
+void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const
 {
     PROFILE_SCOPE_BEGIN("DrawPostProcessing")
 
@@ -187,7 +215,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderScene& InScene, const Rende
     PROFILE_SCOPE_END()
 }
 
-int Rendering::Renderer::DrawDebug(const RenderScene& InScene)
+int Renderer::DrawDebug(const RenderScene& InScene)
 {
     PROFILE_SCOPE_BEGIN("DrawDebug")
 
@@ -241,7 +269,7 @@ int Rendering::Renderer::DrawDebug(const RenderScene& InScene)
     return static_cast<int>(InScene.DebugShapes.size() + InScene.DebugLines.size());
 }
 
-void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
+void Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
 {
     BeginTextureMode(InTarget);
     

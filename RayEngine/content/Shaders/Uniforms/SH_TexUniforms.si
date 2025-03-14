@@ -1,9 +1,22 @@
 
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+
 uniform sampler2D TexPosition;
-uniform sampler2D TexNormal;
+uniform sampler2D TexNormal; // xyz - Normal, a - DeferredID
 uniform sampler2D TexColor;
 uniform sampler2D TexVelocity;
-uniform sampler2D TexDeferredData;
 
 uniform sampler2D TexAO;
 uniform sampler2D TexFrame;
+
+vec4 SampleWorldPos(vec2 InCoord)
+{
+    vec4 pos = texture(TexPosition, InCoord);
+    pos.xyz += CameraPosition;
+    return pos;
+}
+
+vec3 SampleNormal(vec2 InCoord)
+{
+    return texture(TexNormal, InCoord).xyz;
+}

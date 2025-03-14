@@ -21,8 +21,8 @@ float DistanceFade(float InCameraDistance)
 
 float SurfaceFade()
 {
-    vec3 worldPosition = texture(TexPosition, TexCoord.xy).rgb;
-    vec3 worldNormal = texture(TexNormal, TexCoord.xy).xyz;
+    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
+    vec3 worldNormal = SampleNormal(TexCoord);
     
     // Camera distance and dot
     vec3 cameraDifference = CameraPosition - worldPosition;
@@ -37,8 +37,7 @@ float SurfaceFade()
 
 void Default()
 {
-    vec4 deferredData = texture(TexDeferredData, TexCoord);
-    if (CheckID(deferredData.r, DeferredID))
+    if (CheckID(TexCoord, DeferredID))
         discard;
     
     // Sample textures

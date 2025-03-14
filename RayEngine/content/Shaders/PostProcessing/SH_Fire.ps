@@ -4,7 +4,7 @@
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 #include "Shaders/Utility/SH_DeferredID.si"
 #include "Shaders/Utility/SH_Utility.si"
-#include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_Noise.si"
 
 uniform sampler2D TexFire;
 
@@ -22,20 +22,23 @@ void main()
     // Deferred G -> Original lifetime?? Effect type??
     // Grow fire
 
-    vec4 worldPosition = texture(TexPosition, TexCoord);
-    vec4 deferredData = texture(TexDeferredData, TexCoord);
-    
+    vec4 worldPosition = SampleWorldPos(TexCoord);
+    vec3 normal = SampleNormal(TexCoord);
+    float lifetime = 1.0f - texture(TexVelocity, TexCoord).a;
+
+    Output.rgb = vec3(lifetime);
+    Output.a = lifetime;
+    return;
+
     // Assume camera distance? 
     vec3 cameraDiff = worldPosition.xyz - CameraPosition;
     vec3 cameraDir = cameraDiff / length(cameraDiff);
     vec3 setDist = CameraPosition + cameraDir * 2.0f;
     
     vec4 fire = vec4(0.0);
-    float lifetime = deferredData.g;
     
     // Velocity sample
-        
-    vec3 velocity = Voronoi(TexCoord, Time) * VEL_SCALE + vec3(0.0, VEL_UP_SPEED, 0.0);
+    vec3 velocity = Simplex(vec3(TexCoord, Time), normal) * VEL_SCALE + vec3(0.0, VEL_UP_SPEED, 0.0);
     vec2 prevCoord = GetPrevCoord(setDist + velocity * Delta);
     vec2 velPart = (prevCoord - TexCoord) / VEL_SAMPLES;
     for (int i = 0; i < VEL_SAMPLES; i++)
@@ -53,9 +56,6 @@ void main()
     lifetime -= Delta * length(velocity) * SPEED_LIFETIME_DECREASE;
     lifetime = clamp(lifetime, 0.0, 1.0); 
     
-    if (lifetime < 0.05f)
-        discard;
-    
-    Output.rgb = vec3(0.5f);
+    Output.rgb = vec3(lifetime);
     Output.a = lifetime;
 }

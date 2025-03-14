@@ -30,12 +30,12 @@ const float MAX_DELTA = 0.033;
 
 vec3 SSAOPosition(vec2 uv)
 {
-     return texture(TexPosition, uv).xyz;
+     return SampleWorldPos(uv).xyz;
 }
 
 vec3 SSAONormal(vec2 uv)
 {
-     return texture(TexNormal, uv).xyz;
+     return SampleNormal(uv);
 }
 
 float SSAODepthSqr(vec3 InPos)
@@ -124,7 +124,7 @@ void main()
      
      #ifdef SSAO
      
-     vec4 currPos = texture(TexPosition, TexCoord);
+     vec4 currPos = SampleWorldPos(TexCoord);
      float currDepth = currPos.w;
      float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
      if (fade < 0.01)
@@ -138,7 +138,7 @@ void main()
      if (prevCoord.x < 1.0 && prevCoord.x > 0.0 &&
           prevCoord.y < 1.0 && prevCoord.y > 0.0)
      {
-          vec4 prevPos = texture(TexPosition, prevCoord);
+          vec4 prevPos = SampleWorldPos(prevCoord);
           if (prevPos.w - currDepth < DEPTH_THRESHOLD)
           {
                float diff = SquaredLength(currPos.xyz - prevPos.xyz);

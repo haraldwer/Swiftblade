@@ -1,13 +1,16 @@
 ﻿
-const int ID_PRECISION = 1000000;
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+
+const int ID_PRECISION = 255;
 
 float DeferredIDToTexID(int InDeferredID)
 {
     return float(InDeferredID % ID_PRECISION) / ID_PRECISION;
 }
 
-bool CheckID(float InTexID, int InDeferredID)
+bool CheckID(vec2 InCoord, int InDeferredID)
 {
+    float TexID = texture(TexNormal, InCoord).a;
     float ID = DeferredIDToTexID(InDeferredID);
-    return abs(InTexID - ID) > (1.0 / ID_PRECISION) / 2.0;
+    return abs(TexID - ID) > (1.0 / ID_PRECISION) / 2.0;
 }

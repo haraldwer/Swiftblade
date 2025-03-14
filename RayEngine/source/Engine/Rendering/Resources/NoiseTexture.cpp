@@ -32,13 +32,13 @@ ResTexture NoiseTextureResource::Get() const
 bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
 {
     ImGui::SameLine();
-    if (ImGui::Button("Edit"))
+    if (Utility::Button("Edit##" + InName, InOffset))
         EditorOpen = !EditorOpen;
     if (!EditorOpen)
         return false;
     
     bool result = false;
-    if (ImGui::Begin("Noise Generator"))
+    if (ImGui::Begin((String("Noise Generator##") + InName).c_str()))
     {
         if (TextureResource* res = Tex.Get())
         {

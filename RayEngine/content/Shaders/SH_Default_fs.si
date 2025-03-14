@@ -11,9 +11,9 @@ in vec3 VertexPosition;
 
 void Default()
 {
-    OutPosition = WorldPosition;
-    OutVelocity = vec3(0.0);
-    OutNormal = WorldNormal;
-    OutColor = vec4(1.0);
-    OutDeferredData = vec4(DeferredIDToTexID(DeferredID), 0.0, 0.0, 1.0);
+    OutPosition = WorldPosToTex(WorldPosition);
+    OutNormal.xyz = WorldNormal;
+    OutNormal.a = DeferredIDToTexID(DeferredID);
+    OutVelocity = vec4(vec3(0.0f), 1.0f);
+    OutColor = vec4(1.0f);
 }
