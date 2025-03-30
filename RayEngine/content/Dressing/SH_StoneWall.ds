@@ -12,12 +12,13 @@ void main()
     float yTileScale = 1.3;
     float bigNoiseScale = 0.1;
 
-    vec3 worldPosition = texture(TexPosition, TexCoord.xy).rgb;
-    float noise = abs(SimplexNoise3D(worldPosition * noiseScale));
+    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
+    vec3 normal = SampleNormal(TexCoord);
+    float noise = abs(Simplex(worldPosition * noiseScale, normal));
     noise = pow(noise, 0.5);
-    float yStep = worldPosition.y + SimplexNoise3D(worldPosition * yStepNoiseScale) * yStepScale;
+    float yStep = worldPosition.y + Simplex(worldPosition * yStepNoiseScale, normal) * yStepScale;
     noise *= abs(cos(yStep * yTileScale));
-    float bigNoise = SimplexNoise3D(worldPosition * bigNoiseScale);
+    float bigNoise = Simplex(worldPosition * bigNoiseScale, normal);
     noise *= bigNoise * step(0.2, bigNoise);
     noise *= step(0.1, noise); 
     Output.rgb *= vec3(0.6 + noise * 0.5);

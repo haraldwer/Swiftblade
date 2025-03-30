@@ -1,6 +1,0 @@
-
-uniform sampler2D TexPositionPrev;
-uniform sampler2D TexNormalPrev;
-uniform sampler2D TexColorPrev;
-uniform sampler2D TexVelocityPrev;
-uniform sampler2D TexDeferredDataPrev;

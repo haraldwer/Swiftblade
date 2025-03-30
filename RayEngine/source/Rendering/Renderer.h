@@ -24,6 +24,7 @@ namespace Rendering
 
         void SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID) const;
         void SetCustomShaderValues(ShaderResource& InShader) const;
+        void SetNoiseTextures(ShaderResource& InShader) const;
         
         Mat4F PreviousMVP = { };
         Mat4F PendingMVP = { };

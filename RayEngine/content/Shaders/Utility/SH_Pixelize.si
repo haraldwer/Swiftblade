@@ -3,6 +3,7 @@
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 
 #include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_Noise.si"
 
 // Convert screen coordinate to pixel position
 // Sample pixel position
@@ -17,7 +18,7 @@ const float PIXEL_DEPTH_NOISE_SCALE = 0.8f;
 
 float CalculatePixelSize(vec4 InWorldPos)
 {
-    float depthOffset = SimplexNoise3D(InWorldPos.xyz * PIXEL_DEPTH_NOISE_SCALE);
+    float depthOffset = CalcSimplex(InWorldPos.xyz * PIXEL_DEPTH_NOISE_SCALE);
     float depth = InWorldPos.w;
     depth += depthOffset * PIXEL_DEPTH_OFFSET_SCALE;
     depth = max(depth, 0.001);
@@ -27,7 +28,7 @@ float CalculatePixelSize(vec4 InWorldPos)
 
 vec3 PixelizeTexCoord()
 {
-    vec4 originalWorldPosition = texture(TexPosition, TexCoord);
+    vec4 originalWorldPosition = SampleWorldPos(TexCoord);
     vec2 pixelSize = vec2(CalculatePixelSize(originalWorldPosition));
     float aspect = Resolution.x / Resolution.y;
     pixelSize.x *= aspect;
@@ -54,7 +55,7 @@ vec3 PixelizeTexCoord()
     for (int i = 0; i < steps; i++)
     {
         vec2 coord = pixelCoord + (stepSize * i);
-        vec3 pos = texture(TexPosition, coord).xyz;
+        vec3 pos = SampleWorldPos(coord).xyz;
         vec3 dist = pos - originalWorldPosition.xyz;
         if (abs(dist.x) < PIXEL_MAX_DIST ||
         abs(dist.y) < PIXEL_MAX_DIST ||

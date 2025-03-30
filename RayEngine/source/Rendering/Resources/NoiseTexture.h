@@ -17,19 +17,6 @@ enum class NoiseType : uint8
     COUNT
 };
 
-struct PerlinProperties : PropertyOwner<PerlinProperties>
-{
-    PROPERTY_D(float, Lacunarity, 2.0f);
-    PROPERTY_D(float, Gain, 0.5f);
-    PROPERTY_D(int, Octaves, 6);
-    PROPERTY_D(bool, Turbulence, false);
-};
-
-struct VoronoiProperties : PropertyOwner<VoronoiProperties>
-{
-    PROPERTY_D(int, Points, 10);
-};
-
 class NoiseTextureResource : public PropertyOwner<NoiseTextureResource>
 {
 public:

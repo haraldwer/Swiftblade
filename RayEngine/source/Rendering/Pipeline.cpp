@@ -19,20 +19,19 @@ void Rendering::Pipeline::Setup(const RenderTexture& InVirtualTarget)
 {
     if (SceneTarget.TryBeginSetup(InVirtualTarget))
     {
-        SceneTarget.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
-        SceneTarget.CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        SceneTarget.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        SceneTarget.CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
         SceneTarget.CreateBuffer("TexColor", PIXELFORMAT_UNCOMPRESSED_R4G4B4A4);
-        SceneTarget.CreateBuffer("TexVelocity", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
-        SceneTarget.CreateBuffer("TexDeferredData", PIXELFORMAT_UNCOMPRESSED_R32G32B32);
+        SceneTarget.CreateBuffer("TexVelocity", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
         SceneTarget.EndSetup(InVirtualTarget);
     }
 
     for (auto& target : SSAOTargets.All())
         target.Setup(InVirtualTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     for (auto& target : FireTargets.All())
-        target.Setup(InVirtualTarget, "TexFire", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-    FrameTarget.Setup(InVirtualTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-    QuantizeTarget.Setup(InVirtualTarget, "TexQuantize", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        target.Setup(InVirtualTarget, "TexFire", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+    FrameTarget.Setup(InVirtualTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+    QuantizeTarget.Setup(InVirtualTarget, "TexQuantize", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
 }
 
 void Rendering::Pipeline::Render(const RenderScene& InScene, const RenderTexture& InVirtualTarget)

@@ -77,7 +77,8 @@ Shader* ShaderResource::Get() const
     if (Identifier.ends_with(".ds"))
     {
         if (const auto defaultShader = ResShader("Shaders/SH_Default.ds").Get())
-            return defaultShader->Get();
+            if (defaultShader != this)
+                return defaultShader->Get();
     }
     else if (Identifier.ends_with(".ps"))
     {
@@ -86,7 +87,8 @@ Shader* ShaderResource::Get() const
     else
     {
         if (const auto defaultShader = ResShader("Shaders/SH_Default").Get())
-            return defaultShader->Get();
+            if (defaultShader != this)
+                return defaultShader->Get();
     }
     return nullptr; 
 }
