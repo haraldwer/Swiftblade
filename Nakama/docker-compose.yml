@@ -1,4 +1,9 @@
 version: '3'
+deploy:
+  resources:
+    limits:
+      cpus: '.5'
+      memory: 400m
 services:
   cockroachdb:
     image: cockroachdb/cockroach:latest-v23.1
@@ -18,13 +23,13 @@ services:
       timeout: 3s
       retries: 5
   nakama:
-    image: registry.heroiclabs.com/heroiclabs/nakama:3.24.2
+    image: registry.heroiclabs.com/heroiclabs/nakama:3.26.0
     entrypoint:
       - "/bin/sh"
       - "-ecx"
       - >
           /nakama/nakama migrate up --database.address root@cockroachdb:26257 &&
-          exec /nakama/nakama --name nakama --database.address root@cockroachdb:26257 --logger.level DEBUG --session.token_expiry_sec 7200 --metrics.prometheus_port 9100          
+          /nakama/nakama --config /nakama/data/local.yml
     restart: "no"
     links:
       - "cockroachdb:db"
