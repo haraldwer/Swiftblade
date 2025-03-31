@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
 #include "Instance/Instance.h"
-#include "Rendering/Instances/MeshInstance.h"
+#include "Rendering/Scene/Instances/MeshInstance.h"
 #include "Transform.h"
 
 using namespace ECS;

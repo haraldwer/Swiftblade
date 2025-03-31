@@ -1,15 +1,8 @@
-#include "RenderScene.h"
+#include "Scene.h"
 
 using namespace Rendering;
 
-void RenderScene::BeginFrame()
-{
-    double newTime = Utility::Time::Get().Total();
-    Delta = newTime - Time; 
-    Time = newTime;
-}
-
-void RenderScene::Clear()
+void Scene::Clear()
 {
     Cam = {};
     Meshes = {};
@@ -17,7 +10,7 @@ void RenderScene::Clear()
     DebugLines = {};
 }
 
-uint32 RenderScene::Count() const
+uint32 Scene::Count() const
 {
     uint32 c = 0;
     for (auto& e : Meshes.Entries)
@@ -79,13 +72,13 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     return entry;
 }
 
-void RenderScene::SetCamera(const CameraInstance& InCamera)
+void Scene::SetCamera(const CameraInstance& InCamera)
 {
     Cam = InCamera;
     Frustum.ConstructFrustum(InCamera);
 }
 
-void RenderScene::AddMesh(const MeshInstance& InMesh)
+void Scene::AddMesh(const MeshInstance& InMesh)
 {
     const Vec3F scale = InMesh.Transform.GetScale();
     const float maxScale = Utility::Math::Max(Utility::Math::Max(scale.x, scale.y), scale.z);
@@ -93,7 +86,7 @@ void RenderScene::AddMesh(const MeshInstance& InMesh)
         Meshes.AddMesh(InMesh);
 }
 
-void RenderScene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd)
+void Scene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd)
 {
     if (InBoxStart != Vec3F::Zero() || InBoxEnd != Vec3F::Zero())
     {
@@ -105,13 +98,13 @@ void RenderScene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InT
     Meshes.AddMeshes(InMesh, InTransforms);
 }
 
-void RenderScene::AddDebugShape(const DebugShape& InShape)
+void Scene::AddDebugShape(const DebugShape& InShape)
 {
     if (Frustum.CheckPoint(InShape.Pos))
         DebugShapes.push_back(InShape);
 }
 
-void RenderScene::AddDebugLine(const DebugLine& InLine)
+void Scene::AddDebugLine(const DebugLine& InLine)
 {
     const Vec3F diff = InLine.End - InLine.Start; 
     if (Frustum.CheckCube(InLine.Start + diff * 0.5f, diff.Length()))

@@ -1,6 +1,7 @@
 #include "Frustum.h"
 
-#include "Rendering/Manager.h"
+#include "Engine/Rendering/Manager.h"
+#include "Scene/Instances/CameraInstance.h"
 
 void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InView, float InFar, Vec3F InPos)
 {
@@ -28,6 +29,10 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 void Rendering::Frustum::ConstructFrustum(const CameraInstance& InCam)
 {
 	Mat4F view = InCam.GetViewMatrix();
-	Mat4F proj = InCam.GetProjectionMatrix(Manager::Get().GetViewportSize());
+	auto s = Manager::Get().MainViewport.GetSize();
+	Mat4F proj = InCam.GetProjectionMatrix({
+		static_cast<float>(s.x),
+		static_cast<float>(s.y)
+	});
 	ConstructFrustum(proj, view, InCam.Far, InCam.Position);
 }

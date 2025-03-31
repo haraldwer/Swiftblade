@@ -5,7 +5,7 @@
 #include "Utility/File/File.h"
 #include "raylib.h"
 #include "rlgl.h"
-#include "Rendering/Manager.h"
+#include "Engine/Rendering/Manager.h"
 
 bool ShaderResource::Load(const String& InIdentifier)
 {
@@ -59,7 +59,7 @@ bool ShaderResource::Unload()
 
 Utility::Timepoint ShaderResource::GetEditTime() const
 {
-    if (Defines != Rendering::Manager::Get().GetConfig().GlobalDefines.Get())
+    if (Defines != Rendering::Manager::Get().GetConfig().Context.Get().GlobalDefines.Get())
         return std::chrono::high_resolution_clock::now();
     
     Utility::Timepoint max = Utility::Timepoint::min(); 
@@ -180,12 +180,12 @@ String ShaderResource::ProcessDefines(const String& InShaderCode)
     
     String result = InShaderCode;
     auto c = Rendering::Manager::Get().GetConfig();
-    Defines = c.GlobalDefines;
+    Defines = c.Context.Get().GlobalDefines;
 
     // Offset for #version
     auto verStart = result.find_first_of("#version");
     auto verEnd = result.find_first_of('\n', verStart);
-    for (auto& def : c.GlobalDefines.Get())
+    for (auto& def : c.Context.Get().GlobalDefines.Get())
         if (!def.empty())
             result.insert(verEnd + 1, "\n#define " + def + "\n");
 

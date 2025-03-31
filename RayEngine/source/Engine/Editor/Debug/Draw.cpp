@@ -1,7 +1,7 @@
 ﻿#include "Draw.h"
 
 #include "Engine/Instance/Instance.h"
-#include "Rendering/DebugShape.h"
+#include "Rendering/Scene/Instances/DebugShape.h"
 
 void Engine::DebugLine(const Vec3F& InStart, const Vec3F& InEnd, Rendering::Color InColor)
 {

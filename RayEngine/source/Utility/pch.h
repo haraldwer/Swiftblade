@@ -101,6 +101,7 @@ using Object = Utility::Object<T>;
 #include "Utility/Math/Matrix/Matrix.hpp"
 #include "Utility/Math/Quaternion.hpp"
 typedef Utility::Math::Vector2<float> Vec2F;
+typedef Utility::Math::Vector2<int> Vec2I;
 typedef Utility::Math::Vector3<float> Vec3F;
 typedef Utility::Math::Vector3<int> Vec3I;
 typedef Utility::Math::Vector4<float> Vec4F;

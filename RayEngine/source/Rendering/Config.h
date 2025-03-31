@@ -1,21 +1,16 @@
 #pragma once
-
-#include "Resources/NoiseTexture.h"
+#include "Context/ContextConfig.h"
+#include "Window/WindowConfig.h"
+#include "Viewport/ViewportConfig.h"
 
 namespace Rendering
 {
     struct Config : BaseConfig<Config>
     {
-        PROPERTY_D(int, Width, 1600);
-        PROPERTY_D(int, Height, 900);
-        PROPERTY_D(int, RenderSize, 0);
-        PROPERTY_D(int, TargetFPS, 300);
-        PROPERTY_D(bool, Fullscreen, false);
-        PROPERTY_D(bool, VSync, false);
-        PROPERTY_D(bool, MSAA, false);
-        PROPERTY(Vector<String>, GlobalDefines);
-        PROPERTY(StringMap<ResNoiseTex>, NoiseTextures);
+        PROPERTY(WindowConfig, Window);
+        PROPERTY(ViewportConfig, Viewport);
+        PROPERTY(ContextConfig, Context);
 
-        String Name() const override { return "Rendering"; };
+        String Name() const override { return "Rendering"; }
     };
 }

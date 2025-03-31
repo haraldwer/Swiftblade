@@ -68,16 +68,14 @@ int main()
             PROFILE_SCOPE_END();
         }
 
-        if (renderer.ShouldClose())
+        if (renderer.Window.ShouldClose())
             break;
 
         PROFILE_SCOPE_BEGIN("Rendering");
 
         // Render to target texture
         PROFILE_SCOPE_BEGIN("Virtual frame");
-        renderer.BeginVirtualFrame();
         instance->Frame();
-        renderer.EndVirtualFrame();
         PROFILE_SCOPE_END();
 
         // Render to screen

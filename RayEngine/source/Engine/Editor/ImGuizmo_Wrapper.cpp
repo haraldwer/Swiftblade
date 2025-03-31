@@ -3,7 +3,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/Gizmo/ImGuizmo.h"
 #include "Instance/Instance.h"
-#include "Rendering/Instances/CameraInstance.h"
+#include "Rendering/Scene/Instances/CameraInstance.h"
 #include "Core/Utility/RayUtility.h"
 #include "raylib.h"
 #include <rcamera.h>

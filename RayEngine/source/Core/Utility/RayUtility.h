@@ -2,7 +2,7 @@
 
 #include "raylib.h"
 
-#include "Rendering/Instances/CameraInstance.h"
+#include "Rendering/Scene/Instances/CameraInstance.h"
 
 namespace Utility
 {

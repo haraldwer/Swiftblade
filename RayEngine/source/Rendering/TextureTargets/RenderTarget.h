@@ -6,13 +6,13 @@ struct Texture;
 
 class RenderTarget
 {
+public:
+    
     struct Buffer
     {
         Texture* Tex = {};
         String Name; 
     };
-    
-public:
     
     bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat);
     

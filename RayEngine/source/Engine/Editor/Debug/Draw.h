@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Rendering/DebugShape.h"
+#include "Rendering/Scene/Instances/DebugShape.h"
 
 namespace Engine
 {

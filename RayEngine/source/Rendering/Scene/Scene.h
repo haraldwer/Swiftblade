@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Culling/Frustum.h"
-#include "DebugShape.h"
 #include "Instances/CameraInstance.h"
+#include "Instances/DebugShape.h"
 #include "Instances/MeshInstance.h"
 
 namespace Rendering
@@ -26,7 +26,7 @@ namespace Rendering
         Entry& GetEntry(const MeshInstance& InInstance);
     };
     
-    class RenderScene
+    class Scene
     {
         friend class Renderer; 
     public:
@@ -38,7 +38,6 @@ namespace Rendering
         void AddDebugShape(const DebugShape& InShape);
         void AddDebugLine(const DebugLine& InLine);
 
-        void BeginFrame();
         void Clear();
         uint32 Count() const;
 
@@ -48,9 +47,6 @@ namespace Rendering
         Vector<DebugShape> DebugShapes;
         Vector<DebugLine> DebugLines;
         Frustum Frustum;
-
-        double Delta = 0.0f;
-        double Time = 0.0f;
     };
 }
 

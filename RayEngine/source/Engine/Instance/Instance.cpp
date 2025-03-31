@@ -10,7 +10,7 @@ void Engine::Instance::Init()
 void Engine::Instance::Deinit()
 {
     EditorCamera.Deinit(); 
-    RenderScene = Rendering::RenderScene();
+    RenderScene = Rendering::Scene();
     Menus.Clear();
 }
 
@@ -25,11 +25,22 @@ void Engine::Instance::Logic(double InDelta)
 void Engine::Instance::Frame()
 {
     Input.Frame();
-    Rendering::Manager::Get().SubmitScene(RenderScene);
+
+    auto& man = Rendering::Manager::Get();
+    man.MainViewport.BeginFrame();
+
+    Rendering::RenderArgs args {
+        .Scene= &RenderScene,
+        .Viewport= &man.MainViewport,
+        .Context= &man.DefaultContext
+    };
+    auto stats = man.DefaultPipeline.Render(args);
+    man.FrameViewer.SetStats(stats);
     Menus.Draw();
+    man.MainViewport.EndFrame();
 }
 
-Rendering::RenderScene& Engine::Instance::GetRenderScene()
+Rendering::Scene& Engine::Instance::GetRenderScene()
 {
     return RenderScene;
 }

@@ -4,7 +4,7 @@
 #include "Engine/ECS/Entity.h"
 #include "Engine/ECS/Manager.h"
 #include "Instance/Instance.h"
-#include "Rendering/Instances/CameraInstance.h"
+#include "Rendering/Scene/Instances/CameraInstance.h"
 #include "RoomSubEditorManager.h"
 
 void RoomSubEditor::SetOwner(RoomSubEditorManager* InOwner)

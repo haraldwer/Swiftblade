@@ -3,51 +3,59 @@
 #include "RayRenderUtility.h"
 #include "Core/Utility/RayUtility.h"
 #include "rlgl.h"
+#include "Context/Context.h"
+#include "Scene/Scene.h"
+#include "Viewport/Viewport.h"
 
-void Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
         rlSetUniform(loc, InValue, InType, 1);
 }
 
-void Renderer::SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
         rlSetUniformMatrix(loc, InValue);
 }
 
-void Renderer::SetShaderValues(ShaderResource& InShader, const RenderScene& InScene, const RenderTarget& InSceneTarget, uint32 InDeferredID) const
+void Rendering::Renderer::SetShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget, uint32 InDeferredID)
 {
+    auto& scene = *InArgs.Scene;
+    auto& viewport = *InArgs.Viewport;
+    auto& context = *InArgs.Context;
+    
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    SetValue(InShader, "CameraPosition", &InScene.Cam.Position.data[0], SHADER_UNIFORM_VEC3);
-    Vec2F nearFar = { InScene.Cam.Near, InScene.Cam.Far };
+    SetValue(InShader, "CameraPosition", &scene.Cam.Position.data[0], SHADER_UNIFORM_VEC3);
+    Vec2F nearFar = { scene.Cam.Near, scene.Cam.Far };
     SetValue(InShader, "NearFar", &nearFar.data[0], SHADER_UNIFORM_VEC2);
-    const float time = static_cast<float>(InScene.Time); 
+    const float time = static_cast<float>(context.Timer.Ellapsed()); 
     SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
-    const float delta = static_cast<float>(InScene.Delta); 
+    const float delta = static_cast<float>(viewport.Delta); 
     SetValue(InShader, "Delta", &delta, SHADER_UNIFORM_FLOAT);
     SetValue(InShader, "Resolution", &InSceneTarget.Size().data[0], SHADER_UNIFORM_VEC2);
     const int id = static_cast<int32>(InDeferredID);
     SetValue(InShader, "DeferredID", &id, SHADER_UNIFORM_INT);
-    SetValue(InShader, "WorldToScreen", Utility::Ray::ConvertMat(PendingMVP));
-    SetValue(InShader, "WorldToPrevScreen", Utility::Ray::ConvertMat(PreviousMVP));
-    SetValue(InShader, "ScreenToWorld", Utility::Ray::ConvertMat(Mat4F::GetInverse(PendingMVP)));
+    SetValue(InShader, "WorldToScreen", Utility::Ray::ConvertMat(viewport.PendingMVP));
+    SetValue(InShader, "WorldToPrevScreen", Utility::Ray::ConvertMat(viewport.PreviousMVP));
+    SetValue(InShader, "ScreenToWorld", Utility::Ray::ConvertMat(Mat4F::GetInverse(viewport.PendingMVP)));
 
-    SetNoiseTextures(InShader);
+    SetNoiseTextures(InArgs, InShader);
 }
 
-void Renderer::SetCustomShaderValues(ShaderResource& InShader) const
+void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
 {
+    // TODO
 }
 
-void Renderer::SetNoiseTextures(ShaderResource& InShader) const
+void Rendering::Renderer::SetNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader)
 {
-    auto c = Rendering::Manager::Get().GetConfig();
-    for (auto& entry : c.NoiseTextures.Get())
+    auto& config = InArgs.Context->Config;
+    for (auto& entry : config.NoiseTextures.Get())
     {
         auto noiseRes = entry.second.Get();
         CHECK_CONTINUE(!noiseRes);
@@ -70,21 +78,23 @@ void Renderer::SetNoiseTextures(ShaderResource& InShader) const
     }
 }
 
-Map<uint64, int> Renderer::DrawScene(const RenderScene& InScene, RenderTarget& InSceneTarget)
+Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget)
 {
     rlEnableDepthTest();
+
+    auto& scene = *InArgs.Scene;
     
     InSceneTarget.BeginWrite();
-    BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
+    BeginMode3D(Utility::Ray::ConvertCamera(scene.Cam));
 
     Mat4F view = Utility::Ray::ConvertBack(rlGetMatrixModelview());
     Mat4F proj = Utility::Ray::ConvertBack(rlGetMatrixProjection());
-    PreviousMVP = PendingMVP;
-    PendingMVP = view * proj;
+    InArgs.Viewport->PreviousMVP = InArgs.Viewport->PendingMVP;
+    InArgs.Viewport->PendingMVP = view * proj;
     
     // Instanced rendering
     Map<uint64, int> count;
-    for (auto& entry : InScene.Meshes.Entries)
+    for (auto& entry : scene.Meshes.Entries)
     {
         const ::Mesh* meshes = nullptr;
         int32 meshCount = 0;
@@ -119,7 +129,7 @@ Map<uint64, int> Renderer::DrawScene(const RenderScene& InScene, RenderTarget& I
 
         // Enable shader
         rlEnableShader(shader->id);
-        SetShaderValues(*resShader, InScene, InSceneTarget, entry.second.DeferredID);
+        SetShaderValues(InArgs, *resShader, InSceneTarget, entry.second.DeferredID);
         SetCustomShaderValues(*resShader);
 
         // Data has been prepared for this entry
@@ -142,11 +152,12 @@ Map<uint64, int> Renderer::DrawScene(const RenderScene& InScene, RenderTarget& I
     return count;
 }
 
-int Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& InTarget,
-                                           const Vector<RenderTarget*>& InBuffers) const
+int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
+    auto& scene = *InArgs.Scene;
+    
     InTarget.BeginWrite();
-    for (auto& entry : InScene.Meshes.DeferredShaders)
+    for (auto& entry : scene.Meshes.DeferredShaders)
     {
         ShaderResource* shaderResource = entry.second.Get();
         CHECK_CONTINUE(!shaderResource);
@@ -154,7 +165,7 @@ int Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& 
         CHECK_CONTINUE(!shader);
 
         rlEnableShader(shader->id);
-        SetShaderValues(*shaderResource, InScene, InTarget, entry.first);
+        SetShaderValues(InArgs, *shaderResource, InTarget, entry.first);
         
         RenderTarget::Slot bindOffset;
         for (auto& b : InBuffers)
@@ -170,11 +181,13 @@ int Renderer::DrawDeferredScene(const RenderScene& InScene, const RenderTarget& 
     }
     InTarget.EndWrite();
     
-    return static_cast<uint32>(InScene.Meshes.DeferredShaders.size());
+    return static_cast<uint32>(scene.Meshes.DeferredShaders.size());
 }
 
-void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear) const
+void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear)
 {
+    auto& InScene = *InArgs.Scene;
+    
     ShaderResource* shaderResource = InShader.Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource");
     const Shader* shader = shaderResource->Get();
@@ -182,7 +195,7 @@ void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& In
 
     InTarget.BeginWrite(InBlend, InClear);
     rlEnableShader(shader->id);
-    SetShaderValues(*shaderResource, InScene, InTarget, 0);
+    SetShaderValues(InArgs, *shaderResource, InTarget, 0);
     
     RenderTarget::Slot bindOffset;
     for (auto& b : InBuffers)
@@ -202,13 +215,15 @@ void Renderer::DrawFullscreen(const RenderScene& InScene, const RenderTarget& In
     InTarget.EndWrite(); 
 }
 
-int Renderer::DrawDebug(const RenderScene& InScene)
+int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
+    auto& scene = *InArgs.Scene;
+    
     rlEnableColorBlend();
     
-    BeginMode3D(Utility::Ray::ConvertCamera(InScene.Cam));
+    BeginMode3D(Utility::Ray::ConvertCamera(scene.Cam));
 
-    for (auto& shape : InScene.DebugShapes)
+    for (auto& shape : scene.DebugShapes)
     {
         switch (shape.Type)
         {
@@ -241,7 +256,7 @@ int Renderer::DrawDebug(const RenderScene& InScene)
         }
     }
 
-    for (auto& line : InScene.DebugLines)
+    for (auto& line : scene.DebugLines)
         DrawLine3D(
             Utility::Ray::ConvertVec(line.Start),
             Utility::Ray::ConvertVec(line.End),
@@ -249,10 +264,10 @@ int Renderer::DrawDebug(const RenderScene& InScene)
 
     EndMode3D();
 
-    return static_cast<int>(InScene.DebugShapes.size() + InScene.DebugLines.size());
+    return static_cast<int>(scene.DebugShapes.size() + scene.DebugLines.size());
 }
 
-void Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
+void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
 {
     BeginTextureMode(InTarget);
     
@@ -267,6 +282,6 @@ void Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffe
     DrawTextureRec(
         *InBuffer.GetBuffers()[0].Tex,
         sourceRec,
-        { 0, 0 },
+        { 0, 0 }, 
         ::WHITE);
 }

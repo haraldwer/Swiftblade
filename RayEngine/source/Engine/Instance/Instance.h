@@ -4,7 +4,7 @@
 #include "Editor/EditorCamera.h"
 #include "Input/Manager.h"
 #include "Menu/Manager.h"
-#include "Rendering/RenderScene.h"
+#include "Rendering/Scene/Scene.h"
 
 namespace Engine
 {
@@ -20,7 +20,7 @@ namespace Engine
         
         virtual bool IsEditor() const { return false; }
 
-        Rendering::RenderScene& GetRenderScene();
+        Rendering::Scene& GetRenderScene();
         EditorCamera& GetEditorCamera() { return EditorCamera; }
 
     protected:
@@ -31,7 +31,7 @@ namespace Engine
         EditorCamera EditorCamera;
         
     private:
-        Rendering::RenderScene RenderScene;
+        Rendering::Scene RenderScene;
         InstanceEventManager EventManager;
 
     };

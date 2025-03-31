@@ -52,8 +52,8 @@ bool UI::Element::IsClicked() const
 
 UI::Rect UI::Element::GetReferenceRect()
 {
-    const Vec2F res = Rendering::Manager::Get().GetResolution();
-    const float aspect = res.x / res.y; 
+    const Vec2I res = Rendering::Manager::Get().MainViewport.GetResolution();
+    const float aspect = static_cast<float>(res.x) / static_cast<float>(res.y); 
     return {
         Vec2F::Zero(),
         {
@@ -76,7 +76,8 @@ Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
     // TODO: Also consider ref start
     // TODO: Fix stretching
     
-    const Vec2F res = Rendering::Manager::Get().GetResolution();
+    const Vec2I resi = Rendering::Manager::Get().MainViewport.GetResolution();
+    const Vec2F res = { static_cast<float>(resi.x), static_cast<float>(resi.y) };
     const Rect ref = GetReferenceRect();
     return {
         (InVec / ref.End) * res,
@@ -86,9 +87,11 @@ Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
 Vec2F UI::Element::ScreenToViewport(const Vec2F& InScreenPos)
 {
     // From screen to reference space
-    auto& renderer = Rendering::Manager::Get();
-    const Vec2F viewportPos = InScreenPos - renderer.GetViewportPosition(); 
-    const Vec2F absolute = viewportPos / renderer.GetViewportSize();
+    auto& man = Rendering::Manager::Get();
+    const Vec2F viewportPos = InScreenPos - man.MainViewport.GetPosition();
+    const Vec2I si = man.MainViewport.GetSize();
+    const Vec2F s = { static_cast<float>(si.x), static_cast<float>(si.y) };
+    const Vec2F absolute = viewportPos / s;
     const Rect ref = GetReferenceRect();
     return absolute * ref.End; 
 }
