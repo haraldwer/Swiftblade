@@ -79,10 +79,10 @@ void Scene::SetCamera(const CameraInstance& InCamera)
 }
 
 void Scene::AddMesh(const MeshInstance& InMesh)
-{
+{ 
     const Vec3F scale = InMesh.Transform.GetScale();
     const float maxScale = Utility::Math::Max(Utility::Math::Max(scale.x, scale.y), scale.z);
-    if (Frustum.CheckSphere(InMesh.Transform.GetPosition(), maxScale))
+    //if (Frustum.CheckSphere(InMesh.Transform.GetPosition(), maxScale))
         Meshes.AddMesh(InMesh);
 }
 
@@ -92,8 +92,8 @@ void Scene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransfo
     {
         const Vec3F halfDiff = (InBoxEnd - InBoxStart) * 0.5f;
         const Vec3F center = InBoxStart + halfDiff;
-        if (!Frustum.CheckBox(center.x, center.y, center.z, halfDiff.x, halfDiff.y, halfDiff.z))
-            return;
+        //if (!Frustum.CheckBox(center.x, center.y, center.z, halfDiff.x, halfDiff.y, halfDiff.z))
+        //    return;
     }
     Meshes.AddMeshes(InMesh, InTransforms);
 }

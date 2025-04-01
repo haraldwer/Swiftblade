@@ -28,7 +28,8 @@ namespace Rendering
     
     class Scene
     {
-        friend class Renderer; 
+        friend class Renderer;
+        friend class Lumin;
     public:
         void SetCamera(const CameraInstance& InCamera);
         const CameraInstance& GetCamera() const { return Cam; }
