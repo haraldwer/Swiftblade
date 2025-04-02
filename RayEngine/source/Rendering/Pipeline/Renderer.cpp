@@ -1,11 +1,11 @@
 #include "Renderer.h"
 
-#include "RayRenderUtility.h"
-#include "Core/Utility/RayUtility.h"
-#include "rlgl.h"
 #include "Context/Context.h"
+#include "Core/Utility/RayUtility.h"
+#include "RayRenderUtility.h"
 #include "Scene/Scene.h"
 #include "Viewport/Viewport.h"
+#include "rlgl.h"
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
@@ -30,8 +30,8 @@ void Rendering::Renderer::SetShaderValues(const RenderArgs& InArgs, ShaderResour
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    SetValue(InShader, "CameraPosition", &scene.Cam.Position.data[0], SHADER_UNIFORM_VEC3);
-    Vec2F nearFar = { scene.Cam.Near, scene.Cam.Far };
+    SetValue(InShader, "CameraPosition", &scene.MainCamera.Position.data[0], SHADER_UNIFORM_VEC3);
+    Vec2F nearFar = { scene.MainCamera.Near, scene.MainCamera.Far };
     SetValue(InShader, "NearFar", &nearFar.data[0], SHADER_UNIFORM_VEC2);
     const float time = static_cast<float>(context.Timer.Ellapsed()); 
     SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
@@ -85,7 +85,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     auto& scene = *InArgs.Scene;
     
     InSceneTarget.BeginWrite();
-    BeginMode3D(Utility::Ray::ConvertCamera(scene.Cam));
+    BeginMode3D(Utility::Ray::ConvertCamera(scene.MainCamera));
 
     Mat4F view = Utility::Ray::ConvertBack(rlGetMatrixModelview());
     Mat4F proj = Utility::Ray::ConvertBack(rlGetMatrixProjection());
@@ -184,10 +184,8 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     return static_cast<uint32>(scene.Meshes.DeferredShaders.size());
 }
 
-void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers, int InBlend, bool InClear)
+void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)
 {
-    auto& InScene = *InArgs.Scene;
-    
     ShaderResource* shaderResource = InShader.Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource");
     const Shader* shader = shaderResource->Get();
@@ -200,19 +198,38 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
     RenderTarget::Slot bindOffset;
     for (auto& b : InBuffers)
         if (b) b->Bind(*shaderResource, bindOffset);
-    for (auto& b : InPrevBuffers)
-        if (b) b->Bind(*shaderResource, bindOffset, "Prev");
-
     rlLoadDrawQuad();
 
     RenderTarget::Slot unbindOffset;
     for (auto& b : InBuffers)
         if (b) b->Unbind(*shaderResource, unbindOffset);
-    for (auto& b : InPrevBuffers)
-        if (b) b->Unbind(*shaderResource, unbindOffset, "Prev");
     
     rlDisableShader();
     InTarget.EndWrite(); 
+}
+
+void Rendering::Renderer::DrawCubeFace(const RenderArgs& InArgs, const RenderTarget& InTarget, int InFaceIndex, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)
+{
+    ShaderResource* shaderResource = InShader.Get();
+    CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource");
+    const Shader* shader = shaderResource->Get();
+    CHECK_RETURN_LOG(!shader, "Failed to get shader");
+
+    InTarget.BeginWrite(InBlend, InClear);
+    rlEnableShader(shader->id);
+    SetShaderValues(InArgs, *shaderResource, InTarget, 0);
+    
+    RenderTarget::Slot bindOffset;
+    for (auto& b : InBuffers)
+        if (b) b->Bind(*shaderResource, bindOffset);
+    rlLoadDrawQuad();
+
+    RenderTarget::Slot unbindOffset;
+    for (auto& b : InBuffers)
+        if (b) b->Unbind(*shaderResource, unbindOffset);
+    
+    rlDisableShader();
+    InTarget.EndWrite();
 }
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
@@ -221,7 +238,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
     
     rlEnableColorBlend();
     
-    BeginMode3D(Utility::Ray::ConvertCamera(scene.Cam));
+    BeginMode3D(Utility::Ray::ConvertCamera(scene.MainCamera));
 
     for (auto& shape : scene.DebugShapes)
     {
@@ -278,9 +295,9 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
         -static_cast<float>(InTarget.texture.height)
     };
 
-    CHECK_ASSERT(!InBuffer.GetBuffers()[0].Tex, "Tex nullptr");
+    CHECK_ASSERT(!InBuffer.GetTextures()[0].Tex, "Tex nullptr");
     DrawTextureRec(
-        *InBuffer.GetBuffers()[0].Tex,
+        *InBuffer.GetTextures()[0].Tex,
         sourceRec,
         { 0, 0 }, 
         ::WHITE);

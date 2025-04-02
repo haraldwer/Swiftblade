@@ -34,13 +34,13 @@ void Rendering::FrameTargetCollection::Deinit()
     QuantizeTarget.Unload();
 }
 
-Map<String, Vector<RenderTarget::Buffer>> Rendering::FrameTargetCollection::GetBuffers()
+Map<String, Vector<RenderTarget::TargetTex>> Rendering::FrameTargetCollection::GetTargets()
 {
-    Map<String, Vector<RenderTarget::Buffer>> result; 
-    result["Scene"] = SceneTarget.GetBuffers();
-    result["Fire"] = FireTargets.Curr().GetBuffers();
-    result["SSAO"] = SSAOTargets.Curr().GetBuffers();
-    result["Quantize"] = QuantizeTarget.GetBuffers();
-    result["Frame"] = FrameTarget.GetBuffers();
+    Map<String, Vector<RenderTarget::TargetTex>> result; 
+    result["Scene"] = SceneTarget.GetTextures();
+    result["Fire"] = FireTargets.Curr().GetTextures();
+    result["SSAO"] = SSAOTargets.Curr().GetTextures();
+    result["Quantize"] = QuantizeTarget.GetTextures();
+    result["Frame"] = FrameTarget.GetTextures();
     return result;
 }

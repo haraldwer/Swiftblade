@@ -1,11 +1,8 @@
 #pragma once
-#include "Context.h"
-#include "Pipeline/Pipeline.h"
-#include "Utility/pch.h"
-#include "Viewport/Viewport.h"
 
-class RenderTarget;
-struct TextureCubemap;
+#include "Context/Context.h"
+#include "LuminPipeline.h"
+#include "Viewport/Viewport.h"
 
 namespace Rendering
 {
@@ -16,6 +13,7 @@ namespace Rendering
     {
         PROPERTY(ContextConfig, Context);
         PROPERTY(ViewportConfig, Viewport);
+        PROPERTY_D(ResShader, BlipShader, "Shaders/Lumin/SH_LuminProbe.ps");
         PROPERTY_D(float, Density, 1.0f);
 
         String Name() const override { return "Lumin"; }
@@ -41,27 +39,28 @@ namespace Rendering
         
         struct Probe
         {
-            TextureCubemap* Tex = nullptr;
+            RenderTarget Target;
             Coord Coord;
             Vec3F Pos;
         };
 
     public:
+        void Init(const ContextConfig& InDefaultContextConfig);
+        void Deinit();
         
-        void Init();
-        void UpdateProbes(const Scene& InScene);
-        void Render(const RenderArgs& InArgs, const RenderTarget& InTarget);
-        
+        void UpdateProbes(const RenderArgs& InArgs);
+
     private:
-        void ExpandVolume(const Scene& InScene);
+        void ExpandVolume(const Scene& InScene, const RenderTexture& InTex);
         Coord FromPos(const Vec3F& InPos);
+        Vec3F FromCoord(const Coord& InCoord);
 
         Map<uint64, Probe> Probes;
 
         LuminConfig Config;
         Context Context;
         Viewport Viewport;
-        Pipeline Pipeline;
+        LuminPipeline Pipeline;
     };
 }
 

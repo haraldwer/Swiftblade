@@ -8,5 +8,6 @@ namespace Rendering
     {
         PROPERTY(Vector<String>, GlobalDefines);
         PROPERTY(StringMap<ResNoiseTex>, NoiseTextures);
+        PROPERTY_D(bool, Lumin, true);
     };
 }

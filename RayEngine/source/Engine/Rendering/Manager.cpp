@@ -12,7 +12,7 @@ void Rendering::Manager::Init()
     QueuedConfig = CurrConfig;
     Window.Open(CurrConfig.Window);
     MainViewport.Init(CurrConfig.Viewport);
-    DefaultContext.Init(CurrConfig.Context);
+    DefaultContext.Init(CurrConfig.Context, true);
 
     rlImGuiSetup(false);
     ImGui::ThemeMoonlight();

@@ -1,6 +1,8 @@
 #include "Context.h"
 
-void Rendering::Context::Init(const ContextConfig& InConfig)
+#include "Lumin/Lumin.h"
+
+void Rendering::Context::Init(const ContextConfig& InConfig, const bool InLuminInstance)
 {
     Config = InConfig;
 
@@ -13,4 +15,20 @@ void Rendering::Context::Init(const ContextConfig& InConfig)
     
     FireShader = ResShader("Shaders/PostProcessing/SH_Fire.ps");
     FireBlipShader = ResShader("Shaders/PostProcessing/SH_FireBlip.ps");
+
+    if (InLuminInstance && InConfig.Lumin)
+    {
+        LuminPtr = new Lumin();
+        LuminPtr->Init(InConfig);
+    }
+}
+
+void Rendering::Context::Deinit()
+{
+    if (LuminPtr)
+    {
+        LuminPtr->Deinit();
+        delete LuminPtr;
+        LuminPtr = nullptr;
+    }
 }

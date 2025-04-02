@@ -31,11 +31,13 @@ void Engine::Instance::Frame()
 
     Rendering::RenderArgs args {
         .Scene= &RenderScene,
+        .Context= &man.DefaultContext,
         .Viewport= &man.MainViewport,
-        .Context= &man.DefaultContext
+        .Camera = RenderScene.GetCamera()
     };
-    auto stats = man.DefaultPipeline.Render(args);
+    Rendering::Pipeline::Stats stats = man.DefaultPipeline.Render(args);
     man.FrameViewer.SetStats(stats);
+    
     Menus.Draw();
     man.MainViewport.EndFrame();
 }

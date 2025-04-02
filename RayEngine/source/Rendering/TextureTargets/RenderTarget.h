@@ -8,16 +8,17 @@ class RenderTarget
 {
 public:
     
-    struct Buffer
+    struct TargetTex
     {
         Texture* Tex = {};
         String Name; 
+        bool Cubemap = false;
     };
     
     bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat);
     
     bool TryBeginSetup(const RenderTexture& InRenderTexture);
-    void CreateBuffer(const String& InName, uint8 InPixelFormat);
+    void CreateBuffer(const String& InName, uint8 InPixelFormat, bool InCubemap = false);
     void EndSetup(const RenderTexture& InRenderTexture) const;
     
     void Unload();
@@ -30,16 +31,16 @@ public:
         int Index = 0;
     };
     
-    void Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix = "") const;
-    void Unbind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix = "") const;
+    void Bind(ShaderResource& InShader, Slot& InOutSlots) const;
+    void Unbind(ShaderResource& InShader, Slot& InOutSlots) const;
     
-    const Vector<Buffer>& GetBuffers() const { return Buffers; }
+    const Vector<TargetTex>& GetTextures() const { return Textures; }
     Vec2F Size() const { return { static_cast<float>(Width), static_cast<float>(Height) }; }
     
 private: 
     
     uint32 FrameBuffer = 0;
-    Vector<Buffer> Buffers;
+    Vector<TargetTex> Textures;
 
     int Width = 0;
     int Height = 0;

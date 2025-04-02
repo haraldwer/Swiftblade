@@ -5,13 +5,16 @@
 
 namespace Rendering
 {
+    class Lumin;
+
     class Context
     {
         friend class Pipeline;
         friend class Renderer;
         
     public:
-        void Init(const ContextConfig& InConfig);
+        void Init(const ContextConfig& InConfig, bool InLuminInstance = false);
+        void Deinit();
 
     private:
         ContextConfig Config;
@@ -24,5 +27,7 @@ namespace Rendering
         ResShader SSAOShader; 
         ResShader QuantizeShader;
         ResShader FXAAShader;
+
+        Lumin* LuminPtr = nullptr;
     };
 }

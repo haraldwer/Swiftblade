@@ -32,7 +32,7 @@ namespace Rendering
         friend class Lumin;
     public:
         void SetCamera(const CameraInstance& InCamera);
-        const CameraInstance& GetCamera() const { return Cam; }
+        const CameraInstance& GetCamera() const { return MainCamera; }
         
         void AddMesh(const MeshInstance& InMesh);
         void AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd);
@@ -43,7 +43,7 @@ namespace Rendering
         uint32 Count() const;
 
     private:
-        CameraInstance Cam = {};
+        CameraInstance MainCamera = {};
         MeshCollection Meshes;
         Vector<DebugShape> DebugShapes;
         Vector<DebugLine> DebugLines;

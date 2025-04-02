@@ -22,7 +22,7 @@ void Rendering::FrameViewer::DrawDebugWindow()
     ImGui::Text(("Total: " + std::to_string(total)).c_str());
     ImGui::Text(("Debug shapes: " + std::to_string(Stats.DebugDrawCount)).c_str());
         
-    auto buffers = man.MainViewport.GetBuffers();
+    auto buffers = man.MainViewport.GetTargets();
     for (auto& buff : buffers)
     {
         if (ImGui::CollapsingHeader(buff.first.c_str()))

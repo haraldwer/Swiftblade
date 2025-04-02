@@ -2,21 +2,25 @@
 
 #include "Rendering/Resources/Shader.h"
 #include "Rendering/TextureTargets/RenderTarget.h"
+#include "Rendering/Scene/Instances/CameraInstance.h"
 
 struct RenderTexture; 
 struct Matrix;
 
 namespace Rendering
 {
+    class Lumin;
     class Context;
     class Viewport;
     class Scene;
 
     struct RenderArgs
     {
-        Scene* Scene = nullptr;
+        const Scene* Scene = nullptr;
+        const Context* Context = nullptr;
         Viewport* Viewport = nullptr;
-        Context* Context = nullptr;
+        Lumin* Lumin = nullptr;
+        CameraInstance Camera;
     };
     
     class Renderer
@@ -24,7 +28,8 @@ namespace Rendering
     public:
         static Map<uint64, int> DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget);
         static int DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
-        static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, const Vector<RenderTarget*>& InPrevBuffers = {}, int InBlend = -1, bool InClear = true);
+        static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
+        static void DrawCubeFace(const RenderArgs& InArgs, const RenderTarget& InTarget, int InFaceIndex, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
         static int DrawDebug(const RenderArgs& InArgs);
         static void Blip(const RenderTexture& InTarget, const RenderTarget& InBuffer);
     

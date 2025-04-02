@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ViewportConfig.h"
 #include "Rendering/TextureTargets/FrameTargetCollection.h"
+#include "ViewportConfig.h"
 
 namespace Rendering
 {
@@ -18,7 +18,7 @@ namespace Rendering
         void EndFrame();
 
         RenderTexture& GetVirtualTarget() const;
-        Map<String, Vector<RenderTarget::Buffer>> GetBuffers() { return Targets.GetBuffers(); }
+        Map<String, Vector<RenderTarget::TargetTex>> GetTargets() { return Targets.GetTargets(); }
         
         void ImDraw();
         Vec2I GetResolution() const;
@@ -35,7 +35,7 @@ namespace Rendering
         Utility::Timer DeltaTimer;
         double Delta = 0;
 
-        RenderTexture* VirtualTarget = nullptr;
         FrameTargetCollection Targets;
+        RenderTexture* VirtualTarget = nullptr;
     };
 }

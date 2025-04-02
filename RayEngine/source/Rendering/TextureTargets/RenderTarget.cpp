@@ -39,13 +39,13 @@ void RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
     CHECK_RETURN(!FrameBuffer);
     
     // Attach to framebuffer
-    rlActiveDrawBuffers(static_cast<int>(Buffers.size())); // Count - Depth
-    for (int i = 0; i < static_cast<int>(Buffers.size()); i++)
+    rlActiveDrawBuffers(static_cast<int>(Textures.size())); // Count - Depth
+    for (int i = 0; i < static_cast<int>(Textures.size()); i++)
     {
-        CHECK_ASSERT(!Buffers[i].Tex, "Tex nullptr");
+        CHECK_ASSERT(!Textures[i].Tex, "Tex nullptr");
         rlFramebufferAttach(
             FrameBuffer,
-            Buffers[i].Tex->id,
+            Textures[i].Tex->id,
             RL_ATTACHMENT_COLOR_CHANNEL0 + i,
             RL_ATTACHMENT_TEXTURE2D,
             0);
@@ -60,13 +60,13 @@ void RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
 
 void RenderTarget::Unload()
 {
-    for (const Buffer& buff : Buffers)
+    for (const TargetTex& buff : Textures)
     {
         CHECK_ASSERT(!buff.Tex, "Tex nullptr");
         rlUnloadTexture(buff.Tex->id);
         delete (buff.Tex);
     }
-    Buffers.clear(); 
+    Textures.clear(); 
 
     if (FrameBuffer)
     {
@@ -78,14 +78,11 @@ void RenderTarget::Unload()
     Height = 0; 
 }
 
-void RenderTarget::BeginWrite(int InBlend, bool InClear) const
+void RenderTarget::BeginWrite(const int InBlend, const bool InClear) const
 {
     rlEnableFramebuffer(FrameBuffer);
     if (InClear)
-    {
-        rlClearColor(0, 0, 0, 0);
         rlClearScreenBuffers();
-    }
     InBlend >= RL_BLEND_ALPHA ?
         rlSetBlendMode(RL_BLEND_ALPHA) : rlDisableColorBlend();
 }
@@ -95,36 +92,36 @@ void RenderTarget::EndWrite() const
     rlDisableFramebuffer();
 }
 
-void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
+void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
-    for (const auto& buff : Buffers)
+    for (const auto& tex : Textures)
     {
         InOutSlots.Index++;
-        int loc = InShader.GetLocation(buff.Name + InPostfix);
+        int loc = InShader.GetLocation(tex.Name);
         CHECK_CONTINUE(loc < 0);
         
         InOutSlots.Loc++;
-        CHECK_ASSERT(!buff.Tex, "Tex nullptr");
+        CHECK_ASSERT(!tex.Tex, "Tex nullptr");
         
-        rlTextureParameters(buff.Tex->id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
-        rlTextureParameters(buff.Tex->id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
-        rlActiveTextureSlot(InOutSlots.Loc);
-        rlEnableTexture(buff.Tex->id);
+        rlTextureParameters(tex.Tex->id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
+        rlTextureParameters(tex.Tex->id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
+        rlActiveTextureSlot(tex.Cubemap ? InOutSlots.Loc : RL_SHADER_LOC_MAP_CUBEMAP);
+        rlEnableTexture(tex.Tex->id);
         rlSetUniform(loc, &InOutSlots.Loc, RL_SHADER_UNIFORM_SAMPLER2D, 1); // NOTE: Default texture is always activated as GL_TEXTURE0
         rlActiveTextureSlot(0);
     }
 }
 
-void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
+void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
-    for (const auto& buff : Buffers)
+    for (const auto& buff : Textures)
     {
         InOutSlots.Index++;
-        int loc = InShader.GetLocation(buff.Name + InPostfix);
+        int loc = InShader.GetLocation(buff.Name);
         CHECK_CONTINUE(loc < 0);
         
         InOutSlots.Loc++;
@@ -136,15 +133,18 @@ void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots, const Stri
     }
 }
 
-void RenderTarget::CreateBuffer(const String& InName, const uint8 InPixelFormat)
+void RenderTarget::CreateBuffer(const String& InName, uint8 InPixelFormat, bool InCubemap)
 {
-    auto& buffer = Buffers.emplace_back();
+    auto& buffer = Textures.emplace_back();
     buffer.Name = InName;
+    buffer.Cubemap = InCubemap;
     buffer.Tex = new Texture(); 
-    buffer.Tex->id = rlLoadTexture(nullptr, Width, Height, InPixelFormat, 1); 
+    buffer.Tex->id = InCubemap ?
+        rlLoadTextureCubemap(nullptr, Width, InPixelFormat, 1) : 
+        rlLoadTexture(nullptr, Width, Height, InPixelFormat, 1); 
     buffer.Tex->width = Width;
-    buffer.Tex->height = Height;
-    buffer.Tex->mipmaps = 0;
+    buffer.Tex->height = InCubemap ? Width : Height;
+    buffer.Tex->mipmaps = 1;
     buffer.Tex->format = InPixelFormat;
 }
 

@@ -8,7 +8,7 @@ namespace Rendering
         void Init(const RenderTexture& InTarget);
         void Deinit();
 
-        Map<String, Vector<RenderTarget::Buffer>> GetBuffers();
+        Map<String, Vector<RenderTarget::TargetTex>> GetTargets();
 
         RenderTarget SceneTarget;
         SwapTarget SSAOTargets = SwapTarget(2);

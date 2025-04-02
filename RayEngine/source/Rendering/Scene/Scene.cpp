@@ -4,7 +4,7 @@ using namespace Rendering;
 
 void Scene::Clear()
 {
-    Cam = {};
+    MainCamera = {};
     Meshes = {};
     DebugShapes = {};
     DebugLines = {};
@@ -74,7 +74,7 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
 
 void Scene::SetCamera(const CameraInstance& InCamera)
 {
-    Cam = InCamera;
+    MainCamera = InCamera;
     Frustum.ConstructFrustum(InCamera);
 }
 
