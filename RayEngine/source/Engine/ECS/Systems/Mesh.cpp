@@ -20,9 +20,9 @@ void SysMesh::Update(EntityID InEntity, Mesh& InComponent)
 
     const Transform& t = Get<Transform>(InEntity);
     const MeshInstance m {
-        InComponent.Model,
-        InComponent.Material,
-        t.World()
+        .Model= InComponent.Model,
+        .Material= InComponent.Material,
+        .Transform= t.World()
     };
 
     Engine::Instance::Get().GetRenderScene().AddMesh(m);

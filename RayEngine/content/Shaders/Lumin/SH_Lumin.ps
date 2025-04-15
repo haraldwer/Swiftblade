@@ -2,12 +2,52 @@
 
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_HSV.si"
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_Random.si"
+
+uniform vec3 ProbePosition;
+uniform vec3 ProbeDensity;
+uniform samplerCube TexEnvCube;
 
 in vec2 TexCoord;
 out vec4 Output;
 
 void main()
 {
-    // Apply lumin to screen
-    discard;
+    // TODO: Sample both ambient light and reflections!
+
+    vec3 worldPos = SampleWorldPos(TexCoord).xyz;
+    vec3 pixelToProbe = worldPos - ProbePosition;
+    float pixelToProbeDist = length(pixelToProbe);
+    vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist; 
+    
+    // Is surface in view of probe?
+    float depth = texture(TexEnvCube, pixelToProbeDir).a * NearFar.y;
+    float depthDiff = depth - pixelToProbeDist;
+    float depthFade = max(0, 1.0 - abs(depthDiff)); 
+    if (depthDiff > 1.0)
+        discard;
+    
+    // Is surface pointing towards probe?
+    vec3 normal = SampleNormal(TexCoord);
+    float surfaceDot = -dot(normalize(pixelToProbe), normal);
+    if (surfaceDot < -0.1f)
+        discard;
+    
+    // Distance fade
+    vec3 range = abs(pixelToProbe) * ProbeDensity;
+    float dist = max(max(range.x, range.y), range.z);
+    float giFade = min(1.0f, 2.0f - dist * 2.0f);
+    if (giFade < 0.001)
+        discard;
+    
+    // Use luminance for now, later expect irradiance map
+    vec3 color = texture(TexEnvCube, normal).rgb;
+    vec3 hsv = rgb2hsv(color.ggb);
+    float factor = Pow2(hsv.z) * surfaceDot * giFade * depthFade; 
+    
+    Output.rgb = abs(color.rgb);// hsv2rgb(vec3(hsv.xy, 1.0));
+    Output.a = factor;
+    
 }

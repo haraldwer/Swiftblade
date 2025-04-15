@@ -28,8 +28,11 @@ bool ShaderResource::Load(const String& InIdentifier)
     }
     else
     {
-        const String vs = InIdentifier + ".vs";
-        const String fs = InIdentifier + ".fs";
+        String id = InIdentifier;
+        if (id.ends_with(".fs") || id.ends_with(".vs"))
+            id = id.substr(0, id.length() - 3);
+        const String vs = id + ".vs";
+        const String fs = id + ".fs";
         const String vsDefault = "Shaders/SH_Default.vs";
         const String fsDefault = "Shaders/SH_Default.fs";
         const String vsFile = Utility::FileExists(vs) ? vs : vsDefault;

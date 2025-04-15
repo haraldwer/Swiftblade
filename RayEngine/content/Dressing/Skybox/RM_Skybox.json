@@ -1,5 +1,3 @@
 {
-	"SurfaceShader":"Dressing\\Skybox\\SH_Skybox",
-	"DeferredShader":"Dressing\\Skybox\\SH_Skybox.ds",
-	"TwoSided":true
+	"SurfaceShader":"Dressing\\Skybox\\SH_Skybox"
 }

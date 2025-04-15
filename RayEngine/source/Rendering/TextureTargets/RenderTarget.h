@@ -18,12 +18,13 @@ public:
     bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat);
     
     bool TryBeginSetup(const RenderTexture& InRenderTexture);
-    void CreateBuffer(const String& InName, uint8 InPixelFormat, bool InCubemap = false);
+    void CreateBuffer(const String& InName, uint8 InPixelFormat, int InMips = 1, bool InCubemap = false);
     void EndSetup(const RenderTexture& InRenderTexture) const;
     
     void Unload();
-    void BeginWrite(int InBlend = -1, bool InClear = true) const;
+    void BeginWrite(int InBlend = -1, bool InClear = true, int InFaceIndex = -1) const;
     void EndWrite() const;
+    void GenerateMips() const;
 
     struct Slot
     {

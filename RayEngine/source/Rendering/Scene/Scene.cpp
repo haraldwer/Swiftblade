@@ -8,6 +8,7 @@ void Scene::Clear()
     Meshes = {};
     DebugShapes = {};
     DebugLines = {};
+    Environments = {};
 }
 
 uint32 Scene::Count() const
@@ -76,6 +77,11 @@ void Scene::SetCamera(const CameraInstance& InCamera)
 {
     MainCamera = InCamera;
     Frustum.ConstructFrustum(InCamera);
+}
+
+void Scene::AddEnvironment(const EnvironmentInstance& InEnvironment)
+{
+    Environments.push_back(InEnvironment);
 }
 
 void Scene::AddMesh(const MeshInstance& InMesh)

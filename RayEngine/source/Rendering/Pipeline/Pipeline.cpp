@@ -2,6 +2,7 @@
 
 #include "Context/Context.h"
 #include "Lumin/Lumin.h"
+#include "Scene/Scene.h"
 #include "Viewport/Viewport.h"
 
 Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
@@ -13,16 +14,19 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     // TODO: Sub-tick camera movement
     // TODO: Depth sorting
     
-    if (InArgs.Lumin == nullptr)
-        InArgs.Lumin = InArgs.Context->LuminPtr;    
-    if (InArgs.Lumin)
-        InArgs.Lumin->UpdateProbes(InArgs);
-
     Stats stats;
+    
+    if (InArgs.Lumin == nullptr)
+        InArgs.Lumin = InArgs.Context->LuminPtr;
+    if (InArgs.Lumin && InArgs.Context->Config.Lumin)
+        stats += InArgs.Lumin->UpdateProbes(InArgs);
+
     stats += RenderScene(InArgs);
     stats += RenderFire(InArgs);
     stats += RenderAO(InArgs);
+    stats += RenderSkybox(InArgs);
     stats += RenderDeferred(InArgs);
+    stats += RenderLumin(InArgs);
     stats += RenderFX(InArgs);
     stats += Blip(InArgs);
     stats += RenderDebug(InArgs); 
@@ -39,9 +43,12 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderScene(const RenderArgs& In
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& InArgs)
 {
-    // Render all lumin data to a lumin-specific texture
-    // Blend this with real scene in deferred pass!
-    return {};
+    CHECK_RETURN(!InArgs.Context->Config.Lumin, {})
+    Stats stats;
+    auto& sceneTarget = InArgs.Viewport->Targets.SceneTarget;
+    auto& frameTarget = InArgs.Viewport->Targets.FrameTarget;
+    stats.Probes += Renderer::DrawLuminProbes(InArgs, frameTarget, { &sceneTarget });
+    return stats;
 }
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs& InArgs)
@@ -51,6 +58,13 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs&
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTarget;
     auto& ssaoTargets = InArgs.Viewport->Targets.SSAOTargets;
     stats.DeferredDrawCount = Renderer::DrawDeferredScene(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
+    return stats;
+}
+
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderSkybox(const RenderArgs& InArgs)
+{
+    Stats stats;
+    stats.Skyboxes += Renderer::DrawSkyboxes(InArgs, InArgs.Viewport->Targets.FrameTarget);
     return stats;
 }
 

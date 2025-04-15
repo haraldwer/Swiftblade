@@ -21,6 +21,8 @@ namespace Rendering
             int DebugDrawCount = 0;
             int Renders = 0;
             int FullscreenPasses = 0;
+            int Probes = 0;
+            int Skyboxes = 0;
 
             void operator += (const Stats& InStats)
             {
@@ -36,6 +38,7 @@ namespace Rendering
         virtual Stats Render(RenderArgs InArgs);
 
     protected:
+        Stats RenderSkybox(const RenderArgs& InArgs);
         Stats RenderScene(const RenderArgs& InArgs);
         Stats RenderLumin(const RenderArgs& InArgs);
         Stats RenderDeferred(const RenderArgs& InArgs);

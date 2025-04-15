@@ -3,6 +3,7 @@
 #include "Culling/Frustum.h"
 #include "Instances/CameraInstance.h"
 #include "Instances/DebugShape.h"
+#include "Instances/EnvironmentInstance.h"
 #include "Instances/MeshInstance.h"
 
 namespace Rendering
@@ -32,6 +33,7 @@ namespace Rendering
         friend class Lumin;
     public:
         void SetCamera(const CameraInstance& InCamera);
+        void AddEnvironment(const EnvironmentInstance& InEnvironment);
         const CameraInstance& GetCamera() const { return MainCamera; }
         
         void AddMesh(const MeshInstance& InMesh);
@@ -44,6 +46,7 @@ namespace Rendering
 
     private:
         CameraInstance MainCamera = {};
+        Vector<EnvironmentInstance> Environments;
         MeshCollection Meshes;
         Vector<DebugShape> DebugShapes;
         Vector<DebugLine> DebugLines;

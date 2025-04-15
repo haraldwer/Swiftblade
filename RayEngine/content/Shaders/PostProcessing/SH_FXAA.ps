@@ -14,14 +14,12 @@ const float SAMPLE_POW = 2.0f;
 
 const float EDGE_THRESHOLD = 0.2f;
 const float EDGE_VALUE_POW = 0.2f; // Value weight curve
-const vec3 HSV_WEIGHT = vec3(1.0f, 1.0f, 1.0f);
 
-vec3 EdgeDirection(vec2 InOffset, vec2 InScale, float InWeight, vec3 InHSV)
+vec3 EdgeDirection(vec2 InOffset, vec2 InScale, float InWeight, vec3 InColor)
 {
     vec4 color = texture(TexQuantize, TexCoord + InOffset * InScale);
-    vec3 hsv = rgb2hsv(color.rgb);
-    vec3 hsvDiff = abs(InHSV - hsv) * HSV_WEIGHT;
-    float weight = max(max(hsvDiff.x, hsvDiff.y), hsvDiff.z);
+    vec3 diff = abs(InColor - color.rgb);
+    float weight = max(max(diff.x, diff.y), diff.z);
     float mul = min(1.0f, pow(weight, EDGE_VALUE_POW));
     return vec3(InOffset * InWeight * mul, InWeight); 
 }
@@ -50,19 +48,17 @@ void main()
     
     #ifdef FXAA
 
-    vec3 hsv = rgb2hsv(color.rgb);
-
     // Calculate edge direction
     vec3 accDir = vec3(0);
     vec2 pixelScale = vec2(1.0f) / Resolution;
-    accDir += EdgeDirection(vec2( 1, 0), pixelScale, 1.0f, hsv);
-    accDir += EdgeDirection(vec2(-1, 0), pixelScale, 1.0f, hsv);
-    accDir += EdgeDirection(vec2( 0, 1), pixelScale, 1.0f, hsv);
-    accDir += EdgeDirection(vec2( 0,-1), pixelScale, 1.0f, hsv);
-    accDir += EdgeDirection(vec2( 1, 1), pixelScale, 0.7f, hsv);
-    accDir += EdgeDirection(vec2(-1, 1), pixelScale, 0.7f, hsv);
-    accDir += EdgeDirection(vec2( 1,-1), pixelScale, 0.7f, hsv);
-    accDir += EdgeDirection(vec2(-1,-1), pixelScale, 0.7f, hsv);
+    accDir += EdgeDirection(vec2( 1, 0), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2(-1, 0), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2( 0, 1), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2( 0,-1), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2( 1, 1), pixelScale, 0.7f, color.rgb);
+    accDir += EdgeDirection(vec2(-1, 1), pixelScale, 0.7f, color.rgb);
+    accDir += EdgeDirection(vec2( 1,-1), pixelScale, 0.7f, color.rgb);
+    accDir += EdgeDirection(vec2(-1,-1), pixelScale, 0.7f, color.rgb);
     vec2 dir = accDir.xy / accDir.z;
 
     // Vector size is edge weight

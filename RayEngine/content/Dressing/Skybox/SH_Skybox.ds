@@ -1,9 +1,0 @@
-﻿#version 330
-
-#include "Shaders/SH_Default_ds.si"
-
-void main()
-{
-    Default();
-    Output.rgb = vec3(0.0f);
-}

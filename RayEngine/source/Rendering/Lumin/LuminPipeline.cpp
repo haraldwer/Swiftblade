@@ -8,7 +8,8 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbeFace(const Rende
     
     Stats stats;
     stats += RenderScene(InArgs);
-    stats += RenderLumin(InArgs);
+    //stats += RenderLumin(InArgs);
+    stats += RenderSkybox(InArgs);
     stats += RenderDeferred(InArgs);
 
     auto frame = GetFrameTarget(InArgs);

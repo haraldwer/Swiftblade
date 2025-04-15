@@ -6,6 +6,7 @@
 #include "Scene/Scene.h"
 #include "Viewport/Viewport.h"
 #include "rlgl.h"
+#include "Lumin/Lumin.h"
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
 {
@@ -23,15 +24,15 @@ void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InNam
 
 void Rendering::Renderer::SetShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget, uint32 InDeferredID)
 {
-    auto& scene = *InArgs.Scene;
     auto& viewport = *InArgs.Viewport;
     auto& context = *InArgs.Context;
+    auto& cam = InArgs.Camera; 
     
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    SetValue(InShader, "CameraPosition", &scene.MainCamera.Position.data[0], SHADER_UNIFORM_VEC3);
-    Vec2F nearFar = { scene.MainCamera.Near, scene.MainCamera.Far };
+    SetValue(InShader, "CameraPosition", &cam.Position.data[0], SHADER_UNIFORM_VEC3);
+    Vec2F nearFar = { cam.Near, cam.Far };
     SetValue(InShader, "NearFar", &nearFar.data[0], SHADER_UNIFORM_VEC2);
     const float time = static_cast<float>(context.Timer.Ellapsed()); 
     SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
@@ -82,10 +83,8 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 {
     rlEnableDepthTest();
 
-    auto& scene = *InArgs.Scene;
-    
     InSceneTarget.BeginWrite();
-    BeginMode3D(Utility::Ray::ConvertCamera(scene.MainCamera));
+    BeginMode3D(Utility::Ray::ConvertCamera(InArgs.Camera));
 
     Mat4F view = Utility::Ray::ConvertBack(rlGetMatrixModelview());
     Mat4F proj = Utility::Ray::ConvertBack(rlGetMatrixProjection());
@@ -94,7 +93,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     
     // Instanced rendering
     Map<uint64, int> count;
-    for (auto& entry : scene.Meshes.Entries)
+    for (auto& entry : InArgs.Scene->Meshes.Entries)
     {
         const ::Mesh* meshes = nullptr;
         int32 meshCount = 0;
@@ -126,6 +125,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         // rlEnableWireMode?
         // rlEnablePointMode?
         // rlEnableSmoothLines?
+        // rlEnableDepthTest?
 
         // Enable shader
         rlEnableShader(shader->id);
@@ -156,7 +156,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 {
     auto& scene = *InArgs.Scene;
     
-    InTarget.BeginWrite();
+    InTarget.BeginWrite(-1, false);
     for (auto& entry : scene.Meshes.DeferredShaders)
     {
         ShaderResource* shaderResource = entry.second.Get();
@@ -184,6 +184,124 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     return static_cast<uint32>(scene.Meshes.DeferredShaders.size());
 }
 
+int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
+{
+    auto probes = InArgs.Lumin->GetProbes(InArgs);
+    CHECK_RETURN(probes.empty(), 0);
+
+    LuminConfig luminConf = InArgs.Lumin->GetConfig();
+    
+    // Get shader
+    auto res = luminConf.LightingShader;
+    ShaderResource* shaderResource = res.Get().Get();
+    CHECK_RETURN(!shaderResource, 0);
+    const Shader* shader = shaderResource->Get();
+    CHECK_RETURN(!shader, 0);
+
+    const auto& debugRes = luminConf.DebugShader;
+    ShaderResource* debugShaderResource = debugRes.Get().Get();
+    CHECK_RETURN(!debugShaderResource, 0);
+    const Shader* debugShader = debugShaderResource->Get();
+    CHECK_RETURN(!debugShader, 0);
+
+    auto model = luminConf.SphereModel.Get().Get();
+    auto* modelRes = model->Get();
+    CHECK_RETURN(!modelRes, 0);
+    CHECK_RETURN(!modelRes->meshCount, 0);
+    Mesh& mesh = modelRes->meshes[0];
+    
+    InTarget.BeginWrite(RL_BLEND_ADDITIVE, false);
+    rlEnableShader(shader->id);
+    SetShaderValues(InArgs, *shaderResource, InTarget);
+    SetValue(*shaderResource, "ProbeDensity", &luminConf.Density.Get(), SHADER_UNIFORM_VEC3);
+    for (auto& probe : probes)
+    {
+        // Also set probe position
+        SetValue(*shaderResource, "ProbePosition", &probe->Pos, SHADER_UNIFORM_VEC3);
+
+        RenderTarget::Slot bindOffset;
+        for (auto& b : InBuffers)
+            if (b) b->Bind(*shaderResource, bindOffset);
+        probe->Target.Bind(*shaderResource, bindOffset);
+
+        rlLoadDrawQuad();
+        
+        RenderTarget::Slot unbindOffset;
+        for (auto& b : InBuffers)
+            if (b) b->Unbind(*shaderResource, unbindOffset);    
+        probe->Target.Unbind(*shaderResource, unbindOffset);
+    }
+    rlDisableShader();
+
+    if (luminConf.Debug)
+    {
+        // Draw debug probes
+        BeginMode3D(Utility::Ray::ConvertCamera(InArgs.Camera));
+        rlDisableColorBlend();
+        rlEnableDepthTest();
+        rlEnableShader(debugShader->id);
+        SetShaderValues(InArgs, *debugShaderResource, InTarget);
+        SetValue(*debugShaderResource, "ProbeDensity", &luminConf.Density.Get(), SHADER_UNIFORM_VEC3);
+        for (auto& probe : probes)
+        {
+            // Also set probe position
+            SetValue(*debugShaderResource, "ProbePosition", &probe->Pos, SHADER_UNIFORM_VEC3);
+            
+            RenderTarget::Slot bindOffset;
+            for (auto& b : InBuffers)
+                if (b) b->Bind(*debugShaderResource, bindOffset);
+            probe->Target.Bind(*debugShaderResource, bindOffset);
+            
+            RaylibRenderUtility::DrawInstances(mesh, *debugShader, { probe->Pos });
+            
+            RenderTarget::Slot unbindOffset;
+            for (auto& b : InBuffers)
+                if (b) b->Unbind(*debugShaderResource, unbindOffset);
+            probe->Target.Unbind(*debugShaderResource, unbindOffset);
+            
+        }
+        rlDisableShader();
+        EndMode3D();
+        rlDisableDepthTest();
+    }
+
+    InTarget.EndWrite();
+    return probes.size();
+}
+
+int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
+{
+    auto model = InArgs.Context->Config.DefaultCube.Get().Get();
+    auto* modelRes = model->Get();
+    CHECK_RETURN(!modelRes, 0);
+    CHECK_RETURN(!modelRes->meshCount, 0);
+    Mesh& mesh = modelRes->meshes[0];
+    
+    InTarget.BeginWrite(RL_BLEND_ALPHA);
+    BeginMode3D(Utility::Ray::ConvertCamera(InArgs.Camera));
+    rlDisableBackfaceCulling();
+    int c = 0;
+    for (auto& environment : InArgs.Scene->Environments)
+    {
+        MaterialResource* rm = environment.Skybox.Get();
+        CHECK_CONTINUE(!rm);
+        ShaderResource* shaderResource = rm->SurfaceShader.Get().Get();
+        CHECK_CONTINUE(!shaderResource);
+        const Shader* shader = shaderResource->Get();
+        CHECK_CONTINUE(!shader);
+        
+        rlEnableShader(shader->id);
+        SetShaderValues(InArgs, *shaderResource, InTarget);
+        SetValue(*shaderResource, "Bounds", &environment.Shape, SHADER_UNIFORM_VEC3);
+        RaylibRenderUtility::DrawInstances(mesh, *shader, { environment.Position });
+        rlDisableShader();
+        c++;
+    }
+    EndMode3D();
+    InTarget.EndWrite();
+    return c;
+}
+
 void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)
 {
     ShaderResource* shaderResource = InShader.Get();
@@ -193,7 +311,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
     InTarget.BeginWrite(InBlend, InClear);
     rlEnableShader(shader->id);
-    SetShaderValues(InArgs, *shaderResource, InTarget, 0);
+    SetShaderValues(InArgs, *shaderResource, InTarget);
     
     RenderTarget::Slot bindOffset;
     for (auto& b : InBuffers)
@@ -215,9 +333,9 @@ void Rendering::Renderer::DrawCubeFace(const RenderArgs& InArgs, const RenderTar
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN_LOG(!shader, "Failed to get shader");
 
-    InTarget.BeginWrite(InBlend, InClear);
+    InTarget.BeginWrite(InBlend, InClear, InFaceIndex);
     rlEnableShader(shader->id);
-    SetShaderValues(InArgs, *shaderResource, InTarget, 0);
+    SetShaderValues(InArgs, *shaderResource, InTarget);
     
     RenderTarget::Slot bindOffset;
     for (auto& b : InBuffers)
@@ -238,7 +356,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
     
     rlEnableColorBlend();
     
-    BeginMode3D(Utility::Ray::ConvertCamera(scene.MainCamera));
+    BeginMode3D(Utility::Ray::ConvertCamera(InArgs.Camera));
 
     for (auto& shape : scene.DebugShapes)
     {
