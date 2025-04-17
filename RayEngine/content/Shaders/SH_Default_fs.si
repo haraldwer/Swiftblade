@@ -2,6 +2,7 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_DeferredOut.si"
 #include "Shaders/Utility/SH_DeferredID.si"
+#include "Shaders/Utility/SH_Utility.si"
 
 // In
 in vec4 WorldPosition;

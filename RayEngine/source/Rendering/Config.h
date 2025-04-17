@@ -1,7 +1,9 @@
 #pragma once
+
 #include "Context/ContextConfig.h"
-#include "Window/WindowConfig.h"
+#include "Lumin/LuminConfig.h"
 #include "Viewport/ViewportConfig.h"
+#include "Window/WindowConfig.h"
 
 namespace Rendering
 {
@@ -10,6 +12,7 @@ namespace Rendering
         PROPERTY(WindowConfig, Window);
         PROPERTY(ViewportConfig, Viewport);
         PROPERTY(ContextConfig, Context);
+        PROPERTY(LuminConfig, Lumin);
 
         String Name() const override { return "Rendering"; }
     };

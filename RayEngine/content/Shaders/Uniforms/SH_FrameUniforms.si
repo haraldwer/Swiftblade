@@ -8,9 +8,3 @@ uniform vec2 NearFar;
 uniform float Time;
 uniform float Delta;
 uniform int DeferredID;
-
-vec4 WorldPosToTex(vec4 InPos)
-{
-    InPos.xyz = InPos.xyz - CameraPosition;
-    return InPos;
-}

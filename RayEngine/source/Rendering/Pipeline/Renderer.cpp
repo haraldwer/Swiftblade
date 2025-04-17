@@ -6,6 +6,7 @@
 #include "Scene/Scene.h"
 #include "Viewport/Viewport.h"
 #include "rlgl.h"
+#include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
@@ -44,7 +45,7 @@ void Rendering::Renderer::SetShaderValues(const RenderArgs& InArgs, ShaderResour
     SetValue(InShader, "WorldToScreen", Utility::Ray::ConvertMat(viewport.PendingMVP));
     SetValue(InShader, "WorldToPrevScreen", Utility::Ray::ConvertMat(viewport.PreviousMVP));
     SetValue(InShader, "ScreenToWorld", Utility::Ray::ConvertMat(Mat4F::GetInverse(viewport.PendingMVP)));
-
+    
     SetNoiseTextures(InArgs, InShader);
 }
 
@@ -121,12 +122,8 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         CHECK_CONTINUE(!shader);
 
         resMat->TwoSided ? rlDisableBackfaceCulling() : rlEnableBackfaceCulling();
-        //resMat->Transparent ? rlDisableDepthMask() : rlEnableDepthMask();
-        // rlEnableWireMode?
-        // rlEnablePointMode?
-        // rlEnableSmoothLines?
-        // rlEnableDepthTest?
-
+        resMat->Transparent ? rlDisableDepthTest() : rlEnableDepthTest();
+        
         // Enable shader
         rlEnableShader(shader->id);
         SetShaderValues(InArgs, *resShader, InSceneTarget, entry.second.DeferredID);
@@ -267,6 +264,73 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 
     InTarget.EndWrite();
     return probes.size();
+}
+
+int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
+{
+    CHECK_ASSERT(!InArgs.Context->LightsPtr, "Invalid lightptr");
+    auto& lightMan = *InArgs.Context->LightsPtr;
+    
+    auto lights = lightMan.GetLights(InArgs);
+    CHECK_RETURN(lights.empty(), 0);
+
+    LightConfig conf = lightMan.Config;
+    
+    // Get shader
+    auto res = conf.LightShader;
+    ShaderResource* shaderResource = res.Get().Get();
+    CHECK_RETURN(!shaderResource, 0);
+    const Shader* shader = shaderResource->Get();
+    CHECK_RETURN(!shader, 0);
+    
+    InTarget.BeginWrite(RL_BLEND_ADDITIVE, false);
+    rlEnableShader(shader->id);
+    SetShaderValues(InArgs, *shaderResource, InTarget);
+    SetValue(*shaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
+
+    for (auto& light : lights)
+    {
+        CHECK_ASSERT(!light, "Invalid light");
+    
+        SetValue(*shaderResource, "Position", &light->Data.Position, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Direction", &light->Data.Direction, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Color", &light->Data.Color, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Range", &light->Data.Range, SHADER_UNIFORM_FLOAT);
+        SetValue(*shaderResource, "ConeRadius", &light->Data.Radius, SHADER_UNIFORM_FLOAT);
+        SetValue(*shaderResource, "Intensity", &light->Data.Intensity, SHADER_UNIFORM_FLOAT);
+        
+        auto& cache = lightMan.Cache.at(light->ID);
+        float time = static_cast<float>(cache.Timestamp);
+        SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
+        SetValue(*shaderResource, "ShadowPosition", &cache.SamplePos, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "ShadowPositionPrev", &cache.PrevSamplePos, SHADER_UNIFORM_VEC3);
+
+        RenderTarget::Slot bindOffset;
+        for (auto& b : InBuffers)
+            if (b) b->Bind(*shaderResource, bindOffset);
+
+        if (light->Shadows && cache.Timestamp > 0.001f)
+        {
+            cache.Target.Curr().Bind(*shaderResource, bindOffset);
+            cache.Target.Prev().Bind(*shaderResource, bindOffset, "Prev");
+        }
+
+        rlLoadDrawQuad();
+        
+        RenderTarget::Slot unbindOffset;
+        for (auto& b : InBuffers)
+            if (b) b->Unbind(*shaderResource, unbindOffset);
+
+        if (light->Shadows && cache.Timestamp > 0.001f)
+        {
+            cache.Target.Curr().Unbind(*shaderResource, bindOffset);
+            cache.Target.Prev().Unbind(*shaderResource, bindOffset, "Prev");
+        }
+    }
+    rlDisableShader();
+
+    InTarget.EndWrite();
+    return lights.size();
 }
 
 int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)

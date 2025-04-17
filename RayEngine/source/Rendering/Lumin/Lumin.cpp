@@ -1,16 +1,16 @@
 #include "Lumin.h"
 
+#include "RayRenderUtility.h"
 #include "Scene/Instances/CameraInstance.h"
 #include "Scene/Scene.h"
 #include "Utility/Collections/SortedInsert.h"
 #include "raylib.h"
 
-void Rendering::Lumin::Init(const ContextConfig& InDefaultContextConfig)
+void Rendering::Lumin::Init(const LuminConfig& InConfig)
 {
-    Config.Context = InDefaultContextConfig;
-    Config.LoadConfig(); // Will only overwrite, not reset
+    Config = InConfig;
     Viewport.Init(Config.Viewport);
-    Context.Init(Config.Context);
+    Context.Init(Config.Context, InConfig);
 }
 
 void Rendering::Lumin::Deinit()
@@ -43,7 +43,7 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
         if (frustum.CheckSphere(InProbe.Pos, cullDist))
             return true;
-        return true;
+        return false;
     };
     
     for (auto& probe : Probes)
@@ -64,22 +64,13 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     
     ExpandVolume(*InArgs.Scene);
 
+    auto directions = RaylibRenderUtility::GetCubemapRotations();
     RenderArgs args = {
         .Scene = InArgs.Scene,
         .Context = &Context,
         .Viewport = &Viewport,
         .Lumin = this,
         .Camera = CameraInstance()
-    };
-    
-    QuatF directions[6] = {
-        // Yaw pitch roll
-        QuatF::FromEuler({ 0, PI/2, PI }), //Right
-        QuatF::FromEuler({ 0, -PI/2, -PI }), //Left
-        QuatF::FromEuler({ PI/2, 0, PI }), //Up
-        QuatF::FromEuler({ -PI/2, 0, PI }), //Down
-        QuatF::FromEuler({ 0, 0, PI }), //Forward
-        QuatF::FromEuler({ PI, 0, 0 }), //Backward
     };
 
     Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
@@ -111,11 +102,10 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
                 .Far = Config.ProbeFar,
                 .Near = 0.1f
             };
-            stats += Pipeline.RenderProbeFace(args, probe->Target,  i, Config.ProbeShader);
+            stats += Pipeline.RenderProbeFace(args, probe->Target, Config.ProbeShader, i == 0);
             probe->Timestamp = Context.Time();
             probe->Iterations++;
         }
-        //probe->Target.GenerateMips();
         count++;
         if (count >= Config.MaxProbeRenders)
             break;
@@ -128,7 +118,6 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
 
 void Rendering::Lumin::ExpandVolume(const Scene& InScene)
 {
-    auto& tex = Viewport.GetVirtualTarget();
     for (auto& entry : InScene.Meshes.Entries)
     {
         for (auto& trans : entry.second.Transforms)
@@ -138,7 +127,7 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
             for (int x = -1; x <= 1; x++)
                 for (int y = -1; y <= 1; y++)
                     for (int z = -1; z <= 1; z++)
-                        TryCreateProbe(tex, {
+                        TryCreateProbe({
                             .x = static_cast<int16>(x + coord.x),
                             .y = static_cast<int16>(y + coord.y),
                             .z = static_cast<int16>(z + coord.z),
@@ -148,7 +137,7 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
     }
 }
 
-void Rendering::Lumin::TryCreateProbe(const RenderTexture& InTex, const ProbeCoord InCoord)
+void Rendering::Lumin::TryCreateProbe(const ProbeCoord InCoord)
 {
     if (InCoord.id == 0)
         return;
@@ -157,10 +146,14 @@ void Rendering::Lumin::TryCreateProbe(const RenderTexture& InTex, const ProbeCoo
     {
         probe.Coord = InCoord;
         probe.Pos = FromCoord(InCoord);
-        if (probe.Target.TryBeginSetup(InTex))
+        auto& tex = Viewport.GetVirtualTarget();
+        if (probe.Target.TryBeginSetup(tex))
         {
-            probe.Target.CreateBuffer("TexEnvCube", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 1, true);
-            probe.Target.EndSetup(InTex);
+            probe.Target.CreateBuffer(
+                "TexEnvOct",
+                PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
+                1.0f);
+            probe.Target.EndSetup(tex);
         }
     }
 }

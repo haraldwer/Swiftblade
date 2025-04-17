@@ -16,10 +16,8 @@ namespace ECS
 
     class SysMesh : public System<Mesh>
     {
-        
     public:
-        void SystemFrame() override;
-        void Update(EntityID InEntity, Mesh& InComponent) override;
+        void Frame(EntityID InID, Mesh& InComponent) override;
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -100; }
     };

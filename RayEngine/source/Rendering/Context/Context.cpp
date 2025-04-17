@@ -1,25 +1,26 @@
 #include "Context.h"
 
+#include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 
-void Rendering::Context::Init(const ContextConfig& InConfig, const bool InLuminInstance)
+void Rendering::Context::Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, const bool InRoot)
 {
     Config = InConfig;
 
     // TODO: Use config when compiling shaders
     // Additional arguments for resource constructor?
     
-    SSAOShader = ResShader("Shaders/PostProcessing/SH_SSAO.ps"); 
-    QuantizeShader = ResShader("Shaders/PostProcessing/SH_Quantize.ps");
-    FXAAShader = ResShader("Shaders/PostProcessing/SH_FXAA.ps");
-    
-    FireShader = ResShader("Shaders/PostProcessing/SH_Fire.ps");
-    FireBlipShader = ResShader("Shaders/PostProcessing/SH_FireBlip.ps");
-
-    if (InLuminInstance && InConfig.Lumin)
+    if (InRoot)
     {
-        LuminPtr = new Lumin();
-        LuminPtr->Init(InConfig);
+        if (LuminPtr)
+            LuminPtr->Deinit();
+        else LuminPtr = new Lumin();
+        LuminPtr->Init(InLuminConfig);
+
+        if (LightsPtr)
+            LightsPtr->Deinit();
+        else LightsPtr = new Lights();
+        LightsPtr->Init(InConfig.Lights);
     }
 }
 

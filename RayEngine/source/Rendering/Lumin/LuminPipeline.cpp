@@ -1,6 +1,6 @@
 ﻿#include "LuminPipeline.h"
 
-Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbeFace(const RenderArgs& InArgs, const RenderTarget& InTarget, const int InFaceIndex, const ResShader& InShader)
+Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbeFace(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, bool InClear)
 {
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
@@ -14,6 +14,6 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbeFace(const Rende
 
     auto frame = GetFrameTarget(InArgs);
     auto scene = GetSceneTarget(InArgs);
-    Renderer::DrawCubeFace(InArgs, InTarget, InFaceIndex, InShader, { &frame, &scene });
+    Renderer::DrawFullscreen(InArgs, InTarget, InShader, { &frame, &scene }, -1, InClear);
     return stats;
 }

@@ -4,9 +4,19 @@
 #include "Editor/Debug/Draw.h"
 #include "Instance/Instance.h"
 
-using namespace ECS; 
+using namespace ECS;
+
+void SysCameraComponent::Frame(EntityID InEntity, CameraComponent& InComponent)
+{
+    //Set(InEntity, InComponent);
+}
 
 void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent)
+{
+    Set(InEntity, InComponent);
+}
+
+void SysCameraComponent::Set(EntityID InEntity, CameraComponent& InComponent)
 {
     const Transform& t = Get<Transform>(InEntity);
     const CameraInstance c {

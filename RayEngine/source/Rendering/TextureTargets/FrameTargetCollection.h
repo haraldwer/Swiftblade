@@ -11,8 +11,9 @@ namespace Rendering
         Map<String, Vector<RenderTarget::TargetTex>> GetTargets();
 
         RenderTarget SceneTarget;
-        SwapTarget SSAOTargets = SwapTarget(2);
-        SwapTarget FireTargets = SwapTarget(2);
+        SwapTarget AOTargets = SwapTarget();
+        SwapTarget GITargets = SwapTarget();
+        SwapTarget FireTargets = SwapTarget();
         RenderTarget FrameTarget;
         RenderTarget QuantizeTarget;
     };

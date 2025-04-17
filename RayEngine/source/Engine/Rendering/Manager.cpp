@@ -12,7 +12,7 @@ void Rendering::Manager::Init()
     QueuedConfig = CurrConfig;
     Window.Open(CurrConfig.Window);
     MainViewport.Init(CurrConfig.Viewport);
-    DefaultContext.Init(CurrConfig.Context, true);
+    DefaultContext.Init(CurrConfig.Context, CurrConfig.Lumin, true);
 
     rlImGuiSetup(false);
     ImGui::ThemeMoonlight();
@@ -83,8 +83,8 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
     CurrConfig = InConfig;
     QueuedConfig = InConfig;
 
-    if (CurrConfig.Context != prev.Context)
-        DefaultContext.Init(CurrConfig.Context);
+    if (CurrConfig.Context != prev.Context || CurrConfig.Lumin != prev.Lumin)
+        DefaultContext.Init(CurrConfig.Context, CurrConfig.Lumin, true);
 
     if (CurrConfig.Viewport != prev.Viewport)
         MainViewport.Init(CurrConfig.Viewport);

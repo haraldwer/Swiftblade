@@ -41,7 +41,7 @@ namespace ECS
         
         void Init(EntityID InID, CubeVolume& InComponent) override;
         void Deinit(EntityID InID, CubeVolume& InComponent) override;
-        void Update(EntityID InID, CubeVolume& InComponent) override;
+        void Frame(EntityID InID, CubeVolume& InComponent) override;
 
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -101; }

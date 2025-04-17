@@ -22,6 +22,7 @@ namespace Rendering
             int Renders = 0;
             int FullscreenPasses = 0;
             int Probes = 0;
+            int Lights = 0;
             int Skyboxes = 0;
 
             void operator += (const Stats& InStats)
@@ -40,8 +41,9 @@ namespace Rendering
     protected:
         Stats RenderSkybox(const RenderArgs& InArgs);
         Stats RenderScene(const RenderArgs& InArgs);
-        Stats RenderLumin(const RenderArgs& InArgs);
         Stats RenderDeferred(const RenderArgs& InArgs);
+        Stats RenderLights(const RenderArgs& InArgs);
+        Stats RenderLumin(const RenderArgs& InArgs);
         Stats RenderFire(const RenderArgs& InArgs);
         Stats ApplyFire(const RenderArgs& InArgs);
         Stats RenderAO(const RenderArgs& InArgs);

@@ -15,8 +15,10 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
         SceneTarget.EndSetup(InTarget);
     }
 
-    for (auto& target : SSAOTargets.All())
+    for (auto& target : AOTargets.All())
         target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    for (auto& target : AOTargets.All())
+        target.Setup(InTarget, "TexGI", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     for (auto& target : FireTargets.All())
         target.Setup(InTarget, "TexFire", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
     FrameTarget.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
@@ -26,7 +28,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
 void Rendering::FrameTargetCollection::Deinit()
 {
     SceneTarget.Unload();
-    for (auto& t : SSAOTargets.All())
+    for (auto& t : AOTargets.All())
         t.Unload();
     for (auto& t : FireTargets.All())
         t.Unload();
@@ -39,7 +41,7 @@ Map<String, Vector<RenderTarget::TargetTex>> Rendering::FrameTargetCollection::G
     Map<String, Vector<RenderTarget::TargetTex>> result; 
     result["Scene"] = SceneTarget.GetTextures();
     result["Fire"] = FireTargets.Curr().GetTextures();
-    result["SSAO"] = SSAOTargets.Curr().GetTextures();
+    result["SSAO"] = AOTargets.Curr().GetTextures();
     result["Quantize"] = QuantizeTarget.GetTextures();
     result["Frame"] = FrameTarget.GetTextures();
     return result;

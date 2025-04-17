@@ -16,6 +16,7 @@ out vec4 WorldPosition;
 out vec3 WorldNormal;
 out vec3 ObjectPosition;
 out vec3 VertexPosition;
+out vec2 TexCoord;
 
 void Default()
 {
@@ -27,4 +28,5 @@ void Default()
     vec4 screenPos = mvp * WorldPosition;
     gl_Position = DistortScreenPos(screenPos);
     WorldPosition.w = screenPos.z; // Store linear depth
+    TexCoord = vertexTexCoord;
 }

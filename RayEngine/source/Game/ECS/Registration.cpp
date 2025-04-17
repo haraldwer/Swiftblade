@@ -26,6 +26,7 @@
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Mesh.h"
 #include "Engine/ECS/Systems/Environment.h"
+#include "Engine/ECS/Systems/Light.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Obstacles/Projectile.h"
@@ -53,6 +54,7 @@ SystemToName[var] = String(#x); }
     REG_ENTITY_SYSTEM(Transform);
     REG_ENTITY_SYSTEM(Mesh);
     REG_ENTITY_SYSTEM(Environment);
+    REG_ENTITY_SYSTEM(Light);
     REG_ENTITY_SYSTEM(CameraComponent);
     REG_ENTITY_SYSTEM(Collider);
     REG_ENTITY_SYSTEM(Rigidbody);

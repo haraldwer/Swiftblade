@@ -6,6 +6,7 @@
 void main()
 {
     WorldNormal = vertexNormal;
+    VertexPosition = vertexPosition;
     ObjectPosition = (instanceTransform * vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
     WorldPosition = vec4(CameraPosition + vertexPosition * NearFar.y, 1.0f);
     vec4 screenPos = mvp * WorldPosition;

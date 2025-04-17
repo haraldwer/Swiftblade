@@ -17,7 +17,7 @@ namespace ECS
     class SysEnvironment : public System<Environment>
     {
     public:
-        void Update(EntityID InEntity, Environment& InComponent) override;
+        void Frame(EntityID InID, Environment& InComponent) override;
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -100; }
     };

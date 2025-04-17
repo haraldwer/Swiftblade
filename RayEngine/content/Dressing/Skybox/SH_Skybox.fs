@@ -15,8 +15,8 @@ out vec4 Output;
 void main()
 {
     // TexCoord to direction?
-    vec3 p = normalize(WorldNormal.xyz);
-    vec3 n = Simplex(p + Time * 0.001, p);
+    vec3 p = normalize(VertexPosition.xyz);
+    float n = CalcPerlin(p + vec3(0.0, -1.0, 0.0) * Time * 0.05);
     Output.rgb = vec3(n);
     Output.a = 1.0f;
 }

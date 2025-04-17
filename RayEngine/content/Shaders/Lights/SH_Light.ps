@@ -1,0 +1,147 @@
+#version 330
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_HSV.si"
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_Random.si"
+
+// TODO: Pack these neater
+uniform vec3 Position;
+uniform vec3 Direction;
+uniform vec3 Color;
+uniform float Range;
+uniform float ConeRadius;
+uniform float Intensity;
+
+// Hacks for shadow interpolation
+uniform float Timestamp;
+uniform vec3 ShadowPosition;
+uniform vec3 ShadowPositionPrev;
+uniform float UpdateFrequency;
+
+uniform samplerCube TexShadowCube;
+uniform samplerCube TexShadowCubePrev;
+
+in vec2 TexCoord;
+out vec4 Output;
+
+const int SHADOW_SAMPLES = 16;
+const float SHADOW_SAMPLE_SCALE = 0.01f;
+const float SHADOW_NOISE_SCALE = 1000.0f;
+
+const float TRAVEL_PART = 0.5;
+
+float InterleavedGradientNoise(vec2 uv)
+{
+    vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
+    return fract(magic.z * fract(dot(uv, magic.xy)));
+}
+
+vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
+{
+    float GoldenAngle = 2.4f;
+    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
+    float theta = sampleIndex * GoldenAngle + phi;
+    return vec2(r * cos(theta), r * sin(theta));
+}
+
+float ShadowDepth(vec4 InPixelPos, vec3 InLightPos, samplerCube InTex)
+{
+    vec3 toLight = InLightPos - InPixelPos.xyz;
+    float lightDist = length(toLight);
+    vec3 toLightDir = toLight / lightDist;
+
+    #ifdef SOFT_SHADOWS
+    
+    vec3 right = vec3(toLight.z, toLight.y, -toLight.x);
+    vec3 up = vec3(toLight.x, toLight.z, -toLight.y);
+    float div = 1.0f / float(SHADOW_SAMPLES);
+    float interleaved = PI * 2.0f * InterleavedGradientNoise((TexCoord + Time) * SHADOW_NOISE_SCALE);
+    
+    float orgDepth = texture(InTex, -toLightDir).r * Range;
+    float orgDiff = lightDist - orgDepth;
+    float sum = div * float(orgDiff < 0.0f);
+
+    for(int i = 1; i < SHADOW_SAMPLES; i++)
+    {
+        vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * SHADOW_SAMPLE_SCALE;
+        vec3 vec = normalize(toLight + right * off.x + up * off.y);
+        float shadowDepth = texture(InTex, -vec).r * Range;
+        float shadowDiff = abs(lightDist - shadowDepth);
+        sum += div * float(shadowDiff < 1.1f);
+    }
+    float oneMin = (1.0f - sum);
+    float exp = oneMin * oneMin;
+    return exp;
+    
+    #else
+    float depth = texture(InTex, -toLightDir).r * Range;
+    return abs(depth - lightDist);
+    #endif
+}
+
+float InterpShadow(vec4 InPixelPos, vec3 InShadowPos, vec3 InLerpPos, samplerCube InTex)
+{
+    float cam = ShadowDepth(InPixelPos, Position, InTex); // Sample from light
+    float shadow = ShadowDepth(InPixelPos, InShadowPos, InTex); // Sample from shadow
+    float expected = ShadowDepth(vec4(InPixelPos.xyz + Position - InShadowPos, InPixelPos.w), InLerpPos, InTex); // Sample from new expected pixel
+    float lerp = ShadowDepth(InPixelPos, InLerpPos, InTex); // Sample from interpolated
+    float depthDiff = min(min(min(expected, cam), shadow), lerp); // Largest depth
+    return 1.0 - clamp(abs(depthDiff) - 0.5, 0, 1);
+}
+
+float InterpShadows(vec4 InPixelPos)
+{
+    float ellapsed = Time - Timestamp;
+    float lerp = clamp(ellapsed / UpdateFrequency, 0, 1);
+    vec3 lerpPos = mix(ShadowPositionPrev, ShadowPosition, lerp);
+
+    float travelDist = length(lerpPos - Position);
+    float travelLerp = travelDist / (Range * TRAVEL_PART);
+    if (travelLerp > 1)
+        return 1;
+    
+    float curr = InterpShadow(InPixelPos, ShadowPosition, lerpPos, TexShadowCube);
+    if (lerp > 1.0)
+        return curr;
+    float prev = InterpShadow(InPixelPos, ShadowPositionPrev, lerpPos, TexShadowCubePrev);
+    return mix(mix(prev, curr, lerp), 1, travelLerp);
+}
+
+float SimpleShadows(vec4 InPixelPos)
+{
+    float shadow = ShadowDepth(InPixelPos, ShadowPosition, TexShadowCube);
+    return 1.0 - clamp(abs(shadow) - 0.5, 0, 1);
+}
+
+void main()
+{
+    vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
+    vec3 toLight = Position - worldPos.xyz;
+    float lightDist = length(toLight);
+    if (lightDist > Range)
+        discard;
+    
+    float fade = 1 - lightDist / Range;
+    fade = fade * fade; // pow2
+    
+    vec3 toLightDir = toLight / lightDist;
+    vec3 normal = SampleNormal(TexCoord);
+    float d = dot(toLightDir, normal);
+    if (d < 0)
+        discard;
+
+    // Is surface in view of light?
+    #ifdef INTERP_SHADOWS
+    float shadow = InterpShadows(worldPos);
+    #else
+    float shadow = SimpleShadows(worldPos);
+    #endif
+    if (shadow < 0.001f)
+        discard;
+    
+    float intensity = Intensity * (pow(d, 0.5)) * fade * shadow; 
+    Output.rgb = Color * (1.0 + intensity * 0.2);
+    Output.a = intensity;
+}

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "ContextConfig.h"
-#include "Rendering/Resources/Shader.h"
 
 namespace Rendering
 {
+    class Lights;
     class Lumin;
+    struct LuminConfig;
 
     class Context
     {
@@ -13,7 +14,7 @@ namespace Rendering
         friend class Renderer;
         
     public:
-        void Init(const ContextConfig& InConfig, bool InLuminInstance = false);
+        void Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, bool InRoot = false);
         void Deinit();
         double Time() const { return Timer.Ellapsed(); }
 
@@ -23,12 +24,7 @@ namespace Rendering
         // Total context lifetime
         Utility::Timer Timer;
         
-        ResShader FireShader;
-        ResShader FireBlipShader;
-        ResShader SSAOShader; 
-        ResShader QuantizeShader;
-        ResShader FXAAShader;
-
+        Lights* LightsPtr = nullptr;
         Lumin* LuminPtr = nullptr;
     };
 }

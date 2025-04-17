@@ -18,7 +18,7 @@ public:
     bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat);
     
     bool TryBeginSetup(const RenderTexture& InRenderTexture);
-    void CreateBuffer(const String& InName, uint8 InPixelFormat, int InMips = 1, bool InCubemap = false);
+    void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InMips = 1, bool InCubemap = false);
     void EndSetup(const RenderTexture& InRenderTexture) const;
     
     void Unload();
@@ -32,8 +32,8 @@ public:
         int Index = 0;
     };
     
-    void Bind(ShaderResource& InShader, Slot& InOutSlots) const;
-    void Unbind(ShaderResource& InShader, Slot& InOutSlots) const;
+    void Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix = "") const;
+    void Unbind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix = "") const;
     
     const Vector<TargetTex>& GetTextures() const { return Textures; }
     Vec2F Size() const { return { static_cast<float>(Width), static_cast<float>(Height) }; }

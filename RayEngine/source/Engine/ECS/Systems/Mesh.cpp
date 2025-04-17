@@ -6,19 +6,16 @@
 
 using namespace ECS;
 
-void SysMesh::SystemFrame()
+void SysMesh::Frame(EntityID InID, Mesh& InComponent)
 {
-    System::SystemFrame();
-}
-
-void SysMesh::Update(EntityID InEntity, Mesh& InComponent)
-{
+    System<Mesh>::Frame(InID, InComponent);
+    
     // TODO: Static component optimization
     
     if (!InComponent.Visible)
         return;
 
-    const Transform& t = Get<Transform>(InEntity);
+    const Transform& t = Get<Transform>(InID);
     const MeshInstance m {
         .Model= InComponent.Model,
         .Material= InComponent.Material,

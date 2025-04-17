@@ -133,14 +133,14 @@ void RenderTarget::GenerateMips() const
             GenTextureMipmaps(tex.Tex);
 }
 
-void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots) const
+void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
     for (const auto& tex : Textures)
     {
         InOutSlots.Index++;
-        int loc = InShader.GetLocation(tex.Name);
+        int loc = InShader.GetLocation(tex.Name + InPostfix);
         CHECK_CONTINUE(loc < 0 && !tex.Cubemap);
 
         InOutSlots.Loc++;
@@ -160,7 +160,7 @@ void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots) const
     }
 }
 
-void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots) const
+void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
 {
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
@@ -179,21 +179,24 @@ void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots) const
     }
 }
 
-void RenderTarget::CreateBuffer(const String& InName, uint8 InPixelFormat, int InMips, bool InCubemap)
+void RenderTarget::CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale, int InMips, bool InCubemap)
 {
+    const int w = static_cast<int>(static_cast<float>(Width) * InResScale);
+    const int h = static_cast<int>(static_cast<float>(Height) * InResScale);
+    
     int mips = InMips;
     if (mips <= 0)
-        mips = 1 + static_cast<int>(floor(log(Utility::Math::Max(Width, Height)) / log(2)));
+        mips = 1 + static_cast<int>(floor(log(Utility::Math::Max(w, h)) / log(2)));
     
     auto& buffer = Textures.emplace_back();
     buffer.Name = InName;
     buffer.Cubemap = InCubemap;
     buffer.Tex = new Texture(); 
     buffer.Tex->id = InCubemap ?
-        rlLoadTextureCubemap(nullptr, Width, InPixelFormat, mips) : 
-        rlLoadTexture(nullptr, Width, Height, InPixelFormat, mips); 
-    buffer.Tex->width = Width;
-    buffer.Tex->height = InCubemap ? Width : Height;
+        rlLoadTextureCubemap(nullptr, w, InPixelFormat, mips) : 
+        rlLoadTexture(nullptr, w, h, InPixelFormat, mips); 
+    buffer.Tex->width = w;
+    buffer.Tex->height = InCubemap ? w : h;
     buffer.Tex->mipmaps = mips;
     buffer.Tex->format = InPixelFormat;
 }

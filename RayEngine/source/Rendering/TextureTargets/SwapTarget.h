@@ -5,7 +5,7 @@
 class SwapTarget
 {
 public:
-    SwapTarget(int InNum)
+    SwapTarget(int InNum = 2)
     {
         CHECK_ASSERT(InNum < 2, "Too few targets");
         Targets.resize(InNum);

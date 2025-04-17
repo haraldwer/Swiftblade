@@ -6,6 +6,18 @@
 
 namespace RaylibRenderUtility
 {
+    inline Array<QuatF, 6> GetCubemapRotations()
+    {
+        return {
+            QuatF::FromEuler({ 0, PI/2, PI }), //Right
+            QuatF::FromEuler({ 0, -PI/2, -PI }), //Left
+            QuatF::FromEuler({ PI/2, 0, PI }), //Up
+            QuatF::FromEuler({ -PI/2, 0, PI }), //Down
+            QuatF::FromEuler({ 0, 0, PI }), //Forward
+            QuatF::FromEuler({ PI, 0, 0 }), //Backward
+        };
+    }
+    
     inline void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices)
     {
         int instances = static_cast<int>(InMatrices.size());

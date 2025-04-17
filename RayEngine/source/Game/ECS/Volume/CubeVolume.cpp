@@ -303,7 +303,7 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
     Physics::Manager::Get().ClearCubes(InID); 
 }
 
-void ECS::SysCubeVolume::Update(EntityID InID, CubeVolume& InComponent)
+void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
 {
     // Calculate bounds
     const Mat4F world = Get<Transform>(InComponent.GetID()).World();

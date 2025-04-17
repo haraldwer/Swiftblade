@@ -83,6 +83,7 @@ int main()
         renderer.BeginFrame();
         debugManager.Frame(frameDelta);
         renderer.EndFrame();
+        instance->GetRenderScene().Clear();
         PROFILE_SCOPE_END();
         
         PROFILE_SCOPE_END();

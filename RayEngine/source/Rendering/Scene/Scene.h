@@ -4,6 +4,7 @@
 #include "Instances/CameraInstance.h"
 #include "Instances/DebugShape.h"
 #include "Instances/EnvironmentInstance.h"
+#include "Instances/LightInstance.h"
 #include "Instances/MeshInstance.h"
 
 namespace Rendering
@@ -31,13 +32,15 @@ namespace Rendering
     {
         friend class Renderer;
         friend class Lumin;
+        friend class Lights;
     public:
         void SetCamera(const CameraInstance& InCamera);
-        void AddEnvironment(const EnvironmentInstance& InEnvironment);
         const CameraInstance& GetCamera() const { return MainCamera; }
         
+        void AddEnvironment(const EnvironmentInstance& InEnvironment);
         void AddMesh(const MeshInstance& InMesh);
         void AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd);
+        void AddLight(const LightInstance& InLight);
         void AddDebugShape(const DebugShape& InShape);
         void AddDebugLine(const DebugLine& InLine);
 
@@ -48,6 +51,7 @@ namespace Rendering
         CameraInstance MainCamera = {};
         Vector<EnvironmentInstance> Environments;
         MeshCollection Meshes;
+        Vector<LightInstance> Lights;
         Vector<DebugShape> DebugShapes;
         Vector<DebugLine> DebugLines;
         Frustum Frustum;

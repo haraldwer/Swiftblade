@@ -8,7 +8,7 @@
 
 uniform vec3 ProbePosition;
 uniform vec3 ProbeDensity;
-uniform samplerCube TexEnvCube;
+uniform sampler2D TexEnvOct;
 
 in vec2 TexCoord;
 out vec4 Output;
@@ -23,7 +23,7 @@ void main()
     vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist; 
     
     // Is surface in view of probe?
-    float depth = texture(TexEnvCube, pixelToProbeDir).a * NearFar.y;
+    float depth = SampleOct(TexEnvOct, pixelToProbeDir).a * NearFar.y;
     float depthDiff = depth - pixelToProbeDist;
     float depthFade = max(0, 1.0 - abs(depthDiff)); 
     if (depthDiff > 1.0)
@@ -43,7 +43,7 @@ void main()
         discard;
     
     // Use luminance for now, later expect irradiance map
-    vec3 color = texture(TexEnvCube, normal).rgb;
+    vec3 color = SampleOct(TexEnvOct, normal).rgb;
     vec3 hsv = rgb2hsv(color.ggb);
     float factor = Pow2(hsv.z) * surfaceDot * giFade * depthFade; 
     

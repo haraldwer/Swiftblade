@@ -4,11 +4,11 @@ using namespace Rendering;
 
 void Scene::Clear()
 {
-    MainCamera = {};
     Meshes = {};
     DebugShapes = {};
     DebugLines = {};
     Environments = {};
+    Lights = {};
 }
 
 uint32 Scene::Count() const
@@ -102,6 +102,11 @@ void Scene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransfo
         //    return;
     }
     Meshes.AddMeshes(InMesh, InTransforms);
+}
+
+void Scene::AddLight(const LightInstance& InLight)
+{
+    Lights.push_back(InLight); 
 }
 
 void Scene::AddDebugShape(const DebugShape& InShape)
