@@ -75,6 +75,7 @@ int main()
 
         // Render to target texture
         PROFILE_SCOPE_BEGIN("Virtual frame");
+        instance->GetRenderScene().Clear();
         instance->Frame();
         PROFILE_SCOPE_END();
 
@@ -83,7 +84,6 @@ int main()
         renderer.BeginFrame();
         debugManager.Frame(frameDelta);
         renderer.EndFrame();
-        instance->GetRenderScene().Clear();
         PROFILE_SCOPE_END();
         
         PROFILE_SCOPE_END();

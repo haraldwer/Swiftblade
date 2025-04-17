@@ -1,4 +1,3 @@
-#include "C:/Dev/Swiftblade/RayEngine/build/source/Engine/CMakeFiles/Engine.dir/Debug/cmake_pch.hxx"
 #include "Environment.h"
 
 #include "Transform.h"

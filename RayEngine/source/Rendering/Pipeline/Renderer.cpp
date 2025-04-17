@@ -122,7 +122,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         CHECK_CONTINUE(!shader);
 
         resMat->TwoSided ? rlDisableBackfaceCulling() : rlEnableBackfaceCulling();
-        resMat->Transparent ? rlDisableDepthTest() : rlEnableDepthTest();
+        //resMat->Transparent ? rlDisableDepthWrite() : rlEnableDepthWrite();
         
         // Enable shader
         rlEnableShader(shader->id);
@@ -323,8 +323,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 
         if (light->Shadows && cache.Timestamp > 0.001f)
         {
-            cache.Target.Curr().Unbind(*shaderResource, bindOffset);
-            cache.Target.Prev().Unbind(*shaderResource, bindOffset, "Prev");
+            cache.Target.Curr().Unbind(*shaderResource, unbindOffset);
+            cache.Target.Prev().Unbind(*shaderResource, unbindOffset, "Prev");
         }
     }
     rlDisableShader();
