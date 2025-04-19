@@ -25,7 +25,7 @@ void Rendering::Lumin::Deinit()
 Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
 {
     Frustum frustum;
-    frustum.ConstructFrustum(InArgs.Camera);
+    frustum.ConstructFrustum(InArgs.Camera, Viewport.GetResolution());
     Vector<LuminProbe*> result;
 
     auto sortFunc = [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
@@ -55,7 +55,7 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
     return { result.begin(), result.begin() + count }; 
 }
 
-Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
+Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 {
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
@@ -110,9 +110,6 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         if (count >= Config.MaxProbeRenders)
             break;
     }
-    Viewport.EndFrame();
-    BeginTextureMode(InArgs.Viewport->GetVirtualTarget());
-    
     return stats;
 }
 

@@ -76,7 +76,7 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
 void Scene::SetCamera(const CameraInstance& InCamera)
 {
     MainCamera = InCamera;
-    Frustum.ConstructFrustum(InCamera);
+    //Frustum.ConstructFrustum(InCamera);
 }
 
 void Scene::AddEnvironment(const EnvironmentInstance& InEnvironment)

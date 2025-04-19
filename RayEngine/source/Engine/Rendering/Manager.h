@@ -19,6 +19,7 @@ namespace Rendering
         void Deinit();
 
         // Draw to viewport
+        void Render(const Scene& InScene);
         void BeginFrame();
         void EndFrame();
         
@@ -27,7 +28,7 @@ namespace Rendering
 
         String DebugWindowName() const override { return "Viewport"; }
         void DrawDebugWindow() override;
-    
+
         Rendering::Window Window;
         Rendering::Viewport MainViewport;
         Rendering::Context DefaultContext;

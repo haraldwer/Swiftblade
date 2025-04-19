@@ -39,6 +39,8 @@ void Default()
 {
     if (CheckID(TexCoord, DeferredID))
         discard;
+
+    // PBR och Image Based Lighting
     
     // Sample textures
     vec4 color = texture(TexColor, TexCoord.xy).rgba;

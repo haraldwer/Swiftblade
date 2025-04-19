@@ -26,13 +26,12 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 	Position = InPos;
 }
 
-void Rendering::Frustum::ConstructFrustum(const CameraInstance& InCam)
+void Rendering::Frustum::ConstructFrustum(const CameraInstance& InCam, const Vec2I& InViewSize)
 {
 	Mat4F view = InCam.GetViewMatrix();
-	auto s = Manager::Get().MainViewport.GetSize();
 	Mat4F proj = InCam.GetProjectionMatrix({
-		static_cast<float>(s.x),
-		static_cast<float>(s.y)
+		static_cast<float>(InViewSize.x),
+		static_cast<float>(InViewSize.y)
 	});
 	ConstructFrustum(proj, view, InCam.Far, InCam.Position);
 }

@@ -12,41 +12,42 @@ void Rendering::FrameViewer::DrawDebugWindow()
     if (c.Edit())
         man.QueueConfig(c);
 
-    ImGui::Text("Draw count");
     int total = 0;
     for (auto& entry : Stats.MeshDrawCount)
-    {
         total += entry.second;
-        ImGui::Text((std::to_string(entry.first) + ": " + std::to_string(entry.second)).c_str());
-    }
-    ImGui::Text(("Total: " + std::to_string(total)).c_str());
+    ImGui::Text(("Meshes: " + std::to_string(total)).c_str());
+    ImGui::Text(("Lights: " + std::to_string(Stats.Lights)).c_str());
+    ImGui::Text(("Probes: " + std::to_string(Stats.Probes)).c_str());
+    ImGui::Text(("Renders: " + std::to_string(Stats.Renders)).c_str());
+    ImGui::Text(("Skyboxes: " + std::to_string(Stats.Skyboxes)).c_str());
+    ImGui::Text(("Deferred passes: " + std::to_string(Stats.DeferredDrawCount)).c_str());
+    ImGui::Text(("Fullscreen passes: " + std::to_string(Stats.FullscreenPasses)).c_str());
     ImGui::Text(("Debug shapes: " + std::to_string(Stats.DebugDrawCount)).c_str());
-        
-    auto buffers = man.MainViewport.GetTargets();
-    for (auto& buff : buffers)
+
+    if (ImGui::CollapsingHeader("Scene Targets"))
     {
-        if (ImGui::CollapsingHeader(buff.first.c_str()))
+        for (auto& buff : man.MainViewport.GetTargets().GetNamed())
         {
-            for (auto& buff : buff.second)
+            for (auto& tex : buff.second)
             {
-                CHECK_ASSERT(!buff.Tex, "Tex nullptr")
+                CHECK_ASSERT(!tex.Tex, "Tex nullptr")
                 
                 // Adjust size
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
                 const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
                 const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
-                const float mul = static_cast<float>(buff.Tex->width) / size.width;
+                const float mul = static_cast<float>(tex.Tex->width) / size.width;
 
                 // Send to ImGui
-                SetTextureWrap(*buff.Tex, TEXTURE_WRAP_REPEAT);
+                SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
                 rlImGuiImageRect(
-                    buff.Tex,
+                    tex.Tex,
                     static_cast<int>(size.x),
-                    static_cast<int>(static_cast<float>(buff.Tex->height) / mul),
+                    static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
                     Rectangle{
                         0, 0,
-                        static_cast<float>(buff.Tex->width),
-                        static_cast<float>(-buff.Tex->height)
+                        static_cast<float>(tex.Tex->width),
+                        static_cast<float>(-tex.Tex->height)
                     });
                 ImGui::TableNextColumn();
             }

@@ -44,7 +44,7 @@ namespace Rendering
 
         LuminConfig GetConfig() const { return Config; }
         Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
-        Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
+        Pipeline::Stats Update(const RenderArgs& InArgs);
 
     private:
         void ExpandVolume(const Scene& InScene);

@@ -41,7 +41,7 @@ void Rendering::Window::Close()
 }
 
 void Rendering::Window::Draw(const Texture& InTexture)
-{
+{    
     // Flip and blip
     const float virtualRatio = static_cast<float>(Config.Width) / static_cast<float>(Config.Height);
     const Rectangle sourceRec = {

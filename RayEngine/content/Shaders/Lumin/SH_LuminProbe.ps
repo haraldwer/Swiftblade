@@ -13,7 +13,7 @@ void main()
     // Calculate screen uv
     vec3 dir = UVtoOctahedronDir(TexCoord);
     vec3 pos = CameraPosition + dir;
-    vec2 uv = WorldPosToCoord(pos, WorldToScreen);
+    vec2 uv = WorldPosToCoord(pos, ViewProj);
     
     Output.a = 1;
     Output.rgb = dir;

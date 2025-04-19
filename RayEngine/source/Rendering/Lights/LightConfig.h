@@ -13,7 +13,7 @@ namespace Rendering
         PROPERTY_D(ResShader, LightShader, "Shaders/Lights/SH_Light.ps");
 
         PROPERTY_D(float, UpdateFrequency, 1.0f);
-        PROPERTY_D(int, MaxShadowRenders, 1);
+        PROPERTY_D(int, MaxShadowRenders, 0);
         PROPERTY_D(int, MaxShadows, 4);
         PROPERTY_D(int, MaxLights, 10);
     };

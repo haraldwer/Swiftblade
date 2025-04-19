@@ -36,9 +36,9 @@ void Rendering::FrameTargetCollection::Deinit()
     QuantizeTarget.Unload();
 }
 
-Map<String, Vector<RenderTarget::TargetTex>> Rendering::FrameTargetCollection::GetTargets()
+OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameTargetCollection::GetNamed()
 {
-    Map<String, Vector<RenderTarget::TargetTex>> result; 
+    OrderedMap<String, Vector<RenderTarget::TargetTex>> result; 
     result["Scene"] = SceneTarget.GetTextures();
     result["Fire"] = FireTargets.Curr().GetTextures();
     result["SSAO"] = AOTargets.Curr().GetTextures();

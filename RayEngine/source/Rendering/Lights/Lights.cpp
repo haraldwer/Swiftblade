@@ -106,8 +106,6 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         if (count >= Config.MaxShadowRenders)
             break;
     }
-    Viewport.EndFrame();
-    BeginTextureMode(InArgs.Viewport->GetVirtualTarget());
 
     // TODO: Clear unused lights
     
@@ -117,7 +115,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InArgs)
 {
     Frustum frustum;
-    frustum.ConstructFrustum(InArgs.Camera);
+    frustum.ConstructFrustum(InArgs.Camera, Viewport.GetResolution());
     Vector<const LightInstance*> result;
 
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)

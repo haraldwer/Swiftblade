@@ -15,9 +15,11 @@ bool ModelResource::Load(const String& InIdentifier)
 bool ModelResource::Unload()
 {
     if (Ptr)
+    {
         UnloadModel(*Ptr);
-    delete Ptr;
-    Ptr = nullptr;
+        delete Ptr;
+        Ptr = nullptr;
+    }
     CachedHash = 0;
     return true; 
 }

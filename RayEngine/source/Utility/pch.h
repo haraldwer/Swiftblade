@@ -105,6 +105,7 @@ typedef Utility::Math::Vector2<int> Vec2I;
 typedef Utility::Math::Vector3<float> Vec3F;
 typedef Utility::Math::Vector3<int> Vec3I;
 typedef Utility::Math::Vector4<float> Vec4F;
+typedef Utility::Math::Vector4<int> Vec4I;
 typedef Utility::Math::Matrix3x3<float> Mat3F;
 typedef Utility::Math::Matrix4x4<float> Mat4F;
 typedef Utility::Math::Quaternion<float> QuatF;

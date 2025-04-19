@@ -6,6 +6,7 @@ struct RenderTexture;
 
 namespace Rendering
 {
+    struct FrameTargetCollection;
     class Context;
     class Viewport;
 
@@ -50,8 +51,5 @@ namespace Rendering
         Stats RenderFX(const RenderArgs& InArgs);
         Stats Blip(const RenderArgs& InArgs);
         Stats RenderDebug(const RenderArgs& InArgs);
-        
-        static RenderTarget& GetFrameTarget(const RenderArgs& InArgs);
-        static RenderTarget& GetSceneTarget(const RenderArgs& InArgs);
     };
 }

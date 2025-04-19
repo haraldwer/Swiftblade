@@ -1,5 +1,6 @@
 #include "Viewport.h"
 
+#include "raylib.h"
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
 
@@ -43,22 +44,20 @@ void Rendering::Viewport::Resize(const Vec2I& InSize)
         return;
     Config.Width = InSize.x;
     Config.Height = InSize.y;
+    Deinit();
     Init(Config);
 }
 
 void Rendering::Viewport::BeginFrame()
 {
-    BeginTextureMode(*VirtualTarget);
-    ClearBackground(::BLACK);
-
     // DT since last frame in this viewport
     Delta = DeltaTimer.Ellapsed();
     DeltaTimer = Utility::Timer();
+    ViewProjPrev = ViewProj;
 }
 
-void Rendering::Viewport::EndFrame()
+void Rendering::Viewport::ResetPosition()
 {
-    EndTextureMode();
     Position = Vec2F::Zero();
 }
 

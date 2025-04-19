@@ -12,7 +12,7 @@ vec2 WorldPosToCoord(vec3 InWorldPosition, mat4 InMVP)
 
 vec2 GetPrevCoord(vec3 InWorldPosition)
 {
-    return WorldPosToCoord(InWorldPosition, WorldToPrevScreen);
+    return WorldPosToCoord(InWorldPosition, ViewProjPrev);
 }
 
 float SquaredLength(vec2 InDist)

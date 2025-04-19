@@ -3,8 +3,9 @@
 #include "Rendering/Resources/Shader.h"
 #include "raylib.h"
 #include "rlgl.h"
+#include "State/State.h"
 
-bool RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat)
+bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat)
 {
     if (TryBeginSetup(InTarget))
     {
@@ -15,7 +16,7 @@ bool RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, ui
     return false;
 }
 
-bool RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture)
+bool Rendering::RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture)
 {
     if (Width == InRenderTexture.texture.width &&
         Height == InRenderTexture.texture.height)
@@ -34,7 +35,7 @@ bool RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture)
     return true;
 }
 
-void RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
+void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
 {
     CHECK_RETURN(!FrameBuffer);
     
@@ -48,6 +49,19 @@ void RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
         if (tex.Cubemap)
         {
             // Attach cubemap face later
+            for (const auto& tex : Textures)
+            {
+                for (int face = 0; face < 6; face++)
+                {
+                    CHECK_ASSERT(!tex.Tex, "Tex nullptr");
+                    rlFramebufferAttach(
+                        FrameBuffer,
+                        tex.Tex->id,
+                        RL_ATTACHMENT_COLOR_CHANNEL0 + i,
+                        RL_ATTACHMENT_CUBEMAP_POSITIVE_X + face,
+                        0);
+                }
+            }
         }
         else
         {
@@ -67,7 +81,7 @@ void RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
     CHECK_ASSERT(!rlFramebufferComplete(FrameBuffer), "Framebuffer incomplete"); 
 }
 
-void RenderTarget::Unload()
+void Rendering::RenderTarget::Unload()
 {
     for (const TargetTex& buff : Textures)
     {
@@ -87,99 +101,33 @@ void RenderTarget::Unload()
     Height = 0; 
 }
 
-void RenderTarget::BeginWrite(const int InBlend, const bool InClear, int InFaceIndex) const
+void Rendering::RenderTarget::Write(const bool InClear, const Vec4I& InRect) const
 {
-    if (InFaceIndex >= 0)
-    {
-        // Set the cubemap face to target...
-        for (const auto& tex : Textures)
-        {
-            CHECK_ASSERT(!tex.Tex, "Tex nullptr");
-            rlFramebufferAttach(
-                FrameBuffer,
-                tex.Tex->id,
-                RL_ATTACHMENT_COLOR_CHANNEL0,
-                RL_ATTACHMENT_CUBEMAP_POSITIVE_X + InFaceIndex,
-                0);
-        }
-    }
-    
-    rlEnableFramebuffer(FrameBuffer);
-    
-    if (InClear)
-        rlClearScreenBuffers();
-    if (InBlend >= RL_BLEND_ALPHA)
-    {
-        rlEnableColorBlend();
-        rlSetBlendMode(InBlend);
-    }
-    else
-    {
-        rlDisableColorBlend();
-    } 
+    // How do we tell the CPU which face to render to? 
+    FrameCommand cmd;
+    cmd.fboID = FrameBuffer;
+    cmd.Clear = InClear;
+    cmd.Rect = InRect;
+    rlState::Current.Set(cmd);
 }
 
-void RenderTarget::EndWrite() const
+void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, const String& InPostfix) const
 {
-    rlSetBlendMode(RL_BLEND_ALPHA);
-    rlDisableColorBlend();
-    rlDisableFramebuffer();
-}
-
-void RenderTarget::GenerateMips() const
-{
-    for (auto& tex : Textures)
-        if (tex.Tex->mipmaps > 1)
-            GenTextureMipmaps(tex.Tex);
-}
-
-void RenderTarget::Bind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
-{
-    auto ptr = InShader.Get();
-    CHECK_RETURN(!ptr);
     for (const auto& tex : Textures)
     {
-        InOutSlots.Index++;
         int loc = InShader.GetLocation(tex.Name + InPostfix);
-        CHECK_CONTINUE(loc < 0 && !tex.Cubemap);
-
-        InOutSlots.Loc++;
-        CHECK_ASSERT(!tex.Tex, "Tex nullptr");
-        
-        rlTextureParameters(tex.Tex->id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
-        rlTextureParameters(tex.Tex->id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
-        
-        rlActiveTextureSlot(InOutSlots.Loc);
-        if (tex.Cubemap)
-            rlEnableTextureCubemap(tex.Tex->id);
-        else
-            rlEnableTexture(tex.Tex->id);
-        
-        rlSetUniform(loc, &InOutSlots.Loc, SHADER_UNIFORM_INT, 1); // NOTE: Default texture is always activated as GL_TEXTURE0
-        rlActiveTextureSlot(0);
-    }
-}
-
-void RenderTarget::Unbind(ShaderResource& InShader, Slot& InOutSlots, const String& InPostfix) const
-{
-    auto ptr = InShader.Get();
-    CHECK_RETURN(!ptr);
-    for (const auto& buff : Textures)
-    {
-        InOutSlots.Index++;
-        int loc = InShader.GetLocation(buff.Name);
         CHECK_CONTINUE(loc < 0);
-        
-        InOutSlots.Loc++;
-        rlActiveTextureSlot(InOutSlots.Loc);
-        rlDisableTexture();
-        int l = 0;
-        rlSetUniform(loc, &l, RL_SHADER_UNIFORM_SAMPLER2D, 1); // NOTE: Default texture is always activated as GL_TEXTURE0
-        rlActiveTextureSlot(0);
+        CHECK_ASSERT(!tex.Tex, "Tex nullptr");
+
+        InOutSlot++;
+        TextureCommand cmd;
+        cmd.ShaderLoc = loc;
+        cmd.ID = tex.Tex->id;
+        rlState::Current.Set(cmd, InOutSlot);
     }
 }
 
-void RenderTarget::CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale, int InMips, bool InCubemap)
+void Rendering::RenderTarget::CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale, int InMips, bool InCubemap)
 {
     const int w = static_cast<int>(static_cast<float>(Width) * InResScale);
     const int h = static_cast<int>(static_cast<float>(Height) * InResScale);

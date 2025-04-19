@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Rendering/Resources/Shader.h"
 #include "Rendering/Scene/Instances/CameraInstance.h"
-#include "Rendering/TextureTargets/RenderTarget.h"
+#include "Rendering/Resources/Shader.h"
 
 struct RenderTexture; 
 struct Matrix;
+struct Mesh;
 
 namespace Rendering
 {
+    class RenderTarget;
     class Lumin;
     struct LuminProbe;
     class Context;
@@ -28,6 +29,8 @@ namespace Rendering
     {
     public:
         static Map<uint64, int> DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget);
+        static void DrawQuad();
+        static int DrawInstances(const Mesh& InMesh, const Vector<Mat4F>& InVector);
         static int DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
         static int DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
         static int DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
@@ -36,13 +39,13 @@ namespace Rendering
         static void DrawCubeFace(const RenderArgs& InArgs, const RenderTarget& InTarget, int InFaceIndex, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
         static int DrawDebug(const RenderArgs& InArgs);
         static void Blip(const RenderTexture& InTarget, const RenderTarget& InBuffer);
-
+    
     private:
         static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, int InType);
-        static void SetValue(ShaderResource& InShader, const String& InName, const Matrix& InValue);
+        static void SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue);
 
-        static void SetShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget, uint32 InDeferredID = 0);
-        static void SetNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader);
+        static void SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget);
+        static void BindNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot);
         static void SetCustomShaderValues(ShaderResource& InShader);
     };
 }

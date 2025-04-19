@@ -2,6 +2,7 @@
 
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
+#include "State/State.h"
 
 void Rendering::Context::Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, const bool InRoot)
 {
@@ -14,8 +15,13 @@ void Rendering::Context::Init(const ContextConfig& InConfig, const LuminConfig& 
     {
         if (LuminPtr)
             LuminPtr->Deinit();
-        else LuminPtr = new Lumin();
-        LuminPtr->Init(InLuminConfig);
+
+        if (Config.Lumin)
+        {
+            if (!LuminPtr)
+                LuminPtr = new Lumin();
+            LuminPtr->Init(InLuminConfig);
+        }
 
         if (LightsPtr)
             LightsPtr->Deinit();
@@ -32,4 +38,13 @@ void Rendering::Context::Deinit()
         delete LuminPtr;
         LuminPtr = nullptr;
     }
+    if (LightsPtr)
+    {
+        LightsPtr->Deinit();
+        delete LightsPtr;
+        LightsPtr = nullptr;
+    }
+
+    rlState::Current.Reset();
+    rlState::Current.Check();
 }

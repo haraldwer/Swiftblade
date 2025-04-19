@@ -8,7 +8,7 @@ namespace Rendering
         void Init(const RenderTexture& InTarget);
         void Deinit();
 
-        Map<String, Vector<RenderTarget::TargetTex>> GetTargets();
+        OrderedMap<String, Vector<RenderTarget::TargetTex>> GetNamed();
 
         RenderTarget SceneTarget;
         SwapTarget AOTargets = SwapTarget();

@@ -15,22 +15,22 @@ namespace Rendering
         void Deinit();
         void Resize(const Vec2I& InSize);
         void BeginFrame();
-        void EndFrame();
 
         RenderTexture& GetVirtualTarget() const;
-        Map<String, Vector<RenderTarget::TargetTex>> GetTargets() { return Targets.GetTargets(); }
+        FrameTargetCollection& GetTargets() { return Targets; }
         
         void ImDraw();
         Vec2I GetResolution() const;
         Vec2I GetSize() const;
         Vec2F GetPosition() const { return Position; }
+        void ResetPosition();
 
     private:
         ViewportConfig Config;
         
         Vec2F Position;
-        Mat4F PreviousMVP;
-        Mat4F PendingMVP;
+        Mat4F ViewProj;
+        Mat4F ViewProjPrev;
         
         Utility::Timer DeltaTimer;
         double Delta = 0;

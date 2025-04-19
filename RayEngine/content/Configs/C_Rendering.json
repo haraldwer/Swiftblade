@@ -8,6 +8,8 @@
 			"SOFT_SHADOWS"
 		],
 		"Lights":{
+			"UpdateFrequency": -1.0,
+			"MaxShadowRenders": 0,
 			"Viewport":{
 				"Height":128,
 				"Width":128
@@ -27,11 +29,6 @@
 		]
 	},
 	"Lumin":{
-		"Context":{
-			"Lights":{
-				"UpdateFrequency":0.20000000298023224
-			}
-		},
 		"Debug":true,
 		"Viewport":{
 			"Height":256,
@@ -39,6 +36,6 @@
 		}
 	},
 	"Window":{
-		"TargetFPS":0
+		"TargetFPS":300
 	}
 }

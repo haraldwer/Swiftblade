@@ -1,6 +1,6 @@
 
-uniform mat4 WorldToScreen;
-uniform mat4 WorldToPrevScreen;
+uniform mat4 ViewProj;
+uniform mat4 ViewProjPrev;
 uniform mat4 ScreenToWorld;
 uniform vec3 CameraPosition;
 uniform vec2 Resolution;

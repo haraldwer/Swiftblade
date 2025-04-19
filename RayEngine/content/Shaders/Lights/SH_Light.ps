@@ -119,10 +119,11 @@ void main()
 {
     vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
     vec3 toLight = Position - worldPos.xyz;
-    float lightDist = length(toLight);
-    if (lightDist > Range)
+    float lightDistSqr = SquaredLength(toLight);
+    if (lightDistSqr > Range * Range)
         discard;
-    
+
+    float lightDist = sqrt(lightDistSqr);    
     float fade = 1 - lightDist / Range;
     fade = fade * fade; // pow2
     
@@ -132,14 +133,18 @@ void main()
     if (d < 0)
         discard;
 
-    // Is surface in view of light?
-    #ifdef INTERP_SHADOWS
-    float shadow = InterpShadows(worldPos);
-    #else
-    float shadow = SimpleShadows(worldPos);
-    #endif
-    if (shadow < 0.001f)
-        discard;
+    float shadow = 1;
+    if (Timestamp != 0)
+    {
+        // Is surface in view of light?
+        #ifdef INTERP_SHADOWS
+        shadow = InterpShadows(worldPos);
+        #else
+        shadow = SimpleShadows(worldPos);
+        #endif
+        if (shadow < 0.001f)
+            discard;
+    }
     
     float intensity = Intensity * (pow(d, 0.5)) * fade * shadow; 
     Output.rgb = Color * (1.0 + intensity * 0.2);

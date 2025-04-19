@@ -1,14 +1,10 @@
 ﻿
-#include "Shaders/Utility/SH_ScreenDistortion.si"
-
-// Uniforms
-uniform mat4 mvp;
-uniform mat4 matNormal;
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
 
 // In
 in vec3 vertexPosition;
-in vec2 vertexTexCoord;
 in vec3 vertexNormal;
+in vec2 vertexTexCoord;
 in mat4 instanceTransform;
 
 // Out
@@ -20,13 +16,12 @@ out vec2 TexCoord;
 
 void Default()
 {
-    vec3 objectNormal = normalize(vec3(matNormal * vec4(vertexNormal, 1.0f)));
-    WorldNormal = normalize(mat3(instanceTransform) * objectNormal);
+    WorldNormal = normalize(mat3(instanceTransform) * vertexNormal);
     VertexPosition = vertexPosition;
-    ObjectPosition = (instanceTransform * vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
+    ObjectPosition = (instanceTransform * vec4(vec3(0.0f), 1.0f)).xyz;
     WorldPosition = (instanceTransform * vec4(vertexPosition, 1.0f));
-    vec4 screenPos = mvp * WorldPosition;
-    gl_Position = DistortScreenPos(screenPos);
+    vec4 screenPos = ViewProj * WorldPosition;
+    gl_Position = screenPos;
     WorldPosition.w = screenPos.z; // Store linear depth
     TexCoord = vertexTexCoord;
 }
