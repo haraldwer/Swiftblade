@@ -2,14 +2,11 @@
 	"Context":{
 		"GlobalDefines":[
 			"SSAO",
-			"QUANTIZ",
-			"FXAA",
-			"INTERP_SHADOWS",
-			"SOFT_SHADOWS"
+			"QUANTIZE",
+			"FXAA"
 		],
 		"Lights":{
-			"UpdateFrequency": -1.0,
-			"MaxShadowRenders": 0,
+			"UpdateFrequency":0.10000000149011612,
 			"Viewport":{
 				"Height":128,
 				"Width":128
@@ -17,11 +14,11 @@
 		},
 		"Lumin":false,
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults\\T_Noise_Cellular.json"
-			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults\\T_Noise_Perlin.json"
+			},{
+				"Key":"TexCellular",
+				"Val":"Defaults\\T_Noise_Cellular.json"
 			},{
 				"Key":"TexSimplex",
 				"Val":"Defaults\\T_Noise_Simplex.json"
@@ -34,8 +31,5 @@
 			"Height":256,
 			"Width":256
 		}
-	},
-	"Window":{
-		"TargetFPS":300
 	}
 }

@@ -40,6 +40,7 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     Vec2F size = InSceneTarget.Size();
     Mat4F view = cam.GetViewMatrix();
     Mat4F proj = cam.GetProjectionMatrix(size);
+    proj.up *= -1.0f;
     viewport.ViewProj = Mat4F::Transpose(Mat4F::GetInverse(view) * proj);
     
     SetValue(InShader, "ViewProj", viewport.ViewProj);
@@ -147,7 +148,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 
 void Rendering::Renderer::DrawQuad()
 {
-    rlState::Current.Set(MeshCommand());
+    rlState::Current.ResetMesh();
     rlLoadDrawQuad();
 }
 
@@ -161,6 +162,7 @@ int Rendering::Renderer::DrawInstances(const Mesh& InMesh, const Vector<Mat4F>& 
             rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount * 3, nullptr, static_cast<int>(InInstances.size()));
         else
             rlDrawVertexArrayInstanced(0, InMesh.vertexCount, static_cast<int>(InInstances.size()));
+        rlState::Current.ResetMesh();
     }
     return static_cast<int>(InInstances.size());
 }
@@ -169,7 +171,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 {
     auto& scene = *InArgs.Scene;
     
-    InTarget.Write(true);
+    InTarget.Write(false);
     for (auto& entry : scene.Meshes.DeferredShaders)
     {
         ShaderResource* shaderResource = entry.second.Get();
@@ -293,6 +295,7 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     CHECK_RETURN(!shader, 0);
     
     InTarget.Write(false);
+    
     ShaderCommand shaderCmd;
     shaderCmd.Locs = shader->locs;
     shaderCmd.ID = shader->id;
@@ -351,6 +354,7 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
 {
     auto model = InArgs.Context->Config.DefaultCube.Get().Get();
+    CHECK_RETURN(!model, 0);
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);
     CHECK_RETURN(!modelRes->meshCount, 0);

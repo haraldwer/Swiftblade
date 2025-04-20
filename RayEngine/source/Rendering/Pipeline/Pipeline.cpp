@@ -1,6 +1,7 @@
 ﻿#include "Pipeline.h"
 
 #include "Context/Context.h"
+#include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 #include "Scene/Scene.h"
 #include "State/State.h"
@@ -17,25 +18,25 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     
     Stats stats;
     
-    //if (InArgs.Lumin == nullptr)
-    //    InArgs.Lumin = InArgs.Context->LuminPtr;
-    //if (InArgs.Lumin && InArgs.Context->Config.Lumin)
-    //    stats += InArgs.Lumin->Update(InArgs);
-    //
-    //if (InArgs.Context->LightsPtr)
-    //    stats += InArgs.Context->LightsPtr->Update(InArgs); 
+    if (InArgs.Lumin == nullptr)
+        InArgs.Lumin = InArgs.Context->LuminPtr;
+    if (InArgs.Lumin && InArgs.Context->Config.Lumin)
+        stats += InArgs.Lumin->Update(InArgs);
+    
+    if (InArgs.Context->LightsPtr)
+        stats += InArgs.Context->LightsPtr->Update(InArgs); 
 
     rlState::Current.Reset();
     
     stats += RenderScene(InArgs);
-    //stats += RenderFire(InArgs);
-    //stats += RenderAO(InArgs);
+    stats += RenderFire(InArgs);
+    stats += RenderAO(InArgs);
     stats += RenderSkybox(InArgs);
     stats += RenderDeferred(InArgs);
-    //stats += RenderLights(InArgs);
-    //stats += RenderLumin(InArgs);
-    //stats += ApplyFire(InArgs);
-    //stats += RenderFX(InArgs);
+    stats += RenderLights(InArgs);
+    stats += RenderLumin(InArgs);
+    stats += ApplyFire(InArgs);
+    stats += RenderFX(InArgs);
     stats += Blip(InArgs);
     stats += RenderDebug(InArgs);
     

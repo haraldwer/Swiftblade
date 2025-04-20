@@ -18,8 +18,8 @@ void Default()
 {
     WorldNormal = normalize(mat3(instanceTransform) * vertexNormal);
     VertexPosition = vertexPosition;
-    ObjectPosition = (instanceTransform * vec4(vec3(0.0f), 1.0f)).xyz;
-    WorldPosition = (instanceTransform * vec4(vertexPosition, 1.0f));
+    ObjectPosition = (instanceTransform * vec4(vec3(0), 1)).xyz;
+    WorldPosition = (instanceTransform * vec4(vertexPosition, 1));
     vec4 screenPos = ViewProj * WorldPosition;
     gl_Position = screenPos;
     WorldPosition.w = screenPos.z; // Store linear depth

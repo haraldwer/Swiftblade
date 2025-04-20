@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <external/glad.h>
+
 #include "raylib.h"
 #include "raymath.h"
 #include "rlgl.h"
@@ -16,6 +18,26 @@ namespace RaylibRenderUtility
             QuatF::FromEuler({ 0, 0, PI }), //Forward
             QuatF::FromEuler({ PI, 0, 0 }), //Backward
         };
+    }
+
+    inline void SetBlendMode(int InMode)
+    {
+        if (InMode < 0)
+        {
+            
+        }
+        else
+        {
+            switch (InMode)
+            {
+            case RL_BLEND_ALPHA: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
+            case RL_BLEND_ADDITIVE: glBlendFunc(GL_SRC_ALPHA, GL_ONE); glBlendEquation(GL_FUNC_ADD); break;
+            case RL_BLEND_MULTIPLIED: glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
+            case RL_BLEND_ADD_COLORS: glBlendFunc(GL_ONE, GL_ONE); glBlendEquation(GL_FUNC_ADD); break;
+            case RL_BLEND_SUBTRACT_COLORS: glBlendFunc(GL_ONE, GL_ONE); glBlendEquation(GL_FUNC_SUBTRACT); break;
+            case RL_BLEND_ALPHA_PREMULTIPLY: glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
+            }
+        }
     }
     
     inline void DrawInstances(const Mesh& InMesh, const Shader& InShader, const Vector<Mat4F>& InMatrices)
