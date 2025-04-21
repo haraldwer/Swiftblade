@@ -7,7 +7,7 @@
 
 void Rendering::FrameViewer::DrawDebugWindow()
 {
-    auto& man = Rendering::Manager::Get();
+    auto& man = Manager::Get();
     auto c = man.GetConfig();
     if (c.Edit())
         man.QueueConfig(c);

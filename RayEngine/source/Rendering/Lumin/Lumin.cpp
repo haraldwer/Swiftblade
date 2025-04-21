@@ -24,19 +24,21 @@ void Rendering::Lumin::Deinit()
 
 Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
 {
+    return {};
+    /*
     Frustum frustum;
-    frustum.ConstructFrustum(InArgs.Camera, Viewport.GetResolution());
+    frustum.ConstructFrustum(InArgs.Perspectives, Viewport.GetResolution());
     Vector<LuminProbe*> result;
 
     auto sortFunc = [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
     {
-        return (InFirst->Pos - InArgs.Camera.Position).LengthSqr() < (InSecond->Pos - InArgs.Camera.Position).LengthSqr();
+        return (InFirst->Pos - InArgs.Perspectives.Position).LengthSqr() < (InSecond->Pos - InArgs.Perspectives.Position).LengthSqr();
     };
 
     float closeDist2 = Config.CloseCullDistance.Get() * Config.CloseCullDistance.Get();
     auto checkFunc = [&](const LuminProbe& InProbe)
     {
-        const float probeCamDist = (InProbe.Pos - InArgs.Camera.Position).LengthSqr();
+        const float probeCamDist = (InProbe.Pos - InArgs.Perspectives.Position).LengthSqr();
         if (probeCamDist < closeDist2)
             return true;
         const Vec3F maxDist = Vec3F(1.0f) / Config.Density.Get();
@@ -52,11 +54,14 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
 
     auto count = Utility::Math::Min(static_cast<int>(result.size()), Config.MaxProbes.Get());
     CHECK_RETURN(count <= 0, {});
-    return { result.begin(), result.begin() + count }; 
+    return { result.begin(), result.begin() + count };
+    */
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 {
+    return {};
+    /*
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
 
@@ -70,7 +75,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
         .Context = &Context,
         .Viewport = &Viewport,
         .Lumin = this,
-        .Camera = CameraInstance()
+        .Perspectives = CameraInstance()
     };
 
     Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
@@ -95,7 +100,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
         CHECK_CONTINUE(!probe);
         for (int i = 0; i < 6; i++)
         {
-            args.Camera = CameraInstance {
+            args.Perspectives = CameraInstance {
                 .Position = probe->Pos,
                 .Rotation = directions[i],
                 .FOV = 90.0f,
@@ -111,6 +116,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
             break;
     }
     return stats;
+    */
 }
 
 void Rendering::Lumin::ExpandVolume(const Scene& InScene)

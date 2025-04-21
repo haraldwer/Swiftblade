@@ -20,14 +20,12 @@ namespace Rendering
         bool TryBeginSetup(const RenderTexture& InRenderTexture);
         void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InMips = 1, bool InCubemap = false);
         void EndSetup(const RenderTexture& InRenderTexture) const;
-        
         void Unload();
-        void Write(bool InClear = true, const Vec4I& InRect = {}) const;
-
         void Bind(ShaderResource& InShader, int& InOutSlot, const String& InPostfix = "") const;
         
         const Vector<TargetTex>& GetTextures() const { return Textures; }
         Vec2F Size() const { return { static_cast<float>(Width), static_cast<float>(Height) }; }
+        uint32 GetFBO() const { return FrameBuffer; }
         
     private: 
         

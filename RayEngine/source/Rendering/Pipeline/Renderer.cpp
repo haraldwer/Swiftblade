@@ -31,15 +31,41 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
 {
     auto& viewport = *InArgs.Viewport;
     auto& context = *InArgs.Context;
-    auto& cam = InArgs.Camera; 
-    
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
+    // Time
+    const float time = static_cast<float>(context.Timer.Ellapsed()); 
+    SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
+    const float delta = static_cast<float>(viewport.Delta); 
+    SetValue(InShader, "Delta", &delta, SHADER_UNIFORM_FLOAT);
+    const Vec2I res = viewport.GetResolution();
+    const Vec2F resf = { static_cast<float>(res.x), static_cast<float>(res.y) };
+    SetValue(InShader, "Resolution", &resf, SHADER_UNIFORM_VEC2);
+}
+
+void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader)
+{
+    auto& viewport = *InArgs.Viewport;
+    auto ptr = InShader.Get();
+    CHECK_RETURN(!ptr);
+
+    const Vec2I res = viewport.GetResolution();
+    int w = InPerspective.TargetRect.z > 0 ? InPerspective.TargetRect.z : res.x;
+    int h = InPerspective.TargetRect.w > 0 ? InPerspective.TargetRect.w : res.y;
+    Vec4F rect = {
+        static_cast<float>(InPerspective.TargetRect.x),
+        static_cast<float>(InPerspective.TargetRect.y),
+        static_cast<float>(w),
+        static_cast<float>(h)
+    };
+    
+    SetValue(InShader, "Rect", &rect, SHADER_UNIFORM_VEC4);
+    
     // Matrices
-    Vec2F size = InSceneTarget.Size();
-    Mat4F view = cam.GetViewMatrix();
-    Mat4F proj = cam.GetProjectionMatrix(size);
+    Vec2F size = { rect.z, rect.w };
+    Mat4F view = InPerspective.Camera.GetViewMatrix();
+    Mat4F proj = InPerspective.Camera.GetProjectionMatrix(size);
     proj.up *= -1.0f;
     viewport.ViewProj = Mat4F::Transpose(Mat4F::GetInverse(view) * proj);
     
@@ -48,16 +74,10 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     SetValue(InShader, "ViewProjInv", Mat4F::GetInverse(viewport.ViewProj));
 
     // Camera and view
-    SetValue(InShader, "CameraPosition", &cam.Position.data[0], SHADER_UNIFORM_VEC3);
-    Vec2F nearFar = { cam.Near, cam.Far };
-    SetValue(InShader, "NearFar", &nearFar.data[0], SHADER_UNIFORM_VEC2);
-    SetValue(InShader, "Resolution", &size.data[0], SHADER_UNIFORM_VEC2);
-
-    // Time
-    const float time = static_cast<float>(context.Timer.Ellapsed()); 
-    SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
-    const float delta = static_cast<float>(viewport.Delta); 
-    SetValue(InShader, "Delta", &delta, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, "CameraPosition", &InPerspective.Camera.Position, SHADER_UNIFORM_VEC3);
+    Vec2F nearFar = { InPerspective.Camera.Near, InPerspective.Camera.Far };
+    SetValue(InShader, "NearFar", &nearFar, SHADER_UNIFORM_VEC2);
+    
 }
 
 void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
@@ -89,9 +109,11 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 
 Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget)
 {
-    InSceneTarget.Write();
+    FrameCommand frameCmd;
+    frameCmd.fboID = InSceneTarget.GetFBO();
+    frameCmd.Clear = true;
+    rlState::Current.Set(frameCmd);
     
-    // Instanced rendering
     Map<uint64, int> count;
     for (auto& entry : InArgs.Scene->Meshes.Entries)
     {
@@ -139,8 +161,25 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         // Set values and textures from material or from model instance?
         SetCustomShaderValues(*resShader);
 
+        // Draw every mesh
         for (int i = 0; i < meshCount; i++)
-            count[entry.first] += DrawInstances(meshes[i], entry.second.Transforms);
+        {
+            MeshCommand cmd;
+            cmd.vaoID = meshes[i].vaoId;
+            if (rlState::Current.Set(cmd, entry.second.Transforms))
+            {
+                // From every perspective
+                for (auto& perspective : InArgs.Perspectives)
+                {
+                    PerspectiveCommand perspCmd;
+                    perspCmd.Rect = perspective.TargetRect;
+                    SetPerspectiveShaderValues(InArgs, perspective, *resShader);
+                    rlState::Current.Set(perspCmd);
+                    count[entry.first] += DrawInstances(meshes[i], entry.second.Transforms.size());
+                }
+                rlState::Current.ResetMesh();
+            }
+        }
     }
 
     return count;
@@ -152,26 +191,24 @@ void Rendering::Renderer::DrawQuad()
     rlLoadDrawQuad();
 }
 
-int Rendering::Renderer::DrawInstances(const Mesh& InMesh, const Vector<Mat4F>& InInstances)
+int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InNum)
 {
-    MeshCommand cmd;
-    cmd.vaoID = InMesh.vaoId;
-    if (rlState::Current.Set(cmd, InInstances))
-    {
-        if (InMesh.indices != nullptr)
-            rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount * 3, nullptr, static_cast<int>(InInstances.size()));
-        else
-            rlDrawVertexArrayInstanced(0, InMesh.vertexCount, static_cast<int>(InInstances.size()));
-        rlState::Current.ResetMesh();
-    }
-    return static_cast<int>(InInstances.size());
+    if (InMesh.indices != nullptr)
+        rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount * 3, nullptr, InNum);
+    else
+        rlDrawVertexArrayInstanced(0, InMesh.vertexCount, InNum);
+    return InNum;
 }
 
 int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
     auto& scene = *InArgs.Scene;
+
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Clear = true;
+    rlState::Current.Set(frameCmd);
     
-    InTarget.Write(false);
     for (auto& entry : scene.Meshes.DeferredShaders)
     {
         ShaderResource* shaderResource = entry.second.Get();
@@ -193,7 +230,14 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
             if (b) b->Bind(*shaderResource, texSlot);
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
 
-        DrawQuad();
+        for (auto& perspective : InArgs.Perspectives)
+        {
+            PerspectiveCommand perspCmd;
+            perspCmd.Rect = perspective.TargetRect;
+            rlState::Current.Set(perspCmd);
+            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+            DrawQuad();
+        }
     }
     return static_cast<int>(scene.Meshes.DeferredShaders.size());
 }
@@ -223,8 +267,10 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     CHECK_RETURN(!modelRes, 0);
     CHECK_RETURN(!modelRes->meshCount, 0);
     Mesh& mesh = modelRes->meshes[0];
-    
-    InTarget.Write(false);
+
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    rlState::Current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
     shaderCmd.Locs = shader->locs;
@@ -269,8 +315,22 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
             for (auto& b : InBuffers)
                 if (b) b->Bind(*debugShaderResource, texSlot);
             probe->Target.Bind(*debugShaderResource, texSlot);
-
-            DrawInstances(mesh, { probe->Pos });
+            
+            MeshCommand cmd;
+            cmd.vaoID = mesh.vaoId;
+            if (rlState::Current.Set(cmd, { probe->Pos }))
+            {
+                // Draw every perspective
+                for (auto& perspective : InArgs.Perspectives)
+                {
+                    PerspectiveCommand perspCmd;
+                    perspCmd.Rect = perspective.TargetRect;
+                    rlState::Current.Set(perspCmd);
+                    SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
+                    DrawInstances(mesh, 1);
+                }
+                rlState::Current.ResetMesh();
+            }
         }
     }
 
@@ -293,8 +353,10 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     CHECK_RETURN(!shaderResource, 0);
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN(!shader, 0);
-    
-    InTarget.Write(false);
+
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    rlState::Current.Set(frameCmd);
     
     ShaderCommand shaderCmd;
     shaderCmd.Locs = shader->locs;
@@ -340,13 +402,21 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
         for (auto& b : InBuffers)
             if (b) b->Bind(*shaderResource, texSlot);
 
-        if (shadowCache && light->Shadows)
-        {
-            shadowCache->Target.Curr().Bind(*shaderResource, texSlot);
-            shadowCache->Target.Prev().Bind(*shaderResource, texSlot, "Prev");
-        }
+        //if (shadowCache && light->Shadows)
+        //{
+        //    shadowCache->Target.Curr().Bind(*shaderResource, texSlot);
+        //    shadowCache->Target.Prev().Bind(*shaderResource, texSlot, "Prev");
+        //}
 
-        DrawQuad();
+        // TODO: Replace with cube mesh
+        for (auto& perspective : InArgs.Perspectives)
+        {
+            PerspectiveCommand perspCmd;
+            perspCmd.Rect = perspective.TargetRect;
+            rlState::Current.Set(perspCmd);
+            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+            DrawQuad();
+        }
     }
     return static_cast<int>(lights.size());
 }
@@ -360,7 +430,11 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
     CHECK_RETURN(!modelRes->meshCount, 0);
     Mesh& mesh = modelRes->meshes[0];
     
-    InTarget.Write();
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Clear = true;
+    rlState::Current.Set(frameCmd);
+    
     int c = 0;
     for (auto& environment : InArgs.Scene->Environments)
     {
@@ -383,8 +457,22 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
 
         int texSlot = 0;
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
-        
-        c += DrawInstances(mesh, { environment.Position });
+
+        MeshCommand cmd;
+        cmd.vaoID = mesh.vaoId;
+        if (rlState::Current.Set(cmd, { environment.Position }))
+        {
+            // Draw every perspective
+            for (auto& perspective : InArgs.Perspectives)
+            {
+                PerspectiveCommand perspCmd;
+                perspCmd.Rect = perspective.TargetRect;
+                rlState::Current.Set(perspCmd);
+                SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+                c += DrawInstances(mesh, 1);
+            }
+            rlState::Current.ResetMesh();
+        }
     }
     return c;
 }
@@ -396,7 +484,10 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN_LOG(!shader, "Failed to get shader");
 
-    InTarget.Write(InClear);
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Clear = InClear;
+    rlState::Current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
     shaderCmd.Locs = shader->locs;
@@ -411,32 +502,14 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
         if (b) b->Bind(*shaderResource, texSlot);
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     
-    DrawQuad();
-}
-
-void Rendering::Renderer::DrawCubeFace(const RenderArgs& InArgs, const RenderTarget& InTarget, int InFaceIndex, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)
-{
-    ShaderResource* shaderResource = InShader.Get();
-    CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource");
-    const Shader* shader = shaderResource->Get();
-    CHECK_RETURN_LOG(!shader, "Failed to get shader");
-
-    InTarget.Write(InClear);
-
-    ShaderCommand shaderCmd;
-    shaderCmd.Locs = shader->locs;
-    shaderCmd.ID = shader->id;
-    shaderCmd.BlendMode = InBlend;
-    rlState::Current.Set(shaderCmd);
-    
-    SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-    
-    int texSlot = 0;
-    for (auto& b : InBuffers)
-        if (b) b->Bind(*shaderResource, texSlot);
-    BindNoiseTextures(InArgs, *shaderResource, texSlot);
-
-    DrawQuad();
+    for (auto& persp : InArgs.Perspectives)
+    {
+        PerspectiveCommand perspCmd;
+        perspCmd.Rect = persp.TargetRect;
+        rlState::Current.Set(perspCmd);
+        SetPerspectiveShaderValues(InArgs, persp, *shaderResource);
+        DrawQuad();
+    }
 }
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
@@ -446,50 +519,60 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
         return 0;
 
     rlState::Current.Reset();
-    
-    BeginMode3D(Utility::Ray::ConvertCamera(InArgs.Camera));
-    rlEnableSmoothLines();
 
-    for (auto& shape : scene.DebugShapes)
+    for (auto& persp : InArgs.Perspectives)
     {
-        switch (shape.Type)
+        BeginMode3D(Utility::Ray::ConvertCamera(persp.Camera));
+        
+        rlViewport(
+            persp.TargetRect.x,
+            persp.TargetRect.y,
+            persp.TargetRect.z,
+            persp.TargetRect.w);
+        
+        rlEnableSmoothLines();
+
+        for (auto& shape : scene.DebugShapes)
         {
-        case DebugShape::Type::SPHERE:
-            DrawSphereWires(
-                Utility::Ray::ConvertVec(shape.Pos),
-                shape.Data.x,
-                static_cast<int>(shape.Data.y),
-                static_cast<int>(shape.Data.z),
-                { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
-            break;
-        case DebugShape::Type::BOX:
-            DrawCubeWiresV(
-                Utility::Ray::ConvertVec(shape.Pos),
-                Utility::Ray::ConvertVec(shape.Data),
-                { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
-            break;
-        case DebugShape::Type::CAPSULE:
-            const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
-            const auto start = Utility::Ray::ConvertVec(shape.Pos + dir);
-            const auto end = Utility::Ray::ConvertVec(shape.Pos - dir);
-            DrawCapsuleWires(
-                start,
-                end,
-                shape.Data.x,
-                static_cast<int>(shape.Data.z),
-                static_cast<int>(shape.Data.z) / 2,
-                { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
-            break;
+            switch (shape.Type)
+            {
+            case DebugShape::Type::SPHERE:
+                DrawSphereWires(
+                    Utility::Ray::ConvertVec(shape.Pos),
+                    shape.Data.x,
+                    static_cast<int>(shape.Data.y),
+                    static_cast<int>(shape.Data.z),
+                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                break;
+            case DebugShape::Type::BOX:
+                DrawCubeWiresV(
+                    Utility::Ray::ConvertVec(shape.Pos),
+                    Utility::Ray::ConvertVec(shape.Data),
+                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                break;
+            case DebugShape::Type::CAPSULE:
+                const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
+                const auto start = Utility::Ray::ConvertVec(shape.Pos + dir);
+                const auto end = Utility::Ray::ConvertVec(shape.Pos - dir);
+                DrawCapsuleWires(
+                    start,
+                    end,
+                    shape.Data.x,
+                    static_cast<int>(shape.Data.z),
+                    static_cast<int>(shape.Data.z) / 2,
+                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                break;
+            }
         }
+
+        for (auto& line : scene.DebugLines)
+            DrawLine3D(
+                Utility::Ray::ConvertVec(line.Start),
+                Utility::Ray::ConvertVec(line.End),
+                { line.Color.r, line.Color.g, line.Color.b, line.Color.a });
+
+        EndMode3D();
     }
-
-    for (auto& line : scene.DebugLines)
-        DrawLine3D(
-            Utility::Ray::ConvertVec(line.Start),
-            Utility::Ray::ConvertVec(line.End),
-            { line.Color.r, line.Color.g, line.Color.b, line.Color.a });
-
-    EndMode3D();
 
     return static_cast<int>(scene.DebugShapes.size() + scene.DebugLines.size());
 }
@@ -499,7 +582,7 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
     rlState::Current.Reset();
     
     BeginTextureMode(InTarget);
-    
+
     // Flip and blip
     const Rectangle sourceRec = {
         0.0f, 0.0f,

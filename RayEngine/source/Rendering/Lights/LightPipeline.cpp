@@ -2,7 +2,7 @@
 
 #include "Viewport/Viewport.h"
 
-Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadowFace(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, int InFaceIndex)
+Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderArgs& InArgs, const ResShader& InShader)
 {
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
@@ -15,6 +15,6 @@ Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadowFace(const Rend
     //stats += RenderDeferred(InArgs);
 
     auto scene = InArgs.Viewport->GetTargets().SceneTarget;
-    Renderer::DrawCubeFace(InArgs, InTarget, InFaceIndex, InShader, { &scene }, -1, true);
+    
     return stats;
 }

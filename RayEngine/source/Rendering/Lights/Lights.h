@@ -4,6 +4,7 @@
 #include "LightPipeline.h"
 #include "Pipeline/Pipeline.h"
 #include "Scene/Instances/LightInstance.h"
+#include "TextureTargets/AtlasMap.h"
 #include "TextureTargets/SwapTarget.h"
 #include "Viewport/Viewport.h"
 
@@ -14,11 +15,10 @@ namespace Rendering
     struct LightData
     {
         LightInstance::InstanceData Data;
-        SwapTarget Target;
         Vec3F SamplePos;
         Vec3F PrevSamplePos;
         double Timestamp = 0;
-        bool Initialized = false;
+        uint32 ID = static_cast<uint32>(-1);
     };
     
     class Lights
@@ -35,6 +35,7 @@ namespace Rendering
         Map<uint32, LightData> Cache;
         LightConfig Config;
         Viewport Viewport;
+        AtlasMap AtlasMap;
         LightPipeline Pipeline;
     };
 }

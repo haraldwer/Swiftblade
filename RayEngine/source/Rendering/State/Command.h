@@ -25,6 +25,10 @@ namespace Rendering
     {
         uint32 fboID = static_cast<uint32>(-1);
         bool Clear = false;
+    };
+
+    struct PerspectiveCommand
+    {
         Vec4I Rect;
     };
 

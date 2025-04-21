@@ -48,19 +48,15 @@ void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) con
 
         if (tex.Cubemap)
         {
-            // Attach cubemap face later
-            for (const auto& tex : Textures)
+            for (int face = 0; face < 6; face++)
             {
-                for (int face = 0; face < 6; face++)
-                {
-                    CHECK_ASSERT(!tex.Tex, "Tex nullptr");
-                    rlFramebufferAttach(
-                        FrameBuffer,
-                        tex.Tex->id,
-                        RL_ATTACHMENT_COLOR_CHANNEL0 + i,
-                        RL_ATTACHMENT_CUBEMAP_POSITIVE_X + face,
-                        0);
-                }
+                CHECK_ASSERT(!tex.Tex, "Tex nullptr");
+                rlFramebufferAttach(
+                    FrameBuffer,
+                    tex.Tex->id,
+                    RL_ATTACHMENT_COLOR_CHANNEL0 + i,
+                    RL_ATTACHMENT_CUBEMAP_POSITIVE_X + face,
+                    0);
             }
         }
         else
@@ -99,16 +95,6 @@ void Rendering::RenderTarget::Unload()
     }
     Width = 0;
     Height = 0; 
-}
-
-void Rendering::RenderTarget::Write(const bool InClear, const Vec4I& InRect) const
-{
-    // How do we tell the CPU which face to render to? 
-    FrameCommand cmd;
-    cmd.fboID = FrameBuffer;
-    cmd.Clear = InClear;
-    cmd.Rect = InRect;
-    rlState::Current.Set(cmd);
 }
 
 void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, const String& InPostfix) const

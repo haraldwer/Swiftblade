@@ -10,41 +10,19 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
 {
     Config = InConfig;
     Viewport.Init(Config.Viewport);
+    AtlasMap.Init(Viewport.GetResolution(), Config.MaxLights, true);
 }
 
 void Rendering::Lights::Deinit()
 {
-    for (auto& l : Cache)
-        for (auto& t : l.second.Target.All())
-            t.Unload();
     Viewport.Deinit();
+    AtlasMap.Deinit();
 }
 
 Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 {
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
-
-    // Create all textures instantly
-    for (auto& light : InArgs.Scene->Lights)
-    {
-        auto& cache = Cache[light.ID];
-        CHECK_CONTINUE(cache.Initialized);
-        for (auto& target : cache.Target.All())
-        {
-            auto& tex = Viewport.GetVirtualTarget();
-            if (target.TryBeginSetup(tex))
-            {
-                target.CreateBuffer(
-                    "TexShadowCube",
-                    PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
-                    1.0f,
-                    1,
-                    true);
-                target.EndSetup(tex);
-            }
-        }
-    }
     
     // Only consider lights in view, ordered by distance
     Vector<const LightInstance*> frameLights = GetLights(InArgs);
@@ -61,6 +39,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
         // Set data
         cache.Data = light->Data;
+        cache.ID = light->ID;
 
         // Skip?
         CHECK_CONTINUE(cmp);
@@ -72,40 +51,45 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         });
     }
 
-    auto directions = RaylibRenderUtility::GetCubemapRotations();
+    Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     RenderArgs args = {
         .Scene = InArgs.Scene,
         .Context = InArgs.Context,
         .Viewport = &Viewport,
         .Lumin = InArgs.Lumin,
-        .Camera = CameraInstance()
+        .Perspectives = {}
     };
-
-    Viewport.BeginFrame();
+    
     Pipeline::Stats stats;
     int count = 0;
     for (auto& cache : timeSortedCache) 
     {
         CHECK_CONTINUE(!cache);
-        cache->Target.Iterate();
         cache->Timestamp = InArgs.Context->Time();
         cache->PrevSamplePos = cache->SamplePos;
         cache->SamplePos = cache->Data.Position;
+        
         for (int i = 0; i < 6; i++)
         {
-            args.Camera = CameraInstance {
-                .Position = cache->Data.Position,
-                .Rotation = directions[i],
-                .FOV = 90.0f,
-                .Far = cache->Data.Range,
-                .Near = 0.1f
-            };
-            stats += Pipeline.RenderShadowFace(args, cache->Target.Curr(), Config.CollectShader, i);
+            args.Perspectives.push_back({
+                .TargetRect = AtlasMap.GetRect(cache->ID, i),
+                .Camera = {
+                    .Position = cache->Data.Position,
+                    .Rotation = directions[i],
+                    .FOV = 90.0f,
+                    .Far = cache->Data.Range,
+                    .Near = 0.1f
+                }
+            });
         }
+        
         count++;
         if (count >= Config.MaxShadowRenders)
             break;
     }
+
+    Viewport.BeginFrame();
+    stats += Pipeline.RenderShadows(args, Config.CollectShader);
 
     // TODO: Clear unused lights
     
@@ -114,18 +98,21 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
 Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InArgs)
 {
+    CHECK_RETURN(InArgs.Perspectives.empty(), {});
+    
+    auto& cam = InArgs.Perspectives.at(0).Camera;
     Frustum frustum;
-    frustum.ConstructFrustum(InArgs.Camera, Viewport.GetResolution());
+    frustum.ConstructFrustum(cam, Viewport.GetResolution());
     Vector<const LightInstance*> result;
 
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)
     {
-        return (InFirst->Data.Position - InArgs.Camera.Position).LengthSqr() < (InSecond->Data.Position - InArgs.Camera.Position).LengthSqr();
+        return (InFirst->Data.Position - cam.Position).LengthSqr() < (InSecond->Data.Position - cam.Position).LengthSqr();
     };
 
     auto checkFunc = [&](const LightInstance& InLight)
     {
-        const float camDist = (InLight.Data.Position - InArgs.Camera.Position).LengthSqr();
+        const float camDist = (InLight.Data.Position - cam.Position).LengthSqr();
         if (camDist < InLight.Data.Range * InLight.Data.Range)
             return true;
         const float cullDist = InLight.Data.Range;

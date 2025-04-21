@@ -6,26 +6,17 @@ namespace Rendering
     class State
     {
     public:
-
-        // State hierarhcy:
-        // 1 Frame
-        // 2 Shader
-        // 3 Texture / Mesh
-
-        // State resets
-        // Frame: Shader, Textures
-        // Shader: Textures?, Mesh?
-        // Texture: -
-        // Mesh: - 
         
         void Set(const TextureCommand& InCmd, int InSlot);
         bool Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatrices);
         void Set(const ShaderCommand& InCmd, bool InForce = false);
+        void Set(const PerspectiveCommand& InCmd, bool InForce = false);
         void Set(const FrameCommand& InCmd);
         
         void Reset();
         void ResetTextures();
         void ResetShader();
+        void ResetPerspective();
         void ResetFrame();
         void ResetMesh();
         
@@ -37,6 +28,7 @@ namespace Rendering
         
         ShaderCommand Shader;
         FrameCommand Frame;
+        PerspectiveCommand Perspective;
 
         uint32 VBO = static_cast<uint32>(-1);
     };
