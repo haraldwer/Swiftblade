@@ -111,6 +111,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 {
     FrameCommand frameCmd;
     frameCmd.fboID = InSceneTarget.GetFBO();
+    frameCmd.Size = InSceneTarget.Size();
     frameCmd.Clear = true;
     rlState::Current.Set(frameCmd);
     
@@ -206,6 +207,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Size = InTarget.Size();
     frameCmd.Clear = true;
     rlState::Current.Set(frameCmd);
     
@@ -270,6 +272,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Size = InTarget.Size();
     rlState::Current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
@@ -356,6 +359,7 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Size = InTarget.Size();
     rlState::Current.Set(frameCmd);
     
     ShaderCommand shaderCmd;
@@ -432,6 +436,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
     
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Size = InTarget.Size();
     frameCmd.Clear = true;
     rlState::Current.Set(frameCmd);
     
@@ -486,6 +491,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Size = InTarget.Size();
     frameCmd.Clear = InClear;
     rlState::Current.Set(frameCmd);
 

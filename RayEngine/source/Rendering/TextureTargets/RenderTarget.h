@@ -24,7 +24,7 @@ namespace Rendering
         void Bind(ShaderResource& InShader, int& InOutSlot, const String& InPostfix = "") const;
         
         const Vector<TargetTex>& GetTextures() const { return Textures; }
-        Vec2F Size() const { return { static_cast<float>(Width), static_cast<float>(Height) }; }
+        Vec2I Size() const { return { Width, Height }; }
         uint32 GetFBO() const { return FrameBuffer; }
         
     private: 

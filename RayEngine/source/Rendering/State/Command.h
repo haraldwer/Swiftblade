@@ -24,6 +24,7 @@ namespace Rendering
     struct FrameCommand
     {
         uint32 fboID = static_cast<uint32>(-1);
+        Vec2I Size;
         bool Clear = false;
     };
 

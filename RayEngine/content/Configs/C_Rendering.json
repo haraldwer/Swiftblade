@@ -1,12 +1,13 @@
 {
 	"Context":{
 		"GlobalDefines":[
-			"SSAO",
-			"QUANTIZE",
+			"SSA",
+			"QUANTIZ",
 			"FXAA"
 		],
 		"Lights":{
-			"UpdateFrequency":0.10000000149011612,
+			"MaxShadowRenders":1,
+			"UpdateFrequency":0.0,
 			"Viewport":{
 				"Height":128,
 				"Width":128
@@ -14,11 +15,11 @@
 		},
 		"Lumin":false,
 		"NoiseTextures":[{
-				"Key":"TexPerlin",
-				"Val":"Defaults\\T_Noise_Perlin.json"
-			},{
 				"Key":"TexCellular",
 				"Val":"Defaults\\T_Noise_Cellular.json"
+			},{
+				"Key":"TexPerlin",
+				"Val":"Defaults\\T_Noise_Perlin.json"
 			},{
 				"Key":"TexSimplex",
 				"Val":"Defaults\\T_Noise_Simplex.json"

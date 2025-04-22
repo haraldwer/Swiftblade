@@ -52,6 +52,11 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     }
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
+    
+    
+    Pipeline::Stats stats;
+    CHECK_RETURN(timeSortedCache.empty(), {});
+    
     RenderArgs args = {
         .Scene = InArgs.Scene,
         .Context = InArgs.Context,
@@ -60,12 +65,11 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         .Perspectives = {}
     };
     
-    Pipeline::Stats stats;
     int count = 0;
     for (auto& cache : timeSortedCache) 
     {
         CHECK_CONTINUE(!cache);
-        cache->Timestamp = InArgs.Context->Time();
+        cache->Timestamp = args.Context->Time();
         cache->PrevSamplePos = cache->SamplePos;
         cache->SamplePos = cache->Data.Position;
         

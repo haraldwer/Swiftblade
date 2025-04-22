@@ -152,12 +152,12 @@ void Rendering::State::ResetShader()
     Shader = {};
 }
 
-void Rendering::State::Set(const PerspectiveCommand& InCmd, bool InForce)
+void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
 {
     if (Perspective.Rect != InCmd.Rect || InForce)
     {
-        int w = InCmd.Rect.z > 0 ? InCmd.Rect.z : rlGetFramebufferWidth();
-        int h = InCmd.Rect.w > 0 ? InCmd.Rect.w : rlGetFramebufferHeight();
+        int w = InCmd.Rect.z > 0 ? InCmd.Rect.z : Frame.Size.x;
+        int h = InCmd.Rect.w > 0 ? InCmd.Rect.w : Frame.Size.y;
         rlViewport(InCmd.Rect.x, InCmd.Rect.y, w, h);
     }
     Perspective = InCmd;
@@ -177,7 +177,8 @@ void Rendering::State::Set(const FrameCommand& InCmd)
         if (InCmd.fboID != static_cast<uint32>(-1))
             rlEnableFramebuffer(InCmd.fboID);
         else rlDisableFramebuffer();
-        ResetPerspective();
+        Perspective = PerspectiveCommand();
+        rlViewport(0, 0, InCmd.Size.x, InCmd.Size.y);
     }
     
     if (InCmd.Clear && InCmd.fboID != static_cast<uint32>(-1))
@@ -192,7 +193,7 @@ void Rendering::State::Set(const FrameCommand& InCmd)
 void Rendering::State::ResetFrame()
 {
     rlDisableFramebuffer();
-    Frame = {};;
+    Frame = {};
 }
 
 void Rendering::State::Reset()

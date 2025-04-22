@@ -12,9 +12,7 @@ Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderA
     
     Stats stats;
     stats += RenderScene(InArgs); 
-    //stats += RenderDeferred(InArgs);
-
-    auto scene = InArgs.Viewport->GetTargets().SceneTarget;
+    stats += RenderDeferred(InArgs);
     
     return stats;
 }
