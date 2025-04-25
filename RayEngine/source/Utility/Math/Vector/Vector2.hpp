@@ -151,6 +151,15 @@ namespace Utility
 					y == in.y;
 			}
 
+			template <class OtherType>
+			Vector2<OtherType, Alignment> To() const
+			{
+				return {
+					static_cast<OtherType>(x),
+					static_cast<OtherType>(y)
+				};
+			}
+
 			Vector2(const Type& a_x, const Type& a_y) : data{ a_x, a_y } {}
 			Vector2(const Type& a_v) : data{ a_v, a_v } {}
 			Vector2() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}

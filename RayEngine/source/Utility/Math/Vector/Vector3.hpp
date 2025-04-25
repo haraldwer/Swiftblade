@@ -109,6 +109,16 @@ namespace Utility
 				(*this).z = InOther.z;
 				return *this;
 			}
+
+			template <class OtherType>
+			Vector3<OtherType, Alignment> To() const
+			{
+				return {
+					static_cast<OtherType>(x),
+					static_cast<OtherType>(y),
+					static_cast<OtherType>(z)
+				};
+			}
 			
 			Vector3(const Type& InX, const Type& InY, const Type& InZ) : data{ InX, InY, InZ } {}
 			Vector3(const Type& InValue) : data{ InValue, InValue, InValue } {}

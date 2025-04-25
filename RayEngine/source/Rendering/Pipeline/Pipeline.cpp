@@ -25,8 +25,6 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     
     if (InArgs.Context->LightsPtr)
         stats += InArgs.Context->LightsPtr->Update(InArgs); 
-
-    rlState::Current.Reset();
     
     stats += RenderScene(InArgs);
     stats += RenderFire(InArgs);
@@ -39,8 +37,6 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += RenderFX(InArgs);
     stats += Blip(InArgs);
     stats += RenderDebug(InArgs);
-    
-    rlState::Current.Reset();
     
     return stats;
 }

@@ -197,6 +197,17 @@ namespace Utility
 					z == in.z &&
 					w == in.w;
 			}
+
+			template <class OtherType>
+			Vector4<OtherType, Alignment> To() const
+			{
+				return {
+					static_cast<OtherType>(x),
+					static_cast<OtherType>(y),
+					static_cast<OtherType>(z),
+					static_cast<OtherType>(w)
+				};
+			}
 				
 			Vector4(const Type & InX, const Type & InY, const Type & InZ, const Type & InW) : data{ InX, InY, InZ, InW } {}
 			Vector4(const Type & InValue) : data{ InValue, InValue, InValue, InValue } {}

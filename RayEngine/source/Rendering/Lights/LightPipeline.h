@@ -1,11 +1,13 @@
 #pragma once
-#include "Pipeline/Pipeline.h"
+#include "Rendering/Pipeline/Pipeline.h"
 
 namespace Rendering
 {
+    class SwapTarget;
+
     class LightPipeline : public Pipeline
     {
     public:
-        Stats RenderShadows(const RenderArgs& InArgs, const ResShader& InShader);
+        Stats RenderShadows(const RenderArgs& InArgs, const ResShader& InShader, SwapTarget& InTarget);
     };
 }

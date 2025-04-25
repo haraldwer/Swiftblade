@@ -2,14 +2,16 @@
 
 void Rendering::AtlasMap::Init(const Vec2I& InResolution, int InSlots, bool InCubemap)
 {
+    int slots = InSlots;
     if (InCubemap)
-        InSlots *= 6;
-    AxisSlots = Utility::Math::SquareRoot(InSlots);
+        slots *= 6;
+    AxisSlots = Utility::Math::SquareRoot(slots);
     SlotResolution = InResolution.y / AxisSlots;
     Cubemap = InCubemap;
-
+    
     for (int i = 0; i < InSlots; i++)
-        Available.push_back(i);
+        Available.push_back(Cubemap ? i * 6 : i);
+    
     Timer = {};
 }
 

@@ -1,5 +1,5 @@
 ﻿
-#include "Shaders/Utility/SH_ScreenDistortion.si"
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
 
 const float PI = 3.1415926535f;
 
@@ -7,7 +7,7 @@ vec2 WorldPosToCoord(vec3 InWorldPosition, mat4 InMVP)
 {    
     vec4 screenPos = InMVP * vec4(InWorldPosition, 1.0);
     vec2 coord = (1 + screenPos.xy / screenPos.w) / 2;
-    return DistortCoord(coord);
+    return coord;
 }
 
 vec2 GetPrevCoord(vec3 InWorldPosition)
@@ -44,7 +44,7 @@ vec3 GetViewDir(vec2 InUV)
 {
     vec2 coord = InUV * 2 - 1;
     vec3 off = vec3(coord, 1.0f);
-    vec4 dir = ScreenToWorld * vec4(off, 1.0f);
+    vec4 dir = ViewProjInv * vec4(off, 1.0f);
     return normalize(dir.xyz);
 }
 
@@ -95,4 +95,84 @@ vec2 OctahedronDirToUV(vec3 InDir)
 vec4 SampleOct(sampler2D InSampler, vec3 InDir)
 {
     return texture(InSampler, OctahedronDirToUV(InDir));
+}
+
+
+// Atlas cube sampling
+
+vec3 GetFlatCubeUV(vec3 InDir)
+{
+    //Vector Parallel to the unit vector that lies on one of the cube faces
+    float a = max(abs(InDir.x), max(abs(InDir.y), abs(InDir.z)));
+    float xa = InDir.x / a;
+    float ya = InDir.y / a;
+    float za = InDir.z / a;
+    
+    vec2 uv;
+    float side = 0;
+    
+    if (xa > 0.999)
+    {
+        // Right, index 0, rotate left
+        side = 0;
+        uv = vec2(-za, -ya);
+        uv = vec2(-za, -ya);
+    }
+    
+    if (xa < -0.999)
+    {
+        // Left, index 1, rotate right
+        side = 1;
+        uv = vec2(za, ya);
+    }
+    
+    if (ya > 0.999)
+    {
+        // Up, index 2, upside down and flipped
+        side = 2;
+        uv = vec2(-xa, -za);
+    }
+    
+    if (ya < -0.999)
+    {
+        // Down, index3, correct
+        side = 3;
+        uv = vec2(xa, za);
+    }
+    
+    if (za > 0.999)
+    {
+        // Forwards, index4, correct
+        side = 4;
+        uv = vec2(xa, ya);
+    }
+    
+    if (za < -0.999)
+    {
+        // Backwards, index4, correct
+        side = 5;
+        uv = vec2(xa, ya);
+    }
+    
+    uv = (uv - 1) * 0.5;
+    
+    if (uv.x < 0)
+        uv.x += 1;
+    if (uv.x > 1)
+        uv.x -= 1;
+
+    if (uv.y < 0)
+        uv.y += 1;
+    if (uv.y > 1)
+        uv.y -= 1;
+    
+    return vec3(uv, side);
+}
+
+vec4 SampleCubeAtlas(sampler2D InAtlas, vec4 InRect, vec3 InDir)
+{
+    vec3 uv = GetFlatCubeUV(InDir);
+    vec2 rectCoord = InRect.xy + InRect.zw * (uv.xy + vec2(uv.z, 0));
+    vec2 rectUV = rectCoord / Resolution;
+    return texture(InAtlas, rectUV);
 }

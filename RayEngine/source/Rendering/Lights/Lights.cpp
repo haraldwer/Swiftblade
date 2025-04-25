@@ -11,6 +11,8 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
     Config = InConfig;
     Viewport.Init(Config.Viewport);
     AtlasMap.Init(Viewport.GetResolution(), Config.MaxLights, true);
+    for (auto& s : ShadowTarget.All())
+        s.Setup(Viewport.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lights::Deinit()
@@ -42,7 +44,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         cache.ID = light->ID;
 
         // Skip?
-        CHECK_CONTINUE(cmp);
+        //CHECK_CONTINUE(cmp);
         CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && cache.Timestamp > 0.001f);
         CHECK_CONTINUE(InArgs.Context->Time() - cache.Timestamp < Config.UpdateFrequency)
         Utility::SortedInsert(timeSortedCache, &cache, [&](const LightData* InFirst, const LightData* InSecond)
@@ -52,7 +54,6 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     }
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
-    
     
     Pipeline::Stats stats;
     CHECK_RETURN(timeSortedCache.empty(), {});
@@ -72,6 +73,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         cache->Timestamp = args.Context->Time();
         cache->PrevSamplePos = cache->SamplePos;
         cache->SamplePos = cache->Data.Position;
+        cache->Rect = AtlasMap.GetRect(cache->ID, 0).To<float>();
         
         for (int i = 0; i < 6; i++)
         {
@@ -81,8 +83,8 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
                     .Position = cache->Data.Position,
                     .Rotation = directions[i],
                     .FOV = 90.0f,
-                    .Far = cache->Data.Range,
-                    .Near = 0.1f
+                    .Far = 50.0f,
+                    .Near = 0.01f
                 }
             });
         }
@@ -93,7 +95,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     }
 
     Viewport.BeginFrame();
-    stats += Pipeline.RenderShadows(args, Config.CollectShader);
+    stats += Pipeline.RenderShadows(args, Config.CollectShader, ShadowTarget);
 
     // TODO: Clear unused lights
     

@@ -119,17 +119,7 @@ void Rendering::State::Set(const ShaderCommand& InCmd, bool InForce)
     }
 
     if (InCmd.BlendMode != Shader.BlendMode || InForce)
-    {
-        if (InCmd.BlendMode >= 0)
-        {
-            rlEnableColorBlend();
-            RaylibRenderUtility::SetBlendMode(InCmd.BlendMode);
-        }
-        else
-        {
-            rlDisableColorBlend();
-        }
-    }
+        RaylibRenderUtility::SetBlendMode(InCmd.BlendMode);
 
     if (InCmd.BackfaceCulling != Shader.BackfaceCulling || InForce)
         InCmd.BackfaceCulling ? rlEnableBackfaceCulling() : rlDisableBackfaceCulling();
@@ -178,11 +168,27 @@ void Rendering::State::Set(const FrameCommand& InCmd)
             rlEnableFramebuffer(InCmd.fboID);
         else rlDisableFramebuffer();
         Perspective = PerspectiveCommand();
+        CHECK_ASSERT(InCmd.Size.x == 0, "Invalid size x")
+        CHECK_ASSERT(InCmd.Size.y == 0, "Invalid size y")
         rlViewport(0, 0, InCmd.Size.x, InCmd.Size.y);
     }
     
     if (InCmd.Clear && InCmd.fboID != static_cast<uint32>(-1))
+    {
+        // Enable depth before clearing
+        rlEnableDepthTest();
+        rlEnableDepthMask();
         rlClearScreenBuffers();
+        
+        if (InCmd.fboID == Frame.fboID) 
+        {
+            // Shader will not be reset, set the depth values manually
+            if (!Shader.DepthMask)
+                rlDisableDepthMask();
+            if (!Shader.DepthTest)
+                rlDisableDepthTest();
+        }
+    }
     
     if (InCmd.fboID != Frame.fboID)
         Set(ShaderCommand(), true);
@@ -203,7 +209,6 @@ void Rendering::State::Reset()
     ResetShader();
     ResetFrame();
     ResetPerspective();
-    rlDrawRenderBatchActive();
 }
 
 void Rendering::State::Check()

@@ -2,11 +2,11 @@
 
 #include "LightConfig.h"
 #include "LightPipeline.h"
-#include "Pipeline/Pipeline.h"
-#include "Scene/Instances/LightInstance.h"
-#include "TextureTargets/AtlasMap.h"
-#include "TextureTargets/SwapTarget.h"
-#include "Viewport/Viewport.h"
+#include "Rendering/Pipeline/Pipeline.h"
+#include "Rendering/Scene/Instances/LightInstance.h"
+#include "Rendering/TextureTargets/AtlasMap.h"
+#include "Rendering/TextureTargets/SwapTarget.h"
+#include "Rendering/Viewport/Viewport.h"
 
 namespace Rendering
 {
@@ -19,6 +19,7 @@ namespace Rendering
         Vec3F PrevSamplePos;
         double Timestamp = 0;
         uint32 ID = static_cast<uint32>(-1);
+        Vec4F Rect;
     };
     
     class Lights
@@ -29,12 +30,14 @@ namespace Rendering
         void Deinit();
         Pipeline::Stats Update(const RenderArgs& InArgs);
         Vector<const LightInstance*> GetLights(const RenderArgs& InArgs);
+        SwapTarget& GetShadowTarget() { return ShadowTarget; }
         const LightData& GetData(uint32 InHash);
         
     private:
         Map<uint32, LightData> Cache;
         LightConfig Config;
         Viewport Viewport;
+        SwapTarget ShadowTarget;
         AtlasMap AtlasMap;
         LightPipeline Pipeline;
     };

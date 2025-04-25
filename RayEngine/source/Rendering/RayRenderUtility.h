@@ -11,8 +11,8 @@ namespace RaylibRenderUtility
     inline Array<QuatF, 6> GetCubemapRotations()
     {
         return {
-            QuatF::FromEuler({ 0, PI/2, PI }), //Right
-            QuatF::FromEuler({ 0, -PI/2, -PI }), //Left
+            QuatF::FromEuler({ 0, PI/2, PI/2 }), //Right
+            QuatF::FromEuler({ 0, -PI/2, -PI/2 }), //Left
             QuatF::FromEuler({ PI/2, 0, PI }), //Up
             QuatF::FromEuler({ -PI/2, 0, PI }), //Down
             QuatF::FromEuler({ 0, 0, PI }), //Forward
@@ -24,10 +24,11 @@ namespace RaylibRenderUtility
     {
         if (InMode < 0)
         {
-            
+            rlDisableColorBlend();
         }
         else
         {
+            rlEnableColorBlend();
             switch (InMode)
             {
             case RL_BLEND_ALPHA: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;

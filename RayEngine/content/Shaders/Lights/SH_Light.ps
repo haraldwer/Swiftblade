@@ -17,101 +17,25 @@ uniform float Intensity;
 // Hacks for shadow interpolation
 uniform float Timestamp;
 uniform vec3 ShadowPosition;
-uniform vec3 ShadowPositionPrev;
-uniform float UpdateFrequency;
+uniform vec4 ShadowRect;
+uniform sampler2D TexShadow;
 
-uniform samplerCube TexShadowCube;
-uniform samplerCube TexShadowCubePrev;
 
 in vec2 TexCoord;
 out vec4 Output;
 
-const int SHADOW_SAMPLES = 16;
-const float SHADOW_SAMPLE_SCALE = 0.01f;
-const float SHADOW_NOISE_SCALE = 1000.0f;
-
-const float TRAVEL_PART = 0.5;
-
-float InterleavedGradientNoise(vec2 uv)
-{
-    vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
-    return fract(magic.z * fract(dot(uv, magic.xy)));
-}
-
-vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
-{
-    float GoldenAngle = 2.4f;
-    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
-    float theta = sampleIndex * GoldenAngle + phi;
-    return vec2(r * cos(theta), r * sin(theta));
-}
-
-float ShadowDepth(vec4 InPixelPos, vec3 InLightPos, samplerCube InTex)
+float ShadowDepth(vec4 InPixelPos, vec3 InLightPos)
 {
     vec3 toLight = InLightPos - InPixelPos.xyz;
     float lightDist = length(toLight);
     vec3 toLightDir = toLight / lightDist;
-
-    #ifdef SOFT_SHADOWS
-    
-    vec3 right = vec3(toLight.z, toLight.y, -toLight.x);
-    vec3 up = vec3(toLight.x, toLight.z, -toLight.y);
-    float div = 1.0f / float(SHADOW_SAMPLES);
-    float interleaved = PI * 2.0f * InterleavedGradientNoise((TexCoord + Time) * SHADOW_NOISE_SCALE);
-    
-    float orgDepth = texture(InTex, -toLightDir).r * Range;
-    float orgDiff = lightDist - orgDepth;
-    float sum = div * float(orgDiff < 0.0f);
-
-    for(int i = 1; i < SHADOW_SAMPLES; i++)
-    {
-        vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * SHADOW_SAMPLE_SCALE;
-        vec3 vec = normalize(toLight + right * off.x + up * off.y);
-        float shadowDepth = texture(InTex, -vec).r * Range;
-        float shadowDiff = abs(lightDist - shadowDepth);
-        sum += div * float(shadowDiff < 1.1f);
-    }
-    float oneMin = (1.0f - sum);
-    float exp = oneMin * oneMin;
-    return exp;
-    
-    #else
-    float depth = texture(InTex, -toLightDir).r * Range;
+    float depth = SampleCubeAtlas(TexShadow, ShadowRect, toLightDir).a * Range;
     return abs(depth - lightDist);
-    #endif
-}
-
-float InterpShadow(vec4 InPixelPos, vec3 InShadowPos, vec3 InLerpPos, samplerCube InTex)
-{
-    float cam = ShadowDepth(InPixelPos, Position, InTex); // Sample from light
-    float shadow = ShadowDepth(InPixelPos, InShadowPos, InTex); // Sample from shadow
-    float expected = ShadowDepth(vec4(InPixelPos.xyz + Position - InShadowPos, InPixelPos.w), InLerpPos, InTex); // Sample from new expected pixel
-    float lerp = ShadowDepth(InPixelPos, InLerpPos, InTex); // Sample from interpolated
-    float depthDiff = min(min(min(expected, cam), shadow), lerp); // Largest depth
-    return 1.0 - clamp(abs(depthDiff) - 0.5, 0, 1);
-}
-
-float InterpShadows(vec4 InPixelPos)
-{
-    float ellapsed = Time - Timestamp;
-    float lerp = clamp(ellapsed / UpdateFrequency, 0, 1);
-    vec3 lerpPos = mix(ShadowPositionPrev, ShadowPosition, lerp);
-
-    float travelDist = length(lerpPos - Position);
-    float travelLerp = travelDist / (Range * TRAVEL_PART);
-    if (travelLerp > 1)
-        return 1;
-    
-    float curr = InterpShadow(InPixelPos, ShadowPosition, lerpPos, TexShadowCube);
-    if (lerp > 1.0)
-        return curr;
-    float prev = InterpShadow(InPixelPos, ShadowPositionPrev, lerpPos, TexShadowCubePrev);
-    return mix(mix(prev, curr, lerp), 1, travelLerp);
 }
 
 float SimpleShadows(vec4 InPixelPos)
 {
-    float shadow = ShadowDepth(InPixelPos, ShadowPosition, TexShadowCube);
+    float shadow = ShadowDepth(InPixelPos, ShadowPosition);
     return 1.0 - clamp(abs(shadow) - 0.5, 0, 1);
 }
 
@@ -136,12 +60,7 @@ void main()
     float shadow = 1;
     if (Timestamp != 0)
     {
-        // Is surface in view of light?
-        #ifdef INTERP_SHADOWS
-        shadow = InterpShadows(worldPos);
-        #else
         shadow = SimpleShadows(worldPos);
-        #endif
         if (shadow < 0.001f)
             discard;
     }

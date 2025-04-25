@@ -66,7 +66,6 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     Vec2F size = { rect.z, rect.w };
     Mat4F view = InPerspective.Camera.GetViewMatrix();
     Mat4F proj = InPerspective.Camera.GetProjectionMatrix(size);
-    proj.up *= -1.0f;
     viewport.ViewProj = Mat4F::Transpose(Mat4F::GetInverse(view) * proj);
     
     SetValue(InShader, "ViewProj", viewport.ViewProj);
@@ -77,7 +76,6 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     SetValue(InShader, "CameraPosition", &InPerspective.Camera.Position, SHADER_UNIFORM_VEC3);
     Vec2F nearFar = { InPerspective.Camera.Near, InPerspective.Camera.Far };
     SetValue(InShader, "NearFar", &nearFar, SHADER_UNIFORM_VEC2);
-    
 }
 
 void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
@@ -176,7 +174,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
                     perspCmd.Rect = perspective.TargetRect;
                     SetPerspectiveShaderValues(InArgs, perspective, *resShader);
                     rlState::Current.Set(perspCmd);
-                    count[entry.first] += DrawInstances(meshes[i], entry.second.Transforms.size());
+                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(entry.second.Transforms.size()));
                 }
                 rlState::Current.ResetMesh();
             }
@@ -208,7 +206,6 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
     frameCmd.Size = InTarget.Size();
-    frameCmd.Clear = true;
     rlState::Current.Set(frameCmd);
     
     for (auto& entry : scene.Meshes.DeferredShaders)
@@ -365,15 +362,19 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     ShaderCommand shaderCmd;
     shaderCmd.Locs = shader->locs;
     shaderCmd.ID = shader->id;
-    shaderCmd.BlendMode = RL_BLEND_ADDITIVE;
+    shaderCmd.BlendMode = RL_BLEND_ALPHA;
     rlState::Current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
     SetValue(*shaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
 
-    int noiseTexSlot = 0;
-    BindNoiseTextures(InArgs, *shaderResource, noiseTexSlot);
-
+    int texSlot = 0;
+    auto& t = lightMan.GetShadowTarget();
+    t.Curr().Bind(*shaderResource, texSlot);
+    BindNoiseTextures(InArgs, *shaderResource, texSlot);
+    for (auto& b : InBuffers)
+        if (b) b->Bind(*shaderResource, texSlot);
+    
     for (auto& light : lights)
     {
         CHECK_ASSERT(!light, "Invalid light");
@@ -395,6 +396,7 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
             SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
             SetValue(*shaderResource, "ShadowPosition", &cache.SamplePos, SHADER_UNIFORM_VEC3);
             SetValue(*shaderResource, "ShadowPositionPrev", &cache.PrevSamplePos, SHADER_UNIFORM_VEC3);
+            SetValue(*shaderResource, "ShadowRect", &cache.Rect, SHADER_UNIFORM_VEC4);
         }
         else
         {
@@ -402,24 +404,13 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
             SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
         }
 
-        int texSlot = noiseTexSlot;
-        for (auto& b : InBuffers)
-            if (b) b->Bind(*shaderResource, texSlot);
-
-        //if (shadowCache && light->Shadows)
-        //{
-        //    shadowCache->Target.Curr().Bind(*shaderResource, texSlot);
-        //    shadowCache->Target.Prev().Bind(*shaderResource, texSlot, "Prev");
-        //}
-
-        // TODO: Replace with cube mesh
         for (auto& perspective : InArgs.Perspectives)
         {
             PerspectiveCommand perspCmd;
             perspCmd.Rect = perspective.TargetRect;
             rlState::Current.Set(perspCmd);
             SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-            DrawQuad();
+            DrawQuad(); // TODO: Replace with cube mesh
         }
     }
     return static_cast<int>(lights.size());

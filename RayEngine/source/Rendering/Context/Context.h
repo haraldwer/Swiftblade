@@ -17,6 +17,7 @@ namespace Rendering
         void Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, bool InRoot = false);
         void Deinit();
         double Time() const { return Timer.Ellapsed(); }
+        Lights* GetLights() const { return LightsPtr; }
 
     private:
         ContextConfig Config;

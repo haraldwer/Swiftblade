@@ -8,8 +8,8 @@
 #include "ImGui/Gizmo/ImGuizmo.h"
 #include "ImGui/imgui_themes.h"
 #include "ImGui/rlImGui.h"
-#include "Menu/Menu.h"
 #include "Rendering/Scene/Scene.h"
+#include "Rendering/State/State.h"
 
 void Rendering::Manager::Init()
 {
@@ -43,9 +43,12 @@ void Rendering::Manager::Render(const Scene& InScene)
         }},
     };
     MainViewport.BeginFrame();
-    
+
+    rlDrawRenderBatchActive();
+    rlState::Current.Reset();
     Pipeline::Stats stats = DefaultPipeline.Render(args);
     FrameViewer.SetStats(stats);
+    rlState::Current.Reset();
 
     BeginTextureMode(MainViewport.GetVirtualTarget());
     rlEnableColorBlend();

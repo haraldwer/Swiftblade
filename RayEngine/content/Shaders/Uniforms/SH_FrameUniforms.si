@@ -1,10 +1,20 @@
 
+// Perspective
+uniform vec4 Rect; // xywh
 uniform mat4 ViewProj;
 uniform mat4 ViewProjPrev;
-uniform mat4 ScreenToWorld;
+uniform mat4 ViewProjInv;
 uniform vec3 CameraPosition;
-uniform vec2 Resolution;
 uniform vec2 NearFar;
+
+// Frame
 uniform float Time;
 uniform float Delta;
+uniform vec2 Resolution;
+
 uniform int DeferredID;
+
+vec2 GetRectUV(vec2 InUV, vec4 InRect)
+{
+    return (InRect.xy + InRect.zw * InUV) / Resolution;
+}
