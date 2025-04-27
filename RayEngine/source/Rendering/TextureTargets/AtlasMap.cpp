@@ -23,9 +23,7 @@ void Rendering::AtlasMap::Deinit()
 
 Vec4I Rendering::AtlasMap::GetRect(const uint32 InID, const int InFace)
 {
-    // Cubemap means that each ID occupies multiple faces
     // Track last access time
-
     auto& slot = Slots[InID];
     slot.AccessTime = Timer.Ellapsed();
     if (slot.Index == -1)
@@ -61,6 +59,4 @@ Vec4I Rendering::AtlasMap::CalcRect(const int InIndex) const
     int hI = InIndex % AxisSlots;
     int vI = InIndex / AxisSlots;
     return Vec4I({ hI, vI, 1, 1 }) * SlotResolution;
-
-    
 }

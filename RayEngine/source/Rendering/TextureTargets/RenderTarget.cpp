@@ -97,7 +97,7 @@ void Rendering::RenderTarget::Unload()
     Height = 0; 
 }
 
-void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, const String& InPostfix) const
+void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, int InFilter, const String& InPostfix) const
 {
     for (const auto& tex : Textures)
     {
@@ -109,6 +109,7 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
         TextureCommand cmd;
         cmd.ShaderLoc = loc;
         cmd.ID = tex.Tex->id;
+        cmd.Filter = InFilter;
         rlState::Current.Set(cmd, InOutSlot);
     }
 }

@@ -55,9 +55,8 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     
-    Pipeline::Stats stats;
     CHECK_RETURN(timeSortedCache.empty(), {});
-    
+
     RenderArgs args = {
         .Scene = InArgs.Scene,
         .Context = InArgs.Context,
@@ -66,14 +65,24 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         .Perspectives = {}
     };
     
+    auto size = ShadowTarget.Curr().Size().To<float>();
+    
     int count = 0;
+    Pipeline::Stats stats;
     for (auto& cache : timeSortedCache) 
     {
         CHECK_CONTINUE(!cache);
         cache->Timestamp = args.Context->Time();
         cache->PrevSamplePos = cache->SamplePos;
         cache->SamplePos = cache->Data.Position;
-        cache->Rect = AtlasMap.GetRect(cache->ID, 0).To<float>();
+        
+        auto rect = AtlasMap.GetRect(cache->ID, 0).To<float>();
+        cache->Rect = {
+            rect.x / size.x,
+            rect.y / size.y,
+            rect.z / size.x,
+            rect.w / size.y
+        };
         
         for (int i = 0; i < 6; i++)
         {
@@ -83,7 +92,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
                     .Position = cache->Data.Position,
                     .Rotation = directions[i],
                     .FOV = 90.0f,
-                    .Far = 50.0f,
+                    .Far = cache->Data.Range,
                     .Near = 0.01f
                 }
             });

@@ -246,22 +246,22 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     auto probes = InArgs.Lumin->GetProbes(InArgs);
     CHECK_RETURN(probes.empty(), 0);
 
-    LuminConfig luminConf = InArgs.Lumin->GetConfig();
+    LuminConfig conf = InArgs.Lumin->GetConfig();
     
     // Get shader
-    auto res = luminConf.LightingShader;
+    auto res = conf.LightingShader;
     ShaderResource* shaderResource = res.Get().Get();
     CHECK_RETURN(!shaderResource, 0);
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN(!shader, 0);
 
-    const auto& debugRes = luminConf.DebugShader;
+    const auto& debugRes = conf.DebugShader;
     ShaderResource* debugShaderResource = debugRes.Get().Get();
     CHECK_RETURN(!debugShaderResource, 0);
     const Shader* debugShader = debugShaderResource->Get();
     CHECK_RETURN(!debugShader, 0);
 
-    auto model = luminConf.SphereModel.Get().Get();
+    auto model = conf.SphereModel.Get().Get();
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);
     CHECK_RETURN(!modelRes->meshCount, 0);
@@ -279,7 +279,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     rlState::Current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-    SetValue(*shaderResource, "ProbeDensity", &luminConf.Density.Get(), SHADER_UNIFORM_VEC3);
+    SetValue(*shaderResource, "ProbeDensity", &conf.Density.Get(), SHADER_UNIFORM_VEC3);
 
     for (auto& probe : probes)
     {
@@ -294,7 +294,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
         DrawQuad();
     }
 
-    if (luminConf.Debug)
+    if (conf.Debug)
     {
         ShaderCommand debugShaderCmd;
         debugShaderCmd.Locs = debugShader->locs;
@@ -304,7 +304,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
         rlState::Current.Set(debugShaderCmd);
         
         SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
-        SetValue(*debugShaderResource, "ProbeDensity", &luminConf.Density.Get(), SHADER_UNIFORM_VEC3);
+        SetValue(*debugShaderResource, "ProbeDensity", &conf.Density.Get(), SHADER_UNIFORM_VEC3);
 
         for (auto& probe : probes)
         {
@@ -354,6 +354,18 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN(!shader, 0);
 
+    const auto& debugRes = conf.DebugShader;
+    ShaderResource* debugShaderResource = debugRes.Get().Get();
+    CHECK_RETURN(!debugShaderResource, 0);
+    const Shader* debugShader = debugShaderResource->Get();
+    CHECK_RETURN(!debugShader, 0);
+
+    auto model = conf.CubeModel.Get().Get();
+    auto* modelRes = model->Get();
+    CHECK_RETURN(!modelRes, 0);
+    CHECK_RETURN(!modelRes->meshCount, 0);
+    Mesh& mesh = modelRes->meshes[0];
+    
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
     frameCmd.Size = InTarget.Size();
@@ -370,7 +382,9 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 
     int texSlot = 0;
     auto& t = lightMan.GetShadowTarget();
-    t.Curr().Bind(*shaderResource, texSlot);
+    Vec2F size = t.Curr().Size().To<float>();
+    t.Curr().Bind(*shaderResource, texSlot, RL_TEXTURE_FILTER_LINEAR);
+
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     for (auto& b : InBuffers)
         if (b) b->Bind(*shaderResource, texSlot);
@@ -391,12 +405,11 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 
         if (shadowCache && light->Shadows)
         {
-            auto& cache = lightMan.Cache.at(light->ID);
-            float time = static_cast<float>(cache.Timestamp);
+            float time = static_cast<float>(shadowCache->Timestamp);
             SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-            SetValue(*shaderResource, "ShadowPosition", &cache.SamplePos, SHADER_UNIFORM_VEC3);
-            SetValue(*shaderResource, "ShadowPositionPrev", &cache.PrevSamplePos, SHADER_UNIFORM_VEC3);
-            SetValue(*shaderResource, "ShadowRect", &cache.Rect, SHADER_UNIFORM_VEC4);
+            SetValue(*shaderResource, "ShadowPosition", &shadowCache->SamplePos, SHADER_UNIFORM_VEC3);
+            SetValue(*shaderResource, "ShadowPositionPrev", &shadowCache->PrevSamplePos, SHADER_UNIFORM_VEC3);
+            SetValue(*shaderResource, "ShadowRect", &shadowCache->Rect, SHADER_UNIFORM_VEC4);
         }
         else
         {
@@ -413,6 +426,65 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
             DrawQuad(); // TODO: Replace with cube mesh
         }
     }
+
+    // Debug draw shadow maps
+    if (conf.Debug)
+    {
+        ShaderCommand debugShaderCmd;
+        debugShaderCmd.Locs = debugShader->locs;
+        debugShaderCmd.ID = debugShader->id;
+        debugShaderCmd.DepthTest = true;
+        debugShaderCmd.DepthMask = true;
+        rlState::Current.Set(debugShaderCmd);
+        
+        SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
+        SetValue(*debugShaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
+
+        int debugTexSlot = 0;
+        t.Curr().Bind(*debugShaderResource, debugTexSlot);
+        SetValue(*debugShaderResource, "ShadowTexSize", &size, SHADER_UNIFORM_VEC2);
+        BindNoiseTextures(InArgs, *debugShaderResource, debugTexSlot);
+        for (auto& b : InBuffers)
+            if (b) b->Bind(*debugShaderResource, debugTexSlot);
+        
+        for (auto& light : lights)
+        {
+            auto find = lightMan.Cache.find(light->ID);
+            LightData* shadowCache = find == lightMan.Cache.end() ? nullptr : &find->second;
+            CHECK_CONTINUE(!shadowCache);
+            CHECK_CONTINUE(!light->Shadows);
+
+            SetValue(*debugShaderResource, "Position", &light->Data.Position, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "Direction", &light->Data.Direction, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "Color", &light->Data.Color, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "Range", &light->Data.Range, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "ConeRadius", &light->Data.Radius, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "Intensity", &light->Data.Intensity, SHADER_UNIFORM_FLOAT);
+            
+            float time = static_cast<float>(shadowCache->Timestamp);
+            SetValue(*debugShaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "ShadowPosition", &shadowCache->SamplePos, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "ShadowPositionPrev", &shadowCache->PrevSamplePos, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "ShadowRect", &shadowCache->Rect, SHADER_UNIFORM_VEC4);
+            
+            MeshCommand cmd;
+            cmd.vaoID = mesh.vaoId;
+            if (rlState::Current.Set(cmd, { light->Data.Position }))
+            {
+                // Draw every perspective
+                for (auto& perspective : InArgs.Perspectives)
+                {
+                    PerspectiveCommand perspCmd;
+                    perspCmd.Rect = perspective.TargetRect;
+                    rlState::Current.Set(perspCmd);
+                    SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
+                    DrawInstances(mesh, 1);
+                }
+                rlState::Current.ResetMesh();
+            }
+        }
+    }
+    
     return static_cast<int>(lights.size());
 }
 

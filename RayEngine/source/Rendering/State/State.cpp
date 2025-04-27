@@ -18,9 +18,9 @@ void Rendering::State::Set(const TextureCommand& InCmd, int InSlot)
 
     if (InCmd.Filter != tex.Filter)
     {
-        int f = InCmd.Filter != 0 ? InCmd.Filter : RL_TEXTURE_FILTER_TRILINEAR;
-        rlTextureParameters(InCmd.ID, RL_TEXTURE_MAG_FILTER, f);
+        int f = InCmd.Filter > 0 ? InCmd.Filter : RL_TEXTURE_FILTER_NEAREST;
         rlTextureParameters(InCmd.ID, RL_TEXTURE_MIN_FILTER, f);
+        rlTextureParameters(InCmd.ID, RL_TEXTURE_MAG_FILTER, f);
     }
     
     if (InCmd.ID != tex.ID)

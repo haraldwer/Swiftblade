@@ -21,7 +21,7 @@ namespace Rendering
         void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InMips = 1, bool InCubemap = false);
         void EndSetup(const RenderTexture& InRenderTexture) const;
         void Unload();
-        void Bind(ShaderResource& InShader, int& InOutSlot, const String& InPostfix = "") const;
+        void Bind(ShaderResource& InShader, int& InOutSlot, int InFilter = -1, const String& InPostfix = "") const;
         
         const Vector<TargetTex>& GetTextures() const { return Textures; }
         Vec2I Size() const { return { Width, Height }; }
