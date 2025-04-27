@@ -9,7 +9,7 @@ namespace Rendering
         void Deinit();
         
         // Map ids to coordinates on the map
-        Vec4I GetRect(uint32 InID, int InFace = 0);
+        Vec4I GetRect(uint64 InID, int InFace = 0);
 
     private:
 
@@ -17,11 +17,11 @@ namespace Rendering
         
         struct Face
         {
-            double AccessTime;
+            double AccessTime = 0.0;
             int Index = -1;
         };
         
-        Map<uint32, Face> Slots;
+        Map<uint64, Face> Slots;
         Vector<int> Available; 
 
         int SlotResolution = 0;

@@ -14,10 +14,8 @@ out vec4 Output;
 
 void main()
 {
-    // TexCoord to direction?
     vec3 p = normalize(VertexPosition.xyz);
     float n = CalcPerlin(p + vec3(0.0, -1.0, 0.0) * Time * 0.05);
     Output.rgb = vec3(n);
-    Output.rgb = VertexPosition.xyz;
     Output.a = 1.0f;
 }

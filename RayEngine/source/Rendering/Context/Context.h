@@ -18,6 +18,7 @@ namespace Rendering
         void Deinit();
         double Time() const { return Timer.Ellapsed(); }
         Lights* GetLights() const { return LightsPtr; }
+        Lumin* GetLumin() const { return LuminPtr; }
 
     private:
         ContextConfig Config;

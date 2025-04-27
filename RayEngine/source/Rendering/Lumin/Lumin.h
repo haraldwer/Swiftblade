@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Context/Context.h"
 #include "LuminConfig.h"
 #include "LuminPipeline.h"
-#include "Viewport/Viewport.h"
+#include "Rendering/Context/Context.h"
+#include "Rendering/TextureTargets/AtlasMap.h"
+#include "Rendering/Viewport/Viewport.h"
 
 namespace Rendering
 {
@@ -30,21 +31,21 @@ namespace Rendering
     {
         ProbeCoord Coord;
         Vec3F Pos;
-        RenderTarget Target;
         double Timestamp = 0.0;
         int Iterations = 0;
-        // TODO: Fadein/out
+        Vec4F Rect;
     };
     
     class Lumin
     {
+        friend class Renderer;
     public:
         void Init(const LuminConfig& InConfig);
         void Deinit();
 
-        LuminConfig GetConfig() const { return Config; }
-        Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
         Pipeline::Stats Update(const RenderArgs& InArgs);
+        Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
+        RenderTarget& GetProbeTarget() { return Target; }
 
     private:
         void ExpandVolume(const Scene& InScene);
@@ -57,6 +58,8 @@ namespace Rendering
         LuminConfig Config;
         Context Context;
         Viewport Viewport;
+        RenderTarget Target;
+        AtlasMap AtlasMap;
         LuminPipeline Pipeline;
     };
 }

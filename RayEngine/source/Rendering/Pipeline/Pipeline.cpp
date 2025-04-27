@@ -20,18 +20,20 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     
     if (InArgs.Lumin == nullptr)
         InArgs.Lumin = InArgs.Context->LuminPtr;
+    if (InArgs.Lights == nullptr)
+        InArgs.Lights = InArgs.Context->LightsPtr;
+    
     if (InArgs.Lumin && InArgs.Context->Config.Lumin)
         stats += InArgs.Lumin->Update(InArgs);
-    
-    if (InArgs.Context->LightsPtr)
-        stats += InArgs.Context->LightsPtr->Update(InArgs); 
+    if (InArgs.Lights)
+        stats += InArgs.Lights->Update(InArgs); 
     
     stats += RenderScene(InArgs);
     stats += RenderFire(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderSkybox(InArgs);
     stats += RenderDeferred(InArgs);
-    stats += RenderLights(InArgs);
+    //stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
     stats += ApplyFire(InArgs);
     stats += RenderFX(InArgs);
@@ -93,15 +95,8 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs&
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& InArgs)
 {
     Stats stats;
-
-    // Render lights to screen
-    // Additive blending
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTarget;
     auto& frameTarget = InArgs.Viewport->Targets.FrameTarget;
-    
-    // Render light secondary bounce to separate texture
-    auto& GITarget = InArgs.Viewport->Targets.GITargets;
-    
     stats.Lights += Renderer::DrawLights(InArgs, frameTarget, { &sceneTarget });
     return stats;
 }

@@ -9,6 +9,7 @@ struct Mesh;
 
 namespace Rendering
 {
+    class Lights;
     class RenderTarget;
     class Lumin;
     struct LuminProbe;
@@ -18,6 +19,7 @@ namespace Rendering
 
     struct Perspective
     {
+        Vec4F ReferenceRect;
         Vec4I TargetRect;
         CameraInstance Camera;
     };
@@ -28,6 +30,7 @@ namespace Rendering
         const Context* Context = nullptr;
         Viewport* Viewport = nullptr;
         Lumin* Lumin = nullptr;
+        Lights* Lights = nullptr;
         Vector<Perspective> Perspectives;
     };
     

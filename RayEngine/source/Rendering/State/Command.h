@@ -25,7 +25,8 @@ namespace Rendering
     {
         uint32 fboID = static_cast<uint32>(-1);
         Vec2I Size;
-        bool Clear = false;
+        bool ClearTarget = false;
+        bool ClearDepth = false;
     };
 
     struct PerspectiveCommand

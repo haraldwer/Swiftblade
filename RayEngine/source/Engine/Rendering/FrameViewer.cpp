@@ -1,10 +1,11 @@
 #include "FrameViewer.h"
 
-#include "Manager.h"
-#include "raylib.h"
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
+#include "Manager.h"
 #include "Rendering/Lights/Lights.h"
+#include "Rendering/Lumin/Lumin.h"
+#include "raylib.h"
 
 void Rendering::FrameViewer::DrawDebugWindow()
 {
@@ -59,29 +60,54 @@ void Rendering::FrameViewer::DrawDebugWindow()
     {
         if (auto l = man.DefaultContext.GetLights())
         {
-            for (auto& target : l->GetShadowTarget().All())
+            for (auto& tex : l->GetShadowTarget().GetTextures())
             {
-                for (auto& tex : target.GetTextures())
-                {
-                    // Adjust size
-                    const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-                    const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-                    const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
-                    const float mul = static_cast<float>(tex.Tex->width) / size.width;
+                // Adjust size
+                const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+                const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+                const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
+                const float mul = static_cast<float>(tex.Tex->width) / size.width;
 
-                    // Send to ImGui
-                    SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
-                    rlImGuiImageRect(
-                        tex.Tex,
-                        static_cast<int>(size.x),
-                        static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
-                        Rectangle{
-                            0, 0,
-                            static_cast<float>(tex.Tex->width),
-                            static_cast<float>(-tex.Tex->height)
-                        });
-                    ImGui::TableNextColumn();
-                }
+                // Send to ImGui
+                SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
+                rlImGuiImageRect(
+                    tex.Tex,
+                    static_cast<int>(size.x),
+                    static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
+                    Rectangle{
+                        0, 0,
+                        static_cast<float>(tex.Tex->width),
+                        static_cast<float>(-tex.Tex->height)
+                    });
+                ImGui::TableNextColumn();
+            }
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Lumin Target"))
+    {
+        if (auto l = man.DefaultContext.GetLumin())
+        {
+            for (auto& tex : l->GetProbeTarget().GetTextures())
+            {
+                // Adjust size
+                const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+                const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+                const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
+                const float mul = static_cast<float>(tex.Tex->width) / size.width;
+
+                // Send to ImGui
+                SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
+                rlImGuiImageRect(
+                    tex.Tex,
+                    static_cast<int>(size.x),
+                    static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
+                    Rectangle{
+                        0, 0,
+                        static_cast<float>(tex.Tex->width),
+                        static_cast<float>(-tex.Tex->height)
+                    });
+                ImGui::TableNextColumn();
             }
         }
     }

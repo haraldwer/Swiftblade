@@ -11,14 +11,15 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
     Config = InConfig;
     Viewport.Init(Config.Viewport);
     AtlasMap.Init(Viewport.GetResolution(), Config.MaxLights, true);
-    for (auto& s : ShadowTarget.All())
-        s.Setup(Viewport.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    Target.Setup(Viewport.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lights::Deinit()
 {
     Viewport.Deinit();
     AtlasMap.Deinit();
+    Cache.clear();
+    Target.Unload();
 }
 
 Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
@@ -36,15 +37,11 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         CHECK_ASSERT(light->ID == 0, "Invalid hash");
         LightData& cache = Cache[light->ID];
 
-        // Compare data
-        bool cmp = cache.Data == light->Data;
-
         // Set data
         cache.Data = light->Data;
         cache.ID = light->ID;
 
         // Skip?
-        //CHECK_CONTINUE(cmp);
         CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && cache.Timestamp > 0.001f);
         CHECK_CONTINUE(InArgs.Context->Time() - cache.Timestamp < Config.UpdateFrequency)
         Utility::SortedInsert(timeSortedCache, &cache, [&](const LightData* InFirst, const LightData* InSecond)
@@ -52,20 +49,19 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
             return InFirst->Timestamp < InSecond->Timestamp;
         });
     }
-
-    Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     
     CHECK_RETURN(timeSortedCache.empty(), {});
 
+    Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
+    Vec2F size = Target.Size().To<float>();
     RenderArgs args = {
         .Scene = InArgs.Scene,
         .Context = InArgs.Context,
         .Viewport = &Viewport,
         .Lumin = InArgs.Lumin,
+        .Lights = this,
         .Perspectives = {}
     };
-    
-    auto size = ShadowTarget.Curr().Size().To<float>();
     
     int count = 0;
     Pipeline::Stats stats;
@@ -73,8 +69,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     {
         CHECK_CONTINUE(!cache);
         cache->Timestamp = args.Context->Time();
-        cache->PrevSamplePos = cache->SamplePos;
-        cache->SamplePos = cache->Data.Position;
+        cache->Pos = cache->Data.Position;
         
         auto rect = AtlasMap.GetRect(cache->ID, 0).To<float>();
         cache->Rect = {
@@ -104,7 +99,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     }
 
     Viewport.BeginFrame();
-    stats += Pipeline.RenderShadows(args, Config.CollectShader, ShadowTarget);
+    stats += Pipeline.RenderShadows(args, Config.CollectShader, Target);
 
     // TODO: Clear unused lights
     

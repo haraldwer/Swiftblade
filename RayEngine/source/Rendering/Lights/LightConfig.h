@@ -15,11 +15,11 @@ namespace Rendering
         PROPERTY_D(ResShader, LightShader, "Shaders/Lights/SH_Light.ps");
         PROPERTY_D(ResModel, CubeModel, "Defaults/M_Cube.obj");
 
-        PROPERTY_D(float, UpdateFrequency, 1.0f);
-        PROPERTY_D(int, MaxShadowRenders, 0);
+        PROPERTY_D(float, UpdateFrequency, 0.016f);
+        PROPERTY_D(int, MaxShadowRenders, 1);
         PROPERTY_D(int, MaxShadows, 4);
         PROPERTY_D(int, MaxLights, 10);
 
-        PROPERTY_D(bool, Debug, true);
+        PROPERTY_D(bool, Debug, false);
     };
 }

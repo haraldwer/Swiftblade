@@ -172,15 +172,25 @@ void Rendering::State::Set(const FrameCommand& InCmd)
         CHECK_ASSERT(InCmd.Size.y == 0, "Invalid size y")
         rlViewport(0, 0, InCmd.Size.x, InCmd.Size.y);
     }
-    
-    if (InCmd.Clear && InCmd.fboID != static_cast<uint32>(-1))
+
+    if (InCmd.fboID != static_cast<uint32>(-1) && (InCmd.ClearTarget || InCmd.ClearDepth))
     {
-        // Enable depth before clearing
-        rlEnableDepthTest();
-        rlEnableDepthMask();
-        rlClearScreenBuffers();
+        int mask = 0;
+        if (InCmd.ClearTarget)
+            mask |= GL_COLOR_BUFFER_BIT;
+        if (InCmd.ClearDepth)
+            mask |= GL_DEPTH_BUFFER_BIT;
         
-        if (InCmd.fboID == Frame.fboID) 
+        if (InCmd.ClearDepth)
+        {
+            // Enable depth before clearing
+            rlEnableDepthTest();
+            rlEnableDepthMask();
+        }
+
+        glClear(mask);
+        
+        if (InCmd.ClearDepth && InCmd.fboID == Frame.fboID) 
         {
             // Shader will not be reset, set the depth values manually
             if (!Shader.DepthMask)

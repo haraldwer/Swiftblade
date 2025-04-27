@@ -11,6 +11,15 @@
 			"Name":"Transform",
 			"Data":{}
 		},{
+			"Name":"Light",
+			"Data":{
+				"Color":[
+					1.0,
+					0.0,
+					1.0
+				]
+			}
+		},{
 			"Name":"Collider",
 			"Data":{}
 		},{

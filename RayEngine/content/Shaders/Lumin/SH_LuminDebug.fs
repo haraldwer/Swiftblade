@@ -1,11 +1,13 @@
 #version 330
 
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
-#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
 
+uniform float Timestamp;
 uniform vec3 ProbePosition;
-uniform vec3 ProbeDensity;
-uniform sampler2D TexEnvOct;
+uniform vec3 ProbeRange;
+uniform vec4 ProbeRect;
+uniform sampler2D TexLumin;
 
 // In
 in vec4 WorldPosition;
@@ -18,10 +20,7 @@ out vec4 Output;
 
 void main()
 {
-    vec3 diff = WorldPosition.xyz - ProbePosition;
-    Output.rgb = SampleOct(TexEnvOct, diff).rgb;
-    Output.rgb = texture(TexEnvOct, TexCoord).rgb;
-    //Output.rg = TexCoord;
-    //Output.rgb = diff;
+    vec3 diff = normalize(ProbePosition - WorldPosition.xyz);
+    Output.rgb = SampleCubeAtlas(TexLumin, ProbeRect, -diff).rgb;
     Output.a = 1.0f;
 }

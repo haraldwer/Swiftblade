@@ -5,7 +5,7 @@
 #include "Rendering/Pipeline/Pipeline.h"
 #include "Rendering/Scene/Instances/LightInstance.h"
 #include "Rendering/TextureTargets/AtlasMap.h"
-#include "Rendering/TextureTargets/SwapTarget.h"
+#include "Rendering/TextureTargets/RenderTarget.h"
 #include "Rendering/Viewport/Viewport.h"
 
 namespace Rendering
@@ -15,8 +15,7 @@ namespace Rendering
     struct LightData
     {
         LightInstance::InstanceData Data;
-        Vec3F SamplePos;
-        Vec3F PrevSamplePos;
+        Vec3F Pos;
         double Timestamp = 0;
         uint32 ID = static_cast<uint32>(-1);
         Vec4F Rect;
@@ -30,14 +29,15 @@ namespace Rendering
         void Deinit();
         Pipeline::Stats Update(const RenderArgs& InArgs);
         Vector<const LightInstance*> GetLights(const RenderArgs& InArgs);
-        SwapTarget& GetShadowTarget() { return ShadowTarget; }
+        RenderTarget& GetShadowTarget() { return Target; }
         const LightData& GetData(uint32 InHash);
         
     private:
         Map<uint32, LightData> Cache;
+        
         LightConfig Config;
         Viewport Viewport;
-        SwapTarget ShadowTarget;
+        RenderTarget Target;
         AtlasMap AtlasMap;
         LightPipeline Pipeline;
     };

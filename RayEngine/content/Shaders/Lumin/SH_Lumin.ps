@@ -3,15 +3,20 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 #include "Shaders/Utility/SH_HSV.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
 #include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_Random.si"
 
+uniform float Timestamp;
 uniform vec3 ProbePosition;
-uniform vec3 ProbeDensity;
-uniform sampler2D TexEnvOct;
+uniform vec3 ProbeRange;
+uniform vec4 ProbeRect;
+uniform sampler2D TexLumin;
 
 in vec2 TexCoord;
 out vec4 Output;
+
+const float DIST_BIAS = 5.0f;
 
 void main()
 {
@@ -23,10 +28,11 @@ void main()
     vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist; 
     
     // Is surface in view of probe?
-    float depth = SampleOct(TexEnvOct, pixelToProbeDir).a * NearFar.y;
+    float maxRange = max(max(ProbeRange.x, ProbeRange.y), ProbeRange.z);
+    float depth = SampleCubeAtlas(TexLumin, ProbeRect, pixelToProbeDir).a * maxRange;
     float depthDiff = depth - pixelToProbeDist;
-    float depthFade = max(0, 1.0 - abs(depthDiff)); 
-    if (depthDiff > 1.0)
+    float depthFade = 1.0;//clamp(DIST_BIAS - max(-depthDiff, 0), 0, 1);
+    if (depthFade < 0.001)
         discard;
     
     // Is surface pointing towards probe?
@@ -36,18 +42,18 @@ void main()
         discard;
     
     // Distance fade
-    vec3 range = abs(pixelToProbe) * ProbeDensity;
+    vec3 range = abs(pixelToProbe) / ProbeRange;
     float dist = max(max(range.x, range.y), range.z);
-    float giFade = min(1.0f, 2.0f - dist * 2.0f);
+    float giFade = min(1.0f, 4.0f - dist * 4.0f);
     if (giFade < 0.001)
         discard;
     
     // Use luminance for now, later expect irradiance map
-    vec3 color = SampleOct(TexEnvOct, normal).rgb;
-    vec3 hsv = rgb2hsv(color.ggb);
-    float factor = Pow2(hsv.z) * surfaceDot * giFade * depthFade; 
+    vec3 color = SampleCubeAtlas(TexLumin, ProbeRect, -normal).rgb;
+    vec3 hsv = rgb2hsv(color);
+    float lum = min(1, hsv.z) * 0.5;
+    float factor = lum * surfaceDot * giFade * depthFade; 
     
-    Output.rgb = abs(color.rgb);// hsv2rgb(vec3(hsv.xy, 1.0));
+    Output.rgb = hsv2rgb(vec3(hsv.xy, 1.0));
     Output.a = factor;
-    
 }

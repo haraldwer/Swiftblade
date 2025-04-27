@@ -2,7 +2,7 @@
 
 #include "Viewport/Viewport.h"
 
-Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderArgs& InArgs, const ResShader& InShader, SwapTarget& InTarget)
+Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget)
 {
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
@@ -15,10 +15,9 @@ Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderA
     stats += RenderSkybox(InArgs);
     stats += RenderDeferred(InArgs);
 
-    InTarget.Iterate();
-    auto& frameTarget = InArgs.Viewport->GetTargets().FrameTarget;
-    auto& sceneTarget = InArgs.Viewport->GetTargets().SceneTarget;
-    Renderer::DrawFullscreen(InArgs, InTarget.Curr(), InShader, { &frameTarget, &sceneTarget, &InTarget.Prev() });
+    auto& frame = InArgs.Viewport->GetTargets().FrameTarget;
+    auto& scene = InArgs.Viewport->GetTargets().SceneTarget;
+    Renderer::DrawFullscreen(InArgs, InTarget, InShader, { &frame, &scene }, -1, false);
     stats.FullscreenPasses++;
     
     return stats;

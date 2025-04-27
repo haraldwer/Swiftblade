@@ -11,39 +11,123 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
     Config = InConfig;
     Viewport.Init(Config.Viewport);
     Context.Init(Config.Context, InConfig);
+    AtlasMap.Init(Viewport.GetResolution(), Config.MaxProbes + Config.AtlasPadding, true);
+    Target.Setup(Viewport.GetVirtualTarget(), "TexLumin", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lumin::Deinit()
 {
-    for (auto& p : Probes)
-        p.second.Target.Unload();
     Probes.clear();
     Viewport.Deinit();
     Context.Deinit();
+    AtlasMap.Deinit();
+    Target.Unload();
+}
+
+Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
+{
+    CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
+    CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
+
+    // TODO: Maybe clear lumin if static scene changed
+    
+    ExpandVolume(*InArgs.Scene);
+    
+    Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
+    Vector<LuminProbe*> timeSorted;
+    for (auto& probe : frameProbes)
+    {
+        CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && probe->Timestamp != 0.0f);
+        CHECK_CONTINUE(Config.Iterations > 0 && probe->Iterations >= Config.Iterations);
+        CHECK_CONTINUE(InArgs.Context->Time() - probe->Timestamp < Config.UpdateFrequency)
+        Utility::SortedInsert(timeSorted, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
+        {
+            // TODO: Also consider distance
+            return InFirst->Timestamp < InSecond->Timestamp;
+        });
+    }
+
+    CHECK_RETURN(timeSorted.empty(), {});
+
+    Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
+    Vec2F size = Target.Size().To<float>();
+    RenderArgs args = {
+        .Scene = InArgs.Scene,
+        .Context = &Context,
+        .Viewport = &Viewport,
+        .Lumin = this,
+        .Lights = InArgs.Lights,
+        .Perspectives = {}
+    };
+    
+    Vec3F range = Vec3F::One() / Config.Density.Get();
+    float maxRange = Utility::Math::Max(Utility::Math::Max(range.x, range.y), range.z);
+
+    int count = 0;
+    Pipeline::Stats stats;
+    for (auto probe : timeSorted)
+    {
+        CHECK_CONTINUE(!probe);
+        probe->Timestamp = Context.Time();
+        probe->Iterations++;
+
+        auto rect = AtlasMap.GetRect(probe->Coord.id, 0).To<float>();
+        probe->Rect = {
+            rect.x / size.x,
+            rect.y / size.y,
+            rect.z / size.x,
+            rect.w / size.y
+        };
+        
+        for (int i = 0; i < 6; i++)
+        {
+            args.Perspectives.push_back({
+                .ReferenceRect = rect,
+                .TargetRect = AtlasMap.GetRect(probe->Coord.id, i),
+                .Camera = {
+                    .Position = probe->Pos,
+                    .Rotation = directions[i],
+                    .FOV = 90.0f,
+                    .Far = maxRange,
+                    .Near = 0.1f
+                }
+            });
+        }
+        
+        count++;
+        if (count >= Config.MaxProbeRenders)
+            break;
+    }
+
+    Viewport.BeginFrame();
+    stats += Pipeline.RenderProbes(args, Config.CollectShader, Target);
+    
+    return stats;
 }
 
 Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
 {
-    return {};
-    /*
+    CHECK_RETURN(InArgs.Perspectives.empty(), {})
+    
+    auto& cam = InArgs.Perspectives.at(0).Camera;
     Frustum frustum;
-    frustum.ConstructFrustum(InArgs.Perspectives, Viewport.GetResolution());
+    frustum.ConstructFrustum(cam, Viewport.GetResolution());
     Vector<LuminProbe*> result;
 
     auto sortFunc = [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
     {
-        return (InFirst->Pos - InArgs.Perspectives.Position).LengthSqr() < (InSecond->Pos - InArgs.Perspectives.Position).LengthSqr();
+        return (InFirst->Pos - cam.Position).LengthSqr() < (InSecond->Pos - cam.Position).LengthSqr();
     };
 
     float closeDist2 = Config.CloseCullDistance.Get() * Config.CloseCullDistance.Get();
     auto checkFunc = [&](const LuminProbe& InProbe)
     {
-        const float probeCamDist = (InProbe.Pos - InArgs.Perspectives.Position).LengthSqr();
+        const float probeCamDist = (InProbe.Pos - cam.Position).LengthSqr();
         if (probeCamDist < closeDist2)
             return true;
         const Vec3F maxDist = Vec3F(1.0f) / Config.Density.Get();
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
-        if (frustum.CheckSphere(InProbe.Pos, cullDist))
+        if (frustum.CheckCube(InProbe.Pos, cullDist))
             return true;
         return false;
     };
@@ -55,68 +139,6 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
     auto count = Utility::Math::Min(static_cast<int>(result.size()), Config.MaxProbes.Get());
     CHECK_RETURN(count <= 0, {});
     return { result.begin(), result.begin() + count };
-    */
-}
-
-Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
-{
-    return {};
-    /*
-    CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
-    CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
-
-    // TODO: Maybe clear lumin if static scene changed
-    
-    ExpandVolume(*InArgs.Scene);
-
-    auto directions = RaylibRenderUtility::GetCubemapRotations();
-    RenderArgs args = {
-        .Scene = InArgs.Scene,
-        .Context = &Context,
-        .Viewport = &Viewport,
-        .Lumin = this,
-        .Perspectives = CameraInstance()
-    };
-
-    Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
-    Vector<LuminProbe*> timestampSorted;
-    for (auto& probe : frameProbes)
-    {
-        CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && probe->Timestamp != 0.0f);
-        CHECK_CONTINUE(Config.Iterations > 0 && probe->Iterations >= Config.Iterations);
-        CHECK_CONTINUE(InArgs.Context->Time() - probe->Timestamp < Config.UpdateFrequency)
-        Utility::SortedInsert(timestampSorted, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
-        {
-            // TODO: Also consider distance
-            return InFirst->Timestamp < InSecond->Timestamp;
-        });
-    }
-
-    Viewport.BeginFrame();
-    Pipeline::Stats stats;
-    int count = 0;
-    for (auto probe : timestampSorted)
-    {
-        CHECK_CONTINUE(!probe);
-        for (int i = 0; i < 6; i++)
-        {
-            args.Perspectives = CameraInstance {
-                .Position = probe->Pos,
-                .Rotation = directions[i],
-                .FOV = 90.0f,
-                .Far = Config.ProbeFar,
-                .Near = 0.1f
-            };
-            stats += Pipeline.RenderProbeFace(args, probe->Target, Config.ProbeShader, i == 0);
-            probe->Timestamp = Context.Time();
-            probe->Iterations++;
-        }
-        count++;
-        if (count >= Config.MaxProbeRenders)
-            break;
-    }
-    return stats;
-    */
 }
 
 void Rendering::Lumin::ExpandVolume(const Scene& InScene)
@@ -127,6 +149,8 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
         {
             // Get extent, maybe add coord?
             ProbeCoord coord = FromPos(trans.GetPosition());
+            TryCreateProbe(coord);
+            continue;
             for (int x = -1; x <= 1; x++)
                 for (int y = -1; y <= 1; y++)
                     for (int z = -1; z <= 1; z++)
@@ -149,15 +173,6 @@ void Rendering::Lumin::TryCreateProbe(const ProbeCoord InCoord)
     {
         probe.Coord = InCoord;
         probe.Pos = FromCoord(InCoord);
-        auto& tex = Viewport.GetVirtualTarget();
-        if (probe.Target.TryBeginSetup(tex))
-        {
-            probe.Target.CreateBuffer(
-                "TexEnvOct",
-                PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
-                1.0f);
-            probe.Target.EndSetup(tex);
-        }
     }
 }
 

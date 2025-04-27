@@ -21,7 +21,7 @@ void Rendering::AtlasMap::Deinit()
     Available.clear();
 }
 
-Vec4I Rendering::AtlasMap::GetRect(const uint32 InID, const int InFace)
+Vec4I Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
 {
     // Track last access time
     auto& slot = Slots[InID];
@@ -31,7 +31,7 @@ Vec4I Rendering::AtlasMap::GetRect(const uint32 InID, const int InFace)
         if (Available.empty())
         {
             // Free oldest access slot
-            uint32 LowestTimeID = static_cast<uint32>(-1);
+            uint64 LowestTimeID = static_cast<uint64>(-1);
             double LowestTime = 0.0;
             for (auto& s : Slots)
             {
@@ -42,7 +42,7 @@ Vec4I Rendering::AtlasMap::GetRect(const uint32 InID, const int InFace)
                 }
             }
 
-            CHECK_ASSERT(LowestTimeID == static_cast<uint32>(-1), "Unable to find slot to free");
+            CHECK_ASSERT(LowestTimeID == static_cast<uint64>(-1), "Unable to find slot to free");
             Available.push_back(Slots.at(LowestTimeID).Index);
             Slots.erase(LowestTimeID);
         }

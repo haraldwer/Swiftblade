@@ -1,6 +1,7 @@
 
 // Perspective
 uniform vec4 Rect; // xywh
+uniform vec4 RefRect;
 uniform mat4 ViewProj;
 uniform mat4 ViewProjPrev;
 uniform mat4 ViewProjInv;
@@ -16,5 +17,5 @@ uniform int DeferredID;
 
 vec2 GetRectUV(vec2 InUV, vec4 InRect)
 {
-    return (InRect.xy + InRect.zw * InUV) / Resolution;
+    return (InRect.xy + InRect.zw * InUV);
 }

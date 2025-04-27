@@ -2,8 +2,8 @@
 
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
-#include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_CubeSampling.si"
+#include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_Random.si"
 
 // TODO: Pack these neater
@@ -24,9 +24,10 @@ out vec4 Output;
 
 #define SOFT_SHADOWS
 
-const int SHADOW_SAMPLES = 32;
-const float SHADOW_SAMPLE_SCALE = 0.05f;
+const int SHADOW_SAMPLES = 8;
+const float SHADOW_SAMPLE_SCALE = 0.01f;
 const float SHADOW_NOISE_SCALE = 2.0f;
+const float SHADOW_DIST_BIAS = 0.5f;
 
 float InterleavedGradientNoise(vec2 uv)
 {
@@ -44,43 +45,38 @@ vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
 
 float ShadowTest(float InSampleDepth, float InLightDist)
 {
-    float shadowDiff = InLightDist - InSampleDepth;
+    float shadowDiff = InSampleDepth - InLightDist;
+    return max(0, -shadowDiff - SHADOW_DIST_BIAS);
 }
 
-float ShadowDepth(vec3 toLight)
+float Shadow(vec3 toLight)
 {
     float lightDist = length(toLight);
     vec3 toLightDir = toLight / lightDist;
 
     #ifdef SOFT_SHADOWS
-
+    
     vec3 right = vec3(toLight.z, toLight.y, -toLight.x);
     vec3 up = vec3(toLight.x, toLight.z, -toLight.y);
-    float div = 1.0f / float(SHADOW_SAMPLES);
-    float interleaved = PI * 2.0f * InterleavedGradientNoise((TexCoord) * SHADOW_NOISE_SCALE);
-
-    float orgDepth = SampleCubeAtlas(TexShadow, ShadowRect, -toLightDir).a * Range;
-    float sum = ShadowTest(orgDepth, lightDist);
-
+    float interleaved = PI * 2.0f * InterleavedGradientNoise(TexCoord * SHADOW_NOISE_SCALE);
+    float depth = SampleCubeAtlas(TexShadow, ShadowRect, -toLightDir).a * Range;
+    float shadow = ShadowTest(depth, lightDist);
     for(int i = 1; i < SHADOW_SAMPLES; i++)
     {
         vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * SHADOW_SAMPLE_SCALE;
         vec3 vec = normalize(toLight + right * off.x + up * off.y);
         float shadowDepth = SampleCubeAtlas(TexShadow, ShadowRect, -vec).a * Range;
-        sum += ShadowTest(shadowDepth, lightDist);
+        shadow += ShadowTest(shadowDepth, lightDist);
     }
-    float oneMin = (1.0f - sum);
-    return oneMin;
-
+    shadow /= SHADOW_SAMPLES;
+    
     #else
+    
     float depth = SampleCubeAtlas(TexShadow, ShadowRect, -toLightDir).a * Range;
-    return ShadowTest(depth, lightDist);
+    float shadow = ShadowTest(depth, lightDist); 
+    
     #endif
-}
-
-float SimpleShadows(vec3 InToLight)
-{
-    float shadow = ShadowDepth(InToLight);
+    
     return 1.0 - clamp(shadow - 0.5, 0, 1);
 }
 
@@ -93,8 +89,7 @@ void main()
         discard;
 
     float lightDist = sqrt(lightDistSqr);    
-    float fade = 1 - lightDist / Range;
-    fade = fade * fade; // pow2
+    float fade = Pow2(1 - lightDist / Range);
     
     vec3 toLightDir = toLight / lightDist;
     vec3 normal = SampleNormal(TexCoord);
@@ -105,12 +100,12 @@ void main()
     float shadow = 1;
     if (Timestamp != 0)
     {
-        shadow = SimpleShadows(toLight);
+        shadow = Shadow(toLight);
         if (shadow < 0.001f)
             discard;
     }
     
-    float intensity = Intensity * (pow(d, 0.5)) * fade * shadow; 
+    float intensity = Intensity * pow(d, 0.5) * fade * shadow; 
     Output.rgb = Color * (1.0 + intensity * 0.2);
     Output.a = intensity;
 }
