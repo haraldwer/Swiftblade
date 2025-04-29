@@ -119,13 +119,71 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
     }
 }
 
+int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
+{
+    auto model = InArgs.Context->Config.DefaultCube.Get().Get();
+    CHECK_RETURN(!model, 0);
+    auto* modelRes = model->Get();
+    CHECK_RETURN(!modelRes, 0);
+    CHECK_RETURN(!modelRes->meshCount, 0);
+    Mesh& mesh = modelRes->meshes[0];
+    
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.Size = InTarget.Size();
+    frameCmd.ClearDepth = true;
+    frameCmd.ClearTarget = true;
+    rlState::Current.Set(frameCmd);
+    
+    int c = 0;
+    for (auto& environment : InArgs.Scene->Environments)
+    {
+        MaterialResource* rm = environment.Skybox.Get();
+        CHECK_CONTINUE(!rm);
+        ShaderResource* shaderResource = rm->SurfaceShader.Get().Get();
+        CHECK_CONTINUE(!shaderResource);
+        const Shader* shader = shaderResource->Get();
+        CHECK_CONTINUE(!shader);
+
+        ShaderCommand shaderCmd;
+        shaderCmd.Locs = shader->locs;
+        shaderCmd.ID = shader->id;
+        rlState::Current.Set(shaderCmd);
+
+        int id = 0;
+        SetValue(*shaderResource, "DeferredID", &id, SHADER_UNIFORM_INT);
+        SetFrameShaderValues(InArgs, *shaderResource, InTarget);
+        SetValue(*shaderResource, "Bounds", &environment.Shape, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Position", &environment.Position, SHADER_UNIFORM_VEC3);
+
+        int texSlot = 0;
+        BindNoiseTextures(InArgs, *shaderResource, texSlot);
+
+        MeshCommand cmd;
+        cmd.vaoID = mesh.vaoId;
+        if (rlState::Current.Set(cmd, { environment.Position }))
+        {
+            // Draw every perspective
+            for (auto& perspective : InArgs.Perspectives)
+            {
+                PerspectiveCommand perspCmd;
+                perspCmd.Rect = perspective.TargetRect;
+                rlState::Current.Set(perspCmd);
+                SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+                c += DrawInstances(mesh, 1);
+            }
+            rlState::Current.ResetMesh();
+        }
+    }
+    return c;
+}
+
 Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget)
 {
     FrameCommand frameCmd;
     frameCmd.fboID = InSceneTarget.GetFBO();
     frameCmd.Size = InSceneTarget.Size();
     frameCmd.ClearDepth = true;
-    frameCmd.ClearTarget = true;
     rlState::Current.Set(frameCmd);
     
     Map<uint64, int> count;
@@ -222,8 +280,10 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     frameCmd.fboID = InTarget.GetFBO();
     frameCmd.Size = InTarget.Size();
     rlState::Current.Set(frameCmd);
-    
-    for (auto& entry : scene.Meshes.DeferredShaders)
+
+    Map<uint32, ResShader> passes = scene.Meshes.DeferredShaders;
+    passes[0] = InArgs.Context->Config.DeferredSkyboxShader; // Inject skybox
+    for (auto& entry : passes)
     {
         ShaderResource* shaderResource = entry.second.Get();
         CHECK_CONTINUE(!shaderResource);
@@ -253,7 +313,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
             DrawQuad();
         }
     }
-    return static_cast<int>(scene.Meshes.DeferredShaders.size());
+    return static_cast<int>(passes.size());
 }
 
 int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
@@ -321,8 +381,8 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
         rects.push_back(probe->Rect);
     }
 
-    Vec3F range = lumin.GetRange();
-    SetValue(*shaderResource, "ProbeRange", &range, SHADER_UNIFORM_VEC3);
+    float range = lumin.GetRange();
+    SetValue(*shaderResource, "ProbeRange", &range, SHADER_UNIFORM_FLOAT);
     SetValue(*shaderResource, "ProbeCount", &c, SHADER_UNIFORM_INT);
     SetValue(*shaderResource, "Timestamp", timestamps.data(), SHADER_UNIFORM_FLOAT, c);
     SetValue(*shaderResource, "ProbePosition", positions.data(), SHADER_UNIFORM_VEC3, c);
@@ -527,63 +587,6 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     }
     
     return static_cast<int>(lights.size());
-}
-
-int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
-{
-    auto model = InArgs.Context->Config.DefaultCube.Get().Get();
-    CHECK_RETURN(!model, 0);
-    auto* modelRes = model->Get();
-    CHECK_RETURN(!modelRes, 0);
-    CHECK_RETURN(!modelRes->meshCount, 0);
-    Mesh& mesh = modelRes->meshes[0];
-    
-    FrameCommand frameCmd;
-    frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.Size = InTarget.Size();
-    frameCmd.ClearTarget = true;
-    rlState::Current.Set(frameCmd);
-    
-    int c = 0;
-    for (auto& environment : InArgs.Scene->Environments)
-    {
-        MaterialResource* rm = environment.Skybox.Get();
-        CHECK_CONTINUE(!rm);
-        ShaderResource* shaderResource = rm->SurfaceShader.Get().Get();
-        CHECK_CONTINUE(!shaderResource);
-        const Shader* shader = shaderResource->Get();
-        CHECK_CONTINUE(!shader);
-
-        ShaderCommand shaderCmd;
-        shaderCmd.Locs = shader->locs;
-        shaderCmd.ID = shader->id;
-        shaderCmd.BlendMode = RL_BLEND_ALPHA;
-        rlState::Current.Set(shaderCmd);
-        
-        SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-        SetValue(*shaderResource, "Bounds", &environment.Shape, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Position", &environment.Position, SHADER_UNIFORM_VEC3);
-
-        int texSlot = 0;
-        BindNoiseTextures(InArgs, *shaderResource, texSlot);
-
-        MeshCommand cmd;
-        cmd.vaoID = mesh.vaoId;
-        if (rlState::Current.Set(cmd, { environment.Position }))
-        {
-            // Draw every perspective
-            for (auto& perspective : InArgs.Perspectives)
-            {
-                PerspectiveCommand perspCmd;
-                perspCmd.Rect = perspective.TargetRect;
-                rlState::Current.Set(perspCmd);
-                SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-                c += DrawInstances(mesh, 1);
-            }
-            rlState::Current.ResetMesh();
-        }
-    }
-    return c;
 }
 
 void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)

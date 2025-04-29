@@ -9,11 +9,12 @@ namespace Rendering
     struct ContextConfig : PropertyOwner<ContextConfig>
     {
         PROPERTY(Vector<String>, GlobalDefines)
-        PROPERTY(StringMap<ResNoiseTex>, NoiseTextures);
+        PROPERTY(StringMap<ResNoiseTex>, NoiseTextures)
         PROPERTY_D(ResModel, DefaultCube, "Defaults/M_Cube.obj");
 
         PROPERTY(LightConfig, Lights); // TODO: Move
 
+        PROPERTY_D(ResShader, DeferredSkyboxShader, "Shaders/SH_Default.ds");
         PROPERTY_D(ResShader, SSAOShader, "Shaders/PostProcessing/SH_SSAO.ps"); 
         PROPERTY_D(ResShader, MotionBlurShader, "Shaders/PostProcessing/SH_MotionBlur.ps");
         PROPERTY_D(ResShader, QuantizeShader, "Shaders/PostProcessing/SH_Quantize.ps");

@@ -9,8 +9,8 @@ in vec2 TexCoord;
 in vec2 RectCoord;
 out vec3 Output;
 
-const float BUMP_MIX = 0.9;
-const float BUMP_SAMPLE_SCALE = 1.5;
+const float BUMP_MIX = 0.5;
+const float BUMP_SAMPLE_SCALE = 1.0;
 
 const int PARALLAX_SAMPLES = 32;
 const float PARALLAX_SCALE = 0.05;
@@ -25,8 +25,8 @@ vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InWorldPos)
 // xyz for direction + dx / dy
 float BumpSample(vec2 InCoord, vec2 InDir, float InH, float InID)
 {
-    vec2 halfTexel = vec2(1) / Resolution;
-    vec2 coord = TexCoord + halfTexel * InDir * BUMP_SAMPLE_SCALE;
+    vec2 texel = vec2(1) / Resolution;
+    vec2 coord = TexCoord + texel * InDir * BUMP_SAMPLE_SCALE;
     float idCheck = float(!CheckTexID(coord, InID));
     float dx = InH - texture(TexData, coord).z * idCheck;
     return dx;

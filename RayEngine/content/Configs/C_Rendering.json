@@ -6,7 +6,6 @@
 				"Width":2048
 			}
 		},
-		"Lumin":false,
 		"NoiseTextures":[{
 				"Key":"TexCellular",
 				"Val":"Defaults\\T_Noise_Cellular.json"
@@ -21,7 +20,7 @@
 		"Quantize":false
 	},
 	"Lumin":{
-		"UpdateFrequency":0.01600000075995922,
+		"UpdateFrequency":0.10000000149011612,
 		"Viewport":{
 			"Height":1024,
 			"Width":1024

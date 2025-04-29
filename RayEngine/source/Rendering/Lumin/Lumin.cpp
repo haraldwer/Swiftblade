@@ -12,7 +12,9 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
     Viewport.Init(Config.Viewport);
     Context.Init(Config.Context, InConfig);
     AtlasMap.Init(Viewport.GetResolution(), Config.MaxProbes + Config.AtlasPadding, true);
-    Target.Setup(Viewport.GetVirtualTarget(), "TexLumin", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    Target.Setup(Viewport.GetVirtualTarget(), "TexLuminCollect", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    for (auto& t : LerpTarget.All())
+        t.Setup(Viewport.GetVirtualTarget(), "TexLumin", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lumin::Deinit()
@@ -22,6 +24,8 @@ void Rendering::Lumin::Deinit()
     Context.Deinit();
     AtlasMap.Deinit();
     Target.Unload();
+    for (auto& t : LerpTarget.All())
+        t.Unload();
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
@@ -29,10 +33,22 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
 
-    // TODO: Maybe clear lumin if static scene changed
-    
     ExpandVolume(*InArgs.Scene);
-    
+    Pipeline::Stats stats;
+    stats += UpdateProbes(InArgs);
+    stats += LerpProbes(InArgs);
+    return stats;
+}
+
+float Rendering::Lumin::GetRange() const
+{
+    Vec3F range = Vec3F::One() * Config.RangeMultiplier.Get() / Config.Density.Get();
+    float maxRange = Utility::Math::Max(Utility::Math::Max(range.x, range.y), range.z);
+    return maxRange;
+}
+
+Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
+{
     Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
     Vector<LuminProbe*> timeSorted;
     for (auto& probe : frameProbes)
@@ -62,7 +78,6 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     float range = GetRange();
 
     int count = 0;
-    Pipeline::Stats stats;
     for (auto probe : timeSorted)
     {
         CHECK_CONTINUE(!probe);
@@ -86,7 +101,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
                     .Position = probe->Pos,
                     .Rotation = directions[i],
                     .FOV = 90.0f,
-                    .Far = range,
+                    .Far = range * 2,
                     .Near = 0.1f
                 }
             });
@@ -98,16 +113,24 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     }
 
     Viewport.BeginFrame();
-    stats += Pipeline.RenderProbes(args, Config.CollectShader, Target);
-    
-    return stats;
+    return Pipeline.RenderProbes(args, Config.CollectShader, Target);
 }
 
-float Rendering::Lumin::GetRange() const
+Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs)
 {
-    Vec3F range = Vec3F::One() * Config.RangeMultiplier.Get() / Config.Density.Get();
-    float maxRange = Utility::Math::Max(Utility::Math::Max(range.x, range.y), range.z);
-    return maxRange;
+    RenderArgs lerpArgs = {
+        .Scene = InArgs.Scene,
+        .Context = &Context,
+        .Viewport = &Viewport,
+        .Lumin = this,
+        .Lights = InArgs.Lights,
+        .Perspectives = {{
+            .ReferenceRect= Vec4F(),
+            .TargetRect= Vec4I(),
+            .Camera= InArgs.Scene->GetCamera()
+        }}
+    };
+    return Pipeline.LerpProbes(lerpArgs, Config.LerpShader, Target, LerpTarget);
 }
 
 Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
@@ -124,15 +147,11 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
         return (InFirst->Pos - cam.Position).LengthSqr() < (InSecond->Pos - cam.Position).LengthSqr();
     };
 
-    float closeDist2 = Config.CloseCullDistance.Get() * Config.CloseCullDistance.Get();
     auto checkFunc = [&](const LuminProbe& InProbe)
     {
-        const float probeCamDist = (InProbe.Pos - cam.Position).LengthSqr();
-        if (probeCamDist < closeDist2)
-            return true;
-        const Vec3F maxDist = Vec3F(1.0f) / Config.Density.Get();
+        const Vec3F maxDist = (Vec3F(1.0f) / Config.Density.Get()) * Config.CullMultiplier.Get();
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
-        if (frustum.CheckCube(InProbe.Pos, cullDist))
+        if (frustum.CheckSphere(InProbe.Pos, cullDist))
             return true;
         return false;
     };
@@ -155,7 +174,6 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
             // Get extent, maybe add coord?
             ProbeCoord coord = FromPos(trans.GetPosition());
             TryCreateProbe(coord);
-            continue;
             for (int x = -1; x <= 1; x++)
                 for (int y = -1; y <= 1; y++)
                     for (int z = -1; z <= 1; z++)

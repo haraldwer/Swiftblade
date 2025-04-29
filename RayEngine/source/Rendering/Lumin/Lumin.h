@@ -45,10 +45,12 @@ namespace Rendering
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
         Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
-        RenderTarget& GetProbeTarget() { return Target; }
+        RenderTarget& GetProbeTarget() { return LerpTarget.Curr(); }
         float GetRange() const;
 
     private:
+        Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
+        Pipeline::Stats LerpProbes(const RenderArgs& InArgs);
         void ExpandVolume(const Scene& InScene);
         void TryCreateProbe(ProbeCoord InCoord);
         ProbeCoord FromPos(const Vec3F& InPos);
@@ -60,6 +62,7 @@ namespace Rendering
         Context Context;
         Viewport Viewport;
         RenderTarget Target;
+        SwapTarget LerpTarget;
         AtlasMap AtlasMap;
         LuminPipeline Pipeline;
     };

@@ -38,9 +38,10 @@ void Rendering::Manager::Render(const Scene& InScene)
         .Context= &DefaultContext,
         .Viewport= &MainViewport,
         .Perspectives = {{
+            .ReferenceRect= Vec4F(),
             .TargetRect= Vec4I(),
             .Camera= InScene.GetCamera()
-        }},
+        }}
     };
     MainViewport.BeginFrame();
 

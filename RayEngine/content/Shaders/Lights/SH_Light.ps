@@ -5,6 +5,7 @@
 #include "Shaders/Utility/SH_CubeSampling.si"
 #include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_DeferredID.si"
 
 // TODO: Pack these neater
 uniform vec3 Position;
@@ -81,12 +82,55 @@ float Shadow(vec3 toLight)
     return 1.0 - clamp(shadow - 0.5, 0, 1);
 }
 
+const float DISK_FADE_DIST = 0.3;
+const float DISK_FADE_BIAS = 0.5;
+const float DISK_SIZE = 500;
+const float DISK_POINTYNESS = 200;
+
+float DiskIntensity(vec4 InWorld, vec3 InToLight)
+{
+    return 0;
+    vec3 camToLight = CameraPosition - Position;
+    vec3 camToPixel = CameraPosition - InWorld.xyz;
+    float lightDist = length(camToLight);
+    float pixelDist = length(camToPixel);
+    float diff = (lightDist - pixelDist - DISK_FADE_BIAS) / DISK_FADE_DIST;
+    float mask = 1 - clamp(diff, 0, 1);
+    if (mask < 0.0001)
+        return 0;
+    
+    vec3 camLightDir = camToLight / lightDist;
+    vec3 camPixelDir = camToPixel / pixelDist;
+    float d = dot(camLightDir, camPixelDir);
+    float offset = 1 - 1 / DISK_SIZE;
+    float angle = clamp(d - offset, 0, 1) / (1 - offset);
+    
+    // Rotate to view space
+    vec2 pixelCoord = WorldPosToCoord(InWorld.xyz, ViewProj);
+    vec2 lightCoord = WorldPosToCoord(Position, ViewProj);
+    float aspect = Resolution.x / Resolution.y;
+    pixelCoord.y *= aspect;
+    lightCoord.y *= aspect;
+    
+    vec2 coordDiff = abs(pixelCoord - lightCoord) * DISK_POINTYNESS;
+    float val = 1 - (coordDiff.x * coordDiff.y);
+    
+    return angle * val * 2;
+}
+
 void main()
 {
     vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
     vec3 toLight = Position - worldPos.xyz;
     float lightDistSqr = SquaredLength(toLight);
-    if (lightDistSqr > Range * Range)
+    
+    float disk = DiskIntensity(worldPos, toLight);
+    bool showDisk = disk > 0.0001;
+
+    if (!CheckID(TexCoord, 0) && !showDisk) // Exclude skybox
+        return;
+    
+    if (lightDistSqr > Range * Range && !showDisk)
         discard;
 
     float lightDist = sqrt(lightDistSqr);    
@@ -95,17 +139,18 @@ void main()
     vec3 toLightDir = toLight / lightDist;
     vec3 normal = SampleNormal(TexCoord);
     float d = dot(toLightDir, normal);
-    if (d < 0)
+    if (d < 0 && !showDisk)
         discard;
 
     float shadow = 1;
     if (Timestamp != 0)
     {
         shadow = Shadow(toLight);
-        if (shadow < 0.001f)
+        if (shadow < 0.001f && !showDisk)
             discard;
     }
     
+    float intensity = Intensity * pow(d, 0.5) * fade * shadow;
     Output.rgb = Color;
-    Output.a = Intensity * pow(d, 0.5) * fade * shadow;
+    Output.a = max(intensity, disk);
 }

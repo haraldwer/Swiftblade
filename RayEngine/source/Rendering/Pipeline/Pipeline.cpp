@@ -45,6 +45,14 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     return stats;
 }
 
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderSkybox(const RenderArgs& InArgs)
+{
+    Stats stats;
+    auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets;
+    stats.Skyboxes += Renderer::DrawSkyboxes(InArgs, sceneTarget.Curr());
+    return stats;
+}
+
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderScene(const RenderArgs& InArgs)
 {
     Stats stats;
@@ -86,13 +94,6 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderAO(const RenderArgs& InArg
     ssaoTargets.Iterate();
     Renderer::DrawFullscreen(InArgs, ssaoTargets.Curr(), SSAOShader, { &sceneTarget, &ssaoTargets.Prev() });
     stats.FullscreenPasses++;
-    return stats;
-}
-
-Rendering::Pipeline::Stats Rendering::Pipeline::RenderSkybox(const RenderArgs& InArgs)
-{
-    Stats stats;
-    stats.Skyboxes += Renderer::DrawSkyboxes(InArgs, InArgs.Viewport->Targets.FrameTargets.Curr());
     return stats;
 }
 

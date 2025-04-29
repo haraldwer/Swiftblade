@@ -6,22 +6,23 @@
 #include "Shaders/Utility/SH_CubeSampling.si"
 #include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_DeferredID.si"
 
-#define MAX_PROBES 20
+#define MAX_PROBES 15
 
 uniform float[MAX_PROBES] Timestamp;
 uniform vec3[MAX_PROBES] ProbePosition;
 uniform vec4[MAX_PROBES] ProbeRect;
 
 uniform int ProbeCount;
-uniform vec3 ProbeRange;
+uniform float ProbeRange;
 uniform sampler2D TexLumin;
 
 in vec2 TexCoord;
 out vec4 Output;
 
 const float DIST_BIAS = 1.0f;
-const float DIST_FADE = 1.0f;
+const float DIST_FADE = 4.0f;
 const float NORMAL_BIAS = 0.1f;
 
 vec4 SampleProbe(int InIndex, vec3 InWorldPos, vec3 InNormal)
@@ -32,39 +33,47 @@ vec4 SampleProbe(int InIndex, vec3 InWorldPos, vec3 InNormal)
     
     // Distance fade
     vec3 pixelToProbe = InWorldPos - pos;
-    vec3 range = abs(pixelToProbe) / (ProbeRange);
+    vec3 range = abs(pixelToProbe) / ProbeRange;
     float dist = max(max(range.x, range.y), range.z);
-    float giFade = clamp(1 - dist, 0, 1); // Fade based on distance
-    if (dist > 1)
+    float distFade = 1 - clamp(dist, 0, 1); // Fade based on distance
+    if (distFade < 0.001)
         return vec4(0);
     
+    float squareProbeRange = sqrt(Pow2(ProbeRange) * 3);
     float pixelToProbeDist = length(pixelToProbe);
     vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist;
-    
+        
     // Is surface in view of probe?
-    float maxRange = max(max(ProbeRange.x, ProbeRange.y), ProbeRange.z);
-    float depth = SampleCubeAtlas(TexLumin, rect, pixelToProbeDir).a * maxRange;
-    float depthDiff = depth - pixelToProbeDist;
-    float depthFade = 1.0f;//clamp(DIST_BIAS - depthDiff / DIST_FADE, 0, 1);
+    float depth = SampleCubeAtlas(TexLumin, rect, pixelToProbeDir).a * ProbeRange * 2;
+    float depthDiff = max(0, pixelToProbeDist - depth);
+    float depthVal = (abs(depthDiff) - DIST_BIAS) / DIST_FADE;
+    float depthFade = 1 - clamp(depthVal, 0, 1);
     if (depthFade < 0.001)
-        return vec4(0);
+      return vec4(0);
     
     // Is surface pointing towards probe?
     vec3 normal = SampleNormal(TexCoord);
-    float surfaceDot = -dot(normalize(pixelToProbe), normal);
-    float surfaceFade = clamp((surfaceDot + NORMAL_BIAS) / NORMAL_BIAS, 0, 1);  
+    float surfaceDot = -dot(pixelToProbeDir, normal);
+    float surfaceFade = clamp((surfaceDot + NORMAL_BIAS) / NORMAL_BIAS, 0, 1);
+    surfaceFade = pow(surfaceFade, 0.5);
     if (surfaceFade < 0.001)
         return vec4(0);
     
-    // Use luminance for now, later expect irradiance map
-    vec3 color = SampleCubeAtlas(TexLumin, rect, -InNormal).rgb;
-    vec3 hsv = rgb2hsv(color);
-    hsv.z *= depthFade * giFade * surfaceFade;
-    return vec4(hsv2rgb(hsv), giFade);
+    vec3 color = vec3(0);
+    color += SampleCubeAtlas(TexLumin, rect, -InNormal).rgb;
+    color += SampleCubeAtlas(TexLumin, rect, InNormal).rgb;
+    color += SampleCubeAtlas(TexLumin, rect, -pixelToProbeDir).rgb;
+    color += SampleCubeAtlas(TexLumin, rect, pixelToProbeDir).rgb;
+    color /= 4;
+    color *= depthFade * distFade * surfaceFade;
+    return vec4(color, depthFade * distFade);
 }
 
 void main()
 {
+    if (!CheckID(TexCoord, 0)) // Exclude skybox
+        return;
+    
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     vec3 normal = SampleNormal(TexCoord);
     
@@ -76,7 +85,7 @@ void main()
     
     result.rgb /= result.a;
     vec3 hsv = rgb2hsv(result.rgb);
-    hsv.z = min(1, Pow2(hsv.z) * 0.6);
+    hsv.z = min(1, Pow2(hsv.z));
     Output.rgb = hsv2rgb(hsv);
     Output.a = 1.0;
 }

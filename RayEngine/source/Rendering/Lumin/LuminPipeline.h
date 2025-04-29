@@ -9,5 +9,6 @@ namespace Rendering
     {
     public:
         Stats RenderProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget);
+        Stats LerpProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget, SwapTarget& InLerpTarget);
     };
 }

@@ -1,0 +1,14 @@
+#version 330
+
+uniform sampler2D TexLuminCollect;
+uniform sampler2D TexLumin;
+
+in vec2 TexCoord;
+out vec4 Output;
+
+void main()
+{
+    vec4 target = texture(TexLuminCollect, TexCoord);
+    vec4 current = texture(TexLumin, TexCoord);
+    Output = mix(current, target, 0.2);
+}

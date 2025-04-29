@@ -4,6 +4,7 @@
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 #include "Shaders/Utility/SH_Random.si"
 #include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_DeferredID.si"
 
 in vec2 TexCoord;
 out vec4 Output;
@@ -123,6 +124,9 @@ float BlurAccumulation(vec4 InPrevPos, vec2 InPrevCoord)
 void main()
 {
      Output = vec4(vec3(0.0), 1.0);
+
+     if (!CheckID(TexCoord, 0)) // Exclude skybox
+          return;
      
      vec4 currPos = SampleWorldPos(TexCoord);
      float currDepth = currPos.w;

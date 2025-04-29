@@ -11,7 +11,7 @@ in vec2 RectCoord;
 out vec4 Output;
 
 const int SAMPLES = 64;
-const float SAMPLE_SCALE = 0.7f;    
+const float SAMPLE_SCALE = 0.5f;    
 const float NOISE_SCALE = 1234.0f;
 
 float InterleavedGradientNoise(vec2 uv)
@@ -30,9 +30,6 @@ vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
 
 void main()
 {
-    // TODO: Fix world pos zero for skyboxes
-    // Get direction from TexCoord
-    
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     vec3 camDiff = CameraPosition - worldPos.xyz;
     float camDist = length(camDiff);
@@ -41,6 +38,7 @@ void main()
     vec3 right = cross(camDir, vec3(0, 1, 0));
     vec3 up = cross(camDir, right);
     float interleaved = PI * 2.0f * InterleavedGradientNoise(TexCoord * NOISE_SCALE);
+    
     float total = 1;
     vec4 result = vec4(0);
     result.xyz += SampleCubeAtlas(TexFrame, RefRect, -camDir).xyz;
@@ -55,5 +53,6 @@ void main()
         total += weight;   
     }
     result /= total;
+    result.a /= NearFar.y;
     Output = result;
 }
