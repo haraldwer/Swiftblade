@@ -9,12 +9,14 @@ in vec4 WorldPosition;
 in vec3 WorldNormal;
 in vec3 ObjectPosition;
 in vec3 VertexPosition;
+in vec3 Velocity;
 
 void Default()
 {
     OutPosition = WorldPosToTex(WorldPosition);
     OutNormal.xyz = WorldNormal;
     OutNormal.a = DeferredIDToTexID(DeferredID);
-    OutVelocity = vec4(vec3(0.0f), 1.0f);
+    OutData.xy = Velocity.xy;
+    OutData.z = 0.0;
     OutColor = vec4(1.0f);
 }

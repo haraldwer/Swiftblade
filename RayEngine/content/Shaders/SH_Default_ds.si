@@ -8,6 +8,7 @@
 #include "Shaders/Utility/SH_DeferredID.si"
 
 in vec2 TexCoord;
+in vec2 RectCoord;
 out vec4 Output;
 
 const float DIST_FADE_START = 20.0;

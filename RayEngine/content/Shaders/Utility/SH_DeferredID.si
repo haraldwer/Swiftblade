@@ -8,9 +8,19 @@ float DeferredIDToTexID(int InDeferredID)
     return float(InDeferredID % ID_PRECISION) / ID_PRECISION;
 }
 
+float GetTexID(vec2 InCoord)
+{
+    return texture(TexNormal, InCoord).a;
+}
+
+bool CheckTexID(vec2 InCoord, float InTexID)
+{
+    float TexID = GetTexID(InCoord);
+    return abs(TexID - InTexID) > (1.0 / ID_PRECISION) / 2.0;
+}
+
 bool CheckID(vec2 InCoord, int InDeferredID)
 {
-    float TexID = texture(TexNormal, InCoord).a;
-    float ID = DeferredIDToTexID(InDeferredID);
-    return abs(TexID - ID) > (1.0 / ID_PRECISION) / 2.0;
+    float TexID = DeferredIDToTexID(InDeferredID);
+    return CheckTexID(InCoord, TexID);
 }

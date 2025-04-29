@@ -1,0 +1,37 @@
+#version 330
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+in vec2 TexCoord;
+out vec4 Output;
+
+const int SAMPLES = 8;
+const float THRESHOLD = 0.001f;
+const float EDGE_FADE = 0.15f;
+const float DEPTH_THRESHOLD = 1.0f;
+
+void main()
+{
+    Output = texture(TexFrame, TexCoord);
+    
+    vec3 vel = texture(TexData, TexCoord).rgb;
+    if (length(vel) < THRESHOLD)
+        return;
+    
+    float maxEdge = max(max(max(TexCoord.x, 1 - TexCoord.x), TexCoord.y), 1 - TexCoord.y);
+    float edgePart = 1 - EDGE_FADE;
+    float edge = 1 - clamp((maxEdge - edgePart) / (1 - edgePart), 0, 1);
+    
+    vec3 part = vel / SAMPLES;
+    vec3 result = Output.rgb;
+    for (int i = 1; i < SAMPLES; i++)
+    {
+        vec2 offset = -part.xy * (i - SAMPLES * 0.5) * edge;
+        vec2 coord = clamp(TexCoord + offset, 0, 1);
+        result += texture(TexFrame, coord).rgb;
+    }
+    Output.rgb = result / SAMPLES;
+    Output.a = 1.0;
+}

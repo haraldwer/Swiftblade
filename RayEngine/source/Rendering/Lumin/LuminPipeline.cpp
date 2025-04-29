@@ -10,14 +10,14 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     CHECK_ASSERT(!InArgs.Context, "Invalid context");
     
     Stats stats;
-    stats += RenderScene(InArgs);
     stats += RenderSkybox(InArgs);
+    stats += RenderScene(InArgs);
     stats += RenderDeferred(InArgs);
     stats += RenderLights(InArgs);
-    stats += RenderLumin(InArgs);
+    //stats += RenderLumin(InArgs);
 
-    auto frame = InArgs.Viewport->GetTargets().FrameTarget;
-    auto scene = InArgs.Viewport->GetTargets().SceneTarget;
+    auto frame = InArgs.Viewport->GetTargets().FrameTargets.Curr();
+    auto scene = InArgs.Viewport->GetTargets().SceneTargets.Curr();
     Renderer::DrawFullscreen(InArgs, InTarget, InShader, { &frame, &scene }, -1, false);
     stats.FullscreenPasses++;
     

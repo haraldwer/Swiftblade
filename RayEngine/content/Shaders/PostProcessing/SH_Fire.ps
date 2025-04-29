@@ -24,7 +24,7 @@ void main()
 
     vec4 worldPosition = SampleWorldPos(TexCoord);
     vec3 normal = SampleNormal(TexCoord);
-    float lifetime = 1.0f - texture(TexVelocity, TexCoord).a;
+    float lifetime = 1.0f - texture(TexData, TexCoord).a;
 
     Output.rgb = vec3(lifetime);
     Output.a = lifetime;

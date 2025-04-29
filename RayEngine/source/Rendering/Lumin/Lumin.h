@@ -46,6 +46,7 @@ namespace Rendering
         Pipeline::Stats Update(const RenderArgs& InArgs);
         Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
         RenderTarget& GetProbeTarget() { return Target; }
+        float GetRange() const;
 
     private:
         void ExpandVolume(const Scene& InScene);

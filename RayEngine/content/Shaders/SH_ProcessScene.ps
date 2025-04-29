@@ -1,0 +1,107 @@
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Uniforms/SH_DeferredOut.si"
+#include "Shaders/Utility/SH_DeferredID.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+in vec2 TexCoord;
+in vec2 RectCoord;
+out vec3 Output;
+
+const float BUMP_MIX = 0.9;
+const float BUMP_SAMPLE_SCALE = 1.5;
+
+const int PARALLAX_SAMPLES = 32;
+const float PARALLAX_SCALE = 0.05;
+
+vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InWorldPos)
+{
+    vec2 texel = vec2(1) / Resolution;
+    vec2 coord = InCoord + texel * InDir;
+    return normalize(InWorldPos - SampleWorldPos(coord).xyz);
+}
+
+// xyz for direction + dx / dy
+float BumpSample(vec2 InCoord, vec2 InDir, float InH, float InID)
+{
+    vec2 halfTexel = vec2(1) / Resolution;
+    vec2 coord = TexCoord + halfTexel * InDir * BUMP_SAMPLE_SCALE;
+    float idCheck = float(!CheckTexID(coord, InID));
+    float dx = InH - texture(TexData, coord).z * idCheck;
+    return dx;
+}
+
+vec3 BumpNormal(vec2 InCoord, vec3 InForward, vec3 InRight, vec3 InUp)
+{
+    vec4 normal = texture(TexNormal, InCoord);
+    float height = texture(TexData, InCoord).z;
+    float dx = BumpSample(InCoord, vec2(1, 0), height, normal.a);
+    float dy = BumpSample(InCoord, vec2(0, 1), height, normal.a);
+    float dz = sqrt(Pow2(dx) + Pow2(dy));
+    //float dz = sqrt(1 - Pow2(dx) - Pow2(dy));
+    // pow2dx + pow2dy + pow2dz = pow21 (normalized vector)
+    vec3 newNormal = InRight * dx + InUp * dy + InForward * dz;
+    return normalize(mix(normal.xyz, newNormal, BUMP_MIX));
+}
+
+struct ParallaxOffset
+{
+    vec3 worldPos;
+    vec2 uv;
+};
+
+ParallaxOffset ParallaxOcclusion(float InHeight, vec3 InWorldPos, float InDepth, vec3 InRight, vec3 InUp, vec3 InForward)
+{
+    ParallaxOffset offset;
+    offset.worldPos = InWorldPos;
+    offset.uv = TexCoord;
+    return offset;
+    
+    // First, get the direction
+    vec3 camDir = -normalize(InWorldPos - CameraPosition);
+    mat3 tanMat = mat3(InRight, InUp, InForward);
+    vec3 viewDir = tanMat * camDir;
+    vec3 viewDirTS = viewDir.yxz;
+    vec2 maxOffset = vec2(viewDirTS.x, -viewDirTS.y) * PARALLAX_SCALE / viewDirTS.z;
+    vec2 step = maxOffset / PARALLAX_SAMPLES;
+    float heightStep = 1.0 / PARALLAX_SAMPLES;
+    
+    for (int i = 0; i < PARALLAX_SAMPLES; i++)
+    {
+        vec2 coord = TexCoord + step * i;
+        float rayHeight = 1 - heightStep * i;
+        float surfaceHeight = 1 - texture(TexData, coord).z;
+        if (rayHeight < surfaceHeight)
+        {
+            // Hit!
+            offset.uv = coord;
+            offset.worldPos = SampleWorldPos(coord).xyz - InUp * rayHeight * PARALLAX_SCALE; 
+            return offset;
+        }
+    }
+    
+    return offset; 
+}
+
+void main()
+{
+    // Copy data
+    OutPosition = texture(TexPosition, TexCoord);
+    OutNormal = texture(TexNormal, TexCoord);
+    OutColor = texture(TexColor, TexCoord);
+    OutData = texture(TexData, TexCoord).xyz;
+    
+    // Get surface directions
+    vec3 worldPos = OutPosition.xyz + CameraPosition;
+    vec3 right = GetSurfaceDirection(TexCoord, vec2(1, 0), worldPos);
+    vec3 up = GetSurfaceDirection(TexCoord, vec2(0, 1), worldPos);
+    vec3 forward = cross(right, up);
+    
+    // Parallax occlusion mapping
+    ParallaxOffset offset = ParallaxOcclusion(OutData.z, worldPos, OutPosition.w, right, up, forward);
+    OutPosition.xyz = offset.worldPos - CameraPosition;
+    
+    // Calculate bump normals
+    OutNormal.xyz = BumpNormal(offset.uv, forward, right, up);
+}

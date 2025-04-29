@@ -9,7 +9,7 @@ namespace ECS
     {
         PROPERTY_D(float, FOV, 110.0f);
         PROPERTY_D(float, Near, 0.001f);
-        PROPERTY_D(float, Far, 50.0f);
+        PROPERTY_D(float, Far, 200.0f);
     };
 
     class SysCameraComponent : public System<CameraComponent>

@@ -124,8 +124,6 @@ void main()
 {
      Output = vec4(vec3(0.0), 1.0);
      
-     #ifdef SSAO
-     
      vec4 currPos = SampleWorldPos(TexCoord);
      float currDepth = currPos.w;
      float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
@@ -173,6 +171,4 @@ void main()
      Output.g = accumulated; // Store accumulated      
      Output.b = ssao; // Store as prev
      Output.a = prev; // Store as prevPrev
-     
-     #endif
 }

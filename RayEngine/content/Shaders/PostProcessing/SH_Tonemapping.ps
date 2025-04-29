@@ -1,0 +1,174 @@
+#version 330
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+in vec2 TexCoord;
+out vec4 Output;
+
+#define TONEMAP_FUNCTION Tonemap_ACES
+const float EXPOSURE = 1.0f;
+const float WHITE_POINT = 1.0f;
+
+const float COLORS = 16.0f;
+const vec2 LUT_TEXTURE_SIZE = vec2(256.0f, 16.0f);
+const float LUT_CONTRIBUTION = 1.0f;
+const float PADDING = 0.5f;
+
+uniform sampler2D TexLUT;
+
+float Tonemap_Reinhard(float x) {
+    return x / (1.0 + x);
+}
+
+float Tonemap_Reinhard2(float x) {
+    float L_white = 4.0;
+    return (x * (1.0 + x / (L_white * L_white))) / (1.0 + x);
+}
+
+float Tonemap_ACES(float x) 
+{
+    // Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return (x * (a * x + b)) / (x * (c * x + d) + e);
+}
+
+float Tonemap_Unreal(float x) 
+{
+    // Unreal 3, Documentation: "Color Grading"
+    // Adapted to be close to Tonemap_ACES, with similar range
+    // Gamma 2.2 correction is baked in, don't use with sRGB conversion!
+    return x / (x + 0.155) * 1.019;
+}
+
+float Tonemap_Uchimura(float x, float P, float a, float m, float l, float c, float b) 
+{
+    // Uchimura 2017, "HDR theory and practice"
+    // Math: https://www.desmos.com/calculator/gslcdxvipg
+    // Source: https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
+    float l0 = ((P - m) * l) / a;
+    float L0 = m - m / a;
+    float L1 = m + (1.0 - m) / a;
+    float S0 = m + l0;
+    float S1 = m + a * l0;
+    float C2 = (a * P) / (P - S1);
+    float CP = -C2 / P;
+
+    float w0 = 1.0 - smoothstep(0.0, m, x);
+    float w2 = step(m + l0, x);
+    float w1 = 1.0 - w0 - w2;
+
+    float T = m * pow(x / m, c) + b;
+    float S = P - (P - S1) * exp(CP * (x - S0));
+    float L = m + a * (x - m);
+
+    return T * w0 + L * w1 + S * w2;
+}
+
+float Tonemap_Uchimura(float x) 
+{
+    float P = 1.0;  // max display brightness
+    float a = 1.0;  // contrast
+    float m = 0.22; // linear section start
+    float l = 0.4;  // linear section length
+    float c = 1.33; // black
+    float b = 0.0;  // pedestal
+    return Tonemap_Uchimura(x, P, a, m, l, c, b);
+}
+
+float Tonemap_Lottes(float x) 
+{
+    // Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
+    float a = 1.6;
+    float d = 0.977;
+    float hdrMax = 8.0;
+    float midIn = 0.18;
+    float midOut = 0.267;
+
+    // Can be precomputed
+    float b =
+        (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
+        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+    float c =
+        (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
+        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
+    return pow(x, a) / (pow(x, a * d) * b + c);
+}
+
+float Tonemap_Uncharted2(float x)
+{
+    float A = 0.15;
+    float B = 0.50;
+    float C = 0.10;
+    float D = 0.20;
+    float E = 0.02;
+    float F = 0.30;
+    return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+}
+
+vec3 Tonemap(vec3 color)
+{
+    vec3 exposed = color * EXPOSURE;
+    float whitePoint = TONEMAP_FUNCTION(WHITE_POINT);
+    return vec3(
+        TONEMAP_FUNCTION(exposed.r) / whitePoint,
+        TONEMAP_FUNCTION(exposed.g) / whitePoint,
+        TONEMAP_FUNCTION(exposed.b) / whitePoint);
+}
+
+vec3 SampleZ(vec3 pos)
+{
+    float fl = floor(pos.z);
+    float cl = ceil(pos.z);
+    float part = clamp(abs(pos.z - fl), 0, 1);
+    float div = 1.0f / COLORS;
+    vec2 flLutPos = vec2(fl * div + pos.x * div * div, pos.y * div);
+    vec2 clLutPos = vec2(cl * div + pos.x * div * div, pos.y * div);
+    vec3 flc = texture(TexLUT, flLutPos).rgb;
+    vec3 clc = texture(TexLUT, clLutPos).rgb;
+    return mix(flc, clc, part);
+}
+
+vec3 SampleY(vec3 pos)
+{
+    float fl = floor(pos.y);
+    float cl = ceil(pos.y);
+    float part = clamp(abs(pos.y - fl), 0, 1);
+    vec3 flc = SampleZ(vec3(pos.x, fl, pos.z));
+    vec3 clc = SampleZ(vec3(pos.x, cl, pos.z));
+    return mix(flc, clc, part);
+}
+
+vec3 SampleX(vec3 pos)
+{
+    float fl = floor(pos.x);
+    float cl = ceil(pos.x);
+    float part = clamp(abs(pos.x - fl), 0, 1);
+    vec3 flc = SampleY(vec3(fl, pos.y, pos.z));
+    vec3 clc = SampleY(vec3(cl, pos.y, pos.z));
+    return mix(flc, clc, part);
+}
+
+vec3 LUT(vec3 color)
+{
+    float xOffset = clamp(color.r, 0, 1) * (COLORS - 1.0f);
+    float yOffset = clamp(color.g, 0, 1) * (COLORS - 1.0f);
+    float zOffset = clamp(color.b, 0, 1) * (COLORS - 1.0f);
+    vec3 gradedCol = SampleX(vec3(xOffset, yOffset, zOffset));
+    return mix(color, gradedCol, LUT_CONTRIBUTION);
+}
+
+void main()
+{
+    vec3 color = texture(TexFrame, TexCoord).rgb;
+    color = Tonemap(color);
+    //color = LUT(color);
+    Output.rgb = color;
+    Output.a = 1.0; // TODO: Blend
+}

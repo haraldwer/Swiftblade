@@ -42,8 +42,5 @@ vec4 WorldPosToTex(vec4 InPos)
 
 vec3 GetViewDir(vec2 InUV)
 {
-    vec2 coord = InUV * 2 - 1;
-    vec3 off = vec3(coord, 1.0f);
-    vec4 dir = ViewProjInv * vec4(off, 1.0f);
-    return normalize(dir.xyz);
+    return vec3(0); // Cant get this to work...
 }

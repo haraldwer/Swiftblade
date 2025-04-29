@@ -1,3 +1,4 @@
 {
+	"SurfaceShader":"Dressing/SH_BrickWall",
 	"DeferredShader":"Dressing/SH_BrickWall.ds"
 }

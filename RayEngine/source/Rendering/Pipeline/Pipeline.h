@@ -42,6 +42,7 @@ namespace Rendering
     protected:
         Stats RenderSkybox(const RenderArgs& InArgs);
         Stats RenderScene(const RenderArgs& InArgs);
+        Stats ProcessScene(const RenderArgs& InArgs);
         Stats RenderDeferred(const RenderArgs& InArgs);
         Stats RenderLights(const RenderArgs& InArgs);
         Stats RenderLumin(const RenderArgs& InArgs);

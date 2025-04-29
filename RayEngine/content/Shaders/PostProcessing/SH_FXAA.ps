@@ -1,9 +1,8 @@
 ﻿#version 330
 
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
 #include "Shaders/Utility/SH_HSV.si"
-
-uniform sampler2D TexQuantize;
 
 in vec2 TexCoord;
 out vec4 Output;
@@ -17,7 +16,7 @@ const float EDGE_VALUE_POW = 0.2f; // Value weight curve
 
 vec3 EdgeDirection(vec2 InOffset, vec2 InScale, float InWeight, vec3 InColor)
 {
-    vec4 color = texture(TexQuantize, TexCoord + InOffset * InScale);
+    vec4 color = texture(TexFrame, TexCoord + InOffset * InScale);
     vec3 diff = abs(InColor - color.rgb);
     float weight = max(max(diff.x, diff.y), diff.z);
     float mul = min(1.0f, pow(weight, EDGE_VALUE_POW));
@@ -34,7 +33,7 @@ vec4 BlurDir(vec2 InBlendDir, vec2 InPixelScale, float InBlendScale)
         // Sample pixels
         float distWeight = 1.0f - abs(i) / samples;
         vec2 coordOff = InBlendDir * i * InPixelScale * distWeight;
-        result += texture(TexQuantize, TexCoord + coordOff).rgb;
+        result += texture(TexFrame, TexCoord + coordOff).rgb;
     }
     result /= samples * 2 + 1; 
     return vec4(result, 1.0f);
@@ -43,10 +42,8 @@ vec4 BlurDir(vec2 InBlendDir, vec2 InPixelScale, float InBlendScale)
 void main()
 {
     // Get current pixel
-    vec4 color = texture(TexQuantize, TexCoord).rgba;
+    vec4 color = texture(TexFrame, TexCoord).rgba;
     Output = color;
-    
-    #ifdef FXAA
 
     // Calculate edge direction
     vec3 accDir = vec3(0);
@@ -72,7 +69,6 @@ void main()
         blurColor += BlurDir(vec2(0.0f, 1.0f), pixelScale, abs(dir.x));
     if (abs(dir.y) >= EDGE_THRESHOLD)
         blurColor += BlurDir(vec2(1.0f, 0.0f), pixelScale, abs(dir.y));
-    Output.rgb = blurColor.rgb / blurColor.a;
     
-    #endif
+    Output.rgb = blurColor.rgb / blurColor.a;
 }

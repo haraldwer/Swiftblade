@@ -2,19 +2,19 @@
 
 #include "Context/Context.h"
 #include "Core/Utility/RayUtility.h"
-#include "RayRenderUtility.h"
-#include "Scene/Scene.h"
-#include "Viewport/Viewport.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
+#include "RayRenderUtility.h"
+#include "Scene/Scene.h"
 #include "State/Command.h"
 #include "State/State.h"
+#include "Viewport/Viewport.h"
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType, int InCount)
 {
     const int loc = InShader.GetLocation(InName);
     if (loc >= 0)
-        rlSetUniform(loc, InValue, InType, 1);
+        rlSetUniform(loc, InValue, InType, InCount);
 }
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue)
@@ -50,31 +50,36 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    const Vec2I res = viewport.GetResolution();
-    int w = InPerspective.TargetRect.z > 0 ? InPerspective.TargetRect.z : res.x;
-    int h = InPerspective.TargetRect.w > 0 ? InPerspective.TargetRect.w : res.y;
-    Vec4F rect = Vec4I{ InPerspective.TargetRect.x, InPerspective.TargetRect.y, w, h }.To<float>();
+    const Vec2F res = viewport.GetResolution().To<float>();
+    float w = InPerspective.TargetRect.z > 0 ?
+        static_cast<float>(InPerspective.TargetRect.z) : res.x;
+    float h = InPerspective.TargetRect.w > 0 ?
+        static_cast<float>(InPerspective.TargetRect.w) : res.y;
+    Vec4F rect = Vec4F{
+        static_cast<float>(InPerspective.TargetRect.x),
+        static_cast<float>(InPerspective.TargetRect.y),
+        w, h };
     
     // Matrices
     Vec2F size = { rect.z, rect.w };
     Mat4F view = InPerspective.Camera.GetViewMatrix();
     Mat4F proj = InPerspective.Camera.GetProjectionMatrix(size);
-    viewport.ViewProj = Mat4F::Transpose(Mat4F::GetInverse(view) * proj);
+    viewport.ViewProj = Mat4F::GetInverse(view) * proj;
     
-    SetValue(InShader, "ViewProj", viewport.ViewProj);
-    SetValue(InShader, "ViewProjPrev", viewport.ViewProjPrev);
-    SetValue(InShader, "ViewProjInv", Mat4F::GetInverse(viewport.ViewProj));
+    SetValue(InShader, "ViewProj", Mat4F::Transpose(viewport.ViewProj));
+    SetValue(InShader, "ViewProjPrev", Mat4F::Transpose(viewport.ViewProjPrev));
+    SetValue(InShader, "ViewProjInv", Mat4F::Transpose(Mat4F::GetInverse(viewport.ViewProj)));
 
     // Make resolution independent
     Vec4F refRect = InPerspective.ReferenceRect;
-    rect.x /= (float)res.x;
-    rect.y /= (float)res.y;
-    rect.z /= (float)res.x;
-    rect.w /= (float)res.y;
-    refRect.x /= (float)res.x;
-    refRect.y /= (float)res.y;
-    refRect.z /= (float)res.x;
-    refRect.w /= (float)res.y;
+    rect.x /= res.x;
+    rect.y /= res.y;
+    rect.z /= res.x;
+    rect.w /= res.y;
+    refRect.x /= res.x;
+    refRect.y /= res.y;
+    refRect.z /= res.x;
+    refRect.w /= res.y;
     
     SetValue(InShader, "Rect", &rect, SHADER_UNIFORM_VEC4);
     SetValue(InShader, "RefRect", &refRect, SHADER_UNIFORM_VEC4);
@@ -108,6 +113,8 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
         TextureCommand cmd;
         cmd.ShaderLoc = loc;
         cmd.ID = tex->id;
+        cmd.Filter = RL_TEXTURE_FILTER_LINEAR;
+        cmd.Wrap = RL_TEXTURE_WRAP_REPEAT;
         rlState::Current.Set(cmd, InOutSlot);
     }
 }
@@ -290,9 +297,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     rlState::Current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-    Vec3F range = Vec3F::One() / conf.Density.Get();
-    SetValue(*shaderResource, "ProbeRange", &range, SHADER_UNIFORM_VEC3);
-
+    
     int texSlot = 0;
     auto& t = lumin.GetProbeTarget();
     t.Bind(*shaderResource, texSlot, RL_TEXTURE_FILTER_LINEAR);
@@ -300,23 +305,36 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     for (auto& b : InBuffers)
         if (b) b->Bind(*shaderResource, texSlot);
-    
+
+    // Collect
+    int c = static_cast<int>(probes.size());
+    Vector<float> timestamps;
+    Vector<Vec3F> positions;
+    Vector<Vec4F> rects;
+    timestamps.reserve(c);
+    positions.reserve(c);
+    rects.reserve(c);
     for (auto& probe : probes)
     {
-        CHECK_ASSERT(!probe, "Invalid probe");
-        
-        SetValue(*shaderResource, "Timestamp", &probe->Timestamp, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "ProbePosition", &probe->Pos, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "ProbeRect", &probe->Rect, SHADER_UNIFORM_VEC4);
+        timestamps.push_back(probe->Timestamp);
+        positions.push_back(probe->Pos);
+        rects.push_back(probe->Rect);
+    }
 
-        for (auto& perspective : InArgs.Perspectives)
-        {
-            PerspectiveCommand perspCmd;
-            perspCmd.Rect = perspective.TargetRect;
-            rlState::Current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-            DrawQuad(); // TODO: Replace with cube mesh
-        }
+    Vec3F range = lumin.GetRange();
+    SetValue(*shaderResource, "ProbeRange", &range, SHADER_UNIFORM_VEC3);
+    SetValue(*shaderResource, "ProbeCount", &c, SHADER_UNIFORM_INT);
+    SetValue(*shaderResource, "Timestamp", timestamps.data(), SHADER_UNIFORM_FLOAT, c);
+    SetValue(*shaderResource, "ProbePosition", positions.data(), SHADER_UNIFORM_VEC3, c);
+    SetValue(*shaderResource, "ProbeRect", rects.data(), SHADER_UNIFORM_VEC4, c);
+    
+    for (auto& perspective : InArgs.Perspectives)
+    {
+        PerspectiveCommand perspCmd;
+        perspCmd.Rect = perspective.TargetRect;
+        rlState::Current.Set(perspCmd);
+        SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+        DrawQuad(); // TODO: Replace with cube mesh
     }
 
     if (conf.Debug)

@@ -16,6 +16,9 @@
 				"Skybox":"Dressing\\Skybox\\RM_Skybox.json"
 			}
 		},{
+			"Name":"PlayerCamera",
+			"Data":{}
+		},{
 			"Name":"Rigidbody",
 			"Data":{
 				"AngularDamping":0.0,
@@ -38,9 +41,6 @@
 			"Data":{}
 		},{
 			"Name":"Movement",
-			"Data":{}
-		},{
-			"Name":"PlayerCamera",
 			"Data":{}
 		}
 	],
@@ -114,6 +114,7 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
+										"Material":"Gameplay\\Player\\RM_Hands.json",
 										"Model":"Gameplay\\Player\\M_Hand_Open.obj"
 									}
 								},{
@@ -126,7 +127,7 @@
 									"Data":{
 										"Rotation":[
 											0.0,
-											-90.00013732910156,
+											-90.00016784667969,
 											0.0
 										],
 										"Scale":[
@@ -164,6 +165,7 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
+										"Material":"Gameplay\\Player\\RM_Hands.json",
 										"Model":"Gameplay\\Player\\M_Hand_Open.obj"
 									}
 								},{
@@ -176,7 +178,7 @@
 									"Data":{
 										"Rotation":[
 											0.0,
-											-90.00008392333984,
+											-90.00010681152344,
 											0.0
 										],
 										"Scale":[
@@ -208,8 +210,8 @@
 							],
 							"Rotation":[
 								7.424868106842041,
-								15.106155395507813,
-								-8.367188453674316
+								15.106157302856445,
+								-8.367189407348633
 							],
 							"Scale":[
 								1.0000001192092896,

@@ -1,6 +1,7 @@
 #version 330
 
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Utility/SH_Utility.si"
 
 layout (location = 0) in vec3 VertexPosition;
 layout (location = 1) in vec2 VertexTexCoord;

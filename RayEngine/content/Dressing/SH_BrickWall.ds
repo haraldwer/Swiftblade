@@ -16,26 +16,11 @@ void main()
     Default();
 
     vec3 pos = SampleWorldPos(TexCoord).xyz;
-    vec3 normal = SampleNormal(TexCoord);
-    float scale = 1.0;
-
-    vec2 heightBricks = AxisStep(pos.y, pos, scale * 1.0, 0.0, 0.07);
-    vec2 xBricks = AxisStep(pos.x, pos, scale * 0.5, heightBricks.y, 0.05); 
-    vec2 zBricks = AxisStep(pos.z, pos, scale * 0.5, heightBricks.y, 0.05); 
-    
-    float brick = 
-        xBricks.x *
-        zBricks.x * 
-        heightBricks.x;
-    
-    float brickFade = Random(vec3(xBricks.y, zBricks.y, heightBricks.y));
-    float edgeNoise = abs(Simplex(pos * 0.05, normal).r);
-    brick -= edgeNoise * 0.25 * (1.0 - brick);
-    brick = clamp(brick, 0.0, 1.0);
+    vec3 normal = SampleNormal(TexCoord).xyz;
+    float brick = 1 - texture(TexData, TexCoord).z;
     
     float bigNoise = Simplex(pos * 0.005, normal).r;
     bigNoise += abs(normal.y) * 0.5;
-    brick *= step(0.2, bigNoise * brick);
     
     // Select color
     float cement = 30.0f / 255.0f;
@@ -44,10 +29,9 @@ void main()
     float hue = mix(cement, stone, hueMix);
     float cementSat = clamp(bigNoise * 1, 0.0, 1.0) * 0.4;
     float sat = mix(cementSat, 0.2, step(0.4, brick));
-    
+
     // Do shadow
     float shadow = brick;
-    shadow = mix(shadow, shadow * brickFade, 0.5);
     shadow = pow(shadow, 2);
     shadow *= 1.0;
     shadow += 0.3;
@@ -56,5 +40,4 @@ void main()
     vec3 color = hsv2rgb(vec3(hue, sat, shadow));
     
     Output.rgb *= color;
-    //Output.rgb *= vec3(brick);
 }

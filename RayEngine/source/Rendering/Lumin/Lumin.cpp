@@ -59,9 +59,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
         .Lights = InArgs.Lights,
         .Perspectives = {}
     };
-    
-    Vec3F range = Vec3F::One() / Config.Density.Get();
-    float maxRange = Utility::Math::Max(Utility::Math::Max(range.x, range.y), range.z);
+    float range = GetRange();
 
     int count = 0;
     Pipeline::Stats stats;
@@ -88,7 +86,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
                     .Position = probe->Pos,
                     .Rotation = directions[i],
                     .FOV = 90.0f,
-                    .Far = maxRange,
+                    .Far = range,
                     .Near = 0.1f
                 }
             });
@@ -103,6 +101,13 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     stats += Pipeline.RenderProbes(args, Config.CollectShader, Target);
     
     return stats;
+}
+
+float Rendering::Lumin::GetRange() const
+{
+    Vec3F range = Vec3F::One() * Config.RangeMultiplier.Get() / Config.Density.Get();
+    float maxRange = Utility::Math::Max(Utility::Math::Max(range.x, range.y), range.z);
+    return maxRange;
 }
 
 Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
