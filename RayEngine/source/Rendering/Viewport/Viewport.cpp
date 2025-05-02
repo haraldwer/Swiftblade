@@ -50,6 +50,7 @@ void Rendering::Viewport::Resize(const Vec2I& InSize)
 
 void Rendering::Viewport::BeginFrame()
 {
+    PROFILE_GL();
     // DT since last frame in this viewport
     Delta = DeltaTimer.Ellapsed();
     DeltaTimer = Utility::Timer();

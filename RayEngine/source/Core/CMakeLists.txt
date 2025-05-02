@@ -6,8 +6,9 @@ include(${CMAKE_SOURCE_DIR}/cmake/Link.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
 
 # Link projects
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}
     raylib
     ImGui
+    TracyClient
     Utility
 )

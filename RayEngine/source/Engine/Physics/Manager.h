@@ -73,6 +73,10 @@ namespace Physics
         static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);
 
     private:
+        void SetTransforms() const;
+        void Simulate() const;
+        void GetTransforms() const;
+
         static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);
         physx::PxRigidDynamic* CreateDynamic(ECS::Rigidbody& InRigidbody);
         physx::PxRigidStatic* CreateStatic(const ECS::Collider& InCollider);

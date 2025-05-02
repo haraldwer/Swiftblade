@@ -42,6 +42,8 @@ void StateMachine::Deinit()
 
 void StateMachine::Update()
 {
+	PROFILE();
+	
 	// Check conditions for every state
 	// Prioritize later states
 	Utility::Type nextState = Utility::Type::None();

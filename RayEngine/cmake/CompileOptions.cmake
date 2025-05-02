@@ -8,7 +8,8 @@ set_target_properties(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC 
   "$<$<CONFIG:Release>:NDEBUG>"
-  "$<$<CONFIG:Debug>:_DEBUG>")
+  "$<$<CONFIG:Debug>:_DEBUG>"
+  "TRACY_ENABLE")
 
 if(MSVC)
   message("-- Setting custom MSVC flags")

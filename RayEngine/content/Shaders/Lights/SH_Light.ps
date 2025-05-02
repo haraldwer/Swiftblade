@@ -89,7 +89,6 @@ const float DISK_POINTYNESS = 200;
 
 float DiskIntensity(vec4 InWorld, vec3 InToLight)
 {
-    return 0;
     vec3 camToLight = CameraPosition - Position;
     vec3 camToPixel = CameraPosition - InWorld.xyz;
     float lightDist = length(camToLight);

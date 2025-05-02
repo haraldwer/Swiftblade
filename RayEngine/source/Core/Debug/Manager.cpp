@@ -20,6 +20,8 @@ void Debug::Manager::Logic()
 
 void Debug::Manager::Frame(double InDeltaTime)
 {
+    PROFILE();
+    
     for (auto w : PendingRegister)
     {
         const String name = w->DebugWindowName();

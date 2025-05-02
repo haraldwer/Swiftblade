@@ -51,6 +51,8 @@ namespace Rendering
     private:
         static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, int InType, int InCount = 1);
         static void SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue);
+        static void SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount = 1);
+        static void SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue);
 
         static void SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget);
         static void SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader);

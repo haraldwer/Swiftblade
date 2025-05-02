@@ -4,6 +4,8 @@
 
 Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget)
 {
+    PROFILE_GL();
+    
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
     CHECK_ASSERT(!InArgs.Context, "Invalid context");

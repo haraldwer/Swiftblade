@@ -30,6 +30,8 @@ void Rendering::Lumin::Deinit()
 
 Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
+    
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
 
@@ -49,6 +51,8 @@ float Rendering::Lumin::GetRange() const
 
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
+    
     Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
     Vector<LuminProbe*> timeSorted;
     for (auto& probe : frameProbes)
@@ -135,6 +139,8 @@ Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs
 
 Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
+    
     CHECK_RETURN(InArgs.Perspectives.empty(), {})
     
     auto& cam = InArgs.Perspectives.at(0).Camera;
@@ -167,6 +173,8 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
 
 void Rendering::Lumin::ExpandVolume(const Scene& InScene)
 {
+    PROFILE_GL();
+    
     for (auto& entry : InScene.Meshes.Entries)
     {
         for (auto& trans : entry.second.Transforms)
@@ -174,15 +182,6 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
             // Get extent, maybe add coord?
             ProbeCoord coord = FromPos(trans.GetPosition());
             TryCreateProbe(coord);
-            for (int x = -1; x <= 1; x++)
-                for (int y = -1; y <= 1; y++)
-                    for (int z = -1; z <= 1; z++)
-                        TryCreateProbe({
-                            .x = static_cast<int16>(x + coord.x),
-                            .y = static_cast<int16>(y + coord.y),
-                            .z = static_cast<int16>(z + coord.z),
-                            .layer = 0
-                        });
         }
     }
 }

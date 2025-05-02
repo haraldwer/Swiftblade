@@ -5,8 +5,9 @@ The game runs in a home-made engine that I call RayEngine, which I've built usin
 Complete list of libraries / tools used:
  - Raylib 5.5
  - PhysX 5.1.0
- - Nakama 3.20.1
+ - Nakama 3.26.0
  - ImGui (docking branch)
+ - Tracy 0.11.1
  - rapidjson
  - FastNoiseLite
  - Blender (for modelling)

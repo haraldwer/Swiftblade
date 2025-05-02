@@ -4,6 +4,7 @@ using namespace Rendering;
 
 void Scene::Clear()
 {
+    PROFILE();
     Meshes = {};
     DebugShapes = {};
     DebugLines = {};

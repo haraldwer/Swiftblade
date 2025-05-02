@@ -5,7 +5,6 @@
 #include "ECS/Systems/Collider.h"
 #include "ECS/Systems/Rigidbody.h"
 #include "ECS/Systems/Transform.h"
-#include "Editor/Debug/Profiling/Profile.h"
 
 // Main physx includes
 #include "PhysXUtility.h"
@@ -99,12 +98,10 @@ void Physics::Manager::Deinit()
     PX_RELEASE(Scene);
 }
 
-void Physics::Manager::Update() const
+void Physics::Manager::SetTransforms() const
 {
-    PROFILE_SCOPE_BEGIN("Physics");
-    
-    PROFILE_SCOPE_BEGIN("Trans -> PxTrans");
-    const auto& ecs = ECS::Manager::Get();
+    PROFILE();
+    const ECS::Manager& ecs = ECS::Manager::Get();
     const auto updatePhysTrans = [](const ECS::Manager& InECS, ECS::EntityID InKey, auto* InInstance)
     {
         CHECK_RETURN(!InInstance)
@@ -121,9 +118,11 @@ void Physics::Manager::Update() const
         updatePhysTrans(ecs, instance.first, instance.second);
     for (const auto& instance : Dynamics)
         updatePhysTrans(ecs, instance.first, instance.second);
-    PROFILE_SCOPE_END();
+}
 
-    PROFILE_SCOPE_BEGIN("Simulate");
+void Physics::Manager::Simulate() const
+{
+    PROFILE();
     double delta = Utility::Time::Get().Delta();
     Scene->simulate(
         static_cast<PxReal>(delta),
@@ -131,9 +130,12 @@ void Physics::Manager::Update() const
         Persistent.ScratchBlock,
         Persistent.ScratchBlockSize);
     Scene->fetchResults(true);
-    PROFILE_SCOPE_END();
+}
 
-    PROFILE_SCOPE_BEGIN("PxTrans -> Trans");
+void Physics::Manager::GetTransforms() const
+{
+    PROFILE();
+    const ECS::Manager& ecs = ECS::Manager::Get();
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
@@ -145,9 +147,14 @@ void Physics::Manager::Update() const
         const Mat4F mat = Mat4F(p, q, t->GetScale());
         t->SetWorld(mat); 
     }
-    PROFILE_SCOPE_END();
+}
 
-    PROFILE_SCOPE_END();
+void Physics::Manager::Update() const
+{
+    PROFILE();
+    SetTransforms();
+    Simulate();
+    GetTransforms();
 }
 
 void Physics::Manager::Add(const ECS::EntityID InID)

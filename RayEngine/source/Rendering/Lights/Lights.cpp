@@ -24,6 +24,8 @@ void Rendering::Lights::Deinit()
 
 Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
+    
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
     
@@ -108,6 +110,8 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
 Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
+    
     CHECK_RETURN(InArgs.Perspectives.empty(), {});
     
     auto& cam = InArgs.Perspectives.at(0).Camera;

@@ -10,6 +10,8 @@
 
 Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
 {
+    PROFILE_GL();
+    
     CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
     CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
     CHECK_ASSERT(!InArgs.Context, "Invalid context");
@@ -47,6 +49,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderSkybox(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets;
     stats.Skyboxes += Renderer::DrawSkyboxes(InArgs, sceneTarget.Curr());
@@ -55,6 +58,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderSkybox(const RenderArgs& I
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderScene(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets;
     stats.MeshDrawCount = Renderer::DrawScene(InArgs, sceneTarget.Curr());
@@ -63,6 +67,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderScene(const RenderArgs& In
 
 Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& sceneTargets = InArgs.Viewport->Targets.SceneTargets;
     auto& shader = InArgs.Context->Config.ProcessSceneShader;
@@ -73,6 +78,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& I
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderFire(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
     auto& fireTargets = InArgs.Viewport->Targets.FireTargets;
@@ -87,6 +93,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderAO(const RenderArgs& InArg
 {
     if (!InArgs.Context->Config.SSAO)
         return {};
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
     auto& ssaoTargets = InArgs.Viewport->Targets.AOTargets;
@@ -99,6 +106,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderAO(const RenderArgs& InArg
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& frameTarget = InArgs.Viewport->Targets.FrameTargets.Curr();
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
@@ -109,6 +117,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs&
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
     auto& frameTarget = InArgs.Viewport->Targets.FrameTargets.Curr();
@@ -119,6 +128,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& I
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& InArgs)
 {
     CHECK_RETURN(!InArgs.Context->Config.Lumin, {})
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
     auto& frameTarget = InArgs.Viewport->Targets.FrameTargets.Curr();
@@ -128,6 +138,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& In
 
 Rendering::Pipeline::Stats Rendering::Pipeline::ApplyFire(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
     auto& frameTarget = InArgs.Viewport->Targets.FrameTargets.Curr();
@@ -147,30 +158,35 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
     auto& sceneTarget = InArgs.Viewport->Targets.SceneTargets.Curr();
     if (conf.Quantize)
     {
+        PROFILE_GL_NAMED("Quantize");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.QuantizeShader, { &frameTargets.Prev() });
         stats.FullscreenPasses++;
     }
     if (conf.MotionBlur)
     {
+        PROFILE_GL_NAMED("MotionBlur");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.MotionBlurShader, { &sceneTarget, &frameTargets.Prev() });
         stats.FullscreenPasses++;
     }
     if (conf.Distort)
     {
+        PROFILE_GL_NAMED("Distort");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.DistortShader, { &frameTargets.Prev() });
         stats.FullscreenPasses++;
     }
     if (conf.FXAA)
     {
+        PROFILE_GL_NAMED("FXAA");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FXAAShader, { &frameTargets.Prev() });
         stats.FullscreenPasses++;
     }
     if (conf.Tonemapping)
     {
+        PROFILE_GL_NAMED("Tonemapping");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.TonemappingShader, { &frameTargets.Prev() });
         stats.FullscreenPasses++;
@@ -180,6 +196,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
 
 Rendering::Pipeline::Stats Rendering::Pipeline::Blip(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     auto& frameTarget = InArgs.Viewport->Targets.FrameTargets.Curr();
     auto& virtualTarget = InArgs.Viewport->VirtualTarget;
@@ -189,6 +206,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Blip(const RenderArgs& InArgs)
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderDebug(const RenderArgs& InArgs)
 {
+    PROFILE_GL();
     Stats stats;
     stats.DebugDrawCount = Renderer::DrawDebug(InArgs);
     return stats;

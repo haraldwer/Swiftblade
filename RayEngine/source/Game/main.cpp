@@ -3,8 +3,6 @@
 
 #include "Core/Debug/Manager.h"
 #include "Core/Resource/Manager.h"
-#include "Engine/Editor/Debug/Profiling/Manager.h"
-#include "Engine/Editor/Debug/Profiling/Profile.h"
 #include "Engine/Instance/Manager.h"
 #include "Rendering/Manager.h"
 
@@ -17,7 +15,6 @@ int main()
 
     // These things are shared between instances
     Debug::Manager debugManager;
-    Profiling::Manager profilingManager;
     Resource::Manager resourceManager;
     Rendering::Manager renderer;
     Engine::Manager instanceManager;
@@ -38,9 +35,7 @@ int main()
     
     while (true)
     {
-        profilingManager.Frame();
-        PROFILE_SCOPE_BEGIN("Update");
-        
+        PROFILE();
         resourceManager.Update();
         
         // Update instances
@@ -61,33 +56,25 @@ int main()
         logicTimeCounter = Utility::Math::Min(logicTimeCounter + frameDelta, maxFrameTickTime);
         while (logicTimeCounter >= 0)
         {
-            PROFILE_SCOPE_BEGIN("Logic");
+            PROFILE_NAMED("Tick");
             logicTimeCounter -= fixedDelta;
             instance->Logic(fixedDelta);
             debugManager.Logic();
-            PROFILE_SCOPE_END();
         }
 
         if (renderer.Window.ShouldClose())
             break;
-
-        PROFILE_SCOPE_BEGIN("Rendering");
-
+        
         // Render to target texture
-        PROFILE_SCOPE_BEGIN("Virtual frame");
         instance->GetRenderScene().Clear();
         instance->Frame();
-        PROFILE_SCOPE_END();
 
         // Render to screen
-        PROFILE_SCOPE_BEGIN("Frame");
         renderer.BeginFrame();
         debugManager.Frame(frameDelta);
         renderer.EndFrame();
-        PROFILE_SCOPE_END();
-        
-        PROFILE_SCOPE_END();
-        PROFILE_SCOPE_END();
+
+        PROFILE_FRAME();
     }
     
     debugManager.Deinit();

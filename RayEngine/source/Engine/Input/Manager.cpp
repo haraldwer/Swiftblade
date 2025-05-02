@@ -65,6 +65,7 @@ void Input::Manager::Init()
 
 void Input::Manager::Update()
 {
+    PROFILE();
     for (auto& context : Config.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);

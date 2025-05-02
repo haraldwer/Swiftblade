@@ -8,3 +8,4 @@
 #include "Utility/EventScopes.h"
 #include "Utility/BaseConfig.h"
 #include "Utility/File/File.h"
+#include "Debug/Profile.h"

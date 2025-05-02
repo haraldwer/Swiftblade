@@ -6,7 +6,6 @@
 #include "System.h"
 #include "Systems/Attributes.h"
 #include "Systems/Transform.h"
-#include "Engine/Editor/Debug/Profiling/Profile.h"
 
 using namespace ECS; 
 
@@ -47,36 +46,20 @@ void Manager::Deinit()
 
 void Manager::Update()
 {
-    PROFILE_SCOPE_BEGIN("ECS Update");
-    
+    PROFILE();
     for (SystemBase* system : SortedSystems)
-    {
         if (system->ShouldUpdate())
-        {
-            PROFILE_SCOPE_BEGIN(SystemToName[system] + "::Update");
             system->SystemUpdate();
-            PROFILE_SCOPE_END();
-        }
-    }
     DestroyPending();
-    PROFILE_SCOPE_END();
 }
 
 void Manager::Frame()
 {
-    PROFILE_SCOPE_BEGIN("ECS Frame");
-    
+    PROFILE();
     for (SystemBase* system : SortedSystems)
-    {
         if (system->ShouldUpdate())
-        {
-            PROFILE_SCOPE_BEGIN(SystemToName[system] + "::Frame");
             system->SystemFrame();
-            PROFILE_SCOPE_END();
-        }
-    }
     DestroyPending();
-    PROFILE_SCOPE_END();
 }
 
 EntityID Manager::CreateEntity()
@@ -103,6 +86,7 @@ void Manager::DestroyEntity(const EntityID InEntity)
 
 void Manager::DestroyPending()
 {
+    PROFILE();
     do
     {
         const Set<EntityID> copy = PendingDestroy;
