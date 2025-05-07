@@ -11,7 +11,7 @@ void Utility::SetWorkingDir()
         String file = curr.filename().string();
         curr = curr.parent_path();
     }
-    std::filesystem::path newDir = curr.concat("\\content");
+    std::filesystem::path newDir = curr.concat("/content");
     LOG("Setting working directory to \"" + newDir.string() + "\"");
     std::filesystem::current_path(newDir); 
 }
