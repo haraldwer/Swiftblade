@@ -47,8 +47,8 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
 {
     PROFILE_GL();
     
-    auto& viewport = *InArgs.Viewport;
-    auto& context = *InArgs.Context;
+    auto& viewport = *InArgs.ViewportPtr;
+    auto& context = *InArgs.ContextPtr;
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
@@ -66,7 +66,7 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
 {
     PROFILE_GL();
     
-    auto& viewport = *InArgs.Viewport;
+    auto& viewport = *InArgs.ViewportPtr;
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
@@ -119,7 +119,7 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 {
     PROFILE_GL();
     
-    auto& config = InArgs.Context->Config;
+    auto& config = InArgs.ContextPtr->Config;
     for (auto& entry : config.NoiseTextures.Get())
     {
         int loc = InShader.GetLocation(entry.first);
@@ -145,7 +145,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
 {
     PROFILE_GL();
     
-    auto model = InArgs.Context->Config.DefaultCube.Get().Get();
+    auto model = InArgs.ContextPtr->Config.DefaultCube.Get().Get();
     CHECK_RETURN(!model, 0);
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);
@@ -160,7 +160,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
     rlState::Current.Set(frameCmd);
     
     int c = 0;
-    for (auto& environment : InArgs.Scene->Environments)
+    for (auto& environment : InArgs.ScenePtr->Environments)
     {
         MaterialResource* rm = environment.Skybox.Get();
         CHECK_CONTINUE(!rm);
@@ -213,7 +213,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     rlState::Current.Set(frameCmd);
     
     Map<uint64, int> count;
-    for (auto& entry : InArgs.Scene->Meshes.Entries)
+    for (auto& entry : InArgs.ScenePtr->Meshes.Entries)
     {
         PROFILE_GL_NAMED("Mesh entry");
         const ::Mesh* meshes = nullptr;
@@ -306,7 +306,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 {
     PROFILE_GL();
     
-    auto& scene = *InArgs.Scene;
+    auto& scene = *InArgs.ScenePtr;
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
@@ -314,7 +314,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     rlState::Current.Set(frameCmd);
 
     Map<uint32, ResShader> passes = scene.Meshes.DeferredShaders;
-    passes[0] = InArgs.Context->Config.DeferredSkyboxShader; // Inject skybox
+    passes[0] = InArgs.ContextPtr->Config.DeferredSkyboxShader; // Inject skybox
     for (auto& entry : passes)
     {
         PROFILE_GL_NAMED("Deferred pass");
@@ -353,13 +353,13 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.Lumin, "Invalid luminptr");
-    auto& lumin = *InArgs.Lumin;
+    CHECK_ASSERT(!InArgs.LuminPtr, "Invalid luminptr");
+    auto& lumin = *InArgs.LuminPtr;
     
     auto probes = lumin.GetProbes(InArgs);
     CHECK_RETURN(probes.empty(), 0);
 
-    LuminConfig conf = InArgs.Lumin->Config;
+    LuminConfig conf = InArgs.LuminPtr->Config;
     
     // Get shader
     auto res = conf.LightingShader;
@@ -484,8 +484,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.Lights, "Invalid lightptr");
-    auto& lightMan = *InArgs.Lights;
+    CHECK_ASSERT(!InArgs.LightsPtr, "Invalid lightptr");
+    auto& lightMan = *InArgs.LightsPtr;
     
     auto lights = lightMan.GetLights(InArgs);
     CHECK_RETURN(lights.empty(), 0);
@@ -675,7 +675,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
-    auto& scene = *InArgs.Scene;
+    auto& scene = *InArgs.ScenePtr;
     if (scene.DebugShapes.empty())
         return 0;
 
@@ -705,13 +705,13 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
                     shape.Data.x,
                     static_cast<int>(shape.Data.y),
                     static_cast<int>(shape.Data.z),
-                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
                 break;
             case DebugShape::Type::BOX:
                 DrawCubeWiresV(
                     Utility::Ray::ConvertVec(shape.Pos),
                     Utility::Ray::ConvertVec(shape.Data),
-                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
                 break;
             case DebugShape::Type::CAPSULE:
                 const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
@@ -723,7 +723,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
                     shape.Data.x,
                     static_cast<int>(shape.Data.z),
                     static_cast<int>(shape.Data.z) / 2,
-                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
                 break;
             }
         }
@@ -732,7 +732,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
             DrawLine3D(
                 Utility::Ray::ConvertVec(line.Start),
                 Utility::Ray::ConvertVec(line.End),
-                { line.Color.r, line.Color.g, line.Color.b, line.Color.a });
+                { line.Col.r, line.Col.g, line.Col.b, line.Col.a });
 
         EndMode3D();
     }

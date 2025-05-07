@@ -23,3 +23,5 @@ imgui.ini
 # Nakama
 .cookie
 
+/RayEngine/cmake-build-debug
+/RayEngine/source/.idea

@@ -41,9 +41,9 @@ void Rendering::Manager::Render(const Scene& InScene)
 {
     PROFILE_GL();
     RenderArgs args {
-        .Scene= &InScene,
-        .Context= &DefaultContext,
-        .Viewport= &MainViewport,
+        .ScenePtr= &InScene,
+        .ContextPtr= &DefaultContext,
+        .ViewportPtr= &MainViewport,
         .Perspectives = {{
             .ReferenceRect= Vec4F(),
             .TargetRect= Vec4I(),

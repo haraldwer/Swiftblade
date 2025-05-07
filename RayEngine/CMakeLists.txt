@@ -4,6 +4,14 @@ project(RayEngine)
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if (UNIX)
+  set(COMPILE_PLATFORM linux_amd64)
+endif (UNIX)
+if (MSVC)
+  set(COMPILE_PLATFORM win64)
+endif (MSVC)
+set(COMPILE_PLATFORM_PATH ${COMPILE_PLATFORM}_${CMAKE_BUILD_TYPE})
+
 # Raylib
 set(RAYLIB_VERSION 5.5)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED

@@ -40,5 +40,6 @@ if(MSVC)
     "$<$<CONFIG:Release>:/OPT:ICF>" # COMDAT Folding
     "$<$<CONFIG:Release>:/INCREMENTAL:NO>" # No incremental linking
     "$<$<CONFIG:Release>:/LTCG>") # Whole program optimization
-
+else ()
+  target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
 endif()

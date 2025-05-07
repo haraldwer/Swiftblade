@@ -40,7 +40,7 @@ namespace UI
         Vec2F Size; 
         Margin Alignment;
         Margin Padding;
-        Margin Margin;
+        Margin Margins;
         Vec2F Anchor;
         Vec2F Pivot;
         float Rotation = 0.0;

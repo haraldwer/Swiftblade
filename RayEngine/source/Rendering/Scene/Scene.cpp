@@ -112,13 +112,10 @@ void Scene::AddLight(const LightInstance& InLight)
 
 void Scene::AddDebugShape(const DebugShape& InShape)
 {
-    if (Frustum.CheckPoint(InShape.Pos))
-        DebugShapes.push_back(InShape);
+    DebugShapes.push_back(InShape);
 }
 
 void Scene::AddDebugLine(const DebugLine& InLine)
 {
-    const Vec3F diff = InLine.End - InLine.Start; 
-    if (Frustum.CheckCube(InLine.Start + diff * 0.5f, diff.Length()))
-        DebugLines.push_back(InLine);
+    DebugLines.push_back(InLine);
 }

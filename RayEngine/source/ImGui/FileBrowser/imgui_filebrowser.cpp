@@ -141,7 +141,7 @@ bool ImGui::FileBrowser::FetchInternal(const std::string& InPath, std::string& O
         }
         if (!ext.empty())
         {
-            Text((" Ext: " + ext).c_str());
+            Text((std::string(" Ext: ") + ext).c_str());
             SameLine();
         }
 

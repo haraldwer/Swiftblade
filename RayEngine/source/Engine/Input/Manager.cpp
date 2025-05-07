@@ -7,8 +7,8 @@
 
 void Input::Manager::Push(const String& InContext)
 {
-    const auto find = Config.CachedContexts.find(InContext);
-    CHECK_ASSERT(find == Config.CachedContexts.end(), "Unknown context");
+    const auto find = Current.CachedContexts.find(InContext);
+    CHECK_ASSERT(find == Current.CachedContexts.end(), "Unknown context");
     ContextStack.push_back(InContext);
 }
 
@@ -58,15 +58,15 @@ const Input::Action& Input::Manager::GetActionInternal(const String& InAction, c
 
 void Input::Manager::Init()
 {
-    Config.LoadConfig();
-    Config.UpdateCache();
+    Current.LoadConfig();
+    Current.UpdateCache();
     Push("Default");
 }
 
 void Input::Manager::Update()
 {
     PROFILE();
-    for (auto& context : Config.Contexts.Get())
+    for (auto& context : Current.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
 
@@ -84,13 +84,13 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
     CHECK_RETURN(InAction.Key < 0);
     
     // Transitions
-    switch (InAction.State)
+    switch (InAction.Current)
     {
     case State::PRESSED:
-        InAction.State = State::DOWN;
+        InAction.Current = State::DOWN;
         break;
     case State::RELEASED:
-        InAction.State = State::UP;
+        InAction.Current = State::UP;
         break;
     }
 
@@ -137,17 +137,17 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
         down = abs(value) > InAction.Deadzone;
     InAction.Value = value; 
     if (down != InAction.Down())
-        InAction.State = down ?
+        InAction.Current = down ?
             State::PRESSED : State::RELEASED;
 }
 
 void Input::Manager::DrawDebugWindow()
 {
     if (ImGui::Button("Load"))
-        Config.LoadConfig();
+        Current.LoadConfig();
     ImGui::SameLine();
     if (ImGui::Button("Save"))
-        Config.SaveConfig();
+        Current.SaveConfig();
     
     static String selectedContext;  
     if (!ContextStack.empty())
@@ -175,7 +175,7 @@ void Input::Manager::DrawDebugWindow()
     ImGui::SeparatorText("Contexts");
     if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
     {
-        auto& contexts = Config.Contexts.Get();
+        auto& contexts = Current.Contexts.Get();
         for (Context& context : contexts)
         {
             const bool selected = context.Name.Get() == selectedContext; 
@@ -191,18 +191,18 @@ void Input::Manager::DrawDebugWindow()
             Context c;
             c.Name = "Unnamed";
             contexts.push_back(c);
-            Config.UpdateCache(); 
+            Current.UpdateCache(); 
         }
         ImGui::EndListBox();
     }
     
     if (!selectedContext.empty())
     {
-        const auto find = Config.CachedContexts.find(selectedContext);
-        if (find != Config.CachedContexts.end())
+        const auto find = Current.CachedContexts.find(selectedContext);
+        if (find != Current.CachedContexts.end())
         {
             ImGui::SeparatorText("Context");
-            Context& context = Config.Contexts.Get()[find->second];
+            Context& context = Current.Contexts.Get()[find->second];
             context.Name.Edit();
             context.Blocking.Edit();
             context.CursorVisible.Edit(); 
@@ -276,7 +276,7 @@ void Input::Manager::DrawDebugWindow()
                 action.Deadzone.Edit(1);
 
                 String state;
-                switch (action.State)
+                switch (action.Current)
                 {
                 case State::UP:
                     state = "UP";
@@ -325,7 +325,7 @@ void Input::Manager::UpdateCursorState()
 
 const Input::Context& Input::Manager::GetContext(const String& InName) const
 {
-    const auto contextFind = Config.CachedContexts.find(InName);
-    CHECK_ASSERT(contextFind == Config.CachedContexts.end(), "Unknown context");
-    return Config.Contexts.Get()[contextFind->second];
+    const auto contextFind = Current.CachedContexts.find(InName);
+    CHECK_ASSERT(contextFind == Current.CachedContexts.end(), "Unknown context");
+    return Current.Contexts.Get()[contextFind->second];
 }

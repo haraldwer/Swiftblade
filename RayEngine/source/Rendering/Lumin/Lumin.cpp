@@ -32,10 +32,10 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
-    CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
+    CHECK_ASSERT(!InArgs.ScenePtr, "Invalid scene");
+    CHECK_ASSERT(!InArgs.ViewportPtr, "Invalid viewport");
 
-    ExpandVolume(*InArgs.Scene);
+    ExpandVolume(*InArgs.ScenePtr);
     Pipeline::Stats stats;
     stats += UpdateProbes(InArgs);
     stats += LerpProbes(InArgs);
@@ -59,7 +59,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     {
         CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && probe->Timestamp != 0.0f);
         CHECK_CONTINUE(Config.Iterations > 0 && probe->Iterations >= Config.Iterations);
-        CHECK_CONTINUE(InArgs.Context->Time() - probe->Timestamp < Config.UpdateFrequency)
+        CHECK_CONTINUE(InArgs.ContextPtr->Time() - probe->Timestamp < Config.UpdateFrequency)
         Utility::SortedInsert(timeSorted, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
         {
             // TODO: Also consider distance
@@ -72,11 +72,11 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     Vec2F size = Target.Size().To<float>();
     RenderArgs args = {
-        .Scene = InArgs.Scene,
-        .Context = &Context,
-        .Viewport = &Viewport,
-        .Lumin = this,
-        .Lights = InArgs.Lights,
+        .ScenePtr = InArgs.ScenePtr,
+        .ContextPtr = &Context,
+        .ViewportPtr = &Viewport,
+        .LuminPtr = this,
+        .LightsPtr = InArgs.LightsPtr,
         .Perspectives = {}
     };
     float range = GetRange();
@@ -123,15 +123,15 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
 Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs)
 {
     RenderArgs lerpArgs = {
-        .Scene = InArgs.Scene,
-        .Context = &Context,
-        .Viewport = &Viewport,
-        .Lumin = this,
-        .Lights = InArgs.Lights,
+        .ScenePtr = InArgs.ScenePtr,
+        .ContextPtr = &Context,
+        .ViewportPtr = &Viewport,
+        .LuminPtr = this,
+        .LightsPtr = InArgs.LightsPtr,
         .Perspectives = {{
             .ReferenceRect= Vec4F(),
             .TargetRect= Vec4I(),
-            .Camera= InArgs.Scene->GetCamera()
+            .Camera= InArgs.ScenePtr->GetCamera()
         }}
     };
     return Pipeline.LerpProbes(lerpArgs, Config.LerpShader, Target, LerpTarget);

@@ -34,7 +34,7 @@ protected:
 template <class T>
 T* StateMachine::GetState() const
 {
-	auto find = TypeMap.find(Utility::GetType<T>());
+	auto find = TypeMap.find(Type::Get<T>().GetHash());
 	if (find != TypeMap.end())
 		return reinterpret_cast<T*>(find->second); 
 	return nullptr;

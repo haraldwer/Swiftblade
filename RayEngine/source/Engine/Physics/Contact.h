@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ECS/entity.h"
+#include "ECS/Entity.h"
 
 namespace Physics
 {

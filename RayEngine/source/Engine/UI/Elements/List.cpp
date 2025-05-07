@@ -5,10 +5,10 @@ void UI::List::RefreshRect(const Rect& InContainer)
     CachedRect = CalculateRect(InContainer);
 
     Rect rect = GetRect();
-    rect.Start.x += Transform.Margin.Horizontal.x;
-    rect.End.x -= Transform.Margin.Horizontal.y;
-    rect.Start.y += Transform.Margin.Vertical.x;
-    rect.End.y -= Transform.Margin.Vertical.y;
+    rect.Start.x += Transform.Margins.Horizontal.x;
+    rect.End.x -= Transform.Margins.Horizontal.y;
+    rect.Start.y += Transform.Margins.Vertical.x;
+    rect.End.y -= Transform.Margins.Vertical.y;
 
     // Each child gets its own rect
     for (int i = 0; i < Elements.size(); i++)

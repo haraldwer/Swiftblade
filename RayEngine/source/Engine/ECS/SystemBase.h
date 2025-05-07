@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.h"
+#include "Entity.h"
 
 namespace Physics
 {

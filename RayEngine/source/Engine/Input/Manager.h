@@ -28,7 +28,7 @@ namespace Input
         const Context& GetContext(const String& InName) const;
         
         Vector<String> ContextStack;
-        Config Config; 
+        Config Current; 
         Vec2F MouseDelta;
 
         // TODO: Input buffering

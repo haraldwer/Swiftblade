@@ -8,9 +8,9 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
-    CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
-    CHECK_ASSERT(!InArgs.Context, "Invalid context");
+    CHECK_ASSERT(!InArgs.ScenePtr, "Invalid scene");
+    CHECK_ASSERT(!InArgs.ViewportPtr, "Invalid viewport");
+    CHECK_ASSERT(!InArgs.ContextPtr, "Invalid context");
     
     Stats stats;
     stats += RenderSkybox(InArgs);
@@ -19,8 +19,8 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
 
-    auto frame = InArgs.Viewport->GetTargets().FrameTargets.Curr();
-    auto scene = InArgs.Viewport->GetTargets().SceneTargets.Curr();
+    auto frame = InArgs.ViewportPtr->GetTargets().FrameTargets.Curr();
+    auto scene = InArgs.ViewportPtr->GetTargets().SceneTargets.Curr();
     Renderer::DrawFullscreen(InArgs, InTarget, InShader, { &frame, &scene }, -1, false);
     stats.FullscreenPasses++;
     
@@ -31,9 +31,9 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::LerpProbes(const RenderArgs
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
-    CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
-    CHECK_ASSERT(!InArgs.Context, "Invalid context");
+    CHECK_ASSERT(!InArgs.ScenePtr, "Invalid scene");
+    CHECK_ASSERT(!InArgs.ViewportPtr, "Invalid viewport");
+    CHECK_ASSERT(!InArgs.ContextPtr, "Invalid context");
     
     Stats stats;
     InLerpTarget.Iterate();

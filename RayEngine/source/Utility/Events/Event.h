@@ -45,12 +45,12 @@ namespace Utility
         public:
             Callback()
             {
-                EventManagerT::Get().Register(Utility::GetType<Event>(), this);
+                EventManagerT::Get().Register(Type::Get<Event>(), this);
             }
             
             ~Callback()
             {
-                EventManagerT::Get().Unregister(Utility::GetType<Event>(), this);
+                EventManagerT::Get().Unregister(Type::Get<Event>(), this);
             }
             
             void Bind(const std::function<void(const EventT&)>& InFunc, const CallbackT& InCallbackData = {})
@@ -70,7 +70,7 @@ namespace Utility
         
         void Invoke(const EventT& InData)
         {
-            for (auto callback : EventManagerT::Get().GetCallbacks(Utility::GetType<Event>()))
+            for (auto callback : EventManagerT::Get().GetCallbacks(Type::Get<Event>()))
             {
                 auto* callbackPtr = reinterpret_cast<Callback*>(callback); 
                 for (const auto& binding : callbackPtr->Bindings)

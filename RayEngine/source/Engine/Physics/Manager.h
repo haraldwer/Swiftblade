@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ECS/entity.h"
+#include "ECS/Entity.h"
 #include "ECS/Manager.h"
 #include "Core/Utility/Singelton.h"
 

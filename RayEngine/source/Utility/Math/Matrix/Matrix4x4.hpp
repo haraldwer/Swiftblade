@@ -56,7 +56,22 @@ namespace Utility
 
 			Matrix4x4(const Matrix4x4& InMatrix)
 			{
-				memcpy(data, InMatrix.data, sizeof(Type) * 16);
+				data[0] = InMatrix.data[0];
+				data[1] = InMatrix.data[1];
+				data[2] = InMatrix.data[2];
+				data[3] = InMatrix.data[3];
+				data[4] = InMatrix.data[4];
+				data[5] = InMatrix.data[5];
+				data[6] = InMatrix.data[6];
+				data[7] = InMatrix.data[7];
+				data[8] = InMatrix.data[8];
+				data[9] = InMatrix.data[9];
+				data[10] = InMatrix.data[10];
+				data[11] = InMatrix.data[11];
+				data[12] = InMatrix.data[12];
+				data[13] = InMatrix.data[13];
+				data[14] = InMatrix.data[14];
+				data[15] = InMatrix.data[15];
 			}
 
 			Matrix4x4(const Matrix3x3<Type, RowOffset, ColumnOffset>& InMatrix) : Matrix4x4()
@@ -396,7 +411,7 @@ namespace Utility
 
 			Matrix4x4& operator = (const Matrix4x4& aMatrix)
 			{
-				memcpy(data, aMatrix.data, sizeof(Type) * 16);
+				*this = Matrix4x4(aMatrix);
 				return *this;
 			}
 

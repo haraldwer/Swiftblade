@@ -39,7 +39,7 @@ void Physics::PersistentPhysics::TryInit()
     Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
     Dispatcher = PxDefaultCpuDispatcherCreate(0); 
     
-    ScratchBlock = _aligned_malloc(ScratchBlockSize, ScratchBlockAlignment); 
+    ScratchBlock = aligned_alloc(ScratchBlockSize, ScratchBlockAlignment); 
 }
 
 Physics::PersistentPhysics::~PersistentPhysics()
@@ -58,7 +58,7 @@ Physics::PersistentPhysics::~PersistentPhysics()
 
     if (ScratchBlock)
     {
-        _aligned_free(ScratchBlock);
+        free(ScratchBlock);
         ScratchBlock = nullptr; 
     }
 }

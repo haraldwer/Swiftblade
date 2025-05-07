@@ -26,11 +26,11 @@ namespace Rendering
     
     struct RenderArgs
     {
-        const Scene* Scene = nullptr;
-        const Context* Context = nullptr;
-        Viewport* Viewport = nullptr;
-        Lumin* Lumin = nullptr;
-        Lights* Lights = nullptr;
+        const Scene* ScenePtr = nullptr;
+        const Context* ContextPtr = nullptr;
+        Viewport* ViewportPtr = nullptr;
+        Lumin* LuminPtr = nullptr;
+        Lights* LightsPtr = nullptr;
         Vector<Perspective> Perspectives;
     };
     

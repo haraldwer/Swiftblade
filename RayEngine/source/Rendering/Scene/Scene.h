@@ -54,7 +54,6 @@ namespace Rendering
         Vector<LightInstance> Lights;
         Vector<DebugShape> DebugShapes;
         Vector<DebugLine> DebugLines;
-        Frustum Frustum;
     };
 }
 

@@ -9,15 +9,15 @@
 void Rendering::Lights::Init(const LightConfig& InConfig)
 {
     Config = InConfig;
-    Viewport.Init(Config.Viewport);
-    AtlasMap.Init(Viewport.GetResolution(), Config.MaxLights, true);
-    Target.Setup(Viewport.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    AtlasView.Init(Config.Viewport);
+    Atlas.Init(AtlasView.GetResolution(), Config.MaxLights, true);
+    Target.Setup(AtlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lights::Deinit()
 {
-    Viewport.Deinit();
-    AtlasMap.Deinit();
+    AtlasView.Deinit();
+    Atlas.Deinit();
     Cache.clear();
     Target.Unload();
 }
@@ -26,8 +26,8 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.Scene, "Invalid scene");
-    CHECK_ASSERT(!InArgs.Viewport, "Invalid viewport");
+    CHECK_ASSERT(!InArgs.ScenePtr, "Invalid scene");
+    CHECK_ASSERT(!InArgs.ViewportPtr, "Invalid viewport");
     
     // Only consider lights in view, ordered by distance
     Vector<const LightInstance*> frameLights = GetLights(InArgs);
@@ -45,7 +45,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
         // Skip?
         CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && cache.Timestamp > 0.001f);
-        CHECK_CONTINUE(InArgs.Context->Time() - cache.Timestamp < Config.UpdateFrequency)
+        CHECK_CONTINUE(InArgs.ContextPtr->Time() - cache.Timestamp < Config.UpdateFrequency)
         Utility::SortedInsert(timeSortedCache, &cache, [&](const LightData* InFirst, const LightData* InSecond)
         {
             return InFirst->Timestamp < InSecond->Timestamp;
@@ -57,11 +57,11 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     Vec2F size = Target.Size().To<float>();
     RenderArgs args = {
-        .Scene = InArgs.Scene,
-        .Context = InArgs.Context,
-        .Viewport = &Viewport,
-        .Lumin = InArgs.Lumin,
-        .Lights = this,
+        .ScenePtr = InArgs.ScenePtr,
+        .ContextPtr = InArgs.ContextPtr,
+        .ViewportPtr = &AtlasView,
+        .LuminPtr = InArgs.LuminPtr,
+        .LightsPtr = this,
         .Perspectives = {}
     };
     
@@ -70,10 +70,10 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     for (auto& cache : timeSortedCache) 
     {
         CHECK_CONTINUE(!cache);
-        cache->Timestamp = args.Context->Time();
+        cache->Timestamp = args.ContextPtr->Time();
         cache->Pos = cache->Data.Position;
         
-        auto rect = AtlasMap.GetRect(cache->ID, 0).To<float>();
+        auto rect = Atlas.GetRect(cache->ID, 0).To<float>();
         cache->Rect = {
             rect.x / size.x,
             rect.y / size.y,
@@ -84,7 +84,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         for (int i = 0; i < 6; i++)
         {
             args.Perspectives.push_back({
-                .TargetRect = AtlasMap.GetRect(cache->ID, i),
+                .TargetRect = Atlas.GetRect(cache->ID, i),
                 .Camera = {
                     .Position = cache->Data.Position,
                     .Rotation = directions[i],
@@ -100,7 +100,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
             break;
     }
 
-    Viewport.BeginFrame();
+    AtlasView.BeginFrame();
     stats += Pipeline.RenderShadows(args, Config.CollectShader, Target);
 
     // TODO: Clear unused lights
@@ -116,7 +116,7 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
     
     auto& cam = InArgs.Perspectives.at(0).Camera;
     Frustum frustum;
-    frustum.ConstructFrustum(cam, Viewport.GetResolution());
+    frustum.ConstructFrustum(cam, AtlasView.GetResolution());
     Vector<const LightInstance*> result;
 
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)
@@ -135,7 +135,7 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
         return false;
     };
     
-    for (auto& light : InArgs.Scene->Lights)
+    for (auto& light : InArgs.ScenePtr->Lights)
         if (checkFunc(light))
             Utility::SortedInsert(result, &light, sortFunc);
 
