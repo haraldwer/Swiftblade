@@ -92,6 +92,10 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
     case State::RELEASED:
         InAction.Current = State::UP;
         break;
+    case State::UP:
+    case State::DOWN:
+    default:
+        break;
     }
 
     // State change
@@ -268,7 +272,7 @@ void Input::Manager::DrawDebugWindow()
                 }
                 else
                 {
-                    ImGui::Text((String("Key: ") + std::to_string(action.Key.Get())).c_str());
+                    ImGui::Text("Key: %s", Utility::ToStr(action.Key.Get()).c_str());
                     ImGui::SameLine();
                     if (ImGui::Button("Change"))
                         changing = true;
@@ -291,8 +295,8 @@ void Input::Manager::DrawDebugWindow()
                     state = "RELEASED";
                     break;
                 }
-                ImGui::Text(("State: " + state).c_str());
-                ImGui::Text(("Axis: " + std::to_string(action.Value)).c_str());
+                ImGui::Text("State: %s", state.c_str());
+                ImGui::Text("Axis: %s", Utility::ToStr(action.Value).c_str());
             }
         }
     }

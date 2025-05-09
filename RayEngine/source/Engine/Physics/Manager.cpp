@@ -16,7 +16,7 @@
 #define PVD_HOST "127.0.0.1"
 
 static physx::PxDefaultAllocator gAllocator;
-static physx::PxDefaultErrorCallback gErrorCallback;
+static Physics::ErrorCallback gErrorCallback;
 
 static Physics::PersistentPhysics Persistent;
 
@@ -24,17 +24,15 @@ using namespace physx;
 
 void Physics::PersistentPhysics::TryInit()
 {
-    if (Foundation && Physics && Dispatcher)
+    if (Foundation)
         return; 
-    
+
+    Deinit();
     Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-    if (!PVD)
-    {
-        PVD = PxCreatePvd(*Foundation);
-        PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-        PVD->connect(*transport,PxPvdInstrumentationFlag::eALL);
-    }
+    PVD = PxCreatePvd(*Foundation);
+    Transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+    PVD->connect(*Transport,PxPvdInstrumentationFlag::eALL);
 
     Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
     Dispatcher = PxDefaultCpuDispatcherCreate(0); 
@@ -42,7 +40,7 @@ void Physics::PersistentPhysics::TryInit()
     ScratchBlock = aligned_alloc(ScratchBlockSize, ScratchBlockAlignment); 
 }
 
-Physics::PersistentPhysics::~PersistentPhysics()
+void Physics::PersistentPhysics::Deinit()
 {
     PX_RELEASE(Dispatcher);
     PX_RELEASE(Physics);
@@ -50,17 +48,20 @@ Physics::PersistentPhysics::~PersistentPhysics()
     {
         if (PVD->isConnected())
             PVD->disconnect();
-        PxPvdTransport* transport = PVD->getTransport();
-        PX_RELEASE(transport);
         PX_RELEASE(PVD);
     }
+    PX_RELEASE(Transport);
     PX_RELEASE(Foundation);
-
     if (ScratchBlock)
     {
         free(ScratchBlock);
         ScratchBlock = nullptr; 
     }
+}
+
+Physics::PersistentPhysics::~PersistentPhysics()
+{
+    Deinit();
 }
 
 void Physics::Manager::Init()
@@ -90,12 +91,22 @@ void Physics::Manager::Init()
 
 void Physics::Manager::Deinit()
 {
+    ActorToShape.clear();
+    ShapeToActor.clear();
+    for (auto& shape : Shapes)
+        PX_RELEASE(shape.second);
+    Shapes.clear();
+    for (auto& cube : CubeShapes)
+        for (auto& shape : cube.second)
+            PX_RELEASE(shape);
+    CubeShapes.clear();
+    PX_RELEASE(CubeOwner);
+    PX_RELEASE(Scene);
     if (Callback)
     {
         delete(Callback);
         Callback = nullptr;
     }
-    PX_RELEASE(Scene);
 }
 
 void Physics::Manager::SetTransforms() const
@@ -128,8 +139,10 @@ void Physics::Manager::Simulate() const
         static_cast<PxReal>(delta),
         nullptr,
         Persistent.ScratchBlock,
-        Persistent.ScratchBlockSize);
-    Scene->fetchResults(true);
+        PersistentPhysics::ScratchBlockSize);
+    PxU32 error = 0;
+    Scene->fetchResults(true, &error);
+    CHECK_ASSERT(error, "PxFetchResults error");
 }
 
 void Physics::Manager::GetTransforms() const
@@ -369,7 +382,7 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
     
     switch (InShape)
     {
-    case Physics::Shape::BOX:
+    case Shape::BOX:
         {
             static PxBoxGeometry box;
             box = PxBoxGeometry(InShapeData.x * InScale.x, InShapeData.y * InScale.y, InShapeData.z * InScale.z);

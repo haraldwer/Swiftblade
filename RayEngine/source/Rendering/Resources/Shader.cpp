@@ -146,6 +146,12 @@ String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InInclu
     String shader = Utility::ReadFile(InPath);
     shader = ProcessDefines(shader);
     shader = ProcessIncludes(shader, InPath, InIncludes);
+
+    // Fix null terminations
+    std::erase(shader, '\0');
+    if (shader.find("#version") == std::string::npos)
+        shader = "#version 330\n" + shader;
+    
     return shader;
 }
 

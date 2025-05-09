@@ -73,8 +73,11 @@ void Rendering::Manager::DrawDebugWindow()
         static_cast<int>(vMax.x - vMin.x),
         static_cast<int>(vMax.y - vMin.y)
     };
-    MainViewport.Resize(size);
-    MainViewport.ImDraw();
+    if (size.x > 0 && size.y > 0)
+    {
+        MainViewport.Resize(size);
+        MainViewport.ImDraw();
+    }
 }
 
 void Rendering::Manager::BeginFrame()

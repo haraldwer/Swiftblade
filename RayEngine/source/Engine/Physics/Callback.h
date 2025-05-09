@@ -11,6 +11,19 @@ namespace Physics
     // Note:
     // Careful when including this!
     // Contains heavy includes
+
+    class ErrorCallback : public physx::PxErrorCallback
+    {
+    public:
+        ErrorCallback() = default;
+        ~ErrorCallback() override = default;
+
+        virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE
+        {
+            LOG("[" + Utility::ToStr(code) + "] " + message + " (" + file + ":" + Utility::ToStr(line) + ")");
+        }
+    };
+    
     
     class Callback : public physx::PxSimulationEventCallback
     {

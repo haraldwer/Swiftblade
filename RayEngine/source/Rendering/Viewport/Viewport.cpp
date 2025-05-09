@@ -7,6 +7,8 @@
 void Rendering::Viewport::Init(const ViewportConfig& InConfig)
 {
     Config = InConfig;
+
+    CHECK_ASSERT(Config.Width <= 0 || Config.Height <= 0, "Invalid viewport size");
     
     const float aspect = static_cast<float>(Config.Width) / static_cast<float>(Config.Height);
     const int virtualWidth = Config.RenderSize ?

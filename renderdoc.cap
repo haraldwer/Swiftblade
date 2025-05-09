@@ -10,17 +10,17 @@
         "numQueuedFrames": 0,
         "options": {
             "allowFullscreen": true,
-            "allowVSync": true,
-            "apiValidation": false,
-            "captureAllCmdLists": false,
-            "captureCallstacks": false,
+            "allowVSync": false,
+            "apiValidation": true,
+            "captureAllCmdLists": true,
+            "captureCallstacks": true,
             "captureCallstacksOnlyDraws": false,
             "debugOutputMute": true,
             "delayForDebugger": 0,
-            "hookIntoChildren": false,
-            "refAllResources": false,
+            "hookIntoChildren": true,
+            "refAllResources": true,
             "softMemoryLimit": 0,
-            "verifyBufferAccess": false
+            "verifyBufferAccess": true
         },
         "queuedFrameCap": 0,
         "workingDir": ""

@@ -17,7 +17,7 @@
 				"Components":[{
 						"Name":"Mesh",
 						"Data":{
-							"Material":"Editor\\RM_EditCube.json"
+							"Material":"Editor/RM_EditCube.json"
 						}
 					},{
 						"Name":"Attributes",

@@ -25,7 +25,7 @@ namespace Utility
         // Convenience operators
         bool operator==(const Type& InOther) const { return InOther.Hash == Hash; }
         bool operator!() const { return *this == None(); }
-        explicit operator bool() const { return *this != None(); };
+        explicit operator bool() const { return !(*this == None()); };
         explicit operator TypeHash() const
         {
             return Hash;

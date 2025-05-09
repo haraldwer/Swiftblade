@@ -2,9 +2,8 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 set_target_properties(${PROJECT_NAME} 
   PROPERTIES 
-    CXX_STANDARD 20
-    UNITY_BUILD false
-)
+    CXX_STANDARD 26
+    UNITY_BUILD false)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC 
   "$<$<CONFIG:Release>:NDEBUG>"
@@ -12,6 +11,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
   "TRACY_ENABLE")
 
 if(MSVC)
+  
   message("-- Setting custom MSVC flags")
   
   target_compile_options(${PROJECT_NAME} PUBLIC 
@@ -40,6 +40,25 @@ if(MSVC)
     "$<$<CONFIG:Release>:/OPT:ICF>" # COMDAT Folding
     "$<$<CONFIG:Release>:/INCREMENTAL:NO>" # No incremental linking
     "$<$<CONFIG:Release>:/LTCG>") # Whole program optimization
-else ()
-  target_compile_options(${PROJECT_NAME} PRIVATE -fpermissive)
+  
+elseif (UNIX)
+
+  message("-- Setting custom GCC / Clang flags")
+  
+  target_compile_options(${PROJECT_NAME} PUBLIC 
+    -fpermissive
+    -Wall
+    -Wshadow
+    -Wpointer-arith
+    -Wcast-align
+    -Winit-self
+    -Wuninitialized
+    -Weffc++
+    -Wfloat-equal
+    $<$<CONFIG:Release>:-Ofast>) # Highest level of optimization
+  
+  if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    message("time trace")
+    target_compile_options(${PROJECT_NAME} PUBLIC -ftime-trace) # clang trace
+  endif ()
 endif()

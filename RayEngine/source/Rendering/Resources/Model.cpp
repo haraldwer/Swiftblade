@@ -6,7 +6,7 @@
 bool ModelResource::Load(const String& InIdentifier)
 {
     Ptr = new Model(); 
-    *Ptr = LoadModel(("../content/" + InIdentifier).c_str());
+    *Ptr = LoadModel(InIdentifier.c_str());
     Identifier = InIdentifier;
     CachedHash = Utility::Hash(Identifier);
     return true;

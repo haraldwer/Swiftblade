@@ -23,7 +23,7 @@ namespace ECS
         template <class T>
         T& GetSystem() const
         {
-            const Utility::TypeHash hash = Type::Get<T>();
+            const Utility::TypeHash hash = Type::Get<T>().GetHash();
             const auto find = SystemMap.find(hash);
             CHECK_ASSERT(find == SystemMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
@@ -33,7 +33,7 @@ namespace ECS
         template <class T>
         T* GetComponent(const EntityID InID) const
         {
-            const Utility::TypeHash hash = Type::Get<T>();
+            const Utility::TypeHash hash = Type::Get<T>().GetHash();
             const auto find = ComponentMap.find(hash);
             CHECK_ASSERT(find == ComponentMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");

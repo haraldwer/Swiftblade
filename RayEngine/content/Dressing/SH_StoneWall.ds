@@ -1,6 +1,4 @@
-﻿#version 330
-
-#include "Shaders/SH_Default_ds.si"
+﻿#include "Shaders/SH_Default_ds.si"
 
 void main()
 {

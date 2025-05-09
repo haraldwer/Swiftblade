@@ -9,7 +9,7 @@ bool TextureResource::Load(const String& InIdentifier)
     if (Identifier.starts_with("Gen_"))
         return true;
     Ptr = new Texture();
-    *Ptr = LoadTexture(("../Content/" + InIdentifier).c_str());
+    *Ptr = LoadTexture(InIdentifier.c_str());
     return Ptr->id;
 }
 

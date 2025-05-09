@@ -35,19 +35,23 @@ namespace physx
     class PxDefaultCpuDispatcher;
     class PxScene;
     class PxMaterial;
+    class PxPvdTransport;
 }
 
 namespace Physics
 {
+
     struct PersistentPhysics
     {
         void TryInit();
+        void Deinit();
         ~PersistentPhysics();
 
-        physx::PxPvd* PVD = nullptr;
         physx::PxFoundation* Foundation = nullptr;
+        physx::PxPvd* PVD = nullptr;
         physx::PxPhysics* Physics = nullptr;
         physx::PxDefaultCpuDispatcher* Dispatcher = nullptr;
+        physx::PxPvdTransport* Transport = nullptr;
 
         static constexpr size_t ScratchBlockSize = 16384 * 2;
         static constexpr size_t ScratchBlockAlignment = 16;

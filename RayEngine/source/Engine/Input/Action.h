@@ -28,7 +28,7 @@ namespace Input
         friend Context; 
         
         bool Pressed() const { return Key >= 0 && Current == State::PRESSED; }
-        bool Down()  const { return Key >= 0 && Current == State::PRESSED || Current == State::DOWN; } 
+        bool Down()  const { return Key >= 0 && (Current == State::PRESSED || Current == State::DOWN); } 
         bool Released() const { return Key >= 0 && Current == State::RELEASED; }
         float Axis() const { return static_cast<float>(Key >= 0) * Value * static_cast<float>(Down()); }
 

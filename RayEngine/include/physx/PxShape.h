@@ -1,4 +1,4 @@
-// Redistribution and use in source and binary forms, with or without
+// Redistribution and use in source and CreateShapebinary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
 //  * Redistributions of source code must retain the above copyright
@@ -519,20 +519,6 @@ public:
 	\return The minimum torsional patch radius of the shape.
 	*/
 	virtual		PxReal	getMinTorsionalPatchRadius() const = 0;
-
-	/**
-	\brief Gets internal shape id
-
-	The internal shape id can be used to reference a specific shape when processing data on the gpu.
-
-	This is not supported on the CPU, and the function will return PX_INVALID_U32;
-	
-	\return The shape id
-
-	\see PxScene evaluateSDFDistances()
-	\deprecated, use getGPUIndex() instead.
-	*/
-	virtual	PX_DEPRECATED	PxU32	getInternalShapeIndex() const = 0;
 
 	/**
 	\brief Returns the GPU shape index.

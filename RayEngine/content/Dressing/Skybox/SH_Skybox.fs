@@ -1,6 +1,4 @@
-﻿#version 330
-
-#include "Shaders/SH_Default_fs.si"
+﻿#include "Shaders/SH_Default_fs.si"
 #include "Shaders/Utility/SH_Noise.si"
 #include "Shaders/Utility/SH_HSV.si"
 

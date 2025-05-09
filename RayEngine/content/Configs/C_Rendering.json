@@ -7,14 +7,14 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults\\T_Noise_Cellular.json"
+				"Key":"TexSimplex",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			},{
 				"Key":"TexPerlin",
-				"Val":"Defaults\\T_Noise_Perlin.json"
+				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
-				"Key":"TexSimplex",
-				"Val":"Defaults\\T_Noise_Simplex.json"
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			}
 		],
 		"Quantize":false

@@ -7,9 +7,9 @@ bool FontResource::Load(const String& InIdentifier)
 {
     Identifier = InIdentifier;
     Ptr = new Font();
-    *Ptr = LoadFontEx(("../Content/" + InIdentifier).c_str(), 100, nullptr, 0);
+    *Ptr = LoadFontEx(InIdentifier.c_str(), 100, nullptr, 0);
     SetTextureFilter(Ptr->texture, TEXTURE_FILTER_POINT);
-    return Ptr->glyphCount;
+    return true;
 }
 
 bool FontResource::Unload()

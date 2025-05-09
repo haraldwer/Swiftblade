@@ -1,6 +1,4 @@
-﻿#version 330
-
-#include "Shaders/SH_Default_ds.si"
+﻿#include "Shaders/SH_Default_ds.si"
 #include "Shaders/Utility/SH_Noise.si"
 
 vec2 AxisStep(float InAxis, vec3 InPos, float InScale, float InOffset, float InPadding)

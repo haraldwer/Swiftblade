@@ -6,3 +6,5 @@ physx/libPhysXPvdSDK_static_64.a
 physx/libPhysXCommon_static_64.a
 physx/libPhysXFoundation_static_64.a
 nakama-sdk/libnakama-sdk.so
+stdc++
+stdc++fs
