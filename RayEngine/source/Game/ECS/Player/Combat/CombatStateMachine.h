@@ -10,7 +10,7 @@ class CombatStateMachine  : public PlayerStateMachine
 public:
     void Init() override;
     String Name() const override { return "Combat"; }
-    Utility::Type GetDefaultStateType() override { return Utility::GetType<CombatStateIdle>(); }
+    Utility::Type GetDefaultStateType() override { return Type::Get<CombatStateIdle>(); }
 
 private:
     CombatStateIdle Idle;

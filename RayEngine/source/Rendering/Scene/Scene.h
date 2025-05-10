@@ -57,7 +57,6 @@ namespace Rendering
         Utility::SpatialContainer<LightInstance> Lights;
         Utility::SpatialContainer<DebugShape> DebugShapes;
         Utility::SpatialContainer<DebugLine> DebugLines;
-        Frustum Frustum;
     };
 }
 

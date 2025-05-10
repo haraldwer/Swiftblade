@@ -13,40 +13,60 @@
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType, int InCount)
 {
     const int loc = InShader.GetLocation(InName);
-    if (loc >= 0)
-        rlSetUniform(loc, InValue, InType, InCount);
+    CHECK_RETURN(loc < 0);
+    PROFILE_GL_GPU("Set uniform")
+    rlSetUniform(loc, InValue, InType, InCount);
 }
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue)
 {
     const int loc = InShader.GetLocation(InName);
-    if (loc >= 0)
-    {
-        Matrix m = Utility::Ray::ConvertMat(InValue);
-        rlSetUniformMatrix(loc, m);
-    }
+    CHECK_RETURN(loc < 0);
+    PROFILE_GL_GPU("Set matrix uniform")
+    Matrix m = Utility::Ray::ConvertMat(InValue);
+    rlSetUniformMatrix(loc, m);
+}
+
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount)
+{
+    const int loc = InShader.GetLocation(InLoc);
+    CHECK_RETURN(loc < 0);
+    PROFILE_GL_GPU("Set uniform")
+    rlSetUniform(loc, InValue, InType, InCount);
+}
+
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue)
+{
+    const int loc = InShader.GetLocation(InLoc);
+    CHECK_RETURN(loc < 0);
+    Matrix m = Utility::Ray::ConvertMat(InValue);
+    rlSetUniformMatrix(loc, m);
 }
 
 void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget)
 {
-    auto& viewport = *InArgs.Viewport;
-    auto& context = *InArgs.Context;
+    PROFILE_GL();
+    
+    auto& viewport = *InArgs.ViewportPtr;
+    auto& context = *InArgs.ContextPtr;
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
     // Time
     const float time = static_cast<float>(context.Timer.Ellapsed()); 
-    SetValue(InShader, "Time", &time, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, SHADER_UNIFORM_FLOAT);
     const float delta = static_cast<float>(viewport.Delta); 
-    SetValue(InShader, "Delta", &delta, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, ShaderResource::DefaultLoc::DELTA, &delta, SHADER_UNIFORM_FLOAT);
     const Vec2I res = viewport.GetResolution();
     const Vec2F resf = { static_cast<float>(res.x), static_cast<float>(res.y) };
-    SetValue(InShader, "Resolution", &resf, SHADER_UNIFORM_VEC2);
+    SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &resf, SHADER_UNIFORM_VEC2);
 }
 
 void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader)
 {
-    auto& viewport = *InArgs.Viewport;
+    PROFILE_GL();
+    
+    auto& viewport = *InArgs.ViewportPtr;
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
@@ -66,9 +86,9 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     Mat4F proj = InPerspective.Camera.GetProjectionMatrix(size);
     viewport.ViewProj = Mat4F::GetInverse(view) * proj;
     
-    SetValue(InShader, "ViewProj", Mat4F::Transpose(viewport.ViewProj));
-    SetValue(InShader, "ViewProjPrev", Mat4F::Transpose(viewport.ViewProjPrev));
-    SetValue(InShader, "ViewProjInv", Mat4F::Transpose(Mat4F::GetInverse(viewport.ViewProj)));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ, Mat4F::Transpose(viewport.ViewProj));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_PREV, Mat4F::Transpose(viewport.ViewProjPrev));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_INV, Mat4F::Transpose(Mat4F::GetInverse(viewport.ViewProj)));
 
     // Make resolution independent
     Vec4F refRect = InPerspective.ReferenceRect;
@@ -81,13 +101,13 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     refRect.z /= res.x;
     refRect.w /= res.y;
     
-    SetValue(InShader, "Rect", &rect, SHADER_UNIFORM_VEC4);
-    SetValue(InShader, "RefRect", &refRect, SHADER_UNIFORM_VEC4);
+    SetValue(InShader, ShaderResource::DefaultLoc::RECT, &rect, SHADER_UNIFORM_VEC4);
+    SetValue(InShader, ShaderResource::DefaultLoc::REF_RECT, &refRect, SHADER_UNIFORM_VEC4);
 
     // Camera and view
-    SetValue(InShader, "CameraPosition", &InPerspective.Camera.Position, SHADER_UNIFORM_VEC3);
+    SetValue(InShader, ShaderResource::DefaultLoc::CAMERA_POSITION, &InPerspective.Camera.Position, SHADER_UNIFORM_VEC3);
     Vec2F nearFar = { InPerspective.Camera.Near, InPerspective.Camera.Far };
-    SetValue(InShader, "NearFar", &nearFar, SHADER_UNIFORM_VEC2);
+    SetValue(InShader, ShaderResource::DefaultLoc::NEAR_FAR, &nearFar, SHADER_UNIFORM_VEC2);
 }
 
 void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
@@ -97,7 +117,9 @@ void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
 
 void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
 {
-    auto& config = InArgs.Context->Config;
+    PROFILE_GL();
+    
+    auto& config = InArgs.ContextPtr->Config;
     for (auto& entry : config.NoiseTextures.Get())
     {
         int loc = InShader.GetLocation(entry.first);
@@ -121,7 +143,9 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 
 int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
 {
-    auto model = InArgs.Context->Config.DefaultCube.Get().Get();
+    PROFILE_GL();
+    
+    auto model = InArgs.ContextPtr->Config.DefaultCube.Get().Get();
     CHECK_RETURN(!model, 0);
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);
@@ -136,7 +160,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
     rlState::Current.Set(frameCmd);
     
     int c = 0;
-    for (auto& environment : InArgs.Scene->Environments)
+    for (auto& environment : InArgs.ScenePtr->Environments)
     {
         MaterialResource* rm = environment.Skybox.Get();
         CHECK_CONTINUE(!rm);
@@ -151,7 +175,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
         rlState::Current.Set(shaderCmd);
 
         int id = 0;
-        SetValue(*shaderResource, "DeferredID", &id, SHADER_UNIFORM_INT);
+        SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
         SetFrameShaderValues(InArgs, *shaderResource, InTarget);
         SetValue(*shaderResource, "Bounds", &environment.Shape, SHADER_UNIFORM_VEC3);
         SetValue(*shaderResource, "Position", &environment.Position, SHADER_UNIFORM_VEC3);
@@ -180,6 +204,8 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
 
 Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget)
 {
+    PROFILE_GL();
+    
     FrameCommand frameCmd;
     frameCmd.fboID = InSceneTarget.GetFBO();
     frameCmd.Size = InSceneTarget.Size();
@@ -187,8 +213,9 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     rlState::Current.Set(frameCmd);
     
     Map<uint64, int> count;
-    for (auto& entry : InArgs.Scene->Meshes.Entries)
+    for (auto& entry : InArgs.ScenePtr->Meshes.Entries)
     {
+        PROFILE_GL_NAMED("Mesh entry");
         const ::Mesh* meshes = nullptr;
         int32 meshCount = 0;
         if (const auto resModel = entry.second.Model.Get())
@@ -224,7 +251,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         rlState::Current.Set(shaderCmd);
 
         const int id = static_cast<int32>(entry.second.DeferredID);
-        SetValue(*resShader, "DeferredID", &id, SHADER_UNIFORM_INT);
+        SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
         SetFrameShaderValues(InArgs, *resShader, InSceneTarget);
 
         int texSlot = 0;
@@ -236,6 +263,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         // Draw every mesh
         for (int i = 0; i < meshCount; i++)
         {
+            PROFILE_GL_NAMED("Mesh");
             MeshCommand cmd;
             cmd.vaoID = meshes[i].vaoId;
             if (rlState::Current.Set(cmd, entry.second.Transforms.GetAll()))
@@ -260,11 +288,13 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 void Rendering::Renderer::DrawQuad()
 {
     rlState::Current.ResetMesh();
+    PROFILE_GL_GPU("Draw quad");
     rlLoadDrawQuad();
 }
 
 int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InNum)
 {
+    PROFILE_GL_GPU("Draw instances");
     if (InMesh.indices != nullptr)
         rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount * 3, nullptr, InNum);
     else
@@ -274,7 +304,9 @@ int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InNum)
 
 int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
-    auto& scene = *InArgs.Scene;
+    PROFILE_GL();
+    
+    auto& scene = *InArgs.ScenePtr;
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
@@ -282,9 +314,10 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     rlState::Current.Set(frameCmd);
 
     Map<uint32, ResShader> passes = scene.Meshes.DeferredShaders;
-    passes[0] = InArgs.Context->Config.DeferredSkyboxShader; // Inject skybox
+    passes[0] = InArgs.ContextPtr->Config.DeferredSkyboxShader; // Inject skybox
     for (auto& entry : passes)
     {
+        PROFILE_GL_NAMED("Deferred pass");
         ShaderResource* shaderResource = entry.second.Get();
         CHECK_CONTINUE(!shaderResource);
         const Shader* shader = shaderResource->Get();
@@ -296,7 +329,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
         rlState::Current.Set(shaderCmd);
 
         const int id = static_cast<int32>(entry.first);
-        SetValue(*shaderResource, "DeferredID", &id, SHADER_UNIFORM_INT);
+        SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
         SetFrameShaderValues(InArgs, *shaderResource, InTarget);
         
         int texSlot = 0;
@@ -318,13 +351,15 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 
 int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
-    CHECK_ASSERT(!InArgs.Lumin, "Invalid luminptr");
-    auto& lumin = *InArgs.Lumin;
+    PROFILE_GL();
+    
+    CHECK_ASSERT(!InArgs.LuminPtr, "Invalid luminptr");
+    auto& lumin = *InArgs.LuminPtr;
     
     auto probes = lumin.GetProbes(InArgs);
     CHECK_RETURN(probes.empty(), 0);
 
-    LuminConfig conf = InArgs.Lumin->Config;
+    LuminConfig conf = InArgs.LuminPtr->Config;
     
     // Get shader
     auto res = conf.LightingShader;
@@ -399,6 +434,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 
     if (conf.Debug)
     {
+        PROFILE_GL_NAMED("Lumin debug");
         ShaderCommand debugShaderCmd;
         debugShaderCmd.Locs = debugShader->locs;
         debugShaderCmd.ID = debugShader->id;
@@ -417,6 +453,8 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
         
         for (auto& probe : probes)
         {
+            PROFILE_GL_NAMED("Lumin probe debug");
+            
             SetValue(*debugShaderResource, "Timestamp", &probe->Timestamp, SHADER_UNIFORM_FLOAT);
             SetValue(*debugShaderResource, "ProbePosition", &probe->Pos, SHADER_UNIFORM_VEC3);
             SetValue(*debugShaderResource, "ProbeRect", &probe->Rect, SHADER_UNIFORM_VEC4);
@@ -444,8 +482,10 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 
 int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
-    CHECK_ASSERT(!InArgs.Lights, "Invalid lightptr");
-    auto& lightMan = *InArgs.Lights;
+    PROFILE_GL();
+    
+    CHECK_ASSERT(!InArgs.LightsPtr, "Invalid lightptr");
+    auto& lightMan = *InArgs.LightsPtr;
     
     auto lights = lightMan.GetLights(InArgs);
     CHECK_RETURN(lights.empty(), 0);
@@ -495,6 +535,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     
     for (auto& light : lights)
     {
+        PROFILE_GL_NAMED("Light");
+        
         CHECK_ASSERT(!light, "Invalid light");
     
         SetValue(*shaderResource, "Position", &light->Data.Position, SHADER_UNIFORM_VEC3);
@@ -533,6 +575,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     // Debug draw shadow maps
     if (conf.Debug)
     {
+        PROFILE_GL_NAMED("Light debug");
+        
         ShaderCommand debugShaderCmd;
         debugShaderCmd.Locs = debugShader->locs;
         debugShaderCmd.ID = debugShader->id;
@@ -551,6 +595,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
         
         for (auto& light : lights)
         {
+            PROFILE_GL_NAMED("Light cube debug");
+            
             auto find = lightMan.Cache.find(light->ID);
             LightData* shadowCache = find == lightMan.Cache.end() ? nullptr : &find->second;
             CHECK_CONTINUE(!shadowCache);
@@ -591,6 +637,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 
 void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)
 {
+    PROFILE_GL();
+    
     ShaderResource* shaderResource = InShader.Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource");
     const Shader* shader = shaderResource->Get();
@@ -631,6 +679,8 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
     if (scene.DebugShapes.Empty())
         return 0;
 
+    PROFILE_GL();
+    
     rlState::Current.Reset();
 
     for (auto& persp : InArgs.Perspectives)
@@ -655,13 +705,13 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
                     shape.Data.x,
                     static_cast<int>(shape.Data.y),
                     static_cast<int>(shape.Data.z),
-                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
                 break;
             case DebugShape::Type::BOX:
                 DrawCubeWiresV(
                     Utility::Ray::ConvertVec(shape.Pos),
                     Utility::Ray::ConvertVec(shape.Data),
-                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
                 break;
             case DebugShape::Type::CAPSULE:
                 const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
@@ -673,7 +723,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
                     shape.Data.x,
                     static_cast<int>(shape.Data.z),
                     static_cast<int>(shape.Data.z) / 2,
-                    { shape.Color.r, shape.Color.g, shape.Color.b, shape.Color.a });
+                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
                 break;
             }
         }
@@ -682,7 +732,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
             DrawLine3D(
                 Utility::Ray::ConvertVec(line.Start),
                 Utility::Ray::ConvertVec(line.End),
-                { line.Color.r, line.Color.g, line.Color.b, line.Color.a });
+                { line.Col.r, line.Col.g, line.Col.b, line.Col.a });
 
         EndMode3D();
     }
@@ -692,6 +742,8 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 
 void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
 {
+    PROFILE_GL();
+    
     rlState::Current.Reset();
     
     BeginTextureMode(InTarget);

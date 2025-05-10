@@ -7,6 +7,8 @@
 void Rendering::Viewport::Init(const ViewportConfig& InConfig)
 {
     Config = InConfig;
+
+    CHECK_ASSERT(Config.Width <= 0 || Config.Height <= 0, "Invalid viewport size");
     
     const float aspect = static_cast<float>(Config.Width) / static_cast<float>(Config.Height);
     const int virtualWidth = Config.RenderSize ?
@@ -50,6 +52,7 @@ void Rendering::Viewport::Resize(const Vec2I& InSize)
 
 void Rendering::Viewport::BeginFrame()
 {
+    PROFILE_GL();
     // DT since last frame in this viewport
     Delta = DeltaTimer.Ellapsed();
     DeltaTimer = Utility::Timer();

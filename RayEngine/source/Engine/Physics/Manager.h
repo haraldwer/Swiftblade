@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ECS/entity.h"
+#include "ECS/Entity.h"
 #include "ECS/Manager.h"
 #include "Core/Utility/Singelton.h"
 
@@ -35,19 +35,23 @@ namespace physx
     class PxDefaultCpuDispatcher;
     class PxScene;
     class PxMaterial;
+    class PxPvdTransport;
 }
 
 namespace Physics
 {
+
     struct PersistentPhysics
     {
         void TryInit();
+        void Deinit();
         ~PersistentPhysics();
 
-        physx::PxPvd* PVD = nullptr;
         physx::PxFoundation* Foundation = nullptr;
+        physx::PxPvd* PVD = nullptr;
         physx::PxPhysics* Physics = nullptr;
         physx::PxDefaultCpuDispatcher* Dispatcher = nullptr;
+        physx::PxPvdTransport* Transport = nullptr;
 
         static constexpr size_t ScratchBlockSize = 16384 * 2;
         static constexpr size_t ScratchBlockAlignment = 16;
@@ -73,6 +77,10 @@ namespace Physics
         static physx::PxMaterial* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);
 
     private:
+        void SetTransforms() const;
+        void Simulate() const;
+        void GetTransforms() const;
+
         static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);
         physx::PxRigidDynamic* CreateDynamic(ECS::Rigidbody& InRigidbody);
         physx::PxRigidStatic* CreateStatic(const ECS::Collider& InCollider);

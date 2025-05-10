@@ -16,6 +16,7 @@ void Engine::Instance::Deinit()
 
 void Engine::Instance::Logic(double InDelta)
 {
+    PROFILE();
     RenderScene.Clear();
     Time.Tick(InDelta);
     Input.Update(); 
@@ -24,6 +25,7 @@ void Engine::Instance::Logic(double InDelta)
 
 void Engine::Instance::Frame()
 {
+    PROFILE();
     Input.Frame();
     auto& man = Rendering::Manager::Get();
     RenderScene.Build();

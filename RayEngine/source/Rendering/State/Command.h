@@ -2,6 +2,11 @@
 
 namespace Rendering
 {
+    struct UniformCommand
+    {
+        uint32 ValueHash;
+    };
+    
     struct TextureCommand
     {
         uint32 ID = static_cast<uint32>(-1); // Texture ID

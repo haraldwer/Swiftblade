@@ -20,12 +20,15 @@ void Resource::Manager::Update()
 {
     // Only check every 3 seconds
     CHECK_RETURN(CheckTimer.Ellapsed() < CheckInterval)
+    
+    PROFILE();
     CheckTimer = Utility::Timer();
     TryUnload();
 }
 
 void Resource::Manager::TryUnload() const
 {
+    PROFILE();
     Vector<String> queue;
     queue.reserve(Resources.size());
     for (const auto& res : Resources)
@@ -41,10 +44,16 @@ void Resource::Manager::TryUnload() const
         CHECK_CONTINUE(!res->Loaded)
 
         if (res->Count <= 0)
+        {
+            PROFILE_NAMED("Unload");
             res->Unload();
+        }
 #ifdef _DEBUG
         else
+        {
+            PROFILE_NAMED("Hot reload");
             res->TryHotReload();
+        }
 #endif
     }    
 }

@@ -7,6 +7,7 @@ namespace Rendering
     {
     public:
         
+        void Set(const UniformCommand& InCmd, int InSlot);
         void Set(const TextureCommand& InCmd, int InSlot);
         bool Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatrices);
         void Set(const ShaderCommand& InCmd, bool InForce = false);
@@ -14,6 +15,7 @@ namespace Rendering
         void Set(const FrameCommand& InCmd);
         
         void Reset();
+        void ResetUniforms();
         void ResetTextures();
         void ResetShader();
         void ResetPerspective();
@@ -25,6 +27,7 @@ namespace Rendering
     private:
         
         Map<int, TextureCommand> Textures;
+        Map<int, UniformCommand> Uniforms;
         
         ShaderCommand Shader;
         FrameCommand Frame;

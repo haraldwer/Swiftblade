@@ -5,7 +5,6 @@
 #include "ECS/Systems/Collider.h"
 #include "ECS/Systems/Rigidbody.h"
 #include "ECS/Systems/Transform.h"
-#include "Editor/Debug/Profiling/Profile.h"
 
 // Main physx includes
 #include "PhysXUtility.h"
@@ -17,7 +16,7 @@
 #define PVD_HOST "127.0.0.1"
 
 static physx::PxDefaultAllocator gAllocator;
-static physx::PxDefaultErrorCallback gErrorCallback;
+static Physics::ErrorCallback gErrorCallback;
 
 static Physics::PersistentPhysics Persistent;
 
@@ -25,25 +24,23 @@ using namespace physx;
 
 void Physics::PersistentPhysics::TryInit()
 {
-    if (Foundation && Physics && Dispatcher)
+    if (Foundation)
         return; 
-    
+
+    Deinit();
     Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-    if (!PVD)
-    {
-        PVD = PxCreatePvd(*Foundation);
-        PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-        PVD->connect(*transport,PxPvdInstrumentationFlag::eALL);
-    }
+    PVD = PxCreatePvd(*Foundation);
+    Transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+    PVD->connect(*Transport,PxPvdInstrumentationFlag::eALL);
 
     Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
     Dispatcher = PxDefaultCpuDispatcherCreate(0); 
     
-    ScratchBlock = _aligned_malloc(ScratchBlockSize, ScratchBlockAlignment); 
+    ScratchBlock = aligned_alloc(ScratchBlockSize, ScratchBlockAlignment); 
 }
 
-Physics::PersistentPhysics::~PersistentPhysics()
+void Physics::PersistentPhysics::Deinit()
 {
     PX_RELEASE(Dispatcher);
     PX_RELEASE(Physics);
@@ -51,17 +48,20 @@ Physics::PersistentPhysics::~PersistentPhysics()
     {
         if (PVD->isConnected())
             PVD->disconnect();
-        PxPvdTransport* transport = PVD->getTransport();
-        PX_RELEASE(transport);
         PX_RELEASE(PVD);
     }
+    PX_RELEASE(Transport);
     PX_RELEASE(Foundation);
-
     if (ScratchBlock)
     {
-        _aligned_free(ScratchBlock);
+        free(ScratchBlock);
         ScratchBlock = nullptr; 
     }
+}
+
+Physics::PersistentPhysics::~PersistentPhysics()
+{
+    Deinit();
 }
 
 void Physics::Manager::Init()
@@ -91,20 +91,28 @@ void Physics::Manager::Init()
 
 void Physics::Manager::Deinit()
 {
+    ActorToShape.clear();
+    ShapeToActor.clear();
+    for (auto& shape : Shapes)
+        PX_RELEASE(shape.second);
+    Shapes.clear();
+    for (auto& cube : CubeShapes)
+        for (auto& shape : cube.second)
+            PX_RELEASE(shape);
+    CubeShapes.clear();
+    PX_RELEASE(CubeOwner);
+    PX_RELEASE(Scene);
     if (Callback)
     {
         delete(Callback);
         Callback = nullptr;
     }
-    PX_RELEASE(Scene);
 }
 
-void Physics::Manager::Update() const
+void Physics::Manager::SetTransforms() const
 {
-    PROFILE_SCOPE_BEGIN("Physics");
-    
-    PROFILE_SCOPE_BEGIN("Trans -> PxTrans");
-    const auto& ecs = ECS::Manager::Get();
+    PROFILE();
+    const ECS::Manager& ecs = ECS::Manager::Get();
     const auto updatePhysTrans = [](const ECS::Manager& InECS, ECS::EntityID InKey, auto* InInstance)
     {
         CHECK_RETURN(!InInstance)
@@ -121,19 +129,26 @@ void Physics::Manager::Update() const
         updatePhysTrans(ecs, instance.first, instance.second);
     for (const auto& instance : Dynamics)
         updatePhysTrans(ecs, instance.first, instance.second);
-    PROFILE_SCOPE_END();
+}
 
-    PROFILE_SCOPE_BEGIN("Simulate");
+void Physics::Manager::Simulate() const
+{
+    PROFILE();
     double delta = Utility::Time::Get().Delta();
     Scene->simulate(
         static_cast<PxReal>(delta),
         nullptr,
         Persistent.ScratchBlock,
-        Persistent.ScratchBlockSize);
-    Scene->fetchResults(true);
-    PROFILE_SCOPE_END();
+        PersistentPhysics::ScratchBlockSize);
+    PxU32 error = 0;
+    Scene->fetchResults(true, &error);
+    CHECK_ASSERT(error, "PxFetchResults error");
+}
 
-    PROFILE_SCOPE_BEGIN("PxTrans -> Trans");
+void Physics::Manager::GetTransforms() const
+{
+    PROFILE();
+    const ECS::Manager& ecs = ECS::Manager::Get();
     for (const auto& instance : Dynamics)
     {
         CHECK_CONTINUE(!instance.second)
@@ -145,9 +160,14 @@ void Physics::Manager::Update() const
         const Mat4F mat = Mat4F(p, q, t->GetScale());
         t->SetWorld(mat); 
     }
-    PROFILE_SCOPE_END();
+}
 
-    PROFILE_SCOPE_END();
+void Physics::Manager::Update() const
+{
+    PROFILE();
+    SetTransforms();
+    Simulate();
+    GetTransforms();
 }
 
 void Physics::Manager::Add(const ECS::EntityID InID)
@@ -362,7 +382,7 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
     
     switch (InShape)
     {
-    case Physics::Shape::BOX:
+    case Shape::BOX:
         {
             static PxBoxGeometry box;
             box = PxBoxGeometry(InShapeData.x * InScale.x, InShapeData.y * InScale.y, InShapeData.z * InScale.z);

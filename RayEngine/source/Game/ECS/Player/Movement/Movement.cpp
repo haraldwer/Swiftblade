@@ -5,7 +5,6 @@
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Editor/Debug/Draw.h"
-#include "Engine/Editor/Debug/Profiling/Profile.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Query.h"
 #include "MovementStateMachine.h"
@@ -36,10 +35,8 @@ void ECS::Movement::Update()
     
     GroundSnap();
 
-    PROFILE_SCOPE_BEGIN("StateMachine");
     if (StateMachine)
         StateMachine->Update();
-    PROFILE_SCOPE_END();
 }
 
 void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
@@ -190,9 +187,7 @@ void ECS::Movement::GroundSnap()
 {
     CHECK_RETURN(!OnGround);
     CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
-    
-    PROFILE_SCOPE_BEGIN("GroundSnap");
-    
+
     OnGround = false;
     
     constexpr bool debugDraw = false; 
@@ -216,11 +211,8 @@ void ECS::Movement::GroundSnap()
     }
 
     // Sweep
-    PROFILE_SCOPE_BEGIN("Sweep");
     const Physics::QueryResult result = Physics::Query::Sweep(params);
-    PROFILE_SCOPE_END();
     
-    PROFILE_SCOPE_BEGIN("ProcessHits");
     if (result.IsHit)
     {
         for (auto hit : result.DistanceSorted())
@@ -249,9 +241,6 @@ void ECS::Movement::GroundSnap()
             } 
         }
     }
-    PROFILE_SCOPE_END();
-
-    PROFILE_SCOPE_END();
 }
 
 bool ECS::Movement::CheckGroundHit(const Vec3F& InNormal) const

@@ -33,7 +33,7 @@ protected:
 	template <class T>
 	T* GetState() const
 	{
-		if (auto state = GetState(Utility::GetType<T>()))
+		if (auto state = GetState(Type::Get<T>()))
 			return reinterpret_cast<T*>(state);
 		return nullptr; 
 	}
@@ -66,7 +66,7 @@ public:
 	
 	Utility::Type GetType() const override
 	{
-		return Utility::GetType<T>();
+		return Utility::Type::Get<T>();
 	}
 	
 	String GetName() const override

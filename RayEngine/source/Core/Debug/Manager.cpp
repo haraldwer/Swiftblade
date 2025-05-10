@@ -5,12 +5,12 @@
 
 void Debug::Manager::Init()
 {
-    Config.LoadConfig();
+    Current.LoadConfig();
 }
 
 void Debug::Manager::Deinit()
 {
-    Config.SaveConfig();
+    Current.SaveConfig();
 }
 
 void Debug::Manager::Logic()
@@ -20,6 +20,8 @@ void Debug::Manager::Logic()
 
 void Debug::Manager::Frame(double InDeltaTime)
 {
+    PROFILE();
+    
     for (auto w : PendingRegister)
     {
         const String name = w->DebugWindowName();
@@ -29,9 +31,9 @@ void Debug::Manager::Frame(double InDeltaTime)
     PendingRegister.clear();
 
     if (IsKeyPressed(KEY_F2))
-        Config.DebugEnabled = !Config.DebugEnabled;
+        Current.DebugEnabled = !Current.DebugEnabled;
 
-    CHECK_RETURN(!Config.DebugEnabled); 
+    CHECK_RETURN(!Current.DebugEnabled); 
     
     // Menu bar
     if (ImGui::BeginMainMenuBar())
@@ -100,12 +102,12 @@ void Debug::Manager::Unregister(const Window* InWindow)
 
 bool Debug::Manager::IsOpen(const String& InWindow) const
 {
-    return Config.OpenWindows.Get().contains(InWindow);
+    return Current.OpenWindows.Get().contains(InWindow);
 }
 
 void Debug::Manager::SetOpen(const String& InWindow, bool InOpen)
 {
-    Set<String>& set = Config.OpenWindows.Get();
+    Set<String>& set = Current.OpenWindows.Get();
     if (InOpen)
         set.insert(InWindow);
     else

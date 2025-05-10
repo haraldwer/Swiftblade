@@ -21,7 +21,7 @@ class MovementStateMachine : public PlayerStateMachine
 public:
     void Init() override;
     String Name() const override { return "Movement"; }
-    Utility::Type GetDefaultStateType() override { return Utility::GetType<MovementStateIdle>(); }    
+    Utility::Type GetDefaultStateType() override { return Type::Get<MovementStateIdle>(); }    
     
 private:
     MovementStateIdle Idle;

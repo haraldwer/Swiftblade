@@ -2,7 +2,7 @@
 	"Components":[{
 			"Name":"Mesh",
 			"Data":{
-				"Material":"Defaults\\RM_Default.json"
+				"Material":"Defaults/RM_Default.json"
 			}
 		},{
 			"Name":"Attributes",

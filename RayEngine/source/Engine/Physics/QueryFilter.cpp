@@ -2,7 +2,7 @@
 
 #include <PxRigidActor.h>
 #include <PxRigidDynamic.h>
-#include <PxrigidStatic.h>
+#include <PxRigidStatic.h>
 
 #include "Manager.h"
 #include "ECS/Systems/Transform.h"

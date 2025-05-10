@@ -66,6 +66,7 @@ void Rendering::Window::Draw(const Texture& InTexture)
 
 void Rendering::Window::CapFPS()
 {
+    PROFILE_GL_NAMED("Cap FPS");
     int targetFPS = Config.TargetFPS;
     if (targetFPS > 0)
     {

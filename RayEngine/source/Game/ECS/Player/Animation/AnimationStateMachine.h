@@ -10,7 +10,7 @@ class AnimationStateMachine : public PlayerStateMachine
 public:
     void Init() override;
     String Name() const override { return "Animation"; }
-    Utility::Type GetDefaultStateType() override { return Utility::GetType<AnimationStateDefault>(); }
+    Utility::Type GetDefaultStateType() override { return Type::Get<AnimationStateDefault>(); }
 
 private:
     AnimationStateDefault Default; 

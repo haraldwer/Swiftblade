@@ -1,12 +1,19 @@
 #include "State.h"
 
+#include "RayRenderUtility.h"
 #include "raylib.h"
 #include "raymath.h"
-#include "RayRenderUtility.h"
 #include "rlgl.h"
+
+void Rendering::State::Set(const UniformCommand& InCmd, int InSlot)
+{
+    
+}
 
 void Rendering::State::Set(const TextureCommand& InCmd, int InSlot)
 {
+    PROFILE_GL_GPU("Set texture");
+    
     auto& tex = Textures[InSlot];
     
     if (InCmd.Wrap != tex.Wrap)
@@ -47,6 +54,7 @@ void Rendering::State::ResetTextures()
 {
     if (!Textures.empty())
     {
+        PROFILE_GL_GPU("Reset textures");
         for (auto& tex : Textures)
         {
             rlActiveTextureSlot(tex.first);
@@ -65,6 +73,8 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
     
     if (InCmd.vaoID != static_cast<uint32>(-1) && Shader.Locs)
     {
+        PROFILE_GL_GPU("Set mesh");
+        
         rlEnableVertexArray(InCmd.vaoID);
 
         int instances = static_cast<int>(InMatrices.size());
@@ -100,6 +110,7 @@ void Rendering::State::ResetMesh()
 {
     if (VBO != static_cast<uint32>(-1))
     {
+        PROFILE_GL_GPU("Reset mesh");
         rlDisableVertexArray();
         rlDisableVertexBuffer();
         rlDisableVertexBufferElement();
@@ -111,6 +122,8 @@ void Rendering::State::ResetMesh()
 
 void Rendering::State::Set(const ShaderCommand& InCmd, bool InForce)
 {
+    PROFILE_GL_GPU("Set shader");
+    
     if (InCmd.ID != Shader.ID || InForce)
     {
         Textures.clear();
@@ -133,6 +146,7 @@ void Rendering::State::Set(const ShaderCommand& InCmd, bool InForce)
 
 void Rendering::State::ResetShader()
 {
+    PROFILE_GL_GPU("Reset shader");
     RaylibRenderUtility::SetBlendMode(RL_BLEND_ALPHA);
     rlDisableColorBlend();
     rlEnableBackfaceCulling();
@@ -144,6 +158,8 @@ void Rendering::State::ResetShader()
 
 void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
 {
+    PROFILE_GL_GPU("Set perspective");
+    
     if (Perspective.Rect != InCmd.Rect || InForce)
     {
         int w = InCmd.Rect.z > 0 ? InCmd.Rect.z : Frame.Size.x;
@@ -155,12 +171,15 @@ void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
 
 void Rendering::State::ResetPerspective()
 {
+    PROFILE_GL_GPU("Reset perspective");
     rlViewport(0, 0, rlGetFramebufferWidth(), rlGetFramebufferHeight());
     Perspective = {};
 }
 
 void Rendering::State::Set(const FrameCommand& InCmd)
 {
+    PROFILE_GL_GPU("Set frame");
+    
     if (InCmd.fboID != Frame.fboID)
     {
         Textures.clear();
@@ -208,17 +227,26 @@ void Rendering::State::Set(const FrameCommand& InCmd)
 
 void Rendering::State::ResetFrame()
 {
+    PROFILE_GL_GPU("Reset frame");
     rlDisableFramebuffer();
     Frame = {};
 }
 
 void Rendering::State::Reset()
 {
+    PROFILE_GL();
+    PROFILE_GL_GPU("Reset state");
+    ResetUniforms();
     ResetTextures();
     ResetMesh();
     ResetShader();
     ResetFrame();
     ResetPerspective();
+}
+
+void Rendering::State::ResetUniforms()
+{
+    Uniforms.clear();
 }
 
 void Rendering::State::Check()

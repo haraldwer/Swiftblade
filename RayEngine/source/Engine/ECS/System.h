@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.h"
+#include "Entity.h"
 #include "SystemBase.h"
 
 namespace ECS
@@ -50,7 +50,7 @@ namespace ECS
         template <class ComponentType = T>
         ComponentType* TryGet(const EntityID InID)
         {
-            SystemBase* base = GetAnonymousSystem(Utility::GetType<ComponentType>(), true);
+            SystemBase* base = GetAnonymousSystem(Type::Get<ComponentType>(), true);
             System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
             return sys->TryGet(InID);
         }
@@ -58,7 +58,7 @@ namespace ECS
         template <class ComponentType = T>
         const ComponentType* TryGet(const EntityID InID) const
         {
-            SystemBase* base = GetAnonymousSystem(Utility::GetType<ComponentType>(), true);
+            SystemBase* base = GetAnonymousSystem(Type::Get<ComponentType>(), true);
             System<ComponentType>* sys = reinterpret_cast<System<ComponentType>*>(base);
             return sys->TryGet(InID);
         }
@@ -80,7 +80,7 @@ namespace ECS
         template <class SystemType>
         SystemType& GetSystem() const
         {
-            SystemBase* base = GetAnonymousSystem(Utility::GetType<SystemType>(), false);
+            SystemBase* base = GetAnonymousSystem(Type::Get<SystemType>(), false);
             CHECK_ASSERT(!base, "Unable to find system");
             return *reinterpret_cast<SystemType*>(base);
         }

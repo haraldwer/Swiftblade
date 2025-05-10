@@ -1,13 +1,16 @@
 #include "Manager.h"
 
-#include "Core/Debug/Manager.h"
-#include "Menu/Manager.h"
-
 #include "raylib.h"
 #include "rlgl.h"
+
 #include "ImGui/Gizmo/ImGuizmo.h"
 #include "ImGui/imgui_themes.h"
 #include "ImGui/rlImGui.h"
+
+#include "Core/Debug/Manager.h"
+#include "Menu/Manager.h"
+
+#include "Rendering/GLProfile.h"
 #include "Rendering/Scene/Scene.h"
 #include "Rendering/State/State.h"
 
@@ -15,7 +18,10 @@ void Rendering::Manager::Init()
 {
     CurrConfig.LoadConfig();
     QueuedConfig = CurrConfig;
+    
     Window.Open(CurrConfig.Window);
+    PROFILE_GL_INIT();
+    
     MainViewport.Init(CurrConfig.Viewport);
     DefaultContext.Init(CurrConfig.Context, CurrConfig.Lumin, true);
 
@@ -33,10 +39,11 @@ void Rendering::Manager::Deinit()
 
 void Rendering::Manager::Render(const Scene& InScene)
 {
+    PROFILE_GL();
     RenderArgs args {
-        .Scene= &InScene,
-        .Context= &DefaultContext,
-        .Viewport= &MainViewport,
+        .ScenePtr= &InScene,
+        .ContextPtr= &DefaultContext,
+        .ViewportPtr= &MainViewport,
         .Perspectives = {{
             .ReferenceRect= Vec4F(),
             .TargetRect= Vec4I(),
@@ -59,18 +66,23 @@ void Rendering::Manager::Render(const Scene& InScene)
 
 void Rendering::Manager::DrawDebugWindow()
 {
+    PROFILE_GL();
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
     const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
     const Vec2I size = {
         static_cast<int>(vMax.x - vMin.x),
         static_cast<int>(vMax.y - vMin.y)
     };
-    MainViewport.Resize(size);
-    MainViewport.ImDraw();
+    if (size.x > 0 && size.y > 0)
+    {
+        MainViewport.Resize(size);
+        MainViewport.ImDraw();
+    }
 }
 
 void Rendering::Manager::BeginFrame()
 {
+    PROFILE_GL();
     BeginDrawing();
     
     // Blip if not debug drawing
@@ -96,9 +108,11 @@ void Rendering::Manager::BeginFrame()
 
 void Rendering::Manager::EndFrame()
 {
+    PROFILE_GL();
     ImGui::PopDefaultFont();
     rlImGuiEnd();
     EndDrawing(); // Swap buffers
+    PROFILE_GL_COLLECT();
     
     if (CurrConfig != QueuedConfig)
         ApplyConfig(QueuedConfig);

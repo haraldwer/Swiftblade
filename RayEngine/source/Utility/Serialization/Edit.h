@@ -1,11 +1,14 @@
-﻿#pragma once
+﻿#ifndef EDIT_H
+#define EDIT_H
+
+//#pragma once
+
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_stdlib.h"
 
 namespace Utility
 {
-    inline String GetEditName(const String& InName, uint32 InOffset)
-    {
-        return InName + "##PropertyEdit_" + std::to_string(InOffset);
-    }
+    String GetEditName(const String& InName, uint32 InOffset);
 
     bool MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader);
     bool Button(const String& InName, uint32 InOffset);
@@ -15,25 +18,91 @@ namespace Utility
     bool AddButton(uint32 InOffset);
     bool RemoveButton(uint32 InOffset);
     void Separator();
-    
+
+    inline bool Edit(const String& InName, bool& InOutData, uint32 InOffset = 0)
+    {
+        return ImGui::Checkbox(GetEditName(InName, InOffset).c_str(), &InOutData);
+    }
+
+    inline bool Edit(const String& InName, float& InOutData, uint32 InOffset = 0)
+    {
+        return ImGui::InputFloat(GetEditName(InName, InOffset).c_str(), &InOutData);
+    }
+
+    inline bool Edit(const String& InName, int32& InOutData, uint32 InOffset = 0)
+    {
+        return ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &InOutData);
+    }
+
+    inline bool Edit(const String& InName, uint8& InOutData, uint32 InOffset = 0)
+    {
+        int i = InOutData;
+        const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
+        InOutData = static_cast<uint8>(i); 
+        return result; 
+    }
+
+    inline bool Edit(const String& InName, uint32& InOutData, uint32 InOffset = 0)
+    {
+        int i = static_cast<int>(InOutData);
+        const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
+        InOutData = static_cast<uint32>(i); 
+        return result; 
+    }
+
+    inline bool Edit(const String& InName, uint64& InOutData, uint32 InOffset = 0)
+    {
+        int i = static_cast<int>(InOutData);
+        const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
+        InOutData = static_cast<uint32>(i); 
+        return result; 
+    }
+
+    inline bool Edit(const String& InName, Vec2F& InOutData, uint32 InOffset = 0)
+    {
+        return ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+    }
+
+    inline bool Edit(const String& InName, Vec3F& InOutData, uint32 InOffset = 0)
+    {
+        return ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+    }
+
+    inline bool Edit(const String& InName, Vec4F& InOutData, uint32 InOffset = 0)
+    {
+        return ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+    }
+
+    inline bool Edit(const String& InName, QuatF& InOutData, uint32 InOffset = 0)
+    {
+        Vec3F euler = InOutData.Euler();
+        euler *= Math::RadiansToDegrees(1.0f);
+        if (ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &euler[0]))
+        {
+            InOutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));
+            return true; 
+        } 
+        return false;  
+    }
+
+    inline bool Edit(const String& InName, Mat4F& InOutData, uint32 InOffset)
+    {
+        // TODO: Break down, edit individually
+        return false; 
+    }
+
+    inline bool Edit(const String& InName, String& InOutData, uint32 InOffset)
+    {
+        String copy = InOutData;
+        ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
+        return InOutData != copy;
+    }
+
     template <class T>
     bool Edit(const String& InName, T& InOutData, uint32 InOffset = 0)
     {
         return InOutData.Edit(InName, InOffset);
     }
-    
-    bool Edit(const String& InName, bool& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, float& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, int32& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, uint8& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, uint32& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, uint64& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, Vec2F& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, Vec3F& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, Vec4F& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, QuatF& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, Mat4F& InOutData, uint32 InOffset = 0);
-    bool Edit(const String& InName, String& InOutData, uint32 InOffset = 0);
     
     template <class T>
     bool Edit(const String& InName, Vector<T>& InOutData, uint32 InOffset = 0)
@@ -201,3 +270,5 @@ namespace Utility
         return edited;
     }
 }
+
+#endif

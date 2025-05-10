@@ -1,4 +1,9 @@
-﻿#pragma once
+﻿#ifndef TYPE_H
+#define TYPE_H
+
+//#pragma once
+
+#include <typeinfo>
 
 namespace Utility
 {
@@ -8,7 +13,7 @@ namespace Utility
     {
     public:
         Type() = default;
-        Type(TypeHash InHash) : Hash(InHash) {}
+        explicit Type(TypeHash InHash) : Hash(InHash) {}
         virtual ~Type() = default;
 
         template <class T>
@@ -20,19 +25,18 @@ namespace Utility
         // Convenience operators
         bool operator==(const Type& InOther) const { return InOther.Hash == Hash; }
         bool operator!() const { return *this == None(); }
-        operator bool() const { return *this != None(); };
-        operator TypeHash() const
+        explicit operator bool() const { return !(*this == None()); };
+        explicit operator TypeHash() const
         {
             return Hash;
         }
     
-        TypeHash GetHash() const { return Hash; }
-        static Type None() { return Type(); }
+        [[nodiscard]] TypeHash GetHash() const { return Hash; }
+        static Type None() { return {}; }
     
     private: 
         TypeHash Hash = 0; 
     };
-
-    template <class T>
-    Type GetType() { return Type::Get<T>(); }
 }
+
+#endif

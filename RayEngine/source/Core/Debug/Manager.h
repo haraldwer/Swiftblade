@@ -14,7 +14,7 @@ namespace Debug
         void Logic();
         void Frame(double InDeltaTime);
         
-        bool Enabled() const { return Config.DebugEnabled; }
+        bool Enabled() const { return Current.DebugEnabled; }
         
         void Register(Window* InWindow);
         void Unregister(const Window* InWindow);
@@ -26,7 +26,7 @@ namespace Debug
         Set<Window*> PendingRegister;
         Map<String, Vector<Window*>> Windows;
         Map<const Window*, String> WindowToName;
-        Config Config;
+        Config Current;
 
         // Logic tick counter
         int LogicCounter = 0;

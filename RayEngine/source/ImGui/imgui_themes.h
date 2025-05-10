@@ -171,7 +171,7 @@ namespace ImGui
 	inline void LoadFont()
 	{
 		const ImGuiIO& io = GetIO();
-		//font = io.Fonts->AddFontFromFileTTF("..\\content\\Defaults\\F_SourceCodePro.ttf", 14);
+		font = io.Fonts->AddFontFromFileTTF("Defaults/F_SourceCodePro.ttf", 16);
 		rlImGuiReloadFonts();
 	}
 

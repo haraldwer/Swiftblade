@@ -11,6 +11,19 @@ namespace Physics
     // Note:
     // Careful when including this!
     // Contains heavy includes
+
+    class ErrorCallback : public physx::PxErrorCallback
+    {
+    public:
+        ErrorCallback() = default;
+        ~ErrorCallback() override = default;
+
+        virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE
+        {
+            LOG("[" + Utility::ToStr(code) + "] " + message + " (" + file + ":" + Utility::ToStr(line) + ")");
+        }
+    };
+    
     
     class Callback : public physx::PxSimulationEventCallback
     {
@@ -21,6 +34,8 @@ namespace Physics
             physx::PxFilterObjectAttributes attributes1, const physx::PxFilterData filterData1,
             physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize)
         {
+            PROFILE();
+            
             PX_UNUSED(constantBlockSize);
             PX_UNUSED(constantBlock);
             
@@ -53,6 +68,8 @@ namespace Physics
         
         void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs) override
         {
+            PROFILE();
+            
             PX_UNUSED((pairHeader));
             for (physx::PxU32 i = 0; i < nbPairs; i++)
             {
@@ -92,6 +109,8 @@ namespace Physics
         
         void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
         {
+            PROFILE();
+            
             for (physx::PxU32 i = 0; i < count; i++)
             {
                 const bool found = pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
@@ -123,6 +142,8 @@ namespace Physics
         
         static void RegisterContact(const Contact& InContact, Contact::Event InEvent)
         {
+            PROFILE();
+            
             const auto func = [](const Contact& InContact, Contact::Event InEvent)
             {
                 // Invoke callback on all systems

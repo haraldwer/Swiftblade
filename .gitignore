@@ -12,10 +12,14 @@ CTestTestfile.cmake
 _deps
 
 # Rider
-RayEngine/.idea/*
+*/.idea
 
 # Build
 RayEngine/build/*
+RayEngine/cmake-build-debug
+RayEngine/cmake-build-release
+RayEngine/cmake-build-clang-19---debug
+RayEngine/cmake-build-clang-19---release
 
 # Imgui
 imgui.ini
@@ -23,3 +27,5 @@ imgui.ini
 # Nakama
 .cookie
 
+# Obsidian
+*/.obsidian

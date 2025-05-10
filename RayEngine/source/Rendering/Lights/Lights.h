@@ -36,9 +36,9 @@ namespace Rendering
         Map<uint32, LightData> Cache;
         
         LightConfig Config;
-        Viewport Viewport;
+        Viewport AtlasView;
+        AtlasMap Atlas;
         RenderTarget Target;
-        AtlasMap AtlasMap;
         LightPipeline Pipeline;
     };
 }

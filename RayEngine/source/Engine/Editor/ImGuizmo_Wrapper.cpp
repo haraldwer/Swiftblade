@@ -8,14 +8,15 @@
 #include "raylib.h"
 #include <rcamera.h>
 
+#include "Rendering/Manager.h"
+
 bool ImGuizmo::Edit(Mat4F& InOutMat, int& InOutSpace, int& InOutOperation, bool& InOutUseSnap)
 {
     // Get camera
     const CameraInstance camInstance = Engine::Instance::Get().GetRenderScene().GetCamera();
-    Camera cam = Utility::Ray::ConvertCamera(camInstance);
-    const float aspect = static_cast<float>(GetRenderWidth()) / static_cast<float>(GetRenderHeight());
-    const Mat4F proj = Utility::Ray::ConvertBack(GetCameraProjectionMatrix(&cam, aspect));
-    const Mat4F view = Utility::Ray::ConvertBack(GetCameraViewMatrix(&cam));
+    Vec2F size = Rendering::Manager::Get().Window.GetSize().To<float>();
+    Mat4F proj = Mat4F::Transpose(camInstance.GetProjectionMatrix(size));
+    Mat4F view = Mat4F::Transpose(camInstance.GetViewMatrix());
 
     // Mode / operation UI
     if (InOutOperation == 0)

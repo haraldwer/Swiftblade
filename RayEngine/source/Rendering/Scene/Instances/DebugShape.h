@@ -22,13 +22,13 @@ namespace Rendering
         Vec3F Pos;
         QuatF Rot; 
         Vec3F Data;
-        Color Color; 
+        Color Col; 
     };
     
     struct DebugLine
     {
         Vec3F Start;
         Vec3F End; 
-        Color Color; 
+        Color Col; 
     };
 }

@@ -11,6 +11,7 @@ namespace Menu
         
         void Update()
         {
+            PROFILE();
             UpdatePending();
             
             CHECK_RETURN(Stack.empty());
@@ -26,6 +27,7 @@ namespace Menu
         
         void Draw() const
         {
+            PROFILE();
             CHECK_RETURN(Stack.empty());
             for (int i = static_cast<int>(Stack.size()) - 1; i >= 0; i--)
             {

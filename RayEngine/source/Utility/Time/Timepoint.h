@@ -3,5 +3,5 @@
 
 namespace Utility
 {
-    typedef std::chrono::steady_clock::time_point Timepoint;
+    typedef std::chrono::system_clock::time_point Timepoint;
 }

@@ -4,83 +4,9 @@
 #include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_stdlib.h"
 
-bool Utility::Edit(const String& InName, bool& InOutData, uint32 InOffset)
+String Utility::GetEditName(const String &InName, uint32 InOffset)
 {
-    return ImGui::Checkbox(GetEditName(InName, InOffset).c_str(), &InOutData);
-}
-
-bool Utility::Edit(const String& InName, float& InOutData, uint32 InOffset)
-{
-    return ImGui::InputFloat(GetEditName(InName, InOffset).c_str(), &InOutData);
-}
-
-bool Utility::Edit(const String& InName, int32& InOutData, uint32 InOffset)
-{
-    return ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &InOutData);
-}
-
-bool Utility::Edit(const String& InName, uint8& InOutData, uint32 InOffset)
-{
-    int i = InOutData;
-    const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
-    InOutData = static_cast<uint8>(i); 
-    return result; 
-}
-
-bool Utility::Edit(const String& InName, uint32& InOutData, uint32 InOffset)
-{
-    int i = static_cast<int>(InOutData);
-    const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
-    InOutData = static_cast<uint32>(i); 
-    return result; 
-}
-
-bool Utility::Edit(const String& InName, uint64& InOutData, uint32 InOffset)
-{
-    int i = static_cast<int>(InOutData);
-    const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
-    InOutData = static_cast<uint32>(i); 
-    return result; 
-}
-
-bool Utility::Edit(const String& InName, Vec2F& InOutData, uint32 InOffset)
-{
-    return ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-}
-
-bool Utility::Edit(const String& InName, Vec3F& InOutData, uint32 InOffset)
-{
-    return ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-}
-
-bool Utility::Edit(const String& InName, Vec4F& InOutData, uint32 InOffset)
-{
-    return ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-}
-
-bool Utility::Edit(const String& InName, QuatF& InOutData, uint32 InOffset)
-{
-    Vec3F euler = InOutData.Euler();
-    euler *= Math::RadiansToDegrees(1.0f);
-    if (ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &euler[0]))
-    {
-        InOutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));
-        return true; 
-    } 
-    return false;  
-}
-
-bool Utility::Edit(const String& InName, Mat4F& InOutData, uint32 InOffset)
-{
-    // TODO: Break down, edit individually
-    return false; 
-}
-
-bool Utility::Edit(const String& InName, String& InOutData, uint32 InOffset)
-{
-    String copy = InOutData;
-    ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
-    return InOutData != copy;
+    return InName + "##PropertyEdit_" + std::to_string(InOffset);
 }
 
 bool Utility::BeginSection(const String& InName)

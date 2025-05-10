@@ -10,8 +10,8 @@ void StateMachine::Init()
 	for (StateBase* state : States)
 	{
 		CHECK_CONTINUE(!state);
-		auto type = state->GetType(); 
-		TypeMap[type] = state;
+		Utility::Type type = state->GetType(); 
+		TypeMap[type.GetHash()] = state;
 		if (type == GetDefaultStateType())
 			SetState(type);
 	}
@@ -42,6 +42,8 @@ void StateMachine::Deinit()
 
 void StateMachine::Update()
 {
+	PROFILE();
+	
 	// Check conditions for every state
 	// Prioritize later states
 	Utility::Type nextState = Utility::Type::None();

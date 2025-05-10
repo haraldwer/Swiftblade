@@ -10,7 +10,7 @@
 		},{
 			"Name":"AnimationPoser",
 			"Data":{
-				"VisualizationMesh":"Gameplay\\Player\\M_Sword.obj",
+				"VisualizationMesh":"Gameplay/Player/M_Sword.obj",
 				"VisualizePoseA":"Pose_Slide_R",
 				"VisualizePoseB":"Pose_Idle"
 			}
@@ -24,8 +24,8 @@
 				"Components":[{
 						"Name":"Mesh",
 						"Data":{
-							"Material":"Gameplay\\Player\\RM_Sword.json",
-							"Model":"Gameplay\\Player\\M_Sword.obj"
+							"Material":"Gameplay/Player/RM_Sword.json",
+							"Model":"Gameplay/Player/M_Sword.obj"
 						}
 					},{
 						"Name":"Attributes",

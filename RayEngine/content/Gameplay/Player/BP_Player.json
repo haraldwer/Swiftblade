@@ -13,7 +13,7 @@
 		},{
 			"Name":"Environment",
 			"Data":{
-				"Skybox":"Dressing\\Skybox\\RM_Skybox.json"
+				"Skybox":"Dressing/Skybox/RM_Skybox.json"
 			}
 		},{
 			"Name":"PlayerCamera",
@@ -31,7 +31,7 @@
 		},{
 			"Name":"AnimationPoser",
 			"Data":{
-				"VisualizationMesh":"Gameplay\\Player\\M_Hand_Open.obj"
+				"VisualizationMesh":"Gameplay/Player/M_Hand_Open.obj"
 			}
 		},{
 			"Name":"Player",
@@ -85,7 +85,7 @@
 					},{
 						"Name":"Collider",
 						"Data":{
-							"Material":"Gameplay\\Player\\PM_Player.json",
+							"Material":"Gameplay/Player/PM_Player.json",
 							"Shape":1
 						}
 					}
@@ -114,8 +114,8 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
-										"Material":"Gameplay\\Player\\RM_Hands.json",
-										"Model":"Gameplay\\Player\\M_Hand_Open.obj"
+										"Material":"Gameplay/Player/RM_Hands.json",
+										"Model":"Gameplay/Player/M_Hand_Open.obj"
 									}
 								},{
 									"Name":"Attributes",
@@ -165,8 +165,8 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
-										"Material":"Gameplay\\Player\\RM_Hands.json",
-										"Model":"Gameplay\\Player\\M_Hand_Open.obj"
+										"Material":"Gameplay/Player/RM_Hands.json",
+										"Model":"Gameplay/Player/M_Hand_Open.obj"
 									}
 								},{
 									"Name":"Attributes",

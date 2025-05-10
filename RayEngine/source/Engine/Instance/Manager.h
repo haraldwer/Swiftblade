@@ -35,6 +35,8 @@ namespace Engine
 
         void Update()
         {
+            PROFILE();
+            
             for (const auto& entry : Queue)
             {
                 if (entry.Ptr && entry.Context != -1)

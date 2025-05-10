@@ -1,36 +1,136 @@
 ﻿#pragma once
 
-#define DESERIALIZE_CHECK_RETURN(cond, error) \
-if (DeserializePrint) { \
-CHECK_RETURN_LOG(cond, error, false); \
-} else { \
-CHECK_RETURN(cond, false) \
-} \
+//#define DESERIALIZE_PRINT
+
+#ifdef DESERIALIZE_PRINT
+#define DESERIALIZE_CHECK_RETURN(cond, error) CHECK_RETURN_LOG(cond, error, false);
+#else
+#define DESERIALIZE_CHECK_RETURN(cond, error) CHECK_RETURN(cond, false)
+#endif
 
 #include "JsonUtility.h"
 
 namespace Utility
 {
-    static constexpr bool DeserializePrint = false; 
     
+    inline bool ReadValue(const GenericVal& InVal, bool& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsBool(), "Incorrect type, expected bool");
+        OutData = InVal.GetBool();
+        return true; 
+    }
+    
+    inline bool ReadValue(const GenericVal& InVal, float& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsFloat(), "Incorrect type, expected float");
+        OutData = InVal.GetFloat();
+        return true; 
+    }
+    
+    inline bool ReadValue(const GenericVal& InVal, int32& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsInt(), "Incorrect type, expected int");
+        OutData = InVal.GetInt();
+        return true; 
+    }
+    
+    inline bool ReadValue(const GenericVal& InVal, uint8& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsUint(), "Incorrect type, expected uint");
+        OutData = static_cast<uint8>(InVal.GetUint());
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, uint32& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsUint(), "Incorrect type, expected uint");
+        OutData = InVal.GetUint();
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, uint64& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsUint(), "Incorrect type, expected uint");
+        OutData = InVal.GetUint();
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, Vec2F& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+        const auto arr = InVal.GetArray();
+        DESERIALIZE_CHECK_RETURN(arr.Size() != 2, "Invalid array size: " + std::to_string(arr.Size()));
+        for (int32 i = 0; i < 2; i++)
+        {
+            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
+            OutData.data[i] = arr[i].GetFloat();
+        }
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, Vec3F& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+        const auto arr = InVal.GetArray();
+        DESERIALIZE_CHECK_RETURN(arr.Size() != 3, "Invalid array size: " + std::to_string(arr.Size()));
+        for (int32 i = 0; i < 3; i++)
+        {
+            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
+            OutData.data[i] = arr[i].GetFloat();
+        }
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, Vec4F& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+        const auto arr = InVal.GetArray();
+        DESERIALIZE_CHECK_RETURN(arr.Size() != 4, "Invalid array size: " + std::to_string(arr.Size()));
+        for (int32 i = 0; i < 4; i++)
+        {
+            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
+            OutData.data[i] = arr[i].GetFloat();
+        }
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, QuatF& OutData)
+    {
+        Vec3F euler = OutData.Euler(); 
+        if (ReadValue(InVal, euler))
+        {
+            OutData = QuatF::FromEuler(euler * Math::DegreesToRadians(1.0f));        
+            return true; 
+        }
+        return false; 
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, Mat4F& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
+        const auto arr = InVal.GetArray();
+        DESERIALIZE_CHECK_RETURN(arr.Size() != 16, "Invalid array size: " + std::to_string(arr.Size()));
+        for (int32 i = 0; i < 16; i++)
+        {
+            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
+            OutData.data[i] = arr[i].GetFloat();
+        }
+        return true;
+    }
+
+    inline bool ReadValue(const GenericVal& InVal, String& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsString(), "Incorrect type, expected string");
+        OutData = InVal.GetString();
+        return true; 
+    }
+
     template <class T>
     bool ReadValue(const GenericVal& InVal, T& OutData)
     {
-        return OutData.Deserialize(InVal); 
+        return OutData.Deserialize(InVal);
     }
     
-    bool ReadValue(const GenericVal& InVal, bool& OutData);
-    bool ReadValue(const GenericVal& InVal, float& OutData);
-    bool ReadValue(const GenericVal& InVal, int32& OutData);
-    bool ReadValue(const GenericVal& InVal, uint8& OutData);
-    bool ReadValue(const GenericVal& InVal, uint32& OutData);
-    bool ReadValue(const GenericVal& InVal, uint64& OutData);
-    bool ReadValue(const GenericVal& InVal, Vec2F& OutData);
-    bool ReadValue(const GenericVal& InVal, Vec3F& OutData);
-    bool ReadValue(const GenericVal& InVal, Vec4F& OutData);
-    bool ReadValue(const GenericVal& InVal, QuatF& OutData);
-    bool ReadValue(const GenericVal& InVal, Mat4F& OutData);
-    bool ReadValue(const GenericVal& InVal, String& OutData);
     // What type is the enums? 
 
     template <class T>

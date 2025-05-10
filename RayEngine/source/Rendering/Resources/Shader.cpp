@@ -2,13 +2,21 @@
 
 #include <functional>
 
+#include "Engine/Rendering/Manager.h"
 #include "Utility/File/File.h"
 #include "raylib.h"
 #include "rlgl.h"
-#include "Engine/Rendering/Manager.h"
+
+ShaderResource::ShaderResource()
+{
+    for (auto& l : DefaultLocs)
+        l = -1;
+}
 
 bool ShaderResource::Load(const String& InIdentifier)
 {
+    PROFILE_GL();
+    
     Identifier = InIdentifier;
     Ptr = new Shader();
     
@@ -44,6 +52,8 @@ bool ShaderResource::Load(const String& InIdentifier)
         Ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*Ptr, "mvp");
         Ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*Ptr, "instanceTransform");
     }
+    
+    LoadDefaultLocs();
 
     return true;
 }
@@ -98,16 +108,36 @@ Shader* ShaderResource::Get() const
 
 int ShaderResource::GetLocation(const String& InValue)
 {
+    PROFILE_GL();
     const Shader* ptr = Get();
     CHECK_RETURN(!ptr, -1);
     const auto find = Locations.find(InValue);
     if (find != Locations.end())
         return find->second;
     const int loc = rlGetLocationUniform(Ptr->id, InValue.c_str());
-    //if (loc < 0)
-    //    LOG("Failed to find texture location: " + InValue);
     Locations[InValue] = loc; 
     return loc; 
+}
+
+int ShaderResource::GetLocation(const DefaultLoc& InLoc) const
+{
+    return DefaultLocs[static_cast<size_t>(InLoc)];
+}
+
+void ShaderResource::LoadDefaultLocs()
+{
+    PROFILE_GL_GPU("Default unform locations");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::TIME)] = rlGetLocationUniform(Ptr->id, "Time");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::DELTA)] = rlGetLocationUniform(Ptr->id, "Delta");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::RESOLUTION)] = rlGetLocationUniform(Ptr->id, "Resolution");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ)] = rlGetLocationUniform(Ptr->id, "ViewProj");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ_PREV)] = rlGetLocationUniform(Ptr->id, "ViewProjPrev");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ_INV)] = rlGetLocationUniform(Ptr->id, "ViewProjInv");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::RECT)] = rlGetLocationUniform(Ptr->id, "Rect");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::REF_RECT)] = rlGetLocationUniform(Ptr->id, "RefRect");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::CAMERA_POSITION)] = rlGetLocationUniform(Ptr->id, "CameraPosition");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::NEAR_FAR)] = rlGetLocationUniform(Ptr->id, "NearFar");
+    DefaultLocs[static_cast<size_t>(DefaultLoc::DEFERRED_ID)] = rlGetLocationUniform(Ptr->id, "DeferredID");
 }
 
 String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InIncludes)
@@ -116,6 +146,12 @@ String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InInclu
     String shader = Utility::ReadFile(InPath);
     shader = ProcessDefines(shader);
     shader = ProcessIncludes(shader, InPath, InIncludes);
+
+    // Fix null terminations
+    std::erase(shader, '\0');
+    if (shader.find("#version") == std::string::npos)
+        shader = "#version 330\n" + shader;
+    
     return shader;
 }
 

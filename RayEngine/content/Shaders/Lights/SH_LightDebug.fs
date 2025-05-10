@@ -1,5 +1,3 @@
-#version 330
-
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Utility/SH_CubeSampling.si"
 
