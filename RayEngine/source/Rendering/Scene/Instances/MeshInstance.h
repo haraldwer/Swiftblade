@@ -7,4 +7,5 @@ struct MeshInstance
     ResModel Model;
     ResRM Material;
     Mat4F Transform;
+    float Extent = 1.0f;
 };

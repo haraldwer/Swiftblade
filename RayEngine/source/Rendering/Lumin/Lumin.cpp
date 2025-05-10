@@ -169,7 +169,7 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
 {
     for (auto& entry : InScene.Meshes.Entries)
     {
-        for (auto& trans : entry.second.Transforms)
+        for (auto& trans : entry.second.Transforms.GetAll())
         {
             // Get extent, maybe add coord?
             ProbeCoord coord = FromPos(trans.GetPosition());

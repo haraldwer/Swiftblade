@@ -22,6 +22,8 @@ namespace Utility
 			bool IsInside(const Vector3<T> & aPosition) const;
 			// Projects a point onto the plane.
 			Vector3<T> Project(Vector3<T> InPoint);
+			// Calculates the distance from a point to the closest point on the plane. Sign specifies if inside or outside
+			float SignedDistance(Vector3<T> InPoint);
 			
 			// Returns the normal of the plane.
 			const Vector3<T>& GetNormal() const;
@@ -65,13 +67,19 @@ namespace Utility
 		{
 			return !(GetNormal().Dot(aPosition - myPoint0) > 0);
 		}
-
+		
 		template <class T>
 		Vector3<T> Plane<T>::Project(Vector3<T> InPoint)
 		{
-			const Vector3<T> diff = InPoint - myPoint0;
-			const float dist = Vector3<T>::Dot(myNormal, diff);
+			const float dist = SignedDistance(InPoint);
 			return InPoint - dist * myNormal;
+		}
+
+		template <class T>
+		float Plane<T>::SignedDistance(Vector3<T> InPoint)
+		{
+			const Vector3<T> diff = InPoint - myPoint0;
+			return Vector3<T>::Dot(myNormal, diff);
 		}
 
 		template<class T>

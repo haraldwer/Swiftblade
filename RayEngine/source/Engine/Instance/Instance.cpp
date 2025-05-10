@@ -26,6 +26,7 @@ void Engine::Instance::Frame()
 {
     Input.Frame();
     auto& man = Rendering::Manager::Get();
+    RenderScene.Build();
     man.Render(RenderScene);
 }
 

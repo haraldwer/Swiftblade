@@ -5,32 +5,48 @@ using namespace Rendering;
 void Scene::Clear()
 {
     Meshes = {};
-    DebugShapes = {};
-    DebugLines = {};
     Environments = {};
-    Lights = {};
+    Lights.Clear();
+    DebugShapes.Clear();
+    DebugLines.Clear();
+}
+
+void Scene::Build()
+{
+    for (auto& e : Meshes.Entries)
+        e.second.Transforms.Build();
+    Lights.Build();
+    DebugShapes.Build();
+    DebugLines.Build();
 }
 
 uint32 Scene::Count() const
 {
     uint32 c = 0;
     for (auto& e : Meshes.Entries)
-        c += static_cast<uint32>(e.second.Transforms.size());
+        c += e.second.Transforms.Count();
     return c;
 }
 
 void MeshCollection::AddMesh(const MeshInstance& InInstance)
 {
     auto& entry = GetEntry(InInstance);
-    entry.Transforms.push_back(InInstance.Transform);
+    entry.Transforms.Insert(InInstance.Transform, {
+        .Position = InInstance.Transform.GetPosition(),
+        .Extent = InInstance.Extent
+    });
 }
 
 void MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
 {
     Entry& entry = GetEntry(InInstance);
-    if (InTransforms.size() > 10)
-        entry.Transforms.resize(entry.Transforms.size() + InTransforms.size());
-    entry.Transforms.insert(entry.Transforms.end(), InTransforms.begin(), InTransforms.end());
+    for (auto& t : InTransforms)
+    {
+        entry.Transforms.Insert(t, {
+            .Position = InInstance.Transform.GetPosition(),
+            .Extent = InInstance.Extent
+        });
+    }
 }
 
 MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
@@ -76,7 +92,6 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
 void Scene::SetCamera(const CameraInstance& InCamera)
 {
     MainCamera = InCamera;
-    //Frustum.ConstructFrustum(InCamera);
 }
 
 void Scene::AddEnvironment(const EnvironmentInstance& InEnvironment)
@@ -86,38 +101,35 @@ void Scene::AddEnvironment(const EnvironmentInstance& InEnvironment)
 
 void Scene::AddMesh(const MeshInstance& InMesh)
 { 
-    const Vec3F scale = InMesh.Transform.GetScale();
-    const float maxScale = Utility::Math::Max(Utility::Math::Max(scale.x, scale.y), scale.z);
-    //if (Frustum.CheckSphere(InMesh.Transform.GetPosition(), maxScale))
-        Meshes.AddMesh(InMesh);
+    Meshes.AddMesh(InMesh);
 }
 
 void Scene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd)
 {
-    if (InBoxStart != Vec3F::Zero() || InBoxEnd != Vec3F::Zero())
-    {
-        const Vec3F halfDiff = (InBoxEnd - InBoxStart) * 0.5f;
-        const Vec3F center = InBoxStart + halfDiff;
-        //if (!Frustum.CheckBox(center.x, center.y, center.z, halfDiff.x, halfDiff.y, halfDiff.z))
-        //    return;
-    }
     Meshes.AddMeshes(InMesh, InTransforms);
 }
 
 void Scene::AddLight(const LightInstance& InLight)
 {
-    Lights.push_back(InLight); 
+    Lights.Insert(InLight, {
+        .Position = InLight.Data.Position,
+        .Extent = InLight.Data.Range
+    }); 
 }
 
 void Scene::AddDebugShape(const DebugShape& InShape)
 {
-    if (Frustum.CheckPoint(InShape.Pos))
-        DebugShapes.push_back(InShape);
+    DebugShapes.Insert(InShape,{
+        .Position = InShape.Pos,
+        .Extent = InShape.Data.r
+    });
 }
 
 void Scene::AddDebugLine(const DebugLine& InLine)
 {
-    const Vec3F diff = InLine.End - InLine.Start; 
-    if (Frustum.CheckCube(InLine.Start + diff * 0.5f, diff.Length()))
-        DebugLines.push_back(InLine);
+    const Vec3F diff = (InLine.End - InLine.Start)/2; 
+    DebugLines.Insert(InLine,{
+        .Position = diff,
+        .Extent = diff.Length()
+    });
 }

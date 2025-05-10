@@ -205,7 +205,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 
         CHECK_CONTINUE(!meshes);
         CHECK_CONTINUE(meshCount == 0);
-        CHECK_CONTINUE(entry.second.Transforms.empty());
+        CHECK_CONTINUE(entry.second.Transforms.Empty());
         
         const MaterialResource* resMat = entry.second.Material.Get();
         CHECK_CONTINUE(!resMat);
@@ -238,7 +238,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
         {
             MeshCommand cmd;
             cmd.vaoID = meshes[i].vaoId;
-            if (rlState::Current.Set(cmd, entry.second.Transforms))
+            if (rlState::Current.Set(cmd, entry.second.Transforms.GetAll()))
             {
                 // From every perspective
                 for (auto& perspective : InArgs.Perspectives)
@@ -247,7 +247,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
                     perspCmd.Rect = perspective.TargetRect;
                     SetPerspectiveShaderValues(InArgs, perspective, *resShader);
                     rlState::Current.Set(perspCmd);
-                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(entry.second.Transforms.size()));
+                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(entry.second.Transforms.Count()));
                 }
                 rlState::Current.ResetMesh();
             }
@@ -628,7 +628,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
     auto& scene = *InArgs.Scene;
-    if (scene.DebugShapes.empty())
+    if (scene.DebugShapes.Empty())
         return 0;
 
     rlState::Current.Reset();
@@ -645,7 +645,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
         
         rlEnableSmoothLines();
 
-        for (auto& shape : scene.DebugShapes)
+        for (auto& shape : scene.DebugShapes.GetAll())
         {
             switch (shape.Type)
             {
@@ -678,7 +678,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
             }
         }
 
-        for (auto& line : scene.DebugLines)
+        for (auto& line : scene.DebugLines.GetAll())
             DrawLine3D(
                 Utility::Ray::ConvertVec(line.Start),
                 Utility::Ray::ConvertVec(line.End),
@@ -687,7 +687,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
         EndMode3D();
     }
 
-    return static_cast<int>(scene.DebugShapes.size() + scene.DebugLines.size());
+    return static_cast<int>(scene.DebugShapes.Count() + scene.DebugLines.Count());
 }
 
 void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
