@@ -12,7 +12,6 @@ set(COMPILE_PLATFORM_PATH ${COMPILE_PLATFORM}_${CMAKE_BUILD_TYPE})
 set(FETCHCONTENT_QUIET OFF)
 include(FetchContent)
 
-include(${CMAKE_SOURCE_DIR}/cmake/IWYU.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/Raylib.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/Tracy.cmake)
 
