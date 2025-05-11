@@ -6,6 +6,7 @@
 #include "Instances/EnvironmentInstance.h"
 #include "Instances/LightInstance.h"
 #include "Instances/MeshInstance.h"
+#include "Utility/Collections/SpatialContainer.h"
 
 namespace Rendering
 {
@@ -13,14 +14,15 @@ namespace Rendering
     {
         void AddMesh(const MeshInstance& InInstance);
         void AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms);
-
+        
         struct Entry {
-            Vector<Mat4F> Transforms;
+            Utility::SpatialContainer<Mat4F> Transforms;
             ResModel Model;
             ResRM Material;
             uint32 DeferredID = 0;
             bool Initialized = false;
         };
+        
         Map<uint64, Entry> Entries;
         Map<uint32, ResShader> DeferredShaders;
         
@@ -45,15 +47,16 @@ namespace Rendering
         void AddDebugLine(const DebugLine& InLine);
 
         void Clear();
+        void Build();
         uint32 Count() const;
 
     private:
         CameraInstance MainCamera = {};
         Vector<EnvironmentInstance> Environments;
         MeshCollection Meshes;
-        Vector<LightInstance> Lights;
-        Vector<DebugShape> DebugShapes;
-        Vector<DebugLine> DebugLines;
+        Utility::SpatialContainer<LightInstance> Lights;
+        Utility::SpatialContainer<DebugShape> DebugShapes;
+        Utility::SpatialContainer<DebugLine> DebugLines;
     };
 }
 
