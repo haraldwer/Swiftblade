@@ -15,26 +15,26 @@ namespace ECS
         void OnBeginContact(const Physics::Contact& InContact) override;
         int GetPriority() const override { return 20; }
 
-        EntityID GetColliderID() const { return ColliderID; }
-        EntityID GetCameraID() const { return CameraID; }
-        EntityID GetWeaponID() const { return WeaponID; }
-        EntityID GetLeftID() const { return LeftID; }
-        EntityID GetRightID() const { return RightID; }
+        EntityID GetColliderID() const { return colliderID; }
+        EntityID GetCameraID() const { return cameraID; }
+        EntityID GetWeaponID() const { return weaponID; }
+        EntityID GetLeftID() const { return leftID; }
+        EntityID GetRightID() const { return rightID; }
 
         void PickupWeapon(EntityID InWeaponID);
-        void Die();
+        void Die() const;
         
-        void TriggerSectionEnd();
-        void TriggerGameEnd();
-        void ActivateCheckpoint();
+        void TriggerSectionEnd() const;
+        void TriggerGameEnd() const;
+        void ActivateCheckpoint() const;
 
     private:
-        EntityID ColliderID = InvalidID;
-        EntityID CameraID = InvalidID;
-        EntityID WeaponID = InvalidID;
-        EntityID LeftID = InvalidID;
-        EntityID RightID = InvalidID;
+        EntityID colliderID = INVALID_ID;
+        EntityID cameraID = INVALID_ID;
+        EntityID weaponID = INVALID_ID;
+        EntityID leftID = INVALID_ID;
+        EntityID rightID = INVALID_ID;
 
-        Utility::Timer PlayTimer; 
+        Utility::Timer playTimer; 
     };
 }

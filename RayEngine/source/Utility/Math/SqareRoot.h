@@ -8,40 +8,40 @@ namespace Utility
     namespace Math
     {
         template<typename DataType>
-        DataType SquareRoot(DataType input_value)
+        DataType SquareRoot(DataType InInputValue)
         {
             assert(false && "DataType has no supported square root.");
         }
 
         template<>
-        inline float SquareRoot<float>(float input_value)
+        inline float SquareRoot<float>(const float InInputValue)
         {
-            return sqrtf(input_value);
+            return sqrtf(InInputValue);
         }
 
         template<>
-        inline double SquareRoot<double>(double input_value)
+        inline double SquareRoot<double>(const double InInputValue)
         {
-            return sqrt(input_value);
+            return sqrt(InInputValue);
         }
 
         template<>
-        inline int SquareRoot<int>(int input_value)
+        inline int SquareRoot<int>(const int InInputValue)
         {
-            if (input_value == 0 || input_value == 1)
-                return input_value;
+            if (InInputValue == 0 || InInputValue == 1)
+                return InInputValue;
 
             int start = 1;
-            int end = input_value;
+            int end = InInputValue;
             int result = 0;
 
             while (start <= end)
             {
                 const int middle = (start + end) / 2;
-                if (middle * middle == input_value)
+                if (middle * middle == InInputValue)
                     return middle;
 
-                if (middle * middle < input_value)
+                if (middle * middle < InInputValue)
                 {
                     start = middle + 1;
                     result = middle;

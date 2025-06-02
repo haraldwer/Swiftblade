@@ -18,9 +18,9 @@ namespace Physics
         ErrorCallback() = default;
         ~ErrorCallback() override = default;
 
-        virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE
+        void reportError(const physx::PxErrorCode::Enum InCode, const char* InMessage, const char* InFile, const int InLine) PX_OVERRIDE
         {
-            LOG("[" + Utility::ToStr(code) + "] " + message + " (" + file + ":" + Utility::ToStr(line) + ")");
+            LOG("[" + Utility::ToStr(InCode) + "] " + InMessage + " (" + InFile + ":" + Utility::ToStr(InLine) + ")");
         }
     };
     
@@ -30,21 +30,21 @@ namespace Physics
     public:
 
         static physx::PxFilterFlags contactReportFilterShader(
-            physx::PxFilterObjectAttributes attributes0, const physx::PxFilterData filterData0,
-            physx::PxFilterObjectAttributes attributes1, const physx::PxFilterData filterData1,
-            physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize)
+            const physx::PxFilterObjectAttributes InAttributes0, const physx::PxFilterData InFilterData0,
+            const physx::PxFilterObjectAttributes InAttributes1, const physx::PxFilterData InFilterData1,
+            physx::PxPairFlags& InPairFlags, const void* InConstantBlock, physx::PxU32 InConstantBlockSize)
         {
             PROFILE();
             
-            PX_UNUSED(constantBlockSize);
-            PX_UNUSED(constantBlock);
+            PX_UNUSED(InConstantBlockSize);
+            PX_UNUSED(InConstantBlock);
             
             if (true)//((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1)))
             {
                 // Any triggers
-                if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
+                if (physx::PxFilterObjectIsTrigger(InAttributes0) || physx::PxFilterObjectIsTrigger(InAttributes1))
                 {
-                    pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT
+                    InPairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT
                         | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
                         | physx::PxPairFlag::eNOTIFY_TOUCH_LOST
                         | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
@@ -52,11 +52,11 @@ namespace Physics
                 }
 
                 // Both kinematic
-                if (physx::PxFilterObjectIsKinematic(attributes0) && physx::PxFilterObjectIsKinematic(attributes1))
+                if (physx::PxFilterObjectIsKinematic(InAttributes0) && physx::PxFilterObjectIsKinematic(InAttributes1))
                     return physx::PxFilterFlag::eKILL;
                 
                 // Normal
-                pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT
+                InPairFlags = physx::PxPairFlag::eCONTACT_DEFAULT
                     | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
                     | physx::PxPairFlag::eNOTIFY_TOUCH_LOST
                     | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
@@ -66,38 +66,38 @@ namespace Physics
             return physx::PxFilterFlag::eSUPPRESS;
         }
         
-        void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs) override
+        void onContact(const physx::PxContactPairHeader& InPairHeader, const physx::PxContactPair* InPairs, physx::PxU32 InNbPairs) override
         {
             PROFILE();
             
-            PX_UNUSED((pairHeader));
-            for (physx::PxU32 i = 0; i < nbPairs; i++)
+            PX_UNUSED((InPairHeader));
+            for (physx::PxU32 i = 0; i < InNbPairs; i++)
             {
-                const bool found = pairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
-                const bool lost = pairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
+                const bool found = InPairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+                const bool lost = InPairs[i].events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
                 if (!found && !lost)
                     continue; 
 
                 // Create contact struct
                 Contact c;
-                const void* userData0 = pairs[i].shapes[0]->userData;
-                const void* userData1 = pairs[i].shapes[1]->userData;
-                c.Target = ECS::PtrToEntity(userData0);
-                c.Self = ECS::PtrToEntity(userData1);
+                const void* userData0 = InPairs[i].shapes[0]->userData;
+                const void* userData1 = InPairs[i].shapes[1]->userData;
+                c.target = ECS::PtrToEntity(userData0);
+                c.self = ECS::PtrToEntity(userData1);
 
                 // Get contact points 
-                if (const physx::PxU32 contactCount = pairs[i].contactCount)
+                if (const physx::PxU32 contactCount = InPairs[i].contactCount)
                 {
                     static Vector<physx::PxContactPairPoint> contactPoints;
                     contactPoints.resize(contactCount);
-                    pairs[i].extractContacts(contactPoints.data(), contactCount);
+                    InPairs[i].extractContacts(contactPoints.data(), contactCount);
                     for (physx::PxU32 j = 0; j < contactCount; j++)
                     {
-                        auto& p = c.Points.emplace_back();
-                        p.Position = Utility::PhysX::ConvertVec(contactPoints[j].position);
-                        p.Impulse = Utility::PhysX::ConvertVec(contactPoints[j].impulse);
-                        p.Normal = Utility::PhysX::ConvertVec(contactPoints[j].normal);
-                        p.Separation = contactPoints[j].separation;
+                        auto& p = c.points.emplace_back();
+                        p.position = Utility::PhysX::ConvertVec(contactPoints[j].position);
+                        p.impulse = Utility::PhysX::ConvertVec(contactPoints[j].impulse);
+                        p.normal = Utility::PhysX::ConvertVec(contactPoints[j].normal);
+                        p.separation = contactPoints[j].separation;
                     }
                 }
                 
@@ -107,24 +107,24 @@ namespace Physics
             }
         }
         
-        void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
+        void onTrigger(physx::PxTriggerPair* InPairs, const physx::PxU32 InCount) override
         {
             PROFILE();
             
-            for (physx::PxU32 i = 0; i < count; i++)
+            for (physx::PxU32 i = 0; i < InCount; i++)
             {
-                const bool found = pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
-                const bool lost = pairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
+                const bool found = InPairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+                const bool lost = InPairs[i].status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
                 if (!found && !lost)
                     continue; 
                 
                 // Create contact struct
                 Contact c;
-                const physx::PxShape* triggeredShape = pairs[i].triggerShape;
-                const physx::PxShape* triggerActivator = pairs[i].otherShape;
-                c.Self = ECS::PtrToEntity(triggerActivator->userData);
-                c.Target = ECS::PtrToEntity(triggeredShape->userData);
-                c.IsTrigger = true;
+                const physx::PxShape* triggeredShape = InPairs[i].triggerShape;
+                const physx::PxShape* triggerActivator = InPairs[i].otherShape;
+                c.self = ECS::PtrToEntity(triggerActivator->userData);
+                c.target = ECS::PtrToEntity(triggeredShape->userData);
+                c.isTrigger = true;
 
                 // Send contact to gameplay!
                 if (found) RegisterContact(c, Contact::Event::BEGIN);
@@ -133,14 +133,14 @@ namespace Physics
         }
 
         // Unused
-        void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) override { PX_UNUSED(constraints); PX_UNUSED(count); }
-        void onWake(physx::PxActor** actors, physx::PxU32 count) override { PX_UNUSED(actors); PX_UNUSED(count); }
-        void onSleep(physx::PxActor** actors, physx::PxU32 count) override { PX_UNUSED(actors); PX_UNUSED(count); }
-        void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count) override { }
+        void onConstraintBreak(physx::PxConstraintInfo* InConstraints, const physx::PxU32 InCount) override { PX_UNUSED(InConstraints); PX_UNUSED(InCount); }
+        void onWake(physx::PxActor** InActors, const physx::PxU32 InCount) override { PX_UNUSED(InActors); PX_UNUSED(InCount); }
+        void onSleep(physx::PxActor** InActors, const physx::PxU32 InCount) override { PX_UNUSED(InActors); PX_UNUSED(InCount); }
+        void onAdvance(const physx::PxRigidBody* const* InBodyBuffer, const physx::PxTransform* InPoseBuffer, const physx::PxU32 InCount) override { }
 
     private:
         
-        static void RegisterContact(const Contact& InContact, Contact::Event InEvent)
+        static void RegisterContact(const Contact& InContact, const Contact::Event InEvent)
         {
             PROFILE();
             
@@ -150,7 +150,7 @@ namespace Physics
                 for (auto& sys : ECS::Manager::Get().GetAllSystems())
                 {
                     CHECK_ASSERT(!sys.second, "System nullptr");
-                    CHECK_CONTINUE(!sys.second->Contains(InCont.Self))
+                    CHECK_CONTINUE(!sys.second->Contains(InCont.self))
                     switch (InEv)
                     {
                     case Contact::Event::BEGIN:
@@ -167,10 +167,10 @@ namespace Physics
             
             // Also test flipped contact
             const Contact flippedContact = {
-                InContact.Self,
-                InContact.Target,
-                InContact.Points,
-                InContact.IsTrigger
+                InContact.self,
+                InContact.target,
+                InContact.points,
+                InContact.isTrigger
             };
             func(flippedContact, InEvent);
         }

@@ -30,18 +30,18 @@ namespace ECS
         void SetRotation(const QuatF& InRot, Space InSpace = Space::WORLD); 
         void SetScale(const Vec3F& InScale, Space InSpace = Space::LOCAL); 
         
-        Mat4F World() const { return WorldMat; }
-        Mat4F Local() const { return LocalMat; }
+        Mat4F World() const { return worldMat; }
+        Mat4F Local() const { return localMat; }
 
         void SetWorld(const Mat4F& InWorld, bool InForce = false);
         void SetLocal(const Mat4F& InLocal, bool InForce = false);
         
-        const Set<EntityID>& GetChildren() const { return Children; }
-        EntityID GetParent() const { return Parent; }
+        const Set<EntityID>& GetChildren() const { return children; }
+        EntityID GetParent() const { return parent; }
 
         void SetParent(EntityID InID, Space InSpace = Space::WORLD) const;
         void AddChild(EntityID InID, Space InSpace = Space::WORLD) const;
-        void RemoveChild(EntityID InID, Space InSpace = Space::WORLD) const; 
+        static void RemoveChild(EntityID InID, Space InSpace = Space::WORLD); 
         
         bool CustomDeserialize(const DeserializeObj& InObj) override;
         void CustomSerialize(SerializeObj& InOutObj) const override;
@@ -49,10 +49,10 @@ namespace ECS
 
     protected:
  
-        Set<EntityID> Children = {}; 
-        EntityID Parent = InvalidID;
-        Mat4F WorldMat = {};
-        Mat4F LocalMat = {};
+        Set<EntityID> children = {}; 
+        EntityID parent = INVALID_ID;
+        Mat4F worldMat = {};
+        Mat4F localMat = {};
     };
 
     class SysTransform : public System<Transform>

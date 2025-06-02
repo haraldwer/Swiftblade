@@ -5,36 +5,36 @@ using namespace Rendering;
 void Scene::Clear()
 {
     PROFILE();
-    Meshes = {};
-    Environments = {};
-    Lights.Clear();
-    DebugShapes.Clear();
-    DebugLines.Clear();
+    meshes = {};
+    environments = {};
+    lights.Clear();
+    debugShapes.Clear();
+    debugLines.Clear();
 }
 
 void Scene::Build()
 {
-    for (auto& e : Meshes.Entries)
-        e.second.Transforms.Build();
-    Lights.Build();
-    DebugShapes.Build();
-    DebugLines.Build();
+    for (auto& e : meshes.entries)
+        e.second.transforms.Build();
+    lights.Build();
+    debugShapes.Build();
+    debugLines.Build();
 }
 
 uint32 Scene::Count() const
 {
     uint32 c = 0;
-    for (auto& e : Meshes.Entries)
-        c += e.second.Transforms.Count();
+    for (auto& e : meshes.entries)
+        c += e.second.transforms.Count();
     return c;
 }
 
 void MeshCollection::AddMesh(const MeshInstance& InInstance)
 {
     auto& entry = GetEntry(InInstance);
-    entry.Transforms.Insert(InInstance.Transform, {
-        .Position = InInstance.Transform.GetPosition(),
-        .Extent = InInstance.Extent
+    entry.transforms.Insert(InInstance.transform, {
+        .position = InInstance.transform.GetPosition(),
+        .extent = InInstance.extent
     });
 }
 
@@ -43,9 +43,9 @@ void MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4
     Entry& entry = GetEntry(InInstance);
     for (auto& t : InTransforms)
     {
-        entry.Transforms.Insert(t, {
-            .Position = InInstance.Transform.GetPosition(),
-            .Extent = InInstance.Extent
+        entry.transforms.Insert(t, {
+            .position = InInstance.transform.GetPosition(),
+            .extent = InInstance.extent
         });
     }
 }
@@ -56,34 +56,34 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
     {
         struct Res
         {
-            uint32 MaterialHash;
-            uint32 ModelHash;
-        } Resource;
-        uint64 Key = 0;
+            uint32 materialHash;
+            uint32 modelHash;
+        } resource;
+        uint64 key = 0;
     } hash;
 
     // Create hash
-    auto mat = InInstance.Material.Get();
+    const auto mat = InInstance.material.Get();
     if (mat)
-        hash.Resource.MaterialHash = mat->Hash();
-    if (auto model = InInstance.Model.Get())
-        hash.Resource.ModelHash = model->Hash();
+        hash.resource.materialHash = mat->Hash();
+    if (const auto model = InInstance.model.Get())
+        hash.resource.modelHash = model->Hash();
 
     // Add entry
-    Entry& entry = Entries[hash.Key];
-    if (!entry.Initialized)
+    Entry& entry = entries[hash.key];
+    if (!entry.initialized)
     {
-        entry.Material = InInstance.Material;
-        entry.Model = InInstance.Model;
-        entry.Initialized = true;
+        entry.material = InInstance.material;
+        entry.model = InInstance.model;
+        entry.initialized = true;
         
         // Add to deferred
         // Deferred is separate because multiple meshes might share the same material hash
         if (mat)
         {
-            entry.DeferredID = mat->DeferredHash();
-            if (!DeferredShaders.contains(entry.DeferredID) && entry.DeferredID != 0 && mat)
-                DeferredShaders[entry.DeferredID] = mat->DeferredShader.Get();
+            entry.deferredID = mat->DeferredHash();
+            if (!deferredShaders.contains(entry.deferredID) && entry.deferredID != 0 && mat)
+                deferredShaders[entry.deferredID] = mat->DeferredShader.Get();
         }
     }
     
@@ -92,45 +92,45 @@ MeshCollection::Entry& MeshCollection::GetEntry(const MeshInstance& InInstance)
 
 void Scene::SetCamera(const CameraInstance& InCamera)
 {
-    MainCamera = InCamera;
+    mainCamera = InCamera;
 }
 
 void Scene::AddEnvironment(const EnvironmentInstance& InEnvironment)
 {
-    Environments.push_back(InEnvironment);
+    environments.push_back(InEnvironment);
 }
 
 void Scene::AddMesh(const MeshInstance& InMesh)
 { 
-    Meshes.AddMesh(InMesh);
+    meshes.AddMesh(InMesh);
 }
 
 void Scene::AddMeshes(const MeshInstance& InMesh, const Vector<Mat4F>& InTransforms, const Vec3F& InBoxStart, const Vec3F& InBoxEnd)
 {
-    Meshes.AddMeshes(InMesh, InTransforms);
+    meshes.AddMeshes(InMesh, InTransforms);
 }
 
 void Scene::AddLight(const LightInstance& InLight)
 {
-    Lights.Insert(InLight, {
-        .Position = InLight.Data.Position,
-        .Extent = InLight.Data.Range
+    lights.Insert(InLight, {
+        .position = InLight.data.position,
+        .extent = InLight.data.range
     }); 
 }
 
 void Scene::AddDebugShape(const DebugShape& InShape)
 {
-    DebugShapes.Insert(InShape,{
-        .Position = InShape.Pos,
-        .Extent = InShape.Data.r
+    debugShapes.Insert(InShape,{
+        .position = InShape.pos,
+        .extent = InShape.data.r
     });
 }
 
 void Scene::AddDebugLine(const DebugLine& InLine)
 {
-    const Vec3F diff = (InLine.End - InLine.Start)/2; 
-    DebugLines.Insert(InLine,{
-        .Position = diff,
-        .Extent = diff.Length()
+    const Vec3F diff = (InLine.end - InLine.start)/2; 
+    debugLines.Insert(InLine,{
+        .position = diff,
+        .extent = diff.Length()
     });
 }

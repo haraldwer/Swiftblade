@@ -4,7 +4,7 @@
 #include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_stdlib.h"
 
-String Utility::GetEditName(const String &InName, uint32 InOffset)
+String Utility::GetEditName(const String &InName, const uint32 InOffset)
 {
     return InName + "##PropertyEdit_" + std::to_string(InOffset);
 }
@@ -30,7 +30,7 @@ void Utility::Separator()
     ImGui::Separator();
 }
 
-bool Utility::MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader)
+bool Utility::MaybeCollapse(const String& InName, const uint32 InOffset, bool& OutHeader)
 {
     if (InName.empty() || InOffset == 0)
         return true;
@@ -38,7 +38,7 @@ bool Utility::MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHead
     return OutHeader;
 }
 
-bool Utility::Button(const String& InName, uint32 InOffset)
+bool Utility::Button(const String& InName, const uint32 InOffset)
 {
     return ImGui::Button(GetEditName(InName, InOffset).c_str());
 }

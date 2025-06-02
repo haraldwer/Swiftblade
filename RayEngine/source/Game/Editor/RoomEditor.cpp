@@ -12,11 +12,11 @@
 void RoomEditor::Init()
 {
     Instance::Init();
-    ECS.Init();
-    CurrConfig.LoadConfig();
+    ecs.Init();
+    currConfig.LoadConfig();
     
     OpenScene();
-    SubEditorManager.SetMode(SubEditorMode::PATH);
+    subEditorManager.SetMode(SubEditorMode::PATH);
     
     EditorCamera.Toggle(); 
     EditorCamera.SetAlwaysEnabled(true);
@@ -33,37 +33,37 @@ void RoomEditor::Init()
                 .Add(UI::Image(ResTexture("UI/T_ModeVolume.png")), "ModeVolume")
                 .Add(UI::Image(ResTexture("UI/T_ModeObject.png")), "ModeObject")
                 .Add(UI::Image(ResTexture("UI/T_ModeConnection.png")), "ModeConnection");
-    UI = builder.Build();
+    ui = builder.Build();
 }
 
 void RoomEditor::Deinit()
 {
-    CurrConfig.SaveConfig();
-    SubEditorManager.Deinit();
-    ECS.Deinit();
+    currConfig.SaveConfig();
+    subEditorManager.Deinit();
+    ecs.Deinit();
     Instance::Deinit();
 }
 
-void RoomEditor::Logic(double InDelta)
+void RoomEditor::Logic(const double InDelta)
 {
-    CHECK_ASSERT(!UI, "UI Invalid");
+    CHECK_ASSERT(!ui, "UI Invalid");
     
     Instance::Logic(InDelta);
-    ECS.Update();
+    ecs.Update();
     EditorCamera.Update();
-    UI->Update();
+    ui->Update();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
-    if (IsKeyPressed(KEY_ONE) || UI->Get("ModeVolume").IsClicked())
+    if (IsKeyPressed(KEY_ONE) || ui->Get("ModeVolume").IsClicked())
         newMode = SubEditorMode::VOLUME;
-    if (IsKeyPressed(KEY_TWO) || UI->Get("ModeObject").IsClicked())
+    if (IsKeyPressed(KEY_TWO) || ui->Get("ModeObject").IsClicked())
         newMode = SubEditorMode::OBJECTS;
-    if (IsKeyPressed(KEY_THREE) || UI->Get("ModeConnection").IsClicked())
+    if (IsKeyPressed(KEY_THREE) || ui->Get("ModeConnection").IsClicked())
         newMode = SubEditorMode::PATH;
     if (newMode != SubEditorMode::COUNT)
-        SubEditorManager.SetMode(newMode); 
+        subEditorManager.SetMode(newMode); 
     
-    SubEditorManager.Update(EditorCamera.IsControlling());
+    subEditorManager.Update(EditorCamera.IsControlling());
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
@@ -74,22 +74,22 @@ void RoomEditor::Logic(double InDelta)
             PlayScene();
     }
 
-    if (UI->Get("Save").IsClicked())
+    if (ui->Get("Save").IsClicked())
         SaveRoom();
-    if (UI->Get("Play").IsClicked())
+    if (ui->Get("Play").IsClicked())
         PlayScene();
-    if (UI->Get("Exit").IsClicked())
+    if (ui->Get("Exit").IsClicked())
         Engine::Manager::Get().Pop();
 }
 
 void RoomEditor::Frame()
 {
-    ECS.Frame(); 
+    ecs.Frame(); 
     Instance::Frame();
     
-    CHECK_ASSERT(!UI, "UI Invalid");
-    UI->Draw();
-    SubEditorManager.Frame(EditorCamera.IsControlling());
+    CHECK_ASSERT(!ui, "UI Invalid");
+    ui->Draw();
+    subEditorManager.Frame(EditorCamera.IsControlling());
 }
 
 void RoomEditor::DrawDebugPanel()
@@ -97,13 +97,13 @@ void RoomEditor::DrawDebugPanel()
     if (EditorCamera.IsControlling())
         ImGui::SetWindowFocus(nullptr); 
     
-    if (CurrConfig.Edit())
+    if (currConfig.Edit())
         OpenScene();
     
-    ImGui::Text("Entities: %i", static_cast<int>(Scene.Entities.size()));
-    ImGui::Text("ECS Entities: %i", static_cast<int>(ECS.GetAllEntities().size()));
+    ImGui::Text("Entities: %i", static_cast<int>(scene.entities.size()));
+    ImGui::Text("ECS Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
 
-    SubEditorManager.DebugDraw(EditorCamera.IsControlling()); 
+    subEditorManager.DebugDraw(EditorCamera.IsControlling()); 
     
     if (ImGui::Button("Save"))
         SaveRoom(); 
@@ -114,22 +114,22 @@ void RoomEditor::DrawDebugPanel()
 
 void RoomEditor::OpenScene()
 {
-    SubEditorManager.Deinit();
-    SubEditorManager = {};
-    Scene.Destroy();
-    ECS.DestroyPending();
+    subEditorManager.Deinit();
+    subEditorManager = {};
+    scene.Destroy();
+    ecs.DestroyPending();
 
-    if (const auto scene = CurrConfig.Scene.Get().Get())
-        Scene = scene->Create();
+    if (const auto scene = currConfig.Scene.Get().Get())
+        scene = scene->Create();
     
-    SubEditorManager.Init(CurrConfig.IsArena ?
+    subEditorManager.Init(currConfig.IsArena ?
         RoomType::ARENA : RoomType::ROOM); 
 }
 
 void RoomEditor::PlayScene()
 {
     if (GameInstance* game = Engine::Manager::Get().Push<GameInstance>())
-        game->PlayScene(CurrConfig.Scene, EditorCamera.GetPosition());
+        game->PlayScene(currConfig.Scene, EditorCamera.GetPosition());
 }
 
 void RoomEditor::SaveRoom()
@@ -139,11 +139,11 @@ void RoomEditor::SaveRoom()
     {
         const auto trans = man.GetComponent<ECS::Transform>(e);
         CHECK_CONTINUE(!trans);
-        CHECK_CONTINUE(trans->GetParent() != ECS::InvalidID);
-        CHECK_CONTINUE(SubEditorManager.IgnoreSave(e));
-        Scene.Entities.insert(e);
+        CHECK_CONTINUE(trans->GetParent() != ECS::INVALID_ID);
+        CHECK_CONTINUE(subEditorManager.IgnoreSave(e));
+        scene.entities.insert(e);
     }
     
-    if (const auto scene = CurrConfig.Scene.Get().Get())
-        scene->Save(Scene, SubEditorManager.GetStartOffset());
+    if (const auto scene = currConfig.Scene.Get().Get())
+        scene->Save(scene, subEditorManager.GetStartOffset());
 }

@@ -5,42 +5,42 @@
 
 void Debug::Manager::Init()
 {
-    Current.LoadConfig();
+    current.LoadConfig();
 }
 
-void Debug::Manager::Deinit()
+void Debug::Manager::Deinit() const
 {
-    Current.SaveConfig();
+    current.SaveConfig();
 }
 
 void Debug::Manager::Logic()
 {
-    LogicCounter++; 
+    logicCounter++; 
 }
 
-void Debug::Manager::Frame(double InDeltaTime)
+void Debug::Manager::Frame(const double InDeltaTime)
 {
     PROFILE();
     
-    for (auto w : PendingRegister)
+    for (auto w : pendingRegister)
     {
         const String name = w->DebugPanelName();
-        Windows[name].push_back(w);
-        WindowToName[w] = name; 
+        windows[name].push_back(w);
+        windowToName[w] = name; 
     }
-    PendingRegister.clear();
+    pendingRegister.clear();
 
     if (IsKeyPressed(KEY_F2))
-        Current.DebugEnabled = !Current.DebugEnabled;
+        current.DebugEnabled = !current.DebugEnabled;
 
-    CHECK_RETURN(!Current.DebugEnabled); 
+    CHECK_RETURN(!current.DebugEnabled); 
     
     // Menu bar
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
         {
-            for (const auto& entry : Windows)
+            for (const auto& entry : windows)
             {
                 CHECK_CONTINUE(entry.second.empty());
                 auto& w = entry.second.back();
@@ -54,14 +54,14 @@ void Debug::Manager::Frame(double InDeltaTime)
         }
         
         // Calculate ticks per frame
-        TPF = Utility::Math::Lerp(TPF, static_cast<double>(LogicCounter), 2.0f * static_cast<float>(InDeltaTime));
-        const double tps = TPF / InDeltaTime;
-        LogicCounter = 0;
+        tpf = Utility::Math::Lerp(tpf, static_cast<double>(logicCounter), 2.0f * static_cast<float>(InDeltaTime));
+        const double tps = tpf / InDeltaTime;
+        logicCounter = 0;
         
         ImGui::Text(" | FPS: %i TPS: %s TPF: %s",
             static_cast<int>(1.0f / InDeltaTime),
             std::to_string(tps).substr(0, 3).c_str(),
-            std::to_string(TPF).substr(0, 3).c_str());
+            std::to_string(tpf).substr(0, 3).c_str());
         
         ImGui::EndMainMenuBar();
     }
@@ -70,7 +70,7 @@ void Debug::Manager::Frame(double InDeltaTime)
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
     // Windows
-    for (const auto& entry : Windows)
+    for (const auto& entry : windows)
     {
         CHECK_CONTINUE(entry.second.empty());
         auto& w = entry.second.back();
@@ -86,29 +86,29 @@ void Debug::Manager::Frame(double InDeltaTime)
 
 void Debug::Manager::Register(Panel* InWindow)
 {
-    PendingRegister.insert(InWindow);
+    pendingRegister.insert(InWindow);
 }
 
 void Debug::Manager::Unregister(const Panel* InWindow)
 {
-    const String name = WindowToName[InWindow]; 
-    WindowToName.erase(InWindow); 
-    auto& vec = Windows[name];
+    const String name = windowToName[InWindow]; 
+    windowToName.erase(InWindow); 
+    auto& vec = windows[name];
     for (int i = static_cast<int>(vec.size()) - 1; i >= 0; i--)
         if (vec[i] == InWindow || !vec[i])
             vec.erase(vec.begin() + i);
-    if (Windows[name].empty())
-        Windows.erase(name);
+    if (windows[name].empty())
+        windows.erase(name);
 }
 
 bool Debug::Manager::IsOpen(const String& InWindow) const
 {
-    return Current.OpenWindows.Get().contains(InWindow);
+    return current.OpenWindows.Get().contains(InWindow);
 }
 
-void Debug::Manager::SetOpen(const String& InWindow, bool InOpen)
+void Debug::Manager::SetOpen(const String& InWindow, const bool InOpen)
 {
-    Set<String>& set = Current.OpenWindows.Get();
+    Set<String>& set = current.OpenWindows.Get();
     if (InOpen)
         set.insert(InWindow);
     else

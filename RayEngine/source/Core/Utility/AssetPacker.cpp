@@ -8,20 +8,20 @@
 bool Utility::AssetPackGenerator::Package()
 {
     LOG("Packaging assets");
-    CHECK_RETURN_LOG(CurrentChunk.is_open(), "Chunk already open", false);
-    ChunkCount = 0;
-    WriteOffset = 0;
+    CHECK_RETURN_LOG(_CurrentChunk.is_open(), "Chunk already open", false);
+    _ChunkCount = 0;
+    _WriteOffset = 0;
     bool result = ProcessDir(std::filesystem::current_path().string());
-    if (CurrentChunk.is_open())
+    if (_CurrentChunk.is_open())
         if (!EndChunk())
             result = false;
     LOG(result ? "Package Success" : "Package Failure");
 
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
-    Assets.Serialize(writer);
-    String hash = std::to_string(Hash(String("reg")));
-    String path = String(PACK_PATH)  + "_" + hash;
+    _Assets.Serialize(writer);
+    const String hash = std::to_string(Hash(String("reg")));
+    const String path = String(PACK_PATH)  + "_" + hash;
     String content = FormatJson(s.GetString());
     Encrypt(content, 0, PACK_KEY);
     if (!WriteFile(path, content))
@@ -32,19 +32,19 @@ bool Utility::AssetPackGenerator::Package()
 
 bool Utility::AssetPackGenerator::BeginChunk()
 {
-    String path = String(PACK_PATH) + "_" + std::to_string(Hash(ChunkCount));
+    const String path = String(PACK_PATH) + "_" + std::to_string(Hash(_ChunkCount));
     LOG("Opening chunk: " + path);
-    CurrentChunk.open(path, std::ios::out);
-    return CurrentChunk.is_open();
+    _CurrentChunk.open(path, std::ios::out);
+    return _CurrentChunk.is_open();
 }
 
 bool Utility::AssetPackGenerator::EndChunk()
 {
-    LOG("Closing chunk, size: " + std::to_string(WriteOffset));
-    CurrentChunk.close();
-    ChunkCount++;
-    WriteOffset = 0;
-    return !CurrentChunk.is_open();
+    LOG("Closing chunk, size: " + std::to_string(_WriteOffset));
+    _CurrentChunk.close();
+    _ChunkCount++;
+    _WriteOffset = 0;
+    return !_CurrentChunk.is_open();
 }
 
 bool Utility::AssetPackGenerator::ProcessDir(const String& InPath)
@@ -69,7 +69,7 @@ bool Utility::AssetPackGenerator::ProcessFile(const std::filesystem::directory_e
     if (InEntry.path() == String(PACK_PATH))
         return true;
 
-    if (!CurrentChunk.is_open())
+    if (!_CurrentChunk.is_open())
         if (!BeginChunk())
             return false;
     
@@ -81,25 +81,25 @@ bool Utility::AssetPackGenerator::ProcessFile(const std::filesystem::directory_e
     stream.exceptions(std::ios_base::badbit);
     CHECK_RETURN_LOG(!stream, "ERROR: Stream exception", false);
 
-    auto& asset = Assets.Assets.Get().emplace_back();
+    auto& asset = _Assets.Assets.Get().emplace_back();
     asset.Hash = Hash(path);
-    asset.Start = WriteOffset;
-    asset.StartChunk = ChunkCount;
+    asset.Start = _WriteOffset;
+    asset.StartChunk = _ChunkCount;
 
-    auto write = [&](const String& InBuff, uint64 InCount)
+    auto write = [&](const String& InBuff, const uint64 InCount)
     {
-        const uint64 totalOffset = WriteOffset + InCount;
-        const uint64 firstWrite = Math::Min(totalOffset, static_cast<uint64>(PACK_CHUNK_SIZE)) - WriteOffset;
+        const uint64 totalOffset = _WriteOffset + InCount;
+        const uint64 firstWrite = Math::Min(totalOffset, static_cast<uint64>(PACK_CHUNK_SIZE)) - _WriteOffset;
         const uint64 nextWrite = InCount - firstWrite;
 
         LOG("Writing " + std::to_string(firstWrite) + " bytes");
         String firstStr = InBuff.substr(0, firstWrite);
-        Encrypt(firstStr, WriteOffset, PACK_KEY);
-        CurrentChunk << firstStr;
-        WriteOffset += firstWrite;
+        Encrypt(firstStr, _WriteOffset, PACK_KEY);
+        _CurrentChunk << firstStr;
+        _WriteOffset += firstWrite;
 
         // Begin next chunk
-        if (WriteOffset >= PACK_CHUNK_SIZE)
+        if (_WriteOffset >= PACK_CHUNK_SIZE)
         {
             CHECK_RETURN_LOG(!EndChunk(), "Failed to end chunk", false);
             CHECK_RETURN_LOG(!BeginChunk(), "Failed to begin chunk", false);
@@ -108,9 +108,9 @@ bool Utility::AssetPackGenerator::ProcessFile(const std::filesystem::directory_e
         if (nextWrite > 0)
         {
             String secondStr = InBuff.substr(firstWrite, nextWrite);
-            Encrypt(secondStr, WriteOffset, PACK_KEY);
-            CurrentChunk << secondStr;
-            WriteOffset += nextWrite;
+            Encrypt(secondStr, _WriteOffset, PACK_KEY);
+            _CurrentChunk << secondStr;
+            _WriteOffset += nextWrite;
             LOG("Writing additional " + std::to_string(firstWrite) + " bytes");
         }
 
@@ -124,8 +124,8 @@ bool Utility::AssetPackGenerator::ProcessFile(const std::filesystem::directory_e
     write(buf, stream.gcount());
     LOG("Finished reading file");
 
-    asset.End = WriteOffset;
-    asset.EndChunk = ChunkCount;
+    asset.End = _WriteOffset;
+    asset.EndChunk = _ChunkCount;
 
     return true;
 }
@@ -134,8 +134,8 @@ Utility::AssetPackReader::AssetPackReader()
 {
     AssetRegistry registry;
 
-    String hash = std::to_string(Hash(String("reg")));
-    String path = String(PACK_PATH)  + "_" + hash;
+    const String hash = std::to_string(Hash(String("reg")));
+    const String path = String(PACK_PATH)  + "_" + hash;
     String fileContent = ReadFile(path);
     CHECK_RETURN_LOG(fileContent.empty(), "Pack file empty");
     Decrypt(fileContent, 0, PACK_KEY);
@@ -147,29 +147,29 @@ Utility::AssetPackReader::AssetPackReader()
     
     CHECK_RETURN_LOG(registry.Assets.Get().empty(), "Failed to load assets");
     for (auto& a : registry.Assets.Get())
-        Assets[a.Hash.Get()] = a;
+        _Assets[a.Hash.Get()] = a;
 }
 
 String Utility::AssetPackReader::Read(const String& InFile) const
 {
     LOG("Reading file: " + InFile)
-    auto find = Assets.find(Hash(InFile));
-    CHECK_RETURN_LOG(find == Assets.end(), "Unknown file: " + InFile, "");
+    const auto find = _Assets.find(Hash(InFile));
+    CHECK_RETURN_LOG(find == _Assets.end(), "Unknown file: " + InFile, "");
 
     const Asset& asset = find->second;
     String data;
     for (uint64 chunk = asset.StartChunk; chunk <= asset.EndChunk; chunk++)
     {
-        uint64 start = chunk == asset.StartChunk ?
+        const uint64 start = chunk == asset.StartChunk ?
             asset.Start : static_cast<uint64>(0);
-        uint64 end = chunk == asset.EndChunk ?
+        const uint64 end = chunk == asset.EndChunk ?
             asset.End : static_cast<uint64>(PACK_CHUNK_SIZE);
         data += ReadChunk(chunk, start, end);
     }
     return data;
 }
 
-String Utility::AssetPackReader::ReadChunk(uint64 InChunk, uint64 InStart, uint64 InEnd) const
+String Utility::AssetPackReader::ReadChunk(uint64 InChunk, uint64 InStart, uint64 InEnd)
 {
     String path = String(PACK_PATH) + "_" + std::to_string(Hash(InChunk));
     std::ifstream stream;

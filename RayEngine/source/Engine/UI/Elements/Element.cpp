@@ -39,10 +39,10 @@ bool UI::Element::IsHovered() const
     const Vector2 mp = GetMousePosition();
     const Vec2F relative = ScreenToViewport({ mp.x, mp.y });
     return
-        relative.x > CachedRect.Start.x &&
-        relative.x < CachedRect.End.x &&
-        relative.y > CachedRect.Start.y &&
-        relative.y < CachedRect.End.y;
+        relative.x > CachedRect.start.x &&
+        relative.x < CachedRect.end.x &&
+        relative.y > CachedRect.start.y &&
+        relative.y < CachedRect.end.y;
 }
 
 bool UI::Element::IsClicked() const
@@ -52,7 +52,7 @@ bool UI::Element::IsClicked() const
 
 UI::Rect UI::Element::GetReferenceRect()
 {
-    const Vec2I res = Rendering::Manager::Get().MainViewport.GetResolution();
+    const Vec2I res = Rendering::Manager::Get().mainViewport.GetResolution();
     const float aspect = static_cast<float>(res.x) / static_cast<float>(res.y); 
     return {
         Vec2F::Zero(),
@@ -65,7 +65,7 @@ UI::Rect UI::Element::GetReferenceRect()
 
 UI::Rect UI::Element::ReferenceToViewport(const Rect& InRect)
 {
-    return { ReferenceToViewport(InRect.Start), ReferenceToViewport(InRect.End) };    
+    return { ReferenceToViewport(InRect.start), ReferenceToViewport(InRect.end) };    
 }
 
 Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
@@ -76,24 +76,24 @@ Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
     // TODO: Also consider ref start
     // TODO: Fix stretching
     
-    const Vec2I resi = Rendering::Manager::Get().MainViewport.GetResolution();
+    const Vec2I resi = Rendering::Manager::Get().mainViewport.GetResolution();
     const Vec2F res = { static_cast<float>(resi.x), static_cast<float>(resi.y) };
     const Rect ref = GetReferenceRect();
     return {
-        (InVec / ref.End) * res,
+        (InVec / ref.end) * res,
     };
 }
 
 Vec2F UI::Element::ScreenToViewport(const Vec2F& InScreenPos)
 {
     // From screen to reference space
-    auto& man = Rendering::Manager::Get();
-    const Vec2F viewportPos = InScreenPos - man.MainViewport.GetPosition();
-    const Vec2I si = man.MainViewport.GetSize();
+    const auto& man = Rendering::Manager::Get();
+    const Vec2F viewportPos = InScreenPos - man.mainViewport.GetPosition();
+    const Vec2I si = man.mainViewport.GetSize();
     const Vec2F s = { static_cast<float>(si.x), static_cast<float>(si.y) };
     const Vec2F absolute = viewportPos / s;
     const Rect ref = GetReferenceRect();
-    return absolute * ref.End; 
+    return absolute * ref.end; 
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
@@ -108,28 +108,28 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 
     // Set up parent container
     Rect parent = InContainer;
-    parent.Start.x += Transform.Padding.Horizontal.x;
-    parent.End.x -= Transform.Padding.Horizontal.y;
-    parent.Start.y += Transform.Padding.Vertical.x;
-    parent.End.y -= Transform.Padding.Vertical.y;
+    parent.start.x += Transform.padding.horizontal.x;
+    parent.end.x -= Transform.padding.horizontal.y;
+    parent.start.y += Transform.padding.vertical.x;
+    parent.end.y -= Transform.padding.vertical.y;
 
     // Calculate anchor point
     const Vec2F anchor = {
-        Utility::Math::Lerp(parent.Start.x, parent.End.x, Transform.Anchor.x),
-        Utility::Math::Lerp(parent.Start.y, parent.End.y, Transform.Anchor.y)
+        Utility::Math::Lerp(parent.start.x, parent.end.x, Transform.anchor.x),
+        Utility::Math::Lerp(parent.start.y, parent.end.y, Transform.anchor.y)
     };
     
     // Calculate position and size
     Rect absolute;
-    absolute.Start = anchor + Transform.Position + Transform.Size * Transform.Pivot;
-    absolute.End = anchor + Transform.Position + Transform.Size * (Vec2F(1.0f) - Transform.Pivot);
+    absolute.start = anchor + Transform.position + Transform.size * Transform.pivot;
+    absolute.end = anchor + Transform.position + Transform.size * (Vec2F(1.0f) - Transform.pivot);
     
     // And blend to container using alignment
     Rect result;
-    result.Start.x = Utility::Math::Lerp(absolute.Start.x, parent.Start.x, Transform.Alignment.Horizontal.x);
-    result.Start.y = Utility::Math::Lerp(absolute.Start.y, parent.Start.y, Transform.Alignment.Vertical.x);
-    result.End.x = Utility::Math::Lerp(absolute.End.x, parent.End.x, Transform.Alignment.Horizontal.y);
-    result.End.y = Utility::Math::Lerp(absolute.End.y, parent.End.y, Transform.Alignment.Vertical.y);
+    result.start.x = Utility::Math::Lerp(absolute.start.x, parent.start.x, Transform.alignment.horizontal.x);
+    result.start.y = Utility::Math::Lerp(absolute.start.y, parent.start.y, Transform.alignment.vertical.x);
+    result.end.x = Utility::Math::Lerp(absolute.end.x, parent.end.x, Transform.alignment.horizontal.y);
+    result.end.y = Utility::Math::Lerp(absolute.end.y, parent.end.y, Transform.alignment.vertical.y);
     
     return result; 
 }
@@ -138,8 +138,8 @@ void UI::Element::DrawRect(const Rect& InRect)
 {
     return; 
     const Rect view = ReferenceToViewport(InRect);
-    const Vec2F size = view.End - view.Start;
-    const Vec2F pos = view.Start;
+    const Vec2F size = view.end - view.start;
+    const Vec2F pos = view.start;
     DrawRectangleLines(
         static_cast<int>(pos.x + 0.5f),
         static_cast<int>(pos.y + 0.5f),

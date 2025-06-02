@@ -11,7 +11,7 @@ namespace Input
         void Init();
         void Update();
         void Frame();
-        void UpdateAction(Action& InAction);
+        void UpdateAction(Action& InAction) const;
         
         void Push(const String& InContext);
         void Pop(const String& InContext);
@@ -27,9 +27,9 @@ namespace Input
         void UpdateCursorState();
         const Context& GetContext(const String& InName) const;
         
-        Vector<String> ContextStack = {};
-        Config Current = {}; 
-        Vec2F MouseDelta = {};
+        Vector<String> contextStack = {};
+        Config current = {}; 
+        Vec2F mouseDelta = {};
 
         // TODO: Input buffering
         // TODO: Consuming input

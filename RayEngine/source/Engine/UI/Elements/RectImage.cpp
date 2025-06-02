@@ -7,7 +7,7 @@ void UI::RectImage::Draw()
     const Rect rect = GetRect();
     DrawRect(rect);
     
-    if (const auto textureRes = Texture.Get())
+    if (const auto textureRes = texture.Get())
     {
         if (const auto texture = textureRes->Get())
         {
@@ -17,56 +17,56 @@ void UI::RectImage::Draw()
                 
                 // 1
                 corners.push_back({
-                    InRef.Start,
-                    { InRef.Start.x + Edges.Horizontal.x, InRef.Start.y + Edges.Vertical.x }
+                    InRef.start,
+                    { InRef.start.x + Edges.horizontal.x, InRef.start.y + Edges.vertical.x }
                 });
 
                 // 2
                 corners.push_back({
-                    { InRef.Start.x + Edges.Horizontal.x, InRef.Start.y },
-                    { InRef.End.x - Edges.Horizontal.y, InRef.Start.y + Edges.Vertical.x }
+                    { InRef.start.x + Edges.horizontal.x, InRef.start.y },
+                    { InRef.end.x - Edges.horizontal.y, InRef.start.y + Edges.vertical.x }
                 });
 
                 // 3
                 corners.push_back({
-                    { InRef.End.x - Edges.Horizontal.y, InRef.Start.y },
-                    { InRef.End.x, InRef.Start.y + Edges.Vertical.x }
+                    { InRef.end.x - Edges.horizontal.y, InRef.start.y },
+                    { InRef.end.x, InRef.start.y + Edges.vertical.x }
                 });
 
                 // 4
                 corners.push_back({
-                    { InRef.Start.x, InRef.Start.y + Edges.Vertical.x },
-                    { InRef.Start.x + Edges.Horizontal.x, InRef.End.y - Edges.Vertical.y }
+                    { InRef.start.x, InRef.start.y + Edges.vertical.x },
+                    { InRef.start.x + Edges.horizontal.x, InRef.end.y - Edges.vertical.y }
                 });
 
                 // 5
                 corners.push_back({
-                    { InRef.Start.x + Edges.Horizontal.x, InRef.Start.y + Edges.Vertical.x },
-                    { InRef.End.x - Edges.Horizontal.y, InRef.End.y - Edges.Vertical.y }
+                    { InRef.start.x + Edges.horizontal.x, InRef.start.y + Edges.vertical.x },
+                    { InRef.end.x - Edges.horizontal.y, InRef.end.y - Edges.vertical.y }
                 });
 
                 // 6
                 corners.push_back({
-                    { InRef.End.x - Edges.Horizontal.y, InRef.Start.y + Edges.Vertical.x },
-                    { InRef.End.x, InRef.End.y - Edges.Vertical.y }
+                    { InRef.end.x - Edges.horizontal.y, InRef.start.y + Edges.vertical.x },
+                    { InRef.end.x, InRef.end.y - Edges.vertical.y }
                 });
 
                 // 7
                 corners.push_back({
-                    { InRef.Start.x, InRef.End.y - Edges.Vertical.y },
-                    { InRef.Start.x + Edges.Horizontal.x, InRef.End.y }
+                    { InRef.start.x, InRef.end.y - Edges.vertical.y },
+                    { InRef.start.x + Edges.horizontal.x, InRef.end.y }
                 });
 
                 // 8
                 corners.push_back({
-                    { InRef.Start.x + Edges.Horizontal.x, InRef.End.y - Edges.Vertical.y },
-                    { InRef.End.x - Edges.Horizontal.y, InRef.End.y }
+                    { InRef.start.x + Edges.horizontal.x, InRef.end.y - Edges.vertical.y },
+                    { InRef.end.x - Edges.horizontal.y, InRef.end.y }
                 });
 
                 // 9
                 corners.push_back({
-                    { InRef.End.x - Edges.Horizontal.y, InRef.End.y - Edges.Vertical.y },
-                    { InRef.End.x, InRef.End.y }
+                    { InRef.end.x - Edges.horizontal.y, InRef.end.y - Edges.vertical.y },
+                    { InRef.end.x, InRef.end.y }
                 });
 
                 return corners;
@@ -93,15 +93,15 @@ void UI::RectImage::Draw()
                 DrawTexturePro(
                     *texture,
                     {
-                        source.Start.x,
-                        source.Start.y,
-                        source.End.x - source.Start.x,
-                        source.End.y - source.Start.y
+                        source.start.x,
+                        source.start.y,
+                        source.end.x - source.start.x,
+                        source.end.y - source.start.y
                     }, {
-                        dest.Start.x,
-                        dest.Start.y,
-                        dest.End.x - dest.Start.x,
-                        dest.End.y - dest.Start.y
+                        dest.start.x,
+                        dest.start.y,
+                        dest.end.x - dest.start.x,
+                        dest.end.y - dest.start.y
                     },
                     { 0.0f, 0.0f },
                     0.0f,

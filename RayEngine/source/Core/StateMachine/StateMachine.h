@@ -21,21 +21,21 @@ public:
 	template <class T>
 	T* GetState() const;
 	StateBase* GetState(const Utility::Type& InType) const;
-	Utility::Type GetCurrentType() const { return CurrentState; };
+	Utility::Type GetCurrentType() const { return currentState; };
 	StateBase* GetCurrentState() const { return GetState(GetCurrentType()); };
 
 protected:
 	
-	Utility::Type CurrentState = Utility::Type::None();
-	Vector<StateBase*> States;
-	Map<Utility::TypeHash, StateBase*> TypeMap;
+	Utility::Type currentState = Utility::Type::None();
+	Vector<StateBase*> states;
+	Map<Utility::TypeHash, StateBase*> typeMap;
 };
 
 template <class T>
 T* StateMachine::GetState() const
 {
-	auto find = TypeMap.find(Type::Get<T>().GetHash());
-	if (find != TypeMap.end())
+	auto find = typeMap.find(Type::Get<T>().GetHash());
+	if (find != typeMap.end())
 		return reinterpret_cast<T*>(find->second); 
 	return nullptr;
 }

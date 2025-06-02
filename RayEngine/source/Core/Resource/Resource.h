@@ -22,13 +22,13 @@ namespace Resource
                 res = new Impl<T>(InIdentifier);
                 man.Register(res, InIdentifier); 
             }
-            Ptr = res;
+            ptr = res;
             Increment(); 
         }
         
         bool IsLoaded() const
         {
-            return Ptr && Ptr->Loaded;    
+            return ptr && ptr->Loaded;    
         }
 
         operator bool() const
@@ -38,21 +38,21 @@ namespace Resource
         
         bool Unload()
         {
-            CHECK_RETURN(!Ptr, false);
-            return Ptr->Unload();  
+            CHECK_RETURN(!ptr, false);
+            return ptr->Unload();  
         }
 
         String Identifier() const
         {
-            return Ptr ? Ptr->Identifier : ""; 
+            return ptr ? ptr->Identifier : ""; 
         }
 
         T* Get() const
         {
-            if (!IsLoaded() && Ptr)
-                Ptr->Load(); // Try load
+            if (!IsLoaded() && ptr)
+                ptr->Load(); // Try load
             if (IsLoaded())
-                return &Ptr->Data;
+                return &ptr->Data;
             return nullptr;
         }
         
@@ -61,7 +61,7 @@ namespace Resource
         Ref(const Ref& InOther) { *this = InOther; }
         Ref(Ref&& InOther)
         {
-            Ptr = InOther.Ptr;
+            ptr = InOther.Ptr;
             InOther.Ptr = nullptr;
         }
         
@@ -71,7 +71,7 @@ namespace Resource
             if (this != &InPtr)
             {
                 Decrement();
-                Ptr = InPtr.Ptr;
+                ptr = InPtr.Ptr;
                 Increment();
             }        
             return *this;
@@ -79,12 +79,12 @@ namespace Resource
 
         void Serialize(SerializeObj& InOutObj) const
         {
-            if (!Ptr)
+            if (!ptr)
             {
                 Utility::WriteValue(InOutObj, String());
                 return;
             }
-            Utility::WriteValue(InOutObj, Ptr->Identifier);
+            Utility::WriteValue(InOutObj, ptr->Identifier);
         }
         
         bool Deserialize(const GenericVal& InObj)
@@ -100,7 +100,7 @@ namespace Resource
         bool Edit(const String& InName, uint32 InOffset = 0)
         {
             // File picker
-            const String currID = Ptr ? Ptr->Identifier : "";
+            const String currID = ptr ? ptr->Identifier : "";
             
             const String newID = Base::Pick(InName, currID);
             if (currID != newID)
@@ -117,7 +117,7 @@ namespace Resource
                     if (ptr->Edit(InName, InOffset))
                     {
                         ptr->Save(currID);
-                        Ptr->TryHotReload(); 
+                        ptr->TryHotReload(); 
                     }
                 }
             }
@@ -128,14 +128,14 @@ namespace Resource
 
         bool operator==(const Ref& InOther) const
         {
-            return InOther.Ptr == Ptr;
+            return InOther.Ptr == ptr;
         }
         
     private:
         
-        void Increment() const { if (Ptr) Ptr->Count++; }
-        void Decrement() { if (Ptr) Ptr->Count--; }
+        void Increment() const { if (ptr) ptr->Count++; }
+        void Decrement() { if (ptr) ptr->Count--; }
         
-        Impl<T>* Ptr = nullptr;
+        Impl<T>* ptr = nullptr;
     };
 }

@@ -5,20 +5,20 @@
 
 bool FontResource::Load(const String& InIdentifier)
 {
-    Identifier = InIdentifier;
-    Ptr = new Font();
-    *Ptr = LoadFontEx(InIdentifier.c_str(), 100, nullptr, 0);
-    SetTextureFilter(Ptr->texture, TEXTURE_FILTER_POINT);
+    identifier = InIdentifier;
+    ptr = new Font();
+    *ptr = LoadFontEx(InIdentifier.c_str(), 100, nullptr, 0);
+    SetTextureFilter(ptr->texture, TEXTURE_FILTER_POINT);
     return true;
 }
 
 bool FontResource::Unload()
 {
-    if (Ptr)
+    if (ptr)
     {
-        UnloadFont(*Ptr);
-        delete (Ptr);
-        Ptr = nullptr; 
+        UnloadFont(*ptr);
+        delete (ptr);
+        ptr = nullptr; 
         return true;
     }
     return false; 
@@ -26,5 +26,5 @@ bool FontResource::Unload()
 
 Utility::Timepoint FontResource::GetEditTime() const
 {
-    return Utility::GetFileWriteTime(Identifier);  
+    return Utility::GetFileWriteTime(identifier);  
 }

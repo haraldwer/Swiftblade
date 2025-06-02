@@ -14,51 +14,51 @@
 void BlueprintEditor::Init()
 {
     Instance::Init();
-    ECS.Init();
+    ecs.Init();
     EditorCamera.Toggle(); 
-    Config.LoadConfig();
-    SetBP(Config.Blueprint);
+    config.LoadConfig();
+    SetBP(config.Blueprint);
 }
 
 void BlueprintEditor::Deinit()
 {
     Instance::Deinit();
-    ECS.Deinit();
-    Config.SaveConfig();
+    ecs.Deinit();
+    config.SaveConfig();
 }
 
 void BlueprintEditor::SetBP(const ResBlueprint& InBP)
 {
-    if (InstanceID != ECS::InvalidID)
-        ECS::Manager::Get().DestroyEntity(InstanceID);
+    if (instanceID != ECS::INVALID_ID)
+        ECS::Manager::Get().DestroyEntity(instanceID);
     
-    Config.Blueprint = InBP;
-    Config.SaveConfig();
-    if (BlueprintResource* bp = Config.Blueprint.Get().Get())
-        InstanceID = bp->Instantiate();
+    config.Blueprint = InBP;
+    config.SaveConfig();
+    if (const BlueprintResource* bp = config.Blueprint.Get().Get())
+        instanceID = bp->Instantiate();
 
-    SelectedID = InstanceID;
+    selectedID = instanceID;
 
-    if (auto t = ECS.GetComponent<ECS::Transform>(InstanceID))
+    if (const auto t = ecs.GetComponent<ECS::Transform>(instanceID))
         EditorCamera.SetTarget(t->GetPosition());
 }
 
-void BlueprintEditor::Logic(double InDelta)
+void BlueprintEditor::Logic(const double InDelta)
 {
     Instance::Logic(InDelta);
 
     // Update
-    ECS.Update();
+    ecs.Update();
     EditorCamera.Update();
 
-    if (InstanceID == ECS::InvalidID)
+    if (instanceID == ECS::INVALID_ID)
         return; 
     
     if (Input::Action::Get("Ctrl").Down())
     {
         if (Input::Action::Get("Save").Pressed())
-            if (BlueprintResource* bp = Config.Blueprint.Get().Get())
-                bp->Save(InstanceID); 
+            if (BlueprintResource* bp = config.Blueprint.Get().Get())
+                bp->Save(instanceID); 
         
         if (Input::Action::Get("Play").Pressed())
             Engine::Manager::Get().Push<GameInstance>();
@@ -67,50 +67,50 @@ void BlueprintEditor::Logic(double InDelta)
 
 void BlueprintEditor::Frame()
 {
-    ECS.Frame(); 
+    ecs.Frame(); 
     Instance::Frame();
 }
 
 void BlueprintEditor::DrawDebugPanel()
 {
-    if (Config.Blueprint.Edit())
-        SetBP(Config.Blueprint);
+    if (config.Blueprint.Edit())
+        SetBP(config.Blueprint);
 
-    if (InstanceID == ECS::InvalidID)
+    if (instanceID == ECS::INVALID_ID)
         return; 
     
     ImGui::SameLine();
     if (ImGui::Button("Save"))
-        if (BlueprintResource* bp = Config.Blueprint.Get().Get())
-            bp->Save(InstanceID);
+        if (BlueprintResource* bp = config.Blueprint.Get().Get())
+            bp->Save(instanceID);
 
-    EditHierarhcy(SelectedID);
-    EditComponents(SelectedID);
+    EditHierarhcy(selectedID);
+    EditComponents(selectedID);
 }
 
 void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)
 {
     ImGui::SeparatorText("Hierarchy"); 
     {
-        HierarchyNode(InstanceID);
+        HierarchyNode(instanceID);
         ImGui::Spacing(); 
         
         if (ImGui::Button(Text("Add child").c_str()))
         {
             // Add children?
-            const ECS::EntityID child = ECS.CreateEntity();
-            auto& transSys = ECS.GetSystem<ECS::SysTransform>();
+            const ECS::EntityID child = ecs.CreateEntity();
+            auto& transSys = ecs.GetSystem<ECS::SysTransform>();
             transSys.Register(child, false); 
             transSys.SetupHierarchy(InID, child, ECS::Transform::Space::LOCAL, false);
         }
         
-        if (InID != InstanceID)
+        if (InID != instanceID)
         {
             ImGui::SameLine();
             if (ImGui::Button(Text("Remove selected").c_str()))
             {
-                ECS.DestroyEntity(InID);
-                SelectedID = InstanceID; 
+                ecs.DestroyEntity(InID);
+                selectedID = instanceID; 
             }
         }
     } 
@@ -118,8 +118,8 @@ void BlueprintEditor::EditHierarhcy(ECS::EntityID InID)
 
 void BlueprintEditor::HierarchyNode(ECS::EntityID InID)
 {
-    const auto attributes = ECS.GetComponent<ECS::Attributes>(InID);
-    const auto trans = ECS.GetComponent<ECS::Transform>(InID);
+    const auto attributes = ecs.GetComponent<ECS::Attributes>(InID);
+    const auto trans = ecs.GetComponent<ECS::Transform>(InID);
 
     String name = "Unnamed";
     if (attributes)
@@ -129,13 +129,13 @@ void BlueprintEditor::HierarchyNode(ECS::EntityID InID)
     if (trans && trans->GetChildren().empty())
         flags |= ImGuiTreeNodeFlags_Leaf;
     flags |= ImGuiTreeNodeFlags_OpenOnArrow;
-    if (InID == SelectedID)
+    if (InID == selectedID)
         flags |= ImGuiTreeNodeFlags_Selected;
     
     if (ImGui::TreeNodeEx((name + "##Node_" + std::to_string(InID)).c_str(), flags))
     {
         if (ImGui::IsItemClicked())
-            SelectedID = InID;
+            selectedID = InID;
         ImGui::Indent(10); 
         if (trans)
             for (const ECS::EntityID child : trans->GetChildren())
@@ -147,22 +147,22 @@ void BlueprintEditor::HierarchyNode(ECS::EntityID InID)
 
 String BlueprintEditor::Text(const String& InString) const
 {
-    return String(InString + "##" + std::to_string(InstanceID));
+    return String(InString + "##" + std::to_string(instanceID));
 }
 
 void BlueprintEditor::EditComponents(ECS::EntityID InID)
 {
     ImGui::SeparatorText("Components");
     
-    if (InID == ECS::InvalidID)
+    if (InID == ECS::INVALID_ID)
     {
         ImGui::Text("Invalid instance");
-        SelectedID = InstanceID;
+        selectedID = instanceID;
         return; 
     }
     
     // Component list
-    for (auto sys : ECS.GetAllSystems())
+    for (auto sys : ecs.GetAllSystems())
     {
         CHECK_ASSERT(!sys.second, "System nullptr");
         CHECK_CONTINUE(!sys.second->Contains(InID));
@@ -183,7 +183,7 @@ void BlueprintEditor::EditComponents(ECS::EntityID InID)
     // Add Component
     static int currItem = 0;
     Vector<String> newSystems;
-    for (auto& sys : ECS.GetAllSystems())
+    for (auto& sys : ecs.GetAllSystems())
     {
         CHECK_ASSERT(!sys.second, "System nullptr");
         CHECK_CONTINUE(sys.second->Contains(InID));
@@ -193,7 +193,7 @@ void BlueprintEditor::EditComponents(ECS::EntityID InID)
     ImGui::SameLine(); 
     if (ImGui::Button(Text("Add").c_str()))
         if (currItem >= 0 && currItem < static_cast<int>(newSystems.size()))
-            if (const auto sys = ECS.GetSystem(newSystems[currItem]))
+            if (const auto sys = ecs.GetSystem(newSystems[currItem]))
                 sys->Register(InID);
 }
 

@@ -11,14 +11,14 @@ namespace ECS
     {
         PROPERTY_C(float, InputDeadzone, 0.1f); 
         PROPERTY_C(float, MovementForce, 150.0f);
-        Vec3F PlaneNormal = Vec3F::Zero();
+        Vec3F planeNormal = Vec3F::Zero();
     };
 
     struct JumpParams : PropertyOwner<JumpParams>
     {
         PROPERTY_C(float, UpVelocity, 22.0f);
         PROPERTY_C(float, DirectionalForce, 20.0f);
-        Vec3F Direction = Vec3F::Zero();
+        Vec3F direction = Vec3F::Zero();
     };
 
     struct SlowdownParams : PropertyOwner<SlowdownParams>

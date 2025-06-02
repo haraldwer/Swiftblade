@@ -7,46 +7,46 @@
 
 void RoomGenPath::Clear()
 {
-    Path.clear();
-    PathSet.clear();
-    Start = Coord();
-    Target = Coord(); 
+    path.clear();
+    pathSet.clear();
+    start = Coord();
+    target = Coord(); 
 }
 
 void RoomGenPath::Init()
 {
-    CHECK_RETURN(!Owner);
+    CHECK_RETURN(!owner);
     
     // Cache start and end position
-    const ECS::CubeVolume& v = Owner->GetVolume();
-    if (auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(Owner->StartEntity))
-        Start = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
-    if (auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(Owner->EndEntity))
-        Target = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
+    const ECS::CubeVolume& v = owner->GetVolume();
+    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(owner->startEntity))
+        start = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
+    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(owner->endEntity))
+        target = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
 }
 
 bool RoomGenPath::Step()
 {
-    CHECK_RETURN(!Owner, true);
+    CHECK_RETURN(!owner, true);
     
-    Coord coord = Path.empty() ? Start : Path.back();
-    if (coord.Key == Target.Key)
+    Coord coord = path.empty() ? start : path.back();
+    if (coord.Key == target.Key)
         return true;
 
-    Vec3F startPos = Vec3F(Start.Pos.X, Start.Pos.Y, Start.Pos.Z);
-    Vec3F targetPos = Vec3F(Target.Pos.X, Target.Pos.Y, Target.Pos.Z);
-    Vec3F basePos = Vec3F(coord.Pos.X, coord.Pos.Y, coord.Pos.Z);
+    const Vec3F startPos = Vec3F(start.Pos.X, start.Pos.Y, start.Pos.Z);
+    const Vec3F targetPos = Vec3F(target.Pos.X, target.Pos.Y, target.Pos.Z);
+    const Vec3F basePos = Vec3F(coord.Pos.X, coord.Pos.Y, coord.Pos.Z);
     
     Vec3F lastDir = Vec3F::Forward();
-    if (Path.size() > 1)
+    if (path.size() > 1)
     {
-        Coord lastCoord = Path[Path.size() - 2];
+        Coord lastCoord = path[path.size() - 2];
         Vec3F lastPos = Vec3F(lastCoord.Pos.X, lastCoord.Pos.Y, lastCoord.Pos.Z);
         lastDir = (basePos - lastPos).GetNormalized();
     }
 
     // Collect in random pool
-    Utility::RandomWeightedCollection<Coord> pool(Owner->Seed + static_cast<int>(Path.size()));
+    Utility::RandomWeightedCollection<Coord> pool(owner->seed + static_cast<int>(path.size()));
     
     // Add every direction
     for (Coord direction : ECS::CubeVolume::GetNeighbors(coord))
@@ -55,21 +55,21 @@ bool RoomGenPath::Step()
 
     if (pool.Count() == 0)
     {
-        Path.push_back(Target);
-        PathSet.insert(Target.Key);
+        path.push_back(target);
+        pathSet.insert(target.Key);
         return true;
     }
     
     Coord result = pool.Pop();
-    CHECK_RETURN(PathSet.contains(result.Key), false);
-    Path.push_back(result);
-    PathSet.insert(result.Key);
-    return result.Key == Target.Key;
+    CHECK_RETURN(pathSet.contains(result.Key), false);
+    path.push_back(result);
+    pathSet.insert(result.Key);
+    return result.Key == target.Key;
 }
 
 void RoomGenPath::EvaluateDirection(const Coord InNewCoord, const Vec3F& InTargetPos, const Vec3F& InStartPos, const Vec3F& InBasePos, const Vec3F& InLastDir, Utility::RandomWeightedCollection<Coord>& InOutPool) const
 {
-    if (PathSet.contains(InNewCoord.Key))
+    if (pathSet.contains(InNewCoord.Key))
         return;
         
     // Distance

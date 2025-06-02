@@ -7,8 +7,8 @@ namespace Rendering
     {
     public:
         void Open(const WindowConfig& InConfig);
-        bool ShouldClose() const;
-        void Close();
+        static bool ShouldClose();
+        static void Close();
         
         void Draw(const Texture& InTexture);
         void CapFPS();
@@ -16,9 +16,9 @@ namespace Rendering
         Vec2I GetSize();
 
     private:
-        WindowConfig Config = {};
-        Utility::Timer FrameTimer = {};
-        double LeftoverFrameTime = 0;
+        WindowConfig config = {};
+        Utility::Timer frameTimer = {};
+        double leftoverFrameTime = 0;
         
     };
 }

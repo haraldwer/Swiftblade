@@ -7,5 +7,5 @@ public:
     bool Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord) override;
 
 private:
-    ResBlueprint CornerBP {"Dressing/Props/BP_HorizontalCorner.json"}; 
+    ResBlueprint cornerBP {"Dressing/Props/BP_HorizontalCorner.json"}; 
 };

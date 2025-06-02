@@ -9,21 +9,21 @@ void ECS::Combat::Init()
     if (Engine::Instance::Get().IsEditor())
         return;
     
-    StateMachine = new CombatStateMachine();
-    StateMachine->Init();
+    stateMachine = new CombatStateMachine();
+    stateMachine->Init();
 }
 
 void ECS::Combat::Update()
 {
-    if (StateMachine)
-        StateMachine->Update();
+    if (stateMachine)
+        stateMachine->Update();
 }
 
 bool ECS::Combat::EditState() const
 {
-    if (!StateMachine)
+    if (!stateMachine)
         return false;
     if (ImGui::Button("Save##Combat"))
-        StateMachine->SaveConfig();
-    return StateMachine->Edit();
+        stateMachine->SaveConfig();
+    return stateMachine->Edit();
 }

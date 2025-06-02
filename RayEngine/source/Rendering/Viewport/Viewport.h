@@ -17,25 +17,25 @@ namespace Rendering
         void BeginFrame();
 
         RenderTexture& GetVirtualTarget() const;
-        FrameTargetCollection& GetTargets() { return Targets; }
+        FrameTargetCollection& GetTargets() { return targets; }
         
         void ImDraw();
         Vec2I GetResolution() const;
         Vec2I GetSize() const;
-        Vec2F GetPosition() const { return Position; }
+        Vec2F GetPosition() const { return position; }
         void ResetPosition();
 
     private:
-        ViewportConfig Config = {};
+        ViewportConfig config = {};
         
-        Vec2F Position = {};
-        Mat4F ViewProj = {};
-        Mat4F ViewProjPrev = {};
+        Vec2F position = {};
+        Mat4F viewProj = {};
+        Mat4F viewProjPrev = {};
         
-        Utility::Timer DeltaTimer = {};
-        double Delta = 0;
+        Utility::Timer deltaTimer = {};
+        double delta = 0;
 
-        FrameTargetCollection Targets = {};
-        RenderTexture* VirtualTarget = nullptr;
+        FrameTargetCollection targets = {};
+        RenderTexture* virtualTarget = nullptr;
     };
 }

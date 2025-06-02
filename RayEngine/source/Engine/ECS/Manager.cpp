@@ -120,7 +120,7 @@ SystemBase* Manager::GetSystem(const Utility::Type& InType, const bool InIsCompH
 
 void Manager::Deserialize(const EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects)
 {
-    CHECK_ASSERT(InID == InvalidID, "Invalid ID");
+    CHECK_ASSERT(InID == INVALID_ID, "Invalid ID");
     
     DeserializeEntityCollection systems;
 
@@ -132,15 +132,15 @@ void Manager::Deserialize(const EntityID InID, const Mat4F& InTransform, const V
     // Apply transformation
     for (const auto& entry : systems)
         if (auto* trans = GetComponent<Transform>(entry.first))
-            if (trans->GetParent() == InvalidID) // Is root? 
+            if (trans->GetParent() == INVALID_ID) // Is root? 
                 trans->SetWorld(trans->World() * InTransform);
     
     // Systems should initialize in order of depth, reversed
     struct SysEntry
     {
-        EntityID ID = InvalidID;
-        SystemBase* Sys = nullptr; 
-        int Depth;
+        EntityID id = INVALID_ID;
+        SystemBase* sys = nullptr; 
+        int depth = 0;
     };
 
     // Add all systems to one big list
@@ -150,18 +150,18 @@ void Manager::Deserialize(const EntityID InID, const Mat4F& InTransform, const V
             sysList.push_back({ entry.first, sys, entry.second.Depth});
 
     // Sort the list
-    std::ranges::sort(sysList, [](const SysEntry& a, const SysEntry& b) {
-        if (a.Depth == b.Depth)
-            return a.Sys->GetPriority() > b.Sys->GetPriority();
-        return a.Depth < b.Depth;
+    std::ranges::sort(sysList, [](const SysEntry& InA, const SysEntry& InB) {
+        if (InA.depth == InB.depth)
+            return InA.sys->GetPriority() > InB.sys->GetPriority();
+        return InA.depth < InB.depth;
     });
     
     // Finish reg
     for (const auto& sys : sysList)
-        if (sys.Sys) sys.Sys->FinishRegistration(sys.ID);
+        if (sys.sys) sys.sys->FinishRegistration(sys.id);
 }
 
-void Manager::Deserialize(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth)
+void Manager::Deserialize(const EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, const int InDepth)
 {
     Set<SystemBase*> systems = DeserializeComponents(InID, InObj);
     auto& entry = OutSystems[InID];
@@ -170,7 +170,7 @@ void Manager::Deserialize(EntityID InID, const DeserializeObj& InObj, Deserializ
     DeserializeChildren(InID, InObj, OutSystems, InDepth + 1);
 }
 
-Set<SystemBase*> Manager::DeserializeComponents(EntityID InID, const DeserializeObj& InObj)
+Set<SystemBase*> Manager::DeserializeComponents(const EntityID InID, const DeserializeObj& InObj)
 {
     // Read components
     CHECK_RETURN(!InObj.HasMember("Components"), {});
@@ -197,7 +197,7 @@ Set<SystemBase*> Manager::DeserializeComponents(EntityID InID, const Deserialize
     return systems; 
 }
 
-void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth)
+void Manager::DeserializeChildren(const EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, const int InDepth)
 {
     // Read children
     CHECK_RETURN(!InObj.HasMember("Children"))
@@ -209,20 +209,20 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
     {
         CHECK_CONTINUE_LOG(!child.IsObject(), "Child wasnt object");
 
-        EntityID childID = InvalidID;
+        EntityID childID = INVALID_ID;
         
         // The child might already exist!
         // How do we identify these children? 
         
-        if (childID == InvalidID)
+        if (childID == INVALID_ID)
             childID = CreateEntity();
 
         // Read blueprint
         ResBlueprint bp; 
         Utility::Deserialize(child.GetObj(), "BP", bp);
-        if (const BlueprintResource* loadedBP = bp.Get())
+        if (const BlueprintResource* bpRes = bp.Get())
         {
-            auto obj = loadedBP->GetObj();
+            auto obj = bpRes->GetObj();
             if (!obj.ObjectEmpty())
                 Deserialize(childID, obj, OutSystems, InDepth);
         }
@@ -243,7 +243,7 @@ void Manager::DeserializeChildren(EntityID InID, const DeserializeObj& InObj, De
 
 void Manager::Serialize(const EntityID InID, SerializeObj& OutObj, const bool InChildren)
 {
-    CHECK_ASSERT(InID == InvalidID, "Invalid ID");
+    CHECK_ASSERT(InID == INVALID_ID, "Invalid ID");
     
     OutObj.StartObject();
 

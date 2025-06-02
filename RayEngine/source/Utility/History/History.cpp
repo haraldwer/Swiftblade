@@ -4,49 +4,49 @@ void Utility::History::AddChangeInternal(const ObjectPtr<ChangeBase>& InChange)
 {
 	if (!InChange)
 		return; 
-	if (ChangeIndex > Changes.size())
-		ChangeIndex = Changes.size() - 1;
-	while (ChangeIndex > 0)
+	if (changeIndex > changes.size())
+		changeIndex = changes.size() - 1;
+	while (changeIndex > 0)
 	{
-		ChangeIndex--;
-		if(!Changes.empty())
-			Changes.pop_back(); 
+		changeIndex--;
+		if(!changes.empty())
+			changes.pop_back(); 
 	}
-	ChangeIndex = 0;
-	Changes.emplace_back(InChange);
+	changeIndex = 0;
+	changes.emplace_back(InChange);
 	InChange->Do(); 
 }
 
 void Utility::History::Undo()
 {
-	const size_t index = Changes.size() - 1 - ChangeIndex;
-	if (index < Changes.size())
+	const size_t index = changes.size() - 1 - changeIndex;
+	if (index < changes.size())
 	{
-		if (ChangeBase* change = Changes[index].Get())
+		if (ChangeBase* change = changes[index].Get())
 			change->Undo();
-		ChangeIndex++;
+		changeIndex++;
 	}
 }
 
 void Utility::History::Redo()
 {
-	if (ChangeIndex > Changes.size())
-		ChangeIndex = Changes.size();
-	ChangeIndex--;
-	const size_t index = Changes.size() - 1 - ChangeIndex;
-	if (index < Changes.size())
+	if (changeIndex > changes.size())
+		changeIndex = changes.size();
+	changeIndex--;
+	const size_t index = changes.size() - 1 - changeIndex;
+	if (index < changes.size())
 	{
-		if (ChangeBase* change = Changes[index].Get())
+		if (ChangeBase* change = changes[index].Get())
 			change->Do();
 	}
 	else
 	{
-		ChangeIndex = 0;
+		changeIndex = 0;
 	}
 }
 
 void Utility::History::Clear()
 {
-	Changes.clear();
-	ChangeIndex = 0;
+	changes.clear();
+	changeIndex = 0;
 }

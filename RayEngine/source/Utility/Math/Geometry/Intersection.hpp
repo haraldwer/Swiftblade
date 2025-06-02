@@ -34,23 +34,24 @@ namespace Utility
 		                               float p2s_x, float p2s_y, float p2e_x, float p2e_y,
 		                               float &point_x, float &point_y)*/
 		template<typename Type>
-		inline bool FindIntersection_StaticLineVsStaticLine(const Vector2<Type> aFromA, const Vector2<Type> aToA,
-															const Vector2<Type> aFromB, const Vector2<Type> aToB,
-															Vector2<Type>& result)
+		bool FindIntersection_StaticLineVsStaticLine(
+			const Vector2<Type> aFromA, const Vector2<Type> aToA,
+			const Vector2<Type> aFromB, const Vector2<Type> aToB,
+			Vector2<Type>& result)
 		{
-		    float ax = aToA.x - aFromA.x;
-		    float ay = aToA.y - aFromA.y;
+		    const float ax = aToA.x - aFromA.x;
+		    const float ay = aToA.y - aFromA.y;
 
-		    float bx = aToB.x - aFromB.x;
-		    float by = aToB.y - aFromB.y;
+		    const float bx = aToB.x - aFromB.x;
+		    const float by = aToB.y - aFromB.y;
 							   
-		    float dx = aFromA.x - aFromB.x;
-		    float dy = aFromA.y - aFromB.y;
+		    const float dx = aFromA.x - aFromB.x;
+		    const float dy = aFromA.y - aFromB.y;
 
-		    float u = -bx*ay+ax*by;
+		    const float u = -bx*ay+ax*by;
 
-		    float s = (-ay*dx+ax*dy)/u;
-		    float t = (bx*dy-by*dx)/u;
+		    const float s = (-ay*dx+ax*dy)/u;
+		    const float t = (bx*dy-by*dx)/u;
 
 		    if (s >= 0.0 && s <= 1.0 && t >= 0.0 && t <= 1.0)
 		    {
@@ -69,12 +70,12 @@ namespace Utility
 			float diff1[] = { plane_position[0] - from[0], plane_position[1] - from[1], plane_position[2] - from[2] };
 			float diff2[] = { to[0] - from[0], to[1] - from[1], to[2] - from[2] };
 
-			float r1 = plane_normal[0] * diff1[0] + plane_normal[1] * diff1[1] + plane_normal[2] * diff1[2];
-			float r2 = plane_normal[0] * diff2[0] + plane_normal[1] * diff2[1] + plane_normal[2] * diff2[2];
+			const float r1 = plane_normal[0] * diff1[0] + plane_normal[1] * diff1[1] + plane_normal[2] * diff1[2];
+			const float r2 = plane_normal[0] * diff2[0] + plane_normal[1] * diff2[1] + plane_normal[2] * diff2[2];
 
 			if (r2 != 0.0)
 			{
-				float factor = r1 / r2;
+				const float factor = r1 / r2;
 
 				if (factor >= 0.0 && factor <= 1.0)
 				{
@@ -177,9 +178,9 @@ namespace Utility
 			Vector2<Type> direction = to - from;
 			Vector2<Type> sphereDifference = from - position;
 
-			float a = direction.Dot(direction);
-			float b = 2.0f * sphereDifference.Dot(direction);
-			float c = sphereDifference.Dot(sphereDifference) - (radius * radius);
+			const float a = direction.Dot(direction);
+			const float b = 2.0f * sphereDifference.Dot(direction);
+			const float c = sphereDifference.Dot(sphereDifference) - (radius * radius);
 
 			float discriminant = (b * b) - (4.0f * a * c);
 			if (discriminant < 0)

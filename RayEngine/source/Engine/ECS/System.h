@@ -20,12 +20,12 @@ namespace ECS
         void SystemInit() override {}
         void SystemUpdate() override
         {
-            for (const auto& id : Translation)
+            for (const auto& id : translation)
                 Update(id.first, GetInternal(id.second));
         }
         void SystemFrame() override
         {
-            for (const auto& id : Translation)
+            for (const auto& id : translation)
                 Frame(id.first, GetInternal(id.second));
         }
 
@@ -66,19 +66,19 @@ namespace ECS
         T* TryGet(const EntityID InID)
         {
             const ComponentID id = Translate(InID);
-            CHECK_RETURN(id == InvalidID, nullptr);
+            CHECK_RETURN(id == INVALID_ID, nullptr);
             return &GetInternal(id);
         }
 
         const T* TryGet(const EntityID InID) const
         {
             const ComponentID id = Translate(InID);
-            CHECK_RETURN(id == InvalidID, nullptr);
+            CHECK_RETURN(id == INVALID_ID, nullptr);
             return &GetInternal(id);
         }
 
         template <class SystemType>
-        SystemType& GetSystem() const
+        static SystemType& GetSystem()
         {
             SystemBase* base = GetAnonymousSystem(Type::Get<SystemType>(), false);
             CHECK_ASSERT(!base, "Unable to find system");
@@ -89,26 +89,26 @@ namespace ECS
         {
             // Already registered? 
             const ComponentID existingID = Translate(InID);
-            CHECK_RETURN(existingID != InvalidID, existingID);
+            CHECK_RETURN(existingID != INVALID_ID, existingID);
             
             // Find ID
             const auto findID = [&]()
             {
-                if (Unused.size())
+                if (unused.size())
                 {
-                    const ComponentID id = Unused.back();
-                    Unused.pop_back();
+                    const ComponentID id = unused.back();
+                    unused.pop_back();
                     return id; 
                 }
                 
-                const auto newID = static_cast<ComponentID>(Components.size());
-                Components.emplace_back();
+                const auto newID = static_cast<ComponentID>(components.size());
+                components.emplace_back();
                 return newID;
             };
             
             // Register
             const ComponentID id = findID();
-            Translation[InID] = id;
+            translation[InID] = id;
 
             // Init comp
             T& data = GetInternal(id);
@@ -130,14 +130,14 @@ namespace ECS
         void Unregister(const EntityID InID) override
         {
             const ComponentID id = Translate(InID);
-            CHECK_RETURN(id == InvalidID);
+            CHECK_RETURN(id == INVALID_ID);
 
             // Reset data
             T& data = GetInternal(id);
             Deinit(InID, GetInternal(id));
             data = T();
-            Translation.erase(InID);
-            Unused.push_back(id);
+            translation.erase(InID);
+            unused.push_back(id);
         }
 
         void Serialize(EntityID InID, SerializeObj& OutObj) override
@@ -168,18 +168,18 @@ namespace ECS
         
         T& GetInternal(const ComponentID InID)
         {
-            CHECK_ASSERT(InID < 0 || InID > Components.size(), "Invalid index");
-            return Components[InID];
+            CHECK_ASSERT(InID < 0 || InID > components.size(), "Invalid index");
+            return components[InID];
         }
 
         const T& GetInternal(const ComponentID InID) const
         {
-            CHECK_ASSERT(InID < 0 || InID > Components.size(), "Invalid index");
-            return Components[InID];
+            CHECK_ASSERT(InID < 0 || InID > components.size(), "Invalid index");
+            return components[InID];
         }
 
     private:
         
-        Vector<T> Components;
+        Vector<T> components;
     };
 }

@@ -17,18 +17,18 @@ namespace Rendering
             SPHERE,
             BOX,
             CAPSULE
-        } Type;
+        } type;
 
-        Vec3F Pos;
-        QuatF Rot; 
-        Vec3F Data;
-        Color Col; 
+        Vec3F pos;
+        QuatF rot; 
+        Vec3F data;
+        Color col; 
     };
     
     struct DebugLine
     {
-        Vec3F Start;
-        Vec3F End; 
-        Color Col; 
+        Vec3F start;
+        Vec3F end; 
+        Color col; 
     };
 }

@@ -8,8 +8,8 @@
 void DB::Blob::Init(DB::Manager* InManager)
 {
     Component::Init(InManager);
-    Client& client = GetClient();
-    Session& session = GetSession();
+    const Client& client = GetClient();
+    const Session& session = GetSession();
     if (!client || !session)
     {
         LOG("Not connected")
@@ -28,7 +28,7 @@ void DB::Blob::Init(DB::Manager* InManager)
     };
 
     Vector<Nakama::NReadStorageObjectId> objects;
-    for (auto& p : Data.GetProperties())
+    for (auto& p : data.GetProperties())
     {
         auto& obj = objects.emplace_back(); 
         obj.collection = "blob";
@@ -47,13 +47,13 @@ void DB::Blob::OnReadSuccess(const Nakama::NStorageObjects& InObjects)
 {
     LOG("Blob read successfully");
     
-    const auto properties = Data.GetProperties();
+    const auto properties = data.GetProperties();
     for (auto& object : InObjects)
     {
         String propertyName = object.key;
         String json = object.value;
         CHECK_CONTINUE_LOG(!properties.contains(propertyName), "Property " + propertyName + " does not exist");
-        auto ptr = properties.at(propertyName);
+        const auto ptr = properties.at(propertyName);
         CHECK_CONTINUE_LOG(!properties.contains(propertyName), "Invalid ptr for " + propertyName);
         DocumentObj doc;
         doc.Parse(json.c_str());
@@ -62,7 +62,7 @@ void DB::Blob::OnReadSuccess(const Nakama::NStorageObjects& InObjects)
         ptr->Deserialize(constDoc.GetObj());
     }
 	
-    Data.Initialized = true;
+    data.Initialized = true;
     DBEvent<OnBlobReadSuccess> success;
     success.Invoke({});
 }
@@ -76,9 +76,9 @@ void DB::Blob::OnReadFailed(const Nakama::NError& InError)
 
 void DB::Blob::Set(const BlobData& InData)
 {
-    if (!Data.Initialized)
+    if (!data.Initialized)
     {
-        Data = InData;
+        data = InData;
         LOG("Blob not yet initialized");
         DBEvent<OnBlobWriteError> error;
         error.Invoke({ "", "Not yet initialized"});
@@ -96,7 +96,7 @@ void DB::Blob::Set(const BlobData& InData)
     }
 
     Vector<Nakama::NStorageObjectWrite> objects;
-    auto oldProperties = Data.GetProperties();
+    auto oldProperties = data.GetProperties();
     auto newProperties = InData.GetProperties();
     for (auto& newProperty : InData.GetProperties())
     {

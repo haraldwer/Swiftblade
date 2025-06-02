@@ -13,12 +13,12 @@ namespace ECS
 
         // TODO: input buffering
         
-        bool JumpInput = false;
-        bool JumpInputHeld = false;
-        bool CrouchInput = false;
-        bool DashInput = false; 
-        Vec2F MoveInput;
-        Vec2F RotInput;
+        bool jumpInput = false;
+        bool jumpInputHeld = false;
+        bool crouchInput = false;
+        bool dashInput = false; 
+        Vec2F moveInput;
+        Vec2F rotInput;
 
         int GetPriority() const override { return 10; }
         

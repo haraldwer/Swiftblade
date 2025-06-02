@@ -43,12 +43,12 @@ void EditorCamera::Deinit()
     bUseEditCamera = false;
 }
 
-void EditorCamera::SetTarget(const Vec3F& InPosition, float InDistance)
+void EditorCamera::SetTarget(const Vec3F& InPosition, const float InDistance)
 {
-    Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();
-    TargetState.Position = InPosition - dir * InDistance;
-    TargetState.Rotation = QuatF::FromDirection(dir).Euler();
-    CurrentState = TargetState;
+    const Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();
+    targetState.position = InPosition - dir * InDistance;
+    targetState.rotation = QuatF::FromDirection(dir).Euler();
+    currentState = targetState;
 }
 
 void EditorCamera::Toggle()
@@ -57,13 +57,13 @@ void EditorCamera::Toggle()
     if (bUseEditCamera)
     {
         auto& cam = Engine::Instance::Get().GetRenderScene().GetCamera();
-        if (cam.FOV > 1.0f)
+        if (cam.fov > 1.0f)
         {
-            TargetState.Position = cam.Position;
-            TargetState.Rotation = cam.Rotation.Euler();
-            TargetState.FOV = cam.FOV;
+            targetState.position = cam.position;
+            targetState.rotation = cam.rotation.Euler();
+            targetState.fov = cam.fov;
         }
-        CurrentState = TargetState;
+        currentState = targetState;
         Input::Manager::Get().Push("Default");
     }
     else
@@ -84,20 +84,20 @@ void EditorCamera::UpdateMovement()
         man.GetAction("LookHorizontal", "EditorCamera").Axis(),
         man.GetAction("LookVertical", "EditorCamera").Axis()
     };
-    TargetState.Rotation +=
+    targetState.rotation +=
         Vec3F(mouseDelta.y, mouseDelta.x * -1.0f,  0.0f) * 0.0025f * !ctrl;
-    TargetState.Rotation.x = Utility::Math::Clamp(
+    targetState.rotation.x = Utility::Math::Clamp(
         Utility::Math::DegreesToRadians(-90.0f),
         Utility::Math::DegreesToRadians(90.0f),
-        TargetState.Rotation.x);  
+        targetState.rotation.x);  
 
-    const Mat4F rotMat = Mat4F::FromEuler(TargetState.Rotation);
+    const Mat4F rotMat = Mat4F::FromEuler(targetState.rotation);
     const Vec3F up = Vec3F::Up();
     const Vec3F right = rotMat.Right() * -1.0f;
     const Vec3F forward = rotMat.Forward();
 
-    const float ScrollDelta = GetMouseWheelMove() * 0.1f;
-    TargetState.MovementSpeed = Utility::Math::Clamp(TargetState.MovementSpeed + ScrollDelta * (50.0f + TargetState.MovementSpeed * 0.5f), 1.0f, 300.0f);
+    const float scrollDelta = GetMouseWheelMove() * 0.1f;
+    targetState.movementSpeed = Utility::Math::Clamp(targetState.movementSpeed + scrollDelta * (50.0f + targetState.movementSpeed * 0.5f), 1.0f, 300.0f);
     
     // Add position
     const Vec3F posDelta =
@@ -111,26 +111,26 @@ void EditorCamera::UpdateMovement()
             static_cast<float>(man.GetAction("Forward", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("Backward", "EditorCamera").Down()))) * 
         !ctrl;
-    TargetState.Position += Vec3F(posDelta.GetNormalized()) * dt * TargetState.MovementSpeed;
+    targetState.position += Vec3F(posDelta.GetNormalized()) * dt * targetState.movementSpeed;
     
     // FOV
-    TargetState.FOV += (
+    targetState.fov += (
             static_cast<float>(man.GetAction("IncreaseFOV", "EditorCamera").Down()) -
             static_cast<float>(man.GetAction("DecreaseFOV", "EditorCamera").Down())) *
         static_cast<float>(!ctrl) * 
         dt * 30.0f;
 
     // TODO: Interp account for dt
-    CurrentState.Rotation = TargetState.Rotation;
-    CurrentState.Position = Utility::Math::Lerp(CurrentState.Position, TargetState.Position, 10.0f * dt);
-    CurrentState.FOV = Utility::Math::Lerp(CurrentState.FOV, TargetState.FOV, 10.0f * dt);
-    CurrentState.MovementSpeed = Utility::Math::Lerp(CurrentState.MovementSpeed, TargetState.MovementSpeed, 10.0f * dt); 
+    currentState.rotation = targetState.rotation;
+    currentState.position = Utility::Math::Lerp(currentState.position, targetState.position, 10.0f * dt);
+    currentState.fov = Utility::Math::Lerp(currentState.fov, targetState.fov, 10.0f * dt);
+    currentState.movementSpeed = Utility::Math::Lerp(currentState.movementSpeed, targetState.movementSpeed, 10.0f * dt); 
     
     // Set camera
     Engine::Instance::Get().GetRenderScene().SetCamera({
-       CurrentState.Position,
-        QuatF::FromEuler(CurrentState.Rotation),
-        CurrentState.FOV,
+       currentState.position,
+        QuatF::FromEuler(currentState.rotation),
+        currentState.fov,
         50.0f,
         0.01f
    });

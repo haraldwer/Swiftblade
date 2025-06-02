@@ -3,25 +3,25 @@
 namespace Utility
 {
     template< typename T >
-    typename std::vector<T>::iterator SortedInsert( std::vector<T> & vec, T const& item )
+    typename std::vector<T>::iterator SortedInsert( std::vector<T> & InVec, T const& InItem )
     {
-        return vec.insert(
-            std::upper_bound( vec
+        return InVec.insert(
+            std::upper_bound( InVec
                 .begin(),
-                vec.end(),
-                item ),
-            item);
+                InVec.end(),
+                InItem ),
+            InItem);
     }
     
     template< typename T, typename Pred >
-    typename std::vector<T>::iterator SortedInsert( std::vector<T> & vec, T const& item, Pred pred )
+    typename std::vector<T>::iterator SortedInsert( std::vector<T> & InVec, T const& InItem, Pred InPred )
     {
-        return vec.insert(
+        return InVec.insert(
            std::upper_bound(
-               vec.begin(),
-               vec.end(),
-               item,
-               pred ),
-           item);
+               InVec.begin(),
+               InVec.end(),
+               InItem,
+               InPred ),
+           InItem);
     }
 }

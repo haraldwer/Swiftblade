@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdlib>
 
 namespace Utility
 {
@@ -10,7 +11,7 @@ namespace Utility
 		template<typename To, typename From>
 		To& Cast(From *aAddress, int aByteOffset = 0)
 		{
-			return *((To*)(((char*)aAddress) + aByteOffset));
+			return *reinterpret_cast<To *>(reinterpret_cast<char *>(aAddress) + aByteOffset);
 		}
 		
 		class Data

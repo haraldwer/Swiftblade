@@ -8,26 +8,26 @@
 
 void Rendering::Lights::Init(const LightConfig& InConfig)
 {
-    Config = InConfig;
-    AtlasView.Init(Config.Viewport);
-    Atlas.Init(AtlasView.GetResolution(), Config.MaxLights, true);
-    Target.Setup(AtlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    config = InConfig;
+    atlasView.Init(config.Viewport);
+    atlas.Init(atlasView.GetResolution(), config.MaxLights, true);
+    target.Setup(atlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lights::Deinit()
 {
-    AtlasView.Deinit();
-    Atlas.Deinit();
-    Cache.clear();
-    Target.Unload();
+    atlasView.Deinit();
+    atlas.Deinit();
+    cache.clear();
+    target.Unload();
 }
 
 Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.ScenePtr, "Invalid scene");
-    CHECK_ASSERT(!InArgs.ViewportPtr, "Invalid viewport");
+    CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
+    CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
     
     // Only consider lights in view, ordered by distance
     Vector<const LightInstance*> frameLights = GetLights(InArgs);
@@ -36,33 +36,33 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     Vector<LightData*> timeSortedCache;
     for (auto& light : frameLights)
     {
-        CHECK_ASSERT(light->ID == 0, "Invalid hash");
-        LightData& cache = Cache[light->ID];
+        CHECK_ASSERT(light->id == 0, "Invalid hash");
+        LightData& cache = cache[light->id];
 
         // Set data
-        cache.Data = light->Data;
-        cache.ID = light->ID;
+        cache.data = light->data;
+        cache.id = light->id;
 
         // Skip?
-        CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && cache.Timestamp > 0.001f);
-        CHECK_CONTINUE(InArgs.ContextPtr->Time() - cache.Timestamp < Config.UpdateFrequency)
+        CHECK_CONTINUE(config.UpdateFrequency < 0.0f && cache.timestamp > 0.001f);
+        CHECK_CONTINUE(InArgs.contextPtr->Time() - cache.timestamp < config.UpdateFrequency)
         Utility::SortedInsert(timeSortedCache, &cache, [&](const LightData* InFirst, const LightData* InSecond)
         {
-            return InFirst->Timestamp < InSecond->Timestamp;
+            return InFirst->timestamp < InSecond->timestamp;
         });
     }
     
     CHECK_RETURN(timeSortedCache.empty(), {});
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
-    Vec2F size = Target.Size().To<float>();
+    Vec2F size = target.Size().To<float>();
     RenderArgs args = {
-        .ScenePtr = InArgs.ScenePtr,
-        .ContextPtr = InArgs.ContextPtr,
-        .ViewportPtr = &AtlasView,
-        .LuminPtr = InArgs.LuminPtr,
-        .LightsPtr = this,
-        .Perspectives = {}
+        .scenePtr = InArgs.scenePtr,
+        .contextPtr = InArgs.contextPtr,
+        .viewportPtr = &atlasView,
+        .luminPtr = InArgs.luminPtr,
+        .lightsPtr = this,
+        .perspectives = {}
     };
     
     int count = 0;
@@ -70,11 +70,11 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     for (auto& cache : timeSortedCache) 
     {
         CHECK_CONTINUE(!cache);
-        cache->Timestamp = args.ContextPtr->Time();
-        cache->Pos = cache->Data.Position;
+        cache->timestamp = args.contextPtr->Time();
+        cache->pos = cache->data.position;
         
-        auto rect = Atlas.GetRect(cache->ID, 0).To<float>();
-        cache->Rect = {
+        auto rect = atlas.GetRect(cache->id, 0).To<float>();
+        cache->rect = {
             rect.x / size.x,
             rect.y / size.y,
             rect.z / size.x,
@@ -83,25 +83,25 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         
         for (int i = 0; i < 6; i++)
         {
-            args.Perspectives.push_back({
-                .TargetRect = Atlas.GetRect(cache->ID, i),
-                .Camera = {
-                    .Position = cache->Data.Position,
-                    .Rotation = directions[i],
-                    .FOV = 90.0f,
-                    .Far = cache->Data.Range,
-                    .Near = 0.01f
+            args.perspectives.push_back({
+                .targetRect = atlas.GetRect(cache->id, i),
+                .camera = {
+                    .position = cache->data.position,
+                    .rotation = directions[i],
+                    .fov = 90.0f,
+                    .far = cache->data.range,
+                    .near = 0.01f
                 }
             });
         }
         
         count++;
-        if (count >= Config.MaxShadowRenders)
+        if (count >= config.MaxShadowRenders)
             break;
     }
 
-    AtlasView.BeginFrame();
-    stats += Pipeline.RenderShadows(args, Config.CollectShader, Target);
+    atlasView.BeginFrame();
+    stats += pipeline.RenderShadows(args, config.CollectShader, target);
 
     // TODO: Clear unused lights
     
@@ -112,40 +112,40 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
 {
     PROFILE_GL();
     
-    CHECK_RETURN(InArgs.Perspectives.empty(), {});
+    CHECK_RETURN(InArgs.perspectives.empty(), {});
     
-    auto& cam = InArgs.Perspectives.at(0).Camera;
+    auto& cam = InArgs.perspectives.at(0).camera;
     Frustum frustum;
-    frustum.ConstructFrustum(cam, AtlasView.GetResolution());
+    frustum.ConstructFrustum(cam, atlasView.GetResolution());
     Vector<const LightInstance*> result;
 
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)
     {
-        return (InFirst->Data.Position - cam.Position).LengthSqr() < (InSecond->Data.Position - cam.Position).LengthSqr();
+        return (InFirst->data.position - cam.position).LengthSqr() < (InSecond->data.position - cam.position).LengthSqr();
     };
 
     auto checkFunc = [&](const LightInstance& InLight)
     {
-        const float camDist = (InLight.Data.Position - cam.Position).LengthSqr();
-        if (camDist < InLight.Data.Range * InLight.Data.Range)
+        const float camDist = (InLight.data.position - cam.position).LengthSqr();
+        if (camDist < InLight.data.range * InLight.data.range)
             return true;
-        const float cullDist = InLight.Data.Range;
-        if (frustum.CheckSphere(InLight.Data.Position, cullDist))
+        const float cullDist = InLight.data.range;
+        if (frustum.CheckSphere(InLight.data.position, cullDist))
             return true;
         return false;
     };
     
-    for (auto& light : InArgs.ScenePtr->Lights.GetAll())
+    for (auto& light : InArgs.scenePtr->lights.GetAll())
         if (checkFunc(light))
             Utility::SortedInsert(result, &light, sortFunc);
 
-    auto count = Utility::Math::Min(static_cast<int>(result.size()), Config.MaxLights.Get());
+    const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLights.Get());
     CHECK_RETURN(count <= 0, {});
     return { result.begin(), result.begin() + count }; 
 }
 
 const Rendering::LightData& Rendering::Lights::GetData(const uint32 InHash)
 {
-    return Cache.at(InHash);
+    return cache.at(InHash);
 }
 

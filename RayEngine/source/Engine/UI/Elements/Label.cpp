@@ -21,8 +21,8 @@ void UI::Label::Draw()
     const Rect rect = GetRect();
     DrawRect(rect);
     
-    const Vec2F startPos = rect.Start;
-    const Vec2F endPos = rect.End - CachedSize;
+    const Vec2F startPos = rect.start;
+    const Vec2F endPos = rect.end - CachedSize;
     const Vec2F pos {
         Utility::Math::Lerp(startPos.x, endPos.x, Centering.x),
         Utility::Math::Lerp(startPos.y, endPos.y, Centering.y)
@@ -31,8 +31,8 @@ void UI::Label::Draw()
 
     // Difference in size between reference and view
     const Rect view = ReferenceToViewport(rect); 
-    const float orgSize = (rect.End - rect.Start).Length();
-    const float viewSize = (view.End - view.Start).Length();
+    const float orgSize = (rect.end - rect.start).Length();
+    const float viewSize = (view.end - view.start).Length();
     const float sizeScale = viewSize / orgSize;
     
     const Vector2 origin = { 0.0f, 0.0f };

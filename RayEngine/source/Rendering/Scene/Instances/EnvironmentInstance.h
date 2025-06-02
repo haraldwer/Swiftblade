@@ -4,10 +4,10 @@
 
 struct EnvironmentInstance
 {
-    ResRM Skybox;
-    ResTexture Tonemap;
-    Vec3F Shape;
-    Vec3F Position;
+    ResRM skybox;
+    ResTexture tonemap;
+    Vec3F shape;
+    Vec3F position;
 
     // Bounds?
     // Other FX parameters?? 

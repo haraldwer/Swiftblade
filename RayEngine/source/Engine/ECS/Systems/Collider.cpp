@@ -6,24 +6,24 @@
 #include "Physics/CollisionShape.h"
 #include "Physics/Manager.h"
 
-void ECS::SysCollider::Init(EntityID InEntity, Collider& InComponent)
+void ECS::SysCollider::Init(const EntityID InEntity, Collider& InComponent)
 {
     if (Engine::Instance::Get().IsEditor())
         return; 
     Physics::Manager::Get().Add(InEntity); 
 }
 
-void ECS::SysCollider::Deinit(EntityID InEntity, Collider& InComponent)
+void ECS::SysCollider::Deinit(const EntityID InEntity, Collider& InComponent)
 {
     if (Engine::Instance::Get().IsEditor())
         return; 
     Physics::Manager::Get().Remove(InEntity); 
 }
 
-void ECS::SysCollider::Update(EntityID InID, Collider& InComponent)
+void ECS::SysCollider::Update(const EntityID InID, Collider& InComponent)
 {
-    auto& t = Get<Transform>(InID);
-    auto& data = InComponent.ShapeData.Get();
+    const auto& t = Get<Transform>(InID);
+    const auto& data = InComponent.ShapeData.Get();
     switch (static_cast<Physics::Shape>(InComponent.Shape.Get())) {
     case Physics::Shape::BOX:
         Engine::DebugBox(
@@ -52,7 +52,7 @@ bool ECS::SysCollider::ShouldUpdate() const
     return Engine::Instance::Get().IsEditor();
 }
 
-void ECS::SysCollider::UpdateShape(EntityID InEntity) const
+void ECS::SysCollider::UpdateShape(const EntityID InEntity)
 {
     auto& man = Physics::Manager::Get();
     man.Remove(InEntity);

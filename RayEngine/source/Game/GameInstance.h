@@ -23,12 +23,12 @@ public:
 
 private:
 
-    Physics::Manager Physics = {};
-    ECS::Manager ECS = {}; 
-    SceneInstance SceneInstance = {};
-    RoomManager RoomManager = {};
-    GameState State = {}; 
+    Physics::Manager physics = {};
+    ECS::Manager ecs = {}; 
+    SceneInstance scene = {};
+    RoomManager rooms = {};
+    GameState state = {}; 
     
-    ResScene StartScene = {};
-    Vec3F StartPlayerPos = {};
+    ResScene startScene = {};
+    Vec3F startPlayerPos = {};
 };

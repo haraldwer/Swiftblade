@@ -30,7 +30,7 @@ bool PropRuleHorizontalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord I
                     pos + InDir + Vec3F::Up(),
                     QuatF::FromDirection(InDir),
                     Vec3F(1.0f, 0.3f, 0.3f));
-                AddProp(trans, CornerBP);
+                AddProp(trans, cornerBP);
                 success = true;
             }
         }

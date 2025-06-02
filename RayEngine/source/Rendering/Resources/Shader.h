@@ -41,18 +41,19 @@ public:
 
 private:
     String LoadShaderFile(const String& InPath, Set<String>& InIncludes);
-    String ProcessIncludes(const String& InShaderCode, const String& InPath, Set<String>& InIncludes);
+
+    static String ProcessIncludes(const String& InShaderCode, const String& InPath, Set<String>& InIncludes);
     String ProcessDefines(const String& InShaderCode);
     void LoadDefaultLocs();
     
-    String Identifier = {}; 
-    Shader* Ptr = nullptr;
-    Set<String> VSIncludes = {};
-    Set<String> FSIncludes = {};
-    Vector<String> Defines = {};
+    String identifier = {}; 
+    Shader* ptr = nullptr;
+    Set<String> vsIncludes = {};
+    Set<String> fsIncludes = {};
+    Vector<String> defines = {};
     
-    Map<String, int> Locations = {};
-    Array<int, static_cast<size_t>(DefaultLoc::COUNT)> DefaultLocs = {};
+    Map<String, int> locations = {};
+    Array<int, static_cast<size_t>(DefaultLoc::COUNT)> defaultLocs = {};
 };
 
 typedef Resource::Ref<ShaderResource> ResShader;  

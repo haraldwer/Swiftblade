@@ -6,7 +6,7 @@ namespace Utility
 	namespace Math
 	{
 
-		template<typename PositionType, typename VertexData = PositionType, int position_byte_offset = 0>
+		template<typename PositionType, typename VertexData = PositionType, int PositionByteOffset = 0>
 		class Triangle
 		{
 		public:
@@ -15,16 +15,16 @@ namespace Utility
 			{
 				union
 				{
-					Memory::Map<PositionType, position_byte_offset> position;
-					VertexData interpolated_data;
+					Memory::Map<PositionType, PositionByteOffset> position;
+					VertexData interpolatedData;
 				};
 
 				operator VertexData& ()
 				{
-					return interpolated_data;
+					return interpolatedData;
 				}
 
-				Vertex(const VertexData& interpolated_data) : interpolated_data(interpolated_data) {}
+				Vertex(const VertexData& InInterpolatedData) : interpolatedData(InInterpolatedData) {}
 				Vertex() {}
 				~Vertex() {}
 

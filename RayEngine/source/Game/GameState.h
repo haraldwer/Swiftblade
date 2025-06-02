@@ -10,14 +10,14 @@ public:
     // Checkpoint
     // Total time
 
-    ECS::EntityID GetPlayerID() const { return PlayerID; }
+    ECS::EntityID GetPlayerID() const { return playerID; }
 
-    int Seed = 0;
-    int Deaths = 0;
-    int Checkpoint = 0;
-    bool InArena = false; 
-    double ElapsedTime = 0; 
+    int seed = 0;
+    int deaths = 0;
+    int checkpoint = 0;
+    bool arena = false; 
+    double elapsedTime = 0; 
     
 private: 
-    ECS::EntityID PlayerID = ECS::InvalidID;
+    ECS::EntityID playerID = ECS::INVALID_ID;
 };

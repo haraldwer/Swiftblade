@@ -18,11 +18,11 @@ void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
         
         const SceneResource* scene = room.Get();
         CHECK_CONTINUE(!scene);
-        SceneInstance instance = scene->Create(offset, Scenes.empty() && !InApplyRootOffset);
-        Scenes.push_back(instance);
+        SceneInstance instance = scene->Create(offset, scenes.empty() && !InApplyRootOffset);
+        scenes.push_back(instance);
 
         bool foundEnd = false; 
-        for (const ECS::EntityID entity : instance.Entities)
+        for (const ECS::EntityID entity : instance.entities)
         {
             const auto roomEnd = ECS::Manager::Get().GetComponent<RoomConnection>(entity);
             CHECK_CONTINUE(!roomEnd);
@@ -48,8 +48,8 @@ void RoomManager::LoadConfig()
 
     // How far has the player come?
     const auto& state = GameState::Get();
-    Utility::RandomWeightedCollection<ResScene> roomCollection(state.Seed);
-    Utility::RandomWeightedCollection<ResScene> arenaCollection(state.Seed);
+    Utility::RandomWeightedCollection<ResScene> roomCollection(state.seed);
+    Utility::RandomWeightedCollection<ResScene> arenaCollection(state.seed);
     for (auto& room : config.Rooms.Get())
         roomCollection.Add(room);
     for (auto& arena : config.Arenas.Get())
@@ -80,12 +80,12 @@ void RoomManager::LoadConfig()
     // Only load a subset of these
     
     // (SectionStart/GameStart + NumRooms + SectionEnd + Arena) * Checkpoint
-    const int startIndex = (1 + config.NumRooms + 1 + 1) * state.Checkpoint;
+    const int startIndex = (1 + config.NumRooms + 1 + 1) * state.checkpoint;
     
     // (SectionStart/GameStart + NumRooms + SectionEnd/GameEnd + Arena) * (Checkpoint + 1)
-    const int endIndex = (1 + config.NumRooms + 1 + 1) * (state.Checkpoint + 1) - 1; 
+    const int endIndex = (1 + config.NumRooms + 1 + 1) * (state.checkpoint + 1) - 1; 
 
-    if (state.InArena)
+    if (state.arena)
     {
         // Only load end index
         Load({ scenes[endIndex] }, true);
@@ -101,7 +101,7 @@ void RoomManager::LoadConfig()
 
 void RoomManager::Unload()
 {
-    for (auto& scene : Scenes)
+    for (auto& scene : scenes)
         scene.Destroy();
-    Scenes.clear(); 
+    scenes.clear(); 
 }

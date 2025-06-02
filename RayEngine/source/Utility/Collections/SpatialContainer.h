@@ -12,42 +12,42 @@ namespace Utility
 
         struct Cullable
         {
-            Vec3F Position = {};
-            float Extent = {};
+            Vec3F position = {};
+            float extent = {};
         };
         
         void Insert(const T& InData, const Cullable& InCull)
         {
-            Insert(Root, InData, InCull);
+            Insert(root, InData, InCull);
         }
 
         void Build()
         {
-            Split(Root, 0);
+            Split(root, 0);
         }
 
         void Clear()
         {
-            Root = Node();
-            Nodes.clear();
+            root = Node();
+            nodes.clear();
         }
 
         // The query should return -1 if on left side of plane, 1 if on right side and 0 if on both sides.
         Vector<Vector<T>*> Get(const std::function<int(const Math::Plane<float>&)>& InQuery) const
         {
             Vector<Vector<T>*> result;
-            Get(Root, InQuery, result);
+            Get(root, InQuery, result);
             return result;
         }
 
         const Vector<T>& GetAll() const
         {
-            return Root.Data;
+            return root.Data;
         }
 
         uint32 Count() const
         {
-            return static_cast<uint32>(Root.Data.size());
+            return static_cast<uint32>(root.Data.size());
         }
 
         bool Empty() const
@@ -59,12 +59,12 @@ namespace Utility
 
         struct Node
         {
-            Vec3F Total = {};
-            Vector<T> Data = {}; // Memory alignment is important here!
-            Vector<Cullable> CullData = {};
-            Math::Plane<float> Divisor = {};
-            uint32 Left = static_cast<uint32>(-1);
-            uint32 Right = static_cast<uint32>(-1);
+            Vec3F total = {};
+            Vector<T> data = {}; // Memory alignment is important here!
+            Vector<Cullable> cullData = {};
+            Math::Plane<float> divisor = {};
+            uint32 left = static_cast<uint32>(-1);
+            uint32 right = static_cast<uint32>(-1);
         };
         
         static void Insert(Node& InNode, const T& InData, const Cullable& InCull)
@@ -100,10 +100,10 @@ namespace Utility
             // Create left and right nodes
             CHECK_ASSERT(InNode.Left != static_cast<uint32>(-1), "Left index should not be set at this point");
             CHECK_ASSERT(InNode.Right != static_cast<uint32>(-1), "Right index should not be set at this point");
-            InNode.Left = static_cast<uint32>(Nodes.size());
-            InNode.Right = static_cast<uint32>(Nodes.size() + 1);
-            Nodes.emplace_back();
-            Nodes.emplace_back();
+            InNode.Left = static_cast<uint32>(nodes.size());
+            InNode.Right = static_cast<uint32>(nodes.size() + 1);
+            nodes.emplace_back();
+            nodes.emplace_back();
             
             // Now every entry will be on either left, right or both sides of the plane
             for (int i = 0; i < static_cast<int>(InNode.CullData.size()); i++)
@@ -113,12 +113,12 @@ namespace Utility
                 float distance = InNode.Divisor.SignedDistance(cullData.Position);
                 if (abs(distance) < cullData.Extent) // First, check face intersection
                 {
-                    Insert(Nodes[InNode.Left], data, cullData);
-                    Insert(Nodes[InNode.Right], data,cullData);
+                    Insert(nodes[InNode.Left], data, cullData);
+                    Insert(nodes[InNode.Right], data,cullData);
                 }
                 else
                 {
-                    Insert(Nodes[distance < 0 ? InNode.Left : InNode.Right], data, cullData);
+                    Insert(nodes[distance < 0 ? InNode.Left : InNode.Right], data, cullData);
                 }
             }
 
@@ -130,8 +130,8 @@ namespace Utility
             }
 
             // Split both left and right
-            Split(Nodes[InNode.Left], InDepth + 1);
-            Split(Nodes[InNode.Right], InDepth + 1);
+            Split(nodes[InNode.Left], InDepth + 1);
+            Split(nodes[InNode.Right], InDepth + 1);
         }
 
         void Get(Node& InNode, const std::function<int(const Math::Plane<float>&)>& InQuery, Vector<Vector<T>*>& InOutResult) const
@@ -148,14 +148,14 @@ namespace Utility
             CHECK_ASSERT(InNode.Left == static_cast<uint32>(-1), "Invalid left index");
             CHECK_ASSERT(InNode.Right == static_cast<uint32>(-1), "Invalid right index");
 
-            int result = InQuery(InNode.Divisor);
+            const int result = InQuery(InNode.Divisor);
             if (result <= 0)
-                Get(Nodes[InNode.Left], InQuery, InOutResult);
+                Get(nodes[InNode.Left], InQuery, InOutResult);
             if (result >= 0)
-                Get(Nodes[InNode.Right], InQuery, InOutResult);
+                Get(nodes[InNode.Right], InQuery, InOutResult);
         }
         
-        Node Root = {};
-        Vector<Node> Nodes = {};
+        Node root = {};
+        Vector<Node> nodes = {};
      };
 }

@@ -2,14 +2,14 @@
 
 #include "PropertyOwner.h"
 
-PropertyBase::PropertyBase(const String& InName) : Name(InName)
+PropertyBase::PropertyBase(const String& InName) : name(InName)
 {
     PropertyOwnerBase::AddProperty(this); 
 }
 
 const String& PropertyBase::GetName() const
 {
-    return Name;
+    return name;
 }
 
 bool PropertyBase::operator==(const PropertyBase& InOther) const

@@ -29,26 +29,26 @@ void ECS::Player::Init()
     for (const EntityID child : trans.GetChildren())
     {
         if (TryGet<Collider>(child))
-            ColliderID = child;
+            colliderID = child;
         if (TryGet<CameraComponent>(child))
-            CameraID = child;
+            cameraID = child;
         
         auto& a = Get<Attributes>(child);
         if (a.Name.Get() == "Left")
-            LeftID = child;
+            leftID = child;
         if (a.Name.Get() == "Right")
-            RightID = child;
+            rightID = child;
     }
 
     // Create sword
     
     const auto& state = GameState::Get();
-    if (WeaponID == InvalidID && (state.Checkpoint > 0 || state.InArena))
+    if (weaponID == INVALID_ID && (state.checkpoint > 0 || state.arena))
     {
-        if (auto bp = ResBlueprint("Gameplay/Player/BP_Sword.json").Get())
+        if (const auto bp = ResBlueprint("Gameplay/Player/BP_Sword.json").Get())
         {
-            WeaponID = bp->Instantiate();
-            PickupWeapon(WeaponID); 
+            weaponID = bp->Instantiate();
+            PickupWeapon(weaponID); 
         }
     }
 }
@@ -62,9 +62,9 @@ void ECS::Player::Update()
 
 void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
 {
-    const auto& t = Get<Transform>(InContact.Target);
+    const auto& t = Get<Transform>(InContact.target);
     const auto parent = t.GetParent(); 
-    if (parent != InvalidID)
+    if (parent != INVALID_ID)
     {
         if (TryGet<Checkpoint>(parent))
             ActivateCheckpoint();
@@ -83,28 +83,28 @@ void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
 
 void ECS::Player::PickupWeapon(EntityID InWeaponID)
 {
-    auto& swordTrans = Get<Transform>(InWeaponID);
+    const auto& swordTrans = Get<Transform>(InWeaponID);
     swordTrans.SetParent(GetID());
-    WeaponID = InWeaponID;
-    PlayTimer = Utility::Timer();
+    weaponID = InWeaponID;
+    playTimer = Utility::Timer();
     LOG("Weapon attached");
 }
 
-void ECS::Player::Die()
+void ECS::Player::Die() const
 {
     LOG("Player died!");
     auto& state = GameState::Get(); 
-    state.Deaths++;
-    state.ElapsedTime += PlayTimer.Ellapsed(); 
+    state.deaths++;
+    state.elapsedTime += playTimer.Ellapsed(); 
     Menu::Manager::Get().Push<MenuDeath>();
 }
 
-void ECS::Player::TriggerSectionEnd()
+void ECS::Player::TriggerSectionEnd() const
 {
     LOG("Reached section end!");
     auto& state = GameState::Get(); 
-    state.ElapsedTime += PlayTimer.Ellapsed();
-    state.InArena = true;
+    state.elapsedTime += playTimer.Ellapsed();
+    state.arena = true;
 
     // Go to next section
     Engine::Manager::Get().Pop();
@@ -112,21 +112,21 @@ void ECS::Player::TriggerSectionEnd()
         newGame->SetState(state); // Transfer game state
 }
 
-void ECS::Player::TriggerGameEnd()
+void ECS::Player::TriggerGameEnd() const
 {
     LOG("Reached game end!");
     auto& state = GameState::Get(); 
-    state.ElapsedTime += PlayTimer.Ellapsed();
+    state.elapsedTime += playTimer.Ellapsed();
     Menu::Manager::Get().Push<MenuGameEnd>();
 }
 
-void ECS::Player::ActivateCheckpoint()
+void ECS::Player::ActivateCheckpoint() const
 {
     LOG("Activated checkpoint!");
     auto& state = GameState::Get(); 
-    state.ElapsedTime += PlayTimer.Ellapsed();
-    state.InArena = false;
-    state.Checkpoint++;
+    state.elapsedTime += playTimer.Ellapsed();
+    state.arena = false;
+    state.checkpoint++;
 
     // Go to next section
     Engine::Manager::Get().Pop();

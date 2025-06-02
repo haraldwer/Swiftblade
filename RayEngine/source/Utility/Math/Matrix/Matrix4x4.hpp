@@ -326,7 +326,7 @@ namespace Utility
 			}
 
 			template <class F>
-			static Matrix4x4 Lerp(Matrix4x4 InA, Matrix4x4 InB, F InT)
+			static Matrix4x4 Lerp(const Matrix4x4& InA, const Matrix4x4& InB, F InT)
 			{
 				Vector3<Type> aP = InA.GetPosition();
 				Vector3<Type> bP = InB.GetPosition();

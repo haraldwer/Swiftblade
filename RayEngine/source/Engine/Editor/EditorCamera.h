@@ -10,9 +10,9 @@ public:
     void Deinit();
 
     void SetTarget(const Vec3F& InPosition, float InDistance = 10.0f);
-    Vec3F GetPosition() const { return TargetState.Position; }
+    Vec3F GetPosition() const { return targetState.position; }
     bool IsControlling() const { return bUseEditCamera && bInputEnabled; }
-    void SetAlwaysEnabled(bool InEnabled) { bAlwaysEnabled = InEnabled; }
+    void SetAlwaysEnabled(const bool InEnabled) { bAlwaysEnabled = InEnabled; }
     void Toggle();
     
 private:
@@ -21,15 +21,15 @@ private:
     
     struct State
     {
-        float FOV = 100.0f;
-        float MovementSpeed = 50.0f; 
-        Vec3F Position = Vec3F(254.0f, 254.0f, -20.0f);
-        Vec3F Rotation = {};
+        float fov = 100.0f;
+        float movementSpeed = 50.0f; 
+        Vec3F position = Vec3F(254.0f, 254.0f, -20.0f);
+        Vec3F rotation = {};
     };
 
-    State TargetState = {};
-    State CurrentState = {};
-    Vec2F CursorPos = {};
+    State targetState = {};
+    State currentState = {};
+    Vec2F cursorPos = {};
 
     bool bUseEditCamera = false;
     bool bInputEnabled = false;

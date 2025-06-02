@@ -24,13 +24,13 @@ public:
     Utility::Type GetDefaultStateType() override { return Type::Get<MovementStateIdle>(); }    
     
 private:
-    MovementStateIdle Idle;
-    MovementStateRun Run;
-    MovementStateJump Jump;
-    MovementStateAir Air;
-    MovementStateCrouch Crouch;
-    MovementStateSlide Slide;
-    MovementStateDash Dash;
-    MovementStateWall Wall;
-    MovementStateVault Vault;
+    MovementStateIdle idle;
+    MovementStateRun run;
+    MovementStateJump jump;
+    MovementStateAir air;
+    MovementStateCrouch crouch;
+    MovementStateSlide slide;
+    MovementStateDash dash;
+    MovementStateWall wall;
+    MovementStateVault vault;
 };

@@ -4,39 +4,39 @@ namespace Rendering
 {
     struct UniformCommand
     {
-        uint32 ValueHash;
+        uint32 valueHash;
     };
     
     struct TextureCommand
     {
-        uint32 ID = static_cast<uint32>(-1); // Texture ID
-        int ShaderLoc = -1; // Shader location
-        int Wrap = -1;
-        int Filter = -1;
-        bool Cubemap = false;
+        uint32 id = static_cast<uint32>(-1); // Texture ID
+        int shaderLoc = -1; // Shader location
+        int wrap = -1;
+        int filter = -1;
+        bool cubemap = false;
     };
     
     struct ShaderCommand
     {
-        uint32 ID = static_cast<uint32>(-1);
-        int* Locs = nullptr;
-        bool BackfaceCulling = true;
-        bool DepthTest = false;
-        bool DepthMask = false;
-        int BlendMode = -1;
+        uint32 id = static_cast<uint32>(-1);
+        int* locs = nullptr;
+        bool backfaceCulling = true;
+        bool depthTest = false;
+        bool depthMask = false;
+        int blendMode = -1;
     };
 
     struct FrameCommand
     {
         uint32 fboID = static_cast<uint32>(-1);
-        Vec2I Size = {};
-        bool ClearTarget = false;
-        bool ClearDepth = false;
+        Vec2I size = {};
+        bool clearTarget = false;
+        bool clearDepth = false;
     };
 
     struct PerspectiveCommand
     {
-        Vec4I Rect = {};
+        Vec4I rect = {};
     };
 
     struct MeshCommand

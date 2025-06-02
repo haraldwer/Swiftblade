@@ -6,12 +6,12 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 {
 	const Mat4F matrix = Mat4F::GetInverse(InView) * InProj;
 
-	auto& near = Planes[0];
-	auto& far = Planes[1];
-	auto& left = Planes[2];
-	auto& right = Planes[3];
-	auto& top = Planes[4];
-	auto& bottom = Planes[5];
+	auto& near = planes[0];
+	auto& far = planes[1];
+	auto& left = planes[2];
+	auto& right = planes[3];
+	auto& top = planes[4];
+	auto& bottom = planes[5];
 	
 	auto& mat = matrix.elements;
 	for (int i = 3; i >= 0; i--) left[i]	= mat[i][3] + mat[i][0];
@@ -21,8 +21,8 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 	for (int i = 3; i >= 0; i--) near[i]	= mat[i][3] + mat[i][2];
 	for (int i = 3; i >= 0; i--) far[i]		= mat[i][3] - mat[i][2];
 
-	Far = InFar;
-	Position = InPos;
+	far = InFar;
+	position = InPos;
 }
 
 void Rendering::Frustum::ConstructFrustum(const CameraInstance& InCam, const Vec2I& InViewSize)
@@ -32,5 +32,5 @@ void Rendering::Frustum::ConstructFrustum(const CameraInstance& InCam, const Vec
 		static_cast<float>(InViewSize.x),
 		static_cast<float>(InViewSize.y)
 	});
-	ConstructFrustum(proj, view, InCam.Far, InCam.Position);
+	ConstructFrustum(proj, view, InCam.far, InCam.position);
 }

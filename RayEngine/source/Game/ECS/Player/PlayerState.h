@@ -6,8 +6,8 @@
 class PlayerStateBase : public ECS::PlayerInterface
 {
 public:
-    double GetEnterTimestamp() const { return EnterTimestamp; }
-    double GetExitTimestamp() const { return EnterTimestamp; }
+    double GetEnterTimestamp() const { return enterTimestamp; }
+    double GetExitTimestamp() const { return enterTimestamp; }
     double GetTimeSinceEnter() const { return GetTime() - GetEnterTimestamp(); }
     double GetTimeSinceExit() const { return GetTime() - GetExitTimestamp(); }
     virtual Type GetAnimationState() const { return Type::None(); } 
@@ -15,8 +15,8 @@ public:
 protected:
     void ApplyAnimationState() const;
     
-    double EnterTimestamp = 0.0f;
-    double ExitTimestamp = 0.0f; 
+    double enterTimestamp = 0.0f;
+    double exitTimestamp = 0.0f; 
 };
 
 
@@ -26,12 +26,12 @@ class PlayerState : public State<T>, public PlayerStateBase
 public:
     void Enter() override
     {
-        EnterTimestamp = GetTime();
+        enterTimestamp = GetTime();
         ApplyAnimationState();
     }
     
     void Exit() override
     {
-        ExitTimestamp = GetTime(); 
+        exitTimestamp = GetTime(); 
     }
 };

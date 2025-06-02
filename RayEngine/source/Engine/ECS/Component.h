@@ -8,14 +8,14 @@ namespace ECS
     {
     public:
         virtual ~ComponentBase() = default;
-        void SetID(const EntityID InID) { ID = InID; }
+        void SetID(const EntityID InID) { id = InID; }
         EntityID GetID() const
         {
-            CHECK_ASSERT(ID == InvalidID, "Invalid ID");
-            return ID;
+            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            return id;
         }
     private: 
-        EntityID ID = InvalidID;
+        EntityID id = INVALID_ID;
     };
     
     template <class T>

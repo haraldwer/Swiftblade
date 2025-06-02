@@ -9,16 +9,16 @@ Type AnimationStateInAir::Update()
     auto& a = GetAnimator();
 
     HeadState head;
-    head.Interp = 10.0f;
+    head.interp = 10.0f;
     a.SetHead(head);
     
     HandState hands;
-    hands.Interp = 20.0f;
-    hands.Transform = a.GetPose("Pose_InAir");
-    hands.VelocityOffset.y *= 3.0f;
-    hands.Pose = HandPose::OPEN;
-    hands.CameraSpace = 0.5;
-    HandState flipped = ECS::Animator::Flip(hands);
+    hands.interp = 20.0f;
+    hands.transform = a.GetPose("Pose_InAir");
+    hands.velocityOffset.y *= 3.0f;
+    hands.pose = HandPose::OPEN;
+    hands.cameraSpace = 0.5;
+    const HandState flipped = ECS::Animator::Flip(hands);
     a.SetHands(hands, flipped);
     
     return Type::None(); 

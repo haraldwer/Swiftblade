@@ -8,7 +8,7 @@
 
 bool PhysicsMaterialResource::Load(const String& InPath)
 {
-    Identifier = InPath;
+    identifier = InPath;
     if (!PropertyOwnerBase::Load(InPath))
         return false;
 
@@ -16,23 +16,23 @@ bool PhysicsMaterialResource::Load(const String& InPath)
         return true; 
     
     const auto& man = Physics::Manager::Get();
-    Ptr = man.CreateMaterial(
+    ptr = man.CreateMaterial(
         StaticFriction,
         DynamicFriction,
         Restitution);
 
-    return Ptr != nullptr;
+    return ptr != nullptr;
 }
 
 bool PhysicsMaterialResource::Unload()
 {
-    CHECK_RETURN(!Ptr, false);
-    Ptr->release();
-    Ptr = nullptr;
+    CHECK_RETURN(!ptr, false);
+    ptr->release();
+    ptr = nullptr;
     return true;
 }
 
 Utility::Timepoint PhysicsMaterialResource::GetEditTime() const
 {
-    return Utility::GetFileWriteTime(Identifier);  
+    return Utility::GetFileWriteTime(identifier);  
 }

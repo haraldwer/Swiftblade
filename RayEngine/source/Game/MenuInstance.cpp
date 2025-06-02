@@ -6,22 +6,22 @@ void MenuInstance::Init()
 {
     Instance::Init();
     Menus.Push<MenuMain>();
-    DB.Init();
+    db.Init();
 
     DB::AuthData auth;
     auth.User = "TestUser";
-    auth.Create = true;
-    DB.Auth.Authenticate(auth);
+    auth.create = true;
+    db.Auth.Authenticate(auth);
 }
 
 void MenuInstance::Deinit()
 {
     Instance::Deinit();
-    DB.Deinit();
+    db.Deinit();
 }
 
-void MenuInstance::Logic(double InDelta)
+void MenuInstance::Logic(const double InDelta)
 {
     Instance::Logic(InDelta);
-    DB.Update();
+    db.Update();
 }

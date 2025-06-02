@@ -5,7 +5,7 @@
 
 void Rendering::Window::Open(const WindowConfig& InConfig)
 {
-    Config = InConfig;
+    config = InConfig;
 
     if (!IsWindowReady())
     {
@@ -43,7 +43,7 @@ void Rendering::Window::Close()
 void Rendering::Window::Draw(const Texture& InTexture)
 {    
     // Flip and blip
-    const float virtualRatio = static_cast<float>(Config.Width) / static_cast<float>(Config.Height);
+    const float virtualRatio = static_cast<float>(config.Width) / static_cast<float>(config.Height);
     const Rectangle sourceRec = {
         0.0f, 0.0f,
         static_cast<float>(InTexture.width),
@@ -52,8 +52,8 @@ void Rendering::Window::Draw(const Texture& InTexture)
     const Rectangle destRec = {
         -virtualRatio,
         -virtualRatio,
-        static_cast<float>(Config.Width) + (virtualRatio * 2),
-        static_cast<float>(Config.Height) + (virtualRatio * 2)
+        static_cast<float>(config.Width) + (virtualRatio * 2),
+        static_cast<float>(config.Height) + (virtualRatio * 2)
     };
     DrawTexturePro(
         InTexture,
@@ -67,25 +67,25 @@ void Rendering::Window::Draw(const Texture& InTexture)
 void Rendering::Window::CapFPS()
 {
     PROFILE_GL_NAMED("Cap FPS");
-    int targetFPS = Config.TargetFPS;
+    int targetFPS = config.TargetFPS;
     if (targetFPS > 0)
     {
         targetFPS = Utility::Math::Max(targetFPS, 10);
-        double desiredFrameTime = (1.0 / targetFPS) - LeftoverFrameTime;
-        while (FrameTimer.Ellapsed() < desiredFrameTime)
+        const double desiredFrameTime = (1.0 / targetFPS) - leftoverFrameTime;
+        while (frameTimer.Ellapsed() < desiredFrameTime)
         {
         }
-        LeftoverFrameTime = FrameTimer.Ellapsed() - desiredFrameTime;
-        FrameTimer = {};
+        leftoverFrameTime = frameTimer.Ellapsed() - desiredFrameTime;
+        frameTimer = {};
     }
 }
 
-bool Rendering::Window::ShouldClose() const
+bool Rendering::Window::ShouldClose()
 {
     return WindowShouldClose();
 }
 
 Vec2I Rendering::Window::GetSize()
 {
-    return { Config.Width, Config.Height };
+    return { config.Width, config.Height };
 }

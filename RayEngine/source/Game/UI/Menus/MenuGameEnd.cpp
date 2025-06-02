@@ -16,11 +16,11 @@ void MenuGameEnd::Init()
                 .Add(UI::Label("End", 0.5f, UI::Transform::Fill(), ResFont("F_GothBallCrap.ttf"), 80.0f));
 
 
-    const int score = static_cast<int>(GameState::Get().ElapsedTime);
+    const int score = static_cast<int>(GameState::Get().elapsedTime);
     builder.Add(UI::Label("Score: " + std::to_string(score), 0.5f), "Score");
     builder.Add(UI::Label("Replay", 0.5f), "Replay");
     builder.Add(UI::Label("Main Menu", 0.5f), "Main Menu");
-    UI = builder.Build();
+    ui = builder.Build();
 
     // Disable player input and show mouse
     Input::Manager::Get().Push("Default"); 
@@ -37,15 +37,15 @@ void MenuGameEnd::Deinit()
 
 void MenuGameEnd::Update()
 {
-    CHECK_RETURN(!UI);
+    CHECK_RETURN(!ui);
     
-    if (UI->Get<UI::Label>("Replay").IsClicked())
+    if (ui->Get<UI::Label>("Replay").IsClicked())
     {
         // Push new game instance
         Engine::Manager::Get().Pop();
         Engine::Manager::Get().Push<GameInstance>();
     }
 
-    if (UI->Get<UI::Label>("Main Menu").IsClicked())
+    if (ui->Get<UI::Label>("Main Menu").IsClicked())
         Engine::Manager::Get().Pop();
 }

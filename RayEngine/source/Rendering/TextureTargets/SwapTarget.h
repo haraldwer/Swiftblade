@@ -7,18 +7,18 @@ namespace Rendering
     class SwapTarget
     {
     public:
-        SwapTarget(int InNum = 2)
+        SwapTarget(const int InNum = 2)
         {
             CHECK_ASSERT(InNum < 2, "Too few targets");
-            Targets.resize(InNum);
+            targets.resize(InNum);
         }
         
-        RenderTarget& Curr() { return Targets[Current]; }
-        RenderTarget& Prev(int InOffset = 1) { return Targets[(Current + Targets.size() - InOffset) % Targets.size()]; }
-        void Iterate() { Current = (Current + 1) % Targets.size(); }
-        Vector<RenderTarget>& All() { return Targets; }
+        RenderTarget& Curr() { return targets[current]; }
+        RenderTarget& Prev(const int InOffset = 1) { return targets[(current + targets.size() - InOffset) % targets.size()]; }
+        void Iterate() { current = (current + 1) % static_cast<int>(targets.size()); }
+        Vector<RenderTarget>& All() { return targets; }
     private:
-        Vector<RenderTarget> Targets = {};
-        int Current = 0;
+        Vector<RenderTarget> targets = {};
+        int current = 0;
     };
 }

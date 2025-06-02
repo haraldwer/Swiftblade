@@ -10,7 +10,7 @@
 #include "State/State.h"
 #include "Viewport/Viewport.h"
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType, int InCount)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType, const int InCount)
 {
     const int loc = InShader.GetLocation(InName);
     CHECK_RETURN(loc < 0);
@@ -23,11 +23,11 @@ void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InNam
     const int loc = InShader.GetLocation(InName);
     CHECK_RETURN(loc < 0);
     PROFILE_GL_GPU("Set matrix uniform")
-    Matrix m = Utility::Ray::ConvertMat(InValue);
+    const Matrix m = Utility::Ray::ConvertMat(InValue);
     rlSetUniformMatrix(loc, m);
 }
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount)
+void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, const int InType, const int InCount)
 {
     const int loc = InShader.GetLocation(InLoc);
     CHECK_RETURN(loc < 0);
@@ -35,27 +35,27 @@ void Rendering::Renderer::SetValue(ShaderResource& InShader, const ShaderResourc
     rlSetUniform(loc, InValue, InType, InCount);
 }
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue)
+void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue)
 {
     const int loc = InShader.GetLocation(InLoc);
     CHECK_RETURN(loc < 0);
-    Matrix m = Utility::Ray::ConvertMat(InValue);
+    const Matrix m = Utility::Ray::ConvertMat(InValue);
     rlSetUniformMatrix(loc, m);
 }
 
 void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget)
 {
     PROFILE_GL();
-    
-    auto& viewport = *InArgs.ViewportPtr;
-    auto& context = *InArgs.ContextPtr;
-    auto ptr = InShader.Get();
+
+    const auto& viewport = *InArgs.viewportPtr;
+    auto& context = *InArgs.contextPtr;
+    const auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
     // Time
     const float time = static_cast<float>(context.Timer.Ellapsed()); 
     SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, SHADER_UNIFORM_FLOAT);
-    const float delta = static_cast<float>(viewport.Delta); 
+    const float delta = static_cast<float>(viewport.delta); 
     SetValue(InShader, ShaderResource::DefaultLoc::DELTA, &delta, SHADER_UNIFORM_FLOAT);
     const Vec2I res = viewport.GetResolution();
     const Vec2F resf = { static_cast<float>(res.x), static_cast<float>(res.y) };
@@ -66,32 +66,32 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
 {
     PROFILE_GL();
     
-    auto& viewport = *InArgs.ViewportPtr;
+    auto& viewport = *InArgs.viewportPtr;
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
     const Vec2F res = viewport.GetResolution().To<float>();
-    float w = InPerspective.TargetRect.z > 0 ?
-        static_cast<float>(InPerspective.TargetRect.z) : res.x;
-    float h = InPerspective.TargetRect.w > 0 ?
-        static_cast<float>(InPerspective.TargetRect.w) : res.y;
+    float w = InPerspective.targetRect.z > 0 ?
+        static_cast<float>(InPerspective.targetRect.z) : res.x;
+    float h = InPerspective.targetRect.w > 0 ?
+        static_cast<float>(InPerspective.targetRect.w) : res.y;
     Vec4F rect = Vec4F{
-        static_cast<float>(InPerspective.TargetRect.x),
-        static_cast<float>(InPerspective.TargetRect.y),
+        static_cast<float>(InPerspective.targetRect.x),
+        static_cast<float>(InPerspective.targetRect.y),
         w, h };
     
     // Matrices
     Vec2F size = { rect.z, rect.w };
-    Mat4F view = InPerspective.Camera.GetViewMatrix();
-    Mat4F proj = InPerspective.Camera.GetProjectionMatrix(size);
-    viewport.ViewProj = Mat4F::GetInverse(view) * proj;
+    Mat4F view = InPerspective.camera.GetViewMatrix();
+    Mat4F proj = InPerspective.camera.GetProjectionMatrix(size);
+    viewport.viewProj = Mat4F::GetInverse(view) * proj;
     
-    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ, Mat4F::Transpose(viewport.ViewProj));
-    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_PREV, Mat4F::Transpose(viewport.ViewProjPrev));
-    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_INV, Mat4F::Transpose(Mat4F::GetInverse(viewport.ViewProj)));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ, Mat4F::Transpose(viewport.viewProj));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_PREV, Mat4F::Transpose(viewport.viewProjPrev));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_INV, Mat4F::Transpose(Mat4F::GetInverse(viewport.viewProj)));
 
     // Make resolution independent
-    Vec4F refRect = InPerspective.ReferenceRect;
+    Vec4F refRect = InPerspective.referenceRect;
     rect.x /= res.x;
     rect.y /= res.y;
     rect.z /= res.x;
@@ -105,8 +105,8 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     SetValue(InShader, ShaderResource::DefaultLoc::REF_RECT, &refRect, SHADER_UNIFORM_VEC4);
 
     // Camera and view
-    SetValue(InShader, ShaderResource::DefaultLoc::CAMERA_POSITION, &InPerspective.Camera.Position, SHADER_UNIFORM_VEC3);
-    Vec2F nearFar = { InPerspective.Camera.Near, InPerspective.Camera.Far };
+    SetValue(InShader, ShaderResource::DefaultLoc::CAMERA_POSITION, &InPerspective.camera.position, SHADER_UNIFORM_VEC3);
+    Vec2F nearFar = { InPerspective.camera.near, InPerspective.camera.far };
     SetValue(InShader, ShaderResource::DefaultLoc::NEAR_FAR, &nearFar, SHADER_UNIFORM_VEC2);
 }
 
@@ -119,25 +119,25 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 {
     PROFILE_GL();
     
-    auto& config = InArgs.ContextPtr->Config;
+    auto& config = InArgs.contextPtr->Config;
     for (auto& entry : config.NoiseTextures.Get())
     {
-        int loc = InShader.GetLocation(entry.first);
+        const int loc = InShader.GetLocation(entry.first);
         CHECK_CONTINUE(loc < 0);
-        auto noiseRes = entry.second.Get();
+        const auto noiseRes = entry.second.Get();
         CHECK_CONTINUE(!noiseRes);
-        auto texRes = noiseRes->Get().Get();
+        const auto texRes = noiseRes->Get().Get();
         CHECK_CONTINUE(!texRes);
-        auto tex = texRes->Get();
+        const auto tex = texRes->Get();
         CHECK_CONTINUE(!tex);
         
         InOutSlot++;
         TextureCommand cmd;
-        cmd.ShaderLoc = loc;
-        cmd.ID = tex->id;
-        cmd.Filter = RL_TEXTURE_FILTER_LINEAR;
-        cmd.Wrap = RL_TEXTURE_WRAP_REPEAT;
-        rlState::Current.Set(cmd, InOutSlot);
+        cmd.shaderLoc = loc;
+        cmd.id = tex->id;
+        cmd.filter = RL_TEXTURE_FILTER_LINEAR;
+        cmd.wrap = RL_TEXTURE_WRAP_REPEAT;
+        rlState::current.Set(cmd, InOutSlot);
     }
 }
 
@@ -145,7 +145,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
 {
     PROFILE_GL();
     
-    auto model = InArgs.ContextPtr->Config.DefaultCube.Get().Get();
+    auto model = InArgs.contextPtr->Config.DefaultCube.Get().Get();
     CHECK_RETURN(!model, 0);
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);
@@ -154,15 +154,15 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
     
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.Size = InTarget.Size();
-    frameCmd.ClearDepth = true;
-    frameCmd.ClearTarget = true;
-    rlState::Current.Set(frameCmd);
+    frameCmd.size = InTarget.Size();
+    frameCmd.clearDepth = true;
+    frameCmd.clearTarget = true;
+    rlState::current.Set(frameCmd);
     
     int c = 0;
-    for (auto& environment : InArgs.ScenePtr->Environments)
+    for (auto& environment : InArgs.scenePtr->environments)
     {
-        MaterialResource* rm = environment.Skybox.Get();
+        MaterialResource* rm = environment.skybox.Get();
         CHECK_CONTINUE(!rm);
         ShaderResource* shaderResource = rm->SurfaceShader.Get().Get();
         CHECK_CONTINUE(!shaderResource);
@@ -170,33 +170,33 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
         CHECK_CONTINUE(!shader);
 
         ShaderCommand shaderCmd;
-        shaderCmd.Locs = shader->locs;
-        shaderCmd.ID = shader->id;
-        rlState::Current.Set(shaderCmd);
+        shaderCmd.locs = shader->locs;
+        shaderCmd.id = shader->id;
+        rlState::current.Set(shaderCmd);
 
         int id = 0;
         SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
         SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-        SetValue(*shaderResource, "Bounds", &environment.Shape, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Position", &environment.Position, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Bounds", &environment.shape, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Position", &environment.position, SHADER_UNIFORM_VEC3);
 
         int texSlot = 0;
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
 
         MeshCommand cmd;
         cmd.vaoID = mesh.vaoId;
-        if (rlState::Current.Set(cmd, { environment.Position }))
+        if (rlState::current.Set(cmd, { environment.position }))
         {
             // Draw every perspective
-            for (auto& perspective : InArgs.Perspectives)
+            for (auto& perspective : InArgs.perspectives)
             {
                 PerspectiveCommand perspCmd;
-                perspCmd.Rect = perspective.TargetRect;
-                rlState::Current.Set(perspCmd);
+                perspCmd.rect = perspective.targetRect;
+                rlState::current.Set(perspCmd);
                 SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
                 c += DrawInstances(mesh, 1);
             }
-            rlState::Current.ResetMesh();
+            rlState::current.ResetMesh();
         }
     }
     return c;
@@ -208,17 +208,17 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     
     FrameCommand frameCmd;
     frameCmd.fboID = InSceneTarget.GetFBO();
-    frameCmd.Size = InSceneTarget.Size();
-    frameCmd.ClearDepth = true;
-    rlState::Current.Set(frameCmd);
+    frameCmd.size = InSceneTarget.Size();
+    frameCmd.clearDepth = true;
+    rlState::current.Set(frameCmd);
     
     Map<uint64, int> count;
-    for (auto& entry : InArgs.ScenePtr->Meshes.Entries)
+    for (auto& entry : InArgs.scenePtr->meshes.entries)
     {
         PROFILE_GL_NAMED("Mesh entry");
         const ::Mesh* meshes = nullptr;
         int32 meshCount = 0;
-        if (const auto resModel = entry.second.Model.Get())
+        if (const auto resModel = entry.second.model.Get())
         {
             if (const auto rlModel = resModel->Get())
             {
@@ -232,9 +232,9 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 
         CHECK_CONTINUE(!meshes);
         CHECK_CONTINUE(meshCount == 0);
-        CHECK_CONTINUE(entry.second.Transforms.Empty());
+        CHECK_CONTINUE(entry.second.transforms.Empty());
         
-        const MaterialResource* resMat = entry.second.Material.Get();
+        const MaterialResource* resMat = entry.second.material.Get();
         CHECK_CONTINUE(!resMat);
         ShaderResource* resShader = resMat->SurfaceShader.Get().Get();
         CHECK_CONTINUE(!resShader);
@@ -243,14 +243,14 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 
         // Enable shader
         ShaderCommand shaderCmd;
-        shaderCmd.ID = shader->id;
-        shaderCmd.Locs = shader->locs;
-        shaderCmd.BackfaceCulling = !resMat->TwoSided;
-        shaderCmd.DepthTest = true;
-        shaderCmd.DepthMask = true;
-        rlState::Current.Set(shaderCmd);
+        shaderCmd.id = shader->id;
+        shaderCmd.locs = shader->locs;
+        shaderCmd.backfaceCulling = !resMat->TwoSided;
+        shaderCmd.depthTest = true;
+        shaderCmd.depthMask = true;
+        rlState::current.Set(shaderCmd);
 
-        const int id = static_cast<int32>(entry.second.DeferredID);
+        const int id = static_cast<int32>(entry.second.deferredID);
         SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
         SetFrameShaderValues(InArgs, *resShader, InSceneTarget);
 
@@ -266,18 +266,18 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
             PROFILE_GL_NAMED("Mesh");
             MeshCommand cmd;
             cmd.vaoID = meshes[i].vaoId;
-            if (rlState::Current.Set(cmd, entry.second.Transforms.GetAll()))
+            if (rlState::current.Set(cmd, entry.second.transforms.GetAll()))
             {
                 // From every perspective
-                for (auto& perspective : InArgs.Perspectives)
+                for (auto& perspective : InArgs.perspectives)
                 {
                     PerspectiveCommand perspCmd;
-                    perspCmd.Rect = perspective.TargetRect;
+                    perspCmd.rect = perspective.targetRect;
                     SetPerspectiveShaderValues(InArgs, perspective, *resShader);
-                    rlState::Current.Set(perspCmd);
-                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(entry.second.Transforms.Count()));
+                    rlState::current.Set(perspCmd);
+                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(entry.second.transforms.Count()));
                 }
-                rlState::Current.ResetMesh();
+                rlState::current.ResetMesh();
             }
         }
     }
@@ -287,12 +287,12 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 
 void Rendering::Renderer::DrawQuad()
 {
-    rlState::Current.ResetMesh();
+    rlState::current.ResetMesh();
     PROFILE_GL_GPU("Draw quad");
     rlLoadDrawQuad();
 }
 
-int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InNum)
+int Rendering::Renderer::DrawInstances(const Mesh& InMesh, const int InNum)
 {
     PROFILE_GL_GPU("Draw instances");
     if (InMesh.indices != nullptr)
@@ -306,15 +306,15 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 {
     PROFILE_GL();
     
-    auto& scene = *InArgs.ScenePtr;
+    auto& scene = *InArgs.scenePtr;
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.Size = InTarget.Size();
-    rlState::Current.Set(frameCmd);
+    frameCmd.size = InTarget.Size();
+    rlState::current.Set(frameCmd);
 
-    Map<uint32, ResShader> passes = scene.Meshes.DeferredShaders;
-    passes[0] = InArgs.ContextPtr->Config.DeferredSkyboxShader; // Inject skybox
+    Map<uint32, ResShader> passes = scene.meshes.deferredShaders;
+    passes[0] = InArgs.contextPtr->Config.DeferredSkyboxShader; // Inject skybox
     for (auto& entry : passes)
     {
         PROFILE_GL_NAMED("Deferred pass");
@@ -324,9 +324,9 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
         CHECK_CONTINUE(!shader);
 
         ShaderCommand shaderCmd;
-        shaderCmd.Locs = shader->locs;
-        shaderCmd.ID = shader->id;
-        rlState::Current.Set(shaderCmd);
+        shaderCmd.locs = shader->locs;
+        shaderCmd.id = shader->id;
+        rlState::current.Set(shaderCmd);
 
         const int id = static_cast<int32>(entry.first);
         SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
@@ -337,11 +337,11 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
             if (b) b->Bind(*shaderResource, texSlot);
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
 
-        for (auto& perspective : InArgs.Perspectives)
+        for (auto& perspective : InArgs.perspectives)
         {
             PerspectiveCommand perspCmd;
-            perspCmd.Rect = perspective.TargetRect;
-            rlState::Current.Set(perspCmd);
+            perspCmd.rect = perspective.targetRect;
+            rlState::current.Set(perspCmd);
             SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
             DrawQuad();
         }
@@ -353,13 +353,13 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.LuminPtr, "Invalid luminptr");
-    auto& lumin = *InArgs.LuminPtr;
+    CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
+    auto& lumin = *InArgs.luminPtr;
     
     auto probes = lumin.GetProbes(InArgs);
     CHECK_RETURN(probes.empty(), 0);
 
-    LuminConfig conf = InArgs.LuminPtr->Config;
+    LuminConfig conf = InArgs.luminPtr->config;
     
     // Get shader
     auto res = conf.LightingShader;
@@ -382,14 +382,14 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.Size = InTarget.Size();
-    rlState::Current.Set(frameCmd);
+    frameCmd.size = InTarget.Size();
+    rlState::current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
-    shaderCmd.Locs = shader->locs;
-    shaderCmd.ID = shader->id;
-    shaderCmd.BlendMode = RL_BLEND_ADDITIVE;
-    rlState::Current.Set(shaderCmd);
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    shaderCmd.blendMode = RL_BLEND_ADDITIVE;
+    rlState::current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
     
@@ -411,9 +411,9 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     rects.reserve(c);
     for (auto& probe : probes)
     {
-        timestamps.push_back(probe->Timestamp);
-        positions.push_back(probe->Pos);
-        rects.push_back(probe->Rect);
+        timestamps.push_back(probe->timestamp);
+        positions.push_back(probe->pos);
+        rects.push_back(probe->rect);
     }
 
     float range = lumin.GetRange();
@@ -423,11 +423,11 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     SetValue(*shaderResource, "ProbePosition", positions.data(), SHADER_UNIFORM_VEC3, c);
     SetValue(*shaderResource, "ProbeRect", rects.data(), SHADER_UNIFORM_VEC4, c);
     
-    for (auto& perspective : InArgs.Perspectives)
+    for (auto& perspective : InArgs.perspectives)
     {
         PerspectiveCommand perspCmd;
-        perspCmd.Rect = perspective.TargetRect;
-        rlState::Current.Set(perspCmd);
+        perspCmd.rect = perspective.targetRect;
+        rlState::current.Set(perspCmd);
         SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
         DrawQuad(); // TODO: Replace with cube mesh
     }
@@ -436,11 +436,11 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     {
         PROFILE_GL_NAMED("Lumin debug");
         ShaderCommand debugShaderCmd;
-        debugShaderCmd.Locs = debugShader->locs;
-        debugShaderCmd.ID = debugShader->id;
-        debugShaderCmd.DepthTest = true;
-        debugShaderCmd.DepthMask = true;
-        rlState::Current.Set(debugShaderCmd);
+        debugShaderCmd.locs = debugShader->locs;
+        debugShaderCmd.id = debugShader->id;
+        debugShaderCmd.depthTest = true;
+        debugShaderCmd.depthMask = true;
+        rlState::current.Set(debugShaderCmd);
         
         SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
         SetValue(*debugShaderResource, "ProbeRange", &range, SHADER_UNIFORM_VEC3);
@@ -455,24 +455,24 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
         {
             PROFILE_GL_NAMED("Lumin probe debug");
             
-            SetValue(*debugShaderResource, "Timestamp", &probe->Timestamp, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "ProbePosition", &probe->Pos, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "ProbeRect", &probe->Rect, SHADER_UNIFORM_VEC4);
+            SetValue(*debugShaderResource, "Timestamp", &probe->timestamp, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "ProbePosition", &probe->pos, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "ProbeRect", &probe->rect, SHADER_UNIFORM_VEC4);
             
             MeshCommand cmd;
             cmd.vaoID = mesh.vaoId;
-            if (rlState::Current.Set(cmd, { probe->Pos }))
+            if (rlState::current.Set(cmd, { probe->pos }))
             {
                 // Draw every perspective
-                for (auto& perspective : InArgs.Perspectives)
+                for (auto& perspective : InArgs.perspectives)
                 {
                     PerspectiveCommand perspCmd;
-                    perspCmd.Rect = perspective.TargetRect;
-                    rlState::Current.Set(perspCmd);
+                    perspCmd.rect = perspective.targetRect;
+                    rlState::current.Set(perspCmd);
                     SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
                     DrawInstances(mesh, 1);
                 }
-                rlState::Current.ResetMesh();
+                rlState::current.ResetMesh();
             }
         }
     }
@@ -484,13 +484,13 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
 {
     PROFILE_GL();
     
-    CHECK_ASSERT(!InArgs.LightsPtr, "Invalid lightptr");
-    auto& lightMan = *InArgs.LightsPtr;
+    CHECK_ASSERT(!InArgs.lightsPtr, "Invalid lightptr");
+    auto& lightMan = *InArgs.lightsPtr;
     
     auto lights = lightMan.GetLights(InArgs);
     CHECK_RETURN(lights.empty(), 0);
 
-    LightConfig conf = lightMan.Config;
+    LightConfig conf = lightMan.config;
     
     // Get shader
     auto res = conf.LightShader;
@@ -513,14 +513,14 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.Size = InTarget.Size();
-    rlState::Current.Set(frameCmd);
+    frameCmd.size = InTarget.Size();
+    rlState::current.Set(frameCmd);
     
     ShaderCommand shaderCmd;
-    shaderCmd.Locs = shader->locs;
-    shaderCmd.ID = shader->id;
-    shaderCmd.BlendMode = RL_BLEND_ADDITIVE;
-    rlState::Current.Set(shaderCmd);
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    shaderCmd.blendMode = RL_BLEND_ADDITIVE;
+    rlState::current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
     SetValue(*shaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
@@ -539,22 +539,22 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
         
         CHECK_ASSERT(!light, "Invalid light");
     
-        SetValue(*shaderResource, "Position", &light->Data.Position, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Direction", &light->Data.Direction, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Color", &light->Data.Color, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Range", &light->Data.Range, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "ConeRadius", &light->Data.Radius, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "Intensity", &light->Data.Intensity, SHADER_UNIFORM_FLOAT);
+        SetValue(*shaderResource, "Position", &light->data.position, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Direction", &light->data.direction, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Color", &light->data.color, SHADER_UNIFORM_VEC3);
+        SetValue(*shaderResource, "Range", &light->data.range, SHADER_UNIFORM_FLOAT);
+        SetValue(*shaderResource, "ConeRadius", &light->data.radius, SHADER_UNIFORM_FLOAT);
+        SetValue(*shaderResource, "Intensity", &light->data.intensity, SHADER_UNIFORM_FLOAT);
 
-        auto find = lightMan.Cache.find(light->ID);
-        LightData* shadowCache = find == lightMan.Cache.end() ? nullptr : &find->second;
+        auto find = lightMan.cache.find(light->id);
+        LightData* shadowCache = find == lightMan.cache.end() ? nullptr : &find->second;
 
-        if (shadowCache && light->Shadows)
+        if (shadowCache && light->shadows)
         {
-            float time = static_cast<float>(shadowCache->Timestamp);
+            float time = static_cast<float>(shadowCache->timestamp);
             SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-            SetValue(*shaderResource, "ShadowPosition", &shadowCache->Pos, SHADER_UNIFORM_VEC3);
-            SetValue(*shaderResource, "ShadowRect", &shadowCache->Rect, SHADER_UNIFORM_VEC4);
+            SetValue(*shaderResource, "ShadowPosition", &shadowCache->pos, SHADER_UNIFORM_VEC3);
+            SetValue(*shaderResource, "ShadowRect", &shadowCache->rect, SHADER_UNIFORM_VEC4);
         }
         else
         {
@@ -562,11 +562,11 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
             SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
         }
 
-        for (auto& perspective : InArgs.Perspectives)
+        for (auto& perspective : InArgs.perspectives)
         {
             PerspectiveCommand perspCmd;
-            perspCmd.Rect = perspective.TargetRect;
-            rlState::Current.Set(perspCmd);
+            perspCmd.rect = perspective.targetRect;
+            rlState::current.Set(perspCmd);
             SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
             DrawQuad(); // TODO: Replace with cube mesh
         }
@@ -578,11 +578,11 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
         PROFILE_GL_NAMED("Light debug");
         
         ShaderCommand debugShaderCmd;
-        debugShaderCmd.Locs = debugShader->locs;
-        debugShaderCmd.ID = debugShader->id;
-        debugShaderCmd.DepthTest = true;
-        debugShaderCmd.DepthMask = true;
-        rlState::Current.Set(debugShaderCmd);
+        debugShaderCmd.locs = debugShader->locs;
+        debugShaderCmd.id = debugShader->id;
+        debugShaderCmd.depthTest = true;
+        debugShaderCmd.depthMask = true;
+        rlState::current.Set(debugShaderCmd);
         
         SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
         SetValue(*debugShaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
@@ -597,37 +597,37 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
         {
             PROFILE_GL_NAMED("Light cube debug");
             
-            auto find = lightMan.Cache.find(light->ID);
-            LightData* shadowCache = find == lightMan.Cache.end() ? nullptr : &find->second;
+            auto find = lightMan.cache.find(light->id);
+            LightData* shadowCache = find == lightMan.cache.end() ? nullptr : &find->second;
             CHECK_CONTINUE(!shadowCache);
-            CHECK_CONTINUE(!light->Shadows);
+            CHECK_CONTINUE(!light->shadows);
 
-            SetValue(*debugShaderResource, "Position", &light->Data.Position, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "Direction", &light->Data.Direction, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "Color", &light->Data.Color, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "Range", &light->Data.Range, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "ConeRadius", &light->Data.Radius, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "Intensity", &light->Data.Intensity, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "Position", &light->data.position, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "Direction", &light->data.direction, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "Color", &light->data.color, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "Range", &light->data.range, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "ConeRadius", &light->data.radius, SHADER_UNIFORM_FLOAT);
+            SetValue(*debugShaderResource, "Intensity", &light->data.intensity, SHADER_UNIFORM_FLOAT);
             
-            float time = static_cast<float>(shadowCache->Timestamp);
+            float time = static_cast<float>(shadowCache->timestamp);
             SetValue(*debugShaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "ShadowPosition", &shadowCache->Pos, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "ShadowRect", &shadowCache->Rect, SHADER_UNIFORM_VEC4);
+            SetValue(*debugShaderResource, "ShadowPosition", &shadowCache->pos, SHADER_UNIFORM_VEC3);
+            SetValue(*debugShaderResource, "ShadowRect", &shadowCache->rect, SHADER_UNIFORM_VEC4);
             
             MeshCommand cmd;
             cmd.vaoID = mesh.vaoId;
-            if (rlState::Current.Set(cmd, { light->Data.Position }))
+            if (rlState::current.Set(cmd, { light->data.position }))
             {
                 // Draw every perspective
-                for (auto& perspective : InArgs.Perspectives)
+                for (auto& perspective : InArgs.perspectives)
                 {
                     PerspectiveCommand perspCmd;
-                    perspCmd.Rect = perspective.TargetRect;
-                    rlState::Current.Set(perspCmd);
+                    perspCmd.rect = perspective.targetRect;
+                    rlState::current.Set(perspCmd);
                     SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
                     DrawInstances(mesh, 1);
                 }
-                rlState::Current.ResetMesh();
+                rlState::current.ResetMesh();
             }
         }
     }
@@ -646,15 +646,15 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.Size = InTarget.Size();
-    frameCmd.ClearTarget = InClear;
-    rlState::Current.Set(frameCmd);
+    frameCmd.size = InTarget.Size();
+    frameCmd.clearTarget = InClear;
+    rlState::current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
-    shaderCmd.Locs = shader->locs;
-    shaderCmd.ID = shader->id;
-    shaderCmd.BlendMode = InBlend;
-    rlState::Current.Set(shaderCmd);
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    shaderCmd.blendMode = InBlend;
+    rlState::current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
     
@@ -663,11 +663,11 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
         if (b) b->Bind(*shaderResource, texSlot);
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     
-    for (auto& persp : InArgs.Perspectives)
+    for (auto& persp : InArgs.perspectives)
     {
         PerspectiveCommand perspCmd;
-        perspCmd.Rect = persp.TargetRect;
-        rlState::Current.Set(perspCmd);
+        perspCmd.rect = persp.targetRect;
+        rlState::current.Set(perspCmd);
         SetPerspectiveShaderValues(InArgs, persp, *shaderResource);
         DrawQuad();
     }
@@ -675,76 +675,76 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
-    auto& scene = *InArgs.ScenePtr;
-    if (scene.DebugShapes.Empty())
+    auto& scene = *InArgs.scenePtr;
+    if (scene.debugShapes.Empty())
         return 0;
 
     PROFILE_GL();
     
-    rlState::Current.Reset();
+    rlState::current.Reset();
 
-    for (auto& persp : InArgs.Perspectives)
+    for (auto& persp : InArgs.perspectives)
     {
-        BeginMode3D(Utility::Ray::ConvertCamera(persp.Camera));
+        BeginMode3D(Utility::Ray::ConvertCamera(persp.camera));
         
         rlViewport(
-            persp.TargetRect.x,
-            persp.TargetRect.y,
-            persp.TargetRect.z,
-            persp.TargetRect.w);
+            persp.targetRect.x,
+            persp.targetRect.y,
+            persp.targetRect.z,
+            persp.targetRect.w);
         
         rlEnableSmoothLines();
 
-        for (auto& shape : scene.DebugShapes.GetAll())
+        for (auto& shape : scene.debugShapes.GetAll())
         {
-            switch (shape.Type)
+            switch (shape.type)
             {
             case DebugShape::Type::SPHERE:
                 DrawSphereWires(
-                    Utility::Ray::ConvertVec(shape.Pos),
-                    shape.Data.x,
-                    static_cast<int>(shape.Data.y),
-                    static_cast<int>(shape.Data.z),
-                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
+                    Utility::Ray::ConvertVec(shape.pos),
+                    shape.data.x,
+                    static_cast<int>(shape.data.y),
+                    static_cast<int>(shape.data.z),
+                    { shape.col.r, shape.col.g, shape.col.b, shape.col.a });
                 break;
             case DebugShape::Type::BOX:
                 DrawCubeWiresV(
-                    Utility::Ray::ConvertVec(shape.Pos),
-                    Utility::Ray::ConvertVec(shape.Data),
-                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
+                    Utility::Ray::ConvertVec(shape.pos),
+                    Utility::Ray::ConvertVec(shape.data),
+                    { shape.col.r, shape.col.g, shape.col.b, shape.col.a });
                 break;
             case DebugShape::Type::CAPSULE:
-                const Vec3F dir = Mat4F(shape.Rot).Right() * shape.Data.y;
-                const auto start = Utility::Ray::ConvertVec(shape.Pos + dir);
-                const auto end = Utility::Ray::ConvertVec(shape.Pos - dir);
+                const Vec3F dir = Mat4F(shape.rot).Right() * shape.data.y;
+                const auto start = Utility::Ray::ConvertVec(shape.pos + dir);
+                const auto end = Utility::Ray::ConvertVec(shape.pos - dir);
                 DrawCapsuleWires(
                     start,
                     end,
-                    shape.Data.x,
-                    static_cast<int>(shape.Data.z),
-                    static_cast<int>(shape.Data.z) / 2,
-                    { shape.Col.r, shape.Col.g, shape.Col.b, shape.Col.a });
+                    shape.data.x,
+                    static_cast<int>(shape.data.z),
+                    static_cast<int>(shape.data.z) / 2,
+                    { shape.col.r, shape.col.g, shape.col.b, shape.col.a });
                 break;
             }
         }
 
-        for (auto& line : scene.DebugLines.GetAll())
+        for (auto& line : scene.debugLines.GetAll())
             DrawLine3D(
-                Utility::Ray::ConvertVec(line.Start),
-                Utility::Ray::ConvertVec(line.End),
-                { line.Col.r, line.Col.g, line.Col.b, line.Col.a });
+                Utility::Ray::ConvertVec(line.start),
+                Utility::Ray::ConvertVec(line.end),
+                { line.col.r, line.col.g, line.col.b, line.col.a });
 
         EndMode3D();
     }
 
-    return static_cast<int>(scene.DebugShapes.Count() + scene.DebugLines.Count());
+    return static_cast<int>(scene.debugShapes.Count() + scene.debugLines.Count());
 }
 
 void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarget& InBuffer)
 {
     PROFILE_GL();
     
-    rlState::Current.Reset();
+    rlState::current.Reset();
     
     BeginTextureMode(InTarget);
 

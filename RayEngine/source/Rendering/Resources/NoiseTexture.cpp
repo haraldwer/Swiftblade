@@ -9,42 +9,42 @@
 
 bool NoiseTextureResource::Load(const String& InPath)
 {
-    Tex = ResTexture(InPath + ".png");
-    Identifier = InPath;
+    tex = ResTexture(InPath + ".png");
+    identifier = InPath;
     PropertyOwnerBase::Load(InPath);
     return true;
 }
 
 bool NoiseTextureResource::Unload()
 {
-    Tex = ResTexture();
+    tex = ResTexture();
     return PropertyOwnerBase::Unload();
 }
 
 Utility::Timepoint NoiseTextureResource::GetEditTime() const
 {
-    return Utility::GetFileWriteTime(Identifier);
+    return Utility::GetFileWriteTime(identifier);
 }
 
 ResTexture NoiseTextureResource::Get() const
 {
-    return Tex;
+    return tex;
 }
 
-bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
+bool NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
 {
     ImGui::SameLine();
     if (Utility::Button("Edit##" + InName, InOffset))
-        EditorOpen = !EditorOpen;
-    if (!EditorOpen)
+        editorOpen = !editorOpen;
+    if (!editorOpen)
         return false;
     
     bool result = false;
     if (ImGui::Begin((String("Noise Generator##") + InName).c_str()))
     {
-        if (TextureResource* res = Tex.Get())
+        if (const TextureResource* res = tex.Get())
         {
-            if (Texture* tex = res->Get())
+            if (const Texture* tex = res->Get())
             {
                 // Adjust size
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
@@ -99,11 +99,11 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
             Generate();
         ImGui::SameLine();
         if (ImGui::Button("Save"))
-            PropertyOwnerBase::Save(Identifier);
+            PropertyOwnerBase::Save(identifier);
         ImGui::SameLine();
         if (ImGui::Button("Close"))
         {
-            EditorOpen = false;
+            editorOpen = false;
             result = true;
         }
         ImGui::End();
@@ -113,7 +113,7 @@ bool NoiseTextureResource::Edit(const String& InName, uint32 InOffset)
 
 void NoiseTextureResource::Generate()
 {
-    int res = Resolution;
+    const int res = Resolution;
     Color* data = new Color[res * res];
 
     if (static_cast<int>(Type.Get()) >= static_cast<int>(NoiseType::COUNT) ||
@@ -123,9 +123,9 @@ void NoiseTextureResource::Generate()
     Generate(data, res);
     
     // Cache file
-    String filename = Tex.Identifier();
-    int channels = 4;
-    int result = stbi_write_png(filename.c_str(), res, res, channels, data, channels * res);
+    const String filename = tex.Identifier();
+    const int channels = 4;
+    const int result = stbi_write_png(filename.c_str(), res, res, channels, data, channels * res);
     if (result == 1)
         LOG("Noise texture saved: " + filename);
 
@@ -135,7 +135,7 @@ void NoiseTextureResource::Generate()
 // Map coord to torus, creating a 3D vector that wraps around
 static Vec3F TorusMapping(const Vec2F& InPos)
 {
-    float c = 3.0f, a = 1.0f; // torus parameters (controlling size)
+    const float c = 3.0f, a = 1.0f; // torus parameters (controlling size)
     float xt = (c + a * cosf(2.0f * PI_FLOAT * InPos.y)) * cosf(2.0f * PI_FLOAT * InPos.x);
     float yt = (c + a * cosf(2.0f * PI_FLOAT * InPos.y)) * sinf(2.0f * PI_FLOAT * InPos.x);
     float zt = a * sinf(2.0f * PI_FLOAT * InPos.y);
@@ -149,20 +149,20 @@ void NoiseTextureResource::Generate(Color* InData, const int InResolution)
     noise.SetFrequency(Frequency.Get());
     noise.SetSeed(Seed.Get());
 
-    std::function get = [&](int InX, int InY)
+    const std::function get = [&](const int InX, const int InY)
     {
-        Vec2F n = Vec2F(
+        const Vec2F n = Vec2F(
                 static_cast<float>(InX),
                 static_cast<float>(InY)    
             ) / static_cast<float>(InResolution);
-        Vec3F pos = TorusMapping(n);
+        const Vec3F pos = TorusMapping(n);
         float p = noise.GetNoise(pos.x, pos.y, pos.z);
         p = Utility::Math::Clamp(p, -1.0f, 1.0f);
         p = (p + 1.0f) / 2.0f;
         return static_cast<uint8>(p * 255.0f);
     };
 
-    std::function for_every = [&](const std::function<void(int, int)>& InFunc)
+    const std::function forEvery = [&](const std::function<void(int, int)>& InFunc)
     {
         for (int y = 0; y < InResolution; y++)
             for (int x = 0; x < InResolution; x++)
@@ -172,27 +172,27 @@ void NoiseTextureResource::Generate(Color* InData, const int InResolution)
     switch (static_cast<NoiseType>(Type.Get()))
     {
     default:
-        for_every([&](int x, int y) {
-            const uint8 i = get(x, y); 
-            InData[y * InResolution + x] = Color(i, 0, 0, 255);
+        forEvery([&](const int InX, const int InY) {
+            const uint8 i = get(InX, InY); 
+            InData[InY * InResolution + InX] = Color(i, 0, 0, 255);
         });
         noise.SetSeed(Seed.Get() + 1);
-        for_every([&](int x, int y) {
-            InData[y * InResolution + x].g = get(x, y); 
+        forEvery([&](const int InX, const int InY) {
+            InData[InY * InResolution + InX].g = get(InX, InY); 
         });
         noise.SetSeed(Seed.Get() + 2);
-        for_every([&](int x, int y) {
-            InData[y * InResolution + x].b = get(x, y);
+        forEvery([&](const int InX, const int InY) {
+            InData[InY * InResolution + InX].b = get(InX, InY);
         });
         break;
     case NoiseType::CELLULAR:
-        for_every([&](const int x, const int y) {
-            const uint8 i = get(x, y); 
-            InData[y * InResolution + x] = Color(i, 0, 0, 255);
+        forEvery([&](const int InX, const int InY) {
+            const uint8 i = get(InX, InY); 
+            InData[InY * InResolution + InX] = Color(i, 0, 0, 255);
         });
         noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_CellValue);
-        for_every([&](const int x, const int y) {
-            InData[y * InResolution + x].g = get(x, y);
+        forEvery([&](const int InX, const int InY) {
+            InData[InY * InResolution + InX].g = get(InX, InY);
         });
         break;
     }

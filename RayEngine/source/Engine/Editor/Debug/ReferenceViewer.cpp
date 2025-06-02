@@ -7,7 +7,7 @@
 
 void ReferenceViewer::DrawDebugPanel()
 {
-    ImGui::Text("Total references: %i", static_cast<int>(Utility::BaseRef::Refs.size())); 
+    ImGui::Text("Total references: %i", static_cast<int>(Utility::BaseRef::refs.size())); 
 
     if (ImGui::BeginTable("References", 3, ImGuiTableFlags_Borders))
     {
@@ -16,7 +16,7 @@ void ReferenceViewer::DrawDebugPanel()
         ImGui::TableSetupColumn("Weak", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableHeadersRow();
         
-        for (const auto& res : Utility::BaseRef::Refs)
+        for (const auto& res : Utility::BaseRef::refs)
         {
             CHECK_CONTINUE(!res.second);
             
@@ -25,9 +25,9 @@ void ReferenceViewer::DrawDebugPanel()
             ImGui::Text("Ref");
             ImGui::TableNextColumn();
             CHECK_CONTINUE(!res.second); 
-            ImGui::Text("%i", res.second->Count);
+            ImGui::Text("%i", res.second->count);
             ImGui::TableNextColumn();
-            ImGui::Text("%i", res.second->WeakCount);
+            ImGui::Text("%i", res.second->weakCount);
         }
         ImGui::EndTable(); 
     }

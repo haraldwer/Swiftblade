@@ -9,9 +9,9 @@ namespace Rendering
     public:
         void DrawDebugPanel() override;
         String DebugPanelName() const override { return "Rendering"; }
-        void SetStats(const Pipeline::Stats& InStats) { Stats = InStats; }
+        void SetStats(const Pipeline::Stats& InStats) { stats = InStats; }
         
     private:
-        Pipeline::Stats Stats = {};
+        Pipeline::Stats stats = {};
     };
 }

@@ -16,6 +16,6 @@ namespace ECS
         PROPERTY_C(float, FloatSpeed, 1.2f);
         PROPERTY_C(float, FloatDist, 0.5f);
         
-        Vec3F StartPos; 
+        Vec3F startPos; 
     };
 }

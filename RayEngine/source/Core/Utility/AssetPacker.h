@@ -43,11 +43,11 @@ namespace Utility
         bool BeginChunk();
         bool EndChunk();
         
-        std::ofstream CurrentChunk;
-        uint64 ChunkCount = 0;
-        uint64 WriteOffset = 0;
+        std::ofstream _CurrentChunk = {};
+        uint64 _ChunkCount = 0;
+        uint64 _WriteOffset = 0;
         
-        AssetRegistry Assets;
+        AssetRegistry _Assets = {};
     };
 
     class AssetPackReader
@@ -57,8 +57,8 @@ namespace Utility
         String Read(const String& InFile) const;
 
     private:
-        String ReadChunk(uint64 InChunk, uint64 InStart, uint64 InEnd) const;
-        Map<uint32, Asset> Assets;
+        static String ReadChunk(uint64 InChunk, uint64 InStart, uint64 InEnd);
+        Map<uint32, Asset> _Assets = {};
         
     };
 }

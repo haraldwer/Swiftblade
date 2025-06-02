@@ -7,7 +7,7 @@ struct Projectile : ECS::Component<Projectile>
     PROPERTY_C(float, Speed, 10.0f);
     PROPERTY_C(float, Lifetime, 1.0f);
 
-    double Timer = 0.0f;
+    double timer = 0.0f;
 };
 
 class SysProjectile : public ECS::System<Projectile>

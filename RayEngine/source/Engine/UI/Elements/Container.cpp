@@ -3,7 +3,7 @@
 void UI::Container::Init()
 {
     Element::Init();
-    for (auto& elem : Elements)
+    for (auto& elem : elements)
         if (Element* e = elem.Get())
             e->Init();
 }
@@ -11,7 +11,7 @@ void UI::Container::Init()
 void UI::Container::Update()
 {
     Element::Update();
-    for (auto& elem : Elements)
+    for (auto& elem : elements)
         if (Element* e = elem.Get())
             e->Update(); 
 }
@@ -19,7 +19,7 @@ void UI::Container::Update()
 void UI::Container::Draw()
 {
     DrawRect(GetRect());
-    for (auto& elem : Elements)
+    for (auto& elem : elements)
         if (Element* e = elem.Get())
             e->Draw();
 }
@@ -29,12 +29,12 @@ void UI::Container::RefreshRect(const Rect& InContainer)
     CachedRect = CalculateRect(InContainer);
     
     Rect rect = GetRect();
-    rect.Start.x += Transform.Margins.Horizontal.x;
-    rect.End.x -= Transform.Margins.Horizontal.y;
-    rect.Start.y += Transform.Margins.Vertical.x;
-    rect.End.y -= Transform.Margins.Vertical.y;
+    rect.start.x += Transform.margins.horizontal.x;
+    rect.end.x -= Transform.margins.horizontal.y;
+    rect.start.y += Transform.margins.vertical.x;
+    rect.end.y -= Transform.margins.vertical.y;
     
-    for (auto& elem : Elements)
+    for (auto& elem : elements)
         if (Element* e = elem.Get())
             e->RefreshRect(rect);
 }

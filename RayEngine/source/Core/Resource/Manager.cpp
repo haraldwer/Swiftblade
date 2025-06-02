@@ -5,24 +5,24 @@
 
 Resource::Base* Resource::Manager::GetResource(const String& InIdentifier)
 {
-    const auto find = Resources.find(InIdentifier);
-    if (find == Resources.end())
+    const auto find = resources.find(InIdentifier);
+    if (find == resources.end())
         return nullptr; 
     return find->second;
 }
 
 void Resource::Manager::Register(Base* InResource, const String& InIdentifier)
 {
-    Resources[InIdentifier] = InResource;
+    resources[InIdentifier] = InResource;
 }
 
 void Resource::Manager::Update()
 {
     // Only check every 3 seconds
-    CHECK_RETURN(CheckTimer.Ellapsed() < CheckInterval)
+    CHECK_RETURN(checkTimer.Ellapsed() < CHECK_INTERVAL)
     
     PROFILE();
-    CheckTimer = Utility::Timer();
+    checkTimer = Utility::Timer();
     TryUnload();
 }
 
@@ -30,16 +30,16 @@ void Resource::Manager::TryUnload() const
 {
     PROFILE();
     Vector<String> queue;
-    queue.reserve(Resources.size());
-    for (const auto& res : Resources)
+    queue.reserve(resources.size());
+    for (const auto& res : resources)
         queue.push_back(res.first);
 
-    for (int i = 0; i < Utility::Math::Min(static_cast<int>(queue.size()), CheckNum); i++)
+    for (int i = 0; i < Utility::Math::Min(static_cast<int>(queue.size()), CHECK_NUM); i++)
     {
         static int index = 0;
         index = (index + 1) % static_cast<int>(queue.size());
-        
-        auto res = Resources.at(queue[index]);
+
+        const auto res = resources.at(queue[index]);
         CHECK_CONTINUE(!res)
         CHECK_CONTINUE(!res->Loaded)
 
@@ -61,7 +61,7 @@ void Resource::Manager::TryUnload() const
 void Resource::Manager::Deinit()
 {
     // TODO: Unload all
-    for (auto& res : Resources)
+    for (auto& res : resources)
     {
         CHECK_CONTINUE(!res.second)
         res.second->Unload();
@@ -69,15 +69,15 @@ void Resource::Manager::Deinit()
         delete(res.second);
         res.second = nullptr;
     }
-    Resources.clear();
+    resources.clear();
 }
 
 void Resource::Manager::DrawDebugPanel()
 {
-    ImGui::Text("Total resources: %i", static_cast<int>(Resources.size()));
+    ImGui::Text("Total resources: %i", static_cast<int>(resources.size()));
 
     int c = 0;
-    for (auto r : Resources)
+    for (auto r : resources)
         if (r.second->Loaded)
             c++; 
     ImGui::Text("Loaded resources: %i", c);
@@ -92,7 +92,7 @@ void Resource::Manager::DrawDebugPanel()
         ImGui::TableSetupColumn("Loaded", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableHeadersRow();
         
-        for (const auto& res : Resources)
+        for (const auto& res : resources)
         {
             CHECK_CONTINUE(showOnlyLoaded && !res.second->Loaded);
             ImGui::TableNextRow();

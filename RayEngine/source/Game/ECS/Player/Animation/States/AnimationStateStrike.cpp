@@ -19,10 +19,10 @@ Utility::Type AnimationStateStrike::Update()
     Mat4F result = Mat4F::Lerp(start, end, lerpPow);
 
     HandState state;
-    state.Interp = 0;
-    state.Pose = HandPose::CLOSED;
-    state.VelocityOffset = Vec3F::Zero();
-    state.Transform = result;
+    state.interp = 0;
+    state.pose = HandPose::CLOSED;
+    state.velocityOffset = Vec3F::Zero();
+    state.transform = result;
     
     a.SetHead({});
     a.SetHands(state, state);

@@ -10,5 +10,5 @@ public:
     void Logic(double InDelta) override;
     
 private:
-    DB::Manager DB = {};
+    DB::Manager db = {};
 };

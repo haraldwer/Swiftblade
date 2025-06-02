@@ -10,7 +10,7 @@ public:
     void Enter() override;
     void Exit() override;
     int32 Priority() const override { return 5; }
-    Vec3F GetWallNormal() const { return CurrentWallNormal; }
+    Vec3F GetWallNormal() const { return currentWallNormal; }
 
 private: 
     bool CheckWall();
@@ -29,7 +29,7 @@ private:
     PROPERTY_C(ECS::SlowdownParams, Slowdown, {});
     PROPERTY_C(ECS::VelocityClampParams, VelocityClamp, {});
 
-    Vec3F TargetWallNormal;
-    Vec3F CurrentWallNormal;
-    bool OnWall = false; 
+    Vec3F targetWallNormal;
+    Vec3F currentWallNormal;
+    bool onWall = false; 
 };

@@ -43,10 +43,10 @@ public:
     Vec3F UpdateCameraTrace();
 
 protected:
-    RoomSubEditorManager* Owner = nullptr;
+    RoomSubEditorManager* owner = nullptr;
     
 private:
     
-    Vec3F LastTracePos = {};
+    Vec3F lastTracePos = {};
     
 };

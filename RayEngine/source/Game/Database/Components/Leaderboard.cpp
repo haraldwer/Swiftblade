@@ -8,8 +8,8 @@
 
 void DB::Leaderboard::List(const LBRequest& InRequest)
 {
-    Client client = GetClient();
-    Session session = GetSession();
+    const Client client = GetClient();
+    const Session session = GetSession();
     if (!client || !session)
     {
         LOG("Not connected");

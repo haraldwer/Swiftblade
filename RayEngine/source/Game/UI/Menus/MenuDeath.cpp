@@ -15,11 +15,11 @@ void MenuDeath::Init()
             .Push(UI::List(UI::Transform::Fill(10.0f), 10.0f), "List")
                 .Add(UI::Label("Death", 0.5f, UI::Transform::Fill(), ResFont("F_GothBallCrap.ttf"), 80.0f));
 
-    if (GameState::Get().Deaths < 3)
+    if (GameState::Get().deaths < 3)
         builder.Add(UI::Label("Respawn", 0.5f), "Respawn");
     builder.Add(UI::Label("Main Menu", 0.5f), "Main Menu");
     
-    UI = builder.Build();
+    ui = builder.Build();
     
     // Disable player input and show mouse
     Input::Manager::Get().Push("Default");
@@ -36,9 +36,9 @@ void MenuDeath::Deinit()
 
 void MenuDeath::Update()
 {
-    CHECK_RETURN(!UI);
+    CHECK_RETURN(!ui);
 
-    if (const UI::Label* respawn = UI->TryGet<UI::Label>("Respawn"))
+    if (const UI::Label* respawn = ui->TryGet<UI::Label>("Respawn"))
     {
         if (respawn->IsClicked())
         {
@@ -49,7 +49,7 @@ void MenuDeath::Update()
         }
     }
     
-    if (UI->Get<UI::Label>("Main Menu").IsClicked())
+    if (ui->Get<UI::Label>("Main Menu").IsClicked())
     {
         Engine::Manager::Get().Pop();
     }

@@ -21,9 +21,9 @@ namespace ECS
         
         int GetPriority() const override { return 9; }
 
-        bool IsOnGround() const { return OnGround; }
+        bool IsOnGround() const { return onGround; }
         bool IsInAir() const { return !IsOnGround(); }
-        bool IsCrouching() const { return Crouching; } 
+        bool IsCrouching() const { return crouching; } 
 
         void Look(const Vec2F& InInput, const LookParams& InParams = LookParams()) const;
         bool Move(const Vec2F& InInput, const MoveParams& InParams = MoveParams()) const;
@@ -45,10 +45,10 @@ namespace ECS
         PROPERTY_C(float, GroundJumpDelay, 0.5f)
 
         // Movement state
-        bool OnGround = true;
-        bool Crouching = false;
-        double GroundTimestamp = 0.0f;
+        bool onGround = true;
+        bool crouching = false;
+        double groundTimestamp = 0.0f;
 
-        ObjectPtr<MovementStateMachine> StateMachine; 
+        ObjectPtr<MovementStateMachine> stateMachine; 
     };
 }

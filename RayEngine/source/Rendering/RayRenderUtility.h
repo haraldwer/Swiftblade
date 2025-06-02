@@ -20,7 +20,7 @@ namespace RaylibRenderUtility
         };
     }
 
-    inline void SetBlendMode(int InMode)
+    inline void SetBlendMode(const int InMode)
     {
         if (InMode < 0)
         {

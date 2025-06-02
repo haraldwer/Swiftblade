@@ -13,15 +13,15 @@ namespace Physics
         
         struct Point
         {
-            Vec3F Position;
-            Vec3F Impulse;
-            Vec3F Normal;
-            float Separation;
+            Vec3F position;
+            Vec3F impulse;
+            Vec3F normal;
+            float separation;
         };
         
-        ECS::EntityID Target = ECS::InvalidID;
-        ECS::EntityID Self = ECS::InvalidID;
-        Vector<Point> Points; 
-        bool IsTrigger = false;
+        ECS::EntityID target = ECS::INVALID_ID;
+        ECS::EntityID self = ECS::INVALID_ID;
+        Vector<Point> points; 
+        bool isTrigger = false;
     };
 }

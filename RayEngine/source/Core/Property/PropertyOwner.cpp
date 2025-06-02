@@ -50,10 +50,10 @@ bool PropertyOwnerBase::Deserialize(const GenericVal& InVal)
     return Deserialize(InVal.GetObj());
 }
 
-bool PropertyOwnerBase::Edit(const String& InName, uint32 InOffset)
+bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
 {
     bool edited = false;
-    auto& map = GetPropertyMap();
+    const auto& map = GetPropertyMap();
     bool header = false;
     if (map.size() <= 1 || Utility::MaybeCollapse(InName, InOffset, header))
     {

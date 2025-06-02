@@ -5,23 +5,23 @@
 
 void RoomGenProps::Clear()
 {
-    Queue.clear();
-    for (auto rule : RuleList)
+    queue.clear();
+    for (const auto rule : ruleList)
         rule->Clear();
 }
 
 void RoomGenProps::Init()
 {
-    CHECK_RETURN(!Owner);
+    CHECK_RETURN(!owner);
     PopulateRules();
-    auto& data = Owner->GetVolume().Data;
-    for (auto& entry : data)
-        Queue.push_back(entry.first);
+    const auto& data = owner->GetVolume().Data;
+    for (const auto& entry : data)
+        queue.emplace_back(entry.first);
 }
 
 bool RoomGenProps::Step()
 {
-    CHECK_RETURN(!Owner, true);
+    CHECK_RETURN(!owner, true);
     
     // Every rule is applied once for every grid position
     // Every rule defines its own behavior
@@ -29,28 +29,28 @@ bool RoomGenProps::Step()
     // Just loop through the entire grid
     // Loop through every neighbor of every block
 
-    auto& data = Owner->GetVolume().Data;
+    const auto& data = owner->GetVolume().Data;
     for (int i = 0; i < 50; i++)
     {
-        CHECK_BREAK(Queue.empty())
-        Coord c = Queue.front();
-        Queue.erase(Queue.begin());
+        CHECK_BREAK(queue.empty())
+        const Coord c = queue.front();
+        queue.erase(queue.begin());
         
-        if (Evaluate(Owner->GetVolume(), c))
+        if (Evaluate(owner->GetVolume(), c))
             break;
         
         for (auto n : ECS::CubeVolume::GetNeighbors(c))
             if (!data.contains(n.Key)) // Only evaluate each coord once
-                if (Evaluate(Owner->GetVolume(), n))
+                if (Evaluate(owner->GetVolume(), n))
                     break;
     }
     
-    return Queue.empty(); 
+    return queue.empty(); 
 }
 
-bool RoomGenProps::Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord) const
+bool RoomGenProps::Evaluate(const ECS::CubeVolume& InVolume, const Coord InCoord) const
 {
-    for (auto rule : RuleList)
+    for (const auto rule : ruleList)
         if (rule->Evaluate(InVolume, InCoord))
             return true;
     return false;

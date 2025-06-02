@@ -24,22 +24,22 @@ namespace Rendering
         void EndFrame();
         
         void QueueConfig(const Config& InConfig);
-        Config GetConfig() const { return CurrConfig; }
+        Config GetConfig() const { return currConfig; }
 
         String DebugPanelName() const override { return "Viewport"; }
         void DrawDebugPanel() override;
 
-        Window Window = {};
-        Viewport MainViewport = {};
-        Context DefaultContext = {};
-        Pipeline DefaultPipeline = {};
-        FrameViewer FrameViewer = {};
+        Window window = {};
+        Viewport mainViewport = {};
+        Context defaultContext = {};
+        Pipeline defaultPipeline = {};
+        FrameViewer frameViewer = {};
         
     private:
         void ApplyConfig(const Config& InConfig);
         
-        Config CurrConfig = {}; 
-        Config QueuedConfig = {};
+        Config currConfig = {}; 
+        Config queuedConfig = {};
     };
 }
 

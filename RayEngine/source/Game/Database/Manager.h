@@ -15,7 +15,7 @@ namespace DB
         
     public:
         void Init();
-        void Update();
+        void Update() const;
         void Deinit();
 
         Authentication Auth = {};

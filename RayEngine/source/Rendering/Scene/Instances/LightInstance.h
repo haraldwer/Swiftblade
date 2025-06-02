@@ -4,25 +4,25 @@ struct LightInstance
 {
     struct InstanceData
     {
-        Vec3F Position = {};
-        Vec3F Direction = {};
-        Vec3F Color = {};
-        float Range = {};
-        float Radius = {};
-        float Intensity = {};
+        Vec3F position = {};
+        Vec3F direction = {};
+        Vec3F color = {};
+        float range = {};
+        float radius = {};
+        float intensity = {};
         
         bool operator==(const InstanceData& InData) const
         {
             return
-                Position == InData.Position &&
-                Direction == InData.Direction &&
-                Color == InData.Color &&
-                abs(Range - InData.Range) < 0.1f &&
-                abs(Radius - InData.Radius) < 0.1f &&
-                abs(Intensity - InData.Intensity) < 0.1f;
+                position == InData.position &&
+                direction == InData.direction &&
+                color == InData.color &&
+                abs(range - InData.range) < 0.1f &&
+                abs(radius - InData.radius) < 0.1f &&
+                abs(intensity - InData.intensity) < 0.1f;
         }
-    } Data = {};
+    } data = {};
     
-    bool Shadows = false;
-    uint32 ID = 0;
+    bool shadows = false;
+    uint32 id = 0;
 };

@@ -11,7 +11,7 @@ namespace DB
 
     struct OnError
     {
-        String InCode;
-        String InMessage;
+        String code;
+        String message;
     };
 }

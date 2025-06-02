@@ -18,25 +18,25 @@ template <class T>
 class ConstantProperty : public PropertyBase
 {
 public:
-    ConstantProperty(const String& InName, const T& InData) : PropertyBase(InName), Data(InData), Default(InData) { }
+    ConstantProperty(const String& InName, const T& InData) : PropertyBase(InName), data(InData), default(InData) { }
     
-    void Reset() { Data = Default; }
-    T GetDefault() const { return Default; }
+    void Reset() { data = default; }
+    T GetDefault() const { return default; }
     
     void Serialize(SerializeObj& InOutObj) const override
     {
-        if (Data != Default)
-            Utility::Serialize(InOutObj, GetName(), Data);
+        if (data != default)
+            Utility::Serialize(InOutObj, GetName(), data);
     }
     
     bool Deserialize(const DeserializeObj& InObj) override
     {
-        return Utility::Deserialize(InObj, GetName(), Data); 
+        return Utility::Deserialize(InObj, GetName(), data); 
     }
 
     bool Edit(uint32 InOffset = 0) override
     {
-        return Utility::Edit(GetName(), Data, InOffset); 
+        return Utility::Edit(GetName(), data, InOffset); 
     }
 
     // Comparisons
@@ -48,20 +48,20 @@ public:
     
     bool operator==(const ConstantProperty& InOther) const
     {
-        return Data == InOther.Data; 
+        return data == InOther.Data; 
     }
 
     // Getters
-    operator const T&() const { return Data; }
-    const T& Get() const { return Data; }
+    operator const T&() const { return data; }
+    const T& Get() const { return data; }
     
 protected:
     
-    T& GetData() { return Data; }
-    const T& GetData() const { return Data; }
+    T& GetData() { return data; }
+    const T& GetData() const { return data; }
     
-    T Data;
-    T Default;
+    T data;
+    T default;
 };
 
 template <class T>
@@ -93,7 +93,7 @@ public:
     {
         if (this->Data != this->Default)
         {
-            int data = static_cast<int>(this->Data);
+            const int data = static_cast<int>(this->Data);
             Utility::Serialize(InOutObj, this->GetName(), data);
         }
     }
@@ -109,7 +109,7 @@ public:
         return false;
     }
 
-    bool Edit(uint32 InOffset = 0) override
+    bool Edit(const uint32 InOffset = 0) override
     {
         int data = static_cast<int>(this->Data);
         if (Utility::Edit(this->GetName(), data, InOffset))

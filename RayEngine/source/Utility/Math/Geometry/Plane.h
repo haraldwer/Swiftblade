@@ -31,61 +31,61 @@ namespace Utility::Math
 		
 		
 	private:
-		Vector3<T> Origin = {};
-		Vector3<T> Normal = {};
+		Vector3<T> origin = {};
+		Vector3<T> normal = {};
 	};
 
 	template <class T>
 	Plane<T>::Plane(const Vector3<T>& InPoint0, const Vector3<T>& InPoint1, const Vector3<T>& InPoint2)
 	{
-		Origin = InPoint0;
-		Normal = (InPoint1 - InPoint0).Cross(InPoint2 - InPoint0);
+		origin = InPoint0;
+		normal = (InPoint1 - InPoint0).Cross(InPoint2 - InPoint0);
 	}
 
 	template <class T>
 	Plane<T>::Plane(const Vector3<T>& InOrigin, const Vector3<T>& InNormal)
 	{
-		Origin = InOrigin;
-		Normal = InNormal;
+		origin = InOrigin;
+		normal = InNormal;
 	}
 
 	template <class T>
 	Plane<T>::Plane(const Vector3<T>& InNormal)
 	{
-		Origin = Vector3<T>::Zero();
-		Normal = InNormal; 
+		origin = Vector3<T>::Zero();
+		normal = InNormal; 
 	}
 
 	template <class T>
 	bool Plane<T>::IsInside(const Vector3<T>& InPos) const
 	{
-		return !(GetNormal().Dot(InPos - Origin) > 0);
+		return !(GetNormal().Dot(InPos - origin) > 0);
 	}
 	
 	template <class T>
 	Vector3<T> Plane<T>::Project(Vector3<T> InPoint)
 	{
 		const float dist = SignedDistance(InPoint);
-		return InPoint - dist * Normal;
+		return InPoint - dist * normal;
 	}
 
 	template <class T>
 	float Plane<T>::SignedDistance(Vector3<T> InPoint)
 	{
-		const Vector3<T> diff = InPoint - Origin;
-		return Vector3<T>::Dot(Normal, diff);
+		const Vector3<T> diff = InPoint - origin;
+		return Vector3<T>::Dot(normal, diff);
 	}
 
 	template<class T>
 	const Vector3<T>& Plane<T>::GetNormal() const
 	{
-		return Normal;
+		return normal;
 	}
 
 	template <class T>
 	const Vector3<T>& Plane<T>::GetPoint() const
 	{
-		return Origin;
+		return origin;
 	}
 }
 

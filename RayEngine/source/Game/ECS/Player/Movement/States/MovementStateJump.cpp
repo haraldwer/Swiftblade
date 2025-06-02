@@ -11,17 +11,17 @@ Type MovementStateJump::Check()
     // Reset jumps
     if (GetMovement().IsOnGround() || GetCurrentState() == Type::Get<MovementStateWall>())
     {
-        if (AirJumps)
+        if (airJumps)
         {
             LOG("Air jump reset"); 
-            AirJumps = 0;
+            airJumps = 0;
         }
-        GroundJump = false;
+        groundJump = false;
     }
 
-    if (GetInput().JumpInput && CanJump())
+    if (GetInput().jumpInput && CanJump())
         return GetType();
-    if (GetInput().JumpInputHeld && CanGroundJump())
+    if (GetInput().jumpInputHeld && CanGroundJump())
         return GetType();
     return Type::None();
 }
@@ -45,17 +45,17 @@ void MovementStateJump::Enter()
     const bool air = CanAirJump();
 
     if (ground || wall)
-        GroundJump = true;
+        groundJump = true;
     else if (air)
     {
         LOG("Air jump!");
-        AirJumps++;
+        airJumps++;
     }
 
     auto params = Jump.Get();
     if (!ground && wall)
         if (const auto wallState = GetState<MovementStateWall>())
-            params.Direction = wallState->GetWallNormal();
+            params.direction = wallState->GetWallNormal();
     movement.Jump(params);
 }
 
@@ -73,14 +73,14 @@ bool MovementStateJump::CanAirJump() const
 {
     if (GetMovement().IsOnGround())
         return false;
-    if (AirJumps < NumAirJumps)
+    if (airJumps < NumAirJumps)
         return true;
     return false;
 }
 
 bool MovementStateJump::CanGroundJump() const
 {
-    if (GroundJump)
+    if (groundJump)
         return false; 
     const auto& movement = GetMovement(); 
     if (movement.IsOnGround())
@@ -92,7 +92,7 @@ bool MovementStateJump::CanGroundJump() const
 
 bool MovementStateJump::CanWallJump() const
 {
-    if (GroundJump)
+    if (groundJump)
         return false; 
     if (GetMovement().IsOnGround())
         return false;

@@ -12,10 +12,10 @@ namespace Utility
 		{
 		public:
 			LineVolume();
-			LineVolume(const std::vector<Line<T>>& aLineList);
-			void CalculateRectVolume( Vector2<T> pos, Vector2<T> size, Vector2<T> centering, Vector2<T> scale, T rot, Vector2<T>& worldCenter );
-			void AddLine(const Line<T>& aLine);
-			bool IsInside(const Vector2<T>& aPosition);
+			LineVolume(const std::vector<Line<T>>& InLines);
+			void CalculateRectVolume( Vector2<T> InPos, Vector2<T> InSize, Vector2<T> InCentering, Vector2<T> InScale, T InRot, Vector2<T>& InWorldCenter );
+			void AddLine(const Line<T>& InLine);
+			bool IsInside(const Vector2<T>& InPosition);
 			void Clear();
 		private:
 			std::vector<Line<T>> myLines;
@@ -28,39 +28,39 @@ namespace Utility
 		}
 
 		template <class T>
-		LineVolume<T>::LineVolume(const std::vector<Line<T>>& aLineList)
+		LineVolume<T>::LineVolume(const std::vector<Line<T>>& InLines)
 		{
 			myLines.clear();
-			for (auto& it : aLineList)
+			for (auto& it : InLines)
 			{
 				myLines.push_back(it);
 			}
 		}
 
 		template <class T>
-		void LineVolume<T>::CalculateRectVolume( const Vector2<T> pos,
-			const Vector2<T> size,
-			const Vector2<T> centering,
-			const Vector2<T> scale,
-			const T rot,
-			Vector2<T>& worldCenter )
+		void LineVolume<T>::CalculateRectVolume( const Vector2<T> InPos,
+			const Vector2<T> InSize,
+			const Vector2<T> InCentering,
+			const Vector2<T> InScale,
+			const T InRot,
+			Vector2<T>& InWorldCenter )
 		{
 			myLines.clear();
-			const T cosRot = cos( rot );
-			const T sinRot = sin( rot );
+			const T cosRot = cos( InRot );
+			const T sinRot = sin( InRot );
 
-			const T x1 = size.x - centering.x;
-			const T y1 = size.y - centering.y;
-			const T x2 = -centering.x;
-			const T y2 = -centering.y;
+			const T x1 = InSize.x - InCentering.x;
+			const T y1 = InSize.y - InCentering.y;
+			const T x2 = -InCentering.x;
+			const T y2 = -InCentering.y;
 
-			const Vector2<T> pos1 = { ( (x1)*cosRot * scale.x + (y1)*sinRot * scale.y ) + pos.x, ( (y1)*cosRot * scale.y - (x1)*sinRot * scale.x ) + pos.y };
-			const Vector2<T> pos2 = { ( (x2)*cosRot * scale.x + (y1)*sinRot * scale.y ) + pos.x, ( (y1)*cosRot * scale.y - (x2)*sinRot * scale.x ) + pos.y };
-			const Vector2<T> pos3 = { ( (x2)*cosRot * scale.x + (y2)*sinRot * scale.y ) + pos.x, ( (y2)*cosRot * scale.y - (x2)*sinRot * scale.x ) + pos.y };
-			const Vector2<T> pos4 = { ( (x1)*cosRot * scale.x + (y2)*sinRot * scale.y ) + pos.x, ( (y2)*cosRot * scale.y - (x1)*sinRot * scale.x ) + pos.y };
+			const Vector2<T> pos1 = { ( (x1)*cosRot * InScale.x + (y1)*sinRot * InScale.y ) + InPos.x, ( (y1)*cosRot * InScale.y - (x1)*sinRot * InScale.x ) + InPos.y };
+			const Vector2<T> pos2 = { ( (x2)*cosRot * InScale.x + (y1)*sinRot * InScale.y ) + InPos.x, ( (y1)*cosRot * InScale.y - (x2)*sinRot * InScale.x ) + InPos.y };
+			const Vector2<T> pos3 = { ( (x2)*cosRot * InScale.x + (y2)*sinRot * InScale.y ) + InPos.x, ( (y2)*cosRot * InScale.y - (x2)*sinRot * InScale.x ) + InPos.y };
+			const Vector2<T> pos4 = { ( (x1)*cosRot * InScale.x + (y2)*sinRot * InScale.y ) + InPos.x, ( (y2)*cosRot * InScale.y - (x1)*sinRot * InScale.x ) + InPos.y };
 
-			worldCenter = pos1 + pos2 + pos3 + pos4;
-			worldCenter *= 0.25f;
+			InWorldCenter = pos1 + pos2 + pos3 + pos4;
+			InWorldCenter *= 0.25f;
 
 			myLines.push_back( Line<T>( pos2, pos1 ) );
 			myLines.push_back( Line<T>( pos3, pos2 ) );
@@ -69,17 +69,17 @@ namespace Utility
 		}
 
 		template <class T>
-		void LineVolume<T>::AddLine(const Line<T>& aLine)
+		void LineVolume<T>::AddLine(const Line<T>& InLine)
 		{
-			myLines.push_back(aLine);
+			myLines.push_back(InLine);
 		}
 
 		template <class T>
-		bool LineVolume<T>::IsInside(const Vector2<T>& aPosition)
+		bool LineVolume<T>::IsInside(const Vector2<T>& InPosition)
 		{
 			for(auto& it : myLines)
 			{
-				if(!it.IsInside(aPosition))
+				if(!it.IsInside(InPosition))
 				{
 					return false;
 				}

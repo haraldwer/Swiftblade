@@ -30,7 +30,7 @@ bool PropRuleVerticalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InC
                     pos + InDir + Vec3F::Up(),
                     QuatF::FromDirection(InDir),
                     Vec3F(1.0f, 0.3f, 0.3f));
-                AddProp(trans, LedgeBP);
+                AddProp(trans, ledgeBP);
                 success = true;
             }
         }

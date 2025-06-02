@@ -23,5 +23,6 @@ public:
     void Update(ECS::EntityID InID, Enemy& InComponent) override;
     
     void Spawn(ECS::EntityID InSpawnerID);
-    void ApplyDamage(ECS::EntityID InEnemy, ECS::EntityID InDamageDealer);
+
+    static void ApplyDamage(ECS::EntityID InEnemy, ECS::EntityID InDamageDealer);
 };

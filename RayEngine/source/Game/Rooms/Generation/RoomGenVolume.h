@@ -17,14 +17,14 @@ private:
     
     struct QueuedEntry
     {
-        uint32 Coord = 0;
-        uint32 Ref = 0;
+        uint32 coord = 0;
+        uint32 ref = 0;
     };
     
-    Vector<QueuedEntry> QueuedCoords = {};
-    Map<uint32, uint32> NextQueue = {};
-    Map<uint32, Set<uint32>> CheckedCoords = {};
-    Map<uint32, uint8> Result = {};
+    Vector<QueuedEntry> queuedCoords = {};
+    Map<uint32, uint32> nextQueue = {};
+    Map<uint32, Set<uint32>> checkedCoords = {};
+    Map<uint32, uint8> result = {};
     
-    int VolumeDepth = 0; 
+    int volumeDepth = 0; 
 };

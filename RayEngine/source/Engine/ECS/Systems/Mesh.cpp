@@ -17,9 +17,9 @@ void SysMesh::Frame(EntityID InID, Mesh& InComponent)
 
     const Transform& t = Get<Transform>(InID);
     const MeshInstance m {
-        .Model= InComponent.Model,
-        .Material= InComponent.Material,
-        .Transform= t.World()
+        .model= InComponent.Model,
+        .material= InComponent.Material,
+        .transform= t.World()
     };
 
     Engine::Instance::Get().GetRenderScene().AddMesh(m);

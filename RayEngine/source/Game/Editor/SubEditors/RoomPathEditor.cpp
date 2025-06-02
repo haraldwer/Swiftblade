@@ -15,33 +15,33 @@ void RoomPathEditor::Init()
     for (const ECS::EntityID connection : sys.GetEntities())
     {
         if (sys.Get<RoomConnection>(connection).IsEnd)
-            EndEntity = connection;
+            endEntity = connection;
         else
-            StartEntity = connection;
+            startEntity = connection;
     }
+
+    const Vec3F center = GetVolume().GetCenter(true) + Vec3F(1.0, -1.0, 1.0);
     
-    Vec3F center = GetVolume().GetCenter(true) + Vec3F(1.0, -1.0, 1.0);
-    
-    if (StartEntity == ECS::InvalidID)
+    if (startEntity == ECS::INVALID_ID)
     {
-        if (const auto bp = Config.StartBP.Get().Get())
+        if (const auto bp = config.StartBP.Get().Get())
         {
-            StartEntity = bp->Instantiate(center);
-            sys.Get<RoomConnection>(StartEntity).IsEnd = false; 
+            startEntity = bp->Instantiate(center);
+            sys.Get<RoomConnection>(startEntity).IsEnd = false; 
         }
     }
     
-    if (EndEntity == ECS::InvalidID)
-        if (const auto bp = Config.EndBP.Get().Get())
-            EndEntity = bp->Instantiate(center);
+    if (endEntity == ECS::INVALID_ID)
+        if (const auto bp = config.EndBP.Get().Get())
+            endEntity = bp->Instantiate(center);
 }
 
 void RoomPathEditor::Deinit()
 {
-    if (StartEntity != ECS::InvalidID)
+    if (startEntity != ECS::INVALID_ID)
     {
-        ECS::Manager::Get().DestroyEntity(StartEntity);
-        StartEntity = ECS::InvalidID;
+        ECS::Manager::Get().DestroyEntity(startEntity);
+        startEntity = ECS::INVALID_ID;
     }
 }
 
@@ -51,20 +51,20 @@ void RoomPathEditor::Update()
     // Draw location
     // If clicked - Set the end transform, do stuff
 
-    CHECK_RETURN(EndEntity == ECS::InvalidID)
+    CHECK_RETURN(endEntity == ECS::INVALID_ID)
 
-    auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(EndEntity);
+    auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity);
     CHECK_RETURN(!trans);
-    CHECK_RETURN(!Owner);
+    CHECK_RETURN(!owner);
 
-    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    const float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Move object using trace 
-    TargetPos = UpdateCameraTrace() + Vec3F(1.0, -1.0, 1.0);
-    if (TargetPos != Vec3F::Zero())
+    targetPos = UpdateCameraTrace() + Vec3F(1.0, -1.0, 1.0);
+    if (targetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
-        trans->SetPosition(Lerp(currPos, TargetPos, 50.0f * dt));
+        trans->SetPosition(Lerp(currPos, targetPos, 50.0f * dt));
     } 
 
     if (Input::Action::Get("LM").Pressed())
@@ -78,20 +78,20 @@ void RoomPathEditor::Update()
         GetHistory().AddChange(Utility::Change<RoomPathChange>(
                 [&](const RoomPathChange& InData)
                 {
-                    if (auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(EndEntity))
+                    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
                         t->SetPosition(InData.NewPos);
-                    if (Owner)
-                        Owner->SetMode(SubEditorMode::GEN);
+                    if (owner)
+                        owner->SetMode(SubEditorMode::GEN);
                 },
                 [&](const RoomPathChange& InData)
                 {
-                    if (auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(EndEntity))
+                    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
                         t->SetPosition(InData.PrevPos);
-                    if (Owner)
-                        Owner->SetMode(SubEditorMode::GEN);
+                    if (owner)
+                        owner->SetMode(SubEditorMode::GEN);
                 },
                 {
-                    TargetPos,
+                    targetPos,
                     trans->GetPosition()
                 }));
     }
@@ -108,17 +108,17 @@ void RoomPathEditor::DebugDraw(bool InIsCameraControlling)
 
 Mat4F RoomPathEditor::GetStartOffset() const
 {
-    return Mat4F::GetFastInverse(GetTrans(StartEntity));
+    return Mat4F::GetFastInverse(GetTrans(startEntity));
 }
 
 ECS::EntityID RoomPathEditor::GetCurrent() const
 {
-    return EndEntity;
+    return endEntity;
 }
 
 Mat4F RoomPathEditor::GetTrans(const ECS::EntityID InID)
 {
-    if (InID != ECS::InvalidID)
+    if (InID != ECS::INVALID_ID)
         if (const auto trans = ECS::Manager::Get().GetComponent<ECS::Transform>(InID))
             return trans->World();
     return {}; 

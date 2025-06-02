@@ -5,8 +5,8 @@
 
 String Resource::Base::Pick(const String& InLabel, const String& InID)
 {
-    auto find = InLabel.find_first_of("##");
-    String substr = find == String::npos ? InLabel : InLabel.substr(0, find);
+    const auto find = InLabel.find_first_of("##");
+    const String substr = find == String::npos ? InLabel : InLabel.substr(0, find);
     if (!substr.empty())
     {
         ImGui::Text("%s: ", substr.c_str());

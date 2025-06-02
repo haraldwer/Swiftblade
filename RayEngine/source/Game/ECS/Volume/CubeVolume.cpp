@@ -113,8 +113,8 @@ Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld) con
 Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) const
 {
     // Transform to local space
-    Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition(); 
-    Vec3F p = localP * (1.0f / (Scale * 2.0f));
+    const Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition();
+    const Vec3F p = localP * (1.0f / (Scale * 2.0f));
     return {
         static_cast<uint8>(round(p.x)),
         static_cast<uint8>(round(p.y)),
@@ -122,7 +122,7 @@ Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) cons
     };
 }
 
-Vec3F ECS::CubeVolume::GetCenter(bool InStart) const
+Vec3F ECS::CubeVolume::GetCenter(const bool InStart) const
 {
     return CoordToPos(Coord(255 / 2, 255 / 2, (255 / 2) * static_cast<uint8>(!InStart)));
 }
@@ -213,19 +213,19 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     v.UpdateCache(Get<Transform>(InID).World());
 }
 
-Coord ECS::SysCubeVolume::Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist)
+Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
 {
     auto& v = Get<CubeVolume>(InID);
     const auto& volume = v.Data;
 
     // Convert pos
-    Vec3F origin = InPos * (1.0f / (v.Scale.Get() * 2.0f));
+    const Vec3F origin = InPos * (1.0f / (v.Scale.Get() * 2.0f));
     
     Coord last = 0;
     int count = 0; 
     for (const auto& intersect : GridIntersection(origin, InDir, 1000.0f))
     {
-        uint8 max = -1; 
+        const uint8 max = -1; 
         if (intersect.x < 0 ||
             intersect.y < 0 ||
             intersect.z < 0 ||
@@ -279,11 +279,11 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
 {
-    BlockMesh.Material = ResRM("Dressing/RM_StoneWall.json");
-    BlockMesh.Model = ResModel("Defaults/M_Cube.obj");
+    BlockMesh.material = ResRM("Dressing/RM_StoneWall.json");
+    BlockMesh.model = ResModel("Defaults/M_Cube.obj");
 
-    EditMesh.Material = ResRM("Editor/RM_EditCube.json");
-    EditMesh.Model = ResModel("Defaults/M_Cube.obj");
+    EditMesh.material = ResRM("Editor/RM_EditCube.json");
+    EditMesh.model = ResModel("Defaults/M_Cube.obj");
     
     // Cache cube transforms
     const Mat4F world = Get<Transform>(InID).World();

@@ -17,7 +17,7 @@ void ECS::PlayerInput::Update()
     };
     
     Vec2F rotDelta = Vec2F(mouseDelta.y, mouseDelta.x * -1.0f) * Sensitivity.Get();
-    RotInput = rotDelta;  
+    rotInput = rotDelta;  
 
     // Get directions
     const Mat4F rotMat = Mat4F(trans.GetRotation());
@@ -28,11 +28,11 @@ void ECS::PlayerInput::Update()
     const Vec3F input =
         right * (static_cast<float>(man.GetAction("Right").Down()) - static_cast<float>(man.GetAction("Left").Down())) +
         forward * (static_cast<float>(man.GetAction("Forward").Down()) - static_cast<float>(man.GetAction("Backward").Down()));
-    MoveInput = { input.x, input.z };
+    moveInput = { input.x, input.z };
 
-    JumpInput = man.GetAction("Jump").Pressed();
-    JumpInputHeld = man.GetAction("Jump").Down();
-    CrouchInput = man.GetAction("Crouch").Down();
-    DashInput = man.GetAction("Dash").Down();
+    jumpInput = man.GetAction("Jump").Pressed();
+    jumpInputHeld = man.GetAction("Jump").Down();
+    crouchInput = man.GetAction("Crouch").Down();
+    dashInput = man.GetAction("Dash").Down();
 }
 

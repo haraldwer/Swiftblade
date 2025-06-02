@@ -6,39 +6,39 @@
 
 bool BlueprintResource::Load(const String& InIdentifier)
 {
-    Identifier = InIdentifier;
+    identifier = InIdentifier;
     const String fileContent = Utility::ReadFile(InIdentifier);
     CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty", false);
-    Doc = DocumentObj();
-    Doc.Parse(fileContent.c_str());
-    CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid object", false);
+    doc = DocumentObj();
+    doc.Parse(fileContent.c_str());
+    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid object", false);
     return true;
 }
 
 bool BlueprintResource::Unload()
 {
-    Doc = DocumentObj();
+    doc = DocumentObj();
     return true;
 }
 
 Utility::Timepoint BlueprintResource::GetEditTime() const
 {
-    return Utility::GetFileWriteTime(Identifier);
+    return Utility::GetFileWriteTime(identifier);
 }
 
 ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides, ECS::EntityID InID) const
 {
-    CHECK_RETURN_LOG(!Doc.IsObject(), "Invalid format", false);
+    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
 
     // Create entity
     ECS::Manager& man = ECS::Manager::Get();
-    const ECS::EntityID id = InID == ECS::InvalidID ?
+    const ECS::EntityID id = InID == ECS::INVALID_ID ?
         man.CreateEntity() : InID; 
-    CHECK_RETURN_LOG(id == ECS::InvalidID, "Invalid ID", ECS::InvalidID);
+    CHECK_RETURN_LOG(id == ECS::INVALID_ID, "Invalid ID", ECS::INVALID_ID);
 
     // Set the blueprint that it's based on
     if (const auto attr = man.GetComponent<ECS::Attributes>(id))
-        attr->Blueprint = Identifier;
+        attr->blueprint = identifier;
 
     // Deserialize with overrides
     Vector<DeserializeObj> vec;
@@ -52,7 +52,7 @@ ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vec
 
 void BlueprintResource::Save(const ECS::EntityID InID)
 {
-    CHECK_RETURN_LOG(InID == ECS::InvalidID, "Invalid ID");
+    CHECK_RETURN_LOG(InID == ECS::INVALID_ID, "Invalid ID");
 
     //  Json writer
     rapidjson::StringBuffer s;
@@ -65,16 +65,16 @@ void BlueprintResource::Save(const ECS::EntityID InID)
     const String formatted = Utility::FormatJson(s.GetString());
 
     // Set doc
-    Doc = rapidjson::Document();
-    Doc.Parse(formatted.c_str());
+    doc = rapidjson::Document();
+    doc.Parse(formatted.c_str());
     
     // Write to file!
-    Utility::WriteFile(Identifier, formatted);
+    Utility::WriteFile(identifier, formatted);
 }
 
 DeserializeObj BlueprintResource::GetObj() const
 {
-    const DocumentObj& doc = Doc;
+    const DocumentObj& doc = doc;
     const auto obj = doc.GetObj();
     return obj; 
 }

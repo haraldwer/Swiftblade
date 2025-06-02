@@ -10,11 +10,11 @@ namespace Debug
     {
     public:
         void Init();
-        void Deinit();
+        void Deinit() const;
         void Logic();
         void Frame(double InDeltaTime);
         
-        bool Enabled() const { return Current.DebugEnabled; }
+        bool Enabled() const { return current.DebugEnabled; }
         
         void Register(Panel* InWindow);
         void Unregister(const Panel* InWindow);
@@ -23,13 +23,13 @@ namespace Debug
         void SetOpen(const String& InWindow, bool InOpen);
 
     private:
-        Set<Panel*> PendingRegister = {};
-        Map<String, Vector<Panel*>> Windows = {};
-        Map<const Panel*, String> WindowToName = {};
-        Config Current = {};
+        Set<Panel*> pendingRegister = {};
+        Map<String, Vector<Panel*>> windows = {};
+        Map<const Panel*, String> windowToName = {};
+        Config current = {};
 
         // Logic tick counter
-        int LogicCounter = 0;
-        double TPF = 0.0; 
+        int logicCounter = 0;
+        double tpf = 0.0; 
     };
 }

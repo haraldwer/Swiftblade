@@ -4,18 +4,18 @@
 
 void PropRuleBase::Clear()
 {
-    for (const ECS::EntityID id : GeneratedProps)
+    for (const ECS::EntityID id : generatedProps)
         ECS::Manager::Get().DestroyEntity(id);
-    GeneratedProps.clear();
+    generatedProps.clear();
 }
 
 ECS::ID PropRuleBase::AddProp(const Mat4F& InTrans, const ResBlueprint& InBP)
 {
-    if (auto bp = InBP.Get())
+    if (const auto bp = InBP.Get())
     {
-        ECS::EntityID id = bp->Instantiate(InTrans);
-        GeneratedProps.push_back(id);
+        const ECS::EntityID id = bp->Instantiate(InTrans);
+        generatedProps.push_back(id);
         return id; 
     }
-    return ECS::InvalidID;
+    return ECS::INVALID_ID;
 }

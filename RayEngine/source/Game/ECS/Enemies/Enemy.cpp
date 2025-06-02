@@ -10,8 +10,8 @@ void SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
 {
     auto& trans = Get<ECS::Transform>(InID);
     const ECS::EntityID player = GameState::Get().GetPlayerID();
-    CHECK_RETURN(player == ECS::InvalidID); 
-    auto& playerTrans = Get<ECS::Transform>(player);
+    CHECK_RETURN(player == ECS::INVALID_ID);
+    const auto& playerTrans = Get<ECS::Transform>(player);
 
     // Rotate towards player
     // Add force forward
@@ -29,11 +29,11 @@ void SysEnemy::Spawn(ECS::EntityID InSpawnerID)
     CHECK_RETURN_LOG(!bp, "Invalid blueprint");
     const ECS::Transform& spawnTrans = Get<ECS::Transform>(InSpawnerID);
     const ECS::EntityID enemy = bp->Instantiate(spawnTrans.World()); 
-    CHECK_RETURN_LOG(enemy == ECS::InvalidID, "Failed to instantiate enemy");
+    CHECK_RETURN_LOG(enemy == ECS::INVALID_ID, "Failed to instantiate enemy");
     
 }
 
-void SysEnemy::ApplyDamage(ECS::EntityID InEnemy, ECS::EntityID InDamageDealer)
+void SysEnemy::ApplyDamage(const ECS::EntityID InEnemy, ECS::EntityID InDamageDealer)
 {
     LOG("Enemy killed!");
     ECS::Manager::Get().DestroyEntity(InEnemy); 

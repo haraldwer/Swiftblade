@@ -89,15 +89,15 @@ namespace ECS
 
         void OnBeginContact(const Physics::Contact& InContact) override
         {
-            ComponentID find = SystemBase::Translate(InContact.Self);
-            CHECK_RETURN(find == InvalidID)
+            ComponentID find = SystemBase::Translate(InContact.self);
+            CHECK_RETURN(find == INVALID_ID)
             System<T>::GetInternal(find).OnBeginContact(InContact);
         }
 
         void OnEndContact(const Physics::Contact& InContact) override
         {
-            ComponentID find = SystemBase::Translate(InContact.Target);
-            CHECK_RETURN(find == InvalidID)
+            ComponentID find = SystemBase::Translate(InContact.target);
+            CHECK_RETURN(find == INVALID_ID)
             System<T>::GetInternal(find).OnEndContact(InContact);
         }
     };

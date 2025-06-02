@@ -3,7 +3,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Rendering/Scene/Instances/DebugShape.h"
 
-void Engine::DebugLine(const Vec3F& InStart, const Vec3F& InEnd, Rendering::Color InColor)
+void Engine::DebugLine(const Vec3F& InStart, const Vec3F& InEnd, const Rendering::Color InColor)
 {
     Engine::Instance::Get().GetRenderScene().AddDebugLine({
         InStart,
@@ -26,7 +26,7 @@ void Engine::DebugSphere(const Vec3F& InPos, const float InRadius, const Renderi
     }); 
 }
 
-void Engine::DebugBox(const Vec3F& InPos, const QuatF& InRot, const Vec3F& InExtent, Rendering::Color InColor)
+void Engine::DebugBox(const Vec3F& InPos, const QuatF& InRot, const Vec3F& InExtent, const Rendering::Color InColor)
 {
     Engine::Instance::Get().GetRenderScene().AddDebugShape({
         Rendering::DebugShape::Type::BOX,
@@ -37,7 +37,7 @@ void Engine::DebugBox(const Vec3F& InPos, const QuatF& InRot, const Vec3F& InExt
     });
 }
 
-void Engine::DebugCapsule(const Vec3F& InPos, const QuatF& InRot, float InRadius, float InHeight, Rendering::Color InColor, int InSlices)
+void Engine::DebugCapsule(const Vec3F& InPos, const QuatF& InRot, const float InRadius, const float InHeight, const Rendering::Color InColor, const int InSlices)
 {
     Engine::Instance::Get().GetRenderScene().AddDebugShape({
         Rendering::DebugShape::Type::CAPSULE,

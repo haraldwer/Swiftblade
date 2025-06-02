@@ -5,11 +5,11 @@ namespace UI
     struct Margin
     {
         Margin() = default;
-        Margin(const Vec2F& InH, const Vec2F& InV) : Horizontal(InH), Vertical(InV) {}
-        Margin(float InV) : Horizontal(InV), Vertical(InV) {}
+        Margin(const Vec2F& InH, const Vec2F& InV) : horizontal(InH), vertical(InV) {}
+        Margin(const float InV) : horizontal(InV), vertical(InV) {}
         
-        Vec2F Horizontal = {};
-        Vec2F Vertical = {};
+        Vec2F horizontal = {};
+        Vec2F vertical = {};
 
         static Margin One()
         {
@@ -30,20 +30,20 @@ namespace UI
     
     struct Rect
     {
-        Vec2F Start = {};
-        Vec2F End = {}; 
+        Vec2F start = {};
+        Vec2F end = {}; 
     };
     
     struct Transform  
     {
-        Vec2F Position = {};
-        Vec2F Size = {}; 
-        Margin Alignment = {};
-        Margin Padding = {};
-        Margin Margins = {};
-        Vec2F Anchor = {};
-        Vec2F Pivot = {};
-        float Rotation = 0.0;
+        Vec2F position = {};
+        Vec2F size = {}; 
+        Margin alignment = {};
+        Margin padding = {};
+        Margin margins = {};
+        Vec2F anchor = {};
+        Vec2F pivot = {};
+        float rotation = 0.0;
 
         static Transform Fill(const struct Margin& InPadding = Margin::Zero(), const struct Margin& InMargin = Margin::Zero())
         {

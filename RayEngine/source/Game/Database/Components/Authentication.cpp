@@ -7,7 +7,7 @@
 
 void DB::Authentication::Authenticate(const AuthData& InData) const
 {
-    Client& client = GetClient();
+    const Client& client = GetClient();
     if (!client)
     {
         LOG("Invalid client");
@@ -40,7 +40,7 @@ void DB::Authentication::Authenticate(const AuthData& InData) const
     client->authenticateDevice(
         id,
         InData.User.Get(),
-        InData.Create,
+        InData.create,
         vars,
         success,
         fail);
@@ -53,7 +53,7 @@ bool DB::Authentication::IsAuthenticated() const
 
 void DB::Authentication::OnSuccess() const
 {
-    Session& session = GetSession();
+    const Session& session = GetSession();
     CHECK_RETURN_LOG(!session, "Invalid session");
     LOG("Successfully authenticated: " + session->getAuthToken());
     DBEvent<OnLoginSuccess> loginSuccess;

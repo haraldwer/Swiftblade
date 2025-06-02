@@ -66,11 +66,11 @@ Mat4F ECS::Animator::ToCameraSpace(const Mat4F& InMat, float InWeight) const
 HandState ECS::Animator::Flip(const HandState& InHand)
 {
     HandState result = InHand;
-    result.Transform *= Mat4F(Vec3F::Zero(), QuatF::Identity(), Vec3F(-1, 1, 1));
+    result.transform *= Mat4F(Vec3F::Zero(), QuatF::Identity(), Vec3F(-1, 1, 1));
     return result;
 }
 
-Vec2F ECS::Animator::HeadBob(float InScale, float InFrequency, float InHeight, float InLeaning) const
+Vec2F ECS::Animator::HeadBob(const float InScale, const float InFrequency, float InHeight, const float InLeaning) const
 {
     const Vec3F vel = GetRB().GetVelocity();
     const float hSpeed = (vel * Vec3F(1.0f, 0.0f, 1.0f)).Length();
@@ -106,15 +106,15 @@ void ECS::Animator::UpdateHands()
     HandState tL = TargetLeft;
 
     const Vec3F vel = GetRB().GetVelocity();
-    tR.Transform.translation.xyz -= vel * tR.VelocityOffset * 0.01f;
-    tL.Transform.translation.xyz -= vel * tL.VelocityOffset * 0.01f;
+    tR.transform.translation.xyz -= vel * tR.velocityOffset * 0.01f;
+    tL.transform.translation.xyz -= vel * tL.velocityOffset * 0.01f;
     
     const float dt = static_cast<float>(Utility::Time::Get().Delta());
     CurrentRight.LerpTo(tR, dt);
     CurrentLeft.LerpTo(tL, dt);
 
-    const Mat4F cr = ToCameraSpace(CurrentRight.Transform, CurrentRight.CameraSpace);
-    const Mat4F cl = ToCameraSpace(CurrentLeft.Transform, CurrentLeft.CameraSpace);
+    const Mat4F cr = ToCameraSpace(CurrentRight.transform, CurrentRight.cameraSpace);
+    const Mat4F cl = ToCameraSpace(CurrentLeft.transform, CurrentLeft.cameraSpace);
     GetRightTransform().SetLocal(cr);
     GetLeftTransform().SetLocal(cl);
     if (auto t = TryGet<Transform>(GetPlayer().GetWeaponID()))
@@ -130,8 +130,8 @@ void ECS::Animator::UpdateHead()
     const QuatF localRot = camTrans.GetRotation(Transform::Space::LOCAL);
     const Vec3F eulerRot = localRot.Euler();
     Mat4F trans = Mat4F(
-        Vec3F::Up() + CurrentHead.Position,
-        QuatF::FromEuler(Vec3F(eulerRot.x, eulerRot.y, CurrentHead.Tilt)),
+        Vec3F::Up() + CurrentHead.position,
+        QuatF::FromEuler(Vec3F(eulerRot.x, eulerRot.y, CurrentHead.tilt)),
         Vec3F::One());
     GetPlayerCamera().SetTransform(trans);
 }

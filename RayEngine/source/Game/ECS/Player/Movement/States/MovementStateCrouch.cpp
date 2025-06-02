@@ -9,9 +9,9 @@ Type MovementStateCrouch::Update()
     const auto& input = GetInput();
     const auto& movement = GetMovement();
 
-    float dt = static_cast<float>(Utility::Time::Get().Delta());
-    movement.Look(input.RotInput, Look);
-    if (!movement.Move(input.MoveInput, Move))
+    const float dt = static_cast<float>(Utility::Time::Get().Delta());
+    movement.Look(input.rotInput, Look);
+    if (!movement.Move(input.moveInput, Move))
         movement.Slowdown(dt, Slowdown); 
     movement.VelocityClamp(dt, VelocityClamp);
     
@@ -19,7 +19,7 @@ Type MovementStateCrouch::Update()
         return Type::Get<MovementStateIdle>();
     if (!movement.IsCrouching())
         return Type::Get<MovementStateIdle>();
-    if (!input.CrouchInput)
+    if (!input.crouchInput)
         return Type::Get<MovementStateIdle>();
     return Type::None(); 
 }

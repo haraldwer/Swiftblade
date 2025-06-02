@@ -19,9 +19,9 @@ namespace ECS
         PROPERTY_D(float, CrouchOffsetMultiplier, 0.5f);
         PROPERTY_D(float, CrouchInterpSpeed, 20.0f);
         
-        float CrouchOffset = 0.0f; 
-        float TargetCrouchOffset = 0.0f;
+        float crouchOffset = 0.0f; 
+        float targetCrouchOffset = 0.0f;
         
-        Vec3F OriginalPosition;
+        Vec3F originalPosition;
     };
 }

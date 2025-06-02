@@ -14,36 +14,36 @@
 void GameInstance::Init()
 {
     Instance::Init();
-    ECS.Init();
-    Physics.Init();
+    ecs.Init();
+    physics.Init();
 
-    if (!StartScene.Identifier().empty())
+    if (!startScene.Identifier().empty())
     {
         Vector<ResScene> rooms;
-        rooms.push_back(StartScene);
-        rooms.push_back(StartScene);
-        rooms.push_back(StartScene);
-        StartScene.Unload(); // Force reload
-        RoomManager.Load(rooms, false);
+        rooms.push_back(startScene);
+        rooms.push_back(startScene);
+        rooms.push_back(startScene);
+        startScene.Unload(); // Force reload
+        rooms.Load(rooms, false);
     }
     else
     {
-        RoomManager.LoadConfig();  
+        rooms.LoadConfig();  
     }
 
     if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
     { 
-        State.PlayerID = ECS.CreateEntity(); 
-        bp->Instantiate(StartPlayerPos + Vec3F::Up() * 2.0f, {}, State.PlayerID);
+        state.playerID = ecs.CreateEntity(); 
+        bp->Instantiate(startPlayerPos + Vec3F::Up() * 2.0f, {}, state.playerID);
     }
 }
 
 void GameInstance::Deinit()
 {
-    State.PlayerID = ECS::InvalidID;
-    SceneInstance.Destroy();
-    ECS.Deinit(); 
-    Physics.Deinit();
+    state.playerID = ECS::INVALID_ID;
+    scene.Destroy();
+    ecs.Deinit(); 
+    physics.Deinit();
     Instance::Deinit();
 }
 
@@ -52,46 +52,46 @@ void GameInstance::Logic(const double InDelta)
     Instance::Logic(InDelta); 
     
     if (!Time.IsPaused())
-        Physics.Update();
-    ECS.Update();
+        physics.Update();
+    ecs.Update();
     EditorCamera.Update(); 
 }
 
 void GameInstance::Frame()
 {
-    ECS.Frame(); 
+    ecs.Frame(); 
     Instance::Frame();
 }
 
 void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
 {
-    StartScene = InScene;
-    StartPlayerPos = InPlayerPos;
+    startScene = InScene;
+    startPlayerPos = InPlayerPos;
 }
 
 void GameInstance::SetState(const GameState& InState)
 {
-    const ECS::EntityID playerID = State.PlayerID;
-    State = InState;
-    State.PlayerID = playerID; 
+    const ECS::EntityID playerID = state.playerID;
+    state = InState;
+    state.playerID = playerID; 
 }
 
 void GameInstance::DrawDebugPanel()
 {
-    CHECK_RETURN(State.PlayerID == ECS::InvalidID);
+    CHECK_RETURN(state.playerID == ECS::INVALID_ID);
 
-    static float TimeScale = 1.0f;
-    Utility::Edit("TimeScale", TimeScale);
-    if (TimeScale > 0.01f)
-        Utility::Time::Get().SetScale(TimeScale);
+    static float timeScale = 1.0f;
+    Utility::Edit("TimeScale", timeScale);
+    if (timeScale > 0.01f)
+        Utility::Time::Get().SetScale(timeScale);
     
     if (ImGui::CollapsingHeader("Movement"))
-        if (auto m = ECS.GetComponent<ECS::Movement>(State.PlayerID))
+        if (const auto m = ecs.GetComponent<ECS::Movement>(state.playerID))
             m->EditState();
     if (ImGui::CollapsingHeader("Combat"))
-        if (auto c = ECS.GetComponent<ECS::Combat>(State.PlayerID))
+        if (const auto c = ecs.GetComponent<ECS::Combat>(state.playerID))
             c->EditState();
     if (ImGui::CollapsingHeader("Animation"))
-        if (auto a = ECS.GetComponent<ECS::Animator>(State.PlayerID))
+        if (const auto a = ecs.GetComponent<ECS::Animator>(state.playerID))
             a->EditState();
 }

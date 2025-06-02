@@ -9,26 +9,26 @@
 
 Type MovementStateSlide::Check()
 {
-    const auto& input = GetInput();
-    auto& m = GetMovement();
-    if (m.IsOnGround() && input.CrouchInput && !m.IsCrouching())
+    const auto &input = GetInput();
+    auto &m = GetMovement();
+    if (m.IsOnGround() && input.crouchInput && !m.IsCrouching())
     {
         if (GetRB().GetVelocity().Length() > SpeedThreshold &&
-            input.MoveInput.Length() > InputDeadzone)
-            return GetType(); 
+            input.moveInput.Length() > InputDeadzone)
+            return GetType();
         return Type::Get<MovementStateCrouch>();
     }
-    return Type::None(); 
+    return Type::None();
 }
 
 Type MovementStateSlide::Update()
 {
-    const auto& input = GetInput();
-    const auto& movement = GetMovement();
-    
-    movement.Look(input.RotInput);
-    GetRB().SetVelocity(Direction * Speed.Get());
-    
+    const auto &input = GetInput();
+    const auto &movement = GetMovement();
+
+    movement.Look(input.rotInput);
+    GetRB().SetVelocity(direction * Speed.Get());
+
     if (!movement.IsOnGround())
     {
         LOG("Exit side because not on ground")
@@ -39,7 +39,7 @@ Type MovementStateSlide::Update()
         LOG("Exit side because not crouching")
         return Type::Get<MovementStateIdle>();
     }
-    if (!input.CrouchInput)
+    if (!input.crouchInput)
     {
         LOG("Exit side because does not want to crouch")
         return Type::Get<MovementStateIdle>();
@@ -49,15 +49,15 @@ Type MovementStateSlide::Update()
         LOG("Exit side because no input")
         return Type::Get<MovementStateIdle>();
     }
-    
-    return Type::None(); 
+
+    return Type::None();
 }
 
 void MovementStateSlide::Enter()
 {
     MovementState::Enter();
     GetMovement().SetCrouch(true);
-    Direction = (GetRB().GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized();
+    direction = (GetRB().GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f)).GetNormalized();
 }
 
 void MovementStateSlide::Exit()
@@ -66,23 +66,20 @@ void MovementStateSlide::Exit()
     GetMovement().SetCrouch(false);
 }
 
-Type MovementStateSlide::GetAnimationState() const
-{
-    return Type::Get<AnimationStateSlide>();
-}
+Type MovementStateSlide::GetAnimationState() const { return Type::Get<AnimationStateSlide>(); }
 
 bool MovementStateSlide::CheckInput() const
 {
-    auto input = GetInput().MoveInput; 
-    
+    const auto input = GetInput().moveInput;
+
     // Check input length
     if (input.Length() < InputDeadzone)
         return false;
-    
+
     // Check input dot
     const Vec3F dir = Vec3F(input.x, 0.0f, input.y).GetNormalized();
-    if (Vec3F::Dot(dir, Direction) < InputDot)
-        return false; 
+    if (Vec3F::Dot(dir, direction) < InputDot)
+        return false;
 
-    return true; 
+    return true;
 }

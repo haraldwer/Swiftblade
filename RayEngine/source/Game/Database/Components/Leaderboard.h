@@ -12,9 +12,9 @@ namespace DB
         void List(const LBRequest& InRequest);
         void Write(const LBSubmission& InSubmission);
     private:
-        void OnList(const Nakama::NRpc& InRpc);
-        void OnListFailed(const Nakama::NError& InError);
-        void OnWrite(const Nakama::NRpc& InRpc);
-        void OnWriteFailed(const Nakama::NError& InError);
+        static void OnList(const Nakama::NRpc& InRpc);
+        static void OnListFailed(const Nakama::NError& InError);
+        static void OnWrite(const Nakama::NRpc& InRpc);
+        static void OnWriteFailed(const Nakama::NError& InError);
     };
 }

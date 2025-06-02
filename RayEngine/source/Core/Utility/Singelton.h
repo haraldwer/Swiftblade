@@ -6,7 +6,7 @@ namespace Utility
 {
     struct SingeltonContext
     {
-        inline static int Value = -1; 
+        inline static int value = -1; 
     };
 
     template <class T, bool Global = false>
@@ -16,14 +16,14 @@ namespace Utility
         virtual ~Singelton()
         {
             Singelton*& ptr = Global ?
-                instance : contextInstance[SingeltonContext::Value];
+                instance : contextInstance[SingeltonContext::value];
             ptr = nullptr;
         }
 
         Singelton()
         {
             Singelton*& ptr = Global ?
-                instance : contextInstance[SingeltonContext::Value];
+                instance : contextInstance[SingeltonContext::value];
             CHECK_ASSERT(ptr, "Instance already set");
             ptr = this;
         }
@@ -31,7 +31,7 @@ namespace Utility
         static T& Get()
         {
             Singelton*& ptr = Global ?
-                instance : contextInstance[SingeltonContext::Value];
+                instance : contextInstance[SingeltonContext::value];
             CHECK_ASSERT(!ptr, "Instance invalid");
             return *reinterpret_cast<T*>(ptr);
         }

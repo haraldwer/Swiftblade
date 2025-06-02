@@ -12,7 +12,7 @@ namespace Physics
             float Distance = 0.0f;
             Vec3F Position = {};
             Vec3F Normal = {};
-            ECS::EntityID Entity = ECS::InvalidID;
+            ECS::EntityID Entity = ECS::INVALID_ID;
         };
         Vector<Hit> Hits = {}; 
         bool IsHit = false;

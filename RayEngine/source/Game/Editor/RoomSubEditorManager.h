@@ -27,23 +27,23 @@ public:
     
     void SetMode(SubEditorMode InMode);
     RoomSubEditor& GetSubEditor(SubEditorMode InMode);
-    Utility::History& GetHistory() { return History; }
-    ECS::EntityID& GetCubeVolume() { return CubeVolume; }
+    Utility::History& GetHistory() { return history; }
+    ECS::EntityID& GetCubeVolume() { return cubeVolume; }
     
     bool IgnoreSave(ECS::EntityID InID) const; 
-    Mat4F GetStartOffset() const { return PathEditor.GetStartOffset(); }
-    RoomType GetType() const { return Type; }
+    Mat4F GetStartOffset() const { return pathEditor.GetStartOffset(); }
+    RoomType GetType() const { return type; }
 
 private: 
     
-    SubEditorMode Mode = SubEditorMode::PATH;
-    Utility::History History = {}; // Shared history for all subeditors 
+    SubEditorMode mode = SubEditorMode::PATH;
+    Utility::History history = {}; // Shared history for all subeditors 
     
-    RoomPathEditor PathEditor = {};
-    RoomGenEditor GenEditor = {};
-    RoomVolumeEditor VolumeEditor = {};
-    RoomObjectEditor ObjectEditor = {};
+    RoomPathEditor pathEditor = {};
+    RoomGenEditor genEditor = {};
+    RoomVolumeEditor volumeEditor = {};
+    RoomObjectEditor objectEditor = {};
     
-    ECS::EntityID CubeVolume = ECS::InvalidID;
-    RoomType Type = RoomType::ROOM; 
+    ECS::EntityID cubeVolume = ECS::INVALID_ID;
+    RoomType type = RoomType::ROOM; 
 };

@@ -62,7 +62,7 @@ int main()
             debugManager.Logic();
         }
 
-        if (renderer.Window.ShouldClose())
+        if (renderer.window.ShouldClose())
             break;
         
         // Render to target texture

@@ -22,11 +22,11 @@ namespace Resource
     private:
         void TryUnload() const;
         
-        Map<String, Base*> Resources = {};
-        Utility::Timer CheckTimer = {};
-        Vector<String> HotReloadQueue = {};
+        Map<String, Base*> resources = {};
+        Utility::Timer checkTimer = {};
+        Vector<String> hotReloadQueue = {};
         
-        static constexpr float CheckInterval = 0.05f; 
-        static constexpr int CheckNum = 1; 
+        static constexpr float CHECK_INTERVAL = 0.05f; 
+        static constexpr int CHECK_NUM = 1; 
     };
 }

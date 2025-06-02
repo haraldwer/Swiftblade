@@ -11,7 +11,7 @@ namespace DB
         // Read blob
         void Init(DB::Manager* InManager) override;
 
-        BlobData Get() const { return Data; }
+        BlobData Get() const { return data; }
         void Set(const BlobData& InData);
         
     private:
@@ -21,6 +21,6 @@ namespace DB
         void OnWriteFailed(const Nakama::NError& InError);
         void OnWriteSuccess(const Nakama::NStorageObjectAcks& InRpc);
         
-        BlobData Data = {};
+        BlobData data = {};
     };    
 }

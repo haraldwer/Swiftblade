@@ -1,6 +1,6 @@
 #include "AtlasMap.h"
 
-void Rendering::AtlasMap::Init(const Vec2I& InResolution, int InSlots, bool InCubemap)
+void Rendering::AtlasMap::Init(const Vec2I& InResolution, const int InSlots, const bool InCubemap)
 {
     int slots = InSlots;
     if (InCubemap)

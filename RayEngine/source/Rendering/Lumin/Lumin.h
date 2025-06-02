@@ -29,11 +29,11 @@ namespace Rendering
     
     struct LuminProbe
     {
-        ProbeCoord Coord = {};
-        Vec3F Pos = {};
-        double Timestamp = 0.0;
-        int Iterations = 0;
-        Vec4F Rect = {};
+        ProbeCoord coord = {};
+        Vec3F pos = {};
+        double timestamp = 0.0;
+        int iterations = 0;
+        Vec4F rect = {};
     };
     
     class Lumin
@@ -45,7 +45,7 @@ namespace Rendering
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
         Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
-        RenderTarget& GetProbeTarget() { return LerpTarget.Curr(); }
+        RenderTarget& GetProbeTarget() { return lerpTarget.Curr(); }
         float GetRange() const;
 
     private:
@@ -56,15 +56,15 @@ namespace Rendering
         ProbeCoord FromPos(const Vec3F& InPos);
         Vec3F FromCoord(const ProbeCoord& InCoord);
 
-        Map<uint64, LuminProbe> Probes = {};
+        Map<uint64, LuminProbe> probes = {};
 
-        LuminConfig Config = {};
-        Context Context = {};
-        Viewport Viewport = {};
-        RenderTarget Target = {};
-        SwapTarget LerpTarget = {};
-        AtlasMap AtlasMap = {};
-        LuminPipeline Pipeline = {};
+        LuminConfig config = {};
+        Context context = {};
+        Viewport viewport = {};
+        RenderTarget target = {};
+        SwapTarget lerpTarget = {};
+        AtlasMap atlasMap = {};
+        LuminPipeline pipeline = {};
     };
 }
 

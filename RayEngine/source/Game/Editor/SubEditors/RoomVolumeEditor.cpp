@@ -13,26 +13,26 @@ void RoomVolumeEditor::Init()
 void RoomVolumeEditor::Update()
 {
     // Do cube trace
-    LastTrace = GetVolume().PosToCoord(UpdateCameraTrace());
-    if (!Placing)
+    lastTrace = GetVolume().PosToCoord(UpdateCameraTrace());
+    if (!placing)
     {
-        PlaceStart = LastTrace.Key;
+        placeStart = lastTrace.Key;
         // Begin place? 
         if ((Input::Action::Get("LM").Pressed() ||
             Input::Action::Get("RM").Pressed()))
-            Placing = true; 
+            placing = true; 
     }
 
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-    sys.DrawEditVolume(GetVolumeID(), Coord(PlaceStart), LastTrace);
+    sys.DrawEditVolume(GetVolumeID(), Coord(placeStart), lastTrace);
 
     // End placement? 
-    CHECK_RETURN(!Placing)
+    CHECK_RETURN(!placing)
     CHECK_RETURN(
         Input::Action::Get("LM").Down() ||
         Input::Action::Get("RM").Pressed())
     
-    Placing = false;
+    placing = false;
     const uint8 val = Input::Action::Get("LM").Released() ? 1 : 0;
 
     struct VolumeChange
@@ -60,8 +60,8 @@ void RoomVolumeEditor::Update()
         {
             GetVolumeID(),
             GetVolume().Data,
-            PlaceStart,
-            LastTrace
+            placeStart,
+            lastTrace
         }));
 }
 

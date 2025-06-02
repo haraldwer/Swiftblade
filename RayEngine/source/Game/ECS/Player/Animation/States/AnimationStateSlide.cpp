@@ -8,17 +8,17 @@ Type AnimationStateSlide::Update()
     auto& a = GetAnimator();
     
     HeadState head;
-    head.Interp = 5.0f;
-    head.Tilt = 0.02f;
+    head.interp = 5.0f;
+    head.tilt = 0.02f;
     a.SetHead(head);
     
     Mat4F slide = a.GetPose("Pose_Slide_R");
 
     HandState right;
-    right.Interp = 10.0f;
-    right.Pose = HandPose::OPEN;
-    right.Transform = slide;
-    right.CameraSpace = 0.3f; 
+    right.interp = 10.0f;
+    right.pose = HandPose::OPEN;
+    right.transform = slide;
+    right.cameraSpace = 0.3f; 
     HandState left = ECS::Animator::Flip(right);
 
     a.SetHands(right, left);

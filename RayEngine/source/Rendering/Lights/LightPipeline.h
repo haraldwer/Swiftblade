@@ -6,6 +6,6 @@ namespace Rendering
     class LightPipeline : public Pipeline
     {
     public:
-        Stats RenderShadows(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget);
+        static Stats RenderShadows(const RenderArgs& InArgs, const ResShader& InShader, const RenderTarget& InTarget);
     };
 }

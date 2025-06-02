@@ -12,24 +12,24 @@ Type AnimationStateDefault::Update()
     ECS::Animator& a = GetAnimator();
     HeadState head = a.GetHead();
     Vec2F headBob = a.HeadBob(0.02f, frequency);
-    head.Tilt = headBob.x;
-    head.Position = Vec3F::Up() * headBob.y; 
-    head.Interp = 5.0f;
+    head.tilt = headBob.x;
+    head.position = Vec3F::Up() * headBob.y; 
+    head.interp = 5.0f;
     a.SetHead(head);
 
     Mat4F idle = a.GetPose("Pose_Idle");
 
     HandState right;
-    right.Interp = 10.0f;
-    right.Pose = HandPose::OPEN;
-    right.Transform = idle;
+    right.interp = 10.0f;
+    right.pose = HandPose::OPEN;
+    right.transform = idle;
     HandState left = a.Flip(right);
 
     // Also multiply with hvel
     
     
-    right.Transform = a.HandBob(right.Transform, Vec2F(0.2f, 0.1f), frequency, true);
-    left.Transform = a.HandBob(left.Transform, Vec2F(0.2f, 0.1f), frequency, false);
+    right.transform = a.HandBob(right.transform, Vec2F(0.2f, 0.1f), frequency, true);
+    left.transform = a.HandBob(left.transform, Vec2F(0.2f, 0.1f), frequency, false);
     
     a.SetHands(right, left);
     

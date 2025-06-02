@@ -23,8 +23,8 @@ private:
     PROPERTY_C(int, NumAirJumps, 1);
     PROPERTY_C(ECS::JumpParams, Jump, {});
     
-    int AirJumps = 0;
-    bool GroundJump = false;
+    int airJumps = 0;
+    bool groundJump = false;
     
 };
 

@@ -19,5 +19,5 @@ class MovementStateSlide : public MovementState<MovementStateSlide>
     PROPERTY_C(float, InputDot, 0.3);
     PROPERTY_C(float, LookDot, 0.3);
 
-    Vec3F Direction;
+    Vec3F direction;
 };

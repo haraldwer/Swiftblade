@@ -6,45 +6,45 @@
 
 void ECS::Rigidbody::AddForce(const Vec3F& InForce) const
 {
-    CHECK_RETURN(!Ptr);
+    CHECK_RETURN(!ptr);
     const physx::PxVec3 force = Utility::PhysX::ConvertVec(InForce);
-    Ptr->addForce(force, physx::PxForceMode::eFORCE); 
+    ptr->addForce(force, physx::PxForceMode::eFORCE); 
 }
 
 void ECS::Rigidbody::AddImpulse(const Vec3F& InForce) const
 {
-    CHECK_RETURN(!Ptr);
+    CHECK_RETURN(!ptr);
     const physx::PxVec3 force = Utility::PhysX::ConvertVec(InForce);
-    Ptr->addForce(force, physx::PxForceMode::eIMPULSE);
+    ptr->addForce(force, physx::PxForceMode::eIMPULSE);
 }
 
 void ECS::Rigidbody::SetVelocity(const Vec3F& InVelocity) const
 {
-    CHECK_RETURN(!Ptr);
+    CHECK_RETURN(!ptr);
     const physx::PxVec3 vel = Utility::PhysX::ConvertVec(InVelocity);
-    Ptr->setLinearVelocity(vel); 
+    ptr->setLinearVelocity(vel); 
 }
 
 void ECS::Rigidbody::ClearForces() const
 {
-    CHECK_RETURN(!Ptr);
-    Ptr->clearForce();
+    CHECK_RETURN(!ptr);
+    ptr->clearForce();
 }
 
-void ECS::Rigidbody::SetKinematic(bool InKinematic) const
+void ECS::Rigidbody::SetKinematic(const bool InKinematic) const
 {
-    CHECK_RETURN(!Ptr);
-    auto flags = Ptr->getRigidBodyFlags();
+    CHECK_RETURN(!ptr);
+    auto flags = ptr->getRigidBodyFlags();
     InKinematic ?
         flags |= physx::PxRigidBodyFlag::eKINEMATIC : // Set this bit
         flags &= ~physx::PxRigidBodyFlag::eKINEMATIC; // Keep all but this bit
-    Ptr->setRigidBodyFlags(flags); 
+    ptr->setRigidBodyFlags(flags); 
 }
 
 Vec3F ECS::Rigidbody::GetVelocity() const
 {
-    CHECK_RETURN(!Ptr, Vec3F::Zero())
-    return Utility::PhysX::ConvertVec(Ptr->getLinearVelocity());
+    CHECK_RETURN(!ptr, Vec3F::Zero())
+    return Utility::PhysX::ConvertVec(ptr->getLinearVelocity());
 }
 
 void ECS::SysRigidbody::Update(EntityID InID, ECS::Rigidbody& InComponent)

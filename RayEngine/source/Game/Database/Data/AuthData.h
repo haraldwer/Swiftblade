@@ -16,12 +16,12 @@ namespace DB
 		PROPERTY_D(uint8, Method, static_cast<uint8>(AuthMethod::DEVICE));
 		PROPERTY(String, User);
 		PROPERTY(String, Token);
-		bool Create = false;
+		bool create = false;
 	};
 
 	struct OnLoginSuccess
 	{
-		String SessionID;
+		String sessionID;
 	};
 
 	struct OnLoginError : OnError {};

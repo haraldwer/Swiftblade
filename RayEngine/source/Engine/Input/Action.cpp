@@ -2,7 +2,7 @@
 
 #include "Manager.h"
 
-const Input::Action& Input::Action::Get(const String& Action, const String& Context)
+const Input::Action& Input::Action::Get(const String& InAction, const String& InContext)
 {
-    return Manager::Get().GetAction(Action, Context);
+    return Manager::Get().GetAction(InAction, InContext);
 }

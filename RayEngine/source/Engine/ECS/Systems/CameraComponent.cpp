@@ -11,12 +11,12 @@ void SysCameraComponent::Frame(EntityID InEntity, CameraComponent& InComponent)
     //Set(InEntity, InComponent);
 }
 
-void SysCameraComponent::Update(EntityID InEntity, CameraComponent& InComponent)
+void SysCameraComponent::Update(const EntityID InEntity, CameraComponent& InComponent)
 {
     Set(InEntity, InComponent);
 }
 
-void SysCameraComponent::Set(EntityID InEntity, CameraComponent& InComponent)
+void SysCameraComponent::Set(const EntityID InEntity, CameraComponent& InComponent)
 {
     const Transform& t = Get<Transform>(InEntity);
     const CameraInstance c {

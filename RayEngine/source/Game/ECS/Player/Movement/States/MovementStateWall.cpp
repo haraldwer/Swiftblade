@@ -33,21 +33,21 @@ Type MovementStateWall::Update()
     if (!movement.IsInAir())
         return Type::Get<MovementStateIdle>();
 
-    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    const float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Interp wall normal
-    if (TargetWallNormal.LengthSqr() > 0.1f)
+    if (targetWallNormal.LengthSqr() > 0.1f)
     {
-        CurrentWallNormal = Utility::Math::Lerp(CurrentWallNormal, TargetWallNormal, NormalInterpSpeed * static_cast<float>(dt));
-        CurrentWallNormal = CurrentWallNormal.GetNormalized();
+        currentWallNormal = Utility::Math::Lerp(currentWallNormal, targetWallNormal, NormalInterpSpeed * static_cast<float>(dt));
+        currentWallNormal = currentWallNormal.GetNormalized();
     }
 
     // Set params
     auto move = Move.Get();
-    move.PlaneNormal = CurrentWallNormal;
+    move.planeNormal = currentWallNormal;
     
-    movement.Look(input.RotInput, Look);
-    if (!movement.Move(input.MoveInput, move))
+    movement.Look(input.rotInput, Look);
+    if (!movement.Move(input.moveInput, move))
         movement.Slowdown(dt, Slowdown); 
     movement.VelocityClamp(dt, VelocityClamp);
     
@@ -61,7 +61,7 @@ void MovementStateWall::Enter()
     auto& rb = GetRB();
     rb.GravityScale = 0.0f;
     rb.SetVelocity(rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f));
-    CurrentWallNormal = TargetWallNormal;
+    currentWallNormal = targetWallNormal;
 }
 
 void MovementStateWall::Exit()
@@ -69,7 +69,7 @@ void MovementStateWall::Exit()
     LOG("Exit wall");
     MovementState::Exit();
     GetRB().GravityScale = 1.0f;
-    TargetWallNormal = Vec3F::Zero();
+    targetWallNormal = Vec3F::Zero();
 }
 
 bool MovementStateWall::CheckWall()
@@ -98,12 +98,12 @@ bool MovementStateWall::CheckWall()
     const Physics::QueryResult right = Physics::Query::Sweep(rightParams);
     const Physics::QueryResult left = Physics::Query::Sweep(leftParams);
     
-    OnWall = false;
+    onWall = false;
     const bool isCurrent = IsCurrentState();
-    Vec3F normal = isCurrent ? TargetWallNormal : Vec3F::Zero();
+    Vec3F normal = isCurrent ? targetWallNormal : Vec3F::Zero();
 
     // Cache input
-    const Vec2F inputVec = GetInput().MoveInput.GetNormalized();
+    const Vec2F inputVec = GetInput().moveInput.GetNormalized();
     const Vec3F inputDir = Vec3F(inputVec.x, 0.0f, inputVec.y);
     
     auto processHit = [&](const Physics::QueryResult::Hit& InHit)
@@ -119,7 +119,7 @@ bool MovementStateWall::CheckWall()
         CHECK_RETURN(inputDot < MinWallInputDot.Get());
 
         // Prioritize hits close to WallNormal
-        const float dot = Vec3F::Dot(InHit.Normal, TargetWallNormal);
+        const float dot = Vec3F::Dot(InHit.Normal, targetWallNormal);
         const float clamped = Utility::Math::Clamp(dot, 0.0f, 1.0f); 
         // If wallNormal is set
         const float normalMul = isCurrent ? clamped : 1.0f;
@@ -128,7 +128,7 @@ bool MovementStateWall::CheckWall()
         CHECK_RETURN(normalMul < 0.01f); 
 
         // Is hit!
-        OnWall = true; 
+        onWall = true; 
         // Add to result
         normal += InHit.Normal * normalMul;
     };
@@ -137,16 +137,16 @@ bool MovementStateWall::CheckWall()
         processHit(right.ClosestHit());
     if (left.IsHit)
         processHit(left.ClosestHit());
-    TargetWallNormal = normal.GetNormalized();
+    targetWallNormal = normal.GetNormalized();
 
     //Rendering::DebugLine(world.GetPosition() + world.Forward(), world.GetPosition() + TargetWallNormal * 0.5f + world.Forward());
     //Rendering::DebugLine(world.GetPosition() + world.Forward(), world.GetPosition() + CurrentWallNormal * 0.5f + world.Forward(), BLUE);
 
-    return OnWall; 
+    return onWall; 
 }
 
 bool MovementStateWall::CheckInput() const
 {
-    return GetInput().MoveInput.Length() > InputThreshold ||
+    return GetInput().moveInput.Length() > InputThreshold ||
         (GetRB().GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f)).Length() > VelocityThreshold;
 }

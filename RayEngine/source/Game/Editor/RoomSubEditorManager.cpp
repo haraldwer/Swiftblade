@@ -8,79 +8,79 @@
 void RoomSubEditorManager::Init(const RoomType InType)
 {
     // Cache CubeVolume
-    auto& ecs = ECS::Manager::Get(); 
+    const auto& ecs = ECS::Manager::Get(); 
     const auto& sys = ecs.GetSystem<ECS::SysCubeVolume>();
     const auto volumes = sys.GetEntities();
     if (!volumes.empty())
     {
-        CubeVolume = volumes[0];
+        cubeVolume = volumes[0];
     }
     else
     {
         if (const auto bp = ResBlueprint("Blueprints/BP_CubeVolume.json").Get())
-            CubeVolume = bp->Instantiate();
+            cubeVolume = bp->Instantiate();
     }
 
     // Force reset cube transform 
-    if (CubeVolume != ECS::InvalidID)
-        if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(CubeVolume))
+    if (cubeVolume != ECS::INVALID_ID)
+        if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(cubeVolume))
             cubeTrans->SetWorld(Mat4F());
     
-    PathEditor.SetOwner(this); 
-    GenEditor.SetOwner(this); 
-    VolumeEditor.SetOwner(this); 
-    ObjectEditor.SetOwner(this); 
+    pathEditor.SetOwner(this); 
+    genEditor.SetOwner(this); 
+    volumeEditor.SetOwner(this); 
+    objectEditor.SetOwner(this); 
 
-    Type = InType; 
+    type = InType; 
     
-    PathEditor.Init(); 
-    GenEditor.Init(); 
-    VolumeEditor.Init();
-    ObjectEditor.Init();
+    pathEditor.Init(); 
+    genEditor.Init(); 
+    volumeEditor.Init();
+    objectEditor.Init();
 }
 
 void RoomSubEditorManager::Deinit()
 {
-    PathEditor.Deinit();
-    GenEditor.Deinit();
-    VolumeEditor.Deinit();
-    ObjectEditor.Deinit();
-    History.Clear();
+    pathEditor.Deinit();
+    genEditor.Deinit();
+    volumeEditor.Deinit();
+    objectEditor.Deinit();
+    history.Clear();
 }
 
 void RoomSubEditorManager::Update(const bool InIsCameraControlling)
 {
-    CHECK_RETURN(CubeVolume == ECS::InvalidID);
+    CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
     
     if (InIsCameraControlling)
-        GetSubEditor(Mode).Update();
+        GetSubEditor(mode).Update();
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
     {
         if (Input::Action::Get("Undo").Pressed())
-            History.Undo();
+            history.Undo();
         if (Input::Action::Get("Redo").Pressed())
-            History.Redo();
+            history.Redo();
     }
 }
 
 void RoomSubEditorManager::Frame(const bool InIsCameraControlling)
 {
-    CHECK_RETURN(CubeVolume == ECS::InvalidID);
-    GetSubEditor(Mode).Frame(InIsCameraControlling);
+    CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
+    GetSubEditor(mode).Frame(InIsCameraControlling);
 }
 
-void RoomSubEditorManager::DebugDraw(bool InIsCameraControlling)
+void RoomSubEditorManager::DebugDraw(const bool InIsCameraControlling)
 {
-    CHECK_RETURN(CubeVolume == ECS::InvalidID);
-    GetSubEditor(Mode).DebugDraw(InIsCameraControlling);
+    CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
+    GetSubEditor(mode).DebugDraw(InIsCameraControlling);
 }
 
 void RoomSubEditorManager::SetMode(const SubEditorMode InMode)
 {
-    GetSubEditor(Mode).Exit();
-    Mode = InMode; 
+    GetSubEditor(mode).Exit();
+    mode = InMode; 
     GetSubEditor(InMode).Enter();
 }
 
@@ -89,20 +89,20 @@ RoomSubEditor& RoomSubEditorManager::GetSubEditor(const SubEditorMode InMode)
     switch (InMode)
     {
     case SubEditorMode::GEN:
-        return GenEditor;
+        return genEditor;
     case SubEditorMode::PATH:
-        return PathEditor; 
+        return pathEditor; 
     case SubEditorMode::VOLUME:
-        return VolumeEditor;
+        return volumeEditor;
     case SubEditorMode::OBJECTS:
-        return ObjectEditor;
+        return objectEditor;
     default:
         break;
     }
-    return ObjectEditor; 
+    return objectEditor; 
 }
 
 bool RoomSubEditorManager::IgnoreSave(const ECS::EntityID InID) const
 {
-    return InID == ObjectEditor.GetEditEntity(); 
+    return InID == objectEditor.GetEditEntity(); 
 }

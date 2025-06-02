@@ -10,59 +10,59 @@ void Rendering::State::Set(const UniformCommand& InCmd, int InSlot)
     
 }
 
-void Rendering::State::Set(const TextureCommand& InCmd, int InSlot)
+void Rendering::State::Set(const TextureCommand& InCmd, const int InSlot)
 {
     PROFILE_GL_GPU("Set texture");
+
+    const auto& tex = textures[InSlot];
     
-    auto& tex = Textures[InSlot];
-    
-    if (InCmd.Wrap != tex.Wrap)
+    if (InCmd.wrap != tex.wrap)
     {
-        int w = InCmd.Wrap >= 0 ? InCmd.Wrap : RL_TEXTURE_WRAP_CLAMP;
-        rlTextureParameters(InCmd.ID, RL_TEXTURE_WRAP_S, w);
-        rlTextureParameters(InCmd.ID, RL_TEXTURE_WRAP_T, w);
+        const int w = InCmd.wrap >= 0 ? InCmd.wrap : RL_TEXTURE_WRAP_CLAMP;
+        rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_S, w);
+        rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_T, w);
     }
 
-    if (InCmd.Filter != tex.Filter)
+    if (InCmd.filter != tex.filter)
     {
-        int f = InCmd.Filter > 0 ? InCmd.Filter : RL_TEXTURE_FILTER_NEAREST;
-        rlTextureParameters(InCmd.ID, RL_TEXTURE_MIN_FILTER, f);
-        rlTextureParameters(InCmd.ID, RL_TEXTURE_MAG_FILTER, f);
+        const int f = InCmd.filter > 0 ? InCmd.filter : RL_TEXTURE_FILTER_NEAREST;
+        rlTextureParameters(InCmd.id, RL_TEXTURE_MIN_FILTER, f);
+        rlTextureParameters(InCmd.id, RL_TEXTURE_MAG_FILTER, f);
     }
     
-    if (InCmd.ID != tex.ID)
+    if (InCmd.id != tex.id)
     {
         rlActiveTextureSlot(InSlot);
-        if (InCmd.ID != static_cast<uint32>(-1))
+        if (InCmd.id != static_cast<uint32>(-1))
         {
-            InCmd.Cubemap ? rlEnableTextureCubemap(InCmd.ID) : rlEnableTexture(InCmd.ID);
-            if (InCmd.ShaderLoc >= 0) // Textures are cleared when switching shader
-                rlSetUniform(InCmd.ShaderLoc, &InSlot, SHADER_UNIFORM_INT, 1);
+            InCmd.cubemap ? rlEnableTextureCubemap(InCmd.id) : rlEnableTexture(InCmd.id);
+            if (InCmd.shaderLoc >= 0) // Textures are cleared when switching shader
+                rlSetUniform(InCmd.shaderLoc, &InSlot, SHADER_UNIFORM_INT, 1);
         }
         else
         {
-            InCmd.Cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
-            int l = 0;
-            rlSetUniform(InCmd.ShaderLoc, &l, SHADER_UNIFORM_INT, 1);
+            InCmd.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
+            const int l = 0;
+            rlSetUniform(InCmd.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
         }
     }
     
-    Textures[InSlot] = InCmd;
+    textures[InSlot] = InCmd;
 }
 
 void Rendering::State::ResetTextures()
 {
-    if (!Textures.empty())
+    if (!textures.empty())
     {
         PROFILE_GL_GPU("Reset textures");
-        for (auto& tex : Textures)
+        for (const auto& tex : textures)
         {
             rlActiveTextureSlot(tex.first);
-            tex.second.Cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
+            tex.second.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
             int l = 0;
-            rlSetUniform(tex.second.ShaderLoc, &l, SHADER_UNIFORM_INT, 1);
+            rlSetUniform(tex.second.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
         }
-        Textures.clear();
+        textures.clear();
         rlActiveTextureSlot(0);
     }
 }
@@ -71,18 +71,18 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
 {
     ResetMesh();
     
-    if (InCmd.vaoID != static_cast<uint32>(-1) && Shader.Locs)
+    if (InCmd.vaoID != static_cast<uint32>(-1) && shader.locs)
     {
         PROFILE_GL_GPU("Set mesh");
         
         rlEnableVertexArray(InCmd.vaoID);
 
-        int instances = static_cast<int>(InMatrices.size());
-        int bufferSize = instances * static_cast<int>(sizeof(Mat4F));
-        VBO = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
+        const int instances = static_cast<int>(InMatrices.size());
+        const int bufferSize = instances * static_cast<int>(sizeof(Mat4F));
+        vbo = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
 
         // Set instance matrix data location
-        int matLoc = Shader.Locs[SHADER_LOC_MATRIX_MODEL];
+        const int matLoc = shader.locs[SHADER_LOC_MATRIX_MODEL];
         if (matLoc != -1)
         {
             for (unsigned int i = 0; i < 4; i++)
@@ -94,11 +94,11 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
         }
 
         // TODO: Remove?
-        if (Shader.Locs[SHADER_LOC_MATRIX_NORMAL] != -1)
-            rlSetUniformMatrix(Shader.Locs[SHADER_LOC_MATRIX_NORMAL], MatrixIdentity());
+        if (shader.locs[SHADER_LOC_MATRIX_NORMAL] != -1)
+            rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_NORMAL], MatrixIdentity());
         
         // TODO: Only disable if no vert color
-        int colorLoc = Shader.Locs[SHADER_LOC_VERTEX_COLOR];
+        const int colorLoc = shader.locs[SHADER_LOC_VERTEX_COLOR];
         if (colorLoc != -1)
             rlDisableVertexAttribute(colorLoc);
     }
@@ -108,40 +108,40 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
 
 void Rendering::State::ResetMesh()
 {
-    if (VBO != static_cast<uint32>(-1))
+    if (vbo != static_cast<uint32>(-1))
     {
         PROFILE_GL_GPU("Reset mesh");
         rlDisableVertexArray();
         rlDisableVertexBuffer();
         rlDisableVertexBufferElement();
-        rlUnloadVertexBuffer(VBO);
-        VBO = static_cast<uint32>(-1);
+        rlUnloadVertexBuffer(vbo);
+        vbo = static_cast<uint32>(-1);
     }
 }
 
 
-void Rendering::State::Set(const ShaderCommand& InCmd, bool InForce)
+void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)
 {
     PROFILE_GL_GPU("Set shader");
     
-    if (InCmd.ID != Shader.ID || InForce)
+    if (InCmd.id != shader.id || InForce)
     {
-        Textures.clear();
-        InCmd.ID != static_cast<uint32>(-1) ?
-            rlEnableShader(InCmd.ID) : rlDisableShader();
+        textures.clear();
+        InCmd.id != static_cast<uint32>(-1) ?
+            rlEnableShader(InCmd.id) : rlDisableShader();
     }
 
-    if (InCmd.BlendMode != Shader.BlendMode || InForce)
-        RaylibRenderUtility::SetBlendMode(InCmd.BlendMode);
+    if (InCmd.blendMode != shader.blendMode || InForce)
+        RaylibRenderUtility::SetBlendMode(InCmd.blendMode);
 
-    if (InCmd.BackfaceCulling != Shader.BackfaceCulling || InForce)
-        InCmd.BackfaceCulling ? rlEnableBackfaceCulling() : rlDisableBackfaceCulling();
-    if (InCmd.DepthTest != Shader.DepthTest || InForce)
-        InCmd.DepthTest ? rlEnableDepthTest() : rlDisableDepthTest();
-    if (InCmd.DepthMask != Shader.DepthMask || InForce)
-        InCmd.DepthMask ? rlEnableDepthMask() : rlDisableDepthMask();
+    if (InCmd.backfaceCulling != shader.backfaceCulling || InForce)
+        InCmd.backfaceCulling ? rlEnableBackfaceCulling() : rlDisableBackfaceCulling();
+    if (InCmd.depthTest != shader.depthTest || InForce)
+        InCmd.depthTest ? rlEnableDepthTest() : rlDisableDepthTest();
+    if (InCmd.depthMask != shader.depthMask || InForce)
+        InCmd.depthMask ? rlEnableDepthMask() : rlDisableDepthMask();
 
-    Shader = InCmd;
+    shader = InCmd;
 }
 
 void Rendering::State::ResetShader()
@@ -153,54 +153,54 @@ void Rendering::State::ResetShader()
     rlDisableDepthTest();
     rlDisableDepthMask();
     rlDisableShader();
-    Shader = {};
+    shader = {};
 }
 
 void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
 {
     PROFILE_GL_GPU("Set perspective");
     
-    if (Perspective.Rect != InCmd.Rect || InForce)
+    if (perspective.rect != InCmd.rect || InForce)
     {
-        int w = InCmd.Rect.z > 0 ? InCmd.Rect.z : Frame.Size.x;
-        int h = InCmd.Rect.w > 0 ? InCmd.Rect.w : Frame.Size.y;
-        rlViewport(InCmd.Rect.x, InCmd.Rect.y, w, h);
+        const int w = InCmd.rect.z > 0 ? InCmd.rect.z : frame.size.x;
+        const int h = InCmd.rect.w > 0 ? InCmd.rect.w : frame.size.y;
+        rlViewport(InCmd.rect.x, InCmd.rect.y, w, h);
     }
-    Perspective = InCmd;
+    perspective = InCmd;
 }
 
 void Rendering::State::ResetPerspective()
 {
     PROFILE_GL_GPU("Reset perspective");
     rlViewport(0, 0, rlGetFramebufferWidth(), rlGetFramebufferHeight());
-    Perspective = {};
+    perspective = {};
 }
 
 void Rendering::State::Set(const FrameCommand& InCmd)
 {
     PROFILE_GL_GPU("Set frame");
     
-    if (InCmd.fboID != Frame.fboID)
+    if (InCmd.fboID != frame.fboID)
     {
-        Textures.clear();
+        textures.clear();
         if (InCmd.fboID != static_cast<uint32>(-1))
             rlEnableFramebuffer(InCmd.fboID);
         else rlDisableFramebuffer();
-        Perspective = PerspectiveCommand();
-        CHECK_ASSERT(InCmd.Size.x == 0, "Invalid size x")
-        CHECK_ASSERT(InCmd.Size.y == 0, "Invalid size y")
-        rlViewport(0, 0, InCmd.Size.x, InCmd.Size.y);
+        perspective = PerspectiveCommand();
+        CHECK_ASSERT(InCmd.size.x == 0, "Invalid size x")
+        CHECK_ASSERT(InCmd.size.y == 0, "Invalid size y")
+        rlViewport(0, 0, InCmd.size.x, InCmd.size.y);
     }
 
-    if (InCmd.fboID != static_cast<uint32>(-1) && (InCmd.ClearTarget || InCmd.ClearDepth))
+    if (InCmd.fboID != static_cast<uint32>(-1) && (InCmd.clearTarget || InCmd.clearDepth))
     {
         int mask = 0;
-        if (InCmd.ClearTarget)
+        if (InCmd.clearTarget)
             mask |= GL_COLOR_BUFFER_BIT;
-        if (InCmd.ClearDepth)
+        if (InCmd.clearDepth)
             mask |= GL_DEPTH_BUFFER_BIT;
         
-        if (InCmd.ClearDepth)
+        if (InCmd.clearDepth)
         {
             // Enable depth before clearing
             rlEnableDepthTest();
@@ -209,27 +209,27 @@ void Rendering::State::Set(const FrameCommand& InCmd)
 
         glClear(mask);
         
-        if (InCmd.ClearDepth && InCmd.fboID == Frame.fboID) 
+        if (InCmd.clearDepth && InCmd.fboID == frame.fboID) 
         {
             // Shader will not be reset, set the depth values manually
-            if (!Shader.DepthMask)
+            if (!shader.depthMask)
                 rlDisableDepthMask();
-            if (!Shader.DepthTest)
+            if (!shader.depthTest)
                 rlDisableDepthTest();
         }
     }
     
-    if (InCmd.fboID != Frame.fboID)
+    if (InCmd.fboID != frame.fboID)
         Set(ShaderCommand(), true);
 
-    Frame = InCmd;
+    frame = InCmd;
 }
 
 void Rendering::State::ResetFrame()
 {
     PROFILE_GL_GPU("Reset frame");
     rlDisableFramebuffer();
-    Frame = {};
+    frame = {};
 }
 
 void Rendering::State::Reset()
@@ -246,7 +246,7 @@ void Rendering::State::Reset()
 
 void Rendering::State::ResetUniforms()
 {
-    Uniforms.clear();
+    uniforms.clear();
 }
 
 void Rendering::State::Check()

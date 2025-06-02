@@ -16,18 +16,18 @@ public:
     bool Unload();
     Utility::Timepoint GetEditTime() const;
 
-    ECS::EntityID Instantiate(const Mat4F& InTransform = Mat4F(), const Vector<DeserializeObj>& InOverrides = {}, ECS::EntityID InID = ECS::InvalidID) const;
+    ECS::EntityID Instantiate(const Mat4F& InTransform = Mat4F(), const Vector<DeserializeObj>& InOverrides = {}, ECS::EntityID InID = ECS::INVALID_ID) const;
     void Save(ECS::EntityID InID);
     
     DeserializeObj GetObj() const;
 
-    bool Save(const String& InPath) { return false; };
-    bool Edit(const String& InName, uint32 InOffset = 0) { return false; };
+    bool Save(const String& InPath) { return false; }
+    bool Edit(const String& InName, uint32 InOffset = 0) { return false; }
 
 private:
 
-    DocumentObj Doc = {};
-    String Identifier = {};
+    DocumentObj doc = {};
+    String identifier = {};
     
 };
 

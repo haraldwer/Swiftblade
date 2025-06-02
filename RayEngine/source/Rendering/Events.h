@@ -2,18 +2,18 @@
 
 struct OnSetViewportSize
 {
-    Vec2F PreviousRenderResolution;
-    Vec2F NewRenderResolution;
-    Vec2F PreviousViewportSize;
-    Vec2F NewViewportSize;
+    Vec2F previousRenderResolution;
+    Vec2F newRenderResolution;
+    Vec2F previousViewportSize;
+    Vec2F newViewportSize;
 };
 
 struct OnSetWindowSize
 {
-    Vec2F PreviousRenderResolution;
-    Vec2F NewRenderResolution;
-    Vec2F PreviousViewportSize;
-    Vec2F NewViewportSize;
+    Vec2F previousRenderResolution;
+    Vec2F newRenderResolution;
+    Vec2F previousViewportSize;
+    Vec2F newViewportSize;
 };
 
 struct OnConfigChanged

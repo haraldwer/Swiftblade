@@ -7,18 +7,18 @@ namespace Rendering
 	class Frustum
 	{
 	private:
-		static float PlaneDotVec(const Vec4F& InPlane, float InX, float InY, float InZ)
+		static float PlaneDotVec(const Vec4F& InPlane, const float InX, const float InY, const float InZ)
 		{
 			return Vec4F::Dot(InPlane, Vec4F(InX, InY, InZ, 1.0f));
 		}
 
-		bool CheckFarDist(float InLengthSqr, float InRadius) const
+		bool CheckFarDist(const float InLengthSqr, const float InRadius) const
 		{
-			const float aFar = Far + InRadius;
+			const float aFar = far + InRadius;
 			return InLengthSqr < aFar * aFar; // Distance from p to cam is less than far
 		}
-		
-		bool CheckCloseDist(float InLengthSqr, float InRadius) const
+
+		static bool CheckCloseDist(const float InLengthSqr, const float InRadius)
 		{
 			return InLengthSqr < InRadius * InRadius; // Distance from p to cam is less than range
 		}
@@ -29,35 +29,35 @@ namespace Rendering
 		
 		bool CheckPoint(const Vec3F& InPos) const
 		{
-			if (Far < 0.01f)
+			if (far < 0.01f)
 				return true;
 			
-			const float lSqr = (InPos - Position).LengthSqr();
+			const float lSqr = (InPos - position).LengthSqr();
 			if (!CheckFarDist(lSqr, 0))
 				return false;
 			if (CheckCloseDist(lSqr, 0))
 				return true;
 			
 			// Check if the point is inside all six planes of the view frustum.
-			for (const auto& m_plane : Planes)
-				if (PlaneDotVec(m_plane, InPos.x, InPos.y, InPos.z) < 0.0f)
+			for (const auto& mPlane : planes)
+				if (PlaneDotVec(mPlane, InPos.x, InPos.y, InPos.z) < 0.0f)
 					return false;
 			return true;
 		}
 
-		bool CheckCube(const Vec3F& InPos, float InRadius) const
+		bool CheckCube(const Vec3F& InPos, const float InRadius) const
 		{
-			if (Far < 0.01f)
+			if (far < 0.01f)
 				return true;
 			
-			const float lSqr = (InPos - Position).LengthSqr();
+			const float lSqr = (InPos - position).LengthSqr();
 			if (!CheckFarDist(lSqr, InRadius))
 				return false;
 			if (CheckCloseDist(lSqr, InRadius))
 				return true;
 			
 			// Check if any one point of the cube is in the view frustum.
-			for (const auto& plane : Planes)
+			for (const auto& plane : planes)
 			{
 				if (PlaneDotVec(plane, InPos.x, InPos.y, InPos.z) >= -abs(InRadius * 2.0f) || // Sphere check
 					PlaneDotVec(plane, (InPos.x - InRadius), (InPos.y - InRadius), (InPos.z - InRadius)) >= 0.0f ||
@@ -75,31 +75,31 @@ namespace Rendering
 			return true;
 		}
 
-		bool CheckSphere(const Vec3F& InPos, float InRange) const
+		bool CheckSphere(const Vec3F& InPos, const float InRange) const
 		{
-			if (Far < 0.01f)
+			if (far < 0.01f)
 				return true;
 			
-			const float lSqr = (InPos - Position).LengthSqr();
+			const float lSqr = (InPos - position).LengthSqr();
 			if (!CheckFarDist(lSqr, InRange))
 				return false;
 			if (CheckCloseDist(lSqr, InRange))
 				return true;
 			
 			// Check if the radius of the sphere is inside the view frustum.
-			for (const auto& plane : Planes)
+			for (const auto& plane : planes)
 				if (PlaneDotVec(plane, InPos.x, InPos.y, InPos.z) < -abs(InRange * 2.0f))
 					return false;
 			return true;
 		}
 
-		bool CheckBox(float InXCenter, float InYCenter, float InZCenter, float InXSize, float InYSize, float InZSize) const
+		bool CheckBox(const float InXCenter, const float InYCenter, const float InZCenter, const float InXSize, const float InYSize, const float InZSize) const
 		{
-			if (Far < 0.01f)
+			if (far < 0.01f)
 				return true;
 			
 			// Check if any of the 6 planes of the box are inside the view frustum.
-			for (const auto& plane : Planes)
+			for (const auto& plane : planes)
 			{
 				if (PlaneDotVec(plane, (InXCenter - InXSize), (InYCenter - InYSize), (InZCenter - InZSize)) >= 0.0f ||
 					PlaneDotVec(plane, (InXCenter + InXSize), (InYCenter - InYSize), (InZCenter - InZSize)) >= 0.0f ||
@@ -115,12 +115,12 @@ namespace Rendering
 			return true;
 		}
 
-		Vec3F GetPosition() const { return Position; }
+		Vec3F GetPosition() const { return position; }
 
 	private:
 
-		float Far = 0.0f;
-		Vec3F Position = {};
-		Array<Vec4F, 6> Planes = {};
+		float far = 0.0f;
+		Vec3F position = {};
+		Array<Vec4F, 6> planes = {};
 	};
 }

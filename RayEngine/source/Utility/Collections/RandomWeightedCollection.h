@@ -7,7 +7,7 @@ namespace Utility
     class RandomWeightedCollection
     {
     public:
-        RandomWeightedCollection(int InSeed) : Rand(InSeed) {}
+        RandomWeightedCollection(const int InSeed) : Rand(InSeed) {}
 
         void Add(const T& InEntry, const WeightT InWeight = 1.0f)
         {

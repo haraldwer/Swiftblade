@@ -16,15 +16,15 @@ namespace Rendering
         void AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms);
         
         struct Entry {
-            Utility::SpatialContainer<Mat4F> Transforms;
-            ResModel Model;
-            ResRM Material;
-            uint32 DeferredID = 0;
-            bool Initialized = false;
+            Utility::SpatialContainer<Mat4F> transforms;
+            ResModel model;
+            ResRM material;
+            uint32 deferredID = 0;
+            bool initialized = false;
         };
         
-        Map<uint64, Entry> Entries;
-        Map<uint32, ResShader> DeferredShaders;
+        Map<uint64, Entry> entries;
+        Map<uint32, ResShader> deferredShaders;
         
     private:
         Entry& GetEntry(const MeshInstance& InInstance);
@@ -37,7 +37,7 @@ namespace Rendering
         friend class Lights;
     public:
         void SetCamera(const CameraInstance& InCamera);
-        const CameraInstance& GetCamera() const { return MainCamera; }
+        const CameraInstance& GetCamera() const { return mainCamera; }
         
         void AddEnvironment(const EnvironmentInstance& InEnvironment);
         void AddMesh(const MeshInstance& InMesh);
@@ -51,12 +51,12 @@ namespace Rendering
         uint32 Count() const;
 
     private:
-        CameraInstance MainCamera = {};
-        Vector<EnvironmentInstance> Environments = {};
-        MeshCollection Meshes = {};
-        Utility::SpatialContainer<LightInstance> Lights = {};
-        Utility::SpatialContainer<DebugShape> DebugShapes = {};
-        Utility::SpatialContainer<DebugLine> DebugLines = {};
+        CameraInstance mainCamera = {};
+        Vector<EnvironmentInstance> environments = {};
+        MeshCollection meshes = {};
+        Utility::SpatialContainer<LightInstance> lights = {};
+        Utility::SpatialContainer<DebugShape> debugShapes = {};
+        Utility::SpatialContainer<DebugLine> debugLines = {};
     };
 }
 

@@ -15,31 +15,31 @@ void RoomGenEditor::Init()
         .Push(UI::Container(UI::Transform::FromRect(Vec2F(80.0f, 80.0f), 0.0, 0.5f)))
             .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
             .Add(UI::Image(ResTexture("UI/T_Exit.png"), UI::Transform::SimpleAnchor(0.5f)), "Loading");
-    UI = builder.Build();
+    ui = builder.Build();
 
-    PathGen.SetOwner(this); 
-    VolumeGen.SetOwner(this); 
-    PropsGen.SetOwner(this); 
+    pathGen.SetOwner(this); 
+    volumeGen.SetOwner(this); 
+    propsGen.SetOwner(this); 
 }
 
 void RoomGenEditor::Deinit()
 {
-    StartEntity = ECS::InvalidID;
-    EndEntity = ECS::InvalidID;
+    startEntity = ECS::INVALID_ID;
+    endEntity = ECS::INVALID_ID;
 }
 
 void RoomGenEditor::Enter()
 {
-    Seed = Utility::Hash(Utility::Time::Get().Total());
+    seed = Utility::Hash(Utility::Time::Get().Total());
         
     // Find start and end
     auto& sys = ECS::Manager::Get().GetSystem<SysRoomConnection>();
     for (const ECS::EntityID connection : sys.GetEntities())
     {
         if (sys.Get<RoomConnection>(connection).IsEnd)
-            EndEntity = connection;
+            endEntity = connection;
         else
-            StartEntity = connection;
+            startEntity = connection;
     }
 
     // Clear current volume
@@ -50,22 +50,22 @@ void RoomGenEditor::Enter()
     // Maybe clear spawned objects too?
     
     // Clear gen data
-    PathGen.Clear();
-    VolumeGen.Clear();
-    PropsGen.Clear();
+    pathGen.Clear();
+    volumeGen.Clear();
+    propsGen.Clear();
     SetStage(GenerationStage::PATH);
 }
 
 RoomGenBase* RoomGenEditor::GetCurrentStage()
 {
-    switch (CurrentStage)
+    switch (currentStage)
     {
     case GenerationStage::PATH:
-        return &PathGen;
+        return &pathGen;
     case GenerationStage::VOLUME:
-        return &VolumeGen;
+        return &volumeGen;
     case GenerationStage::PROPPING:
-        return &PropsGen;
+        return &propsGen;
     case GenerationStage::FINISHED:
     default:
             return nullptr;
@@ -74,7 +74,7 @@ RoomGenBase* RoomGenEditor::GetCurrentStage()
 
 void RoomGenEditor::SetStage(const GenerationStage InStage)
 {
-    CurrentStage = InStage;
+    currentStage = InStage;
     if (RoomGenBase* s = GetCurrentStage())
         s->Init();
 }
@@ -83,14 +83,14 @@ void RoomGenEditor::Update()
 {
     if (RoomGenBase* stage = GetCurrentStage())
         if (stage->Step())
-            SetStage(static_cast<GenerationStage>(static_cast<uint8>(CurrentStage) + 1));
-    if (CurrentStage == GenerationStage::FINISHED)
-        Owner->SetMode(SubEditorMode::OBJECTS);
+            SetStage(static_cast<GenerationStage>(static_cast<uint8>(currentStage) + 1));
+    if (currentStage == GenerationStage::FINISHED)
+        owner->SetMode(SubEditorMode::OBJECTS);
 }
 
 void RoomGenEditor::Frame(bool InIsCameraControlling)
 {
-    if (UI)
+    if (ui)
     {
         //UI::Image& image = UI->Get<UI::Image>("Loading");
         //UI::Transform trans = image.GetTransform();

@@ -7,7 +7,7 @@ namespace Utility
 
         // Returns all intersected grid positions
         template <class T = int>
-        std::vector<Vector3<T>> GridIntersection(const Vec3F& rayOrigin, const Vec3F& rayDirection, float InTraceDist)
+        std::vector<Vector3<T>> GridIntersection(const Vec3F& InRayOrigin, const Vec3F& InRayDirection, float InTraceDist)
         {
             // Börja med utgångsposition
             // Ta ett steg i någon riktning
@@ -19,12 +19,12 @@ namespace Utility
             // Samma för y och z
             
             float l = 0;
-            Vec3F sx = Vec3F::One() / (rayDirection + Vec3F(0.0000001f)); 
+            Vec3F sx = Vec3F::One() / (InRayDirection + Vec3F(0.0000001f)); 
             
             std::vector<Vector3<T>> result;
             while (l < InTraceDist)
             {
-                Vec3F pos = rayOrigin + rayDirection * l;
+                Vec3F pos = InRayOrigin + InRayDirection * l;
                 
                 Vec3F round = Vec3F(
                     std::round(pos.x),

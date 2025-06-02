@@ -24,7 +24,7 @@ ECS::Player& ECS::PlayerInterface::GetPlayer() const
 ECS::EntityID ECS::PlayerInterface::GetPlayerID() const
 {
     const ECS::EntityID id = GameState::Get().GetPlayerID();
-    CHECK_ASSERT(id == InvalidID, "Invalid player ID");
+    CHECK_ASSERT(id == INVALID_ID, "Invalid player ID");
     return id; 
 }
 
@@ -127,7 +127,7 @@ ECS::CameraComponent& ECS::PlayerInterface::GetCamera() const
 ECS::Weapon* ECS::PlayerInterface::GetWeapon() const
 {
     const EntityID id = GetPlayer().GetWeaponID();
-    CHECK_RETURN(id == InvalidID, nullptr); 
+    CHECK_RETURN(id == INVALID_ID, nullptr); 
     return Manager::Get().GetComponent<Weapon>(id);
 }
 

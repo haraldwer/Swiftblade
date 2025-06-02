@@ -10,8 +10,8 @@ public:
     virtual void Init() = 0;
     virtual bool Step() = 0;
     
-    void SetOwner(RoomGenEditor* InEditor) { Owner = InEditor; }
+    void SetOwner(RoomGenEditor* InEditor) { owner = InEditor; }
     
 protected:
-    RoomGenEditor* Owner = nullptr;
+    RoomGenEditor* owner = nullptr;
 };

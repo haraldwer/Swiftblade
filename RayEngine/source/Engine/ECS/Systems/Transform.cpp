@@ -14,9 +14,9 @@ Vec3F ECS::Transform::GetPosition(const Space InSpace) const
     switch (InSpace)
     {
     case Space::WORLD:
-        return WorldMat.GetPosition(); 
+        return worldMat.GetPosition(); 
     case Space::LOCAL:
-        return LocalMat.GetPosition();
+        return localMat.GetPosition();
     }
     return Vec3F::Zero(); 
 }
@@ -26,9 +26,9 @@ QuatF ECS::Transform::GetRotation(const Space InSpace) const
     switch (InSpace)
     {
     case Space::WORLD:
-        return WorldMat.GetRotation(); 
+        return worldMat.GetRotation(); 
     case Space::LOCAL:
-        return LocalMat.GetRotation();
+        return localMat.GetRotation();
     }
     return QuatF::Identity();  
 }
@@ -38,9 +38,9 @@ Vec3F ECS::Transform::GetScale(const Space InSpace) const
     switch (InSpace)
     {
     case Space::WORLD:
-        return WorldMat.GetScale(); 
+        return worldMat.GetScale(); 
     case Space::LOCAL:
-        return LocalMat.GetScale();
+        return localMat.GetScale();
     }
     return Vec3F::Zero();
 }
@@ -108,21 +108,21 @@ void ECS::Transform::SetScale(const Vec3F& InScale, Space InSpace)
     }
 }
 
-void ECS::Transform::SetWorld(const Mat4F& InWorld, bool InForce)
+void ECS::Transform::SetWorld(const Mat4F& InWorld, const bool InForce)
 {
-    CHECK_RETURN(!InForce && WorldMat == InWorld);
-    WorldMat = InWorld; 
+    CHECK_RETURN(!InForce && worldMat == InWorld);
+    worldMat = InWorld; 
     auto& sys = Manager::Get().GetSystem<SysTransform>();
-    LocalMat = sys.WorldToLocal(*this, InWorld);
+    localMat = sys.WorldToLocal(*this, InWorld);
     sys.UpdateChildrenTransform(*this);    
 }
 
-void ECS::Transform::SetLocal(const Mat4F& InLocal, bool InForce)
+void ECS::Transform::SetLocal(const Mat4F& InLocal, const bool InForce)
 {
-    CHECK_RETURN(!InForce && LocalMat == InLocal);
-    LocalMat = InLocal; 
+    CHECK_RETURN(!InForce && localMat == InLocal);
+    localMat = InLocal; 
     auto& sys = Manager::Get().GetSystem<SysTransform>();
-    WorldMat = sys.LocalToWorld(*this, InLocal);
+    worldMat = sys.LocalToWorld(*this, InLocal);
     sys.UpdateChildrenTransform(*this);
 }
 
@@ -136,9 +136,9 @@ void ECS::Transform::AddChild(const EntityID InID, const Space InSpace) const
     Manager::Get().GetSystem<SysTransform>().SetupHierarchy(GetID(), InID, InSpace, true); 
 }
 
-void ECS::Transform::RemoveChild(const EntityID InID, const Space InSpace) const
+void ECS::Transform::RemoveChild(const EntityID InID, const Space InSpace)
 {
-    Manager::Get().GetSystem<SysTransform>().SetupHierarchy(InvalidID, InID, InSpace, true);
+    Manager::Get().GetSystem<SysTransform>().SetupHierarchy(INVALID_ID, InID, InSpace, true);
 }
 
 void SysTransform::Init(EntityID InID, Transform& InComponent)
@@ -149,10 +149,10 @@ void SysTransform::Init(EntityID InID, Transform& InComponent)
 
 void SysTransform::Deinit(EntityID InID, Transform& InComponent)
 {
-    const auto copy = InComponent.Children; 
+    const auto copy = InComponent.children; 
     for (const auto child : copy)
-        SetupHierarchy(InvalidID, child, Transform::Space::WORLD, false);
-    SetupHierarchy(InvalidID, InID, Transform::Space::WORLD, false);
+        SetupHierarchy(INVALID_ID, child, Transform::Space::WORLD, false);
+    SetupHierarchy(INVALID_ID, InID, Transform::Space::WORLD, false);
 }
 
 bool ECS::Transform::CustomDeserialize(const DeserializeObj& InObj)
@@ -160,9 +160,9 @@ bool ECS::Transform::CustomDeserialize(const DeserializeObj& InObj)
     bool success = true;
 
     // Custom transform deserialization
-    Vec3F p = LocalMat.GetPosition();
-    QuatF r = LocalMat.GetRotation();
-    Vec3F s = LocalMat.GetScale();
+    Vec3F p = localMat.GetPosition();
+    QuatF r = localMat.GetRotation();
+    Vec3F s = localMat.GetScale();
     if (!Utility::Deserialize(InObj, "Position", p))
         success = false;
     if (!Utility::Deserialize(InObj, "Rotation", r))
@@ -177,9 +177,9 @@ bool ECS::Transform::CustomDeserialize(const DeserializeObj& InObj)
 void ECS::Transform::CustomSerialize(SerializeObj& InOutObj) const
 {
     // Custom transform serialization
-    const Vec3F p = LocalMat.GetPosition();
-    const QuatF r = LocalMat.GetRotation();
-    const Vec3F s = LocalMat.GetScale();
+    const Vec3F p = localMat.GetPosition();
+    const QuatF r = localMat.GetRotation();
+    const Vec3F s = localMat.GetScale();
     if (p != Vec3F::Zero())
         Utility::Serialize(InOutObj, "Position", p);
     if (r != QuatF::Identity())
@@ -210,9 +210,9 @@ bool SysTransform::EditValues(const EntityID InID)
     
     // Custom edit
     auto& t = Get<Transform>(InID);
-    Vec3F p = t.LocalMat.GetPosition();
-    QuatF r = t.LocalMat.GetRotation();
-    Vec3F s = t.LocalMat.GetScale();
+    Vec3F p = t.localMat.GetPosition();
+    QuatF r = t.localMat.GetRotation();
+    Vec3F s = t.localMat.GetScale();
     if (Utility::Edit("P", p) ||
         Utility::Edit("R", r) ||
         Utility::Edit("S", s))
@@ -271,19 +271,19 @@ void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChil
     }
 
     // Remove current child parent
-    if (childTrans->Parent != InvalidID)
+    if (childTrans->parent != INVALID_ID)
     {
-        auto& oldParentTransform = Get<Transform>(childTrans->Parent);
-        oldParentTransform.Children.erase(InChild);
-        childTrans->Parent = InvalidID;
+        auto& oldParentTransform = Get<Transform>(childTrans->parent);
+        oldParentTransform.children.erase(InChild);
+        childTrans->parent = INVALID_ID;
     }
 
     // Set new parent
-    if (InParent != InvalidID)
+    if (InParent != INVALID_ID)
     {
         auto& newParentTransform = Get<Transform>(InParent);
-        newParentTransform.Children.insert(InChild);
-        childTrans->Parent = InParent;
+        newParentTransform.children.insert(InChild);
+        childTrans->parent = InParent;
     }
     
     // Apply cached mat
@@ -308,7 +308,7 @@ void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChil
 
 void SysTransform::UpdateChildrenTransform(const Transform& InParent)
 {
-    for (const EntityID child : InParent.Children)
+    for (const EntityID child : InParent.children)
     {
         auto& t = Get<Transform>(child);
         t.SetLocal(t.Local(), true);
@@ -317,10 +317,10 @@ void SysTransform::UpdateChildrenTransform(const Transform& InParent)
 
 Mat4F SysTransform::WorldToLocal(const Transform& InComp, const Mat4F& InWorld) const
 {
-    if (InComp.Parent != InvalidID)
+    if (InComp.parent != INVALID_ID)
     {
         // Assume parent cache
-        const auto& pTrans = Get<Transform>(InComp.Parent);
+        const auto& pTrans = Get<Transform>(InComp.parent);
         return InWorld * Mat4F::GetFastInverse(pTrans.World());
     }
     return InWorld; 
@@ -328,10 +328,10 @@ Mat4F SysTransform::WorldToLocal(const Transform& InComp, const Mat4F& InWorld) 
 
 Mat4F SysTransform::LocalToWorld(const Transform& InComp, const Mat4F& InLocal) const
 {
-    if (InComp.Parent != InvalidID)
+    if (InComp.parent != INVALID_ID)
     {
         // Assume parent cache 
-        const auto& pTrans = Get<Transform>(InComp.Parent);
+        const auto& pTrans = Get<Transform>(InComp.parent);
         return InLocal * pTrans.World();    
     }
     return InLocal; 

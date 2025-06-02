@@ -8,11 +8,11 @@ namespace UI
     {
     public:
         Image(const ResTexture& InTexture = String("Defaults/T_Missing.png"), const UI::Transform& InTransform = Transform::Fill()) :
-            Element(InTransform), Texture(InTexture) {}
+            Element(InTransform), texture(InTexture) {}
         ~Image() override = default; 
         void Draw() override;
         
     protected:
-        ResTexture Texture;
+        ResTexture texture;
     };
 }

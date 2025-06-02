@@ -16,5 +16,5 @@ private:
     PROPERTY_C(float, UpDirTilt, 0.1f)
     PROPERTY_C(float, InputDeadzone, 0.1f)
     
-    Vec3F Direction;
+    Vec3F direction;
 };

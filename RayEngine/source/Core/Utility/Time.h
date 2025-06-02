@@ -6,34 +6,34 @@ namespace Utility
     {
     public:
 
-        void Tick(double InDelta = 0.0)
+        void Tick(const double InDelta = 0.0)
         {
-            LastDelta = InDelta;
+            lastDelta = InDelta;
         }
         
-        void SetScale(double InScale)
+        void SetScale(const double InScale)
         {
-            TimeScale = InScale;
+            timeScale = InScale;
         }
         
-        double Total() const { return TotalTimer.Ellapsed(); }
-        double Delta() const { return LastDelta * TimeScale * static_cast<float>(!Paused); }
-        double Unscaled() const { return LastDelta; }
-        double Scale() const { return TimeScale; }
+        double Total() const { return totalTimer.Ellapsed(); }
+        double Delta() const { return lastDelta * timeScale * static_cast<float>(!paused); }
+        double Unscaled() const { return lastDelta; }
+        double Scale() const { return timeScale; }
 
         void SetPause(const bool InPause)
         {
-            Paused = InPause; 
+            paused = InPause; 
         }
         
-        bool IsPaused() const { return Paused; }
+        bool IsPaused() const { return paused; }
         
     private:
         
-        Timer TotalTimer;
+        Timer totalTimer;
         
-        double LastDelta = 0.0;
-        double TimeScale = 1.0f;
-        bool Paused = false; 
+        double lastDelta = 0.0;
+        double timeScale = 1.0f;
+        bool paused = false; 
     };
 }

@@ -33,9 +33,9 @@ private:
 
     String Text(const String& InString) const;
     
-    BlueprintEditorConfig Config = {};
-    ECS::EntityID InstanceID = ECS::InvalidID; 
-    ECS::EntityID SelectedID = ECS::InvalidID;
+    BlueprintEditorConfig config = {};
+    ECS::EntityID instanceID = ECS::INVALID_ID; 
+    ECS::EntityID selectedID = ECS::INVALID_ID;
 
-    ECS::Manager ECS = {};
+    ECS::Manager ecs = {};
 };

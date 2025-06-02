@@ -16,10 +16,10 @@ bool ECS::Movement::EditState() const
     ImGui::Text("Crouching: %i", IsCrouching()); 
     ImGui::Spacing();
 
-    if (!StateMachine)
+    if (!stateMachine)
         return false;
     if (ImGui::Button("Save##Movement"))
-        StateMachine->SaveConfig();
-    return StateMachine->Edit();
+        stateMachine->SaveConfig();
+    return stateMachine->Edit();
     
 }

@@ -17,40 +17,40 @@ namespace Rendering
         
         struct Stats
         {
-            Map<uint64, int> MeshDrawCount = {};
-            int DeferredDrawCount = 0;
-            int DebugDrawCount = 0;
-            int Renders = 0;
-            int FullscreenPasses = 0;
-            int Probes = 0;
-            int Lights = 0;
-            int Skyboxes = 0;
+            Map<uint64, int> meshDrawCount = {};
+            int deferredDrawCount = 0;
+            int debugDrawCount = 0;
+            int renders = 0;
+            int fullscreenPasses = 0;
+            int probes = 0;
+            int lights = 0;
+            int skyboxes = 0;
 
             void operator += (const Stats& InStats)
             {
-                Renders++;
-                DebugDrawCount += InStats.DebugDrawCount;
-                DeferredDrawCount += InStats.DeferredDrawCount;
-                FullscreenPasses += InStats.FullscreenPasses;
-                for (auto& s : InStats.MeshDrawCount)
-                    MeshDrawCount[s.first] += s.second;
+                renders++;
+                debugDrawCount += InStats.debugDrawCount;
+                deferredDrawCount += InStats.deferredDrawCount;
+                fullscreenPasses += InStats.fullscreenPasses;
+                for (auto& s : InStats.meshDrawCount)
+                    meshDrawCount[s.first] += s.second;
             }
         };
         
         virtual Stats Render(RenderArgs InArgs);
 
     protected:
-        Stats RenderSkybox(const RenderArgs& InArgs);
-        Stats RenderScene(const RenderArgs& InArgs);
-        Stats ProcessScene(const RenderArgs& InArgs);
-        Stats RenderDeferred(const RenderArgs& InArgs);
-        Stats RenderLights(const RenderArgs& InArgs);
-        Stats RenderLumin(const RenderArgs& InArgs);
-        Stats RenderFire(const RenderArgs& InArgs);
-        Stats ApplyFire(const RenderArgs& InArgs);
-        Stats RenderAO(const RenderArgs& InArgs);
-        Stats RenderFX(const RenderArgs& InArgs);
-        Stats Blip(const RenderArgs& InArgs);
-        Stats RenderDebug(const RenderArgs& InArgs);
+        static Stats RenderSkybox(const RenderArgs& InArgs);
+        static Stats RenderScene(const RenderArgs& InArgs);
+        static Stats ProcessScene(const RenderArgs& InArgs);
+        static Stats RenderDeferred(const RenderArgs& InArgs);
+        static Stats RenderLights(const RenderArgs& InArgs);
+        static Stats RenderLumin(const RenderArgs& InArgs);
+        static Stats RenderFire(const RenderArgs& InArgs);
+        static Stats ApplyFire(const RenderArgs& InArgs);
+        static Stats RenderAO(const RenderArgs& InArgs);
+        static Stats RenderFX(const RenderArgs& InArgs);
+        static Stats Blip(const RenderArgs& InArgs);
+        static Stats RenderDebug(const RenderArgs& InArgs);
     };
 }

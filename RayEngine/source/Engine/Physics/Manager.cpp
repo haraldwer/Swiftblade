@@ -119,10 +119,10 @@ void Physics::Manager::SetTransforms() const
 {
     PROFILE();
     const ECS::Manager& ecs = ECS::Manager::Get();
-    const auto updatePhysTrans = [](const ECS::Manager& InECS, ECS::EntityID InKey, auto* InInstance)
+    const auto updatePhysTrans = [](const ECS::Manager& InECS, const ECS::EntityID InKey, auto* InInstance)
     {
         CHECK_RETURN(!InInstance)
-        auto* t = InECS.GetComponent<ECS::Transform>(InKey);
+        const auto* t = InECS.GetComponent<ECS::Transform>(InKey);
         CHECK_RETURN(!t);
         const PxTransform trans = PxTransform(
             Utility::PhysX::ConvertVec(t->GetPosition()),
@@ -140,7 +140,7 @@ void Physics::Manager::SetTransforms() const
 void Physics::Manager::Simulate() const
 {
     PROFILE();
-    double delta = Utility::Time::Get().Delta();
+    const double delta = Utility::Time::Get().Delta();
     Scene->simulate(
         static_cast<PxReal>(delta),
         nullptr,
@@ -183,7 +183,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     const auto collider = ecs.GetComponent<ECS::Collider>(InID); 
     CHECK_RETURN_LOG(!collider, "No collider for entity");
     
-    ECS::EntityID actorID = ECS::InvalidID;
+    ECS::EntityID actorID = ECS::INVALID_ID;
     PxRigidActor* actor = nullptr;
     
     if (ECS::Rigidbody* rb = FindRigidbody(InID)) // Find rigidbody in hierarchy
@@ -201,7 +201,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
         actorID = InID; 
     }
 
-    CHECK_RETURN_LOG(actorID == ECS::InvalidID, "ActorID invalid");
+    CHECK_RETURN_LOG(actorID == ECS::INVALID_ID, "ActorID invalid");
     CHECK_RETURN_LOG(!actor, "Actor invalid");
     CreateShape(*collider, actorID, *actor);     
 }
@@ -210,7 +210,7 @@ ECS::Rigidbody* Physics::Manager::FindRigidbody(const ECS::EntityID InID)
 {
     const auto& ecs = ECS::Manager::Get();
     ECS::EntityID currID = InID;
-    while (currID != ECS::InvalidID)
+    while (currID != ECS::INVALID_ID)
     {
         if (const auto currRB = ecs.GetComponent<ECS::Rigidbody>(currID))
             return currRB;
@@ -248,7 +248,7 @@ PxRigidDynamic* Physics::Manager::CreateDynamic(ECS::Rigidbody& InRigidbody)
     ptr->setMaxLinearVelocity(InRigidbody.MaxLinearVelocity);
     ptr->setMaxAngularVelocity(InRigidbody.MaxAngularVelocity);
 
-    InRigidbody.Ptr = ptr; 
+    InRigidbody.ptr = ptr; 
     Dynamics[InRigidbody.GetID()] = ptr;
     Scene->addActor(*ptr);
     return ptr;
@@ -414,7 +414,7 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
     return nullptr;
 }
 
-void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, float InScale)
+void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, const float InScale)
 {
     // Create cube owner
     if (!CubeOwner)

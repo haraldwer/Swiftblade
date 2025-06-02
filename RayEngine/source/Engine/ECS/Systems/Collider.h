@@ -33,6 +33,6 @@ namespace ECS
         bool ShouldUpdate() const override;
         int GetPriority() const override { return 99; }
 
-        void UpdateShape(EntityID InEntity) const;
+        static void UpdateShape(EntityID InEntity);
     };
 }

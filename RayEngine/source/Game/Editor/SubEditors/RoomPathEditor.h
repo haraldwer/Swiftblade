@@ -27,11 +27,11 @@ public:
 
 private:
     
-    RoomPathEditorConfig Config = {};
-    ECS::EntityID EndEntity = ECS::InvalidID;
-    ECS::EntityID StartEntity = ECS::InvalidID;
-    Vec3F TargetPos = {};
-    Vec3F OrgPos = {};
+    RoomPathEditorConfig config = {};
+    ECS::EntityID endEntity = ECS::INVALID_ID;
+    ECS::EntityID startEntity = ECS::INVALID_ID;
+    Vec3F targetPos = {};
+    Vec3F orgPos = {};
 
     ECS::EntityID GetCurrent() const;
     static Mat4F GetTrans(ECS::EntityID InID);

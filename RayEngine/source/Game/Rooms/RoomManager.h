@@ -9,6 +9,6 @@ public:
     void Unload();
     
 private:
-    Vector<SceneInstance> Scenes = {};
+    Vector<SceneInstance> scenes = {};
     
 };

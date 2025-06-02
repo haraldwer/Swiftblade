@@ -14,7 +14,7 @@ void Engine::Instance::Deinit()
     Menus.Clear();
 }
 
-void Engine::Instance::Logic(double InDelta)
+void Engine::Instance::Logic(const double InDelta)
 {
     PROFILE();
     RenderScene.Clear();

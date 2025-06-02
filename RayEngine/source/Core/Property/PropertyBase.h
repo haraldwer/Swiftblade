@@ -14,5 +14,5 @@ public:
     virtual bool operator==(const PropertyBase& InOther) const;
 
 private:
-    String Name; // Should the property know about its own name?
+    String name; // Should the property know about its own name?
 };

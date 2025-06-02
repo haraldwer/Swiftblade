@@ -5,7 +5,7 @@
 #include "rlgl.h"
 #include "State/State.h"
 
-bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat)
+bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat)
 {
     if (TryBeginSetup(InTarget))
     {
@@ -69,8 +69,8 @@ void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) con
                 0);
         }
     }
-    
-    uint32 depthID = InRenderTexture.depth.id;
+
+    const uint32 depthID = InRenderTexture.depth.id;
     CHECK_ASSERT(depthID == 0, "Invalid depth texture");
     rlFramebufferAttach(FrameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
     
@@ -97,24 +97,24 @@ void Rendering::RenderTarget::Unload()
     Height = 0; 
 }
 
-void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, int InFilter, const String& InPostfix) const
+void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, const int InFilter, const String& InPostfix) const
 {
     for (const auto& tex : Textures)
     {
-        int loc = InShader.GetLocation(tex.Name + InPostfix);
+        const int loc = InShader.GetLocation(tex.Name + InPostfix);
         CHECK_CONTINUE(loc < 0);
         CHECK_ASSERT(!tex.Tex, "Tex nullptr");
 
         InOutSlot++;
         TextureCommand cmd;
-        cmd.ShaderLoc = loc;
-        cmd.ID = tex.Tex->id;
-        cmd.Filter = InFilter;
-        rlState::Current.Set(cmd, InOutSlot);
+        cmd.shaderLoc = loc;
+        cmd.id = tex.Tex->id;
+        cmd.filter = InFilter;
+        rlState::current.Set(cmd, InOutSlot);
     }
 }
 
-void Rendering::RenderTarget::CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale, int InMips, bool InCubemap)
+void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InPixelFormat, const float InResScale, const int InMips, const bool InCubemap)
 {
     const int w = static_cast<int>(static_cast<float>(Width) * InResScale);
     const int h = static_cast<int>(static_cast<float>(Height) * InResScale);

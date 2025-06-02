@@ -29,13 +29,13 @@ namespace Utility
         inline ::Camera ConvertCamera(const CameraInstance& InCamera)
         {
             ::Camera cam;
-            cam.fovy = InCamera.FOV;
-            cam.position = ConvertVec(InCamera.Position);
+            cam.fovy = InCamera.fov;
+            cam.position = ConvertVec(InCamera.position);
             cam.projection = CAMERA_PERSPECTIVE;
 
-            const Mat4F mat = Mat4F(InCamera.Position, InCamera.Rotation, Vec3F::One());
+            const Mat4F mat = Mat4F(InCamera.position, InCamera.rotation, Vec3F::One());
             cam.up = ConvertVec(mat.Up());
-            cam.target = ConvertVec(InCamera.Position + mat.Forward());
+            cam.target = ConvertVec(InCamera.position + mat.Forward());
             
             return cam; 
         }

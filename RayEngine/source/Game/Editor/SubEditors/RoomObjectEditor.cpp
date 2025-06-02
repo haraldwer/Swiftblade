@@ -10,7 +10,7 @@
 
 void RoomObjectEditor::Init()
 {
-    Config.LoadConfig();
+    config.LoadConfig();
     
     LoadPlacedObjects();
 
@@ -19,31 +19,31 @@ void RoomObjectEditor::Init()
 
 void RoomObjectEditor::Deinit()
 {
-    Config.SaveConfig(); 
+    config.SaveConfig(); 
 }
 
 void RoomObjectEditor::Update()
 {
-    CHECK_RETURN(ObjectID == ECS::InvalidID)
+    CHECK_RETURN(objectID == ECS::INVALID_ID)
 
-    auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(ObjectID);
+    auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(objectID);
     CHECK_RETURN(!trans);
 
-    float dt = static_cast<float>(Utility::Time::Get().Delta());
+    const float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Move object using trace 
-    TargetPos = UpdateCameraTrace();
-    if (TargetPos != Vec3F::Zero())
+    targetPos = UpdateCameraTrace();
+    if (targetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
-        trans->SetPosition(Lerp(currPos, TargetPos, 50.0f * dt));
+        trans->SetPosition(Lerp(currPos, targetPos, 50.0f * dt));
     } 
 
     // Rotate object!
     if (Input::Action::Get("Rotate").Pressed())
-        TargetRot.y += PI_FLOAT * 0.25f;
+        targetRot.y += PI_FLOAT * 0.25f;
     const QuatF rot = trans->GetRotation();
-    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(TargetRot), 50.0f * dt));
+    trans->SetRotation(QuatF::Slerp(rot, QuatF::FromEuler(targetRot), 50.0f * dt));
 
     if (Input::Action::Get("LM").Pressed())
         PlaceObject();
@@ -56,25 +56,25 @@ void RoomObjectEditor::Frame(bool InIsCameraControlling)
 {
 }
 
-void RoomObjectEditor::DebugDraw(bool InIsCameraControlling)
+void RoomObjectEditor::DebugDraw(const bool InIsCameraControlling)
 {
     ImGui::Text("Object editing mode");
     
     // TODO: Click on the object type you want to place
     
     auto transSys = ECS::Manager::Get().GetSystem<ECS::SysTransform>();
-    auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(ObjectID);
+    const auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(objectID);
     CHECK_RETURN(!trans);
     
-    transSys.EditValues(ObjectID);
+    transSys.EditValues(objectID);
     if (!InIsCameraControlling)
     {
-        if (transSys.EditGizmo(ObjectID))
+        if (transSys.EditGizmo(objectID))
         {
-            auto& v = GetVolume();
+            const auto& v = GetVolume();
             const Vec3F pos = trans->GetPosition();
-            TargetPos = v.CoordToPos(v.PosToCoord(pos, Mat4F()), Mat4F());  
-            TargetRot = trans->GetRotation().Euler();
+            targetPos = v.CoordToPos(v.PosToCoord(pos, Mat4F()), Mat4F());  
+            targetRot = trans->GetRotation().Euler();
         }
     }
     
@@ -94,8 +94,8 @@ void RoomObjectEditor::Exit()
 
 void RoomObjectEditor::SetEditObject(const int InIndex)
 {
-    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= static_cast<int>(Config.Blueprints.Get().size()), "BP index outside of range");
-    Config.BPIndex = InIndex; 
+    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= static_cast<int>(config.Blueprints.Get().size()), "BP index outside of range");
+    config.BPIndex = InIndex; 
     NewEditObject(); 
 }
 
@@ -108,14 +108,14 @@ void RoomObjectEditor::PlaceObject()
     } data;
 
     data.NewObjectData = {
-        TargetPos,
-        TargetRot,
-        Config.BPIndex,
-        ECS::InvalidID
+        targetPos,
+        targetRot,
+        config.BPIndex,
+        ECS::INVALID_ID
     };
-    data.PrevObjectData = GetPlacedObjectData(GetKey(TargetPos));
-    data.PrevObjectData.Position = TargetPos;
-    data.PrevObjectData.ID = ECS::InvalidID; 
+    data.PrevObjectData = GetPlacedObjectData(GetKey(targetPos));
+    data.PrevObjectData.position = targetPos;
+    data.PrevObjectData.id = ECS::INVALID_ID; 
     
     GetHistory().AddChange(Utility::Change<EditData>(
         [&](const EditData& InData)
@@ -137,9 +137,9 @@ void RoomObjectEditor::RemoveObject()
         Vec3F Position = {};
     } data;
 
-    data.Position = TargetPos;
-    data.PrevObjectData = GetPlacedObjectData(GetKey(TargetPos));
-    data.PrevObjectData.ID = ECS::InvalidID; 
+    data.Position = targetPos;
+    data.PrevObjectData = GetPlacedObjectData(GetKey(targetPos));
+    data.PrevObjectData.id = ECS::INVALID_ID; 
     
     GetHistory().AddChange(Utility::Change<EditData>(
         [&](const EditData& InData) { RemovePlacedObject(GetKey(InData.Position)); },
@@ -150,22 +150,22 @@ void RoomObjectEditor::RemoveObject()
 void RoomObjectEditor::NewEditObject()
 {
     DestroyEditObject();
-    ObjectID = CreateObject(Config.BPIndex, Mat4F(TargetPos, QuatF::FromEuler(TargetRot), Vec3F::One()));
+    objectID = CreateObject(config.BPIndex, Mat4F(targetPos, QuatF::FromEuler(targetRot), Vec3F::One()));
 }
 
 void RoomObjectEditor::DestroyEditObject()
 {
-    if (ObjectID != ECS::InvalidID)
+    if (objectID != ECS::INVALID_ID)
     {
-        ECS::Manager::Get().DestroyEntity(ObjectID);
-        ObjectID = ECS::InvalidID; 
+        ECS::Manager::Get().DestroyEntity(objectID);
+        objectID = ECS::INVALID_ID; 
     }
 }
 
 void RoomObjectEditor::LoadPlacedObjects()
 {
     Map<String, int> blueprintMap;
-    auto& bps = Config.Blueprints.Get();
+    auto& bps = config.Blueprints.Get();
     for (size_t i = 0; i < bps.size(); i++)
         blueprintMap[bps[i].Identifier()] = i; 
     
@@ -173,22 +173,22 @@ void RoomObjectEditor::LoadPlacedObjects()
     for (const ECS::EntityID entity : entities)
     {
         CHECK_CONTINUE(entity == GetVolumeID());
-        CHECK_CONTINUE(entity == ObjectID);
+        CHECK_CONTINUE(entity == objectID);
         
         const auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(entity);
         const auto* attr = ECS::Manager::Get().GetComponent<ECS::Attributes>(entity);
         CHECK_CONTINUE(!trans || !attr);
 
         // Try to find BP index
-        String bpID = attr->Blueprint.Identifier();
+        String bpID = attr->blueprint.Identifier();
         auto bpFind = blueprintMap.find(bpID);
         CHECK_CONTINUE(bpFind == blueprintMap.end());
         
         ObjectData data;
-        data.Position = trans->GetPosition();
-        data.Rotation = trans->GetRotation().Euler();
-        data.ObjectType = blueprintMap.at(bpID);
-        data.ID = entity; 
+        data.position = trans->GetPosition();
+        data.rotation = trans->GetRotation().Euler();
+        data.objectType = blueprintMap.at(bpID);
+        data.id = entity; 
         
         PlaceObject(data);
     }
@@ -196,24 +196,24 @@ void RoomObjectEditor::LoadPlacedObjects()
 
 void RoomObjectEditor::PlaceObject(const ObjectData& InObjectData)
 {
-    const uint32 key = GetKey(InObjectData.Position);
+    const uint32 key = GetKey(InObjectData.position);
     RemovePlacedObject(key);
     
-    auto& entry = PlacedObjects[key];
+    auto& entry = placedObjects[key];
     entry = InObjectData;
-    if (entry.ID == ECS::InvalidID && InObjectData.ObjectType != -1)
-        entry.ID = CreateObject(entry.ObjectType, Mat4F(entry.Position, QuatF::FromEuler(entry.Rotation), Vec3F::One()));
+    if (entry.id == ECS::INVALID_ID && InObjectData.objectType != -1)
+        entry.id = CreateObject(entry.objectType, Mat4F(entry.position, QuatF::FromEuler(entry.rotation), Vec3F::One()));
 }
 
 void RoomObjectEditor::RemovePlacedObject(const uint32 InKey)
 {
-    auto find = PlacedObjects.find(InKey);
-    if (find != PlacedObjects.end())
+    auto find = placedObjects.find(InKey);
+    if (find != placedObjects.end())
     {
         // Destroy object and remove entry
-        if (find->second.ID != ECS::InvalidID)
-            ECS::Manager::Get().DestroyEntity(find->second.ID);
-        PlacedObjects.erase(InKey);
+        if (find->second.id != ECS::INVALID_ID)
+            ECS::Manager::Get().DestroyEntity(find->second.id);
+        placedObjects.erase(InKey);
     }
 }
 
@@ -224,21 +224,21 @@ uint32 RoomObjectEditor::GetKey(const Vec3F& InPos) const
 
 RoomObjectEditor::ObjectData RoomObjectEditor::GetPlacedObjectData(const uint32 InKey) const
 {
-    const auto find = PlacedObjects.find(InKey);
-    if (find != PlacedObjects.end())
+    const auto find = placedObjects.find(InKey);
+    if (find != placedObjects.end())
         return find->second;
     return {};
 }
 
 ECS::EntityID RoomObjectEditor::CreateObject(const int InIndex, const Mat4F& InMat) const
 {
-    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= static_cast<int>(Config.Blueprints.Get().size()), "BP index outside of range", ECS::InvalidID);
-    if (const auto bp = Config.Blueprints.Get()[InIndex].Get())
+    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= static_cast<int>(config.Blueprints.Get().size()), "BP index outside of range", ECS::INVALID_ID);
+    if (const auto bp = config.Blueprints.Get()[InIndex].Get())
     {
         const auto id = bp->Instantiate(InMat);
         if (auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(id))
             trans->SetWorld(InMat); 
         return id;
     }
-    return ECS::InvalidID;
+    return ECS::INVALID_ID;
 }

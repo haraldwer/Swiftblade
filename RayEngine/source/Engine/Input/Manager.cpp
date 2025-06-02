@@ -7,18 +7,18 @@
 
 void Input::Manager::Push(const String& InContext)
 {
-    const auto find = Current.CachedContexts.find(InContext);
-    CHECK_ASSERT(find == Current.CachedContexts.end(), "Unknown context");
-    ContextStack.push_back(InContext);
+    const auto find = current.CachedContexts.find(InContext);
+    CHECK_ASSERT(find == current.CachedContexts.end(), "Unknown context");
+    contextStack.push_back(InContext);
 }
 
 void Input::Manager::Pop(const String& InContext)
 { 
-    for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
+    for (int i = static_cast<int>(contextStack.size()) - 1; i >= 0; i--)
     {
-        if (ContextStack[i] == InContext)
+        if (contextStack[i] == InContext)
         {
-            ContextStack.erase(ContextStack.begin() + i);
+            contextStack.erase(contextStack.begin() + i);
             return; 
         }
     }
@@ -39,10 +39,10 @@ const Input::Action& Input::Manager::GetAction(const String& InAction, const Str
 
 const Input::Action& Input::Manager::GetActionInternal(const String& InAction, const String& InContext) const
 {
-    CHECK_ASSERT(ContextStack.empty(), "Stack empty")
-    for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
+    CHECK_ASSERT(contextStack.empty(), "Stack empty")
+    for (int i = static_cast<int>(contextStack.size()) - 1; i >= 0; i--)
     {
-        auto& context = GetContext(ContextStack[i]);
+        auto& context = GetContext(contextStack[i]);
         if (context.Name.Get() == InContext)
         {
             // Find action
@@ -58,20 +58,20 @@ const Input::Action& Input::Manager::GetActionInternal(const String& InAction, c
 
 void Input::Manager::Init()
 {
-    Current.LoadConfig();
-    Current.UpdateCache();
+    current.LoadConfig();
+    current.UpdateCache();
     Push("Default");
 }
 
 void Input::Manager::Update()
 {
     PROFILE();
-    for (auto& context : Current.Contexts.Get())
+    for (auto& context : current.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
 
-    if (MouseDelta.Length() > 0.0001f)
-        MouseDelta = Vec2F::Zero();
+    if (mouseDelta.Length() > 0.0001f)
+        mouseDelta = Vec2F::Zero();
 }
 
 void Input::Manager::Frame()
@@ -79,18 +79,18 @@ void Input::Manager::Frame()
     UpdateCursorState();
 }
 
-void Input::Manager::UpdateAction(Input::Action& InAction)
+void Input::Manager::UpdateAction(Input::Action& InAction) const
 {
     CHECK_RETURN(InAction.Key < 0);
     
     // Transitions
-    switch (InAction.Current)
+    switch (InAction._Current)
     {
     case State::PRESSED:
-        InAction.Current = State::DOWN;
+        InAction._Current = State::DOWN;
         break;
     case State::RELEASED:
-        InAction.Current = State::UP;
+        InAction._Current = State::UP;
         break;
     case State::UP:
     case State::DOWN:
@@ -122,10 +122,10 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
             switch (key)
             {
             case 0: 
-                value = MouseDelta.x;
+                value = mouseDelta.x;
                 break;
             case 1: 
-                value = MouseDelta.y;
+                value = mouseDelta.y;
                 break;
             case 2: 
                 value = GetMouseWheelMoveV().x;
@@ -139,29 +139,29 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
     }
     if (!down)
         down = abs(value) > InAction.Deadzone;
-    InAction.Value = value; 
+    InAction.value = value; 
     if (down != InAction.Down())
-        InAction.Current = down ?
+        InAction._Current = down ?
             State::PRESSED : State::RELEASED;
 }
 
 void Input::Manager::DrawDebugPanel()
 {
     if (ImGui::Button("Load"))
-        Current.LoadConfig();
+        current.LoadConfig();
     ImGui::SameLine();
     if (ImGui::Button("Save"))
-        Current.SaveConfig();
+        current.SaveConfig();
     
     static String selectedContext;  
-    if (!ContextStack.empty())
+    if (!contextStack.empty())
     {
         ImGui::SeparatorText("Stack");
         if (ImGui::BeginListBox("##Stack", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
         {
-            for (int i = static_cast<int>(ContextStack.size()) - 1; i >= 0; i--)
+            for (int i = static_cast<int>(contextStack.size()) - 1; i >= 0; i--)
             {
-                const String& name = ContextStack[i]; 
+                const String& name = contextStack[i]; 
                 auto& context = GetContext(name);
                 const String text = name + (context.Blocking ? " (blocking)" : "");
                 const bool selected = name == selectedContext;
@@ -179,7 +179,7 @@ void Input::Manager::DrawDebugPanel()
     ImGui::SeparatorText("Contexts");
     if (ImGui::BeginListBox("##Contexts", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
     {
-        auto& contexts = Current.Contexts.Get();
+        auto& contexts = current.Contexts.Get();
         for (Context& context : contexts)
         {
             const bool selected = context.Name.Get() == selectedContext; 
@@ -195,18 +195,18 @@ void Input::Manager::DrawDebugPanel()
             Context c;
             c.Name = "Unnamed";
             contexts.push_back(c);
-            Current.UpdateCache(); 
+            current.UpdateCache(); 
         }
         ImGui::EndListBox();
     }
     
     if (!selectedContext.empty())
     {
-        const auto find = Current.CachedContexts.find(selectedContext);
-        if (find != Current.CachedContexts.end())
+        const auto find = current.CachedContexts.find(selectedContext);
+        if (find != current.CachedContexts.end())
         {
             ImGui::SeparatorText("Context");
-            Context& context = Current.Contexts.Get()[find->second];
+            Context& context = current.Contexts.Get()[find->second];
             context.Name.Edit();
             context.Blocking.Edit();
             context.CursorVisible.Edit(); 
@@ -280,7 +280,7 @@ void Input::Manager::DrawDebugPanel()
                 action.Deadzone.Edit(1);
 
                 String state;
-                switch (action.Current)
+                switch (action._Current)
                 {
                 case State::UP:
                     state = "UP";
@@ -296,7 +296,7 @@ void Input::Manager::DrawDebugPanel()
                     break;
                 }
                 ImGui::Text("State: %s", state.c_str());
-                ImGui::Text("Axis: %s", Utility::ToStr(action.Value).c_str());
+                ImGui::Text("Axis: %s", Utility::ToStr(action.value).c_str());
             }
         }
     }
@@ -304,13 +304,13 @@ void Input::Manager::DrawDebugPanel()
 
 void Input::Manager::UpdateCursorState()
 {
-    CHECK_RETURN(ContextStack.empty());
+    CHECK_RETURN(contextStack.empty());
     
     const auto md = GetMouseDelta(); 
-    MouseDelta += Vec2F( md.x, md.y );
+    mouseDelta += Vec2F( md.x, md.y );
     
     // Refresh cursor visibility
-    auto& context = GetContext(ContextStack.back());
+    auto& context = GetContext(contextStack.back());
     if (context.CursorVisible == IsCursorHidden())
     {
         if (context.CursorVisible)
@@ -329,7 +329,7 @@ void Input::Manager::UpdateCursorState()
 
 const Input::Context& Input::Manager::GetContext(const String& InName) const
 {
-    const auto contextFind = Current.CachedContexts.find(InName);
-    CHECK_ASSERT(contextFind == Current.CachedContexts.end(), "Unknown context");
-    return Current.Contexts.Get()[contextFind->second];
+    const auto contextFind = current.CachedContexts.find(InName);
+    CHECK_ASSERT(contextFind == current.CachedContexts.end(), "Unknown context");
+    return current.Contexts.Get()[contextFind->second];
 }

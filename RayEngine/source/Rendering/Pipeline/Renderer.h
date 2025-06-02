@@ -19,19 +19,19 @@ namespace Rendering
 
     struct Perspective
     {
-        Vec4F ReferenceRect = {};
-        Vec4I TargetRect = {};
-        CameraInstance Camera = {};
+        Vec4F referenceRect = {};
+        Vec4I targetRect = {};
+        CameraInstance camera = {};
     };
     
     struct RenderArgs
     {
-        const Scene* ScenePtr = nullptr;
-        const Context* ContextPtr = nullptr;
-        Viewport* ViewportPtr = nullptr;
-        Lumin* LuminPtr = nullptr;
-        Lights* LightsPtr = nullptr;
-        Vector<Perspective> Perspectives = {};
+        const Scene* scenePtr = nullptr;
+        const Context* contextPtr = nullptr;
+        Viewport* viewportPtr = nullptr;
+        Lumin* luminPtr = nullptr;
+        Lights* lightsPtr = nullptr;
+        Vector<Perspective> perspectives = {};
     };
     
     class Renderer
@@ -51,8 +51,8 @@ namespace Rendering
     private:
         static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, int InType, int InCount = 1);
         static void SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue);
-        static void SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount = 1);
-        static void SetValue(ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue);
+        static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount = 1);
+        static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue);
 
         static void SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget);
         static void SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader);

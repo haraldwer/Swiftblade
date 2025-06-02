@@ -15,16 +15,16 @@ void ECS::Movement::Init()
     if (Engine::Instance::Get().IsEditor())
         return;
     
-    StateMachine = new MovementStateMachine();
-    StateMachine->Init();
+    stateMachine = new MovementStateMachine();
+    stateMachine->Init();
 }
 
 void ECS::Movement::Deinit()
 {
-    if (StateMachine)
+    if (stateMachine)
     {
-        StateMachine->Deinit();
-        StateMachine = nullptr;
+        stateMachine->Deinit();
+        stateMachine = nullptr;
     }
 }
 
@@ -35,21 +35,21 @@ void ECS::Movement::Update()
     
     GroundSnap();
 
-    if (StateMachine)
-        StateMachine->Update();
+    if (stateMachine)
+        stateMachine->Update();
 }
 
 void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
 {
-    CHECK_RETURN(InContact.IsTrigger);
-    CHECK_RETURN(OnGround);
+    CHECK_RETURN(InContact.isTrigger);
+    CHECK_RETURN(onGround);
     CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
-    for (auto& point : InContact.Points)
+    for (auto& point : InContact.points)
     {
-        if (CheckGroundHit(point.Normal))
+        if (CheckGroundHit(point.normal))
         {
-            OnGround = true;
-            GroundTimestamp = GetTime(); 
+            onGround = true;
+            groundTimestamp = GetTime(); 
             break;
         }
     }
@@ -86,8 +86,8 @@ bool ECS::Movement::Move(const Vec2F& InInput, const MoveParams& InParams) const
     Vec3F forceVec = Vec3F(vec.x, 0.0f, vec.y); 
 
     // Project vec to PlaneNormal if set
-    if (InParams.PlaneNormal.Length() > 0.1f)
-        forceVec = Utility::Math::Plane(InParams.PlaneNormal).Project(forceVec);
+    if (InParams.planeNormal.Length() > 0.1f)
+        forceVec = Utility::Math::Plane(InParams.planeNormal).Project(forceVec);
     
     rb.AddForce(forceVec);
     return true;
@@ -99,12 +99,12 @@ void ECS::Movement::Jump(const JumpParams& InParams)
     const Vec3F vel = rb.GetVelocity() * Vec3F(1.0f, 0.0f, 1.0f);
     const Vec3F newVel = vel +
         Vec3F::Up() * InParams.UpVelocity.Get() +
-        InParams.Direction * InParams.DirectionalForce.Get(); 
+        InParams.direction * InParams.DirectionalForce.Get(); 
     rb.SetVelocity(newVel);
-    if (OnGround)
+    if (onGround)
     {
-        OnGround = false;
-        GroundTimestamp = GetTime(); 
+        onGround = false;
+        groundTimestamp = GetTime(); 
     }
     LOG("Jump"); 
 }
@@ -141,8 +141,8 @@ void ECS::Movement::VelocityClamp(double InDelta, const VelocityClampParams& InP
 
 void ECS::Movement::SetCrouch(bool InCrouch, const CrouchParams& InParams)
 {
-    CHECK_RETURN(InCrouch == Crouching);
-    Crouching = InCrouch;
+    CHECK_RETURN(InCrouch == crouching);
+    crouching = InCrouch;
 
     // Retain velocity
     auto& rb = GetRB();
@@ -172,23 +172,23 @@ void ECS::Movement::SetCrouch(bool InCrouch, const CrouchParams& InParams)
 
 double ECS::Movement::TimeSinceJump() const
 {
-    CHECK_ASSERT(!StateMachine, "Invalid ptr");
-    const auto jumpState = StateMachine->GetState<MovementStateJump>();
+    CHECK_ASSERT(!stateMachine, "Invalid ptr");
+    const auto jumpState = stateMachine->GetState<MovementStateJump>();
     CHECK_ASSERT(!jumpState, "Missing jump state");
     return jumpState->GetTimeSinceEnter();
 }
 
 double ECS::Movement::TimeSinceLeftGround() const
 {
-    return GetTime() - GroundTimestamp; 
+    return GetTime() - groundTimestamp; 
 }
 
 void ECS::Movement::GroundSnap()
 {
-    CHECK_RETURN(!OnGround);
+    CHECK_RETURN(!onGround);
     CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
 
-    OnGround = false;
+    onGround = false;
     
     constexpr bool debugDraw = false; 
     
@@ -220,8 +220,8 @@ void ECS::Movement::GroundSnap()
             if (CheckGroundHit(hit.Normal))
             {
                 // Set location
-                OnGround = true;
-                GroundTimestamp = GetTime(); 
+                onGround = true;
+                groundTimestamp = GetTime(); 
     
                 const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.Distance; 
                 transform.SetPosition(newPos);

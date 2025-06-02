@@ -10,14 +10,14 @@ void PlayerStateMachine::Init()
     StateMachine::Init();
 }
 
-bool PlayerStateMachine::Edit(const String& InName, uint32 InOffset)
+bool PlayerStateMachine::Edit(const String& InName, const uint32 InOffset)
 {
     String current = "Current: ";
-    if (auto s = GetCurrentState())
+    if (const auto s = GetCurrentState())
         current += s->GetName();
     ImGui::Text(current.c_str());
     bool edited = false;
-    for (StateBase* s : States)
+    for (StateBase* s : states)
     {
         String str = String("-- ") + s->GetName() + String(" --");
         if (ImGui::CollapsingHeader(str.c_str()))
@@ -37,7 +37,7 @@ bool PlayerStateMachine::Edit(const String& InName, uint32 InOffset)
 
 void PlayerStateMachine::CustomSerialize(SerializeObj& InOutObj) const
 {
-    for (StateBase* s : States)
+    for (const StateBase* s : states)
     {
         InOutObj.Key(s->GetName().c_str());
         s->SerializeState(InOutObj);
@@ -46,7 +46,7 @@ void PlayerStateMachine::CustomSerialize(SerializeObj& InOutObj) const
 
 bool PlayerStateMachine::CustomDeserialize(const DeserializeObj& InObj)
 {
-    for (StateBase* s : States)
+    for (StateBase* s : states)
     {
         String name = s->GetName();
         if (InObj.HasMember(name.c_str()) && InObj[name.c_str()].IsObject())

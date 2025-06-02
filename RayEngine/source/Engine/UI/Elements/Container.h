@@ -16,6 +16,6 @@ namespace UI
 
     protected:
         void RefreshRect(const Rect& InContainer) override;
-        Vector<ObjectPtr<Element>> Elements = {};
+        Vector<ObjectPtr<Element>> elements = {};
     };
 }

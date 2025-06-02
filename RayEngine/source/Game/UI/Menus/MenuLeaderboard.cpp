@@ -37,7 +37,7 @@ void MenuLeaderboard::Init()
      for (auto& entry : entries)
           addEntry(entry); 
 
-     UI = builder.Build(); 
+     ui = builder.Build(); 
 }
 
 void MenuLeaderboard::Update()

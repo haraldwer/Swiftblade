@@ -5,39 +5,39 @@ namespace Utility
     // This class is responsible for tracking refences
     struct BaseRef
     {
-        uint32 Count;
-        uint32 WeakCount; 
-        BaseRef() : Count(1), WeakCount(0) {}
+        uint32 count;
+        uint32 weakCount; 
+        BaseRef() : count(1), weakCount(0) {}
         virtual void destroy() = 0;
         virtual ~BaseRef() = default;
 
         // A map that tracks existing pointers
-        inline static Map<void*, BaseRef*> Refs;
+        inline static Map<void*, BaseRef*> refs;
     };
 
     template <class T>
     struct RefImpl : BaseRef
     {
-        T* Ptr = nullptr;
-        RefImpl(T* InPtr) : Ptr(InPtr) {}
+        T* ptr = nullptr;
+        RefImpl(T* InPtr) : ptr(InPtr) {}
         ~RefImpl() override = default;
         
         // Find in map or create
         static RefImpl* Get(T* InPtr)
         {
-            auto find = Refs.find(InPtr);
-            if (find != Refs.end() && find->second)
+            auto find = refs.find(InPtr);
+            if (find != refs.end() && find->second)
                 return reinterpret_cast<RefImpl*>(find->second);
             RefImpl* ptr = new RefImpl(InPtr);
-            Refs[InPtr] = ptr;
+            refs[InPtr] = ptr;
             return ptr;
         }
 
         // Remove from map and destroy
         void destroy() override
         {
-            Refs.erase(Ptr);
-            delete Ptr;
+            refs.erase(ptr);
+            delete ptr;
         }
     };
 
@@ -52,14 +52,14 @@ namespace Utility
     public:
 
         ObjectPtr() = default;
-        ObjectPtr(T* InPtr) : Ptr(InPtr), Ref(RefImpl<T>::Get(InPtr)) { }
-        ObjectPtr(const ObjectPtr& s) : Ptr(s.Ptr), Ref(s.Ref) { Increment(); }
-        ObjectPtr(ObjectPtr&& s) noexcept
+        ObjectPtr(T* InPtr) : ptr(InPtr), ref(RefImpl<T>::Get(InPtr)) { }
+        ObjectPtr(const ObjectPtr& InS) : ptr(InS.Ptr), ref(InS.Ref) { Increment(); }
+        ObjectPtr(ObjectPtr&& InS) noexcept
         {
-            Ptr = s.Ptr;
-            Ref = s.Ref;
-            s.Ptr = nullptr;
-            s.Ref = nullptr;
+            ptr = InS.Ptr;
+            ref = InS.Ref;
+            InS.Ptr = nullptr;
+            InS.Ref = nullptr;
         }
         ~ObjectPtr() { Decrement(); }
 
@@ -68,51 +68,51 @@ namespace Utility
             if (this->Ref == InPtr.Ref)
                 return *this;
             Decrement();
-            Ref = InPtr.Ref;
-            Ptr = InPtr.Ptr;
+            ref = InPtr.Ref;
+            ptr = InPtr.Ptr;
             Increment();
             return *this;
         }
         
         // Getters
-        T* Get() const { return Ptr; }
-        T* operator->() const { return Ptr; }
+        T* Get() const { return ptr; }
+        T* operator->() const { return ptr; }
         T& operator*() const
         {
-            CHECK_ASSERT(!Ptr, "Dereference invalid ptr");
-            return *Ptr;
+            CHECK_ASSERT(!ptr, "Dereference invalid ptr");
+            return *ptr;
         }
-        operator bool() const { return Ptr; }
+        operator bool() const { return ptr; }
             
-        uint32 RefCount() const { return Ref ? Ref->Count : 0; }
-        uint32 WeakRefCount() const { return Ref ? Ref->WeakCount : 0; }
+        uint32 RefCount() const { return ref ? ref->count : 0; }
+        uint32 WeakRefCount() const { return ref ? ref->weakCount : 0; }
         
     private:
 
         void Increment() const
         {
-            if (Ref)
+            if (ref)
             {
-                Ref->Count++;
+                ref->count++;
             }
         }
         
         void Decrement() 
         {
-            if (!Ref)
+            if (!ref)
                 return; 
-            CHECK_ASSERT(Ref->Count == 0, "Negative ref count");
-            Ref->Count--; 
-            if (!Ref->Count && !Ref->WeakCount)
+            CHECK_ASSERT(ref->count == 0, "Negative ref count");
+            ref->count--; 
+            if (!ref->count && !ref->weakCount)
             { 
-                Ref->destroy();
-                delete Ref;
-                Ref = nullptr;
+                ref->destroy();
+                delete ref;
+                ref = nullptr;
             }
         }
         
-        T* Ptr = nullptr;
-        BaseRef* Ref = nullptr;
+        T* ptr = nullptr;
+        BaseRef* ref = nullptr;
     };
 
     // Weak counted, requires ObjectPtr
@@ -125,12 +125,12 @@ namespace Utility
 
         // Construct
         WeakPtr() = default;
-        WeakPtr(T* InPtr) : Ref(RefImpl<T>::Get(InPtr)) { Increment(); }
-        WeakPtr(const WeakPtr& InPtr) : Ref(InPtr.Ref) { Increment(); }
-        WeakPtr(const ObjectPtr<T>& InPtr) : Ref(InPtr.Ref) { Increment(); }
-        WeakPtr(WeakPtr&& InPtr) noexcept : Ref(InPtr.Ref)
+        WeakPtr(T* InPtr) : ref(RefImpl<T>::Get(InPtr)) { Increment(); }
+        WeakPtr(const WeakPtr& InPtr) : ref(InPtr.Ref) { Increment(); }
+        WeakPtr(const ObjectPtr<T>& InPtr) : ref(InPtr.Ref) { Increment(); }
+        WeakPtr(WeakPtr&& InPtr) noexcept : ref(InPtr.Ref)
         {
-            Ref = InPtr.Ref;
+            ref = InPtr.Ref;
             InPtr.Ref = nullptr;
         }
         ~WeakPtr() { Decrement(); }
@@ -140,7 +140,7 @@ namespace Utility
             if (this->Ref == InPtr.Ref)
                 return *this;
             Decrement();
-            Ref = InPtr.Ref;
+            ref = InPtr.Ref;
             Increment();
             return *this;
         }
@@ -148,9 +148,9 @@ namespace Utility
         // Getters
         T* Get() const
         {
-            if (!Ref || Ref->Count == 0)
+            if (!ref || ref->count == 0)
                 return nullptr; 
-            return reinterpret_cast<RefImpl<T>*>(Ref)->Ptr;
+            return reinterpret_cast<RefImpl<T>*>(ref)->Ptr;
         }
         T* operator->() const { return Get(); }
         T& operator*() const
@@ -161,32 +161,32 @@ namespace Utility
         }
         operator bool() const { return Get(); }
 
-        uint32 RefCount() const { return Ref ? Ref->Count : 0; }
-        uint32 WeakRefCount() const { return Ref ? Ref->WeakCount : 0; }
+        uint32 RefCount() const { return ref ? ref->count : 0; }
+        uint32 WeakRefCount() const { return ref ? ref->weakCount : 0; }
         
     private:
 
         void Increment() const
         {
-            if (Ref)
-                Ref->WeakCount++;
+            if (ref)
+                ref->weakCount++;
         }
         
         void Decrement() 
         {
-            if (!Ref)
+            if (!ref)
                 return; 
-            Ref->WeakCount--;
-            CHECK_ASSERT(Ref->WeakCount < 0, "Negative weak ref count");
-            if (!Ref->Count && !Ref->WeakCount)
+            ref->weakCount--;
+            CHECK_ASSERT(ref->weakCount < 0, "Negative weak ref count");
+            if (!ref->count && !ref->weakCount)
             {
-                Ref->destroy();
-                delete Ref;
-                Ref = nullptr;
+                ref->destroy();
+                delete ref;
+                ref = nullptr;
             }
         }
         
-        BaseRef* Ref = nullptr;
+        BaseRef* ref = nullptr;
     };
 
     // TODO: Scoped pointer

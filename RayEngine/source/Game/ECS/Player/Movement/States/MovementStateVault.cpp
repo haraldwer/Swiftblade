@@ -21,7 +21,7 @@ Type MovementStateVault::Check()
     if (IsCurrentState())
         return Type::None();
     
-    const Vec2F input = GetInput().MoveInput;
+    const Vec2F input = GetInput().moveInput;
     if (input.Length() < Deadzone)
         return Type::None();
     SweepDirection = Vec3F(input.x, 0.0f, input.y).GetNormalized();
@@ -45,19 +45,19 @@ Type MovementStateVault::Update()
     if (const auto air = GetState<MovementStateAir>())
         air->Update();
 
-    ECS::Rigidbody& rb = GetRB();
+    const ECS::Rigidbody& rb = GetRB();
     const Vec3F vel = rb.GetVelocity();
     if (vel.y < UpSpeed)
         rb.SetVelocity(Vec3F(vel.x, UpSpeed.Get(), vel.z));
 
     //Rendering::DebugSphere(LedgeLocation.y, 0.1f, BLUE);
     
-    const Vec2F input = GetInput().MoveInput;
+    const Vec2F input = GetInput().moveInput;
     if (input.Length() < Deadzone)
         return Type::Get<MovementStateIdle>();
 
-    Vec3F dir = Vec3F(input.x, 0.0f, input.y).GetNormalized();
-    float dot = Vec3F::Dot(dir, SweepDirection);
+    const Vec3F dir = Vec3F(input.x, 0.0f, input.y).GetNormalized();
+    const float dot = Vec3F::Dot(dir, SweepDirection);
     if (dot < InputDot)
         return Type::Get<MovementStateIdle>();
 

@@ -15,6 +15,6 @@ namespace ECS
         bool EditState() const;
 
     private:
-        ObjectPtr<CombatStateMachine> StateMachine;
+        ObjectPtr<CombatStateMachine> stateMachine;
     };
 }

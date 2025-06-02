@@ -55,17 +55,17 @@ namespace Utility
             
             void Bind(const std::function<void(const EventT&)>& InFunc, const CallbackT& InCallbackData = {})
             {
-                Bindings.push_back({ InFunc, InCallbackData }); 
+                bindings.push_back({ InFunc, InCallbackData }); 
             }
 
         private:
             struct Binding
             {
-                std::function<void(const EventT&)> Function;
-                CallbackT CallbackData;
+                std::function<void(const EventT&)> function;
+                CallbackT callbackData;
             };
             
-            Vector<Binding> Bindings; 
+            Vector<Binding> bindings; 
         };
         
         void Invoke(const EventT& InData)

@@ -6,36 +6,36 @@
 
 void Rendering::Viewport::Init(const ViewportConfig& InConfig)
 {
-    Config = InConfig;
+    config = InConfig;
 
-    CHECK_ASSERT(Config.Width <= 0 || Config.Height <= 0, "Invalid viewport size");
+    CHECK_ASSERT(config.Width <= 0 || config.Height <= 0, "Invalid viewport size");
     
-    const float aspect = static_cast<float>(Config.Width) / static_cast<float>(Config.Height);
-    const int virtualWidth = Config.RenderSize ?
-        static_cast<int>(static_cast<float>(Config.RenderSize) * aspect) : Config.Width; 
-    const int virtualHeight = Config.RenderSize ?
-        Config.RenderSize : Config.Height;
+    const float aspect = static_cast<float>(config.Width) / static_cast<float>(config.Height);
+    const int virtualWidth = config.RenderSize ?
+        static_cast<int>(static_cast<float>(config.RenderSize) * aspect) : config.Width; 
+    const int virtualHeight = config.RenderSize ?
+        config.RenderSize : config.Height;
 
-    if (!VirtualTarget)
-        VirtualTarget = new RenderTexture();
+    if (!virtualTarget)
+        virtualTarget = new RenderTexture();
     
-    if (VirtualTarget->texture.width == virtualWidth &&
-        VirtualTarget->texture.height == virtualHeight)
+    if (virtualTarget->texture.width == virtualWidth &&
+        virtualTarget->texture.height == virtualHeight)
         return;
 
-    UnloadRenderTexture(*VirtualTarget);
-    *VirtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
-    Targets.Init(*VirtualTarget);
+    UnloadRenderTexture(*virtualTarget);
+    *virtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
+    targets.Init(*virtualTarget);
 }
 
 void Rendering::Viewport::Deinit()
 {
-    if (VirtualTarget != nullptr)
+    if (virtualTarget != nullptr)
     {
-        if (IsRenderTextureValid(*VirtualTarget))
-            UnloadRenderTexture(*VirtualTarget);
-        delete (VirtualTarget);
-        VirtualTarget = nullptr;
+        if (IsRenderTextureValid(*virtualTarget))
+            UnloadRenderTexture(*virtualTarget);
+        delete (virtualTarget);
+        virtualTarget = nullptr;
     }
 }
 
@@ -44,47 +44,47 @@ void Rendering::Viewport::Resize(const Vec2I& InSize)
     const Vec2I viewSize = GetSize();
     if (InSize == viewSize)
         return;
-    Config.Width = InSize.x;
-    Config.Height = InSize.y;
+    config.Width = InSize.x;
+    config.Height = InSize.y;
     Deinit();
-    Init(Config);
+    Init(config);
 }
 
 void Rendering::Viewport::BeginFrame()
 {
     PROFILE_GL();
     // DT since last frame in this viewport
-    Delta = DeltaTimer.Ellapsed();
-    DeltaTimer = Utility::Timer();
-    ViewProjPrev = ViewProj;
+    delta = deltaTimer.Ellapsed();
+    deltaTimer = Utility::Timer();
+    viewProjPrev = viewProj;
 }
 
 void Rendering::Viewport::ResetPosition()
 {
-    Position = Vec2F::Zero();
+    position = Vec2F::Zero();
 }
 
 RenderTexture& Rendering::Viewport::GetVirtualTarget() const
 {
-    CHECK_ASSERT(!VirtualTarget, "Invalid target");
-    return *VirtualTarget;
+    CHECK_ASSERT(!virtualTarget, "Invalid target");
+    return *virtualTarget;
 }
 
 void Rendering::Viewport::ImDraw()
 {
     rlImGuiImageRect(
-        &VirtualTarget->texture,
-        Config.Width,
-        Config.Height,
+        &virtualTarget->texture,
+        config.Width,
+        config.Height,
         Rectangle{
             0, 0,
-            static_cast<float>(VirtualTarget->texture.width),
-            -static_cast<float>(VirtualTarget->texture.height)
+            static_cast<float>(virtualTarget->texture.width),
+            -static_cast<float>(virtualTarget->texture.height)
         });
 
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
     const ImVec2 windowPos = ImGui::GetWindowPos();
-    Position = {
+    position = {
         vMin.x + windowPos.x,
         vMin.y + windowPos.y
     };
@@ -93,15 +93,15 @@ void Rendering::Viewport::ImDraw()
 Vec2I Rendering::Viewport::GetResolution() const
 {
     return {
-        VirtualTarget->texture.width,
-        VirtualTarget->texture.height
+        virtualTarget->texture.width,
+        virtualTarget->texture.height
     };
 }
 
 Vec2I Rendering::Viewport::GetSize() const
 {
     return {
-        Config.Width,
-        Config.Height
+        config.Width,
+        config.Height
     };
 }

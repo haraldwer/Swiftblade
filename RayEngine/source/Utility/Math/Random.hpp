@@ -13,10 +13,10 @@ namespace Utility
 			return distribution(generator);
 		}
 
-		inline float RandomFloat(const float aMin, const float aMax)
+		inline float RandomFloat(const float InMin, const float InMax)
 		{
 			static std::default_random_engine generator;
-			std::uniform_real_distribution distribution(aMin, aMax);
+			std::uniform_real_distribution distribution(InMin, InMax);
 			return distribution(generator);
 		}
 

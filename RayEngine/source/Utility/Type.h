@@ -13,7 +13,7 @@ namespace Utility
     {
     public:
         Type() = default;
-        explicit Type(TypeHash InHash) : Hash(InHash) {}
+        explicit Type(const TypeHash InHash) : hash(InHash) {}
         virtual ~Type() = default;
 
         template <class T>
@@ -23,19 +23,19 @@ namespace Utility
         }
 
         // Convenience operators
-        bool operator==(const Type& InOther) const { return InOther.Hash == Hash; }
+        bool operator==(const Type& InOther) const { return InOther.hash == hash; }
         bool operator!() const { return *this == None(); }
         explicit operator bool() const { return !(*this == None()); };
         explicit operator TypeHash() const
         {
-            return Hash;
+            return hash;
         }
     
-        [[nodiscard]] TypeHash GetHash() const { return Hash; }
+        [[nodiscard]] TypeHash GetHash() const { return hash; }
         static Type None() { return {}; }
     
     private: 
-        TypeHash Hash = 0; 
+        TypeHash hash = 0; 
     };
 }
 

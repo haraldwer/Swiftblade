@@ -35,7 +35,7 @@ namespace ECS
 
     private:
         friend Physics::Manager;
-        physx::PxRigidDynamic* Ptr = nullptr; 
+        physx::PxRigidDynamic* ptr = nullptr; 
     };
 
     class SysRigidbody : public System<Rigidbody>

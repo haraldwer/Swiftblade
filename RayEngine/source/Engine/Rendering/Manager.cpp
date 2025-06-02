@@ -16,14 +16,14 @@
 
 void Rendering::Manager::Init()
 {
-    CurrConfig.LoadConfig();
-    QueuedConfig = CurrConfig;
+    currConfig.LoadConfig();
+    queuedConfig = currConfig;
     
-    Window.Open(CurrConfig.Window);
+    window.Open(currConfig.Window);
     PROFILE_GL_INIT();
     
-    MainViewport.Init(CurrConfig.Viewport);
-    DefaultContext.Init(CurrConfig.Context, CurrConfig.Lumin, true);
+    mainViewport.Init(currConfig.Viewport);
+    defaultContext.Init(currConfig.Context, currConfig.Lumin, true);
 
     rlImGuiSetup(false);
     ImGui::ThemeMoonlight();
@@ -33,32 +33,32 @@ void Rendering::Manager::Init()
 void Rendering::Manager::Deinit()
 {
     rlImGuiShutdown();
-    MainViewport.Deinit();
-    Window.Close();
+    mainViewport.Deinit();
+    window.Close();
 }
 
 void Rendering::Manager::Render(const Scene& InScene)
 {
     PROFILE_GL();
-    RenderArgs args {
-        .ScenePtr= &InScene,
-        .ContextPtr= &DefaultContext,
-        .ViewportPtr= &MainViewport,
-        .Perspectives = {{
-            .ReferenceRect= Vec4F(),
-            .TargetRect= Vec4I(),
-            .Camera= InScene.GetCamera()
+    const RenderArgs args {
+        .scenePtr= &InScene,
+        .contextPtr= &defaultContext,
+        .viewportPtr= &mainViewport,
+        .perspectives = {{
+            .referenceRect= Vec4F(),
+            .targetRect= Vec4I(),
+            .camera= InScene.GetCamera()
         }}
     };
-    MainViewport.BeginFrame();
+    mainViewport.BeginFrame();
 
     rlDrawRenderBatchActive();
-    rlState::Current.Reset();
-    Pipeline::Stats stats = DefaultPipeline.Render(args);
-    FrameViewer.SetStats(stats);
-    rlState::Current.Reset();
+    rlState::current.Reset();
+    const Pipeline::Stats stats = defaultPipeline.Render(args);
+    frameViewer.SetStats(stats);
+    rlState::current.Reset();
 
-    BeginTextureMode(MainViewport.GetVirtualTarget());
+    BeginTextureMode(mainViewport.GetVirtualTarget());
     rlEnableColorBlend();
     Menu::Manager::Get().Draw();
     EndTextureMode();
@@ -75,8 +75,8 @@ void Rendering::Manager::DrawDebugPanel()
     };
     if (size.x > 0 && size.y > 0)
     {
-        MainViewport.Resize(size);
-        MainViewport.ImDraw();
+        mainViewport.Resize(size);
+        mainViewport.ImDraw();
     }
 }
 
@@ -94,9 +94,9 @@ void Rendering::Manager::BeginFrame()
     else
     {
         rlClearScreenBuffers();
-        MainViewport.ResetPosition();
-        MainViewport.Resize(Window.GetSize());
-        Window.Draw(MainViewport.GetVirtualTarget().texture);
+        mainViewport.ResetPosition();
+        mainViewport.Resize(window.GetSize());
+        window.Draw(mainViewport.GetVirtualTarget().texture);
         if (!Debug::Manager::Get().Enabled())
             DrawFPS(10, 10);
     }
@@ -114,31 +114,31 @@ void Rendering::Manager::EndFrame()
     EndDrawing(); // Swap buffers
     PROFILE_GL_COLLECT();
     
-    if (CurrConfig != QueuedConfig)
-        ApplyConfig(QueuedConfig);
-    Window.CapFPS();
+    if (currConfig != queuedConfig)
+        ApplyConfig(queuedConfig);
+    window.CapFPS();
 }
 
 void Rendering::Manager::QueueConfig(const Config& InConfig)
 {
-    QueuedConfig = InConfig;
+    queuedConfig = InConfig;
 }
 
 void Rendering::Manager::ApplyConfig(const Config& InConfig)
 {
-    auto prev = CurrConfig;
-    CurrConfig = InConfig;
-    QueuedConfig = InConfig;
+    const auto prev = currConfig;
+    currConfig = InConfig;
+    queuedConfig = InConfig;
 
-    if (CurrConfig.Context != prev.Context || CurrConfig.Lumin != prev.Lumin)
-        DefaultContext.Init(CurrConfig.Context, CurrConfig.Lumin, true);
+    if (currConfig.Context != prev.Context || currConfig.Lumin != prev.Lumin)
+        defaultContext.Init(currConfig.Context, currConfig.Lumin, true);
 
-    if (CurrConfig.Viewport != prev.Viewport)
-        MainViewport.Init(CurrConfig.Viewport);
+    if (currConfig.Viewport != prev.Viewport)
+        mainViewport.Init(currConfig.Viewport);
 
-    if (CurrConfig.Window != prev.Window)
-        Window.Open(CurrConfig.Window);
+    if (currConfig.Window != prev.Window)
+        window.Open(currConfig.Window);
     
     LOG("Render config applied");
-    CurrConfig.SaveConfig();
+    currConfig.SaveConfig();
 }

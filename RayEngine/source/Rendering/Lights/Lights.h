@@ -14,11 +14,11 @@ namespace Rendering
     
     struct LightData
     {
-        LightInstance::InstanceData Data = {};
-        Vec3F Pos = {};
-        double Timestamp = 0;
-        uint32 ID = static_cast<uint32>(-1);
-        Vec4F Rect = {};
+        LightInstance::InstanceData data = {};
+        Vec3F pos = {};
+        double timestamp = 0;
+        uint32 id = static_cast<uint32>(-1);
+        Vec4F rect = {};
     };
     
     class Lights
@@ -29,16 +29,16 @@ namespace Rendering
         void Deinit();
         Pipeline::Stats Update(const RenderArgs& InArgs);
         Vector<const LightInstance*> GetLights(const RenderArgs& InArgs);
-        RenderTarget& GetShadowTarget() { return Target; }
+        RenderTarget& GetShadowTarget() { return target; }
         const LightData& GetData(uint32 InHash);
         
     private:
-        Map<uint32, LightData> Cache = {};
+        Map<uint32, LightData> cache = {};
         
-        LightConfig Config = {};
-        Viewport AtlasView = {};
-        AtlasMap Atlas = {};
-        RenderTarget Target = {};
-        LightPipeline Pipeline = {};
+        LightConfig config = {};
+        Viewport atlasView = {};
+        AtlasMap atlas = {};
+        RenderTarget target = {};
+        LightPipeline pipeline = {};
     };
 }

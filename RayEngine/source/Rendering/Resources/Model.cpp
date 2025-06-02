@@ -5,31 +5,31 @@
 
 bool ModelResource::Load(const String& InIdentifier)
 {
-    Ptr = new Model(); 
-    *Ptr = LoadModel(InIdentifier.c_str());
-    Identifier = InIdentifier;
-    CachedHash = Utility::Hash(Identifier);
+    ptr = new Model(); 
+    *ptr = LoadModel(InIdentifier.c_str());
+    identifier = InIdentifier;
+    cachedHash = Utility::Hash(identifier);
     return true;
 }
 
 bool ModelResource::Unload()
 {
-    if (Ptr)
+    if (ptr)
     {
-        UnloadModel(*Ptr);
-        delete Ptr;
-        Ptr = nullptr;
+        UnloadModel(*ptr);
+        delete ptr;
+        ptr = nullptr;
     }
-    CachedHash = 0;
+    cachedHash = 0;
     return true; 
 }
 
 Utility::Timepoint ModelResource::GetEditTime() const
 {
-    return Utility::GetFileWriteTime(Identifier);
+    return Utility::GetFileWriteTime(identifier);
 }
 
 uint32 ModelResource::Hash() const
 {
-    return CachedHash;
+    return cachedHash;
 }

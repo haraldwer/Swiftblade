@@ -14,10 +14,10 @@ namespace Menu
             PROFILE();
             UpdatePending();
             
-            CHECK_RETURN(Stack.empty());
-            for (int i = static_cast<int>(Stack.size()) - 1; i >= 0; i--)
+            CHECK_RETURN(stack.empty());
+            for (int i = static_cast<int>(stack.size()) - 1; i >= 0; i--)
             {
-                const auto ptr = Stack[i].Get();
+                const auto ptr = stack[i].Get();
                 CHECK_CONTINUE(!ptr);
                 ptr->Update();
                 if (ptr->IsBlocking())
@@ -28,10 +28,10 @@ namespace Menu
         void Draw() const
         {
             PROFILE();
-            CHECK_RETURN(Stack.empty());
-            for (int i = static_cast<int>(Stack.size()) - 1; i >= 0; i--)
+            CHECK_RETURN(stack.empty());
+            for (int i = static_cast<int>(stack.size()) - 1; i >= 0; i--)
             {
-                const auto ptr = Stack[i].Get();
+                const auto ptr = stack[i].Get();
                 CHECK_CONTINUE(!ptr);
                 ptr->Draw();
                 if (ptr->IsBlocking())
@@ -43,18 +43,18 @@ namespace Menu
         T* Push()
         {
             T* ptr = new T;
-            Pending.push_back(reinterpret_cast<Instance*>(ptr));
+            pending.push_back(reinterpret_cast<Instance*>(ptr));
             return ptr;
         }
 
         void Pop()
         {
-            Pending.emplace_back(nullptr); 
+            pending.emplace_back(nullptr); 
         }
 
         void Clear()
         {
-            for (auto s : Stack)
+            for (auto s : stack)
                 Pop();
             UpdatePending(); 
         }
@@ -63,26 +63,26 @@ namespace Menu
 
         void UpdatePending()
         {
-            for (auto p : Pending)
+            for (auto p : pending)
             {
                 if (p)
                 {
-                    Stack.push_back(p);
+                    stack.push_back(p);
                     p->Init();
                 }
                 else
                 {
-                    if (Instance* ptr = Stack.back().Get())
+                    if (Instance* ptr = stack.back().Get())
                         ptr->Deinit(); 
-                    Stack.pop_back(); 
+                    stack.pop_back(); 
                 }
             }
-            Pending.clear(); 
+            pending.clear(); 
         }
         
         // Menu stack!
-        Vector<ObjectPtr<Instance>> Stack = {};
-        Vector<ObjectPtr<Instance>> Pending = {};
+        Vector<ObjectPtr<Instance>> stack = {};
+        Vector<ObjectPtr<Instance>> pending = {};
         
     };
 }

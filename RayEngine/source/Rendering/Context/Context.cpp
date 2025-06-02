@@ -45,6 +45,6 @@ void Rendering::Context::Deinit()
         LightsPtr = nullptr;
     }
 
-    rlState::Current.Reset();
-    rlState::Current.Check();
+    rlState::current.Reset();
+    rlState::current.Check();
 }

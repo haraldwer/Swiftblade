@@ -15,22 +15,22 @@ void Rendering::FrameViewer::DrawDebugPanel()
         man.QueueConfig(c);
 
     int total = 0;
-    for (auto& entry : Stats.MeshDrawCount)
+    for (auto& entry : stats.meshDrawCount)
         total += entry.second;
     ImGui::Text("Meshes: %i", total);
-    ImGui::Text("Lights: %i", Stats.Lights);
-    ImGui::Text("Probes: %i", Stats.Probes);
-    ImGui::Text("Renders: %i", Stats.Renders);
-    ImGui::Text("Skyboxes: %i", Stats.Skyboxes);
-    ImGui::Text("Deferred passes: %i", Stats.DeferredDrawCount);
-    ImGui::Text("Fullscreen passes: %i", Stats.FullscreenPasses);
-    ImGui::Text("Debug shapes: %i", Stats.DebugDrawCount);
+    ImGui::Text("Lights: %i", stats.lights);
+    ImGui::Text("Probes: %i", stats.probes);
+    ImGui::Text("Renders: %i", stats.renders);
+    ImGui::Text("Skyboxes: %i", stats.skyboxes);
+    ImGui::Text("Deferred passes: %i", stats.deferredDrawCount);
+    ImGui::Text("Fullscreen passes: %i", stats.fullscreenPasses);
+    ImGui::Text("Debug shapes: %i", stats.debugDrawCount);
 
     if (ImGui::CollapsingHeader("Scene Targets"))
     {
-        for (auto& buff : man.MainViewport.GetTargets().GetNamed())
+        for (auto& buff : man.mainViewport.GetTargets().GetNamed())
         {
-            for (auto& tex : buff.second)
+            for (const auto& tex : buff.second)
             {
                 CHECK_ASSERT(!tex.Tex, "Tex nullptr")
                 
@@ -58,7 +58,7 @@ void Rendering::FrameViewer::DrawDebugPanel()
 
     if (ImGui::CollapsingHeader("Shadow Target"))
     {
-        if (auto l = man.DefaultContext.GetLights())
+        if (const auto l = man.defaultContext.GetLights())
         {
             for (auto& tex : l->GetShadowTarget().GetTextures())
             {
@@ -86,7 +86,7 @@ void Rendering::FrameViewer::DrawDebugPanel()
 
     if (ImGui::CollapsingHeader("Lumin Target"))
     {
-        if (auto l = man.DefaultContext.GetLumin())
+        if (const auto l = man.defaultContext.GetLumin())
         {
             for (auto& tex : l->GetProbeTarget().GetTextures())
             {

@@ -152,11 +152,11 @@ namespace Utility
 				}
 
 				// Compute the angle between the quaternions
-				float theta_0 = std::acos(dot);
-				float theta = theta_0 * InT;
+				const float theta_0 = std::acos(dot);
+				const float theta = theta_0 * InT;
 
 				// Compute the second quaternion
-				Quaternion q2_new = InB - InA * dot;
+				const Quaternion q2_new = InB - InA * dot;
 				q2_new.Normalize();
 
 				// Perform the slerp interpolation

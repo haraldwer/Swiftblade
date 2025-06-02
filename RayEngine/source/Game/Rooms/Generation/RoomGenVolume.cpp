@@ -5,41 +5,41 @@
 
 void RoomGenVolume::Clear()
 {
-    QueuedCoords.clear();
-    NextQueue.clear();
-    CheckedCoords.clear();
-    Result.clear();
-    VolumeDepth = 0;
+    queuedCoords.clear();
+    nextQueue.clear();
+    checkedCoords.clear();
+    result.clear();
+    volumeDepth = 0;
 }
 
 void RoomGenVolume::Init()
 {
-    CHECK_RETURN(!Owner);
-    for (const Coord& c : Owner->PathGen.GetPath())
-        QueuedCoords.push_back({c.Key, c.Key}); 
+    CHECK_RETURN(!owner);
+    for (const Coord& c : owner->pathGen.GetPath())
+        queuedCoords.push_back({c.Key, c.Key}); 
 }
 
 void RoomGenVolume::TryQueueEntry(const Coord InNewCoord, const Coord InReference)
 {
-    if (CheckedCoords[InReference.Key].contains(InNewCoord.Key))
+    if (checkedCoords[InReference.Key].contains(InNewCoord.Key))
         return;
-    CheckedCoords[InReference.Key].insert(InNewCoord.Key); 
-    NextQueue[InNewCoord.Key] = InReference.Key;
+    checkedCoords[InReference.Key].insert(InNewCoord.Key); 
+    nextQueue[InNewCoord.Key] = InReference.Key;
 }
 
 bool RoomGenVolume::EvaluateCoord(const Coord InCoord, const Coord InReference, uint8& InOutValue)
 {
-    CHECK_RETURN(!Owner, false);
+    CHECK_RETURN(!owner, false);
     
     // Start and end
-    Coord front = Owner->PathGen.GetPath().front();
-    Coord back = Owner->PathGen.GetPath().back();
+    const Coord front = owner->pathGen.GetPath().front();
+    const Coord back = owner->pathGen.GetPath().back();
     if (InCoord.Pos.Z <= front.Pos.Z ||
         InCoord.Pos.Z >= back.Pos.Z)
     {
         if (InCoord.Pos.Z == front.Pos.Z || InCoord.Pos.Z == back.Pos.Z)
         {
-            Coord comp = InCoord.Pos.Z == front.Pos.Z ? front : back;
+            const Coord comp = InCoord.Pos.Z == front.Pos.Z ? front : back;
             if (InCoord.Pos.X - comp.Pos.X > 0 ||
                 InCoord.Pos.X - comp.Pos.X < -1 ||
                 InCoord.Pos.Y - comp.Pos.Y > 2 ||
@@ -54,8 +54,8 @@ bool RoomGenVolume::EvaluateCoord(const Coord InCoord, const Coord InReference, 
     }
 
     InOutValue = 1;
-    if (Result.contains(InCoord.Key))
-        InOutValue = Result[InCoord.Key];
+    if (result.contains(InCoord.Key))
+        InOutValue = result[InCoord.Key];
         
     // Entrance and exit ground cap
     bool checkHeight = true;
@@ -87,52 +87,52 @@ bool RoomGenVolume::EvaluateCoord(const Coord InCoord, const Coord InReference, 
 
 bool RoomGenVolume::Step()
 {
-    CHECK_RETURN(!Owner, true);
+    CHECK_RETURN(!owner, true);
     
-    auto& v = Owner->GetVolume();
+    auto& v = owner->GetVolume();
 
     for (int i = 0; i < 200; i++)
     {
-        if (QueuedCoords.empty())
+        if (queuedCoords.empty())
             break;
-        QueuedEntry entry = QueuedCoords.front();
-        QueuedCoords.erase(QueuedCoords.begin());
+        QueuedEntry entry = queuedCoords.front();
+        queuedCoords.erase(queuedCoords.begin());
         
         uint8 val = 0;
-        bool success = EvaluateCoord(entry.Coord, entry.Ref, val);
+        const bool success = EvaluateCoord(entry.coord, entry.ref, val);
 
-        uint8& existingValue = Result[entry.Coord];
+        uint8& existingValue = result[entry.coord];
         if (existingValue != val)
         {
             existingValue = val;
             if (val > 0)
-                v.Data[entry.Coord] = val;
-            else if (v.Data.contains(entry.Coord))
-                v.Data.erase(entry.Coord);
+                v.Data[entry.coord] = val;
+            else if (v.Data.contains(entry.coord))
+                v.Data.erase(entry.coord);
         }
 
         if (!success)
             continue;
 
-        for (Coord c : ECS::CubeVolume::GetNeighbors(entry.Coord))
+        for (const Coord c : ECS::CubeVolume::GetNeighbors(entry.coord))
             if (c.Key != 0)
-                TryQueueEntry(c, entry.Ref);
+                TryQueueEntry(c, entry.ref);
     }
 
-    if (QueuedCoords.empty())
+    if (queuedCoords.empty())
     {
-        for (auto& q : NextQueue)
-            QueuedCoords.push_back({q.first, q.second});
-        NextQueue.clear();
+        for (const auto& q : nextQueue)
+            queuedCoords.push_back({q.first, q.second});
+        nextQueue.clear();
         
-        VolumeDepth++;
+        volumeDepth++;
         v.UpdateCache(Mat4F());
     }
 
-    if (QueuedCoords.empty())
+    if (queuedCoords.empty())
     {
         v.Data.clear();
-        for (auto& val : Result)
+        for (auto& val : result)
             if (val.second > 0)
                 v.Data[val.first] = val.second;
         v.UpdateCache(Mat4F());

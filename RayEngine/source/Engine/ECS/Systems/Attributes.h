@@ -9,7 +9,7 @@ namespace ECS
     struct Attributes : Component<Attributes>
     {
         PROPERTY(String, Name);
-        ResBlueprint Blueprint; 
+        ResBlueprint blueprint; 
     };
 
     class SysAttributes : public System<Attributes>

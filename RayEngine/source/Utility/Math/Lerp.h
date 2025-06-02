@@ -7,9 +7,9 @@ namespace Utility
     namespace Math
     {
         template<class T, class F>
-        T Lerp(const T& a, const T& b, const F t)
+        T Lerp(const T& InA, const T& InB, const F InT)
         {
-            return a + (b - a) * Saturate(t);
+            return InA + (InB - InA) * Saturate(InT);
         }
     }
 }

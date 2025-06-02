@@ -33,12 +33,12 @@ private:
     void SaveRoom();
     
     // Editor stuff
-    RoomEditorConfig CurrConfig = {};
-    RoomSubEditorManager SubEditorManager = {}; 
+    RoomEditorConfig currConfig = {};
+    RoomSubEditorManager subEditorManager = {}; 
     
     // Scene stuff
-    SceneInstance Scene = {};
-    ECS::Manager ECS = {}; 
+    SceneInstance scene = {};
+    ECS::Manager ecs = {}; 
 
-    ObjectPtr<UI::Instance> UI = nullptr;
+    ObjectPtr<UI::Instance> ui = nullptr;
 };

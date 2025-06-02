@@ -5,7 +5,7 @@
 bool MaterialResource::Load(const String& InPath)
 {
     Identifier = InPath;
-    bool result = PropertyOwnerBase::Load(InPath);
+    const bool result = PropertyOwnerBase::Load(InPath);
     CachedHash = 0;
     CachedDeferredHash = 0;
     return result;

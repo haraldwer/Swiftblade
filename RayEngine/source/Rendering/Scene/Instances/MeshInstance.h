@@ -4,8 +4,8 @@
 
 struct MeshInstance
 {
-    ResModel Model;
-    ResRM Material;
-    Mat4F Transform;
-    float Extent = 1.0f;
+    ResModel model;
+    ResRM material;
+    Mat4F transform;
+    float extent = 1.0f;
 };

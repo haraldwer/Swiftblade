@@ -12,13 +12,13 @@ namespace Engine
         template <class T>
         T* Push()
         {
-            const int prevContext = Utility::SingeltonContext::Value;
+            const int prevContext = Utility::SingeltonContext::value;
             contextCount++;
             const int newContext = contextCount;
-            Utility::SingeltonContext::Value = newContext;
+            Utility::SingeltonContext::value = newContext;
             T* ptr = new T();
             Queue.push_back({newContext, ptr});
-            Utility::SingeltonContext::Value = prevContext; 
+            Utility::SingeltonContext::value = prevContext; 
             return ptr;
         }
 
@@ -43,7 +43,7 @@ namespace Engine
                 {
                     // Add
                     Stack.push_back(entry);
-                    Utility::SingeltonContext::Value = entry.Context; 
+                    Utility::SingeltonContext::value = entry.Context; 
                     entry.Ptr->Init();
                 }
                 else if (!Stack.empty())
@@ -56,13 +56,13 @@ namespace Engine
                         delete top.Ptr;
                     }
                     Stack.pop_back();
-                    Utility::SingeltonContext::Value = -1;
+                    Utility::SingeltonContext::value = -1;
 
                     // Set context
                     if (!Stack.empty())
                     {
                         const auto& newTop = Stack.back();
-                        Utility::SingeltonContext::Value = newTop.Context;
+                        Utility::SingeltonContext::value = newTop.Context;
                     }
                 }
             }

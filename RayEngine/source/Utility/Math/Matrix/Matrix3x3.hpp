@@ -24,71 +24,71 @@ namespace Utility
 				};
 			};
 
-			Type& operator()(const int aRow, const int aColumn)
+			Type& operator()(const int InRow, const int InColumn)
 			{
-				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
+				return elements[(InRow - RowOffset)][(InColumn - ColumnOffset)];
 			}
 
-			const Type& operator()(const int aRow, const int aColumn) const
+			const Type& operator()(const int InRow, const int InColumn) const
 			{
-				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
+				return elements[(InRow - RowOffset)][(InColumn - ColumnOffset)];
 			}
 
-			Matrix3x3 operator + (const Matrix3x3& aMatrix) const
+			Matrix3x3 operator + (const Matrix3x3& InMatrix) const
 			{
-				Matrix3x3 new_matrix;
+				Matrix3x3 newMatrix;
 				for (unsigned int row = 0; row < 3; ++row)
 				{
 					for (unsigned int column = 0; column < 3; ++column)
 					{
-						new_matrix.elements[row][column] = elements[row][column] + aMatrix.elements[row][column];
+						newMatrix.elements[row][column] = elements[row][column] + InMatrix.elements[row][column];
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 
-			Matrix3x3& operator += (const Matrix3x3& aMatrix)
+			Matrix3x3& operator += (const Matrix3x3& InMatrix)
 			{
 				for (unsigned int row = 0; row < 3; ++row)
 				{
 					for (unsigned int column = 0; column < 3; ++column)
 					{
-						elements[row][column] += aMatrix.elements[row][column];
-					}
-				}
-				return *this;
-			}
-
-
-			Matrix3x3 operator - (const Matrix3x3& aMatrix) const
-			{
-				Matrix3x3 new_matrix;
-				for (unsigned int row = 0; row < 3; ++row)
-				{
-					for (unsigned int column = 0; column < 3; ++column)
-					{
-						new_matrix.elements[row][column] = elements[row][column] - aMatrix.elements[row][column];
-					}
-				}
-				return new_matrix;
-			}
-
-			Matrix3x3& operator -= (const Matrix3x3& aMatrix)
-			{
-				for (unsigned int row = 0; row < 3; ++row)
-				{
-					for (unsigned int column = 0; column < 3; ++column)
-					{
-						elements[row][column] -= aMatrix.elements[row][column];
+						elements[row][column] += InMatrix.elements[row][column];
 					}
 				}
 				return *this;
 			}
 
 
-			Matrix3x3 operator * (const Matrix3x3& aMatrix) const
+			Matrix3x3 operator - (const Matrix3x3& InMatrix) const
 			{
-				Matrix3x3 new_matrix;
+				Matrix3x3 newMatrix;
+				for (unsigned int row = 0; row < 3; ++row)
+				{
+					for (unsigned int column = 0; column < 3; ++column)
+					{
+						newMatrix.elements[row][column] = elements[row][column] - InMatrix.elements[row][column];
+					}
+				}
+				return newMatrix;
+			}
+
+			Matrix3x3& operator -= (const Matrix3x3& InMatrix)
+			{
+				for (unsigned int row = 0; row < 3; ++row)
+				{
+					for (unsigned int column = 0; column < 3; ++column)
+					{
+						elements[row][column] -= InMatrix.elements[row][column];
+					}
+				}
+				return *this;
+			}
+
+
+			Matrix3x3 operator * (const Matrix3x3& InMatrix) const
+			{
+				Matrix3x3 newMatrix;
 				for (unsigned int row = 0; row < 3; ++row)
 				{
 					for (unsigned int column = 0; column < 3; ++column)
@@ -96,35 +96,35 @@ namespace Utility
 						Type total = 0.0f;
 						for (int index = 0; index < 3; ++index)
 						{
-							total += elements[row][index] * aMatrix.elements[index][column];
+							total += elements[row][index] * InMatrix.elements[index][column];
 						}
 
-						new_matrix.elements[row][column] = total;
+						newMatrix.elements[row][column] = total;
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 
-			Matrix3x3& operator *= (const Matrix3x3& aMatrix)
+			Matrix3x3& operator *= (const Matrix3x3& InMatrix)
 			{
-				return ((*this) = (*this) * aMatrix);
+				return ((*this) = (*this) * InMatrix);
 			}
 
-			Matrix3x3& operator = (const Matrix3x3& aMatrix)
+			Matrix3x3& operator = (const Matrix3x3& InMatrix)
 			{
 				for (int index = 0; index < 9; ++index)
 				{
-					data[index] = aMatrix.data[index];
+					data[index] = InMatrix.data[index];
 				}
 
 				return *this;
 			}
 
-			bool operator == (const Matrix3x3& aMatrix) const
+			bool operator == (const Matrix3x3& InMatrix) const
 			{
 				for (int index = 0; index < 9; ++index)
 				{
-					if (data[index] != aMatrix.data[index])
+					if (data[index] != InMatrix.data[index])
 					{
 						return false;
 					}
@@ -134,24 +134,24 @@ namespace Utility
 			}
 
 			// Static functions for creating rotation matrices.
-			static Matrix3x3 CreateRotationAroundX(Type aAngleInRadians)
+			static Matrix3x3 CreateRotationAroundX(Type InAngleInRadians)
 			{
-				Matrix3x3 new_matrix;
-				Type cos_angle = std::cos(aAngleInRadians);
-				Type sin_angle = std::sin(aAngleInRadians);
+				Matrix3x3 newMatrix;
+				Type cosAngle = std::cos(InAngleInRadians);
+				Type sinAngle = std::sin(InAngleInRadians);
 
-				new_matrix.elements[0][0] = 1.0f;
-				new_matrix.elements[0][1] = 0.0f;
-				new_matrix.elements[0][2] = 0.0f;
+				newMatrix.elements[0][0] = 1.0f;
+				newMatrix.elements[0][1] = 0.0f;
+				newMatrix.elements[0][2] = 0.0f;
 
-				new_matrix.elements[1][0] = 0.0f;
-				new_matrix.elements[1][1] = cos_angle;
-				new_matrix.elements[1][2] = sin_angle;
+				newMatrix.elements[1][0] = 0.0f;
+				newMatrix.elements[1][1] = cosAngle;
+				newMatrix.elements[1][2] = sinAngle;
 
-				new_matrix.elements[2][0] = 0.0f;
-				new_matrix.elements[2][1] = -sin_angle;
-				new_matrix.elements[2][2] = cos_angle;
-				return new_matrix;
+				newMatrix.elements[2][0] = 0.0f;
+				newMatrix.elements[2][1] = -sinAngle;
+				newMatrix.elements[2][2] = cosAngle;
+				return newMatrix;
 			}
 
 			static Matrix3x3 CreateRotationAroundY(Type aAngleInRadians)
@@ -174,38 +174,38 @@ namespace Utility
 				return new_matrix;
 			}
 
-			static Matrix3x3 CreateRotationAroundZ(Type aAngleInRadians)
+			static Matrix3x3 CreateRotationAroundZ(Type InAngleInRadians)
 			{
-				Matrix3x3 new_matrix;
-				Type cos_angle = std::cos(aAngleInRadians);
-				Type sin_angle = std::sin(aAngleInRadians);
+				Matrix3x3 newMatrix;
+				Type cosAngle = std::cos(InAngleInRadians);
+				Type sinAngle = std::sin(InAngleInRadians);
 
-				new_matrix.elements[0][0] = cos_angle;
-				new_matrix.elements[0][1] = sin_angle;
-				new_matrix.elements[0][2] = 0.0f;
+				newMatrix.elements[0][0] = cosAngle;
+				newMatrix.elements[0][1] = sinAngle;
+				newMatrix.elements[0][2] = 0.0f;
 				
-				new_matrix.elements[1][0] = -sin_angle;
-				new_matrix.elements[1][1] = cos_angle;
-				new_matrix.elements[1][2] = 0.0f;
+				newMatrix.elements[1][0] = -sinAngle;
+				newMatrix.elements[1][1] = cosAngle;
+				newMatrix.elements[1][2] = 0.0f;
 				
-				new_matrix.elements[2][0] = 0.0f;
-				new_matrix.elements[2][1] = 0.0f;
-				new_matrix.elements[2][2] = 1.0f;
-				return new_matrix;
+				newMatrix.elements[2][0] = 0.0f;
+				newMatrix.elements[2][1] = 0.0f;
+				newMatrix.elements[2][2] = 1.0f;
+				return newMatrix;
 			}
 
 			// Static function for creating a transpose of a matrix.
-			static Matrix3x3 Transpose(const Matrix3x3& aMatrixToTranspose)
+			static Matrix3x3 Transpose(const Matrix3x3& InMatrixToTranspose)
 			{
-				Matrix3x3 new_matrix;
+				Matrix3x3 newMatrix;
 				for (unsigned int row = 0; row < 3; ++row)
 				{
 					for (unsigned int column = 0; column < 3; ++column)
 					{
-						new_matrix.elements[row][column] = aMatrixToTranspose.elements[column][row];
+						newMatrix.elements[row][column] = InMatrixToTranspose.elements[column][row];
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 			
 			Matrix3x3() 
@@ -223,36 +223,36 @@ namespace Utility
 				elements[2][2] = 1.0f;
 			}
 
-			Matrix3x3(const Matrix3x3& aMatrix)
+			Matrix3x3(const Matrix3x3& InMatrix)
 			{
-				elements[0][0] = aMatrix.elements[0][0];
-				elements[0][1] = aMatrix.elements[0][1];
-				elements[0][2] = aMatrix.elements[0][2];
+				elements[0][0] = InMatrix.elements[0][0];
+				elements[0][1] = InMatrix.elements[0][1];
+				elements[0][2] = InMatrix.elements[0][2];
 
-				elements[1][0] = aMatrix.elements[1][0];
-				elements[1][1] = aMatrix.elements[1][1];
-				elements[1][2] = aMatrix.elements[1][2];
+				elements[1][0] = InMatrix.elements[1][0];
+				elements[1][1] = InMatrix.elements[1][1];
+				elements[1][2] = InMatrix.elements[1][2];
 
-				elements[2][0] = aMatrix.elements[2][0];
-				elements[2][1] = aMatrix.elements[2][1];
-				elements[2][2] = aMatrix.elements[2][2];
+				elements[2][0] = InMatrix.elements[2][0];
+				elements[2][1] = InMatrix.elements[2][1];
+				elements[2][2] = InMatrix.elements[2][2];
 			}
 		};
 
-		template<typename Type, int row_offset, int column_offset>
-		Vector3<Type> operator * (Vector3<Type> aVector, Matrix3x3<Type, row_offset, column_offset> aMatrix)
+		template<typename Type, int RowOffset, int ColumnOffset>
+		Vector3<Type> operator * (Vector3<Type> InVector, Matrix3x3<Type, RowOffset, ColumnOffset> InMatrix)
 		{
-			Vector3<Type> new_vector;
+			Vector3<Type> newVector;
 			for (unsigned int column = 0; column < 3; ++column)
 			{
 				Type total = 0.0f;
-				total += aVector.x * aMatrix.elements[0][column];
-				total += aVector.y * aMatrix.elements[1][column];
-				total += aVector.z * aMatrix.elements[2][column];
-				new_vector[column] = total;
+				total += InVector.x * InMatrix.elements[0][column];
+				total += InVector.y * InMatrix.elements[1][column];
+				total += InVector.z * InMatrix.elements[2][column];
+				newVector[column] = total;
 			}
 
-			return new_vector;
+			return newVector;
 		}
 
 	}

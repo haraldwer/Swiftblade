@@ -19,22 +19,22 @@ namespace Utility
     bool RemoveButton(uint32 InOffset);
     void Separator();
 
-    inline bool Edit(const String& InName, bool& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, bool& InOutData, const uint32 InOffset = 0)
     {
         return ImGui::Checkbox(GetEditName(InName, InOffset).c_str(), &InOutData);
     }
 
-    inline bool Edit(const String& InName, float& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, float& InOutData, const uint32 InOffset = 0)
     {
         return ImGui::InputFloat(GetEditName(InName, InOffset).c_str(), &InOutData);
     }
 
-    inline bool Edit(const String& InName, int32& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, int32& InOutData, const uint32 InOffset = 0)
     {
         return ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &InOutData);
     }
 
-    inline bool Edit(const String& InName, uint8& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, uint8& InOutData, const uint32 InOffset = 0)
     {
         int i = InOutData;
         const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
@@ -42,7 +42,7 @@ namespace Utility
         return result; 
     }
 
-    inline bool Edit(const String& InName, uint32& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, uint32& InOutData, const uint32 InOffset = 0)
     {
         int i = static_cast<int>(InOutData);
         const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
@@ -50,7 +50,7 @@ namespace Utility
         return result; 
     }
 
-    inline bool Edit(const String& InName, uint64& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, uint64& InOutData, const uint32 InOffset = 0)
     {
         int i = static_cast<int>(InOutData);
         const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
@@ -58,22 +58,22 @@ namespace Utility
         return result; 
     }
 
-    inline bool Edit(const String& InName, Vec2F& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, Vec2F& InOutData, const uint32 InOffset = 0)
     {
         return ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
     }
 
-    inline bool Edit(const String& InName, Vec3F& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, Vec3F& InOutData, const uint32 InOffset = 0)
     {
         return ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
     }
 
-    inline bool Edit(const String& InName, Vec4F& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, Vec4F& InOutData, const uint32 InOffset = 0)
     {
         return ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
     }
 
-    inline bool Edit(const String& InName, QuatF& InOutData, uint32 InOffset = 0)
+    inline bool Edit(const String& InName, QuatF& InOutData, const uint32 InOffset = 0)
     {
         Vec3F euler = InOutData.Euler();
         euler *= Math::RadiansToDegrees(1.0f);
@@ -91,9 +91,9 @@ namespace Utility
         return false; 
     }
 
-    inline bool Edit(const String& InName, String& InOutData, uint32 InOffset)
+    inline bool Edit(const String& InName, String& InOutData, const uint32 InOffset)
     {
-        String copy = InOutData;
+        const String copy = InOutData;
         ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
         return InOutData != copy;
     }
@@ -105,7 +105,7 @@ namespace Utility
     }
     
     template <class T>
-    bool Edit(const String& InName, Vector<T>& InOutData, uint32 InOffset = 0)
+    bool Edit(const String& InName, Vector<T>& InOutData, const uint32 InOffset = 0)
     {
         bool edited = false; 
         if (BeginSection(InName))

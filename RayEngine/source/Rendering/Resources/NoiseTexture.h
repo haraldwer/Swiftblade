@@ -37,9 +37,9 @@ private:
     void Generate();
     void Generate(Color* InData, int InResolution);
     
-    ResTexture Tex = {};
-    String Identifier = {};
-    bool EditorOpen = false;
+    ResTexture tex = {};
+    String identifier = {};
+    bool editorOpen = false;
 };
 
 typedef Resource::Ref<NoiseTextureResource, true> ResNoiseTex;

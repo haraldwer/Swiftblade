@@ -11,7 +11,7 @@ struct BaseConfig : PropertyOwner<T>
 
     bool Edit(const String& InName = "", uint32 InOffset = 0) override
     {
-        bool result = PropertyOwner<T>::Edit(InName, InOffset);
+        const bool result = PropertyOwner<T>::Edit(InName, InOffset);
         if (Utility::Button("Save", InOffset))
             SaveConfig();
         Utility::SameLine();

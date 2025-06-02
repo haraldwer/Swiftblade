@@ -21,24 +21,24 @@ namespace Rendering
         void ResetPerspective();
         void ResetFrame();
         void ResetMesh();
-        
-        void Check();
+
+        static void Check();
         
     private:
         
-        Map<int, TextureCommand> Textures = {};
-        Map<int, UniformCommand> Uniforms = {};
+        Map<int, TextureCommand> textures = {};
+        Map<int, UniformCommand> uniforms = {};
         
-        ShaderCommand Shader = {};
-        FrameCommand Frame = {};
-        PerspectiveCommand Perspective = {};
+        ShaderCommand shader = {};
+        FrameCommand frame = {};
+        PerspectiveCommand perspective = {};
 
-        uint32 VBO = static_cast<uint32>(-1);
+        uint32 vbo = static_cast<uint32>(-1);
     };
 
     struct rlState
     {
-        inline static State Current = {};
+        inline static State current = {};
     };
     
 }

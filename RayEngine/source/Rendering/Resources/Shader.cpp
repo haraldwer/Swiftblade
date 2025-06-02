@@ -9,7 +9,7 @@
 
 ShaderResource::ShaderResource()
 {
-    for (auto& l : DefaultLocs)
+    for (auto& l : defaultLocs)
         l = -1;
 }
 
@@ -17,8 +17,8 @@ bool ShaderResource::Load(const String& InIdentifier)
 {
     PROFILE_GL();
     
-    Identifier = InIdentifier;
-    Ptr = new Shader();
+    identifier = InIdentifier;
+    ptr = new Shader();
     
     // TODO: Load individual shaders
     // Compile shader variations
@@ -29,10 +29,10 @@ bool ShaderResource::Load(const String& InIdentifier)
         if (!Utility::FileExists(InIdentifier))
             return false; 
         const String vsFile = "Shaders/SH_Fullscreen.vs";
-        const String vsCode = LoadShaderFile(vsFile, VSIncludes);
-        const String fsCode = LoadShaderFile(InIdentifier, FSIncludes);
-        *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
-        CHECK_RETURN_LOG(!IsShaderValid(*Ptr), "Compile failed. fs: " +  InIdentifier + " vs: " + vsFile, true);
+        const String vsCode = LoadShaderFile(vsFile, vsIncludes);
+        const String fsCode = LoadShaderFile(InIdentifier, fsIncludes);
+        *ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
+        CHECK_RETURN_LOG(!IsShaderValid(*ptr), "Compile failed. fs: " +  InIdentifier + " vs: " + vsFile, true);
     }
     else
     {
@@ -45,12 +45,12 @@ bool ShaderResource::Load(const String& InIdentifier)
         const String fsDefault = "Shaders/SH_Default.fs";
         const String vsFile = Utility::FileExists(vs) ? vs : vsDefault;
         const String fsFile = Utility::FileExists(fs) ? fs : fsDefault;
-        const String vsCode = LoadShaderFile(vsFile, VSIncludes);
-        const String fsCode = LoadShaderFile(fsFile, FSIncludes);
-        *Ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
-        CHECK_RETURN_LOG(!IsShaderValid(*Ptr), "Compile failed. fs: " +  fsFile + " vs: " + vsFile, true);
-        Ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*Ptr, "mvp");
-        Ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*Ptr, "instanceTransform");
+        const String vsCode = LoadShaderFile(vsFile, vsIncludes);
+        const String fsCode = LoadShaderFile(fsFile, fsIncludes);
+        *ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
+        CHECK_RETURN_LOG(!IsShaderValid(*ptr), "Compile failed. fs: " +  fsFile + " vs: " + vsFile, true);
+        ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*ptr, "mvp");
+        ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*ptr, "instanceTransform");
     }
     
     LoadDefaultLocs();
@@ -60,40 +60,40 @@ bool ShaderResource::Load(const String& InIdentifier)
 
 bool ShaderResource::Unload()
 {
-    if (Ptr)
-        UnloadShader(*Ptr);
-    delete Ptr;
-    Ptr = nullptr;
-    FSIncludes.clear();
-    VSIncludes.clear();
-    Locations.clear();
+    if (ptr)
+        UnloadShader(*ptr);
+    delete ptr;
+    ptr = nullptr;
+    fsIncludes.clear();
+    vsIncludes.clear();
+    locations.clear();
     return true;
 }
 
 Utility::Timepoint ShaderResource::GetEditTime() const
 {
-    if (Defines != Rendering::Manager::Get().GetConfig().Context.Get().GlobalDefines.Get())
+    if (defines != Rendering::Manager::Get().GetConfig().Context.Get().GlobalDefines.Get())
         return std::chrono::high_resolution_clock::now();
     
     Utility::Timepoint max = Utility::Timepoint::min(); 
-    for (String path : FSIncludes)
+    for (String path : fsIncludes)
         max = Utility::Math::Max(max, Utility::GetFileWriteTime(path));
-    for (String path : VSIncludes)
+    for (String path : vsIncludes)
         max = Utility::Math::Max(max, Utility::GetFileWriteTime(path));
     return  max;
 }
 
 Shader* ShaderResource::Get() const
 {
-    if (Ptr && IsShaderValid(*Ptr))
-        return Ptr;
-    if (Identifier.ends_with(".ds"))
+    if (ptr && IsShaderValid(*ptr))
+        return ptr;
+    if (identifier.ends_with(".ds"))
     {
         if (const auto defaultShader = ResShader("Shaders/SH_Default.ds").Get())
             if (defaultShader != this)
                 return defaultShader->Get();
     }
-    else if (Identifier.ends_with(".ps"))
+    else if (identifier.ends_with(".ps"))
     {
         return nullptr;
     }
@@ -111,33 +111,33 @@ int ShaderResource::GetLocation(const String& InValue)
     PROFILE_GL();
     const Shader* ptr = Get();
     CHECK_RETURN(!ptr, -1);
-    const auto find = Locations.find(InValue);
-    if (find != Locations.end())
+    const auto find = locations.find(InValue);
+    if (find != locations.end())
         return find->second;
-    const int loc = rlGetLocationUniform(Ptr->id, InValue.c_str());
-    Locations[InValue] = loc; 
+    const int loc = rlGetLocationUniform(ptr->id, InValue.c_str());
+    locations[InValue] = loc; 
     return loc; 
 }
 
 int ShaderResource::GetLocation(const DefaultLoc& InLoc) const
 {
-    return DefaultLocs[static_cast<size_t>(InLoc)];
+    return defaultLocs[static_cast<size_t>(InLoc)];
 }
 
 void ShaderResource::LoadDefaultLocs()
 {
     PROFILE_GL_GPU("Default unform locations");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::TIME)] = rlGetLocationUniform(Ptr->id, "Time");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::DELTA)] = rlGetLocationUniform(Ptr->id, "Delta");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::RESOLUTION)] = rlGetLocationUniform(Ptr->id, "Resolution");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ)] = rlGetLocationUniform(Ptr->id, "ViewProj");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ_PREV)] = rlGetLocationUniform(Ptr->id, "ViewProjPrev");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ_INV)] = rlGetLocationUniform(Ptr->id, "ViewProjInv");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::RECT)] = rlGetLocationUniform(Ptr->id, "Rect");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::REF_RECT)] = rlGetLocationUniform(Ptr->id, "RefRect");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::CAMERA_POSITION)] = rlGetLocationUniform(Ptr->id, "CameraPosition");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::NEAR_FAR)] = rlGetLocationUniform(Ptr->id, "NearFar");
-    DefaultLocs[static_cast<size_t>(DefaultLoc::DEFERRED_ID)] = rlGetLocationUniform(Ptr->id, "DeferredID");
+    defaultLocs[static_cast<size_t>(DefaultLoc::TIME)] = rlGetLocationUniform(ptr->id, "Time");
+    defaultLocs[static_cast<size_t>(DefaultLoc::DELTA)] = rlGetLocationUniform(ptr->id, "Delta");
+    defaultLocs[static_cast<size_t>(DefaultLoc::RESOLUTION)] = rlGetLocationUniform(ptr->id, "Resolution");
+    defaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ)] = rlGetLocationUniform(ptr->id, "ViewProj");
+    defaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ_PREV)] = rlGetLocationUniform(ptr->id, "ViewProjPrev");
+    defaultLocs[static_cast<size_t>(DefaultLoc::VIEW_PROJ_INV)] = rlGetLocationUniform(ptr->id, "ViewProjInv");
+    defaultLocs[static_cast<size_t>(DefaultLoc::RECT)] = rlGetLocationUniform(ptr->id, "Rect");
+    defaultLocs[static_cast<size_t>(DefaultLoc::REF_RECT)] = rlGetLocationUniform(ptr->id, "RefRect");
+    defaultLocs[static_cast<size_t>(DefaultLoc::CAMERA_POSITION)] = rlGetLocationUniform(ptr->id, "CameraPosition");
+    defaultLocs[static_cast<size_t>(DefaultLoc::NEAR_FAR)] = rlGetLocationUniform(ptr->id, "NearFar");
+    defaultLocs[static_cast<size_t>(DefaultLoc::DEFERRED_ID)] = rlGetLocationUniform(ptr->id, "DeferredID");
 }
 
 String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InIncludes)
@@ -219,11 +219,11 @@ String ShaderResource::ProcessDefines(const String& InShaderCode)
     
     String result = InShaderCode;
     auto c = Rendering::Manager::Get().GetConfig();
-    Defines = c.Context.Get().GlobalDefines;
+    defines = c.Context.Get().GlobalDefines;
 
     // Offset for #version
-    auto verStart = result.find_first_of("#version");
-    auto verEnd = result.find_first_of('\n', verStart);
+    const auto verStart = result.find_first_of("#version");
+    const auto verEnd = result.find_first_of('\n', verStart);
     for (auto& def : c.Context.Get().GlobalDefines.Get())
         if (!def.empty())
             result.insert(verEnd + 1, "\n#define " + def + "\n");
@@ -234,8 +234,8 @@ String ShaderResource::ProcessDefines(const String& InShaderCode)
     Set<String> defines;
     std::function foundDefine = [&](const String& InFindStr) -> String
     {
-        auto start = InFindStr.find_first_not_of(' ');
-        auto end = InFindStr.find_last_not_of(' ');
+        const auto start = InFindStr.find_first_not_of(' ');
+        const auto end = InFindStr.find_last_not_of(' ');
         defines.insert(InFindStr.substr(start, end - start));
         return "";
     };
@@ -244,13 +244,13 @@ String ShaderResource::ProcessDefines(const String& InShaderCode)
     std::function foundIfdef = [&](const String& InFindStr) -> String
     {
         String str = InFindStr;
-        bool negated = InFindStr.starts_with("ndef");
+        const bool negated = InFindStr.starts_with("ndef");
         if (negated)
             str = str.substr(4);
-        
-        auto defEnd = str.find_first_of('\n');
-        auto defStart = str.find_first_not_of(' ');
-        String def = str.substr(defStart, defEnd - defStart);
+
+        const auto defEnd = str.find_first_of('\n');
+        const auto defStart = str.find_first_not_of(' ');
+        const String def = str.substr(defStart, defEnd - defStart);
         
         if (defines.contains(def) != negated)
             return str.substr(defEnd);

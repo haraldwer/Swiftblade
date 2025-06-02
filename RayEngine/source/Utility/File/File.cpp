@@ -11,14 +11,14 @@ void Utility::SetWorkingDir()
         String file = curr.filename().string();
         curr = curr.parent_path();
     }
-    std::filesystem::path newDir = curr.concat("/content");
+    const std::filesystem::path newDir = curr.concat("/content");
     LOG("Setting working directory to \"" + newDir.string() + "\"");
     std::filesystem::current_path(newDir); 
 }
 
 String Utility::ReadFile(const String& InPath)
 {
-    constexpr std::size_t read_size = 4096;
+    constexpr std::size_t readSize = 4096;
     auto stream = std::ifstream(InPath.c_str());
     stream.exceptions(std::ios_base::badbit);
 
@@ -27,8 +27,8 @@ String Utility::ReadFile(const String& InPath)
     }
     
     auto out = std::string();
-    auto buf = std::string(read_size, '\0');
-    while (stream.read(buf.data(), read_size))
+    auto buf = std::string(readSize, '\0');
+    while (stream.read(buf.data(), readSize))
         out.append(buf, 0, stream.gcount());
     out.append(buf, 0, stream.gcount());
 

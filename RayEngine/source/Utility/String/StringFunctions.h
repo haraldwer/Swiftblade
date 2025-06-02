@@ -8,10 +8,10 @@ namespace Utility
             return InStr;
         
         String result = InStr;
-        size_t start_pos = 0;
-        while((start_pos = result.find(InSearch, start_pos)) != std::string::npos) {
-            result.replace(start_pos, InSearch.length(), InRep);
-            start_pos += InRep.length();
+        size_t startPos = 0;
+        while((startPos = result.find(InSearch, startPos)) != std::string::npos) {
+            result.replace(startPos, InSearch.length(), InRep);
+            startPos += InRep.length();
         }
         return result;
     }

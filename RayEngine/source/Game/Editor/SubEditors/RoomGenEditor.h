@@ -21,10 +21,10 @@ public:
     void Enter() override;
     
 private:
-    ObjectPtr<UI::Instance> UI = nullptr;
-    ECS::EntityID StartEntity = ECS::InvalidID;
-    ECS::EntityID EndEntity = ECS::InvalidID;
-    int Seed = 0;
+    ObjectPtr<UI::Instance> ui = nullptr;
+    ECS::EntityID startEntity = ECS::INVALID_ID;
+    ECS::EntityID endEntity = ECS::INVALID_ID;
+    int seed = 0;
 
     enum class GenerationStage : uint8
     {
@@ -32,12 +32,12 @@ private:
         VOLUME,
         PROPPING,
         FINISHED
-    } CurrentStage = GenerationStage::PATH;
+    } currentStage = GenerationStage::PATH;
     
     RoomGenBase* GetCurrentStage();
     void SetStage(GenerationStage InStage);
 
-    RoomGenPath PathGen = {};
-    RoomGenVolume VolumeGen = {};
-    RoomGenProps PropsGen = {};
+    RoomGenPath pathGen = {};
+    RoomGenVolume volumeGen = {};
+    RoomGenProps propsGen = {};
 };

@@ -45,7 +45,7 @@ namespace ECS
 
         ComponentID Translate(EntityID InID) const;
         
-        Map<EntityID, ComponentID> Translation;
-        Vector<ComponentID> Unused;
+        Map<EntityID, ComponentID> translation;
+        Vector<ComponentID> unused;
     };
 }

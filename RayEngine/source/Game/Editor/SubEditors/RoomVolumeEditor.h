@@ -12,7 +12,7 @@ public:
 
 private:
     
-    uint32 PlaceStart = 0;
-    bool Placing = false;
-    Coord LastTrace = 0;
+    uint32 placeStart = 0;
+    bool placing = false;
+    Coord lastTrace = 0;
 };

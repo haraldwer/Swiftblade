@@ -18,20 +18,20 @@ namespace Utility
 	{
 		Change() = default; 
 		Change(
-			const std::function<void(const T& Data)>& InDo,
-			const std::function<void(const T& Data)>& InUndo,
+			const std::function<void(const T& InData)>& InDo,
+			const std::function<void(const T& InData)>& InUndo,
 			const T& InData = T()) :
-			DoFunc(InDo),
-			UndoFunc(InUndo),
-			Data(InData) {}
+			doFunc(InDo),
+			undoFunc(InUndo),
+			data(InData) {}
 
-		void Do() override { DoFunc(Data); }
-		void Undo() override { UndoFunc(Data); }
+		void Do() override { DoFunc(data); }
+		void Undo() override { UndoFunc(data); }
 
 	private: 
-		std::function<void(const T& Data)> DoFunc = {};
-		std::function<void(const T& Data)> UndoFunc = {};
-		T Data = {};
+		std::function<void(const T& InData)> doFunc = {};
+		std::function<void(const T& InData)> undoFunc = {};
+		T data = {};
 	};
 
 	class History 
@@ -54,7 +54,7 @@ namespace Utility
 		
 	private:
 		void AddChangeInternal(const ObjectPtr<ChangeBase>& InChange);
-		std::vector<ObjectPtr<ChangeBase>> Changes = {};
-		size_t ChangeIndex = 0;
+		std::vector<ObjectPtr<ChangeBase>> changes = {};
+		size_t changeIndex = 0;
 	};
 }

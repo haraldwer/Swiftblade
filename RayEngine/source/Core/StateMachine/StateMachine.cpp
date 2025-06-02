@@ -7,17 +7,17 @@
 
 void StateMachine::Init()
 {
-	for (StateBase* state : States)
+	for (StateBase* state : states)
 	{
 		CHECK_CONTINUE(!state);
 		Utility::Type type = state->GetType(); 
-		TypeMap[type.GetHash()] = state;
+		typeMap[type.GetHash()] = state;
 		if (type == GetDefaultStateType())
 			SetState(type);
 	}
 
 	// Sort states by priority
-	std::ranges::sort(States.begin(), States.end(), [](const StateBase* InFirst, const StateBase* InSecond)
+	std::ranges::sort(states.begin(), states.end(), [](const StateBase* InFirst, const StateBase* InSecond)
 	{
 		if (InFirst && InSecond)
 			return InFirst->Priority() < InSecond->Priority();
@@ -25,7 +25,7 @@ void StateMachine::Init()
 	});
 
 	// Init
-	for (StateBase* state : States)
+	for (StateBase* state : states)
 	{
 		CHECK_CONTINUE(!state)
 		state->SetOwner(this); 
@@ -35,7 +35,7 @@ void StateMachine::Init()
 
 void StateMachine::Deinit()
 {
-	for (StateBase* state: States)
+	for (StateBase* state: states)
 		if (state)
 			state->Deinit();
 }
@@ -47,7 +47,7 @@ void StateMachine::Update()
 	// Check conditions for every state
 	// Prioritize later states
 	Utility::Type nextState = Utility::Type::None();
-	for (StateBase* state : States)
+	for (StateBase* state : states)
 	{
 		CHECK_CONTINUE_LOG(!state, "Invalid state ptr");
 		if (const Utility::Type newStateType = state->Check())
@@ -67,29 +67,29 @@ void StateMachine::Update()
 bool StateMachine::SetState(const Utility::Type& InType)
 {
 	CHECK_RETURN(!InType, false);
-	CHECK_RETURN(InType == CurrentState, false)
+	CHECK_RETURN(InType == currentState, false)
 
-	const Type prevState = CurrentState;
+	const Type prevState = currentState;
 
 	// When exiting previous state, current state should be new state
-	CurrentState = InType; 
+	currentState = InType; 
 	if (const auto currentState = GetState(prevState))
 		currentState->Exit();
 
 	// When entering new state, current state should be previous state
-	CurrentState = prevState;
+	currentState = prevState;
 	if (const auto newState = GetState(InType))
 		newState->Enter();
 
 	// Finally set current state
-	CurrentState = InType; 
+	currentState = InType; 
 	return true;
 }
 
 bool StateMachine::TryOverrideState(const Utility::Type& InType)
 {
 	CHECK_RETURN(!InType, false);
-	CHECK_RETURN(InType == CurrentState, false);
+	CHECK_RETURN(InType == currentState, false);
 	const auto currentState = GetCurrentState();
 	const auto newState = GetState(InType);
 	
@@ -104,7 +104,7 @@ bool StateMachine::TryOverrideState(const Utility::Type& InType)
 StateBase* StateMachine::GetState(const Utility::Type& InType) const
 {
 	CHECK_RETURN(!InType, nullptr);
-	for (StateBase* state : States)
+	for (StateBase* state : states)
 		if (state)
 			if (state->GetType() == InType)
 				return state;
