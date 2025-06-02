@@ -9,7 +9,7 @@ String Resource::Base::Pick(const String& InLabel, const String& InID)
     String substr = find == String::npos ? InLabel : InLabel.substr(0, find);
     if (!substr.empty())
     {
-        ImGui::Text((substr + ": ").c_str());
+        ImGui::Text("%s: ", substr.c_str());
         ImGui::SameLine(); 
     }
     if (ImGui::Button((InID + "##" + InLabel).c_str()))

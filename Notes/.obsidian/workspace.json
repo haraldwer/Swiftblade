@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/0 - Basic Enemy.md",
+                "file": "Planning/Timeline.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0 - Basic Enemy"
+              "title": "Timeline"
             }
           }
         ]
@@ -165,11 +165,20 @@
   },
   "active": "1fc93849a5de3ca6",
   "lastOpenFiles": [
+    "Planning/Testing.md",
+    "Planning/Timeline.md",
+    "Planning/Release.md",
+    "Planning/Conditions.md",
+    "Planning/Game Creation Process.md",
+    "Milestones/Milestone 5 (Dec 27).md",
+    "Pipelines/Logic.md",
+    "Pipelines/Content.md",
+    "Pipelines/Administrative.md",
+    "Tasks/0 - Basic Enemy.md",
     "Tasks/0 - Combat state machine.md",
     "Tasks/0 - Enemy spawner.md",
     "Tasks/0 - Collision masks.md",
     "Tasks/0 - Arena editing.md",
-    "Tasks/0 - Basic Enemy.md",
     "Tasks/0 - Score.md",
     "Tasks/1 - Fire shader.md",
     "Tasks/Archive/0 - Default shading.md",
@@ -182,15 +191,6 @@
     "Tasks/Archive/0 - Brick material.md",
     "Tasks/Archive/0 - Room generation.md",
     "Tasks/1 - Improved editor UI.md",
-    "Tasks/Archive/0 - Editor workflow.md",
-    "Design/Editor Workflow.md",
-    "Tasks/2 - Child overrides.md",
-    "Tasks/2 - Child property serialization issue.md",
-    "Tasks/2 - Enum properties.md",
-    "Tasks/Archive/2 - Remove deltas everywhere.md",
-    "Tasks/Archive/1 - Optimize renderscene gathering.md",
-    "Tasks/1 - Inline resource editing.md",
-    "Tasks/0 - Object switching in object edit mode.md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

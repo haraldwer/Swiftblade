@@ -12,7 +12,7 @@ namespace Rendering
         struct TargetTex
         {
             Texture* Tex = {};
-            String Name; 
+            String Name = {}; 
             bool Cubemap = false;
         };
         
@@ -30,7 +30,7 @@ namespace Rendering
     private: 
         
         uint32 FrameBuffer = 0;
-        Vector<TargetTex> Textures;
+        Vector<TargetTex> Textures = {};
 
         int Width = 0;
         int Height = 0;

@@ -5,9 +5,9 @@
 #include "ImGui/imgui.h"
 #include "Utility/Memory/Pointers.h"
 
-void ReferenceViewer::DrawDebugWindow()
+void ReferenceViewer::DrawDebugPanel()
 {
-    ImGui::Text(("Total references: " + std::to_string(Utility::BaseRef::Refs.size())).c_str()); 
+    ImGui::Text("Total references: %i", static_cast<int>(Utility::BaseRef::Refs.size())); 
 
     if (ImGui::BeginTable("References", 3, ImGuiTableFlags_Borders))
     {
@@ -25,9 +25,9 @@ void ReferenceViewer::DrawDebugWindow()
             ImGui::Text("Ref");
             ImGui::TableNextColumn();
             CHECK_CONTINUE(!res.second); 
-            ImGui::Text(std::to_string(res.second->Count).c_str());
+            ImGui::Text("%i", res.second->Count);
             ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(res.second->WeakCount).c_str());
+            ImGui::Text("%i", res.second->WeakCount);
         }
         ImGui::EndTable(); 
     }

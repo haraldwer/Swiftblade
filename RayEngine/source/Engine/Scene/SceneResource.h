@@ -6,8 +6,8 @@
 struct SceneInstance
 {
     void Destroy();
-    Set<ECS::EntityID> Entities;
-    Mat4F Offset;
+    Set<ECS::EntityID> Entities = {};
+    Mat4F Offset = {};
 };
 
 class SceneResource
@@ -24,8 +24,8 @@ public:
     
 protected:
     
-    DocumentObj Doc; 
-    String Identifier;
+    DocumentObj Doc = {}; 
+    String Identifier = {};
 };
 
 typedef Resource::Ref<SceneResource> ResScene;

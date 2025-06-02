@@ -21,6 +21,6 @@ namespace DB
         void OnWriteFailed(const Nakama::NError& InError);
         void OnWriteSuccess(const Nakama::NStorageObjectAcks& InRpc);
         
-        BlobData Data;
+        BlobData Data = {};
     };    
 }

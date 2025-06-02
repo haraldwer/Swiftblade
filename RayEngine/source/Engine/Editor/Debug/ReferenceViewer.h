@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "Core/Debug/Window.h"
+#include "Core/Debug/Panel.h"
 
-class ReferenceViewer : public Debug::Window
+class ReferenceViewer : public Debug::Panel
 {
-    String DebugWindowName() const override { return "Reference Viewer"; }
-    void DrawDebugWindow() override;
+    String DebugPanelName() const override { return "Reference Viewer"; }
+    void DrawDebugPanel() override;
 };

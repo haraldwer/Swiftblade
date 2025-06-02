@@ -26,8 +26,8 @@ public:
 
 private:
 
-    DocumentObj Doc;
-    String Identifier;
+    DocumentObj Doc = {};
+    String Identifier = {};
     
 };
 

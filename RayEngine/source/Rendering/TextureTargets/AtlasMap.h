@@ -21,13 +21,13 @@ namespace Rendering
             int Index = -1;
         };
         
-        Map<uint64, Face> Slots;
-        Vector<int> Available; 
+        Map<uint64, Face> Slots = {};
+        Vector<int> Available = {}; 
 
         int SlotResolution = 0;
         int AxisSlots = 0;
         bool Cubemap = false;
-        Utility::Timer Timer;
+        Utility::Timer Timer = {};
     };
 }
 

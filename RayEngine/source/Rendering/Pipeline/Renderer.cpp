@@ -675,7 +675,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
-    auto& scene = *InArgs.Scene;
+    auto& scene = *InArgs.ScenePtr;
     if (scene.DebugShapes.Empty())
         return 0;
 

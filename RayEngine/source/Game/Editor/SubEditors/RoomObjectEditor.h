@@ -43,8 +43,8 @@ private:
     // Placed objects
     struct ObjectData
     {
-        Vec3F Position;
-        Vec3F Rotation;
+        Vec3F Position = {};
+        Vec3F Rotation = {};
         int ObjectType = -1;
         ECS::EntityID ID = ECS::InvalidID;
     };
@@ -53,13 +53,13 @@ private:
     void RemovePlacedObject(uint32 InKey);
     uint32 GetKey(const Vec3F& InPos) const; 
     ObjectData GetPlacedObjectData(uint32 InKey) const;
-    Map<uint32, ObjectData> PlacedObjects;
+    Map<uint32, ObjectData> PlacedObjects = {};
 
     // Creation
     ECS::EntityID CreateObject(int InIndex, const Mat4F& InMat) const;
     
-    RoomObjectEditorConfig Config; 
+    RoomObjectEditorConfig Config = {}; 
     
-    Vec3F TargetRot;
-    Vec3F TargetPos; 
+    Vec3F TargetRot = {};
+    Vec3F TargetPos = {}; 
 };

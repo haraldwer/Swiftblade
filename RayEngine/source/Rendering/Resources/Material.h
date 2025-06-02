@@ -24,7 +24,7 @@ private:
 
     uint32 CachedHash = 0;
     uint32 CachedDeferredHash = 0;
-    String Identifier; 
+    String Identifier = {}; 
     
 };
 

@@ -144,20 +144,20 @@ namespace Physics
         {
             PROFILE();
             
-            const auto func = [](const Contact& InContact, Contact::Event InEvent)
+            const auto func = [](const Contact& InCont, const Contact::Event InEv)
             {
                 // Invoke callback on all systems
                 for (auto& sys : ECS::Manager::Get().GetAllSystems())
                 {
                     CHECK_ASSERT(!sys.second, "System nullptr");
-                    CHECK_CONTINUE(!sys.second->Contains(InContact.Self))
-                    switch (InEvent)
+                    CHECK_CONTINUE(!sys.second->Contains(InCont.Self))
+                    switch (InEv)
                     {
                     case Contact::Event::BEGIN:
-                        sys.second->OnBeginContact(InContact);
+                        sys.second->OnBeginContact(InCont);
                         break;
                     case Contact::Event::END:
-                        sys.second->OnEndContact(InContact);
+                        sys.second->OnEndContact(InCont);
                         break;
                     }
                 }

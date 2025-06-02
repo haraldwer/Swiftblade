@@ -54,8 +54,8 @@ elseif (UNIX)
     -Wcast-align
     -Winit-self
     -Wuninitialized
-    -Weffc++
-    -Wfloat-equal
+    #-Weffc++
+    #-Wfloat-equal
     $<$<CONFIG:Release>:-O3>
     $<$<CONFIG:Release>:-Og>) # Highest level of optimization
   

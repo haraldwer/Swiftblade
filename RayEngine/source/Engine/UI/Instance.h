@@ -34,7 +34,7 @@ namespace UI
         }
         
     private:
-        Map<String, WeakPtr<Element>> NamedElements;
-        GlobalEvent<OnSetViewportSize>::Callback OnCreateVirtualTarget;
+        Map<String, WeakPtr<Element>> NamedElements = {};
+        GlobalEvent<OnSetViewportSize>::Callback OnCreateVirtualTarget = {};
     };
 }

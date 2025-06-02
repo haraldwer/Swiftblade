@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Core/Debug/Window.h"
+#include "Core/Debug/Panel.h"
 
 namespace Resource
 {
     struct Base;
     
-    class Manager : public Utility::Singelton<Manager, true>, public Debug::Window
+    class Manager : public Utility::Singelton<Manager, true>, public Debug::Panel
     {
     public:
 
@@ -16,15 +16,15 @@ namespace Resource
         void Update();
         void Deinit();
 
-        void DrawDebugWindow() override;
-        String DebugWindowName() const override { return "Resources"; }
+        void DrawDebugPanel() override;
+        String DebugPanelName() const override { return "Resources"; }
         
     private:
         void TryUnload() const;
         
-        Map<String, Base*> Resources;
-        Utility::Timer CheckTimer;
-        Vector<String> HotReloadQueue;
+        Map<String, Base*> Resources = {};
+        Utility::Timer CheckTimer = {};
+        Vector<String> HotReloadQueue = {};
         
         static constexpr float CheckInterval = 0.05f; 
         static constexpr int CheckNum = 1; 

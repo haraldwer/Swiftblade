@@ -18,7 +18,7 @@ namespace Rendering
         void Iterate() { Current = (Current + 1) % Targets.size(); }
         Vector<RenderTarget>& All() { return Targets; }
     private:
-        Vector<RenderTarget> Targets;
+        Vector<RenderTarget> Targets = {};
         int Current = 0;
     };
 }

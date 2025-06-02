@@ -37,12 +37,12 @@ public:
 private: 
     
     SubEditorMode Mode = SubEditorMode::PATH;
-    Utility::History History; // Shared history for all subeditors 
+    Utility::History History = {}; // Shared history for all subeditors 
     
-    RoomPathEditor PathEditor;
-    RoomGenEditor GenEditor;
-    RoomVolumeEditor VolumeEditor;
-    RoomObjectEditor ObjectEditor;
+    RoomPathEditor PathEditor = {};
+    RoomGenEditor GenEditor = {};
+    RoomVolumeEditor VolumeEditor = {};
+    RoomObjectEditor ObjectEditor = {};
     
     ECS::EntityID CubeVolume = ECS::InvalidID;
     RoomType Type = RoomType::ROOM; 

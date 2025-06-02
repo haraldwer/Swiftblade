@@ -85,8 +85,8 @@ namespace Engine
             int Context = -1;
             Instance* Ptr = nullptr; 
         };
-        Vector<Entry> Queue;
-        Vector<Entry> Stack;
+        Vector<Entry> Queue = {};
+        Vector<Entry> Stack = {};
         int contextCount = 0; 
         
     };

@@ -94,14 +94,14 @@ namespace Physics
         physx::PxScene* Scene = nullptr;
         Callback* Callback = nullptr; 
 
-        Map<ECS::EntityID, physx::PxRigidStatic*> Statics; 
-        Map<ECS::EntityID, physx::PxRigidDynamic*> Dynamics;
+        Map<ECS::EntityID, physx::PxRigidStatic*> Statics = {}; 
+        Map<ECS::EntityID, physx::PxRigidDynamic*> Dynamics = {};
         
-        Map<ECS::EntityID, physx::PxShape*> Shapes; 
-        Map<ECS::EntityID, Set<ECS::EntityID>> ActorToShape; 
-        Map<ECS::EntityID, ECS::EntityID> ShapeToActor;
+        Map<ECS::EntityID, physx::PxShape*> Shapes = {}; 
+        Map<ECS::EntityID, Set<ECS::EntityID>> ActorToShape = {}; 
+        Map<ECS::EntityID, ECS::EntityID> ShapeToActor = {};
 
         physx::PxRigidStatic* CubeOwner = nullptr;
-        Map<ECS::EntityID, Vector<physx::PxShape*>> CubeShapes;
+        Map<ECS::EntityID, Vector<physx::PxShape*>> CubeShapes = {};
     };
 }

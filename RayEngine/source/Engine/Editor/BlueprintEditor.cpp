@@ -71,7 +71,7 @@ void BlueprintEditor::Frame()
     Instance::Frame();
 }
 
-void BlueprintEditor::DrawDebugWindow()
+void BlueprintEditor::DrawDebugPanel()
 {
     if (Config.Blueprint.Edit())
         SetBP(Config.Blueprint);
@@ -192,7 +192,7 @@ void BlueprintEditor::EditComponents(ECS::EntityID InID)
     ImGui::Combo(Text("").c_str(), &currItem, newSystems);
     ImGui::SameLine(); 
     if (ImGui::Button(Text("Add").c_str()))
-        if (currItem >= 0 && currItem < newSystems.size())
+        if (currItem >= 0 && currItem < static_cast<int>(newSystems.size()))
             if (const auto sys = ECS.GetSystem(newSystems[currItem]))
                 sys->Register(InID);
 }

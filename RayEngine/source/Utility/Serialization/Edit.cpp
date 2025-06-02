@@ -11,7 +11,7 @@ String Utility::GetEditName(const String &InName, uint32 InOffset)
 
 bool Utility::BeginSection(const String& InName)
 {
-    ImGui::Text(InName.c_str());
+    ImGui::Text("%s", InName.c_str());
     return ImGui::BeginSection(true);
 }
 

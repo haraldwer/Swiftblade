@@ -71,12 +71,13 @@ namespace Context
 {
 	class ExampleClass
 	{
-		void Func(Var InParameter)
+		void Func(Var InParameter, Var& OutParameter)
 		{
-			Var variable
+			Var localVar;
+			OutParameter = someVariable.DoSomething();
 		}
 
-		Var Member;
+		Var _memberVar;
 	}
 
 	enum ExampleEnum

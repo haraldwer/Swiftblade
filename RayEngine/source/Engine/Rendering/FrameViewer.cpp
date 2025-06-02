@@ -7,7 +7,7 @@
 #include "Rendering/Lumin/Lumin.h"
 #include "raylib.h"
 
-void Rendering::FrameViewer::DrawDebugWindow()
+void Rendering::FrameViewer::DrawDebugPanel()
 {
     auto& man = Manager::Get();
     auto c = man.GetConfig();
@@ -17,14 +17,14 @@ void Rendering::FrameViewer::DrawDebugWindow()
     int total = 0;
     for (auto& entry : Stats.MeshDrawCount)
         total += entry.second;
-    ImGui::Text(("Meshes: " + std::to_string(total)).c_str());
-    ImGui::Text(("Lights: " + std::to_string(Stats.Lights)).c_str());
-    ImGui::Text(("Probes: " + std::to_string(Stats.Probes)).c_str());
-    ImGui::Text(("Renders: " + std::to_string(Stats.Renders)).c_str());
-    ImGui::Text(("Skyboxes: " + std::to_string(Stats.Skyboxes)).c_str());
-    ImGui::Text(("Deferred passes: " + std::to_string(Stats.DeferredDrawCount)).c_str());
-    ImGui::Text(("Fullscreen passes: " + std::to_string(Stats.FullscreenPasses)).c_str());
-    ImGui::Text(("Debug shapes: " + std::to_string(Stats.DebugDrawCount)).c_str());
+    ImGui::Text("Meshes: %i", total);
+    ImGui::Text("Lights: %i", Stats.Lights);
+    ImGui::Text("Probes: %i", Stats.Probes);
+    ImGui::Text("Renders: %i", Stats.Renders);
+    ImGui::Text("Skyboxes: %i", Stats.Skyboxes);
+    ImGui::Text("Deferred passes: %i", Stats.DeferredDrawCount);
+    ImGui::Text("Fullscreen passes: %i", Stats.FullscreenPasses);
+    ImGui::Text("Debug shapes: %i", Stats.DebugDrawCount);
 
     if (ImGui::CollapsingHeader("Scene Targets"))
     {

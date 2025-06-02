@@ -45,14 +45,14 @@ private:
     String ProcessDefines(const String& InShaderCode);
     void LoadDefaultLocs();
     
-    String Identifier; 
+    String Identifier = {}; 
     Shader* Ptr = nullptr;
-    Set<String> VSIncludes;
-    Set<String> FSIncludes;
-    Vector<String> Defines;
+    Set<String> VSIncludes = {};
+    Set<String> FSIncludes = {};
+    Vector<String> Defines = {};
     
-    Map<String, int> Locations;
-    Array<int, static_cast<size_t>(DefaultLoc::COUNT)> DefaultLocs;
+    Map<String, int> Locations = {};
+    Array<int, static_cast<size_t>(DefaultLoc::COUNT)> DefaultLocs = {};
 };
 
 typedef Resource::Ref<ShaderResource> ResShader;  

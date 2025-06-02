@@ -38,8 +38,8 @@ namespace UI
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
         
-        WeakPtr<Container> Parent;
+        WeakPtr<Container> Parent = nullptr;
         Transform Transform = Transform::Fill();
-        Rect CachedRect;
+        Rect CachedRect = {};
     };
 }

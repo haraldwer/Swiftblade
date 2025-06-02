@@ -69,5 +69,5 @@ void RoomVolumeEditor::DebugDraw(bool InIsCameraControlling)
 {
     ImGui::Text("Volume editing mode"); 
     const auto size = GetVolume().Data.size();
-    ImGui::Text(("Blocks: " + std::to_string(size)).c_str());
+    ImGui::Text("Blocks: %i", static_cast<int>(size));
 }

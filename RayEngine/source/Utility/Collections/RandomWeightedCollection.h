@@ -32,8 +32,8 @@ namespace Utility
             
             if (Indices.empty())
             {
-                for (int i = 0; i < Entries.size(); i++)
-                    Indices.insert(i);
+                for (size_t i = 0; i < Entries.size(); i++)
+                    Indices.insert(static_cast<int>(i));
                 Total = 0.0;
                 for (const Entry& entry : Entries)
                     Total += entry.Weight;
@@ -68,13 +68,13 @@ namespace Utility
 
         struct Entry
         {
-            T Data;
-            WeightT Weight;
+            T Data = {};
+            WeightT Weight = {};
         };
         
-        Vector<Entry> Entries;
-        Set<int> Indices;
+        Vector<Entry> Entries = {};
+        Set<int> Indices = {};
         WeightT Total = 0.0;
-        Random Rand; 
+        Random Rand = {}; 
     };
 }

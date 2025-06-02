@@ -117,10 +117,10 @@ namespace UI
             return ptr; 
         }
 
-        Vector<std::function<void(Builder&)>> Instructions;
-        ObjectPtr<Instance> WorkingInstance;
-        WeakPtr<Container> CurrentContainer;
-        Vector<Instance*> WidgetStack; // For naming
+        Vector<std::function<void(Builder&)>> Instructions = {};
+        ObjectPtr<Instance> WorkingInstance = nullptr;
+        WeakPtr<Container> CurrentContainer = nullptr;
+        Vector<Instance*> WidgetStack = {}; // For naming
     };
 
     template <>

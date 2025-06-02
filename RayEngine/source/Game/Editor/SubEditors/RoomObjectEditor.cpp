@@ -94,7 +94,7 @@ void RoomObjectEditor::Exit()
 
 void RoomObjectEditor::SetEditObject(const int InIndex)
 {
-    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= Config.Blueprints.Get().size(), "BP index outside of range");
+    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= static_cast<int>(Config.Blueprints.Get().size()), "BP index outside of range");
     Config.BPIndex = InIndex; 
     NewEditObject(); 
 }
@@ -103,8 +103,8 @@ void RoomObjectEditor::PlaceObject()
 {
     struct EditData
     {
-        ObjectData PrevObjectData;
-        ObjectData NewObjectData;
+        ObjectData PrevObjectData = {};
+        ObjectData NewObjectData = {};
     } data;
 
     data.NewObjectData = {
@@ -133,8 +133,8 @@ void RoomObjectEditor::RemoveObject()
 {
     struct EditData
     {
-        ObjectData PrevObjectData;
-        Vec3F Position;
+        ObjectData PrevObjectData = {};
+        Vec3F Position = {};
     } data;
 
     data.Position = TargetPos;
@@ -166,7 +166,7 @@ void RoomObjectEditor::LoadPlacedObjects()
 {
     Map<String, int> blueprintMap;
     auto& bps = Config.Blueprints.Get();
-    for (int i = 0; i < bps.size(); i++)
+    for (size_t i = 0; i < bps.size(); i++)
         blueprintMap[bps[i].Identifier()] = i; 
     
     const auto entities = ECS::Manager::Get().GetAllEntities();
@@ -232,7 +232,7 @@ RoomObjectEditor::ObjectData RoomObjectEditor::GetPlacedObjectData(const uint32 
 
 ECS::EntityID RoomObjectEditor::CreateObject(const int InIndex, const Mat4F& InMat) const
 {
-    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= Config.Blueprints.Get().size(), "BP index outside of range", ECS::InvalidID);
+    CHECK_RETURN_LOG(InIndex < 0 || InIndex >= static_cast<int>(Config.Blueprints.Get().size()), "BP index outside of range", ECS::InvalidID);
     if (const auto bp = Config.Blueprints.Get()[InIndex].Get())
     {
         const auto id = bp->Instantiate(InMat);

@@ -120,7 +120,7 @@ namespace Rendering
 	private:
 
 		float Far = 0.0f;
-		Vec3F Position;
-		Vec4F Planes[6];
+		Vec3F Position = {};
+		Array<Vec4F, 6> Planes = {};
 	};
 }

@@ -15,8 +15,8 @@ public:
     Texture* Get() const { return Ptr; }
 
 private:
-    String Identifier; 
+    String Identifier = {}; 
     Texture* Ptr = nullptr;
 };
 
-typedef Resource::Ref<TextureResource> ResTexture;  
+typedef Resource::Ref<TextureResource> ResTexture;

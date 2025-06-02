@@ -15,13 +15,13 @@ namespace UI
         void SetText(const String& InText);
 
     private:
-        Vec2F Centering;
-        ResFont Font;
-        String Text;
+        Vec2F Centering = {};
+        ResFont Font = {};
+        String Text = {};
 
         float Size = 20.0f;
         float Spacing = 0.0f;
         
-        Vec2F CachedSize;
+        Vec2F CachedSize = {};
     };
 }

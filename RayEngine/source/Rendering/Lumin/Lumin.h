@@ -29,11 +29,11 @@ namespace Rendering
     
     struct LuminProbe
     {
-        ProbeCoord Coord;
-        Vec3F Pos;
+        ProbeCoord Coord = {};
+        Vec3F Pos = {};
         double Timestamp = 0.0;
         int Iterations = 0;
-        Vec4F Rect;
+        Vec4F Rect = {};
     };
     
     class Lumin
@@ -56,15 +56,15 @@ namespace Rendering
         ProbeCoord FromPos(const Vec3F& InPos);
         Vec3F FromCoord(const ProbeCoord& InCoord);
 
-        Map<uint64, LuminProbe> Probes;
+        Map<uint64, LuminProbe> Probes = {};
 
-        LuminConfig Config;
-        Context Context;
-        Viewport Viewport;
-        RenderTarget Target;
-        SwapTarget LerpTarget;
-        AtlasMap AtlasMap;
-        LuminPipeline Pipeline;
+        LuminConfig Config = {};
+        Context Context = {};
+        Viewport Viewport = {};
+        RenderTarget Target = {};
+        SwapTarget LerpTarget = {};
+        AtlasMap AtlasMap = {};
+        LuminPipeline Pipeline = {};
     };
 }
 

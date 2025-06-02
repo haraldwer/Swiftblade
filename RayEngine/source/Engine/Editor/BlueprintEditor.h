@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Blueprints/Blueprint.h"
-#include "Core/Debug/Window.h"
+#include "Core/Debug/Panel.h"
 #include "ECS/Manager.h"
 #include "Instance/Instance.h"
 
@@ -11,7 +11,7 @@ struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
     String Name() const override { return "BlueprintEditor"; }
 };
 
-class BlueprintEditor : public Engine::Instance, public Debug::Window
+class BlueprintEditor : public Engine::Instance, public Debug::Panel
 {
     friend class BlueprintDebugUI;
 public:
@@ -20,8 +20,8 @@ public:
     void Deinit() override;
     void Logic(double InDelta) override;
     void Frame() override;
-    void DrawDebugWindow() override;
-    String DebugWindowName() const override { return "Blueprint Editor"; }
+    void DrawDebugPanel() override;
+    String DebugPanelName() const override { return "Blueprint Editor"; }
     bool IsEditor() const override { return true; }
     
     void SetBP(const ResBlueprint& InBP);
@@ -33,9 +33,9 @@ private:
 
     String Text(const String& InString) const;
     
-    BlueprintEditorConfig Config;
+    BlueprintEditorConfig Config = {};
     ECS::EntityID InstanceID = ECS::InvalidID; 
     ECS::EntityID SelectedID = ECS::InvalidID;
 
-    ECS::Manager ECS;
+    ECS::Manager ECS = {};
 };

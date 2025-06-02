@@ -26,16 +26,16 @@ namespace Rendering
         void ResetPosition();
 
     private:
-        ViewportConfig Config;
+        ViewportConfig Config = {};
         
-        Vec2F Position;
-        Mat4F ViewProj;
-        Mat4F ViewProjPrev;
+        Vec2F Position = {};
+        Mat4F ViewProj = {};
+        Mat4F ViewProjPrev = {};
         
-        Utility::Timer DeltaTimer;
+        Utility::Timer DeltaTimer = {};
         double Delta = 0;
 
-        FrameTargetCollection Targets;
+        FrameTargetCollection Targets = {};
         RenderTexture* VirtualTarget = nullptr;
     };
 }

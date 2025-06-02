@@ -52,11 +52,11 @@ namespace Rendering
 
     private:
         CameraInstance MainCamera = {};
-        Vector<EnvironmentInstance> Environments;
-        MeshCollection Meshes;
-        Utility::SpatialContainer<LightInstance> Lights;
-        Utility::SpatialContainer<DebugShape> DebugShapes;
-        Utility::SpatialContainer<DebugLine> DebugLines;
+        Vector<EnvironmentInstance> Environments = {};
+        MeshCollection Meshes = {};
+        Utility::SpatialContainer<LightInstance> Lights = {};
+        Utility::SpatialContainer<DebugShape> DebugShapes = {};
+        Utility::SpatialContainer<DebugLine> DebugLines = {};
     };
 }
 

@@ -36,8 +36,10 @@ void Physics::PersistentPhysics::TryInit()
 
     Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
     Dispatcher = PxDefaultCpuDispatcherCreate(0); 
-    
-    ScratchBlock = aligned_alloc(ScratchBlockSize, ScratchBlockAlignment); 
+
+    #ifdef _MSC_VER
+    ScratchBlock = _aligned_alloc(ScratchBlockSize, ScratchBlockAlignment);
+    #endif
 }
 
 void Physics::PersistentPhysics::Deinit()
@@ -54,7 +56,11 @@ void Physics::PersistentPhysics::Deinit()
     PX_RELEASE(Foundation);
     if (ScratchBlock)
     {
+#ifdef _MSC_VER
+        _aligned_free(ScratchBlock);
+#else
         free(ScratchBlock);
+#endif
         ScratchBlock = nullptr; 
     }
 }
@@ -125,10 +131,10 @@ void Physics::Manager::SetTransforms() const
             InInstance->setGlobalPose(trans);
     };
     
-    for (const auto& instance : Statics)
-        updatePhysTrans(ecs, instance.first, instance.second);
-    for (const auto& instance : Dynamics)
-        updatePhysTrans(ecs, instance.first, instance.second);
+    for (const auto& stat : Statics)
+        updatePhysTrans(ecs, stat.first, stat.second);
+    for (const auto& dyn : Dynamics)
+        updatePhysTrans(ecs, dyn.first, dyn.second);
 }
 
 void Physics::Manager::Simulate() const
@@ -139,7 +145,8 @@ void Physics::Manager::Simulate() const
         static_cast<PxReal>(delta),
         nullptr,
         Persistent.ScratchBlock,
-        PersistentPhysics::ScratchBlockSize);
+        Persistent.ScratchBlock ?
+            PersistentPhysics::ScratchBlockSize : 0);
     PxU32 error = 0;
     Scene->fetchResults(true, &error);
     CHECK_ASSERT(error, "PxFetchResults error");
@@ -149,12 +156,12 @@ void Physics::Manager::GetTransforms() const
 {
     PROFILE();
     const ECS::Manager& ecs = ECS::Manager::Get();
-    for (const auto& instance : Dynamics)
+    for (const auto& dyn : Dynamics)
     {
-        CHECK_CONTINUE(!instance.second)
-        auto* t = ecs.GetComponent<ECS::Transform>(instance.first);
+        CHECK_CONTINUE(!dyn.second)
+        auto* t = ecs.GetComponent<ECS::Transform>(dyn.first);
         CHECK_CONTINUE(!t);
-        PxTransform trans = instance.second->getGlobalPose();
+        PxTransform trans = dyn.second->getGlobalPose();
         const Vec3F p = Utility::PhysX::ConvertVec(trans.p);
         const QuatF q = Utility::PhysX::ConvertQuat(trans.q);
         const Mat4F mat = Mat4F(p, q, t->GetScale());

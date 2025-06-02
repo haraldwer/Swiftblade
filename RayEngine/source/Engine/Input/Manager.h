@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "Config.h"
-#include "Core/Debug/Window.h"
+#include "Core/Debug/Panel.h"
 
 namespace Input
 {
-    class Manager : public Utility::Singelton<Manager>, public Debug::Window
+    class Manager : public Utility::Singelton<Manager>, public Debug::Panel
     {
     public:
         void Init();
@@ -18,8 +18,8 @@ namespace Input
 
         const Action& GetAction(const String& InAction, const String& InContext = "") const;
 
-        String DebugWindowName() const override { return "Input"; }
-        void DrawDebugWindow() override;
+        String DebugPanelName() const override { return "Input"; }
+        void DrawDebugPanel() override;
 
     private:
         const Action& GetActionInternal(const String& InAction, const String& InContext) const;
@@ -27,9 +27,9 @@ namespace Input
         void UpdateCursorState();
         const Context& GetContext(const String& InName) const;
         
-        Vector<String> ContextStack;
-        Config Current; 
-        Vec2F MouseDelta;
+        Vector<String> ContextStack = {};
+        Config Current = {}; 
+        Vec2F MouseDelta = {};
 
         // TODO: Input buffering
         // TODO: Consuming input

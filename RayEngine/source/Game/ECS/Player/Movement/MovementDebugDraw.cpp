@@ -8,12 +8,12 @@ bool ECS::Movement::EditState() const
     const Rigidbody& rb = GetRB();
     const Vec3F vel = rb.GetVelocity();
         
-    ImGui::Text(("Speed: " + std::to_string(vel.Length())).c_str());
-    ImGui::Text(("Velocity: x" + std::to_string(vel.x) + " y" + std::to_string(vel.y) + " z" + std::to_string(vel.z)).c_str());
+    ImGui::Text("Speed: %f", vel.Length());
+    ImGui::Text("Velocity: %s", Utility::ToStr(vel).c_str());
     ImGui::Spacing();
-    ImGui::Text(("InAir: " + std::to_string(IsInAir())).c_str()); 
-    ImGui::Text(("OnGround: " + std::to_string(IsOnGround())).c_str()); 
-    ImGui::Text(("Crouching: " + std::to_string(IsCrouching())).c_str()); 
+    ImGui::Text("InAir: %i", IsInAir()); 
+    ImGui::Text("OnGround: %i", IsOnGround()); 
+    ImGui::Text("Crouching: %i", IsCrouching()); 
     ImGui::Spacing();
 
     if (!StateMachine)

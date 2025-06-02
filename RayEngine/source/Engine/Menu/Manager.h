@@ -81,8 +81,8 @@ namespace Menu
         }
         
         // Menu stack!
-        Vector<ObjectPtr<Instance>> Stack;
-        Vector<ObjectPtr<Instance>> Pending;
+        Vector<ObjectPtr<Instance>> Stack = {};
+        Vector<ObjectPtr<Instance>> Pending = {};
         
     };
 }

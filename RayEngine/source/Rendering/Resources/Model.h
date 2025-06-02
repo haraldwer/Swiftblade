@@ -20,7 +20,7 @@ public:
     
 private:
     uint32 CachedHash = 0;
-    String Identifier;
+    String Identifier = {};
     Model* Ptr = nullptr; 
 };
 

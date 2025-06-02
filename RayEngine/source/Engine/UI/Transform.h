@@ -8,8 +8,8 @@ namespace UI
         Margin(const Vec2F& InH, const Vec2F& InV) : Horizontal(InH), Vertical(InV) {}
         Margin(float InV) : Horizontal(InV), Vertical(InV) {}
         
-        Vec2F Horizontal;
-        Vec2F Vertical;
+        Vec2F Horizontal = {};
+        Vec2F Vertical = {};
 
         static Margin One()
         {
@@ -30,19 +30,19 @@ namespace UI
     
     struct Rect
     {
-        Vec2F Start;
-        Vec2F End; 
+        Vec2F Start = {};
+        Vec2F End = {}; 
     };
     
     struct Transform  
     {
-        Vec2F Position;
-        Vec2F Size; 
-        Margin Alignment;
-        Margin Padding;
-        Margin Margins;
-        Vec2F Anchor;
-        Vec2F Pivot;
+        Vec2F Position = {};
+        Vec2F Size = {}; 
+        Margin Alignment = {};
+        Margin Padding = {};
+        Margin Margins = {};
+        Vec2F Anchor = {};
+        Vec2F Pivot = {};
         float Rotation = 0.0;
 
         static Transform Fill(const struct Margin& InPadding = Margin::Zero(), const struct Margin& InMargin = Margin::Zero())

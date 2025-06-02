@@ -19,9 +19,9 @@ namespace Rendering
 
     struct Perspective
     {
-        Vec4F ReferenceRect;
-        Vec4I TargetRect;
-        CameraInstance Camera;
+        Vec4F ReferenceRect = {};
+        Vec4I TargetRect = {};
+        CameraInstance Camera = {};
     };
     
     struct RenderArgs
@@ -31,7 +31,7 @@ namespace Rendering
         Viewport* ViewportPtr = nullptr;
         Lumin* LuminPtr = nullptr;
         Lights* LightsPtr = nullptr;
-        Vector<Perspective> Perspectives;
+        Vector<Perspective> Perspectives = {};
     };
     
     class Renderer

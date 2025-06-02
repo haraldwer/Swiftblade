@@ -32,10 +32,10 @@ Vec4I Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
         {
             // Free oldest access slot
             uint64 LowestTimeID = static_cast<uint64>(-1);
-            double LowestTime = 0.0;
+            double LowestTime = -1.0f;
             for (auto& s : Slots)
             {
-                if (s.second.AccessTime < LowestTime || LowestTime == 0.0)
+                if (s.second.AccessTime < LowestTime || LowestTime < 0.0)
                 {
                     LowestTime = s.second.AccessTime;
                     LowestTimeID = s.first;

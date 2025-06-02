@@ -21,7 +21,7 @@ public:
     void Enter() override;
     
 private:
-    ObjectPtr<UI::Instance> UI;
+    ObjectPtr<UI::Instance> UI = nullptr;
     ECS::EntityID StartEntity = ECS::InvalidID;
     ECS::EntityID EndEntity = ECS::InvalidID;
     int Seed = 0;
@@ -37,7 +37,7 @@ private:
     RoomGenBase* GetCurrentStage();
     void SetStage(GenerationStage InStage);
 
-    RoomGenPath PathGen;
-    RoomGenVolume VolumeGen;
-    RoomGenProps PropsGen;
+    RoomGenPath PathGen = {};
+    RoomGenVolume VolumeGen = {};
+    RoomGenProps PropsGen = {};
 };

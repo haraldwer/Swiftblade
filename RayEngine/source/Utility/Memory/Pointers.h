@@ -52,7 +52,7 @@ namespace Utility
     public:
 
         ObjectPtr() = default;
-        ObjectPtr(T* InPtr) : Ref(RefImpl<T>::Get(InPtr)), Ptr(InPtr) { }
+        ObjectPtr(T* InPtr) : Ptr(InPtr), Ref(RefImpl<T>::Get(InPtr)) { }
         ObjectPtr(const ObjectPtr& s) : Ptr(s.Ptr), Ref(s.Ref) { Increment(); }
         ObjectPtr(ObjectPtr&& s) noexcept
         {

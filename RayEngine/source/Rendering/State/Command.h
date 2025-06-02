@@ -29,14 +29,14 @@ namespace Rendering
     struct FrameCommand
     {
         uint32 fboID = static_cast<uint32>(-1);
-        Vec2I Size;
+        Vec2I Size = {};
         bool ClearTarget = false;
         bool ClearDepth = false;
     };
 
     struct PerspectiveCommand
     {
-        Vec4I Rect;
+        Vec4I Rect = {};
     };
 
     struct MeshCommand

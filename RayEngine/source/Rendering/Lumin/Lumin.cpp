@@ -57,7 +57,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     Vector<LuminProbe*> timeSorted;
     for (auto& probe : frameProbes)
     {
-        CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && probe->Timestamp != 0.0f);
+        CHECK_CONTINUE(Config.UpdateFrequency < 0.0f && probe->Timestamp > 0.001f);
         CHECK_CONTINUE(Config.Iterations > 0 && probe->Iterations >= Config.Iterations);
         CHECK_CONTINUE(InArgs.ContextPtr->Time() - probe->Timestamp < Config.UpdateFrequency)
         Utility::SortedInsert(timeSorted, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)

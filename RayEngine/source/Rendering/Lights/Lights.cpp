@@ -135,7 +135,7 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
         return false;
     };
     
-    for (auto& light : InArgs.Scene->Lights.GetAll())
+    for (auto& light : InArgs.ScenePtr->Lights.GetAll())
         if (checkFunc(light))
             Utility::SortedInsert(result, &light, sortFunc);
 

@@ -58,7 +58,6 @@ void ECS::AnimationPoser::VisualizePoses() const
 
 Mat4F ECS::AnimationPoser::GetPose(const String& InPose) const
 {
-    auto& t = Get<Transform>();
     for (auto c : GetPoses())
         if (Get<Attributes>(c).Name.Get() == InPose)
             return Get<Transform>(c).Local();

@@ -92,7 +92,7 @@ void RoomEditor::Frame()
     SubEditorManager.Frame(EditorCamera.IsControlling());
 }
 
-void RoomEditor::DrawDebugWindow()
+void RoomEditor::DrawDebugPanel()
 {
     if (EditorCamera.IsControlling())
         ImGui::SetWindowFocus(nullptr); 
@@ -100,8 +100,8 @@ void RoomEditor::DrawDebugWindow()
     if (CurrConfig.Edit())
         OpenScene();
     
-    ImGui::Text(("Entities: " + std::to_string(Scene.Entities.size())).c_str());
-    ImGui::Text(("ECS Entities: " + std::to_string(ECS.GetAllEntities().size())).c_str());
+    ImGui::Text("Entities: %i", static_cast<int>(Scene.Entities.size()));
+    ImGui::Text("ECS Entities: %i", static_cast<int>(ECS.GetAllEntities().size()));
 
     SubEditorManager.DebugDraw(EditorCamera.IsControlling()); 
     

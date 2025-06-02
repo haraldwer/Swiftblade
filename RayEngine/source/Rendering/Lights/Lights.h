@@ -14,11 +14,11 @@ namespace Rendering
     
     struct LightData
     {
-        LightInstance::InstanceData Data;
-        Vec3F Pos;
+        LightInstance::InstanceData Data = {};
+        Vec3F Pos = {};
         double Timestamp = 0;
         uint32 ID = static_cast<uint32>(-1);
-        Vec4F Rect;
+        Vec4F Rect = {};
     };
     
     class Lights
@@ -33,12 +33,12 @@ namespace Rendering
         const LightData& GetData(uint32 InHash);
         
     private:
-        Map<uint32, LightData> Cache;
+        Map<uint32, LightData> Cache = {};
         
-        LightConfig Config;
-        Viewport AtlasView;
-        AtlasMap Atlas;
-        RenderTarget Target;
-        LightPipeline Pipeline;
+        LightConfig Config = {};
+        Viewport AtlasView = {};
+        AtlasMap Atlas = {};
+        RenderTarget Target = {};
+        LightPipeline Pipeline = {};
     };
 }

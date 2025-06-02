@@ -24,15 +24,15 @@ namespace Engine
         EditorCamera& GetEditorCamera() { return EditorCamera; }
 
     protected:
-        Utility::Time Time;
-        Menu::Manager Menus;
-        Input::Manager Input;
+        Utility::Time Time = {};
+        Menu::Manager Menus = {};
+        Input::Manager Input = {};
         
-        EditorCamera EditorCamera;
+        EditorCamera EditorCamera = {};
         
     private:
-        Rendering::Scene RenderScene;
-        InstanceEventManager EventManager;
+        Rendering::Scene RenderScene = {};
+        InstanceEventManager EventManager = {};
 
     };
 }

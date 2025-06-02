@@ -17,7 +17,7 @@ namespace Rendering
         
         struct Stats
         {
-            Map<uint64, int> MeshDrawCount;
+            Map<uint64, int> MeshDrawCount = {};
             int DeferredDrawCount = 0;
             int DebugDrawCount = 0;
             int Renders = 0;

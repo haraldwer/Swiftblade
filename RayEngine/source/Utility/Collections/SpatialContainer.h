@@ -12,8 +12,8 @@ namespace Utility
 
         struct Cullable
         {
-            Vec3F Position;
-            float Extent;
+            Vec3F Position = {};
+            float Extent = {};
         };
         
         void Insert(const T& InData, const Cullable& InCull)
@@ -59,10 +59,10 @@ namespace Utility
 
         struct Node
         {
-            Vec3F Total;
-            Vector<T> Data; // Memory alignment is important here!
-            Vector<Cullable> CullData;
-            Math::Plane<float> Divisor;
+            Vec3F Total = {};
+            Vector<T> Data = {}; // Memory alignment is important here!
+            Vector<Cullable> CullData = {};
+            Math::Plane<float> Divisor = {};
             uint32 Left = static_cast<uint32>(-1);
             uint32 Right = static_cast<uint32>(-1);
         };
@@ -155,7 +155,7 @@ namespace Utility
                 Get(Nodes[InNode.Right], InQuery, InOutResult);
         }
         
-        Node Root;
-        Vector<Node> Nodes;
+        Node Root = {};
+        Vector<Node> Nodes = {};
      };
 }

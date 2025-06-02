@@ -47,7 +47,7 @@ void GameInstance::Deinit()
     Instance::Deinit();
 }
 
-void GameInstance::Logic(double InDelta)
+void GameInstance::Logic(const double InDelta)
 {
     Instance::Logic(InDelta); 
     
@@ -76,7 +76,7 @@ void GameInstance::SetState(const GameState& InState)
     State.PlayerID = playerID; 
 }
 
-void GameInstance::DrawDebugWindow()
+void GameInstance::DrawDebugPanel()
 {
     CHECK_RETURN(State.PlayerID == ECS::InvalidID);
 

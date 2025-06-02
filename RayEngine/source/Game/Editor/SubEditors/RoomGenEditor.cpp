@@ -66,8 +66,10 @@ RoomGenBase* RoomGenEditor::GetCurrentStage()
         return &VolumeGen;
     case GenerationStage::PROPPING:
         return &PropsGen;
+    case GenerationStage::FINISHED:
+    default:
+            return nullptr;
     }
-    return nullptr;
 }
 
 void RoomGenEditor::SetStage(const GenerationStage InStage)

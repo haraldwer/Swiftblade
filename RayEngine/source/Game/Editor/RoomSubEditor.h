@@ -47,6 +47,6 @@ protected:
     
 private:
     
-    Vec3F LastTracePos;
+    Vec3F LastTracePos = {};
     
 };

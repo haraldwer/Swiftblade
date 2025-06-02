@@ -24,12 +24,12 @@ private:
         float FOV = 100.0f;
         float MovementSpeed = 50.0f; 
         Vec3F Position = Vec3F(254.0f, 254.0f, -20.0f);
-        Vec3F Rotation;
+        Vec3F Rotation = {};
     };
 
-    State TargetState;
-    State CurrentState;
-    Vec2F CursorPos;
+    State TargetState = {};
+    State CurrentState = {};
+    Vec2F CursorPos = {};
 
     bool bUseEditCamera = false;
     bool bInputEnabled = false;

@@ -11,7 +11,7 @@ void UI::List::RefreshRect(const Rect& InContainer)
     rect.End.y -= Transform.Margins.Vertical.y;
 
     // Each child gets its own rect
-    for (int i = 0; i < Elements.size(); i++)
+    for (size_t i = 0; i < Elements.size(); i++)
         if (Element* e = Elements[i].Get())
             e->RefreshRect(
                 GetChildRect(

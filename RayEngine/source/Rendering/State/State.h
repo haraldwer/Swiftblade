@@ -26,19 +26,19 @@ namespace Rendering
         
     private:
         
-        Map<int, TextureCommand> Textures;
-        Map<int, UniformCommand> Uniforms;
+        Map<int, TextureCommand> Textures = {};
+        Map<int, UniformCommand> Uniforms = {};
         
-        ShaderCommand Shader;
-        FrameCommand Frame;
-        PerspectiveCommand Perspective;
+        ShaderCommand Shader = {};
+        FrameCommand Frame = {};
+        PerspectiveCommand Perspective = {};
 
         uint32 VBO = static_cast<uint32>(-1);
     };
 
     struct rlState
     {
-        inline static State Current;
+        inline static State Current = {};
     };
     
 }

@@ -16,8 +16,8 @@ namespace Rendering
         Vec2I GetSize();
 
     private:
-        WindowConfig Config;
-        Utility::Timer FrameTimer;
+        WindowConfig Config = {};
+        Utility::Timer FrameTimer = {};
         double LeftoverFrameTime = 0;
         
     };

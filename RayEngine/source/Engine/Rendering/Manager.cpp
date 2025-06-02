@@ -64,7 +64,7 @@ void Rendering::Manager::Render(const Scene& InScene)
     EndTextureMode();
 }
 
-void Rendering::Manager::DrawDebugWindow()
+void Rendering::Manager::DrawDebugPanel()
 {
     PROFILE_GL();
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
@@ -87,7 +87,7 @@ void Rendering::Manager::BeginFrame()
     
     // Blip if not debug drawing
     const auto& debugMan = Debug::Manager::Get();
-    if (debugMan.IsOpen(DebugWindowName()) && debugMan.Enabled())
+    if (debugMan.IsOpen(DebugPanelName()) && debugMan.Enabled())
     {
         rlClearScreenBuffers();
     }

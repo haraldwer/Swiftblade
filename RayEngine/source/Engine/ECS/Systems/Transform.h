@@ -49,10 +49,10 @@ namespace ECS
 
     protected:
  
-        Set<EntityID> Children; 
+        Set<EntityID> Children = {}; 
         EntityID Parent = InvalidID;
-        Mat4F WorldMat;
-        Mat4F LocalMat;
+        Mat4F WorldMat = {};
+        Mat4F LocalMat = {};
     };
 
     class SysTransform : public System<Transform>

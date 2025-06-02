@@ -15,11 +15,11 @@ public:
 private:
     
     bool Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord) const;
-    Vector<Coord> Queue;
+    Vector<Coord> Queue = {};
     
-    Vector<PropRuleBase*> RuleList;
-    PropRuleHorizontalCorner RuleCornerHorizontal;
-    PropRuleVerticalCorner RuleCornerVertical;
+    Vector<PropRuleBase*> RuleList = {};
+    PropRuleHorizontalCorner RuleCornerHorizontal = {};
+    PropRuleVerticalCorner RuleCornerVertical = {};
     
     void PopulateRules()
     {

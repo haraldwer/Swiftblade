@@ -95,7 +95,9 @@ RoomSubEditor& RoomSubEditorManager::GetSubEditor(const SubEditorMode InMode)
     case SubEditorMode::VOLUME:
         return VolumeEditor;
     case SubEditorMode::OBJECTS:
-        return ObjectEditor; 
+        return ObjectEditor;
+    default:
+        break;
     }
     return ObjectEditor; 
 }

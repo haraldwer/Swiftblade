@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Engine/ECS/Manager.h"
-#include "Core/Debug/Window.h"
+#include "Core/Debug/Panel.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"
@@ -13,7 +13,7 @@ struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
     String Name() const override { return "RoomEditor"; }
 };
 
-class RoomEditor : public Engine::Instance, public Debug::Window
+class RoomEditor : public Engine::Instance, public Debug::Panel
 {
 
 public:
@@ -22,8 +22,8 @@ public:
     void Logic(double InDelta) override;
     void Frame() override;
     
-    void DrawDebugWindow() override;
-    String DebugWindowName() const override { return "Room Editor"; }
+    void DrawDebugPanel() override;
+    String DebugPanelName() const override { return "Room Editor"; }
     
     bool IsEditor() const override { return true; }
 
@@ -33,12 +33,12 @@ private:
     void SaveRoom();
     
     // Editor stuff
-    RoomEditorConfig CurrConfig;
-    RoomSubEditorManager SubEditorManager; 
+    RoomEditorConfig CurrConfig = {};
+    RoomSubEditorManager SubEditorManager = {}; 
     
     // Scene stuff
-    SceneInstance Scene;
-    ECS::Manager ECS; 
+    SceneInstance Scene = {};
+    ECS::Manager ECS = {}; 
 
-    ObjectPtr<UI::Instance> UI;
+    ObjectPtr<UI::Instance> UI = nullptr;
 };

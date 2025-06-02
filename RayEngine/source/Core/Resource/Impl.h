@@ -16,8 +16,8 @@ namespace Resource
 
         bool Loaded = false;
         uint32 Count = 0;
-        String Identifier;
-        Utility::Timepoint EditTimestamp; 
+        String Identifier = {};
+        Utility::Timepoint EditTimestamp = {}; 
     };
 
     template <class T>
@@ -53,6 +53,6 @@ namespace Resource
             return Load();
         }
         
-        T Data;
+        T Data = {};
     };
 }

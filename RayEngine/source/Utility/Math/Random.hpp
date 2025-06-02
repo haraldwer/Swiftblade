@@ -39,7 +39,7 @@ namespace Utility
 			}
 			
 		private: 
-			std::default_random_engine seed; 
+			std::default_random_engine seed = {}; 
 		};
 
 		template <class T>

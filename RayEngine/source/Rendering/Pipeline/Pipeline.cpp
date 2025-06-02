@@ -1,11 +1,9 @@
 ﻿#include "Pipeline.h"
 
-#include "rlgl.h"
 #include "Context/Context.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 #include "Scene/Scene.h"
-#include "State/State.h"
 #include "Viewport/Viewport.h"
 
 Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)

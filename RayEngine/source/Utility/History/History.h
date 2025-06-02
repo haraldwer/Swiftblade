@@ -29,9 +29,9 @@ namespace Utility
 		void Undo() override { UndoFunc(Data); }
 
 	private: 
-		std::function<void(const T& Data)> DoFunc;
-		std::function<void(const T& Data)> UndoFunc;
-		T Data;
+		std::function<void(const T& Data)> DoFunc = {};
+		std::function<void(const T& Data)> UndoFunc = {};
+		T Data = {};
 	};
 
 	class History 
@@ -54,7 +54,7 @@ namespace Utility
 		
 	private:
 		void AddChangeInternal(const ObjectPtr<ChangeBase>& InChange);
-		std::vector<ObjectPtr<ChangeBase>> Changes;
+		std::vector<ObjectPtr<ChangeBase>> Changes = {};
 		size_t ChangeIndex = 0;
 	};
 }

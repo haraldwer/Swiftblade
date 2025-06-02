@@ -4,12 +4,12 @@ struct LightInstance
 {
     struct InstanceData
     {
-        Vec3F Position;
-        Vec3F Direction;
-        Vec3F Color;
-        float Range;
-        float Radius;
-        float Intensity;
+        Vec3F Position = {};
+        Vec3F Direction = {};
+        Vec3F Color = {};
+        float Range = {};
+        float Radius = {};
+        float Intensity = {};
         
         bool operator==(const InstanceData& InData) const
         {
@@ -21,7 +21,7 @@ struct LightInstance
                 abs(Radius - InData.Radius) < 0.1f &&
                 abs(Intensity - InData.Intensity) < 0.1f;
         }
-    } Data;
+    } Data = {};
     
     bool Shadows = false;
     uint32 ID = 0;

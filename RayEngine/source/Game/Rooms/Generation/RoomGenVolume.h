@@ -21,10 +21,10 @@ private:
         uint32 Ref = 0;
     };
     
-    Vector<QueuedEntry> QueuedCoords;
-    Map<uint32, uint32> NextQueue;
-    Map<uint32, Set<uint32>> CheckedCoords;
-    Map<uint32, uint8> Result;
+    Vector<QueuedEntry> QueuedCoords = {};
+    Map<uint32, uint32> NextQueue = {};
+    Map<uint32, Set<uint32>> CheckedCoords = {};
+    Map<uint32, uint8> Result = {};
     
     int VolumeDepth = 0; 
 };

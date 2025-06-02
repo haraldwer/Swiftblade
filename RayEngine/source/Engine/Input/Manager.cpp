@@ -145,7 +145,7 @@ void Input::Manager::UpdateAction(Input::Action& InAction)
             State::PRESSED : State::RELEASED;
 }
 
-void Input::Manager::DrawDebugWindow()
+void Input::Manager::DrawDebugPanel()
 {
     if (ImGui::Button("Load"))
         Current.LoadConfig();
@@ -216,11 +216,11 @@ void Input::Manager::DrawDebugWindow()
             ImGui::Text("Actions:");
             if (ImGui::BeginListBox("##Actions", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
             {
-                for (int i = 0; i < actions.size(); i++)
+                for (size_t i = 0; i < actions.size(); i++)
                 {
                     const bool selected = i == selectedAction; 
                     if (ImGui::Selectable((actions[i].Name.Get() + "##" + std::to_string(i)).c_str(), selected))
-                        selectedAction = i; 
+                        selectedAction = static_cast<int>(i); 
                 }
                 if (ImGui::Button("Add"))
                 {

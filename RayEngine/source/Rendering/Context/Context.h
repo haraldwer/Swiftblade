@@ -21,10 +21,10 @@ namespace Rendering
         Lumin* GetLumin() const { return LuminPtr; }
 
     private:
-        ContextConfig Config;
+        ContextConfig Config = {};
 
         // Total context lifetime
-        Utility::Timer Timer;
+        Utility::Timer Timer = {};
         
         Lights* LightsPtr = nullptr;
         Lumin* LuminPtr = nullptr;

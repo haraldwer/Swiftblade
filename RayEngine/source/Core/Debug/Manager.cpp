@@ -24,7 +24,7 @@ void Debug::Manager::Frame(double InDeltaTime)
     
     for (auto w : PendingRegister)
     {
-        const String name = w->DebugWindowName();
+        const String name = w->DebugPanelName();
         Windows[name].push_back(w);
         WindowToName[w] = name; 
     }
@@ -45,7 +45,7 @@ void Debug::Manager::Frame(double InDeltaTime)
                 CHECK_CONTINUE(entry.second.empty());
                 auto& w = entry.second.back();
                 CHECK_CONTINUE(!w);
-                const String name = w->DebugWindowName();
+                const String name = w->DebugPanelName();
                 const bool open = IsOpen(name); 
                 if (ImGui::MenuItem((name + (open ? " X" : "")).c_str()))
                     SetOpen(name, !open); 
@@ -58,9 +58,10 @@ void Debug::Manager::Frame(double InDeltaTime)
         const double tps = TPF / InDeltaTime;
         LogicCounter = 0;
         
-        ImGui::Text((" | FPS: " + std::to_string(static_cast<int>(1.0f / InDeltaTime))).c_str());
-        ImGui::Text((" TPS: " + std::to_string(tps).substr(0, 3)).c_str());
-        ImGui::Text((" TPF: " + std::to_string(TPF).substr(0, 3)).c_str());
+        ImGui::Text(" | FPS: %i TPS: %s TPF: %s",
+            static_cast<int>(1.0f / InDeltaTime),
+            std::to_string(tps).substr(0, 3).c_str(),
+            std::to_string(TPF).substr(0, 3).c_str());
         
         ImGui::EndMainMenuBar();
     }
@@ -74,21 +75,21 @@ void Debug::Manager::Frame(double InDeltaTime)
         CHECK_CONTINUE(entry.second.empty());
         auto& w = entry.second.back();
         CHECK_CONTINUE(!w); 
-        if (IsOpen(w->DebugWindowName()))
+        if (IsOpen(w->DebugPanelName()))
         {
-            if (ImGui::Begin(w->DebugWindowName().c_str()))
-                w->DrawDebugWindow();
+            if (ImGui::Begin(w->DebugPanelName().c_str()))
+                w->DrawDebugPanel();
             ImGui::End(); 
         }
     }
 }
 
-void Debug::Manager::Register(Window* InWindow)
+void Debug::Manager::Register(Panel* InWindow)
 {
     PendingRegister.insert(InWindow);
 }
 
-void Debug::Manager::Unregister(const Window* InWindow)
+void Debug::Manager::Unregister(const Panel* InWindow)
 {
     const String name = WindowToName[InWindow]; 
     WindowToName.erase(InWindow); 

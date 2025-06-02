@@ -24,7 +24,7 @@ public:
 
 private:
 
-    String Identifier; 
+    String Identifier = {}; 
     physx::PxMaterial* Ptr = nullptr;
     
 };

@@ -37,8 +37,8 @@ private:
     void Generate();
     void Generate(Color* InData, int InResolution);
     
-    ResTexture Tex;
-    String Identifier;
+    ResTexture Tex = {};
+    String Identifier = {};
     bool EditorOpen = false;
 };
 

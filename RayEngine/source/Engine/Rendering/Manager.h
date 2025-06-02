@@ -12,7 +12,7 @@ struct RenderTexture;
 
 namespace Rendering
 {
-    class Manager : public Utility::Singelton<Manager, true>, public Debug::Window
+    class Manager : public Utility::Singelton<Manager, true>, public Debug::Panel
     {
     public:
         void Init(); 
@@ -26,20 +26,20 @@ namespace Rendering
         void QueueConfig(const Config& InConfig);
         Config GetConfig() const { return CurrConfig; }
 
-        String DebugWindowName() const override { return "Viewport"; }
-        void DrawDebugWindow() override;
+        String DebugPanelName() const override { return "Viewport"; }
+        void DrawDebugPanel() override;
 
-        Rendering::Window Window;
-        Rendering::Viewport MainViewport;
-        Rendering::Context DefaultContext;
-        Rendering::Pipeline DefaultPipeline;
-        Rendering::FrameViewer FrameViewer;
+        Window Window = {};
+        Viewport MainViewport = {};
+        Context DefaultContext = {};
+        Pipeline DefaultPipeline = {};
+        FrameViewer FrameViewer = {};
         
     private:
         void ApplyConfig(const Config& InConfig);
         
-        Config CurrConfig; 
-        Config QueuedConfig;
+        Config CurrConfig = {}; 
+        Config QueuedConfig = {};
     };
 }
 

@@ -65,22 +65,22 @@ void Resource::Manager::Deinit()
     {
         CHECK_CONTINUE(!res.second)
         res.second->Unload();
-        CHECK_CONTINUE_LOG(res.second->Count != 0, ("Resource couldnt be destroyed properly, count: " + std::to_string(res.second->Count) + ", resource: " + res.first));
+        CHECK_CONTINUE_LOG(res.second->Count != 0, "Resource couldnt be destroyed properly, count: " + std::to_string(res.second->Count) + ", resource: " + res.first);
         delete(res.second);
         res.second = nullptr;
     }
     Resources.clear();
 }
 
-void Resource::Manager::DrawDebugWindow()
+void Resource::Manager::DrawDebugPanel()
 {
-    ImGui::Text(String("Total resources: " + std::to_string(Resources.size())).c_str());
+    ImGui::Text("Total resources: %i", static_cast<int>(Resources.size()));
 
     int c = 0;
     for (auto r : Resources)
         if (r.second->Loaded)
             c++; 
-    ImGui::Text(String("Loaded resources: " + std::to_string(c)).c_str());
+    ImGui::Text("Loaded resources: %i", c);
 
     static bool showOnlyLoaded = true;
     ImGui::Checkbox("Show only loaded", &showOnlyLoaded); 
@@ -97,10 +97,10 @@ void Resource::Manager::DrawDebugWindow()
             CHECK_CONTINUE(showOnlyLoaded && !res.second->Loaded);
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::Text(res.first.c_str());
+            ImGui::Text("%s", res.first.c_str());
             ImGui::TableNextColumn();
             CHECK_CONTINUE(!res.second); 
-            ImGui::Text(std::to_string(res.second->Count).c_str());
+            ImGui::Text("%i", res.second->Count);
             ImGui::TableNextColumn();
             ImGui::Text(res.second->Loaded ? "True" : "False");
         }

@@ -67,20 +67,20 @@ namespace ECS
         void SortSystems(); 
 
         // System type -> System ptr
-        Map<Utility::TypeHash, SystemBase*> SystemMap;
+        Map<Utility::TypeHash, SystemBase*> SystemMap = {};
         // Component type -> System ptr
-        Map<Utility::TypeHash, SystemBase*> ComponentMap;
+        Map<Utility::TypeHash, SystemBase*> ComponentMap = {};
         // System name -> system ptr
-        Map<String, SystemBase*> NameToSystem;
-        Map<SystemBase*, String> SystemToName;
-        Vector<SystemBase*> SortedSystems; 
+        Map<String, SystemBase*> NameToSystem = {};
+        Map<SystemBase*, String> SystemToName = {};
+        Vector<SystemBase*> SortedSystems = {}; 
 
         // List of all entities
-        Set<EntityID> Entities;
+        Set<EntityID> Entities = {};
         EntityID IDCounter = 0;
 
         // Objects that should be destroyed
-        Set<EntityID> PendingDestroy; 
+        Set<EntityID> PendingDestroy = {}; 
         
     };
 }

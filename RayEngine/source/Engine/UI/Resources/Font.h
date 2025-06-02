@@ -17,7 +17,7 @@ public:
 
 private:
     Font* Ptr = nullptr;
-    String Identifier; 
+    String Identifier = {}; 
 };
 
 typedef Resource::Ref<FontResource, true> ResFont;  

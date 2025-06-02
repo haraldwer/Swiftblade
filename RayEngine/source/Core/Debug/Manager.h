@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Config.h"
-#include "Window.h"
+#include "Panel.h"
 #include "Core/Utility/Singelton.h"
 
 namespace Debug
@@ -16,17 +16,17 @@ namespace Debug
         
         bool Enabled() const { return Current.DebugEnabled; }
         
-        void Register(Window* InWindow);
-        void Unregister(const Window* InWindow);
+        void Register(Panel* InWindow);
+        void Unregister(const Panel* InWindow);
         
         bool IsOpen(const String& InWindow) const;
         void SetOpen(const String& InWindow, bool InOpen);
 
     private:
-        Set<Window*> PendingRegister;
-        Map<String, Vector<Window*>> Windows;
-        Map<const Window*, String> WindowToName;
-        Config Current;
+        Set<Panel*> PendingRegister = {};
+        Map<String, Vector<Panel*>> Windows = {};
+        Map<const Panel*, String> WindowToName = {};
+        Config Current = {};
 
         // Logic tick counter
         int LogicCounter = 0;

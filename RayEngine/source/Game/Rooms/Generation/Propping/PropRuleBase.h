@@ -12,5 +12,5 @@ public:
 protected:
     ECS::ID AddProp(const Mat4F& InTrans, const ResBlueprint& InBP);
     
-    Vector<ECS::EntityID> GeneratedProps;
+    Vector<ECS::EntityID> GeneratedProps = {};
 };
