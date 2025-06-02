@@ -50,7 +50,7 @@ Append these to your cmake command (can be done in the "profiles" section in Rid
 ``-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=path/to/include-what-you-use``
 
 If you are using a custom clang version you have to [create a fake gcc toolchain](https://stackoverflow.com/questions/41962611/how-to-select-a-particular-gcc-toolchain-in-clang) for iwyu:
-``
+```
 mkdir $MYTOOLCHAIN
 cd $MYTOOLCHAIN
 ln -s /usr/include include
@@ -58,7 +58,7 @@ ln -s /usr/bin bin
 mkdir -p lib/gcc/x86_64-linux-gnu/ # clang will deduce which gcc version based on what's available 
 cd lib/gcc/x86_64-linux-gnu/
 ln -s /path/to/gcc/$VERSION $VERSION
-``
+```
 And finally, add to your cmake command:
 ``--gcc-toolchain=$MYTOOLCHAIN``
 
