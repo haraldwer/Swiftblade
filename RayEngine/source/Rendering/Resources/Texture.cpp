@@ -5,21 +5,21 @@
 
 bool TextureResource::Load(const String& InIdentifier)
 {
-    Identifier = InIdentifier;
-    if (Identifier.starts_with("Gen_"))
+    identifier = InIdentifier;
+    if (identifier.starts_with("Gen_"))
         return true;
-    Ptr = new Texture();
-    *Ptr = LoadTexture(InIdentifier.c_str());
-    return Ptr->id;
+    ptr = new Texture();
+    *ptr = LoadTexture(InIdentifier.c_str());
+    return ptr->id;
 }
 
 bool TextureResource::Unload()
 {
-    if (Ptr)
+    if (ptr)
     {
-        UnloadTexture(*Ptr);
-        delete (Ptr);
-        Ptr = nullptr; 
+        UnloadTexture(*ptr);
+        delete (ptr);
+        ptr = nullptr; 
         return true;
     }
     return false; 
@@ -27,7 +27,7 @@ bool TextureResource::Unload()
 
 Utility::Timepoint TextureResource::GetEditTime() const
 {
-    if (Identifier.starts_with("Gen_"))
+    if (identifier.starts_with("Gen_"))
         return {};
-    return Utility::GetFileWriteTime(Identifier);  
+    return Utility::GetFileWriteTime(identifier);  
 }

@@ -2,10 +2,10 @@
 
 void Input::Context::UpdateCache()
 {
-    CachedActions.clear();
+    cachedActions.clear();
     auto& actions = Actions.Get();
     for (size_t i = 0; i < actions.size(); i++)
-        CachedActions[actions[i].Name] = static_cast<int32>(i);
+        cachedActions[actions[i].Name] = static_cast<int32>(i);
 }
 
 bool Input::Config::Edit(const String& InName, const uint32 InOffset)
@@ -20,12 +20,12 @@ bool Input::Config::Edit(const String& InName, const uint32 InOffset)
 
 void Input::Config::UpdateCache()
 {
-    CachedContexts.clear();
+    cachedContexts.clear();
     auto& contexts = Contexts.Get();
     for (size_t i = 0; i < contexts.size(); i++)
     {
         auto& context = contexts[i]; 
         context.UpdateCache(); 
-        CachedContexts[context.Name] = static_cast<int32>(i);
+        cachedContexts[context.Name] = static_cast<int32>(i);
     }
 }

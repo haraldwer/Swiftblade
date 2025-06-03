@@ -6,7 +6,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
 {
     Deinit();
 
-    for (auto& t : SceneTargets.All())
+    for (auto& t : sceneTargets.All())
     {
         if (t.TryBeginSetup(InTarget))
         {
@@ -18,32 +18,32 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
         }
     }
 
-    for (auto& target : AOTargets.All())
+    for (auto& target : aoTargets.All())
         target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-    for (auto& target : FireTargets.All())
+    for (auto& target : fireTargets.All())
         target.Setup(InTarget, "TexFire", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
-    for (auto& target : FrameTargets.All())
+    for (auto& target : frameTargets.All())
         target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
 }
 
 void Rendering::FrameTargetCollection::Deinit()
 {
-    for (auto& t : SceneTargets.All())
+    for (auto& t : sceneTargets.All())
         t.Unload();
-    for (auto& t : AOTargets.All())
+    for (auto& t : aoTargets.All())
         t.Unload();
-    for (auto& t : FireTargets.All())
+    for (auto& t : fireTargets.All())
         t.Unload();
-    for (auto& t : FrameTargets.All())
+    for (auto& t : frameTargets.All())
         t.Unload();
 }
 
 OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameTargetCollection::GetNamed()
 {
     OrderedMap<String, Vector<RenderTarget::TargetTex>> result; 
-    result["Scene"] = SceneTargets.Curr().GetTextures();
-    result["Fire"] = FireTargets.Curr().GetTextures();
-    result["SSAO"] = AOTargets.Curr().GetTextures();
-    result["Frame"] = FrameTargets.Curr().GetTextures();
+    result["Scene"] = sceneTargets.Curr().GetTextures();
+    result["Fire"] = fireTargets.Curr().GetTextures();
+    result["SSAO"] = aoTargets.Curr().GetTextures();
+    result["Frame"] = frameTargets.Curr().GetTextures();
     return result;
 }

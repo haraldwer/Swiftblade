@@ -15,23 +15,23 @@ void UI::Element::Update()
 
 void UI::Element::Draw()
 {
-    DrawRect(CachedRect); 
+    DrawRect(cachedRect); 
 }
 
 void UI::Element::Invalidate()
 {
-    if (Parent)
-        Parent->Invalidate();
+    if (parent)
+        parent->Invalidate();
 }
 
 void UI::Element::RefreshRect(const Rect& InContainer)
 {
-    CachedRect = CalculateRect(InContainer);
+    cachedRect = CalculateRect(InContainer);
 }
 
 void UI::Element::SetTransform(const UI::Transform& InTransform)
 {
-    Transform = InTransform;
+    transform = InTransform;
 }
 
 bool UI::Element::IsHovered() const
@@ -39,10 +39,10 @@ bool UI::Element::IsHovered() const
     const Vector2 mp = GetMousePosition();
     const Vec2F relative = ScreenToViewport({ mp.x, mp.y });
     return
-        relative.x > CachedRect.start.x &&
-        relative.x < CachedRect.end.x &&
-        relative.y > CachedRect.start.y &&
-        relative.y < CachedRect.end.y;
+        relative.x > cachedRect.start.x &&
+        relative.x < cachedRect.end.x &&
+        relative.y > cachedRect.start.y &&
+        relative.y < cachedRect.end.y;
 }
 
 bool UI::Element::IsClicked() const
@@ -108,28 +108,28 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 
     // Set up parent container
     Rect parent = InContainer;
-    parent.start.x += Transform.padding.horizontal.x;
-    parent.end.x -= Transform.padding.horizontal.y;
-    parent.start.y += Transform.padding.vertical.x;
-    parent.end.y -= Transform.padding.vertical.y;
+    parent.start.x += transform.padding.horizontal.x;
+    parent.end.x -= transform.padding.horizontal.y;
+    parent.start.y += transform.padding.vertical.x;
+    parent.end.y -= transform.padding.vertical.y;
 
     // Calculate anchor point
     const Vec2F anchor = {
-        Utility::Math::Lerp(parent.start.x, parent.end.x, Transform.anchor.x),
-        Utility::Math::Lerp(parent.start.y, parent.end.y, Transform.anchor.y)
+        Utility::Math::Lerp(parent.start.x, parent.end.x, transform.anchor.x),
+        Utility::Math::Lerp(parent.start.y, parent.end.y, transform.anchor.y)
     };
     
     // Calculate position and size
     Rect absolute;
-    absolute.start = anchor + Transform.position + Transform.size * Transform.pivot;
-    absolute.end = anchor + Transform.position + Transform.size * (Vec2F(1.0f) - Transform.pivot);
+    absolute.start = anchor + transform.position + transform.size * transform.pivot;
+    absolute.end = anchor + transform.position + transform.size * (Vec2F(1.0f) - transform.pivot);
     
     // And blend to container using alignment
     Rect result;
-    result.start.x = Utility::Math::Lerp(absolute.start.x, parent.start.x, Transform.alignment.horizontal.x);
-    result.start.y = Utility::Math::Lerp(absolute.start.y, parent.start.y, Transform.alignment.vertical.x);
-    result.end.x = Utility::Math::Lerp(absolute.end.x, parent.end.x, Transform.alignment.horizontal.y);
-    result.end.y = Utility::Math::Lerp(absolute.end.y, parent.end.y, Transform.alignment.vertical.y);
+    result.start.x = Utility::Math::Lerp(absolute.start.x, parent.start.x, transform.alignment.horizontal.x);
+    result.start.y = Utility::Math::Lerp(absolute.start.y, parent.start.y, transform.alignment.vertical.x);
+    result.end.x = Utility::Math::Lerp(absolute.end.x, parent.end.x, transform.alignment.horizontal.y);
+    result.end.y = Utility::Math::Lerp(absolute.end.y, parent.end.y, transform.alignment.vertical.y);
     
     return result; 
 }

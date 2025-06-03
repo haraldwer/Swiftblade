@@ -5,13 +5,13 @@
 void MenuInstance::Init()
 {
     Instance::Init();
-    Menus.Push<MenuMain>();
+    menus.Push<MenuMain>();
     db.Init();
 
     DB::AuthData auth;
     auth.User = "TestUser";
     auth.create = true;
-    db.Auth.Authenticate(auth);
+    db.auth.Authenticate(auth);
 }
 
 void MenuInstance::Deinit()

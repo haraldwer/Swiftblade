@@ -11,20 +11,20 @@ typedef rapidjson::Document DocumentObj;
 
 namespace Utility
 {
-    inline String FormatJson(const String& aJson, bool aDoTabs = true)
+    inline String FormatJson(const String& InJson, bool InDoTabs = true)
     {
         String formatted;
         int offset = 0;
         int totalIndent = 0;
         bool inString = false;
-        for (int i = 0; i < aJson.size(); i++)
+        for (int i = 0; i < InJson.size(); i++)
         {
-            if (aJson[i] == '\"')
+            if (InJson[i] == '\"')
             {
                 if (inString)
                 {
                     int j = i - 1;
-                    while (j >= 0 && aJson[j] == '\\')
+                    while (j >= 0 && InJson[j] == '\\')
                     {
                         --j;
                     }
@@ -40,93 +40,93 @@ namespace Utility
             }
             if (!inString)
             {
-                if (aJson[i] == ',')
+                if (InJson[i] == ',')
                 {
                     // If comma and next is scope start
-                    if (i + 1 < aJson.size() && aJson[i + 1] == '{')
+                    if (i + 1 < InJson.size() && InJson[i + 1] == '{')
                         continue;
                     
-                    formatted.append(aJson.substr(offset, i - offset));
-                    formatted.append({ aJson[i] });
+                    formatted.append(InJson.substr(offset, i - offset));
+                    formatted.append({ InJson[i] });
                     offset = i + 1;
                     formatted.append("\n");
                     for (int j = 0; j < totalIndent; j++)
-                        if (aDoTabs) formatted.append("\t");
+                        if (InDoTabs) formatted.append("\t");
                 }
 
-                if (aJson[i] == '{')
+                if (InJson[i] == '{')
                 {
-                    formatted.append(aJson.substr(offset, i - offset));
-                    formatted.append({ aJson[i] });
+                    formatted.append(InJson.substr(offset, i - offset));
+                    formatted.append({ InJson[i] });
                     offset = i + 1;
                     
                     totalIndent++;
 
                     // If next is not closer
-                    if (i + 1 >= aJson.size() || aJson[i + 1] != '}')
+                    if (i + 1 >= InJson.size() || InJson[i + 1] != '}')
                     {
                         formatted.append("\n");
                         for (int j = 0; j < totalIndent; j++)
                         {
-                            if (aDoTabs)
+                            if (InDoTabs)
                                 formatted.append("\t");
                         }
                     }
                 }
 
-                if (aJson[i] == '[')
+                if (InJson[i] == '[')
                 {
-                    formatted.append(aJson.substr(offset, i - offset));
-                    formatted.append({ aJson[i] });
+                    formatted.append(InJson.substr(offset, i - offset));
+                    formatted.append({ InJson[i] });
                     offset = i + 1;
                     
                     totalIndent++;
 
                     // If next is not arr closer or scope start 
-                    if (i + 1 >= aJson.size() || (aJson[i + 1] != ']' && aJson[i + 1] != '{'))
+                    if (i + 1 >= InJson.size() || (InJson[i + 1] != ']' && InJson[i + 1] != '{'))
                     {
                         formatted.append("\n");
                         for (int j = 0; j < totalIndent; j++)
                         {
-                            if (aDoTabs)
+                            if (InDoTabs)
                                 formatted.append("\t");
                         }
                     }
                 }
                 
-                if (aJson[i] == '}')
+                if (InJson[i] == '}')
                 {
-                    formatted.append(aJson.substr(offset, i - offset));
+                    formatted.append(InJson.substr(offset, i - offset));
 
                     totalIndent--;
                     
                     // If previous was not scope start
-                    if (i > 0 && aJson[i - 1] != '{')
+                    if (i > 0 && InJson[i - 1] != '{')
                     {
                         formatted.append("\n");
                         for (int j = 0; j < totalIndent; j++)
                             formatted.append("\t");
                     }
 
-                    formatted.append({ aJson[i] });
+                    formatted.append({ InJson[i] });
                     offset = i + 1;
                 }
 
-                if (aJson[i] == ']')
+                if (InJson[i] == ']')
                 {
-                    formatted.append(aJson.substr(offset, i - offset));
+                    formatted.append(InJson.substr(offset, i - offset));
 
                     totalIndent--;
                     
                     // If previous was not scope start
-                    if (i > 0 && aJson[i - 1] != '[')
+                    if (i > 0 && InJson[i - 1] != '[')
                     {
                         formatted.append("\n");
                         for (int j = 0; j < totalIndent; j++)
                             formatted.append("\t");
                     }
 
-                    formatted.append({ aJson[i] });
+                    formatted.append({ InJson[i] });
                     offset = i + 1;
                 }
             }

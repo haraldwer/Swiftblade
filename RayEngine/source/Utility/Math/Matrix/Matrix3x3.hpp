@@ -154,24 +154,24 @@ namespace Utility
 				return newMatrix;
 			}
 
-			static Matrix3x3 CreateRotationAroundY(Type aAngleInRadians)
+			static Matrix3x3 CreateRotationAroundY(Type InAngleRad)
 			{
-				Matrix3x3 new_matrix;
-				Type cos_angle = std::cos(aAngleInRadians);
-				Type sin_angle = std::sin(aAngleInRadians);
+				Matrix3x3 newMatrix;
+				Type cosAngle = std::cos(InAngleRad);
+				Type sinAngle = std::sin(InAngleRad);
 
-				new_matrix.elements[0][0] = cos_angle;
-				new_matrix.elements[0][1] = 0.0f;
-				new_matrix.elements[0][2] = -sin_angle;
+				newMatrix.elements[0][0] = cosAngle;
+				newMatrix.elements[0][1] = 0.0f;
+				newMatrix.elements[0][2] = -sinAngle;
 				
-				new_matrix.elements[1][0] = 0.0f;
-				new_matrix.elements[1][1] = 1.0;
-				new_matrix.elements[1][2] = 0.0;
+				newMatrix.elements[1][0] = 0.0f;
+				newMatrix.elements[1][1] = 1.0;
+				newMatrix.elements[1][2] = 0.0;
 				
-				new_matrix.elements[2][0] = sin_angle;
-				new_matrix.elements[2][1] = 0.0;
-				new_matrix.elements[2][2] = cos_angle;
-				return new_matrix;
+				newMatrix.elements[2][0] = sinAngle;
+				newMatrix.elements[2][1] = 0.0;
+				newMatrix.elements[2][2] = cosAngle;
+				return newMatrix;
 			}
 
 			static Matrix3x3 CreateRotationAroundZ(Type InAngleInRadians)

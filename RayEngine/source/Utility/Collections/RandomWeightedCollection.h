@@ -7,51 +7,51 @@ namespace Utility
     class RandomWeightedCollection
     {
     public:
-        RandomWeightedCollection(const int InSeed) : Rand(InSeed) {}
+        RandomWeightedCollection(const int InSeed) : rand(InSeed) {}
 
         void Add(const T& InEntry, const WeightT InWeight = 1.0f)
         {
-            Entries.push_back({ InEntry, InWeight });
+            entries.push_back({ InEntry, InWeight });
         }
         
         void Clear()
         {
-            Entries.clear(); 
-            Indices.clear();
+            entries.clear(); 
+            indices.clear();
         }
         
         void Reset()
         {
-            Indices.clear();
+            indices.clear();
         }
 
         T Pop()
         {
-            if (Entries.empty())
+            if (entries.empty())
                 return T(); 
             
-            if (Indices.empty())
+            if (indices.empty())
             {
-                for (size_t i = 0; i < Entries.size(); i++)
-                    Indices.insert(static_cast<int>(i));
-                Total = 0.0;
-                for (const Entry& entry : Entries)
-                    Total += entry.Weight;
+                for (size_t i = 0; i < entries.size(); i++)
+                    indices.insert(static_cast<int>(i));
+                total = 0.0;
+                for (const Entry& entry : entries)
+                    total += entry.Weight;
             }
 
             // Random range
-            WeightT val = Rand.Range<WeightT>(0.0, Total); 
+            WeightT val = rand.Range<WeightT>(0.0, total); 
             
             // Subtract until zero
-            for (int index : Indices)
+            for (int index : indices)
             {
-                auto& entry = Entries[index];
+                auto& entry = entries[index];
                 val -= entry.Weight;
                 if (val < 0.0)
                 {
                     // Subtract from total and return result
-                    Total -= entry.Weight;
-                    Indices.erase(index); 
+                    total -= entry.Weight;
+                    indices.erase(index); 
                     return entry.Data; 
                 }
             }
@@ -61,20 +61,20 @@ namespace Utility
 
         int Count()
         {
-            return static_cast<int>(Entries.size());
+            return static_cast<int>(entries.size());
         }
 
     private:
 
         struct Entry
         {
-            T Data = {};
-            WeightT Weight = {};
+            T data = {};
+            WeightT weight = {};
         };
         
-        Vector<Entry> Entries = {};
-        Set<int> Indices = {};
-        WeightT Total = 0.0;
-        Random Rand = {}; 
+        Vector<Entry> entries = {};
+        Set<int> indices = {};
+        WeightT total = 0.0;
+        Random rand = {}; 
     };
 }

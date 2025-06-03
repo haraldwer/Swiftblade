@@ -25,192 +25,187 @@ namespace Utility
 				}
 
 				Vertex(const VertexData& InInterpolatedData) : interpolatedData(InInterpolatedData) {}
-				Vertex() {}
-				~Vertex() {}
 
-			}vertex[3];
+			} vertex[3];
 
-
-			inline static float Area(const PositionType& v1, const PositionType& v2, const PositionType& v3)
+			static float Area(const PositionType& InV1, const PositionType& InV2, const PositionType& InV3)
 			{
-				return 0.5f * (v1.x * (v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y));
+				return 0.5f * (InV1.x * (InV2.y - InV3.y) + InV2.x * (InV3.y - InV1.y) + InV3.x * (InV1.y - InV2.y));
 			}
 
 			// TODO: change place of is_inside a and b
-			inline std::pair<int, std::array<Vertex, 6>> GetClipPoints(Triangle clipped_triangle)
+			std::pair<int, std::array<Vertex, 6>> GetClipPoints(Triangle InClippedTriangle)
 			{
-				int number_of_points = 0;
-				std::array<Vertex, 6> clip_points;
+				int numberOfPoints = 0;
+				std::array<Vertex, 6> clipPoints;
 
-				bool is_inside_a[3] = { true, true, true };
+				bool isInsideA[3] = { true, true, true };
 
 				// Index a and b refers to the starting vertex of each triangle used for the line segment.
-				for (int a_index = 0; a_index < 3; ++a_index)
+				for (int aIndex = 0; aIndex < 3; ++aIndex)
 				{
-					int a_index_end = (a_index + 1) % 3;
-					PositionType av1 = { clipped_triangle.vertex[a_index].position().x, clipped_triangle.vertex[a_index].position().y };
-					PositionType av2 = { clipped_triangle.vertex[a_index_end].position().x, clipped_triangle.vertex[a_index_end].position().y };
-					PositionType a_diff = av2 - av1;
+					int aIndexEnd = (aIndex + 1) % 3;
+					PositionType av1 = { InClippedTriangle.vertex[aIndex].position().x, InClippedTriangle.vertex[aIndex].position().y };
+					PositionType av2 = { InClippedTriangle.vertex[aIndexEnd].position().x, InClippedTriangle.vertex[aIndexEnd].position().y };
+					PositionType aDiff = av2 - av1;
 
-					bool is_inside_b = true;
+					bool isInsideB = true;
 
-					for (int b_index = 0; b_index < 3; ++b_index)
+					for (int bIndex = 0; bIndex < 3; ++bIndex)
 					{
-						int b_index_end = (b_index + 1) % 3;
-						PositionType bv1 = { vertex[b_index].position().x, vertex[b_index].position().y };
-						PositionType bv2 = { vertex[b_index_end].position().x, vertex[b_index_end].position().y };
-						PositionType b_diff = bv2 - bv1;
+						int bIndexEnd = (bIndex + 1) % 3;
+						PositionType bv1 = { vertex[bIndex].position().x, vertex[bIndex].position().y };
+						PositionType bv2 = { vertex[bIndexEnd].position().x, vertex[bIndexEnd].position().y };
+						PositionType bDiff = bv2 - bv1;
 
 						// Check Edge Intersection
-						float diff_cross = a_diff.Cross(b_diff);
-						if (diff_cross != 0.0f) // TODO: make more stable?
+						float diffCross = aDiff.Cross(bDiff);
+						if (diffCross != 0.0f) // TODO: make more stable?
 						{
-							float intersection_t = (bv1 - av1).Cross(b_diff) / (diff_cross);
-							float intersection_u = (bv1 - av1).Cross(a_diff) / (diff_cross);
+							float intersectionT = (bv1 - av1).Cross(bDiff) / (diffCross);
+							const float intersectionU = (bv1 - av1).Cross(aDiff) / (diffCross);
 
-							if (intersection_t >= 0.0f && intersection_t <= 1.0f && intersection_u >= 0.0f && intersection_u <= 1.0f)
+							if (intersectionT >= 0.0f && intersectionT <= 1.0f && intersectionU >= 0.0f && intersectionU <= 1.0f)
 							{
-								VertexData& point_data = clip_points[number_of_points];
+								VertexData& pointData = clipPoints[numberOfPoints];
 
-								point_data.Interpolate(clipped_triangle.vertex[a_index].interpolated_data, clipped_triangle.vertex[a_index_end].interpolated_data, intersection_t);
+								pointData.Interpolate(InClippedTriangle.vertex[aIndex].interpolated_data, InClippedTriangle.vertex[aIndexEnd].interpolated_data, intersectionT);
 
-								number_of_points++;
+								numberOfPoints++;
 							}
 						}
 
 						// Check If Vertex Is Inside Triangles
-						PositionType ba_diff = av1 - bv1;
+						PositionType baDiff = av1 - bv1;
 
-						float dot = ba_diff.Dot({ -b_diff.y, b_diff.x });
+						float dot = baDiff.Dot({ -bDiff.y, bDiff.x });
 						if (dot < 0.0f)
 						{
-							is_inside_b = false;
+							isInsideB = false;
 						}
 
-						PositionType ab_diff = bv1 - av1;
-						dot = ab_diff.Dot({ -a_diff.y, a_diff.x });
+						PositionType abDiff = bv1 - av1;
+						dot = abDiff.Dot({ -aDiff.y, aDiff.x });
 						if (dot < 0.0f)
 						{
-							is_inside_a[b_index] = false;
+							isInsideA[bIndex] = false;
 						}
 					}
 
-					if (is_inside_b)
+					if (isInsideB)
 					{
-						VertexData& point_data = clip_points[number_of_points];
-						point_data = clipped_triangle.vertex[a_index].interpolated_data;
-						number_of_points++;
+						VertexData& pointData = clipPoints[numberOfPoints];
+						pointData = InClippedTriangle.vertex[aIndex].interpolated_data;
+						numberOfPoints++;
 					}
 				}
 
-				for (int b_index = 0; b_index < 3; ++b_index)
+				for (int bIndex = 0; bIndex < 3; ++bIndex)
 				{
-					if (is_inside_a[b_index])
+					if (isInsideA[bIndex])
 					{
-						auto position = vertex[b_index].position();
+						auto position = vertex[bIndex].position();
 
-						float clipper_area = Area(clipped_triangle.vertex[0].position, clipped_triangle.vertex[1].position, clipped_triangle.vertex[2].position);
-						
+						const float clipperArea = Area(InClippedTriangle.vertex[0].position, InClippedTriangle.vertex[1].position, InClippedTriangle.vertex[2].position);
 
-						float area_a = Area(clipped_triangle.vertex[1].position, clipped_triangle.vertex[2].position, position);
-						float area_b = Area(clipped_triangle.vertex[2].position, clipped_triangle.vertex[0].position, position);
-						float area_c = Area(clipped_triangle.vertex[0].position, clipped_triangle.vertex[1].position, position);
 
-						float interpolation_0 = area_a / clipper_area;
-						float interpolation_1 = area_b / clipper_area;
-						float interpolation_2 = area_c / clipper_area;
+						const float areaA = Area(InClippedTriangle.vertex[1].position, InClippedTriangle.vertex[2].position, position);
+						const float areaB = Area(InClippedTriangle.vertex[2].position, InClippedTriangle.vertex[0].position, position);
+						const float areaC = Area(InClippedTriangle.vertex[0].position, InClippedTriangle.vertex[1].position, position);
 
-						Vertex& vertex_data = clip_points[number_of_points];
+						float interpolation0 = areaA / clipperArea;
+						float interpolation1 = areaB / clipperArea;
+						float interpolation2 = areaC / clipperArea;
 
-						vertex_data.interpolated_data.Reset();
-						vertex_data.interpolated_data.Accumulate(clipped_triangle.vertex[0], interpolation_0);
-						vertex_data.interpolated_data.Accumulate(clipped_triangle.vertex[1], interpolation_1);
-						vertex_data.interpolated_data.Accumulate(clipped_triangle.vertex[2], interpolation_2);
+						Vertex& vertexData = clipPoints[numberOfPoints];
 
-						number_of_points++;
+						vertexData.interpolated_data.Reset();
+						vertexData.interpolated_data.Accumulate(InClippedTriangle.vertex[0], interpolation0);
+						vertexData.interpolated_data.Accumulate(InClippedTriangle.vertex[1], interpolation1);
+						vertexData.interpolated_data.Accumulate(InClippedTriangle.vertex[2], interpolation2);
+
+						numberOfPoints++;
 					}
 				}
 
-				return { number_of_points, clip_points };
+				return { numberOfPoints, clipPoints };
 			}
 
-			inline std::pair<int, std::array<Triangle, 4>> Clip(Triangle clipped_triangle)
+			std::pair<int, Array<Triangle, 4>> Clip(const Triangle InClippedTriangle)
 			{
-				bool used_clip_points[6] = {};
-				auto clip_points = GetClipPoints(clipped_triangle);
+				bool usedClipPoints[6] = {};
+				auto clipPoints = GetClipPoints(InClippedTriangle);
 
-				int number_of_new_triangles = 0;
-				std::array<Triangle, 4> new_triangles;
+				int numberOfNewTriangles = 0;
+				Array<Triangle, 4> newTriangles;
 
-				if (clip_points.first > 2)
+				if (clipPoints.first > 2)
 				{
-					int left_most_vertex_index = 0;
-					for (int index = 1; index < clip_points.first; ++index)
+					int leftMostVertexIndex = 0;
+					for (int index = 1; index < clipPoints.first; ++index)
 					{
-						if (clip_points.second[index].position().x < clip_points.second[left_most_vertex_index].position().x)
+						if (clipPoints.second[index].position().x < clipPoints.second[leftMostVertexIndex].position().x)
 						{
-							left_most_vertex_index = index;
+							leftMostVertexIndex = index;
 						}
 					}
 
-					used_clip_points[left_most_vertex_index] = true;
-					int challanger_index = -1;
-					int previous_accepted_challanger_index = -1;
+					usedClipPoints[leftMostVertexIndex] = true;
+					int challangerIndex = -1;
+					int previousAcceptedChallangerIndex = -1;
 
-					PositionType& left_most_position = clip_points.second[left_most_vertex_index].position;
-					PositionType challanger_diff;
+					PositionType& leftMostPosition = clipPoints.second[leftMostVertexIndex].position;
+					PositionType challangerDiff;
 
-					for (int challange_index = 0; challange_index < clip_points.first - 1; ++challange_index)
+					for (int challangeIndex = 0; challangeIndex < clipPoints.first - 1; ++challangeIndex)
 					{
-						for (int index = 0; index < clip_points.first; ++index)
+						for (int index = 0; index < clipPoints.first; ++index)
 						{
-							if (!used_clip_points[index] && index != challanger_index)
+							if (!usedClipPoints[index] && index != challangerIndex)
 							{
-								auto diff = clip_points.second[index].position - left_most_position;
-								float dot = (challanger_diff.y * diff.x) + (-challanger_diff.x * diff.y);
+								auto diff = clipPoints.second[index].position - leftMostPosition;
+								float dot = (challangerDiff.y * diff.x) + (-challangerDiff.x * diff.y);
 
-								if (dot > 0.0 || challanger_index == -1)
+								if (dot > 0.0 || challangerIndex == -1)
 								{
-									challanger_index = index;
-									challanger_diff = diff;
+									challangerIndex = index;
+									challangerDiff = diff;
 								}
 							}
 						}
 
-						if (previous_accepted_challanger_index > -1)
+						if (previousAcceptedChallangerIndex > -1)
 						{
 							// New Triangle
-							auto& triangle = new_triangles[number_of_new_triangles];
-							triangle.vertex[0].interpolated_data = clip_points.second[left_most_vertex_index];
-							triangle.vertex[1].interpolated_data = clip_points.second[previous_accepted_challanger_index];
-							triangle.vertex[2].interpolated_data = clip_points.second[challanger_index];
+							auto& triangle = newTriangles[numberOfNewTriangles];
+							triangle.vertex[0].interpolated_data = clipPoints.second[leftMostVertexIndex];
+							triangle.vertex[1].interpolated_data = clipPoints.second[previousAcceptedChallangerIndex];
+							triangle.vertex[2].interpolated_data = clipPoints.second[challangerIndex];
 
-							number_of_new_triangles++;
+							numberOfNewTriangles++;
 						}
 
-						previous_accepted_challanger_index = challanger_index;
-						used_clip_points[challanger_index] = true;
-						challanger_index = -1;
+						previousAcceptedChallangerIndex = challangerIndex;
+						usedClipPoints[challangerIndex] = true;
+						challangerIndex = -1;
 					}
 
 
 				}
 
-				return { number_of_new_triangles, new_triangles };
+				return { numberOfNewTriangles, newTriangles };
 			}
 
-			inline Triangle& operator = (const Triangle& triangle)
+			inline Triangle& operator = (const Triangle& InTriangle)
 			{
-				vertex[0].interpolated_data = triangle.vertex[0].interpolated_data;
-				vertex[1].interpolated_data = triangle.vertex[1].interpolated_data;
-				vertex[2].interpolated_data = triangle.vertex[2].interpolated_data;
+				vertex[0].interpolated_data = InTriangle.vertex[0].interpolated_data;
+				vertex[1].interpolated_data = InTriangle.vertex[1].interpolated_data;
+				vertex[2].interpolated_data = InTriangle.vertex[2].interpolated_data;
 				return *this;
 			}
 
-			Triangle(const VertexData& v1, const VertexData& v2, const VertexData& v3) : vertex { v1, v2, v3 } {}
-			Triangle(const Triangle& triangle) : vertex{ triangle.vertex[0], triangle.vertex[1], triangle.vertex[2] } {}
-			Triangle() {}
-			~Triangle() {}
+			Triangle(const VertexData& InV1, const VertexData& InV2, const VertexData& InV3) : vertex { InV1, InV2, InV3 } {}
+			Triangle(const Triangle& InTriangle) : vertex{ InTriangle.vertex[0], InTriangle.vertex[1], InTriangle.vertex[2] } {}
 		};
 	}
 }

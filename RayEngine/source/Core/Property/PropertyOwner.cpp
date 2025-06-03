@@ -3,9 +3,9 @@
 
 void PropertyOwnerBase::AddProperty(PropertyBase* InProperty)
 {
-    CHECK_RETURN(!Instance);
+    CHECK_RETURN(!instance);
     CHECK_ASSERT(!InProperty, "Property null");
-    Instance->AddPropertyInternal(InProperty);
+    instance->AddPropertyInternal(InProperty);
 }
 
 Map<String, PropertyBase*> PropertyOwnerBase::GetProperties() const

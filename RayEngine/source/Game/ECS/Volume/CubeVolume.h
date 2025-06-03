@@ -12,11 +12,11 @@ namespace ECS
         PROPERTY_D(float, Scale, 1.0f); 
 
         // Manually serialized / deserialized
-        CubeVolumeData Data;
+        CubeVolumeData data;
 
-        Utility::Math::Vector3<uint8> CachedMinBounds;
-        Utility::Math::Vector3<uint8> CachedMaxBounds;
-        Vector<Mat4F> CachedCubeTransforms;
+        Utility::Math::Vector3<uint8> cachedMinBounds;
+        Utility::Math::Vector3<uint8> cachedMaxBounds;
+        Vector<Mat4F> cachedCubeTransforms;
 
         void UpdateCache(const Mat4F& InWorld);
         
@@ -47,8 +47,8 @@ namespace ECS
         int GetPriority() const override { return -101; }
         
     private:
-        MeshInstance BlockMesh; 
-        MeshInstance EditMesh;
+        MeshInstance blockMesh; 
+        MeshInstance editMesh;
     };
 }
 

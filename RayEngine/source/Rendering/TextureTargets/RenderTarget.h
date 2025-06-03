@@ -11,9 +11,9 @@ namespace Rendering
     public:
         struct TargetTex
         {
-            Texture* Tex = {};
-            String Name = {}; 
-            bool Cubemap = false;
+            Texture* tex = {};
+            String name = {}; 
+            bool cubemap = false;
         };
         
         bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat);
@@ -23,16 +23,16 @@ namespace Rendering
         void Unload();
         void Bind(ShaderResource& InShader, int& InOutSlot, int InFilter = -1, const String& InPostfix = "") const;
         
-        const Vector<TargetTex>& GetTextures() const { return Textures; }
-        Vec2I Size() const { return { Width, Height }; }
-        uint32 GetFBO() const { return FrameBuffer; }
+        const Vector<TargetTex>& GetTextures() const { return textures; }
+        Vec2I Size() const { return { width, height }; }
+        uint32 GetFBO() const { return frameBuffer; }
         
     private: 
         
-        uint32 FrameBuffer = 0;
-        Vector<TargetTex> Textures = {};
+        uint32 frameBuffer = 0;
+        Vector<TargetTex> textures = {};
 
-        int Width = 0;
-        int Height = 0;
+        int width = 0;
+        int height = 0;
     };
 }

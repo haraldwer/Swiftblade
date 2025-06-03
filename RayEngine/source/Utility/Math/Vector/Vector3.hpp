@@ -92,14 +92,14 @@ namespace Utility
 				return Math::Lerp(InA, InB, InT);
 			}
 			
-			const Type& operator [](int index) const
+			const Type& operator [](int InIndex) const
 			{
-				return data[index];
+				return data[InIndex];
 			}
 
-			Type& operator [](int index)
+			Type& operator [](int InIndex)
 			{
-				return data[index];
+				return data[InIndex];
 			}
 
 			Vector3& operator = (const Vector3<Type>& InOther)

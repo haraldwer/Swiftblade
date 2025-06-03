@@ -13,7 +13,7 @@ public:
     Utility::Type GetDefaultStateType() override { return Type::Get<CombatStateIdle>(); }
 
 private:
-    CombatStateIdle Idle;
-    CombatStateStrike Strike;
+    CombatStateIdle idle;
+    CombatStateStrike strike;
     
 };

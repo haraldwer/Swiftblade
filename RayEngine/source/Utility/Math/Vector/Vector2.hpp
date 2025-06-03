@@ -76,9 +76,9 @@ namespace Utility
 				return Math::Lerp(InA, InB, InT);
 			}
 
-			Type& operator [](int aIndex)
+			Type& operator [](int InIndex)
 			{
-				return data[aIndex];
+				return data[InIndex];
 			}
 			 
 			Vector2& operator = (const Vector2& InOther)
@@ -144,11 +144,11 @@ namespace Utility
 				return *this;
 			}
 			
-			bool operator==(const Vector2& in) const
+			bool operator==(const Vector2& InOther) const
 			{
 				return
-					x == in.x &&
-					y == in.y;
+					x == InOther.x &&
+					y == InOther.y;
 			}
 
 			template <class OtherType>
@@ -160,8 +160,8 @@ namespace Utility
 				};
 			}
 
-			Vector2(const Type& a_x, const Type& a_y) : data{ a_x, a_y } {}
-			Vector2(const Type& a_v) : data{ a_v, a_v } {}
+			Vector2(const Type& InX, const Type& InY) : data{ InX, InY } {}
+			Vector2(const Type& InV) : data{ InV, InV } {}
 			Vector2() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}
 
 			static Vector2 Up()			{ return { 0, 1 }; };

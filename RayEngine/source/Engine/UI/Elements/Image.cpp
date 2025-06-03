@@ -23,6 +23,6 @@ void UI::Image::Draw()
                     view.end.y - view.start.y
                 },
                 { 0.0f, 0.0f },
-                Transform.rotation,
+                transform.rotation,
                 WHITE);
 }

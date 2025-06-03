@@ -5,58 +5,58 @@ void Rendering::AtlasMap::Init(const Vec2I& InResolution, const int InSlots, con
     int slots = InSlots;
     if (InCubemap)
         slots *= 6;
-    AxisSlots = Utility::Math::SquareRoot(slots);
-    SlotResolution = InResolution.y / AxisSlots;
-    Cubemap = InCubemap;
+    axisSlots = Utility::Math::SquareRoot(slots);
+    slotResolution = InResolution.y / axisSlots;
+    cubemap = InCubemap;
     
     for (int i = 0; i < InSlots; i++)
-        Available.push_back(Cubemap ? i * 6 : i);
+        available.push_back(cubemap ? i * 6 : i);
     
-    Timer = {};
+    timer = {};
 }
 
 void Rendering::AtlasMap::Deinit()
 {
-    Slots.clear();
-    Available.clear();
+    slots.clear();
+    available.clear();
 }
 
 Vec4I Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
 {
     // Track last access time
-    auto& slot = Slots[InID];
-    slot.AccessTime = Timer.Ellapsed();
-    if (slot.Index == -1)
+    auto& slot = slots[InID];
+    slot.accessTime = timer.Ellapsed();
+    if (slot.index == -1)
     {
-        if (Available.empty())
+        if (available.empty())
         {
             // Free oldest access slot
-            uint64 LowestTimeID = static_cast<uint64>(-1);
-            double LowestTime = -1.0f;
-            for (auto& s : Slots)
+            uint64 lowestTimeID = static_cast<uint64>(-1);
+            double lowestTime = -1.0f;
+            for (auto& s : slots)
             {
-                if (s.second.AccessTime < LowestTime || LowestTime < 0.0)
+                if (s.second.accessTime < lowestTime || lowestTime < 0.0)
                 {
-                    LowestTime = s.second.AccessTime;
-                    LowestTimeID = s.first;
+                    lowestTime = s.second.accessTime;
+                    lowestTimeID = s.first;
                 }
             }
 
-            CHECK_ASSERT(LowestTimeID == static_cast<uint64>(-1), "Unable to find slot to free");
-            Available.push_back(Slots.at(LowestTimeID).Index);
-            Slots.erase(LowestTimeID);
+            CHECK_ASSERT(lowestTimeID == static_cast<uint64>(-1), "Unable to find slot to free");
+            available.push_back(slots.at(lowestTimeID).index);
+            slots.erase(lowestTimeID);
         }
 
-        slot.Index = Available.front();
-        Available.erase(Available.begin());
+        slot.index = available.front();
+        available.erase(available.begin());
     }
     
-    return CalcRect(slot.Index + InFace);
+    return CalcRect(slot.index + InFace);
 }
 
 Vec4I Rendering::AtlasMap::CalcRect(const int InIndex) const
 {
-    int hI = InIndex % AxisSlots;
-    int vI = InIndex / AxisSlots;
-    return Vec4I({ hI, vI, 1, 1 }) * SlotResolution;
+    int hI = InIndex % axisSlots;
+    int vI = InIndex / axisSlots;
+    return Vec4I({ hI, vI, 1, 1 }) * slotResolution;
 }

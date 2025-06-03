@@ -6,24 +6,24 @@ bool PropRuleVerticalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InC
 {
     return false;
     
-    if (!InVolume.Data.contains(InCoord.Key))
+    if (!InVolume.data.contains(InCoord.key))
         return false;
     
     // 0right 1left 2up 3down 4forward 5back
     auto neighbors = ECS::CubeVolume::GetNeighbors(InCoord);
 
     // Is up clear? 
-    if (neighbors[2].Key != 0)
-        if (InVolume.Data.contains(neighbors[2].Key))
+    if (neighbors[2].key != 0)
+        if (InVolume.data.contains(neighbors[2].key))
             return false;
 
     // Test every direction
     bool success = false;
     auto testDir = [&](int InIndex, Vec3F InDir)
     {
-        if (neighbors[InIndex].Key != 0)
+        if (neighbors[InIndex].key != 0)
         {
-            if (!InVolume.Data.contains(neighbors[InIndex].Key))
+            if (!InVolume.data.contains(neighbors[InIndex].key))
             {
                 Vec3F pos = InVolume.CoordToPos(InCoord);
                 Mat4F trans = Mat4F(

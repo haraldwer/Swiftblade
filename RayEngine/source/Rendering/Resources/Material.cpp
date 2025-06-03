@@ -4,10 +4,10 @@
 
 bool MaterialResource::Load(const String& InPath)
 {
-    Identifier = InPath;
+    identifier = InPath;
     const bool result = PropertyOwnerBase::Load(InPath);
-    CachedHash = 0;
-    CachedDeferredHash = 0;
+    cachedHash = 0;
+    cachedDeferredHash = 0;
     return result;
 }
 
@@ -18,24 +18,24 @@ Utility::Timepoint MaterialResource::GetEditTime() const
         maxTime = rsc->GetEditTime();
     if (const ShaderResource* rsc = DeferredShader.Get().Get())
         maxTime = Utility::Math::Max(maxTime, rsc->GetEditTime());
-    maxTime = Utility::Math::Max(maxTime, Utility::GetFileWriteTime(Identifier));
+    maxTime = Utility::Math::Max(maxTime, Utility::GetFileWriteTime(identifier));
     return maxTime;
 }
 
 uint32 MaterialResource::Hash()
 {
-    if (CachedHash == 0)
+    if (cachedHash == 0)
         if (SurfaceShader.Get().IsLoaded() && DeferredShader.Get().IsLoaded())
-            CachedHash =  
+            cachedHash =  
                 Utility::Hash(SurfaceShader.Get().Identifier()) + 
                 Utility::Hash(TwoSided.Get()) +
                 DeferredHash();
-    return CachedHash;
+    return cachedHash;
 }
 
 uint32 MaterialResource::DeferredHash()
 {
-    if (CachedDeferredHash == 0)
-        CachedDeferredHash = Utility::Hash(DeferredShader.Get().Identifier());
-    return CachedDeferredHash;
+    if (cachedDeferredHash == 0)
+        cachedDeferredHash = Utility::Hash(DeferredShader.Get().Identifier());
+    return cachedDeferredHash;
 }

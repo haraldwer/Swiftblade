@@ -18,95 +18,95 @@ namespace Utility::Memory
 
 		int GetDataBufferSize() const
 		{
-			return used_bytes;
+			return usedBytes;
 		}
 		
 		template<typename PackedType>
-		DataPacker& operator << (PackedType aValue)
+		DataPacker& operator << (PackedType InValue)
 		{
 			const uint32_t type_size = sizeof(PackedType);
 			RequestSize(type_size);
-			memcpy(&data[position], &aValue, type_size);
+			memcpy(&data[position], &InValue, type_size);
 			position += type_size;
-			used_bytes += type_size;
+			usedBytes += type_size;
 			return *this;
 		}
 
 		template<typename Type>
-		DataPacker& operator << (std::vector<Type> aValue)
+		DataPacker& operator << (std::vector<Type> InValue)
 		{
-			const uint32_t number_of_elements = aValue.size();
+			const uint32_t number_of_elements = InValue.size();
 
 			(*this) << number_of_elements;
 			const int data_size = number_of_elements * sizeof(Type);
 			RequestSize(number_of_elements*sizeof(Type));
 
-			memcpy(&data[position], aValue.data(), data_size);
+			memcpy(&data[position], InValue.data(), data_size);
 
 			position += data_size;
-			used_bytes += data_size;
+			usedBytes += data_size;
 			return *this;
 		}
 
 		template<typename UnpackedType>
-		DataPacker& operator >> (UnpackedType& aValue)
+		DataPacker& operator >> (UnpackedType& InValue)
 		{
-			aValue = (*(UnpackedType*)(&data[position]));
-			position += sizeof(aValue);
+			InValue = (*(UnpackedType*)(&data[position]));
+			position += sizeof(InValue);
 			return *this;
 		}
 
 		template<typename Type>
-		DataPacker& operator >> (std::vector<Type>& aValue)
+		DataPacker& operator >> (std::vector<Type>& InValue)
 		{
 			int32_t number_of_elements = 0;
 			(*this) >> number_of_elements;
-			aValue.resize(number_of_elements);
+			InValue.resize(number_of_elements);
 			const int data_size = number_of_elements * sizeof(Type);
 
-			memcpy(aValue.data(), (&data[position]), data_size);
+			memcpy(InValue.data(), (&data[position]), data_size);
 
 			position += data_size;
 			return *this;
 		}
 
-		void SetPosition(int aPosition)
+		void SetPosition(int InPosition)
 		{
-			position = aPosition;
+			position = InPosition;
 		}
 
-		void Skip(int aBytes)
+		void Skip(const int InBytes)
 		{
-			position += aBytes;
+			position += InBytes;
 		}
 
-		void RequestSize(int aBytes)
+		void RequestSize(int InBytes)
 		{
-			if (data.size() - used_bytes <= aBytes)
+			if (data.size() - usedBytes <= InBytes)
 			{
-				Expand(aBytes);
+				Expand(InBytes);
 			}
 		}
 
 		void Clear()
 		{
-			used_bytes = 0;
+			usedBytes = 0;
 			position = 0;
 		}
 
-		DataPacker() : used_bytes(0) {}
+		DataPacker() : usedBytes(0) {}
 		~DataPacker() = default;
 
 	private:
 
-		int used_bytes;
+		int usedBytes;
 		std::vector<char> data;
 		int position = 0;
 		
-		void Expand(int aMinimum)
+		void Expand(int InMinimum)
 		{
-			const int expansion_size = aMinimum > 256 ? aMinimum : 256;
-			data.resize(expansion_size+data.size());
+			const int expansionSize = InMinimum > 256 ? InMinimum : 256;
+			data.resize(expansionSize+data.size());
 		}
 	};
 
@@ -115,10 +115,10 @@ namespace Utility::Memory
 	public:
 
 		template<typename UnpackedType>
-		DataUnpacker& operator >> (UnpackedType& aValue)
+		DataUnpacker& operator >> (UnpackedType& InValue)
 		{
-			aValue = (*(UnpackedType*)(&data[position]));
-			position += sizeof(aValue);
+			InValue = (*(UnpackedType*)(&data[position]));
+			position += sizeof(InValue);
 			return *this;
 		}
 
@@ -131,7 +131,7 @@ namespace Utility::Memory
 		}
 		
 
-		DataUnpacker(void* data) : data((char*)data) {}
+		DataUnpacker(void* InData) : data((char*)InData) {}
 		~DataUnpacker() = default;
 
 	private:

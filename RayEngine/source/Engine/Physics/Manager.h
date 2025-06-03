@@ -47,15 +47,15 @@ namespace Physics
         void Deinit();
         ~PersistentPhysics();
 
-        physx::PxFoundation* Foundation = nullptr;
-        physx::PxPvd* PVD = nullptr;
-        physx::PxPhysics* Physics = nullptr;
-        physx::PxDefaultCpuDispatcher* Dispatcher = nullptr;
-        physx::PxPvdTransport* Transport = nullptr;
+        physx::PxFoundation* foundation = nullptr;
+        physx::PxPvd* pvd = nullptr;
+        physx::PxPhysics* physics = nullptr;
+        physx::PxDefaultCpuDispatcher* dispatcher = nullptr;
+        physx::PxPvdTransport* transport = nullptr;
 
-        static constexpr size_t ScratchBlockSize = 16384 * 2;
-        static constexpr size_t ScratchBlockAlignment = 16;
-        void* ScratchBlock = nullptr;
+        static constexpr size_t SCRATCH_BLOCK_SIZE = 16384 * 2;
+        static constexpr size_t SCRATCH_BLOCK_ALIGNMENT = 16;
+        void* scratchBlock = nullptr;
     };
     
     class Manager : public Utility::Singelton<Manager>
@@ -91,17 +91,17 @@ namespace Physics
         void TryReleaseDynamic(ECS::EntityID InID); 
         void TryReleaseStatic(ECS::EntityID InID); 
 
-        physx::PxScene* Scene = nullptr;
-        Callback* Callback = nullptr; 
+        physx::PxScene* scene = nullptr;
+        Callback* callback = nullptr; 
 
-        Map<ECS::EntityID, physx::PxRigidStatic*> Statics = {}; 
-        Map<ECS::EntityID, physx::PxRigidDynamic*> Dynamics = {};
+        Map<ECS::EntityID, physx::PxRigidStatic*> statics = {}; 
+        Map<ECS::EntityID, physx::PxRigidDynamic*> dynamics = {};
         
-        Map<ECS::EntityID, physx::PxShape*> Shapes = {}; 
-        Map<ECS::EntityID, Set<ECS::EntityID>> ActorToShape = {}; 
-        Map<ECS::EntityID, ECS::EntityID> ShapeToActor = {};
+        Map<ECS::EntityID, physx::PxShape*> shapes = {}; 
+        Map<ECS::EntityID, Set<ECS::EntityID>> actorToShape = {}; 
+        Map<ECS::EntityID, ECS::EntityID> shapeToActor = {};
 
-        physx::PxRigidStatic* CubeOwner = nullptr;
-        Map<ECS::EntityID, Vector<physx::PxShape*>> CubeShapes = {};
+        physx::PxRigidStatic* cubeOwner = nullptr;
+        Map<ECS::EntityID, Vector<physx::PxShape*>> cubeShapes = {};
     };
 }

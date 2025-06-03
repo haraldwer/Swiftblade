@@ -35,23 +35,23 @@ namespace Utility
 			}
 
 			Quaternion() : w(static_cast<Type>(1.0)), x(DefaultInitializationValue<Type>()), y(DefaultInitializationValue<Type>()), z(DefaultInitializationValue<Type>()) {}
-			Quaternion(const Quaternion& q) : w(q.w), x(q.x), y(q.y), z(q.z) {}
-			Quaternion(float aw, float ax, float ay, float az) : w(aw), x(ax), y(ay), z(az) {}
-			Quaternion(Type angle, const Vector3<Type>& axis)
+			Quaternion(const Quaternion& InQuat) : w(InQuat.w), x(InQuat.x), y(InQuat.y), z(InQuat.z) {}
+			Quaternion(float InW, float InX, float InY, float InZ) : w(InW), x(InX), y(InY), z(InZ) {}
+			Quaternion(Type InAngle, const Vector3<Type>& InAxis)
 			{
-				w = cos(angle / 2);
-				const Type sinAngle = sin(angle / 2);
-				x = axis.x * sinAngle;
-				y = axis.y * sinAngle;
-				z = axis.z * sinAngle;
+				w = cos(InAngle / 2);
+				const Type sinAngle = sin(InAngle / 2);
+				x = InAxis.x * sinAngle;
+				y = InAxis.y * sinAngle;
+				z = InAxis.z * sinAngle;
 			}
 
-			static Quaternion FromEuler(const Vector3<Type>& euler)
+			static Quaternion FromEuler(const Vector3<Type>& InEuler)
 			{
 				// Assuming the angles are in radians.
-				const Type heading = euler.y;
-				const Type attitude = euler.z;
-				const Type bank = euler.x;
+				const Type heading = InEuler.y;
+				const Type attitude = InEuler.z;
+				const Type bank = InEuler.x;
 
 				const Type c1 = cos(heading / 2);
 				const Type s1 = sin(heading / 2);
@@ -97,9 +97,9 @@ namespace Utility
 				return { bank, heading, attitude };
 			}
 
-			static Quaternion FromDirection(const Vector3<Type>& direction)
+			static Quaternion FromDirection(const Vector3<Type>& InDirection)
 			{
-				const float angle = atan2(direction.z, direction.x); // Maybe switch
+				const float angle = atan2(InDirection.z, InDirection.x); // Maybe switch
 				Quaternion q; 
 				q.x = 0; 
 				q.y = 1 * sin(angle / 2); 
@@ -143,8 +143,8 @@ namespace Utility
 				}
 
 				// If the dot product is close to 1, use linear interpolation to avoid division by zero
-				const Type THRESHOLD = static_cast<Type>(0.9995f);
-				if (dot > THRESHOLD) {
+				const Type threshold = static_cast<Type>(0.9995f);
+				if (dot > threshold) {
 					// Linear interpolation (lerp)
 					Quaternion result = InA + (InB - InA) * InT;
 					result.Normalize();
@@ -152,15 +152,15 @@ namespace Utility
 				}
 
 				// Compute the angle between the quaternions
-				const float theta_0 = std::acos(dot);
-				const float theta = theta_0 * InT;
+				const float theta0 = std::acos(dot);
+				const float theta = theta0 * InT;
 
 				// Compute the second quaternion
-				const Quaternion q2_new = InB - InA * dot;
-				q2_new.Normalize();
+				const Quaternion q2New = InB - InA * dot;
+				q2New.Normalize();
 
 				// Perform the slerp interpolation
-				Quaternion result = InA * std::cos(theta) + q2_new * std::sin(theta);
+				Quaternion result = InA * std::cos(theta) + q2New * std::sin(theta);
 				result.Normalize();
 
 				return result;

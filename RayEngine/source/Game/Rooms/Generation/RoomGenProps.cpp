@@ -14,7 +14,7 @@ void RoomGenProps::Init()
 {
     CHECK_RETURN(!owner);
     PopulateRules();
-    const auto& data = owner->GetVolume().Data;
+    const auto& data = owner->GetVolume().data;
     for (const auto& entry : data)
         queue.emplace_back(entry.first);
 }
@@ -29,7 +29,7 @@ bool RoomGenProps::Step()
     // Just loop through the entire grid
     // Loop through every neighbor of every block
 
-    const auto& data = owner->GetVolume().Data;
+    const auto& data = owner->GetVolume().data;
     for (int i = 0; i < 50; i++)
     {
         CHECK_BREAK(queue.empty())
@@ -40,7 +40,7 @@ bool RoomGenProps::Step()
             break;
         
         for (auto n : ECS::CubeVolume::GetNeighbors(c))
-            if (!data.contains(n.Key)) // Only evaluate each coord once
+            if (!data.contains(n.key)) // Only evaluate each coord once
                 if (Evaluate(owner->GetVolume(), n))
                     break;
     }

@@ -12,7 +12,7 @@ namespace Input
         PROPERTY_D(bool, CursorVisible, true);
         
         void UpdateCache();
-        Map<String, int32> CachedActions = {};
+        Map<String, int32> cachedActions = {};
     };
 
     struct Config : BaseConfig<Config>
@@ -22,6 +22,6 @@ namespace Input
         String Name() const override { return "Input"; }
         bool Edit(const String& InName, uint32 InOffset) override;
         void UpdateCache();
-        Map<String, int32> CachedContexts {};
+        Map<String, int32> cachedContexts {};
     };
 }

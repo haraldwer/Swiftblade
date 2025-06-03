@@ -122,7 +122,7 @@ namespace ECS
         void FinishRegistration(const EntityID InID) override
         {
             const ComponentID id = Translate(InID);
-            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            CHECK_ASSERT(id == INVALID_ID, "Invalid ID");
             T& data = GetInternal(id);
             Init(InID, data);
         }
@@ -143,7 +143,7 @@ namespace ECS
         void Serialize(EntityID InID, SerializeObj& OutObj) override
         {
             const ComponentID id = Translate(InID);
-            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            CHECK_ASSERT(id == INVALID_ID, "Invalid ID");
             T& data = GetInternal(id);
             data.Serialize(OutObj);
         }
@@ -151,7 +151,7 @@ namespace ECS
         bool Deserialize(EntityID InID, const DeserializeObj& InObj) override
         {
             const ComponentID id = Translate(InID);
-            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            CHECK_ASSERT(id == INVALID_ID, "Invalid ID");
             T& data = GetInternal(id);
             return data.Deserialize(InObj);
         }
@@ -159,7 +159,7 @@ namespace ECS
         bool Edit(EntityID InID) override
         {
             const ComponentID id = Translate(InID);
-            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            CHECK_ASSERT(id == INVALID_ID, "Invalid ID");
             T& data = GetInternal(id);
             return data.Edit(); 
         }

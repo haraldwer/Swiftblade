@@ -2,10 +2,10 @@
 
 namespace Utility
 {
-	inline uint32 Hash(const String& aKey)
+	inline uint32 Hash(const String& InKey)
 	{
-		const auto* aBuffer = reinterpret_cast<const uint8*>(aKey.c_str());
-		const size_t count = aKey.size();
+		const auto* aBuffer = reinterpret_cast<const uint8*>(InKey.c_str());
+		const size_t count = InKey.size();
 
 		constexpr uint32 fnvOffsetBasis = 2166136261U;
 		constexpr uint32 fnvPrime = 16777619U;

@@ -7,8 +7,8 @@
 
 void Input::Manager::Push(const String& InContext)
 {
-    const auto find = current.CachedContexts.find(InContext);
-    CHECK_ASSERT(find == current.CachedContexts.end(), "Unknown context");
+    const auto find = current.cachedContexts.find(InContext);
+    CHECK_ASSERT(find == current.cachedContexts.end(), "Unknown context");
     contextStack.push_back(InContext);
 }
 
@@ -46,8 +46,8 @@ const Input::Action& Input::Manager::GetActionInternal(const String& InAction, c
         if (context.Name.Get() == InContext)
         {
             // Find action
-            auto actionFind = context.CachedActions.find(InAction);
-            if (actionFind != context.CachedActions.end())
+            auto actionFind = context.cachedActions.find(InAction);
+            if (actionFind != context.cachedActions.end())
                 return context.Actions.Get()[actionFind->second];
         }
         if (context.Blocking)
@@ -202,8 +202,8 @@ void Input::Manager::DrawDebugPanel()
     
     if (!selectedContext.empty())
     {
-        const auto find = current.CachedContexts.find(selectedContext);
-        if (find != current.CachedContexts.end())
+        const auto find = current.cachedContexts.find(selectedContext);
+        if (find != current.cachedContexts.end())
         {
             ImGui::SeparatorText("Context");
             Context& context = current.Contexts.Get()[find->second];
@@ -329,7 +329,7 @@ void Input::Manager::UpdateCursorState()
 
 const Input::Context& Input::Manager::GetContext(const String& InName) const
 {
-    const auto contextFind = current.CachedContexts.find(InName);
-    CHECK_ASSERT(contextFind == current.CachedContexts.end(), "Unknown context");
+    const auto contextFind = current.cachedContexts.find(InName);
+    CHECK_ASSERT(contextFind == current.cachedContexts.end(), "Unknown context");
     return current.Contexts.Get()[contextFind->second];
 }

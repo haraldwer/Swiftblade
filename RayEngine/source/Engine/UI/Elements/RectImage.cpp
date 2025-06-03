@@ -18,54 +18,54 @@ void UI::RectImage::Draw()
                 // 1
                 corners.push_back({
                     InRef.start,
-                    { InRef.start.x + Edges.horizontal.x, InRef.start.y + Edges.vertical.x }
+                    { InRef.start.x + edges.horizontal.x, InRef.start.y + edges.vertical.x }
                 });
 
                 // 2
                 corners.push_back({
-                    { InRef.start.x + Edges.horizontal.x, InRef.start.y },
-                    { InRef.end.x - Edges.horizontal.y, InRef.start.y + Edges.vertical.x }
+                    { InRef.start.x + edges.horizontal.x, InRef.start.y },
+                    { InRef.end.x - edges.horizontal.y, InRef.start.y + edges.vertical.x }
                 });
 
                 // 3
                 corners.push_back({
-                    { InRef.end.x - Edges.horizontal.y, InRef.start.y },
-                    { InRef.end.x, InRef.start.y + Edges.vertical.x }
+                    { InRef.end.x - edges.horizontal.y, InRef.start.y },
+                    { InRef.end.x, InRef.start.y + edges.vertical.x }
                 });
 
                 // 4
                 corners.push_back({
-                    { InRef.start.x, InRef.start.y + Edges.vertical.x },
-                    { InRef.start.x + Edges.horizontal.x, InRef.end.y - Edges.vertical.y }
+                    { InRef.start.x, InRef.start.y + edges.vertical.x },
+                    { InRef.start.x + edges.horizontal.x, InRef.end.y - edges.vertical.y }
                 });
 
                 // 5
                 corners.push_back({
-                    { InRef.start.x + Edges.horizontal.x, InRef.start.y + Edges.vertical.x },
-                    { InRef.end.x - Edges.horizontal.y, InRef.end.y - Edges.vertical.y }
+                    { InRef.start.x + edges.horizontal.x, InRef.start.y + edges.vertical.x },
+                    { InRef.end.x - edges.horizontal.y, InRef.end.y - edges.vertical.y }
                 });
 
                 // 6
                 corners.push_back({
-                    { InRef.end.x - Edges.horizontal.y, InRef.start.y + Edges.vertical.x },
-                    { InRef.end.x, InRef.end.y - Edges.vertical.y }
+                    { InRef.end.x - edges.horizontal.y, InRef.start.y + edges.vertical.x },
+                    { InRef.end.x, InRef.end.y - edges.vertical.y }
                 });
 
                 // 7
                 corners.push_back({
-                    { InRef.start.x, InRef.end.y - Edges.vertical.y },
-                    { InRef.start.x + Edges.horizontal.x, InRef.end.y }
+                    { InRef.start.x, InRef.end.y - edges.vertical.y },
+                    { InRef.start.x + edges.horizontal.x, InRef.end.y }
                 });
 
                 // 8
                 corners.push_back({
-                    { InRef.start.x + Edges.horizontal.x, InRef.end.y - Edges.vertical.y },
-                    { InRef.end.x - Edges.horizontal.y, InRef.end.y }
+                    { InRef.start.x + edges.horizontal.x, InRef.end.y - edges.vertical.y },
+                    { InRef.end.x - edges.horizontal.y, InRef.end.y }
                 });
 
                 // 9
                 corners.push_back({
-                    { InRef.end.x - Edges.horizontal.y, InRef.end.y - Edges.vertical.y },
+                    { InRef.end.x - edges.horizontal.y, InRef.end.y - edges.vertical.y },
                     { InRef.end.x, InRef.end.y }
                 });
 

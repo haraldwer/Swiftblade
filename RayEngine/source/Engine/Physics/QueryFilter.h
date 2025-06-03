@@ -9,11 +9,11 @@ namespace Physics
     {
     public:
         void SetIgnoredEntities(const Set<ECS::EntityID>& InEntities);
-        physx::PxQueryHitType::Enum preFilter(const physx::PxFilterData& filterData, const physx::PxShape* shape, const physx::PxRigidActor* actor, physx::PxHitFlags& queryFlags) override;
-        physx::PxQueryHitType::Enum postFilter(const physx::PxFilterData& filterData, const physx::PxQueryHit& hit, const physx::PxShape* shape, const physx::PxRigidActor* actor) override;
+        physx::PxQueryHitType::Enum preFilter(const physx::PxFilterData& InFilterData, const physx::PxShape* InShape, const physx::PxRigidActor* InActor, physx::PxHitFlags& InQueryFlags) override;
+        physx::PxQueryHitType::Enum postFilter(const physx::PxFilterData& InFilterData, const physx::PxQueryHit& InHit, const physx::PxShape* InShape, const physx::PxRigidActor* InActor) override;
 
     private:
         static void GetHierarchyEntities(ECS::EntityID InParent, Set<ECS::EntityID>& OutSet);
-        Set<const physx::PxRigidActor*> IgnoredActors;
+        Set<const physx::PxRigidActor*> ignoredActors;
     };
 }

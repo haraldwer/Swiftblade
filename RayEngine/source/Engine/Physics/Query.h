@@ -9,32 +9,32 @@ namespace Physics
     {
         struct Hit
         {
-            float Distance = 0.0f;
-            Vec3F Position = {};
-            Vec3F Normal = {};
-            ECS::EntityID Entity = ECS::INVALID_ID;
+            float distance = 0.0f;
+            Vec3F position = {};
+            Vec3F normal = {};
+            ECS::EntityID entity = ECS::INVALID_ID;
         };
-        Vector<Hit> Hits = {}; 
-        bool IsHit = false;
+        Vector<Hit> hits = {}; 
+        bool isHit = false;
         Hit ClosestHit() const;
         Vector<Hit> DistanceSorted() const;
     };
 
     struct TraceParams
     {
-        Vec3F Start = {}; 
-        Vec3F End = {};
-        Set<ECS::EntityID> IgnoredEntities = {}; 
+        Vec3F start = {}; 
+        Vec3F end = {};
+        Set<ECS::EntityID> ignoredEntities = {}; 
     };
 
     struct SweepParams
     {
-        Vec3F Start = {};
-        Vec3F End = {};
-        Shape Shape = {};
-        Vec4F ShapeData = {};
-        Mat4F Pose = {};
-        Set<ECS::EntityID> IgnoredEntities = {}; 
+        Vec3F start = {};
+        Vec3F end = {};
+        Shape shape = {};
+        Vec4F shapeData = {};
+        Mat4F pose = {};
+        Set<ECS::EntityID> ignoredEntities = {}; 
     }; 
     
     class Query

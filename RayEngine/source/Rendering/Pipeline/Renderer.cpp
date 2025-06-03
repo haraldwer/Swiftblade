@@ -53,7 +53,7 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     CHECK_RETURN(!ptr);
 
     // Time
-    const float time = static_cast<float>(context.Timer.Ellapsed()); 
+    const float time = static_cast<float>(context.timer.Ellapsed()); 
     SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, SHADER_UNIFORM_FLOAT);
     const float delta = static_cast<float>(viewport.delta); 
     SetValue(InShader, ShaderResource::DefaultLoc::DELTA, &delta, SHADER_UNIFORM_FLOAT);
@@ -119,7 +119,7 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 {
     PROFILE_GL();
     
-    auto& config = InArgs.contextPtr->Config;
+    auto& config = InArgs.contextPtr->config;
     for (auto& entry : config.NoiseTextures.Get())
     {
         const int loc = InShader.GetLocation(entry.first);
@@ -145,7 +145,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
 {
     PROFILE_GL();
     
-    auto model = InArgs.contextPtr->Config.DefaultCube.Get().Get();
+    auto model = InArgs.contextPtr->config.DefaultCube.Get().Get();
     CHECK_RETURN(!model, 0);
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);
@@ -314,7 +314,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     rlState::current.Set(frameCmd);
 
     Map<uint32, ResShader> passes = scene.meshes.deferredShaders;
-    passes[0] = InArgs.contextPtr->Config.DeferredSkyboxShader; // Inject skybox
+    passes[0] = InArgs.contextPtr->config.DeferredSkyboxShader; // Inject skybox
     for (auto& entry : passes)
     {
         PROFILE_GL_NAMED("Deferred pass");
@@ -755,9 +755,9 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
         -static_cast<float>(InTarget.texture.height)
     };
 
-    CHECK_ASSERT(!InBuffer.GetTextures()[0].Tex, "Tex nullptr");
+    CHECK_ASSERT(!InBuffer.GetTextures()[0].tex, "Tex nullptr");
     DrawTextureRec(
-        *InBuffer.GetTextures()[0].Tex,
+        *InBuffer.GetTextures()[0].tex,
         sourceRec,
         { 0, 0 }, 
         ::WHITE);

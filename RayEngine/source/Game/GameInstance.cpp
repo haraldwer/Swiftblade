@@ -51,10 +51,10 @@ void GameInstance::Logic(const double InDelta)
 {
     Instance::Logic(InDelta); 
     
-    if (!Time.IsPaused())
+    if (!time.IsPaused())
         physics.Update();
     ecs.Update();
-    EditorCamera.Update(); 
+    editorCamera.Update(); 
 }
 
 void GameInstance::Frame()

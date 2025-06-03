@@ -26,13 +26,13 @@ void UI::Container::Draw()
 
 void UI::Container::RefreshRect(const Rect& InContainer)
 {
-    CachedRect = CalculateRect(InContainer);
+    cachedRect = CalculateRect(InContainer);
     
     Rect rect = GetRect();
-    rect.start.x += Transform.margins.horizontal.x;
-    rect.end.x -= Transform.margins.horizontal.y;
-    rect.start.y += Transform.margins.vertical.x;
-    rect.end.y -= Transform.margins.vertical.y;
+    rect.start.x += transform.margins.horizontal.x;
+    rect.end.x -= transform.margins.horizontal.y;
+    rect.start.y += transform.margins.vertical.x;
+    rect.end.y -= transform.margins.vertical.y;
     
     for (auto& elem : elements)
         if (Element* e = elem.Get())

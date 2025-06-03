@@ -9,24 +9,24 @@ namespace Utility
 	namespace Math
 	{
 		template <class T>
-		bool LinePlaneIntersection(Vector3<T>& contact, const Vector3<T>& rayDirection, const Vector3<T>& rayOrigin, 
-						   const Vector3<T>& normal, const Vector3<T>& coord) {
+		bool LinePlaneIntersection(Vector3<T>& InContact, const Vector3<T>& InRayDirection, const Vector3<T>& InRayOrigin, 
+						   const Vector3<T>& InNormal, const Vector3<T>& InCoord) {
 			// get d value
 			
-			T rayDot = normal.Dot(rayDirection); 
+			T rayDot = InNormal.Dot(InRayDirection); 
 			
 			if (rayDot == 0) {
 				return false; // No intersection, the line is parallel to the plane
 			}
 
-			T coordDot = normal.Dot(coord);
-			T originDot = normal.Dot(rayOrigin);
+			T coordDot = InNormal.Dot(InCoord);
+			T originDot = InNormal.Dot(InRayOrigin);
 			
 			// Compute the X value for the directed line ray intersecting the plane
 			T x = (coordDot - originDot) / rayDot;
 
 			// output contact point
-			contact = rayOrigin + rayDirection.GetNormalized() * x; //Make sure your ray vector is normalized
+			InContact = InRayOrigin + InRayDirection.GetNormalized() * x; //Make sure your ray vector is normalized
 			return true;
 		}
 
@@ -35,18 +35,18 @@ namespace Utility
 		                               float &point_x, float &point_y)*/
 		template<typename Type>
 		bool FindIntersection_StaticLineVsStaticLine(
-			const Vector2<Type> aFromA, const Vector2<Type> aToA,
-			const Vector2<Type> aFromB, const Vector2<Type> aToB,
-			Vector2<Type>& result)
+			const Vector2<Type> InFromA, const Vector2<Type> InToA,
+			const Vector2<Type> InFromB, const Vector2<Type> InToB,
+			Vector2<Type>& OutResult)
 		{
-		    const float ax = aToA.x - aFromA.x;
-		    const float ay = aToA.y - aFromA.y;
+		    const float ax = InToA.x - InFromA.x;
+		    const float ay = InToA.y - InFromA.y;
 
-		    const float bx = aToB.x - aFromB.x;
-		    const float by = aToB.y - aFromB.y;
+		    const float bx = InToB.x - InFromB.x;
+		    const float by = InToB.y - InFromB.y;
 							   
-		    const float dx = aFromA.x - aFromB.x;
-		    const float dy = aFromA.y - aFromB.y;
+		    const float dx = InFromA.x - InFromB.x;
+		    const float dy = InFromA.y - InFromB.y;
 
 		    const float u = -bx*ay+ax*by;
 
@@ -55,8 +55,8 @@ namespace Utility
 
 		    if (s >= 0.0 && s <= 1.0 && t >= 0.0 && t <= 1.0)
 		    {
-				result.x = aFromA.x+ax*t;
-				result.y = aFromA.y+ay*t;
+				OutResult.x = InFromA.x+ax*t;
+				OutResult.y = InFromA.y+ay*t;
 		        return true;
 		    }
 
@@ -65,13 +65,13 @@ namespace Utility
 
 
 		template<typename Type>
-		inline bool FindIntersection_StaticLineVsStaticPlane(const Vector3<Type> from, const Vector3<Type> to, const Vector3<Type> plane_position, const Vector3<Type> plane_normal, Vector3<Type>& result)
+		bool FindIntersection_StaticLineVsStaticPlane(const Vector3<Type> InFrom, const Vector3<Type> InTo, const Vector3<Type> InPlanePosition, const Vector3<Type> InPlaneNormal, Vector3<Type>& OutResult)
 		{
-			float diff1[] = { plane_position[0] - from[0], plane_position[1] - from[1], plane_position[2] - from[2] };
-			float diff2[] = { to[0] - from[0], to[1] - from[1], to[2] - from[2] };
+			float diff1[] = { InPlanePosition[0] - InFrom[0], InPlanePosition[1] - InFrom[1], InPlanePosition[2] - InFrom[2] };
+			float diff2[] = { InTo[0] - InFrom[0], InTo[1] - InFrom[1], InTo[2] - InFrom[2] };
 
-			const float r1 = plane_normal[0] * diff1[0] + plane_normal[1] * diff1[1] + plane_normal[2] * diff1[2];
-			const float r2 = plane_normal[0] * diff2[0] + plane_normal[1] * diff2[1] + plane_normal[2] * diff2[2];
+			const float r1 = InPlaneNormal[0] * diff1[0] + InPlaneNormal[1] * diff1[1] + InPlaneNormal[2] * diff1[2];
+			const float r2 = InPlaneNormal[0] * diff2[0] + InPlaneNormal[1] * diff2[1] + InPlaneNormal[2] * diff2[2];
 
 			if (r2 != 0.0)
 			{
@@ -79,11 +79,11 @@ namespace Utility
 
 				if (factor >= 0.0 && factor <= 1.0)
 				{
-					float diff[] = { to[0] - from[0], to[1] - from[1], to[2] - from[2] };
+					float diff[] = { InTo[0] - InFrom[0], InTo[1] - InFrom[1], InTo[2] - InFrom[2] };
 
-					result[0] = from[0] + diff[0] * factor;
-					result[1] = from[1] + diff[1] * factor;
-					result[2] = from[2] + diff[2] * factor;
+					OutResult[0] = InFrom[0] + diff[0] * factor;
+					OutResult[1] = InFrom[1] + diff[1] * factor;
+					OutResult[2] = InFrom[2] + diff[2] * factor;
 					return true;
 				}
 			}
@@ -92,10 +92,10 @@ namespace Utility
 		}
 
 		template<typename Type>
-		inline bool IsIntersecting_StaticCircleVsStaticCircle(const Vector2<Type> circle_a_position, const float a_radius, const Vector2<Type> circle_b_position, const float b_radius)
+		bool IsIntersecting_StaticCircleVsStaticCircle(const Vector2<Type> InCircleAPosition, const float InARadius, const Vector2<Type> InCircleBPosition, const float InBRadius)
 		{
-			const float total_radius = a_radius + b_radius;
-			if ((circle_b_position - circle_a_position).LengthSquared() <= total_radius * total_radius)
+			const float total_radius = InARadius + InBRadius;
+			if ((InCircleBPosition - InCircleAPosition).LengthSquared() <= total_radius * total_radius)
 			{
 				return true;
 			}
@@ -104,10 +104,10 @@ namespace Utility
 		}
 
 		template<typename Type>
-		inline bool IsIntersecting_StaticPointVsStaticAABB(const Vector2<Type> point, const Vector4<Type> aabb)
+		bool IsIntersecting_StaticPointVsStaticAABB(const Vector2<Type> InPoint, const Vector4<Type> InAABB)
 		{
-			if (point.x > aabb.x && point.x < aabb.z
-				&& point.y > aabb.y && point.y < aabb.w)
+			if (InPoint.x > InAABB.x && InPoint.x < InAABB.z
+				&& InPoint.y > InAABB.y && InPoint.y < InAABB.w)
 			{
 				return true;
 			}
@@ -117,16 +117,16 @@ namespace Utility
 
 		// Liang Barsky Clipper
 		template<typename Type>
-		inline bool FindClosestIntersectionFactor_MovingPointVsAABB(const Vector2<Type> from, const Vector2<Type> to, const Vector4<Type> aabb, Type& factor)
+		bool FindClosestIntersectionFactor_MovingPointVsAABB(const Vector2<Type> InFrom, const Vector2<Type> InTo, const Vector4<Type> InAABB, Type& OutFactor)
 		{
-			if (IsIntersecting_StaticPointVsStaticAABB(from, aabb))
+			if (IsIntersecting_StaticPointVsStaticAABB(InFrom, InAABB))
 			{
-				factor = 0.0f;
+				OutFactor = 0.0f;
 				return true;
 			}
 
-			Vector4<Type> p = { -(to.x - from.x), (to.x - from.x), -(to.y - from.y), (to.y - from.y) };
-			Vector4<Type> q = { from.x - aabb.x, aabb.z - from.x, from.y - aabb.y, aabb.w - from.y };
+			Vector4<Type> p = { -(InTo.x - InFrom.x), (InTo.x - InFrom.x), -(InTo.y - InFrom.y), (InTo.y - InFrom.y) };
+			Vector4<Type> q = { InFrom.x - InAABB.x, InAABB.z - InFrom.x, InFrom.y - InAABB.y, InAABB.w - InFrom.y };
 
 			Type factor1 = -std::numeric_limits<float>::infinity();
 			Type factor2 = std::numeric_limits<float>::infinity();
@@ -159,28 +159,28 @@ namespace Utility
 				return false;
 			}
 
-			factor = factor1;
+			OutFactor = factor1;
 			return true;
 		}
 
 
 		template<typename Type>
-		inline bool FindClosestIntersectionFactor_MovingPointVsStaticCircle(const Vector2<Type> from, const Vector2<Type> to, const Vector2<Type> position, const Type radius, Type& factor)
+		bool FindClosestIntersectionFactor_MovingPointVsStaticCircle(const Vector2<Type> InFrom, const Vector2<Type> InTo, const Vector2<Type> InPos, const Type InRadius, Type& InFactor)
 		{
-			float initialDistance = (from - position).LengthSquared();
+			float initialDistance = (InFrom - InPos).LengthSquared();
 
-			if (initialDistance < radius * radius)
+			if (initialDistance < InRadius * InRadius)
 			{
-				factor = 0.0f;
+				InFactor = 0.0f;
 				return true;
 			}
 
-			Vector2<Type> direction = to - from;
-			Vector2<Type> sphereDifference = from - position;
+			Vector2<Type> direction = InTo - InFrom;
+			Vector2<Type> sphereDifference = InFrom - InPos;
 
 			const float a = direction.Dot(direction);
 			const float b = 2.0f * sphereDifference.Dot(direction);
-			const float c = sphereDifference.Dot(sphereDifference) - (radius * radius);
+			const float c = sphereDifference.Dot(sphereDifference) - (InRadius * InRadius);
 
 			float discriminant = (b * b) - (4.0f * a * c);
 			if (discriminant < 0)
@@ -196,13 +196,13 @@ namespace Utility
 
 				if (factorA >= 0 && factorA <= 1)
 				{
-					factor = factorA;
+					InFactor = factorA;
 					return true;
 				}
 
 				if (factorB >= 0 && factorB <= 1)
 				{
-					factor = factorB;
+					InFactor = factorB;
 					return true;
 				}
 
@@ -213,70 +213,70 @@ namespace Utility
 		}
 
 		template<typename Type>
-		inline bool FindClosestIntersectionFactor_MovingCircleVsMovingCircle(const Vector2<Type> circle_a_begin, const Vector2<Type> circle_a_end, const Type circle_a_radius, const Vector2<Type> circle_b_begin, const Vector2<Type> circle_b_end, const Type circle_b_radius, Type& factor)
+		bool FindClosestIntersectionFactor_MovingCircleVsMovingCircle(const Vector2<Type> InCircleABegin, const Vector2<Type> InCircleAEnd, const Type InCircleARadius, const Vector2<Type> InCircleBBegin, const Vector2<Type> InCircleBEnd, const Type InCircleBRadius, Type& OutFactor)
 		{
-			auto total_radius = circle_a_radius + circle_b_radius;
-			float initialDistance = (circle_b_begin - circle_a_begin).LengthSquared();
+			auto total_radius = InCircleARadius + InCircleBRadius;
+			float initialDistance = (InCircleBBegin - InCircleABegin).LengthSquared();
 
 			if (initialDistance < total_radius * total_radius)
 			{
-				factor = 0.0f;
+				OutFactor = 0.0f;
 				return true;
 			}
 
-			auto difference_a = circle_a_end - circle_a_begin;
-			auto difference_b = circle_b_end - circle_b_begin;
+			auto difference_a = InCircleAEnd - InCircleABegin;
+			auto difference_b = InCircleBEnd - InCircleBBegin;
 
 
 
-			auto circle_a_relative_end = circle_a_end - difference_b;
+			auto circle_a_relative_end = InCircleAEnd - difference_b;
 
-			return FindClosestIntersectionFactor_MovingPointVsStaticCircle(circle_a_begin, circle_a_relative_end, circle_b_begin, total_radius, factor);
+			return FindClosestIntersectionFactor_MovingPointVsStaticCircle(InCircleABegin, circle_a_relative_end, InCircleBBegin, total_radius, OutFactor);
 		}
 
 		template<typename Type>
-		inline bool FindClosestIntersectionFactor_MovingCircleVsAABB(const Vector2<Type> from, const Vector2<Type> to, const Type radius, const Vector4<Type> aabb, Type& factor)
+		bool FindClosestIntersectionFactor_MovingCircleVsAABB(const Vector2<Type> InFrom, const Vector2<Type> InTo, const Type InRadius, const Vector4<Type> InAABB, Type& InFactor)
 		{
 			float smallestFactorFound = 10000.0f;
 
 			float factorCandidate = smallestFactorFound;
-			FindClosestIntersectionFactor_MovingPointVsAABB(from, to, aabb + Vector4<Type>(-radius, 0.0f, radius, 0.0f), factorCandidate);
+			FindClosestIntersectionFactor_MovingPointVsAABB(InFrom, InTo, InAABB + Vector4<Type>(-InRadius, 0.0f, InRadius, 0.0f), factorCandidate);
 			smallestFactorFound = smallestFactorFound > factorCandidate ? factorCandidate : smallestFactorFound;
 
-			FindClosestIntersectionFactor_MovingPointVsAABB(from, to, aabb + Vector4<Type>(0.0f, -radius, 0.0f, radius), factorCandidate);
+			FindClosestIntersectionFactor_MovingPointVsAABB(InFrom, InTo, InAABB + Vector4<Type>(0.0f, -InRadius, 0.0f, InRadius), factorCandidate);
 			smallestFactorFound = smallestFactorFound > factorCandidate ? factorCandidate : smallestFactorFound;
 
-			FindClosestIntersectionFactor_MovingPointVsStaticCircle(from, to, Vector2<Type>(aabb.xy), radius, factorCandidate);
+			FindClosestIntersectionFactor_MovingPointVsStaticCircle(InFrom, InTo, Vector2<Type>(InAABB.xy), InRadius, factorCandidate);
 			smallestFactorFound = smallestFactorFound > factorCandidate ? factorCandidate : smallestFactorFound;
 
-			FindClosestIntersectionFactor_MovingPointVsStaticCircle(from, to, Vector2<Type>(aabb.xw), radius, factorCandidate);
+			FindClosestIntersectionFactor_MovingPointVsStaticCircle(InFrom, InTo, Vector2<Type>(InAABB.xw), InRadius, factorCandidate);
 			smallestFactorFound = smallestFactorFound > factorCandidate ? factorCandidate : smallestFactorFound;
 
-			FindClosestIntersectionFactor_MovingPointVsStaticCircle(from, to, Vector2<Type>(aabb.zy), radius, factorCandidate);
+			FindClosestIntersectionFactor_MovingPointVsStaticCircle(InFrom, InTo, Vector2<Type>(InAABB.zy), InRadius, factorCandidate);
 			smallestFactorFound = smallestFactorFound > factorCandidate ? factorCandidate : smallestFactorFound;
 
-			FindClosestIntersectionFactor_MovingPointVsStaticCircle(from, to, Vector2<Type>(aabb.zw), radius, factorCandidate);
+			FindClosestIntersectionFactor_MovingPointVsStaticCircle(InFrom, InTo, Vector2<Type>(InAABB.zw), InRadius, factorCandidate);
 			smallestFactorFound = smallestFactorFound > factorCandidate ? factorCandidate : smallestFactorFound;
 
-			factor = smallestFactorFound;
+			InFactor = smallestFactorFound;
 			return smallestFactorFound < 9999.0f;
 		}
 
 
 		template<typename Type>
-		inline bool FindClosestIntersectedAtAndNormal_MovingCircleVsMovingCircle(const Vector2<Type> circle_a_begin, const Vector2<Type> circle_a_end, const Type circle_a_radius, const Vector2<Type> circle_b_begin, const Vector2<Type> circle_b_end, const Type circle_b_radius, Vector2<float>& intersection, Vector2<float>& normal)
+		bool FindClosestIntersectedAtAndNormal_MovingCircleVsMovingCircle(const Vector2<Type> InCircleABegin, const Vector2<Type> InCircleAEnd, const Type InCircleARadius, const Vector2<Type> InCircleBBegin, const Vector2<Type> InCircleBEnd, const Type InCircleBRadius, Vector2<float>& InIntersection, Vector2<float>& InNormal)
 		{
 			float smallestFactorFound = 10000.0f;
-			FindClosestIntersectionFactor_MovingCircleVsMovingCircle(circle_a_begin, circle_a_end, circle_a_radius, circle_b_begin, circle_b_end, circle_b_radius, smallestFactorFound);
+			FindClosestIntersectionFactor_MovingCircleVsMovingCircle(InCircleABegin, InCircleAEnd, InCircleARadius, InCircleBBegin, InCircleBEnd, InCircleBRadius, smallestFactorFound);
 
 			if (smallestFactorFound < 9999.0f)
 			{
-				auto p1 = circle_a_begin + (circle_a_end - circle_a_begin) * smallestFactorFound;
-				auto p2 = circle_b_begin + (circle_b_end - circle_b_begin) * smallestFactorFound;
+				auto p1 = InCircleABegin + (InCircleAEnd - InCircleABegin) * smallestFactorFound;
+				auto p2 = InCircleBBegin + (InCircleBEnd - InCircleBBegin) * smallestFactorFound;
 
-				normal = (p1 - p2).Normalized();
+				InNormal = (p1 - p2).Normalized();
 
-				intersection = p1;
+				InIntersection = p1;
 			}
 
 			return smallestFactorFound < 9999.0f;
@@ -284,59 +284,59 @@ namespace Utility
 
 
 		template<typename Type>
-		inline bool FindClosestIntersectedAtAndNormal_MovingCircleVsAABB(const Vector2<Type> from, const Vector2<Type> to, const Type radius, const Vector4<Type> aabb, Vector2<float>& intersection, Vector2<float>& normal)
+		bool FindClosestIntersectedAtAndNormal_MovingCircleVsAABB(const Vector2<Type> InFrom, const Vector2<Type> InTo, const Type InRadius, const Vector4<Type> InAABB, Vector2<float>& InIntersection, Vector2<float>& InNormal)
 		{
 			float smallestFactorFound = 10000.0f;
 
-			FindClosestIntersectionFactor_MovingCircleVsAABB(from, to, radius, aabb, smallestFactorFound);
+			FindClosestIntersectionFactor_MovingCircleVsAABB(InFrom, InTo, InRadius, InAABB, smallestFactorFound);
 
 			
 			if (smallestFactorFound < 9999.0f)
 			{
-				intersection = from + (to - from) * smallestFactorFound;
-				if (intersection.x < aabb.x)
+				InIntersection = InFrom + (InTo - InFrom) * smallestFactorFound;
+				if (InIntersection.x < InAABB.x)
 				{
-					if (intersection.y < aabb.y)
+					if (InIntersection.y < InAABB.y)
 					{
-						normal = (intersection - aabb.xy).Normalized();
+						InNormal = (InIntersection - InAABB.xy).Normalized();
 					}
-					else if (intersection.y > aabb.w)
+					else if (InIntersection.y > InAABB.w)
 					{
-						normal = (intersection - aabb.xw).Normalized();
+						InNormal = (InIntersection - InAABB.xw).Normalized();
 					}
 					else
 					{
-						normal = Vector2<Type>(-1.0f, 0.0f);
+						InNormal = Vector2<Type>(-1.0f, 0.0f);
 					}
 				}
-				else if (intersection.x > aabb.z)
+				else if (InIntersection.x > InAABB.z)
 				{
-					if (intersection.y < aabb.y)
+					if (InIntersection.y < InAABB.y)
 					{
-						normal = (intersection - aabb.zy).Normalized();
+						InNormal = (InIntersection - InAABB.zy).Normalized();
 					}
-					else if (intersection.y > aabb.w)
+					else if (InIntersection.y > InAABB.w)
 					{
-						normal = (intersection - aabb.zw).Normalized();
+						InNormal = (InIntersection - InAABB.zw).Normalized();
 					}
 					else
 					{
-						normal = Vector2<Type>(1.0f, 0.0f);
+						InNormal = Vector2<Type>(1.0f, 0.0f);
 					}
 				}
 				else
 				{
-					if (intersection.y < aabb.y)
+					if (InIntersection.y < InAABB.y)
 					{
-						normal = Vector2<Type>(0.0f, -1.0f);
+						InNormal = Vector2<Type>(0.0f, -1.0f);
 					}
-					else if (intersection.y > aabb.w)
+					else if (InIntersection.y > InAABB.w)
 					{
-						normal = Vector2<Type>(0.0f, 1.0f);
+						InNormal = Vector2<Type>(0.0f, 1.0f);
 					}
 					else
 					{
-						normal = Vector2<Type>(0.0f, 0.0f);
+						InNormal = Vector2<Type>(0.0f, 0.0f);
 					}
 				}
 

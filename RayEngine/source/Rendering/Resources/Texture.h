@@ -12,11 +12,11 @@ public:
     bool Load(const String& InIdentifier);
     bool Unload();
     Utility::Timepoint GetEditTime() const;
-    Texture* Get() const { return Ptr; }
+    Texture* Get() const { return ptr; }
 
 private:
-    String Identifier = {}; 
-    Texture* Ptr = nullptr;
+    String identifier = {}; 
+    Texture* ptr = nullptr;
 };
 
 typedef Resource::Ref<TextureResource> ResTexture;

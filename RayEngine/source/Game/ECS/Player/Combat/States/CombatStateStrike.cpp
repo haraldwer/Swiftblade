@@ -18,21 +18,21 @@ Utility::Type CombatStateStrike::Update()
     const auto world = camTrans.World();
 
     Physics::SweepParams params;
-    params.Start = world.GetPosition() + world.Forward() * 1.0f;
-    params.End = params.Start + world.Forward() * 0.1f;
-    params.Shape = Physics::Shape::SPHERE;
-    params.ShapeData.xyz = SweepSize.Get();
-    params.IgnoredEntities = { GetPlayerID() };
-    params.IgnoredEntities.insert(weapon->GetID());
+    params.start = world.GetPosition() + world.Forward() * 1.0f;
+    params.end = params.start + world.Forward() * 0.1f;
+    params.shape = Physics::Shape::SPHERE;
+    params.shapeData.xyz = SweepSize.Get();
+    params.ignoredEntities = { GetPlayerID() };
+    params.ignoredEntities.insert(weapon->GetID());
 
-    Engine::DebugSphere(params.Start, SweepSize);
-    Engine::DebugSphere(params.End, SweepSize);
+    Engine::DebugSphere(params.start, SweepSize);
+    Engine::DebugSphere(params.end, SweepSize);
 
     const auto result = Physics::Query::Sweep(params);
     auto& enemySys = ECS::Manager::Get().GetSystem<SysEnemy>();
-    for (const auto& hit : result.Hits)
-        if (enemySys.Contains(hit.Entity))
-            enemySys.ApplyDamage(hit.Entity, weapon->GetID());
+    for (const auto& hit : result.hits)
+        if (enemySys.Contains(hit.entity))
+            enemySys.ApplyDamage(hit.entity, weapon->GetID());
 
     if (GetTimeSinceEnter() > StrikeDuration)
         return Type::Get<CombatStateIdle>();

@@ -22,7 +22,7 @@ void DB::Authentication::Authenticate(const AuthData& InData) const
 
     auto success = [&](const Nakama::NSessionPtr& InSession)
     {
-        GetDB().Session = InSession;
+        GetDB().session = InSession;
         OnSuccess();
     };
 

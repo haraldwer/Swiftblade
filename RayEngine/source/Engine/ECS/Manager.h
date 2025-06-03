@@ -24,8 +24,8 @@ namespace ECS
         T& GetSystem() const
         {
             const Utility::TypeHash hash = Type::Get<T>().GetHash();
-            const auto find = SystemMap.find(hash);
-            CHECK_ASSERT(find == SystemMap.end(), "Unable to find system");
+            const auto find = systemMap.find(hash);
+            CHECK_ASSERT(find == systemMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
             return *static_cast<T*>(find->second);
         }
@@ -34,8 +34,8 @@ namespace ECS
         T* GetComponent(const EntityID InID) const
         {
             const Utility::TypeHash hash = Type::Get<T>().GetHash();
-            const auto find = ComponentMap.find(hash);
-            CHECK_ASSERT(find == ComponentMap.end(), "Unable to find system");
+            const auto find = componentMap.find(hash);
+            CHECK_ASSERT(find == componentMap.end(), "Unable to find system");
             CHECK_ASSERT(!find->second, "System null");
             auto* sys = reinterpret_cast<System<T>*>(find->second);
             return sys->TryGet(InID);
@@ -44,8 +44,8 @@ namespace ECS
         SystemBase* GetSystem(const String& InComponentName);
         SystemBase* GetSystem(const Utility::Type& InType, bool InIsCompHash);
         
-        const Map<String, SystemBase*>& GetAllSystems() const { return NameToSystem; }
-        std::set<EntityID> GetAllEntities() { return Entities; }
+        const Map<String, SystemBase*>& GetAllSystems() const { return nameToSystem; }
+        std::set<EntityID> GetAllEntities() { return entities; }
 
         void Deserialize(EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects);
         void Serialize(EntityID InID, SerializeObj& OutObj, bool InChildren);
@@ -54,8 +54,8 @@ namespace ECS
 
         struct DeserializeSysTuple
         {
-            Set<SystemBase*> Systems;
-            int Depth = 0;
+            Set<SystemBase*> systems;
+            int depth = 0;
         };
         typedef Map<EntityID, DeserializeSysTuple> DeserializeEntityCollection;
         
@@ -67,20 +67,20 @@ namespace ECS
         void SortSystems(); 
 
         // System type -> System ptr
-        Map<Utility::TypeHash, SystemBase*> SystemMap = {};
+        Map<Utility::TypeHash, SystemBase*> systemMap = {};
         // Component type -> System ptr
-        Map<Utility::TypeHash, SystemBase*> ComponentMap = {};
+        Map<Utility::TypeHash, SystemBase*> componentMap = {};
         // System name -> system ptr
-        Map<String, SystemBase*> NameToSystem = {};
-        Map<SystemBase*, String> SystemToName = {};
-        Vector<SystemBase*> SortedSystems = {}; 
+        Map<String, SystemBase*> nameToSystem = {};
+        Map<SystemBase*, String> systemToName = {};
+        Vector<SystemBase*> sortedSystems = {}; 
 
         // List of all entities
-        Set<EntityID> Entities = {};
-        EntityID IDCounter = 0;
+        Set<EntityID> entities = {};
+        EntityID idCounter = 0;
 
         // Objects that should be destroyed
-        Set<EntityID> PendingDestroy = {}; 
+        Set<EntityID> pendingDestroy = {}; 
         
     };
 }

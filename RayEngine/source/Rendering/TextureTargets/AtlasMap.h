@@ -17,17 +17,17 @@ namespace Rendering
         
         struct Face
         {
-            double AccessTime = 0.0;
-            int Index = -1;
+            double accessTime = 0.0;
+            int index = -1;
         };
         
-        Map<uint64, Face> Slots = {};
-        Vector<int> Available = {}; 
+        Map<uint64, Face> slots = {};
+        Vector<int> available = {}; 
 
-        int SlotResolution = 0;
-        int AxisSlots = 0;
-        bool Cubemap = false;
-        Utility::Timer Timer = {};
+        int slotResolution = 0;
+        int axisSlots = 0;
+        bool cubemap = false;
+        Utility::Timer timer = {};
     };
 }
 

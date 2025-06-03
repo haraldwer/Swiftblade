@@ -7,10 +7,10 @@ void AnimationStateMachine::Init()
         states.emplace_back(reinterpret_cast<StateBase*>(&InState));
     };
     
-    addState(Default); 
-    addState(Slide); 
-    addState(InAir); 
-    addState(Strike); 
+    addState(default); 
+    addState(slide); 
+    addState(inAir); 
+    addState(strike); 
     
     PlayerStateMachine::Init();
 }

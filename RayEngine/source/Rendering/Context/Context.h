@@ -16,17 +16,17 @@ namespace Rendering
     public:
         void Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, bool InRoot = false);
         void Deinit();
-        double Time() const { return Timer.Ellapsed(); }
-        Lights* GetLights() const { return LightsPtr; }
-        Lumin* GetLumin() const { return LuminPtr; }
+        double Time() const { return timer.Ellapsed(); }
+        Lights* GetLights() const { return lightsPtr; }
+        Lumin* GetLumin() const { return luminPtr; }
 
     private:
-        ContextConfig Config = {};
+        ContextConfig config = {};
 
         // Total context lifetime
-        Utility::Timer Timer = {};
+        Utility::Timer timer = {};
         
-        Lights* LightsPtr = nullptr;
-        Lumin* LuminPtr = nullptr;
+        Lights* lightsPtr = nullptr;
+        Lumin* luminPtr = nullptr;
     };
 }

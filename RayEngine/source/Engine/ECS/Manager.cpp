@@ -13,16 +13,16 @@ void Manager::Init()
 {
     RegisterSystems();
     SortSystems();
-    for (SystemBase* system : SortedSystems)
+    for (SystemBase* system : sortedSystems)
         system->SystemInit();
 }
 
 void Manager::SortSystems()
 {
-    for (auto sys : SystemMap)
-        SortedSystems.push_back(sys.second);
+    for (auto sys : systemMap)
+        sortedSystems.push_back(sys.second);
 
-    std::ranges::sort(SortedSystems, [](const SystemBase* InFirst, const SystemBase* InSecond)
+    std::ranges::sort(sortedSystems, [](const SystemBase* InFirst, const SystemBase* InSecond)
     {
         return InFirst->GetPriority() > InSecond->GetPriority();
     });
@@ -31,23 +31,23 @@ void Manager::SortSystems()
 void Manager::Deinit()
 {
     // Destroy entities
-    for (const EntityID entity : Entities)
+    for (const EntityID entity : entities)
         DestroyEntity(entity);
     DestroyPending();
 
     // Delete systems
-    for (const SystemBase* system : SortedSystems)
+    for (const SystemBase* system : sortedSystems)
         delete(system);
-    SortedSystems.clear();
-    SystemMap.clear();
-    ComponentMap.clear();
-    NameToSystem.clear(); 
+    sortedSystems.clear();
+    systemMap.clear();
+    componentMap.clear();
+    nameToSystem.clear(); 
 }
 
 void Manager::Update()
 {
     PROFILE();
-    for (SystemBase* system : SortedSystems)
+    for (SystemBase* system : sortedSystems)
         if (system->ShouldUpdate())
             system->SystemUpdate();
     DestroyPending();
@@ -56,7 +56,7 @@ void Manager::Update()
 void Manager::Frame()
 {
     PROFILE();
-    for (SystemBase* system : SortedSystems)
+    for (SystemBase* system : sortedSystems)
         if (system->ShouldUpdate())
             system->SystemFrame();
     DestroyPending();
@@ -64,9 +64,9 @@ void Manager::Frame()
 
 EntityID Manager::CreateEntity()
 {
-    const EntityID id = IDCounter;
-    Entities.insert(id); 
-    IDCounter++;
+    const EntityID id = idCounter;
+    entities.insert(id); 
+    idCounter++;
 
     // Force attribute component
     auto& attr = GetSystem<SysAttributes>();
@@ -77,11 +77,11 @@ EntityID Manager::CreateEntity()
 void Manager::DestroyEntity(const EntityID InEntity)
 {
     CHECK_ASSERT(InEntity == InvalidID, "Invalid ID");
-    CHECK_ASSERT(!Entities.contains(InEntity), "Entity does not exist");
+    CHECK_ASSERT(!entities.contains(InEntity), "Entity does not exist");
     if (const auto t = GetComponent<Transform>(InEntity))
         for (const auto child : t->GetChildren())
             DestroyEntity(child);
-    PendingDestroy.insert(InEntity); 
+    pendingDestroy.insert(InEntity); 
 }
 
 void Manager::DestroyPending()
@@ -89,29 +89,29 @@ void Manager::DestroyPending()
     PROFILE();
     do
     {
-        const Set<EntityID> copy = PendingDestroy;
-        PendingDestroy.clear();
+        const Set<EntityID> copy = pendingDestroy;
+        pendingDestroy.clear();
         for (EntityID obj : copy)
         {
-            for (SystemBase* system : SortedSystems)
+            for (SystemBase* system : sortedSystems)
                 system->Unregister(obj);
-            Entities.erase(obj);
+            entities.erase(obj);
         }
     }
-    while (!PendingDestroy.empty());
+    while (!pendingDestroy.empty());
 }
 
 SystemBase* Manager::GetSystem(const String& InComponentName)
 {
-    const auto find = NameToSystem.find(InComponentName);
-    CHECK_ASSERT(find == NameToSystem.end(), "Unable to find system");
+    const auto find = nameToSystem.find(InComponentName);
+    CHECK_ASSERT(find == nameToSystem.end(), "Unable to find system");
     CHECK_ASSERT(!find->second, "System null");
     return find->second;
 }
 
 SystemBase* Manager::GetSystem(const Utility::Type& InType, const bool InIsCompHash)
 {
-    auto& map = InIsCompHash ? ComponentMap : SystemMap;
+    auto& map = InIsCompHash ? componentMap : systemMap;
     const auto find = map.find(InType.GetHash());
     CHECK_ASSERT(find == map.end(), "Unable to find system");
     CHECK_ASSERT(!find->second, "System null");
@@ -146,8 +146,8 @@ void Manager::Deserialize(const EntityID InID, const Mat4F& InTransform, const V
     // Add all systems to one big list
     Vector<SysEntry> sysList; 
     for (const auto& entry : systems)
-        for (const auto sys : entry.second.Systems)
-            sysList.push_back({ entry.first, sys, entry.second.Depth});
+        for (const auto sys : entry.second.systems)
+            sysList.push_back({ entry.first, sys, entry.second.depth});
 
     // Sort the list
     std::ranges::sort(sysList, [](const SysEntry& InA, const SysEntry& InB) {
@@ -165,8 +165,8 @@ void Manager::Deserialize(const EntityID InID, const DeserializeObj& InObj, Dese
 {
     Set<SystemBase*> systems = DeserializeComponents(InID, InObj);
     auto& entry = OutSystems[InID];
-    entry.Depth = InDepth;
-    entry.Systems.insert(systems.begin(), systems.end());
+    entry.depth = InDepth;
+    entry.systems.insert(systems.begin(), systems.end());
     DeserializeChildren(InID, InObj, OutSystems, InDepth + 1);
 }
 

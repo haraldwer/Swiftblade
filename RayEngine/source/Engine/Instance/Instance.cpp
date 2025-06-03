@@ -4,35 +4,35 @@
 
 void Engine::Instance::Init()
 {
-    Input.Init();
+    input.Init();
 }
 
 void Engine::Instance::Deinit()
 {
-    EditorCamera.Deinit(); 
-    RenderScene = Rendering::Scene();
-    Menus.Clear();
+    editorCamera.Deinit(); 
+    renderScene = Rendering::Scene();
+    menus.Clear();
 }
 
 void Engine::Instance::Logic(const double InDelta)
 {
     PROFILE();
-    RenderScene.Clear();
-    Time.Tick(InDelta);
-    Input.Update(); 
-    Menus.Update();
+    renderScene.Clear();
+    time.Tick(InDelta);
+    input.Update(); 
+    menus.Update();
 }
 
 void Engine::Instance::Frame()
 {
     PROFILE();
-    Input.Frame();
+    input.Frame();
     auto& man = Rendering::Manager::Get();
-    RenderScene.Build();
-    man.Render(RenderScene);
+    renderScene.Build();
+    man.Render(renderScene);
 }
 
 Rendering::Scene& Engine::Instance::GetRenderScene()
 {
-    return RenderScene;
+    return renderScene;
 }

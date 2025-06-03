@@ -103,28 +103,28 @@ void RoomObjectEditor::PlaceObject()
 {
     struct EditData
     {
-        ObjectData PrevObjectData = {};
-        ObjectData NewObjectData = {};
+        ObjectData prevObjectData = {};
+        ObjectData newObjectData = {};
     } data;
 
-    data.NewObjectData = {
+    data.newObjectData = {
         targetPos,
         targetRot,
         config.BPIndex,
         ECS::INVALID_ID
     };
-    data.PrevObjectData = GetPlacedObjectData(GetKey(targetPos));
-    data.PrevObjectData.position = targetPos;
-    data.PrevObjectData.id = ECS::INVALID_ID; 
+    data.prevObjectData = GetPlacedObjectData(GetKey(targetPos));
+    data.prevObjectData.position = targetPos;
+    data.prevObjectData.id = ECS::INVALID_ID; 
     
     GetHistory().AddChange(Utility::Change<EditData>(
         [&](const EditData& InData)
         {
-            PlaceObject(InData.NewObjectData);
+            PlaceObject(InData.newObjectData);
         },
         [&](const EditData& InData)
         {
-            PlaceObject(InData.PrevObjectData);
+            PlaceObject(InData.prevObjectData);
         },
         data));
 }
@@ -133,17 +133,17 @@ void RoomObjectEditor::RemoveObject()
 {
     struct EditData
     {
-        ObjectData PrevObjectData = {};
-        Vec3F Position = {};
+        ObjectData prevObjectData = {};
+        Vec3F position = {};
     } data;
 
-    data.Position = targetPos;
-    data.PrevObjectData = GetPlacedObjectData(GetKey(targetPos));
-    data.PrevObjectData.id = ECS::INVALID_ID; 
+    data.position = targetPos;
+    data.prevObjectData = GetPlacedObjectData(GetKey(targetPos));
+    data.prevObjectData.id = ECS::INVALID_ID; 
     
     GetHistory().AddChange(Utility::Change<EditData>(
-        [&](const EditData& InData) { RemovePlacedObject(GetKey(InData.Position)); },
-        [&](const EditData& InData) { PlaceObject(InData.PrevObjectData); },
+        [&](const EditData& InData) { RemovePlacedObject(GetKey(InData.position)); },
+        [&](const EditData& InData) { PlaceObject(InData.prevObjectData); },
         data));
 }
 
@@ -219,7 +219,7 @@ void RoomObjectEditor::RemovePlacedObject(const uint32 InKey)
 
 uint32 RoomObjectEditor::GetKey(const Vec3F& InPos) const
 {
-    return GetVolume().PosToCoord(InPos, Mat4F()).Key; 
+    return GetVolume().PosToCoord(InPos, Mat4F()).key; 
 }
 
 RoomObjectEditor::ObjectData RoomObjectEditor::GetPlacedObjectData(const uint32 InKey) const

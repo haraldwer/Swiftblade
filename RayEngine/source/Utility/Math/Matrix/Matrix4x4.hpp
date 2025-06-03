@@ -87,64 +87,64 @@ namespace Utility
 				elements[2][2] = InMatrix.elements[2][2];
 			}
 
-			Matrix4x4(const Vector3<Type>& p, const Quaternion<Type>& q, const Vector3<Type>& s) : Matrix4x4()
+			Matrix4x4(const Vector3<Type>& InP, const Quaternion<Type>& InQ, const Vector3<Type>& InS) : Matrix4x4()
 			{
-				SetPosition(p);
-				SetRotation(q);
-				SetScale(s);
+				SetPosition(InP);
+				SetRotation(InQ);
+				SetScale(InS);
 			}
 
-			Matrix4x4(const Vector3<Type>& p) : Matrix4x4()
+			Matrix4x4(const Vector3<Type>& InP) : Matrix4x4()
 			{
-				SetPosition(p);
+				SetPosition(InP);
 			}
 
-			Matrix4x4(const Quaternion<Type>& q) : Matrix4x4()
+			Matrix4x4(const Quaternion<Type>& InQ) : Matrix4x4()
 			{
-				SetRotation(q);
+				SetRotation(InQ);
 			}
 
-			void Rotate(const Vector3<Type>& aRotation) 
+			void Rotate(const Vector3<Type>& InRot) 
 			{
 				Matrix4x4 n = GetNormalized();
-				n *= CreateRotationAroundX(aRotation.x);
-				n *= CreateRotationAroundY(aRotation.y);
-				n *= CreateRotationAroundZ(aRotation.z);
+				n *= CreateRotationAroundX(InRot.x);
+				n *= CreateRotationAroundY(InRot.y);
+				n *= CreateRotationAroundZ(InRot.z);
 				n.SetScale(GetScale());
 				*this = n;
 			}
 
-			static Matrix4x4 CreateRotationAroundAxis(Type aAngleInRadians, Vector3<Type> aNormalizedAxis)
+			static Matrix4x4 CreateRotationAroundAxis(Type InAngleRad, Vector3<Type> InNormAxis)
 			{
-				Matrix4x4 new_matrix;
-				Type cos_angle = cos(aAngleInRadians);
-				Type sin_angle = sin(aAngleInRadians);
+				Matrix4x4 newMatrix;
+				Type cosAngle = cos(InAngleRad);
+				Type sinAngle = sin(InAngleRad);
 
-				Type u = aNormalizedAxis.x;
-				Type v = aNormalizedAxis.y;
-				Type w = aNormalizedAxis.z;
+				Type u = InNormAxis.x;
+				Type v = InNormAxis.y;
+				Type w = InNormAxis.z;
 
-				new_matrix.elements[0][0] = u * u + (1.0f - u * u) * cos_angle;
-				new_matrix.elements[0][1] = u * v * (1.0f - cos_angle) - w * sin_angle;
-				new_matrix.elements[0][2] = u * w * (1.0f - cos_angle) + v * sin_angle;
-				new_matrix.elements[0][3] = 0.0f;
+				newMatrix.elements[0][0] = u * u + (1.0f - u * u) * cosAngle;
+				newMatrix.elements[0][1] = u * v * (1.0f - cosAngle) - w * sinAngle;
+				newMatrix.elements[0][2] = u * w * (1.0f - cosAngle) + v * sinAngle;
+				newMatrix.elements[0][3] = 0.0f;
 
-				new_matrix.elements[1][0] = u * v * (1.0f - cos_angle) + w * sin_angle;
-				new_matrix.elements[1][1] = v * v + (1.0f - v * v) * cos_angle;
-				new_matrix.elements[1][2] = v * w * (1.0f - cos_angle) - u * sin_angle;
-				new_matrix.elements[1][3] = 0.0f;
+				newMatrix.elements[1][0] = u * v * (1.0f - cosAngle) + w * sinAngle;
+				newMatrix.elements[1][1] = v * v + (1.0f - v * v) * cosAngle;
+				newMatrix.elements[1][2] = v * w * (1.0f - cosAngle) - u * sinAngle;
+				newMatrix.elements[1][3] = 0.0f;
 
-				new_matrix.elements[2][0] = u * w * (1.0f - cos_angle) - v * sin_angle;
-				new_matrix.elements[2][1] = v * w * (1.0f - cos_angle) + u * sin_angle;
-				new_matrix.elements[2][2] = w * w + (1.0f - w * w) * cos_angle;
-				new_matrix.elements[2][3] = 0.0f;
+				newMatrix.elements[2][0] = u * w * (1.0f - cosAngle) - v * sinAngle;
+				newMatrix.elements[2][1] = v * w * (1.0f - cosAngle) + u * sinAngle;
+				newMatrix.elements[2][2] = w * w + (1.0f - w * w) * cosAngle;
+				newMatrix.elements[2][3] = 0.0f;
 
-				new_matrix.elements[3][0] = 0.0f;
-				new_matrix.elements[3][1] = 0.0f;
-				new_matrix.elements[3][2] = 0.0f;
-				new_matrix.elements[3][3] = 1.0f;
+				newMatrix.elements[3][0] = 0.0f;
+				newMatrix.elements[3][1] = 0.0f;
+				newMatrix.elements[3][2] = 0.0f;
+				newMatrix.elements[3][3] = 1.0f;
 
-				return new_matrix;
+				return newMatrix;
 			}
 			
 			Vector3<Type> GetEuler() const
@@ -171,13 +171,13 @@ namespace Utility
 				return { bank, heading, attitude };
 			}
 
-			void SetEuler(const Vector3<Type>& aRotation)
+			void SetEuler(const Vector3<Type>& InRot)
 			{
 				const Vector3<Type> scale = GetScale();
 				
-				const Type heading = aRotation.y;
-				const Type attitude = aRotation.z;
-				const Type bank = aRotation.x;
+				const Type heading = InRot.y;
+				const Type attitude = InRot.z;
+				const Type bank = InRot.x;
 			
 				// Assuming the angles are in radians.
 				Type ch = cos(heading);
@@ -200,22 +200,22 @@ namespace Utility
 				SetScale(scale);
 			}
 
-			static Matrix4x4<Type> FromEuler(const Vector3<Type>& aRotation)
+			static Matrix4x4<Type> FromEuler(const Vector3<Type>& InRot)
 			{
 				Matrix4x4 m;
-				m.SetEuler(aRotation);
+				m.SetEuler(InRot);
 				return m;
 			}
 			
-			void SetRotation(const Quaternion<Type>& q)
+			void SetRotation(const Quaternion<Type>& InQuat)
 			{
 				const Vector3<Type> p = GetPosition();
 				const Vector3<Type> s = GetScale();
 
-				const Type sqw = q.w * q.w;
-				const Type sqx = q.x * q.x;
-				const Type sqy = q.y * q.y;
-				const Type sqz = q.z * q.z;
+				const Type sqw = InQuat.w * InQuat.w;
+				const Type sqx = InQuat.x * InQuat.x;
+				const Type sqy = InQuat.y * InQuat.y;
+				const Type sqz = InQuat.z * InQuat.z;
 
 				// Reset values outside the rot 3x3 part
 				elements[0][3] = 0;
@@ -233,22 +233,22 @@ namespace Utility
 				elements[2][2] = (-sqx - sqy + sqz + sqw) * invs;
 
 				{
-					const Type tmp1 = q.x * q.y;
-					const Type tmp2 = q.z * q.w;
+					const Type tmp1 = InQuat.x * InQuat.y;
+					const Type tmp2 = InQuat.z * InQuat.w;
 					elements[0][1] = static_cast<Type>(2.0) * (tmp1 + tmp2) * invs;
 					elements[1][0] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
 				}
 
 				{
-					const Type tmp1 = q.x * q.z;
-					const Type tmp2 = q.y * q.w;
+					const Type tmp1 = InQuat.x * InQuat.z;
+					const Type tmp2 = InQuat.y * InQuat.w;
 					elements[0][2] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
 					elements[2][0] = static_cast<Type>(2.0) * (tmp1 + tmp2) * invs;
 				}
 
 				{
-					const Type tmp1 = q.y * q.z;
-					const Type tmp2 = q.x * q.w;
+					const Type tmp1 = InQuat.y * InQuat.z;
+					const Type tmp2 = InQuat.x * InQuat.w;
 					elements[1][2] = static_cast<Type>(2.0) * (tmp1 + tmp2) * invs;
 					elements[2][1] = static_cast<Type>(2.0) * (tmp1 - tmp2) * invs;
 				}
@@ -318,11 +318,11 @@ namespace Utility
 				};
 			}
 
-			void SetPosition(const Vector3<Type>& aPosition)
+			void SetPosition(const Vector3<Type>& InPos)
 			{
-				elements[3][0] = aPosition.x;
-				elements[3][1] = aPosition.y;
-				elements[3][2] = aPosition.z;
+				elements[3][0] = InPos.x;
+				elements[3][1] = InPos.y;
+				elements[3][2] = InPos.z;
 			}
 
 			template <class F>
@@ -343,27 +343,27 @@ namespace Utility
 				return Matrix4x4(lP, lR, lS);
 			}
 			
-			Type& operator()(const int aRow, const int aColumn)
+			Type& operator()(const int InRow, const int InColumn)
 			{
-				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
+				return elements[(InRow - RowOffset)][(InColumn - ColumnOffset)];
 			}
 
-			const Type& operator()(const int aRow, const int aColumn) const
+			const Type& operator()(const int InRow, const int InColumn) const
 			{
-				return elements[(aRow - RowOffset)][(aColumn - ColumnOffset)];
+				return elements[(InRow - RowOffset)][(InColumn - ColumnOffset)];
 			}
 
-			Matrix4x4 operator + (const Matrix4x4& aMatrix) const
+			Matrix4x4 operator + (const Matrix4x4& InMatrix) const
 			{
-				Matrix4x4 new_matrix;
+				Matrix4x4 newMatrix;
 				for (unsigned int row = 0; row < 4; ++row)
 				{
 					for (unsigned int column = 0; column < 4; ++column)
 					{
-						new_matrix.elements[row][column] = elements[row][column] + aMatrix.elements[row][column];
+						newMatrix.elements[row][column] = elements[row][column] + InMatrix.elements[row][column];
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 
 			Matrix4x4& operator += (const Matrix4x4& InMatrix)
@@ -381,15 +381,15 @@ namespace Utility
 
 			Matrix4x4 operator - (const Matrix4x4& InMatrix) const
 			{
-				Matrix4x4 new_matrix;
+				Matrix4x4 newMatrix;
 				for (unsigned int row = 0; row < 4; ++row)
 				{
 					for (unsigned int column = 0; column < 4; ++column)
 					{
-						new_matrix.elements[row][column] = elements[row][column] - InMatrix.elements[row][column];
+						newMatrix.elements[row][column] = elements[row][column] - InMatrix.elements[row][column];
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 
 			Matrix4x4& operator -= (const Matrix4x4& InMatrix)
@@ -430,11 +430,11 @@ namespace Utility
 				return *this;
 			}
 
-			bool operator == (const Matrix4x4& aMatrix) const
+			bool operator == (const Matrix4x4& InMatrix) const
 			{
 				for (int index = 0; index < 16; ++index)
 				{
-					if (data[index] != aMatrix.data[index])
+					if (data[index] != InMatrix.data[index])
 					{
 						return false;
 					}
@@ -442,12 +442,12 @@ namespace Utility
 				return true;
 			}
 
-			Matrix4x4 operator * (float aScalar) const
+			Matrix4x4 operator * (float InScalar) const
 			{
-				Matrix4x4 new_matrix;
+				Matrix4x4 newMatrix;
 				for (unsigned int i = 0; i < 16; i++)
-					new_matrix.data[i] = data[i] * aScalar;
-				return new_matrix;
+					newMatrix.data[i] = data[i] * InScalar;
+				return newMatrix;
 			}
 
 			Type ScaleX() const
@@ -470,11 +470,11 @@ namespace Utility
 				return { ScaleX(), ScaleY(), ScaleZ() };
 			}
 			
-			void SetScale(const Vector3<Type>& s)
+			void SetScale(const Vector3<Type>& InScale)
 			{
-				right = right.GetNormalized() * s.x;
-				up = up.GetNormalized() * s.y;
-				forward = forward.GetNormalized() * s.z;
+				right = right.GetNormalized() * InScale.x;
+				up = up.GetNormalized() * InScale.y;
+				forward = forward.GetNormalized() * InScale.z;
 			}
 			
 			Vector3<Type> Forward() const
@@ -492,12 +492,12 @@ namespace Utility
 				return up.xyz.GetNormalized();
 			}
 			
-			Vector3<Type> TransformPoint(const Vector3<Type>& aPoint) const
+			Vector3<Type> TransformPoint(const Vector3<Type>& InPoint) const
 			{
 				Vector3<Type> result;
-				result.x = aPoint.x * data[0] + aPoint.y * data[4] + aPoint.z * data[8] + data[12];
-				result.y = aPoint.x * data[1] + aPoint.y * data[5] + aPoint.z * data[9] + data[13];
-				result.z = aPoint.x * data[2] + aPoint.y * data[6] + aPoint.z * data[10] + data[14];
+				result.x = InPoint.x * data[0] + InPoint.y * data[4] + InPoint.z * data[8] + data[12];
+				result.y = InPoint.x * data[1] + InPoint.y * data[5] + InPoint.z * data[9] + data[13];
+				result.z = InPoint.x * data[2] + InPoint.y * data[6] + InPoint.z * data[10] + data[14];
 				return result;
 			}
 			
@@ -517,29 +517,29 @@ namespace Utility
 				return *this; 
 			}
 
-			static Matrix4x4 CreateProjection(Type aAspectRatio, Type aFov, Type aNear, Type aFar)
+			static Matrix4x4 CreateProjection(Type InAspect, Type InFov, Type InNear, Type InFar)
 			{
-				Matrix4x4 new_matrix;
-				new_matrix.elements[0][0] = (1.0f / aAspectRatio) * (1.0f / (tan(aFov / 2.0f)));
-				new_matrix.elements[0][1] = 0.0f;
-				new_matrix.elements[0][2] = 0.0f;
-				new_matrix.elements[0][3] = 0.0f;
+				Matrix4x4 newMatrix;
+				newMatrix.elements[0][0] = (1.0f / InAspect) * (1.0f / (tan(InFov / 2.0f)));
+				newMatrix.elements[0][1] = 0.0f;
+				newMatrix.elements[0][2] = 0.0f;
+				newMatrix.elements[0][3] = 0.0f;
 				
-				new_matrix.elements[1][0] = 0.0f;
-				new_matrix.elements[1][1] = -(1.0f / tan(aFov / 2.0f));
-				new_matrix.elements[1][2] = 0.0f;
-				new_matrix.elements[1][3] = 0.0f;
+				newMatrix.elements[1][0] = 0.0f;
+				newMatrix.elements[1][1] = -(1.0f / tan(InFov / 2.0f));
+				newMatrix.elements[1][2] = 0.0f;
+				newMatrix.elements[1][3] = 0.0f;
 				
-				new_matrix.elements[2][0] = 0.0f;
-				new_matrix.elements[2][1] = 0.0f;
-				new_matrix.elements[2][2] = aFar / (aFar - aNear);
-				new_matrix.elements[2][3] = 1.0f;
+				newMatrix.elements[2][0] = 0.0f;
+				newMatrix.elements[2][1] = 0.0f;
+				newMatrix.elements[2][2] = InFar / (InFar - InNear);
+				newMatrix.elements[2][3] = 1.0f;
 				
-				new_matrix.elements[3][0] = 0.0f;
-				new_matrix.elements[3][1] = 0.0f;
-				new_matrix.elements[3][2] = (-(aNear * aFar)) / (aFar - aNear);
-				new_matrix.elements[3][3] = 0.0f;
-				return new_matrix;
+				newMatrix.elements[3][0] = 0.0f;
+				newMatrix.elements[3][1] = 0.0f;
+				newMatrix.elements[3][2] = (-(InNear * InFar)) / (InFar - InNear);
+				newMatrix.elements[3][3] = 0.0f;
+				return newMatrix;
 			}
 			
 			// Static functions for creating rotation matrices.
@@ -572,40 +572,40 @@ namespace Utility
 				return new_matrix;
 			}
 
-			static Matrix4x4 CreateRotationAroundY(Type aAngleInRadians)
+			static Matrix4x4 CreateRotationAroundY(Type InAngleRad)
 			{
-				Matrix4x4 new_matrix;
-				Type cos_angle = cos(aAngleInRadians);
-				Type sin_angle = sin(aAngleInRadians);
+				Matrix4x4 newMatrix;
+				Type cosAngle = cos(InAngleRad);
+				Type sinAngle = sin(InAngleRad);
 
-				new_matrix.elements[0][0] = cos_angle;
-				new_matrix.elements[0][1] = 0.0f;
-				new_matrix.elements[0][2] = -sin_angle;
-				new_matrix.elements[0][3] = 0.0f;
+				newMatrix.elements[0][0] = cosAngle;
+				newMatrix.elements[0][1] = 0.0f;
+				newMatrix.elements[0][2] = -sinAngle;
+				newMatrix.elements[0][3] = 0.0f;
 
-				new_matrix.elements[1][0] = 0.0f;
-				new_matrix.elements[1][1] = 1.0;
-				new_matrix.elements[1][2] = 0.0;
-				new_matrix.elements[1][3] = 0.0f;
+				newMatrix.elements[1][0] = 0.0f;
+				newMatrix.elements[1][1] = 1.0;
+				newMatrix.elements[1][2] = 0.0;
+				newMatrix.elements[1][3] = 0.0f;
 
-				new_matrix.elements[2][0] = sin_angle;
-				new_matrix.elements[2][1] = 0.0;
-				new_matrix.elements[2][2] = cos_angle;
-				new_matrix.elements[2][3] = 0.0f;
+				newMatrix.elements[2][0] = sinAngle;
+				newMatrix.elements[2][1] = 0.0;
+				newMatrix.elements[2][2] = cosAngle;
+				newMatrix.elements[2][3] = 0.0f;
 
-				new_matrix.elements[3][0] = 0.0f;
-				new_matrix.elements[3][1] = 0.0f;
-				new_matrix.elements[3][2] = 0.0f;
-				new_matrix.elements[3][3] = 1.0f;
+				newMatrix.elements[3][0] = 0.0f;
+				newMatrix.elements[3][1] = 0.0f;
+				newMatrix.elements[3][2] = 0.0f;
+				newMatrix.elements[3][3] = 1.0f;
 
-				return new_matrix;
+				return newMatrix;
 			}
 
-			static Matrix4x4 CreateRotationAroundZ(Type aAngleInRadians)
+			static Matrix4x4 CreateRotationAroundZ(Type InAngleRad)
 			{
 				Matrix4x4 new_matrix;
-				Type cos_angle = cos(aAngleInRadians);
-				Type sin_angle = sin(aAngleInRadians);
+				Type cos_angle = cos(InAngleRad);
+				Type sin_angle = sin(InAngleRad);
 
 				new_matrix.elements[0][0] = cos_angle;
 				new_matrix.elements[0][1] = sin_angle;
@@ -630,46 +630,46 @@ namespace Utility
 				return new_matrix;
 			}
 
-			static Matrix4x4 Transpose(const Matrix4x4& aMatrix)
+			static Matrix4x4 Transpose(const Matrix4x4& InMatrix)
 			{
-				Matrix4x4 new_matrix;
+				Matrix4x4 newMatrix;
 				for (unsigned int row = 0; row < 4; ++row)
 				{
 					for (unsigned int column = 0; column < 4; ++column)
 					{
-						new_matrix.elements[row][column] = aMatrix.elements[column][row];
+						newMatrix.elements[row][column] = InMatrix.elements[column][row];
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 
-			static Matrix4x4 GetFastInverse(const Matrix4x4& aMatrix)
+			static Matrix4x4 GetFastInverse(const Matrix4x4& InMatrix)
 			{
-				Matrix4x4 new_matrix;
+				Matrix4x4 newMatrix;
 				for (unsigned int row = 0; row < 3; ++row)
 				{
 					for (unsigned int column = 0; column < 3; ++column)
 					{
-						new_matrix.elements[row][column] = aMatrix.elements[column][row];
+						newMatrix.elements[row][column] = InMatrix.elements[column][row];
 					}
 				}
 
 				for (unsigned int column = 0; column < 3; ++column)
 				{
 					Type total = 0.0f;
-					total += -aMatrix.elements[3][0] * new_matrix.elements[0][column];
-					total += -aMatrix.elements[3][1] * new_matrix.elements[1][column];
-					total += -aMatrix.elements[3][2] * new_matrix.elements[2][column];
-					new_matrix.elements[3][column] = total;
+					total += -InMatrix.elements[3][0] * newMatrix.elements[0][column];
+					total += -InMatrix.elements[3][1] * newMatrix.elements[1][column];
+					total += -InMatrix.elements[3][2] * newMatrix.elements[2][column];
+					newMatrix.elements[3][column] = total;
 				}
 
-				new_matrix.elements[3][3] = 1.0f;
-				return new_matrix;
+				newMatrix.elements[3][3] = 1.0f;
+				return newMatrix;
 			}
 
-			static Matrix4x4 GetInverse(const Matrix4x4& aMatrix)
+			static Matrix4x4 GetInverse(const Matrix4x4& InMatrix)
 			{
-				const Type* const m = aMatrix.data;
+				const Type* const m = InMatrix.data;
 				Matrix4x4 invMat;
 				Type* inv = invMat.data;
 				Type det;
@@ -803,9 +803,9 @@ namespace Utility
 				return invMat;
 			}
 
-			Matrix4x4 operator*(const Matrix4x4& aMatrix) const
+			Matrix4x4 operator*(const Matrix4x4& InMatrix) const
 			{
-				Matrix4x4 new_matrix;
+				Matrix4x4 newMatrix;
 				for (unsigned int row = 0; row < 4; ++row)
 				{
 					for (unsigned int column = 0; column < 4; ++column)
@@ -813,48 +813,48 @@ namespace Utility
 						Type total = 0.0f;
 						for (int index = 0; index < 4; ++index)
 						{
-							total += elements[row][index] * aMatrix.elements[index][column];
+							total += elements[row][index] * InMatrix.elements[index][column];
 						}
 	
-						new_matrix.elements[row][column] = total;
+						newMatrix.elements[row][column] = total;
 					}
 				}
-				return new_matrix;
+				return newMatrix;
 			}
 		};
 
-		template<typename Type, int row_offset, int column_offset>
-		Vector4<Type> operator * (Vector4<Type> aVector, Matrix4x4<Type, row_offset, column_offset> aMatrix)
+		template<typename Type, int RowOffset, int ColumnOffset>
+		Vector4<Type> operator * (Vector4<Type> InVector, Matrix4x4<Type, RowOffset, ColumnOffset> InMatrix)
 		{
-			Vector4<Type> new_vector;
+			Vector4<Type> newVector;
 			for (unsigned int column = 0; column < 4; ++column)
 			{
 				Type total = 0.0f;
-				total += aVector.x * aMatrix.elements[0][column];
-				total += aVector.y * aMatrix.elements[1][column];
-				total += aVector.z * aMatrix.elements[2][column];
-				total += aVector.w * aMatrix.elements[3][column];
-				new_vector[column] = total;
+				total += InVector.x * InMatrix.elements[0][column];
+				total += InVector.y * InMatrix.elements[1][column];
+				total += InVector.z * InMatrix.elements[2][column];
+				total += InVector.w * InMatrix.elements[3][column];
+				newVector[column] = total;
 			}
 
-			return new_vector;
+			return newVector;
 		}
 
-		template<typename Type, int row_offset, int column_offset>
-		Vector4<Type> operator * (Matrix4x4<Type, row_offset, column_offset> aMatrix, Vector4<Type> aVector)
+		template<typename Type, int RowOffset, int ColumnOffset>
+		Vector4<Type> operator * (Matrix4x4<Type, RowOffset, ColumnOffset> InMatrix, Vector4<Type> InVector)
 		{
-			Vector4<Type> new_vector;
+			Vector4<Type> newVector;
 			for (unsigned int column = 0; column < 4; ++column)
 			{
 				Type total = 0.0f;
-				total += aMatrix.elements[0][column] * aVector.x;
-				total += aMatrix.elements[1][column] * aVector.y;
-				total += aMatrix.elements[2][column] * aVector.z;
-				total += aMatrix.elements[3][column] * aVector.w;
-				new_vector[column] = total;
+				total += InMatrix.elements[0][column] * InVector.x;
+				total += InMatrix.elements[1][column] * InVector.y;
+				total += InMatrix.elements[2][column] * InVector.z;
+				total += InMatrix.elements[3][column] * InVector.w;
+				newVector[column] = total;
 			}
 
-			return new_vector;
+			return newVector;
 		}
 
 	}

@@ -20,9 +20,9 @@ namespace ECS
         void SetHands(const HandState& InRight, const HandState& InLeft);
         void SetHead(const HeadState& InHead);
 
-        HandState GetLeft() const { return CurrentLeft; }
-        HandState GetRight() const { return CurrentRight; }
-        HeadState GetHead() const { return CurrentHead; }
+        HandState GetLeft() const { return currentLeft; }
+        HandState GetRight() const { return currentRight; }
+        HeadState GetHead() const { return currentHead; }
 
         Mat4F GetPose(const String& InName) const;
         Mat4F ToCameraSpace(const Mat4F& InMat, float InWeightconst) const;
@@ -36,14 +36,14 @@ namespace ECS
         void UpdateHands();
         void UpdateHead();
         
-        ObjectPtr<AnimationStateMachine> StateMachine; 
+        ObjectPtr<AnimationStateMachine> stateMachine; 
 
-        HandState TargetLeft;
-        HandState TargetRight;
-        HeadState TargetHead;
+        HandState targetLeft;
+        HandState targetRight;
+        HeadState targetHead;
 
-        HandState CurrentLeft;
-        HandState CurrentRight;
-        HeadState CurrentHead;
+        HandState currentLeft;
+        HandState currentRight;
+        HeadState currentHead;
     };
 }

@@ -7,19 +7,19 @@ void DB::Manager::Init()
     params.serverKey = "defaultkey"; // TODO: 
     params.host = "127.0.0.1"; // TODO: 
     params.port = Nakama::DEFAULT_PORT;
-    Client = createDefaultClient(params);
-    CHECK_ASSERT(!Client, "Failed to create client");
-    RtClient = Client->createRtClient();
-    CHECK_ASSERT(!Client, "Failed to create realtime client");
+    client = createDefaultClient(params);
+    CHECK_ASSERT(!client, "Failed to create client");
+    rtClient = client->createRtClient();
+    CHECK_ASSERT(!client, "Failed to create realtime client");
     
-    Auth.Init(this);
+    auth.Init(this);
     
-    OnLoggedIn.Bind([](const OnLoginSuccess& OnSuccess)
+    onLoggedIn.Bind([](const OnLoginSuccess& InOnSuccess)
     {
         // Delay initialization until authenticated
         auto& man = Get();
-        man.Blob.Init(&man); 
-        man.LB.Init(&man);
+        man.blob.Init(&man); 
+        man.lb.Init(&man);
     });
 
     LOG("DB initialized");
@@ -27,27 +27,27 @@ void DB::Manager::Init()
 
 void DB::Manager::Deinit()
 {
-    if (RtClient)
+    if (rtClient)
     {
-        if (RtClient->isConnected())
-            RtClient->disconnect();
-        RtClient = nullptr;
+        if (rtClient->isConnected())
+            rtClient->disconnect();
+        rtClient = nullptr;
     }
 
-    if (Client)
+    if (client)
     {
-        Client->disconnect();
-        Client = nullptr; 
+        client->disconnect();
+        client = nullptr; 
     }
 
-    LB.Deinit();
-    Blob.Deinit();
-    Auth.Deinit();
+    lb.Deinit();
+    blob.Deinit();
+    auth.Deinit();
 }
 
 void DB::Manager::Update() const
 {
-    Client->tick();
-    if (RtClient)
-        RtClient->tick();
+    client->tick();
+    if (rtClient)
+        rtClient->tick();
 }

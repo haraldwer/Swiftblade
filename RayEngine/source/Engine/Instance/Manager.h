@@ -17,56 +17,56 @@ namespace Engine
             const int newContext = contextCount;
             Utility::SingeltonContext::value = newContext;
             T* ptr = new T();
-            Queue.push_back({newContext, ptr});
+            queue.push_back({newContext, ptr});
             Utility::SingeltonContext::value = prevContext; 
             return ptr;
         }
 
         Instance* Top() const
         {
-            CHECK_RETURN(Stack.empty(), nullptr)
-            return Stack[Stack.size() - 1].Ptr;
+            CHECK_RETURN(stack.empty(), nullptr)
+            return stack[stack.size() - 1].ptr;
         }
         
         void Pop()
         {
-            Queue.emplace_back(); 
+            queue.emplace_back(); 
         }
 
         void Update()
         {
             PROFILE();
             
-            for (const auto& entry : Queue)
+            for (const auto& entry : queue)
             {
-                if (entry.Ptr && entry.Context != -1)
+                if (entry.ptr && entry.context != -1)
                 {
                     // Add
-                    Stack.push_back(entry);
-                    Utility::SingeltonContext::value = entry.Context; 
-                    entry.Ptr->Init();
+                    stack.push_back(entry);
+                    Utility::SingeltonContext::value = entry.context; 
+                    entry.ptr->Init();
                 }
-                else if (!Stack.empty())
+                else if (!stack.empty())
                 {
                     // Remove
-                    const auto& top = Stack.back();
-                    if (top.Ptr)
+                    const auto& top = stack.back();
+                    if (top.ptr)
                     {
-                        top.Ptr->Deinit();
-                        delete top.Ptr;
+                        top.ptr->Deinit();
+                        delete top.ptr;
                     }
-                    Stack.pop_back();
+                    stack.pop_back();
                     Utility::SingeltonContext::value = -1;
 
                     // Set context
-                    if (!Stack.empty())
+                    if (!stack.empty())
                     {
-                        const auto& newTop = Stack.back();
-                        Utility::SingeltonContext::value = newTop.Context;
+                        const auto& newTop = stack.back();
+                        Utility::SingeltonContext::value = newTop.context;
                     }
                 }
             }
-            Queue.clear();
+            queue.clear();
         }
         
         void Clear()
@@ -82,11 +82,11 @@ namespace Engine
 
         struct Entry
         {
-            int Context = -1;
-            Instance* Ptr = nullptr; 
+            int context = -1;
+            Instance* ptr = nullptr; 
         };
-        Vector<Entry> Queue = {};
-        Vector<Entry> Stack = {};
+        Vector<Entry> queue = {};
+        Vector<Entry> stack = {};
         int contextCount = 0; 
         
     };

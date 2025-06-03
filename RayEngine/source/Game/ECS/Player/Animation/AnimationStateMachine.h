@@ -13,9 +13,9 @@ public:
     Utility::Type GetDefaultStateType() override { return Type::Get<AnimationStateDefault>(); }
 
 private:
-    AnimationStateDefault Default; 
-    AnimationStateSlide Slide; 
-    AnimationStateInAir InAir; 
-    AnimationStateStrike Strike; 
+    AnimationStateDefault default; 
+    AnimationStateSlide slide; 
+    AnimationStateInAir inAir; 
+    AnimationStateStrike strike; 
     
 };

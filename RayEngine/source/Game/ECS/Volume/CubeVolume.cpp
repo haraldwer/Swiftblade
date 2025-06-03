@@ -7,29 +7,29 @@
 
 void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
 {
-    CachedMaxBounds = Utility::Math::Vector3<uint8>(0);
-    CachedMinBounds = Utility::Math::Vector3<uint8>(-1);
+    cachedMaxBounds = Utility::Math::Vector3<uint8>(0);
+    cachedMinBounds = Utility::Math::Vector3<uint8>(-1);
     
-    CachedCubeTransforms.clear();
-    CachedCubeTransforms.reserve(Data.size());
-    for (const auto& entry : Data)
+    cachedCubeTransforms.clear();
+    cachedCubeTransforms.reserve(data.size());
+    for (const auto& entry : data)
     {
         CHECK_CONTINUE(entry.second == 0);
         const Coord coord = Coord(entry.first);
-        CachedCubeTransforms.emplace_back(CoordToPos(entry.first, InWorld));
-        CachedMinBounds.x = Utility::Math::Min(coord.Pos.X, CachedMinBounds.x);
-        CachedMinBounds.y = Utility::Math::Min(coord.Pos.Y, CachedMinBounds.y);
-        CachedMinBounds.z = Utility::Math::Min(coord.Pos.Z, CachedMinBounds.z);
-        CachedMaxBounds.x = Utility::Math::Max(coord.Pos.X, CachedMaxBounds.x);
-        CachedMaxBounds.y = Utility::Math::Max(coord.Pos.Y, CachedMaxBounds.y);
-        CachedMaxBounds.z = Utility::Math::Max(coord.Pos.Z, CachedMaxBounds.z);
+        cachedCubeTransforms.emplace_back(CoordToPos(entry.first, InWorld));
+        cachedMinBounds.x = Utility::Math::Min(coord.pos.x, cachedMinBounds.x);
+        cachedMinBounds.y = Utility::Math::Min(coord.pos.y, cachedMinBounds.y);
+        cachedMinBounds.z = Utility::Math::Min(coord.pos.z, cachedMinBounds.z);
+        cachedMaxBounds.x = Utility::Math::Max(coord.pos.x, cachedMaxBounds.x);
+        cachedMaxBounds.y = Utility::Math::Max(coord.pos.y, cachedMaxBounds.y);
+        cachedMaxBounds.z = Utility::Math::Max(coord.pos.z, cachedMaxBounds.z);
     }
 }
 
 void ECS::CubeVolume::CustomSerialize(SerializeObj& InOutObj) const
 {   
     Map<uint8, Vector<uint32>> entries;
-    for (const auto& entry : Data)
+    for (const auto& entry : data)
     {
         CHECK_CONTINUE(!entry.second)
         entries[entry.second].push_back(entry.first); 
@@ -88,7 +88,7 @@ bool ECS::CubeVolume::CustomDeserialize(const DeserializeObj& InObj)
             const uint32 entry = std::stoi(entryStr);
 
             // Add to data!
-            Data[entry] = value;
+            data[entry] = value;
             valueIndex = entryFind + 1; 
         }
         
@@ -101,9 +101,9 @@ bool ECS::CubeVolume::CustomDeserialize(const DeserializeObj& InObj)
 Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld) const
 {
     const Mat4F mat = Vec3F(
-        InCoord.Pos.X,
-        InCoord.Pos.Y,
-        InCoord.Pos.Z) *
+        InCoord.pos.x,
+        InCoord.pos.y,
+        InCoord.pos.z) *
             (Scale * 2.0f);
 
     // Transform to world space
@@ -130,9 +130,9 @@ Vec3F ECS::CubeVolume::GetCenter(const bool InStart) const
 Coord ECS::CubeVolume::TryOffset(Coord InCoord, Vec3I InOffset)
 {
     Vec3I pos = {
-        InCoord.Pos.X,
-        InCoord.Pos.Y,
-        InCoord.Pos.Z
+        InCoord.pos.x,
+        InCoord.pos.y,
+        InCoord.pos.z
     };
     Vec3I newPos = pos + InOffset;
     if (newPos.x < 0 ||
@@ -163,8 +163,8 @@ Array<Coord, 6> ECS::CubeVolume::GetNeighbors(const Coord InCoord)
 uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
 {
     auto& v = Get<CubeVolume>(InID);
-    auto& data = v.Data;
-    const auto find = data.find(InCoord.Key);
+    auto& data = v.data;
+    const auto find = data.find(InCoord.key);
     if (find != data.end())
         return find->second;
     return 0; 
@@ -173,16 +173,16 @@ uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
 void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coord InEnd, const uint8 InVal)
 {
     auto& v = Get<CubeVolume>(InID);
-    auto& data = v.Data;
-    auto& minB = v.CachedMinBounds;
-    auto& maxB = v.CachedMaxBounds;
+    auto& data = v.data;
+    auto& minB = v.cachedMinBounds;
+    auto& maxB = v.cachedMaxBounds;
     
-    const uint8 startX = Utility::Math::Min(InStart.Pos.X, InEnd.Pos.X); 
-    const uint8 startY = Utility::Math::Min(InStart.Pos.Y, InEnd.Pos.Y); 
-    const uint8 startZ = Utility::Math::Min(InStart.Pos.Z, InEnd.Pos.Z);
-    const uint8 endX = Utility::Math::Max(InStart.Pos.X, InEnd.Pos.X); 
-    const uint8 endY = Utility::Math::Max(InStart.Pos.Y, InEnd.Pos.Y); 
-    const uint8 endZ = Utility::Math::Max(InStart.Pos.Z, InEnd.Pos.Z);
+    const uint8 startX = Utility::Math::Min(InStart.pos.x, InEnd.pos.x); 
+    const uint8 startY = Utility::Math::Min(InStart.pos.y, InEnd.pos.y); 
+    const uint8 startZ = Utility::Math::Min(InStart.pos.z, InEnd.pos.z);
+    const uint8 endX = Utility::Math::Max(InStart.pos.x, InEnd.pos.x); 
+    const uint8 endY = Utility::Math::Max(InStart.pos.y, InEnd.pos.y); 
+    const uint8 endZ = Utility::Math::Max(InStart.pos.z, InEnd.pos.z);
     
     for (uint8 x = startX; x <= endX; x++)
     {
@@ -192,11 +192,11 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
             {
                 if (InVal == 0)
                 {
-                    data.erase(Coord(x, y, z).Key);
+                    data.erase(Coord(x, y, z).key);
                 }
                 else
                 {
-                    data[Coord(x, y, z).Key] = InVal;
+                    data[Coord(x, y, z).key] = InVal;
 
                     // Set cached bound
                     minB.x = Utility::Math::Min(x, minB.x);
@@ -216,7 +216,7 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
 Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
 {
     auto& v = Get<CubeVolume>(InID);
-    const auto& volume = v.Data;
+    const auto& volume = v.data;
 
     // Convert pos
     const Vec3F origin = InPos * (1.0f / (v.Scale.Get() * 2.0f));
@@ -237,10 +237,10 @@ Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const V
             static_cast<uint8>(intersect.x),
             static_cast<uint8>(intersect.y),
             static_cast<uint8>(intersect.z));
-        const auto find = volume.find(c.Key);
+        const auto find = volume.find(c.key);
         const bool block = find != volume.end() && find->second != 0; 
         if (block || count == InMaxDist)
-            return last.Key != 0 ? last : c;
+            return last.key != 0 ? last : c;
         last = c;
         count++;
     }
@@ -252,12 +252,12 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
     auto& v = Get<CubeVolume>(InID);
     const Mat4F world = Get<Transform>(InID).World();
 
-    const int startX = Utility::Math::Min(InStart.Pos.X, InEnd.Pos.X); 
-    const int startY = Utility::Math::Min(InStart.Pos.Y, InEnd.Pos.Y); 
-    const int startZ = Utility::Math::Min(InStart.Pos.Z, InEnd.Pos.Z);
-    const int endX = Utility::Math::Max(InStart.Pos.X, InEnd.Pos.X); 
-    const int endY = Utility::Math::Max(InStart.Pos.Y, InEnd.Pos.Y); 
-    const int endZ = Utility::Math::Max(InStart.Pos.Z, InEnd.Pos.Z);
+    const int startX = Utility::Math::Min(InStart.pos.x, InEnd.pos.x); 
+    const int startY = Utility::Math::Min(InStart.pos.y, InEnd.pos.y); 
+    const int startZ = Utility::Math::Min(InStart.pos.z, InEnd.pos.z);
+    const int endX = Utility::Math::Max(InStart.pos.x, InEnd.pos.x); 
+    const int endY = Utility::Math::Max(InStart.pos.y, InEnd.pos.y); 
+    const int endZ = Utility::Math::Max(InStart.pos.z, InEnd.pos.z);
 
     Vector<Mat4F> matrices; 
     for (int x = startX; x <= endX; x++)   
@@ -272,18 +272,18 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
                     Vec3F(1.01f));
 
     Engine::Instance::Get().GetRenderScene().AddMeshes(
-            EditMesh,
+            editMesh,
             matrices,
             Vec3F(), Vec3F());
 }
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
 {
-    BlockMesh.material = ResRM("Dressing/RM_StoneWall.json");
-    BlockMesh.model = ResModel("Defaults/M_Cube.obj");
+    blockMesh.material = ResRM("Dressing/RM_StoneWall.json");
+    blockMesh.model = ResModel("Defaults/M_Cube.obj");
 
-    EditMesh.material = ResRM("Editor/RM_EditCube.json");
-    EditMesh.model = ResModel("Defaults/M_Cube.obj");
+    editMesh.material = ResRM("Editor/RM_EditCube.json");
+    editMesh.model = ResModel("Defaults/M_Cube.obj");
     
     // Cache cube transforms
     const Mat4F world = Get<Transform>(InID).World();
@@ -293,7 +293,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         return;
     
     // Add collision cubes
-    Physics::Manager::Get().AddCubes(InID, InComponent.CachedCubeTransforms, InComponent.Scale.Get());
+    Physics::Manager::Get().AddCubes(InID, InComponent.cachedCubeTransforms, InComponent.Scale.Get());
 }
 
 void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
@@ -308,19 +308,19 @@ void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
     // Calculate bounds
     const Mat4F world = Get<Transform>(InComponent.GetID()).World();
     const Coord minCoord = Coord(
-        InComponent.CachedMinBounds.x,
-        InComponent.CachedMinBounds.y,
-        InComponent.CachedMinBounds.z);
+        InComponent.cachedMinBounds.x,
+        InComponent.cachedMinBounds.y,
+        InComponent.cachedMinBounds.z);
     const Coord maxCoord = Coord(
-        InComponent.CachedMaxBounds.x,
-        InComponent.CachedMaxBounds.y,
-        InComponent.CachedMaxBounds.z);
+        InComponent.cachedMaxBounds.x,
+        InComponent.cachedMaxBounds.y,
+        InComponent.cachedMaxBounds.z);
     const Vec3F min = InComponent.CoordToPos(minCoord, world); 
     const Vec3F max = InComponent.CoordToPos(maxCoord, world);
     
     Engine::Instance::Get().GetRenderScene().AddMeshes(
-        BlockMesh,
-        InComponent.CachedCubeTransforms,
+        blockMesh,
+        InComponent.cachedCubeTransforms,
         min,
         max);
 }

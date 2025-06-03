@@ -13,10 +13,10 @@ namespace Utility
 		{
 		public:
 			PlaneVolume();
-			PlaneVolume(const std::vector<Plane<T>>& aPlaneList);
-			void AddPlane(const Plane<T>& aPlane);
-			bool IsInside(const Vector3<T>& aPosition);
-			bool FindIntersect(Vector3<T>& aResult, const Vector3<T>& aRayOirign, const Vector3<T>& aRayDirection);
+			PlaneVolume(const std::vector<Plane<T>>& InPlaneList);
+			void AddPlane(const Plane<T>& InPlane);
+			bool IsInside(const Vector3<T>& InPosition);
+			bool FindIntersect(Vector3<T>& InResult, const Vector3<T>& InRayOrigin, const Vector3<T>& InRayDirection);
 		private:
 			std::vector<Plane<T>> myPlanes;
 		};
@@ -28,27 +28,27 @@ namespace Utility
 		}
 	
 		template<class T>
-		inline PlaneVolume<T>::PlaneVolume(const std::vector<Plane<T>>& aPlaneList)
+		inline PlaneVolume<T>::PlaneVolume(const std::vector<Plane<T>>& InPlaneList)
 		{
 			myPlanes.clear();
-			for (auto& it : aPlaneList)
+			for (auto& it : InPlaneList)
 			{
 				myPlanes.push_back(it);
 			}
 		}
 	
 		template<class T>
-		inline void PlaneVolume<T>::AddPlane(const Plane<T>& aPlane)
+		inline void PlaneVolume<T>::AddPlane(const Plane<T>& InPlane)
 		{
-			myPlanes.push_back(aPlane);
+			myPlanes.push_back(InPlane);
 		}
 	
 		template<class T>
-		inline bool PlaneVolume<T>::IsInside(const Vector3<T>& aPosition)
+		inline bool PlaneVolume<T>::IsInside(const Vector3<T>& InPosition)
 		{
 			for(auto& it : myPlanes)
 			{
-				if(!it.IsInside(aPosition))
+				if(!it.IsInside(InPosition))
 				{
 					return false;
 				}
@@ -57,11 +57,11 @@ namespace Utility
 		}
 
 		template <class T>
-		bool PlaneVolume<T>::FindIntersect(Vector3<T>& aResult, const Vector3<T>& aRayOirign, const Vector3<T>& aRayDirection)
+		bool PlaneVolume<T>::FindIntersect(Vector3<T>& InResult, const Vector3<T>& InRayOrigin, const Vector3<T>& InRayDirection)
 		{
-			if (IsInside(aRayOirign))
+			if (IsInside(InRayOrigin))
 			{
-				aResult = aRayOirign; 
+				InResult = InRayOrigin; 
 				return true; 
 			}
 			
@@ -70,15 +70,15 @@ namespace Utility
 			for (auto& plane : myPlanes)
 			{
 				Vector3<T> r; 
-				if (!LinePlaneIntersection(r, aRayDirection, aRayOirign, plane.GetNormal(), plane.GetPoint()))
+				if (!LinePlaneIntersection(r, InRayDirection, InRayOrigin, plane.GetNormal(), plane.GetPoint()))
 					continue;
-				r += aRayDirection * 0.001f;
-				const float rDist = (aRayOirign - r).LengthSquared(); 
+				r += InRayDirection * 0.001f;
+				const float rDist = (InRayOrigin - r).LengthSquared(); 
 				if (rDist > distSqr && distSqr > 0.0f)
 					continue;
 				if (!IsInside(r))
 					continue;
-				aResult = r;
+				InResult = r;
 				distSqr = rDist;
 				hit = true;
 			}

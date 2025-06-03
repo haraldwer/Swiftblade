@@ -16,7 +16,7 @@ void RoomVolumeEditor::Update()
     lastTrace = GetVolume().PosToCoord(UpdateCameraTrace());
     if (!placing)
     {
-        placeStart = lastTrace.Key;
+        placeStart = lastTrace.key;
         // Begin place? 
         if ((Input::Action::Get("LM").Pressed() ||
             Input::Action::Get("RM").Pressed()))
@@ -37,29 +37,29 @@ void RoomVolumeEditor::Update()
 
     struct VolumeChange
     {
-        ECS::ID VolumeID; 
-        CubeVolumeData OriginalVolume; 
-        Coord Start;
-        Coord End;
+        ECS::ID volumeID; 
+        CubeVolumeData orgVolume; 
+        Coord start;
+        Coord end;
     };
             
     GetHistory().AddChange(Utility::Change<VolumeChange>(
         [&](const VolumeChange& InData)
         {
             auto& localSystem = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-            localSystem.Set(GetVolumeID(), InData.Start, InData.End, val);
+            localSystem.Set(GetVolumeID(), InData.start, InData.end, val);
         },
         [&](const VolumeChange& InData)
         {
-            if (const auto localVolume = ECS::Manager::Get().GetComponent<ECS::CubeVolume>(InData.VolumeID))
+            if (const auto localVolume = ECS::Manager::Get().GetComponent<ECS::CubeVolume>(InData.volumeID))
             {
-                localVolume->Data = InData.OriginalVolume;
+                localVolume->data = InData.orgVolume;
                 localVolume->UpdateCache(Mat4F()); 
             }
         },
         {
             GetVolumeID(),
-            GetVolume().Data,
+            GetVolume().data,
             placeStart,
             lastTrace
         }));
@@ -68,6 +68,6 @@ void RoomVolumeEditor::Update()
 void RoomVolumeEditor::DebugDraw(bool InIsCameraControlling)
 {
     ImGui::Text("Volume editing mode"); 
-    const auto size = GetVolume().Data.size();
+    const auto size = GetVolume().data.size();
     ImGui::Text("Blocks: %i", static_cast<int>(size));
 }

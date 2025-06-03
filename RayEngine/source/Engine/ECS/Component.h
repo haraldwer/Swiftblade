@@ -11,7 +11,7 @@ namespace ECS
         void SetID(const EntityID InID) { id = InID; }
         EntityID GetID() const
         {
-            CHECK_ASSERT(id == InvalidID, "Invalid ID");
+            CHECK_ASSERT(id == INVALID_ID, "Invalid ID");
             return id;
         }
     private: 

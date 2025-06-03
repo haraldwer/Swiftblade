@@ -18,8 +18,8 @@ void RoomEditor::Init()
     OpenScene();
     subEditorManager.SetMode(SubEditorMode::PATH);
     
-    EditorCamera.Toggle(); 
-    EditorCamera.SetAlwaysEnabled(true);
+    editorCamera.Toggle(); 
+    editorCamera.SetAlwaysEnabled(true);
 
     // Create UI
     UI::Builder builder = UI::Builder()
@@ -50,7 +50,7 @@ void RoomEditor::Logic(const double InDelta)
     
     Instance::Logic(InDelta);
     ecs.Update();
-    EditorCamera.Update();
+    editorCamera.Update();
     ui->Update();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
@@ -63,7 +63,7 @@ void RoomEditor::Logic(const double InDelta)
     if (newMode != SubEditorMode::COUNT)
         subEditorManager.SetMode(newMode); 
     
-    subEditorManager.Update(EditorCamera.IsControlling());
+    subEditorManager.Update(editorCamera.IsControlling());
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
@@ -89,12 +89,12 @@ void RoomEditor::Frame()
     
     CHECK_ASSERT(!ui, "UI Invalid");
     ui->Draw();
-    subEditorManager.Frame(EditorCamera.IsControlling());
+    subEditorManager.Frame(editorCamera.IsControlling());
 }
 
 void RoomEditor::DrawDebugPanel()
 {
-    if (EditorCamera.IsControlling())
+    if (editorCamera.IsControlling())
         ImGui::SetWindowFocus(nullptr); 
     
     if (currConfig.Edit())
@@ -103,7 +103,7 @@ void RoomEditor::DrawDebugPanel()
     ImGui::Text("Entities: %i", static_cast<int>(scene.entities.size()));
     ImGui::Text("ECS Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
 
-    subEditorManager.DebugDraw(EditorCamera.IsControlling()); 
+    subEditorManager.DebugDraw(editorCamera.IsControlling()); 
     
     if (ImGui::Button("Save"))
         SaveRoom(); 
@@ -129,7 +129,7 @@ void RoomEditor::OpenScene()
 void RoomEditor::PlayScene()
 {
     if (GameInstance* game = Engine::Manager::Get().Push<GameInstance>())
-        game->PlayScene(currConfig.Scene, EditorCamera.GetPosition());
+        game->PlayScene(currConfig.Scene, editorCamera.GetPosition());
 }
 
 void RoomEditor::SaveRoom()

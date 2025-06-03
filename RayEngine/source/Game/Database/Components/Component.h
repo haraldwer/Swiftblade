@@ -18,6 +18,6 @@ namespace DB
         Session& GetSession() const;
         
     private:
-        Manager* Manager = nullptr;
+        Manager* manager = nullptr;
     };
 }

@@ -35,7 +35,7 @@ protected:
     PropertyBase* OffToPtr(uint16 InOff) const;
 
     // Current instance, only set during reg scope
-    static inline PropertyOwnerBase* Instance = nullptr;
+    static inline PropertyOwnerBase* instance = nullptr;
     
 private:
     
@@ -61,11 +61,11 @@ public:
         hasRegistered = true;
         
         // Cache instance, use recursion as stack 
-        PropertyOwnerBase* prevInstance = Instance;
+        PropertyOwnerBase* prevInstance = instance;
 
         // Allocate memory
         static TSelf local;
-        Instance = &local;
+        instance = &local;
         
         // Create new copy
         // Will run constructor
@@ -73,17 +73,17 @@ public:
         new (&local) TSelf();
         
         // Reset instance
-        Instance = prevInstance;
+        instance = prevInstance;
     }
 
     size_t Size() const override { return sizeof(TSelf); }
     
 private:
 
-    OrderedMap<String, uint16>& GetPropertyMap() const override { return Properties; }
+    OrderedMap<String, uint16>& GetPropertyMap() const override { return properties; }
     
     // Store memory offset compared to (this)
     // Shared between all instances of the same type T
-    static inline OrderedMap<String, uint16> Properties;
+    static inline OrderedMap<String, uint16> properties;
     
 };

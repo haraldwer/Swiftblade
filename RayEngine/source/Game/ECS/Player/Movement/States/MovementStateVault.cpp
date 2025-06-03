@@ -24,15 +24,15 @@ Type MovementStateVault::Check()
     const Vec2F input = GetInput().moveInput;
     if (input.Length() < Deadzone)
         return Type::None();
-    SweepDirection = Vec3F(input.x, 0.0f, input.y).GetNormalized();
+    sweepDirection = Vec3F(input.x, 0.0f, input.y).GetNormalized();
 
     const Physics::QueryResult result = Sweep();
-    if (!result.IsHit)
+    if (!result.isHit)
         return Type::None();
     
     // Cache result
     const Physics::QueryResult::Hit hit = result.ClosestHit();
-    LedgeLocation = hit.Position;
+    ledgeLocation = hit.position;
 
     return Type::Get<MovementStateVault>();
 }
@@ -57,11 +57,11 @@ Type MovementStateVault::Update()
         return Type::Get<MovementStateIdle>();
 
     const Vec3F dir = Vec3F(input.x, 0.0f, input.y).GetNormalized();
-    const float dot = Vec3F::Dot(dir, SweepDirection);
+    const float dot = Vec3F::Dot(dir, sweepDirection);
     if (dot < InputDot)
         return Type::Get<MovementStateIdle>();
 
-    const float targetY = LedgeLocation.y + HeightOffset;
+    const float targetY = ledgeLocation.y + HeightOffset;
     if (GetPlayerTransform().GetPosition().y > targetY)
         return Type::Get<MovementStateIdle>();
     
@@ -84,24 +84,24 @@ Physics::QueryResult MovementStateVault::Sweep() const
     const Mat4F world = trans.World();
 
     Physics::SweepParams baseParams;
-    baseParams.Shape = Physics::Shape::SPHERE;
-    baseParams.ShapeData.x = SweepRadius;
-    baseParams.IgnoredEntities = { GetPlayerID() };
+    baseParams.shape = Physics::Shape::SPHERE;
+    baseParams.shapeData.x = SweepRadius;
+    baseParams.ignoredEntities = { GetPlayerID() };
 
     // First do forward sweep
     Physics::SweepParams forwardParams = baseParams;
-    forwardParams.Start = world.GetPosition() + Vec3F::Up() * SweepHeight.Get();
-    forwardParams.End = forwardParams.Start + SweepDirection * ForwardDist.Get(); 
+    forwardParams.start = world.GetPosition() + Vec3F::Up() * SweepHeight.Get();
+    forwardParams.end = forwardParams.start + sweepDirection * ForwardDist.Get(); 
     //Rendering::DebugLine(forwardParams.Start, forwardParams.End, GREEN);
     //Rendering::DebugSphere(forwardParams.End, forwardParams.ShapeData.x, GREEN);
     const Physics::QueryResult forwardResult = Physics::Query::Sweep(forwardParams);
-    if (forwardResult.IsHit) // Exit if hit
+    if (forwardResult.isHit) // Exit if hit
         return {};
 
     // Then downwards
     Physics::SweepParams downParams = baseParams;
-    downParams.Start = forwardParams.End;
-    downParams.End = downParams.Start - Vec3F::Up() * SweepHeight.Get() * 2.0f;
+    downParams.start = forwardParams.end;
+    downParams.end = downParams.start - Vec3F::Up() * SweepHeight.Get() * 2.0f;
     //Rendering::DebugLine(downParams.Start, downParams.End);
     //Rendering::DebugSphere(downParams.Start, downParams.ShapeData.x);
     auto result = Physics::Query::Sweep(downParams);

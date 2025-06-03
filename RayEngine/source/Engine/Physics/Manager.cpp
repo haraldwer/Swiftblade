@@ -18,24 +18,24 @@
 static physx::PxDefaultAllocator gAllocator;
 static Physics::ErrorCallback gErrorCallback;
 
-static Physics::PersistentPhysics Persistent;
+static Physics::PersistentPhysics persistent;
 
 using namespace physx;
 
 void Physics::PersistentPhysics::TryInit()
 {
-    if (Foundation)
+    if (foundation)
         return; 
 
     Deinit();
-    Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+    foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-    PVD = PxCreatePvd(*Foundation);
-    Transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-    PVD->connect(*Transport,PxPvdInstrumentationFlag::eALL);
+    pvd = PxCreatePvd(*foundation);
+    transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+    pvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 
-    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), false, PVD);
-    Dispatcher = PxDefaultCpuDispatcherCreate(0); 
+    physics = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, PxTolerancesScale(), false, pvd);
+    dispatcher = PxDefaultCpuDispatcherCreate(0); 
 
     #ifdef _MSC_VER
     ScratchBlock = _aligned_alloc(ScratchBlockSize, ScratchBlockAlignment);
@@ -44,24 +44,24 @@ void Physics::PersistentPhysics::TryInit()
 
 void Physics::PersistentPhysics::Deinit()
 {
-    PX_RELEASE(Dispatcher);
-    PX_RELEASE(Physics);
-    if(PVD)
+    PX_RELEASE(dispatcher);
+    PX_RELEASE(physics);
+    if(pvd)
     {
-        if (PVD->isConnected())
-            PVD->disconnect();
-        PX_RELEASE(PVD);
+        if (pvd->isConnected())
+            pvd->disconnect();
+        PX_RELEASE(pvd);
     }
-    PX_RELEASE(Transport);
-    PX_RELEASE(Foundation);
-    if (ScratchBlock)
+    PX_RELEASE(transport);
+    PX_RELEASE(foundation);
+    if (scratchBlock)
     {
 #ifdef _MSC_VER
         _aligned_free(ScratchBlock);
 #else
-        free(ScratchBlock);
+        free(scratchBlock);
 #endif
-        ScratchBlock = nullptr; 
+        scratchBlock = nullptr; 
     }
 }
 
@@ -72,22 +72,22 @@ Physics::PersistentPhysics::~PersistentPhysics()
 
 void Physics::Manager::Init()
 {
-    Persistent.TryInit();
+    persistent.TryInit();
 
-    if (!Callback)
-        Callback = new Physics::Callback();
+    if (!callback)
+        callback = new Physics::Callback();
     
-    PxSceneDesc sceneDesc(Persistent.Physics->getTolerancesScale());
+    PxSceneDesc sceneDesc(persistent.physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, 0.0f, 0.0f); // Apply gravity manually
-    sceneDesc.cpuDispatcher	= Persistent.Dispatcher;
+    sceneDesc.cpuDispatcher	= persistent.dispatcher;
     sceneDesc.kineKineFilteringMode = PxPairFilteringMode::eSUPPRESS;
     sceneDesc.staticKineFilteringMode = PxPairFilteringMode::eSUPPRESS;
     sceneDesc.filterShader = Callback::contactReportFilterShader;
-    sceneDesc.simulationEventCallback = Callback; 
+    sceneDesc.simulationEventCallback = callback; 
     
-    Scene = Persistent.Physics->createScene(sceneDesc);
+    scene = persistent.physics->createScene(sceneDesc);
 
-    if(PxPvdSceneClient* pvdClient = Scene->getScenePvdClient())
+    if(PxPvdSceneClient* pvdClient = scene->getScenePvdClient())
     {
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
@@ -97,21 +97,21 @@ void Physics::Manager::Init()
 
 void Physics::Manager::Deinit()
 {
-    ActorToShape.clear();
-    ShapeToActor.clear();
-    for (auto& shape : Shapes)
+    actorToShape.clear();
+    shapeToActor.clear();
+    for (auto& shape : shapes)
         PX_RELEASE(shape.second);
-    Shapes.clear();
-    for (auto& cube : CubeShapes)
+    shapes.clear();
+    for (auto& cube : cubeShapes)
         for (auto& shape : cube.second)
             PX_RELEASE(shape);
-    CubeShapes.clear();
-    PX_RELEASE(CubeOwner);
-    PX_RELEASE(Scene);
-    if (Callback)
+    cubeShapes.clear();
+    PX_RELEASE(cubeOwner);
+    PX_RELEASE(scene);
+    if (callback)
     {
-        delete(Callback);
-        Callback = nullptr;
+        delete(callback);
+        callback = nullptr;
     }
 }
 
@@ -131,9 +131,9 @@ void Physics::Manager::SetTransforms() const
             InInstance->setGlobalPose(trans);
     };
     
-    for (const auto& stat : Statics)
+    for (const auto& stat : statics)
         updatePhysTrans(ecs, stat.first, stat.second);
-    for (const auto& dyn : Dynamics)
+    for (const auto& dyn : dynamics)
         updatePhysTrans(ecs, dyn.first, dyn.second);
 }
 
@@ -141,14 +141,14 @@ void Physics::Manager::Simulate() const
 {
     PROFILE();
     const double delta = Utility::Time::Get().Delta();
-    Scene->simulate(
+    scene->simulate(
         static_cast<PxReal>(delta),
         nullptr,
-        Persistent.ScratchBlock,
-        Persistent.ScratchBlock ?
-            PersistentPhysics::ScratchBlockSize : 0);
+        persistent.scratchBlock,
+        persistent.scratchBlock ?
+            PersistentPhysics::SCRATCH_BLOCK_SIZE : 0);
     PxU32 error = 0;
-    Scene->fetchResults(true, &error);
+    scene->fetchResults(true, &error);
     CHECK_ASSERT(error, "PxFetchResults error");
 }
 
@@ -156,7 +156,7 @@ void Physics::Manager::GetTransforms() const
 {
     PROFILE();
     const ECS::Manager& ecs = ECS::Manager::Get();
-    for (const auto& dyn : Dynamics)
+    for (const auto& dyn : dynamics)
     {
         CHECK_CONTINUE(!dyn.second)
         auto* t = ecs.GetComponent<ECS::Transform>(dyn.first);
@@ -189,7 +189,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     if (ECS::Rigidbody* rb = FindRigidbody(InID)) // Find rigidbody in hierarchy
     {
         const ECS::EntityID rbID = rb->GetID(); 
-        PxRigidDynamic*& ptr = Dynamics[rbID];
+        PxRigidDynamic*& ptr = dynamics[rbID];
         if (!ptr) // dynamic has not yet been added, create new!
             ptr = CreateDynamic(*rb);
         actor = ptr;
@@ -230,7 +230,7 @@ PxRigidDynamic* Physics::Manager::CreateDynamic(ECS::Rigidbody& InRigidbody)
             Utility::PhysX::ConvertVec(trans->GetPosition()),
             Utility::PhysX::ConvertQuat(trans->GetRotation()));
     
-    PxRigidDynamic* ptr = Persistent.Physics->createRigidDynamic(pose);
+    PxRigidDynamic* ptr = persistent.physics->createRigidDynamic(pose);
     CHECK_RETURN_LOG(!ptr, "Failed to create dynamic", nullptr);
 
     if (InRigidbody.LockRotation)
@@ -249,8 +249,8 @@ PxRigidDynamic* Physics::Manager::CreateDynamic(ECS::Rigidbody& InRigidbody)
     ptr->setMaxAngularVelocity(InRigidbody.MaxAngularVelocity);
 
     InRigidbody.ptr = ptr; 
-    Dynamics[InRigidbody.GetID()] = ptr;
-    Scene->addActor(*ptr);
+    dynamics[InRigidbody.GetID()] = ptr;
+    scene->addActor(*ptr);
     return ptr;
 }
 
@@ -264,10 +264,10 @@ PxRigidStatic* Physics::Manager::CreateStatic(const ECS::Collider& InCollider)
         Utility::PhysX::ConvertVec(trans->GetPosition()),
         Utility::PhysX::ConvertQuat(trans->GetRotation()));
         
-    PxRigidStatic* ptr = Persistent.Physics->createRigidStatic(pose);
+    PxRigidStatic* ptr = persistent.physics->createRigidStatic(pose);
     CHECK_RETURN_LOG(!ptr, "Failed to create static", nullptr);
-    Statics[InCollider.GetID()] = ptr;
-    Scene->addActor(*ptr);
+    statics[InCollider.GetID()] = ptr;
+    scene->addActor(*ptr);
     return ptr; 
 }
 
@@ -299,7 +299,7 @@ void Physics::Manager::CreateShape(const ECS::Collider& InCollider, const ECS::E
             PxShapeFlag::eSIMULATION_SHAPE); 
     
     // Create shape
-    PxShape* shape = Persistent.Physics->createShape(
+    PxShape* shape = persistent.physics->createShape(
         *geometry,
         *material,
         true,
@@ -320,9 +320,9 @@ void Physics::Manager::CreateShape(const ECS::Collider& InCollider, const ECS::E
     shape->userData = ECS::EntityToPtr(InActorID); 
         
     // Add to maps
-    Shapes[id] = shape;
-    ShapeToActor[id] = InActorID;
-    ActorToShape[InActorID].insert(id);
+    shapes[id] = shape;
+    shapeToActor[id] = InActorID;
+    actorToShape[InActorID].insert(id);
 }
 
 void Physics::Manager::Remove(const ECS::EntityID InID)
@@ -333,27 +333,27 @@ void Physics::Manager::Remove(const ECS::EntityID InID)
 
 void Physics::Manager::TryReleaseShape(ECS::EntityID InID)
 {
-    const auto shapeFind = Shapes.find(InID);
-    CHECK_RETURN(shapeFind == Shapes.end());
+    const auto shapeFind = shapes.find(InID);
+    CHECK_RETURN(shapeFind == shapes.end());
     
     // Release shape 
     PxShape* shape = shapeFind->second;
     if (PxRigidActor* actor = shape->getActor())
         actor->detachShape(*shape);
     shape->release();
-    Shapes.erase(InID);
+    shapes.erase(InID);
 
     // Remove attachment data
-    const auto rbFind = ShapeToActor.find(InID); 
-    CHECK_RETURN(rbFind == ShapeToActor.end());
+    const auto rbFind = shapeToActor.find(InID); 
+    CHECK_RETURN(rbFind == shapeToActor.end());
     const ECS::EntityID rbID = rbFind->second;
 
     // Remove from shape -> actor map
-    ShapeToActor.erase(InID);
+    shapeToActor.erase(InID);
 
     // Remove from actor -> shape set 
-    const auto rbAttachments = ActorToShape.find(rbID);
-    CHECK_RETURN(rbAttachments == ActorToShape.end());
+    const auto rbAttachments = actorToShape.find(rbID);
+    CHECK_RETURN(rbAttachments == actorToShape.end());
     CHECK_RETURN(!rbAttachments->second.contains(InID))
     rbAttachments->second.erase(InID); 
     if (rbAttachments->second.empty())
@@ -366,21 +366,21 @@ void Physics::Manager::TryReleaseShape(ECS::EntityID InID)
 
 void Physics::Manager::TryReleaseDynamic(ECS::EntityID InID)
 {
-    CHECK_RETURN(!Dynamics.contains(InID));
-    Dynamics[InID]->release();
-    Dynamics.erase(InID);
+    CHECK_RETURN(!dynamics.contains(InID));
+    dynamics[InID]->release();
+    dynamics.erase(InID);
 }
 
 void Physics::Manager::TryReleaseStatic(ECS::EntityID InID)
 {
-    CHECK_RETURN(!Statics.contains(InID)); 
-    Statics[InID]->release();
-    Statics.erase(InID); 
+    CHECK_RETURN(!statics.contains(InID)); 
+    statics[InID]->release();
+    statics.erase(InID); 
 }
 
 PxMaterial* Physics::Manager::CreateMaterial(const float InStaticFric, const float InDynamicFric, const float InRestitution)
 {
-    return Persistent.Physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
+    return persistent.physics->createMaterial(InStaticFric, InDynamicFric, InRestitution);
 }
 
 PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InShapeData, const Vec3F& InScale)
@@ -417,14 +417,14 @@ PxGeometry* Physics::Manager::GetGeometry(const Shape& InShape, const Vec4F& InS
 void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, const float InScale)
 {
     // Create cube owner
-    if (!CubeOwner)
+    if (!cubeOwner)
     {
         const PxTransform pose = PxTransform(
             Utility::PhysX::ConvertVec(Vec3F::Zero()),
             Utility::PhysX::ConvertQuat(QuatF::Identity()));
-        CubeOwner = Persistent.Physics->createRigidStatic(pose);
-        CHECK_RETURN_LOG(!CubeOwner, "Failed to create cube actor");
-        Scene->addActor(*CubeOwner);
+        cubeOwner = persistent.physics->createRigidStatic(pose);
+        CHECK_RETURN_LOG(!cubeOwner, "Failed to create cube actor");
+        scene->addActor(*cubeOwner);
     }
     
     // Get material
@@ -439,10 +439,10 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTrans
         Vec4F::One(),
         InScale);
 
-    auto& shapes = CubeShapes[InID]; 
+    auto& shapes = cubeShapes[InID]; 
     for (const Mat4F& trans : InTransforms)
     {
-        PxShape* shape = Persistent.Physics->createShape(
+        PxShape* shape = persistent.physics->createShape(
            *geometry,
            *material,
            true);
@@ -451,21 +451,21 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTrans
             Utility::PhysX::ConvertVec(trans.GetPosition()),
             Utility::PhysX::ConvertQuat(trans.GetRotation()));
         shape->setLocalPose(pose);
-        CubeOwner->attachShape(*shape); 
+        cubeOwner->attachShape(*shape); 
         shapes.push_back(shape); 
     }
 }
 
 void Physics::Manager::ClearCubes(ECS::EntityID InID)
 {
-    const auto shapes = CubeShapes.find(InID);
-    CHECK_RETURN(shapes == CubeShapes.end())
+    const auto shapes = cubeShapes.find(InID);
+    CHECK_RETURN(shapes == cubeShapes.end())
     for (PxShape* shape : shapes->second)
         shape->release();
-    CubeShapes.erase(InID);
-    if (CubeShapes.empty() && CubeOwner)
+    cubeShapes.erase(InID);
+    if (cubeShapes.empty() && cubeOwner)
     {
-        CubeOwner->release();
-        CubeOwner = nullptr; 
+        cubeOwner->release();
+        cubeOwner = nullptr; 
     }
 }

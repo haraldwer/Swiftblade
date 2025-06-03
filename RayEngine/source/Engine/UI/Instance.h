@@ -16,8 +16,8 @@ namespace UI
         template <class T = Element>
         T& Get(const String& InIdentifier)
         {
-            const auto find = NamedElements.find(InIdentifier);
-            CHECK_ASSERT(find == NamedElements.end(), "Entry does not exist")
+            const auto find = namedElements.find(InIdentifier);
+            CHECK_ASSERT(find == namedElements.end(), "Entry does not exist")
             const auto ptr = find->second.Get();
             CHECK_ASSERT(!ptr, "Invalid ptr");
             return *reinterpret_cast<T*>(ptr); // TODO: Type safety? 
@@ -26,15 +26,15 @@ namespace UI
         template <class T = Element>
         T* TryGet(const String& InIdentifier)
         {
-            const auto find = NamedElements.find(InIdentifier);
-            CHECK_RETURN(find == NamedElements.end(), nullptr)
+            const auto find = namedElements.find(InIdentifier);
+            CHECK_RETURN(find == namedElements.end(), nullptr)
             const auto ptr = find->second.Get();
             CHECK_RETURN(!ptr, nullptr);
             return reinterpret_cast<T*>(ptr); // TODO: Type safety? 
         }
         
     private:
-        Map<String, WeakPtr<Element>> NamedElements = {};
-        GlobalEvent<OnSetViewportSize>::Callback OnCreateVirtualTarget = {};
+        Map<String, WeakPtr<Element>> namedElements = {};
+        GlobalEvent<OnSetViewportSize>::Callback onCreateVirtualTarget = {};
     };
 }

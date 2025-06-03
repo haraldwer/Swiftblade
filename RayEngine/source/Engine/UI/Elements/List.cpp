@@ -2,13 +2,13 @@
 
 void UI::List::RefreshRect(const Rect& InContainer)
 {
-    CachedRect = CalculateRect(InContainer);
+    cachedRect = CalculateRect(InContainer);
 
     Rect rect = GetRect();
-    rect.start.x += Transform.margins.horizontal.x;
-    rect.end.x -= Transform.margins.horizontal.y;
-    rect.start.y += Transform.margins.vertical.x;
-    rect.end.y -= Transform.margins.vertical.y;
+    rect.start.x += transform.margins.horizontal.x;
+    rect.end.x -= transform.margins.horizontal.y;
+    rect.start.y += transform.margins.vertical.x;
+    rect.end.y -= transform.margins.vertical.y;
 
     // Each child gets its own rect
     for (size_t i = 0; i < elements.size(); i++)
@@ -20,31 +20,31 @@ void UI::List::RefreshRect(const Rect& InContainer)
                     static_cast<float>(i)));
 }
 
-UI::Rect UI::List::GetChildRect(const Rect& InRect, const float total, const float index) const
+UI::Rect UI::List::GetChildRect(const Rect& InRect, const float InTotal, const float InIndex) const
 {
     // Calculate the part for each index
-    const float totalSpacing = ElementSpacing * (total - 1.0f);
-    const Vec2F diff = ElementSize > 0.001f ?
-                           ElementSize : ((InRect.end - InRect.start) - totalSpacing) / total;
-    const float startPart = index;
-    const float endPart = index + 1.0f;
+    const float totalSpacing = elementSpacing * (InTotal - 1.0f);
+    const Vec2F diff = elementSize > 0.001f ?
+                           elementSize : ((InRect.end - InRect.start) - totalSpacing) / InTotal;
+    const float startPart = InIndex;
+    const float endPart = InIndex + 1.0f;
         
     // Reverse? 
-    const float revStartPart = Reversed ? -startPart : startPart;
-    const float revEndPart = Reversed ? -endPart : endPart;
-    const float revSpacing = Reversed ? -ElementSpacing : ElementSpacing; 
+    const float revStartPart = reversed ? -startPart : startPart;
+    const float revEndPart = reversed ? -endPart : endPart;
+    const float revSpacing = reversed ? -elementSpacing : elementSpacing; 
 
     // Start of reference 
-    const Vec2F referenceStart = Reversed ? InRect.end : InRect.start;
+    const Vec2F referenceStart = reversed ? InRect.end : InRect.start;
         
     // Result is start + part
     const Vec2F startResult = referenceStart + diff * revStartPart + Vec2F(revSpacing * startPart);
     const Vec2F endResult = referenceStart + diff * revEndPart + Vec2F(revSpacing * startPart); 
         
-    switch (Direction)
+    switch (direction)
     {
     case FlowDirection::VERTICAL:
-        return Reversed ? Rect{
+        return reversed ? Rect{
                { InRect.start.x, endResult.y },
                { InRect.end.x, startResult.y }
             } : Rect{
@@ -52,7 +52,7 @@ UI::Rect UI::List::GetChildRect(const Rect& InRect, const float total, const flo
                 { InRect.end.x, endResult.y },
             };
     case FlowDirection::HORIZONTAL:
-        return Reversed ? Rect{
+        return reversed ? Rect{
                { endResult.x, InRect.start.y },
                { startResult.x, InRect.end.y },
            } : Rect{

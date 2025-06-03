@@ -11,7 +11,7 @@ namespace UI
         friend class Builder; 
     public:
         Element() = default;
-        Element(const Transform& InTransform) : Transform(InTransform) {}
+        Element(const Transform& InTransform) : transform(InTransform) {}
         virtual ~Element() = default;
         
         virtual void Init();
@@ -19,10 +19,10 @@ namespace UI
         virtual void Draw();
         virtual void Invalidate();
 
-        Rect GetRect() const { return CachedRect; }
+        Rect GetRect() const { return cachedRect; }
         virtual void RefreshRect(const Rect& InContainer);
         
-        Transform GetTransform() const { return Transform; }
+        Transform GetTransform() const { return transform; }
         void SetTransform(const Transform& InTransform);
         
         bool IsHovered() const;
@@ -38,8 +38,8 @@ namespace UI
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
         
-        WeakPtr<Container> Parent = nullptr;
-        Transform Transform = Transform::Fill();
-        Rect CachedRect = {};
+        WeakPtr<Container> parent = nullptr;
+        Transform transform = Transform::Fill();
+        Rect cachedRect = {};
     };
 }

@@ -35,7 +35,7 @@ namespace UI
             // First, push widget instance
             instructions.emplace_back([id = InIdentifier, trans = InTransform](Builder& InSelf) {
                 auto ptr = InSelf.AddInternal<Instance>({}, id);
-                ptr->Transform = trans; 
+                ptr->transform = trans; 
                 InSelf.widgetStack.emplace_back(ptr);
                 InSelf.currentContainer = ptr;
             });
@@ -47,7 +47,7 @@ namespace UI
             // Then pop widget instance
             instructions.emplace_back([](Builder& InSelf) {
                 const auto last = InSelf.widgetStack.back();
-                InSelf.currentContainer = last->Parent;
+                InSelf.currentContainer = last->parent;
                 InSelf.widgetStack.pop_back();
                 CHECK_ASSERT(InSelf.widgetStack.empty(), "WidgetStack incorrect push/pop")
             });
@@ -58,8 +58,8 @@ namespace UI
         Builder& Pop()
         {
             instructions.emplace_back([](Builder& InSelf) {
-                CHECK_ASSERT(!InSelf.currentContainer->Parent, "Already at root");
-                InSelf.currentContainer = InSelf.currentContainer->Parent;
+                CHECK_ASSERT(!InSelf.currentContainer->parent, "Already at root");
+                InSelf.currentContainer = InSelf.currentContainer->parent;
             });
             return *this;
         }
@@ -108,8 +108,8 @@ namespace UI
                 CHECK_ASSERT(widgetStack.empty(), "WidgetStack empty");
                 if (const auto entry = widgetStack.back())
                 {
-                    CHECK_ASSERT(entry->NamedElements.contains(InIdentifier), "Element with identifier already exists"); 
-                    entry->NamedElements[InIdentifier] = ptr;
+                    CHECK_ASSERT(entry->namedElements.contains(InIdentifier), "Element with identifier already exists"); 
+                    entry->namedElements[InIdentifier] = ptr;
                 }
                 
             }
@@ -129,8 +129,8 @@ namespace UI
     template <class T>
     Builder& Builder::Add(const T& InElement, const String& InIdentifier)
     {
-        instructions.emplace_back([element = InElement, id = InIdentifier](Builder& self) {
-            self.AddInternal(element, id);
+        instructions.emplace_back([element = InElement, id = InIdentifier](Builder& InSelf) {
+            InSelf.AddInternal(element, id);
         });
         return *this;
     }

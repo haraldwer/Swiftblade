@@ -22,9 +22,9 @@ public:
     
 private:
 
-    uint32 CachedHash = 0;
-    uint32 CachedDeferredHash = 0;
-    String Identifier = {}; 
+    uint32 cachedHash = 0;
+    uint32 cachedDeferredHash = 0;
+    String identifier = {}; 
     
 };
 

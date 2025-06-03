@@ -32,24 +32,24 @@ void Rendering::FrameViewer::DrawDebugPanel()
         {
             for (const auto& tex : buff.second)
             {
-                CHECK_ASSERT(!tex.Tex, "Tex nullptr")
+                CHECK_ASSERT(!tex.tex, "Tex nullptr")
                 
                 // Adjust size
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
                 const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
                 const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
-                const float mul = static_cast<float>(tex.Tex->width) / size.width;
+                const float mul = static_cast<float>(tex.tex->width) / size.width;
 
                 // Send to ImGui
-                SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
+                SetTextureWrap(*tex.tex, TEXTURE_WRAP_REPEAT);
                 rlImGuiImageRect(
-                    tex.Tex,
+                    tex.tex,
                     static_cast<int>(size.x),
-                    static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
+                    static_cast<int>(static_cast<float>(tex.tex->height) / mul),
                     Rectangle{
                         0, 0,
-                        static_cast<float>(tex.Tex->width),
-                        static_cast<float>(-tex.Tex->height)
+                        static_cast<float>(tex.tex->width),
+                        static_cast<float>(-tex.tex->height)
                     });
                 ImGui::TableNextColumn();
             }
@@ -66,18 +66,18 @@ void Rendering::FrameViewer::DrawDebugPanel()
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
                 const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
                 const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
-                const float mul = static_cast<float>(tex.Tex->width) / size.width;
+                const float mul = static_cast<float>(tex.tex->width) / size.width;
 
                 // Send to ImGui
-                SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
+                SetTextureWrap(*tex.tex, TEXTURE_WRAP_REPEAT);
                 rlImGuiImageRect(
-                    tex.Tex,
+                    tex.tex,
                     static_cast<int>(size.x),
-                    static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
+                    static_cast<int>(static_cast<float>(tex.tex->height) / mul),
                     Rectangle{
                         0, 0,
-                        static_cast<float>(tex.Tex->width),
-                        static_cast<float>(-tex.Tex->height)
+                        static_cast<float>(tex.tex->width),
+                        static_cast<float>(-tex.tex->height)
                     });
                 ImGui::TableNextColumn();
             }
@@ -94,18 +94,18 @@ void Rendering::FrameViewer::DrawDebugPanel()
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
                 const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
                 const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
-                const float mul = static_cast<float>(tex.Tex->width) / size.width;
+                const float mul = static_cast<float>(tex.tex->width) / size.width;
 
                 // Send to ImGui
-                SetTextureWrap(*tex.Tex, TEXTURE_WRAP_REPEAT);
+                SetTextureWrap(*tex.tex, TEXTURE_WRAP_REPEAT);
                 rlImGuiImageRect(
-                    tex.Tex,
+                    tex.tex,
                     static_cast<int>(size.x),
-                    static_cast<int>(static_cast<float>(tex.Tex->height) / mul),
+                    static_cast<int>(static_cast<float>(tex.tex->height) / mul),
                     Rectangle{
                         0, 0,
-                        static_cast<float>(tex.Tex->width),
-                        static_cast<float>(-tex.Tex->height)
+                        static_cast<float>(tex.tex->width),
+                        static_cast<float>(-tex.tex->height)
                     });
                 ImGui::TableNextColumn();
             }

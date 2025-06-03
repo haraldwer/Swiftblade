@@ -44,7 +44,7 @@ void RoomGenEditor::Enter()
 
     // Clear current volume
     auto& v = GetVolume();
-    v.Data.clear();
+    v.data.clear();
     v.UpdateCache(Mat4F());
 
     // Maybe clear spawned objects too?

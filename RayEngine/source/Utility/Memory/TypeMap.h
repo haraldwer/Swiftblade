@@ -10,93 +10,93 @@ namespace Utility
 	{
 		// Wrapper for treating variables as if they're in a different position in memory.
 		// Warning, use with extreme care!
-		template<typename DataType, int64_t byte_offset = 0>
+		template<typename DataType, int64_t ByteOffset = 0>
 		struct Map
 		{
 		public:
 
 			DataType& operator ()() const
 			{
-				return (*reinterpret_cast<DataType*>(reinterpret_cast<char*>(const_cast<Map*>(this)) + byte_offset));
+				return (*reinterpret_cast<DataType*>(reinterpret_cast<char*>(const_cast<Map*>(this)) + ByteOffset));
 			}
 
 			operator DataType& () const
 			{
-				return (*reinterpret_cast<DataType*>(reinterpret_cast<char*>(const_cast<Map*>(this)) + byte_offset));
+				return (*reinterpret_cast<DataType*>(reinterpret_cast<char*>(const_cast<Map*>(this)) + ByteOffset));
 			}
 
 			operator Map& () = delete; // todo: test what the consequences of this actually are.
 
 			//template<typename AssignedDataType>
-			DataType& operator = (const DataType &new_value)
+			DataType& operator = (const DataType &InNewValue)
 			{
-				return (*this)() = new_value;
+				return (*this)() = InNewValue;
 			}
 
-			DataType& operator = (const Map &new_value)
+			DataType& operator = (const Map &InNewValue)
 			{
-				return (*this)() = new_value();
+				return (*this)() = InNewValue();
 			}
 
-			Memory::Void &operator = (Memory::Void& new_value) const
+			Void &operator = (Memory::Void& InNewValue) const
 			{
-				return new_value;
+				return InNewValue;
 			}
 			
 
-			DataType operator + (DataType &memory_b)
+			DataType operator + (DataType &InMemoryB)
 			{
-				return ((*this)() + memory_b);
+				return ((*this)() + InMemoryB);
 			}
 
-			DataType operator - (DataType memory_b)
+			DataType operator - (DataType InMemoryB)
 			{
-				return ((*this)() - memory_b);
+				return ((*this)() - InMemoryB);
 			}
 
-			DataType operator * (DataType memory_b)
+			DataType operator * (DataType InMemoryB)
 			{
-				return ((*this)() * memory_b);
+				return ((*this)() * InMemoryB);
 			}
 
-			DataType operator / (DataType memory_b)
+			DataType operator / (DataType InMemoryB)
 			{
-				return ((*this)() / memory_b);
+				return ((*this)() / InMemoryB);
 			}
 
-			DataType operator % (DataType memory_b)
+			DataType operator % (DataType InMemoryB)
 			{
-				return ((*this)() % memory_b);
-			}
-
-
-			DataType& operator += (DataType memory_b)
-			{
-				return ((*this)() += memory_b);
-			}
-
-			DataType& operator -= (DataType memory_b)
-			{
-				return ((*this)() -= memory_b);
-			}
-
-			DataType& operator *= (DataType memory_b)
-			{
-				return ((*this)() *= memory_b);
-			}
-
-			DataType& operator /= (DataType memory_b)
-			{
-				return ((*this)() /= memory_b);
-			}
-
-			DataType& operator %= (DataType memory_b)
-			{
-				return ((*this)() %= memory_b);
+				return ((*this)() % InMemoryB);
 			}
 
 
-			Map(DataType initial_value) { (*this) = initial_value; }
+			DataType& operator += (DataType InMemoryB)
+			{
+				return ((*this)() += InMemoryB);
+			}
+
+			DataType& operator -= (DataType InMemoryB)
+			{
+				return ((*this)() -= InMemoryB);
+			}
+
+			DataType& operator *= (DataType InMemoryB)
+			{
+				return ((*this)() *= InMemoryB);
+			}
+
+			DataType& operator /= (DataType InMemoryB)
+			{
+				return ((*this)() /= InMemoryB);
+			}
+
+			DataType& operator %= (DataType InMemoryB)
+			{
+				return ((*this)() %= InMemoryB);
+			}
+
+
+			Map(DataType InInitialValue) { (*this) = InInitialValue; }
 		};
 	}
 }

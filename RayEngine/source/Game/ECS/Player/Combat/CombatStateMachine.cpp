@@ -7,8 +7,8 @@ void CombatStateMachine::Init()
         states.emplace_back(reinterpret_cast<StateBase*>(&InState));
     };
     
-    addState(Idle); 
-    addState(Strike); 
+    addState(idle); 
+    addState(strike); 
     
     PlayerStateMachine::Init();
 }

@@ -5,7 +5,7 @@ namespace Resource
     struct Base
     { 
         virtual ~Base() = default;
-        Base(const String& InIdentifier) : Identifier(InIdentifier) {}
+        Base(const String& InIdentifier) : identifier(InIdentifier) {}
         virtual bool Load() = 0;
         virtual bool Unload() = 0;
         virtual bool TryHotReload() = 0;
@@ -14,10 +14,10 @@ namespace Resource
         static String Pick(const String& InLabel, const String& InID);
         static bool SaveButton(const String& InID);
 
-        bool Loaded = false;
-        uint32 Count = 0;
-        String Identifier = {};
-        Utility::Timepoint EditTimestamp = {}; 
+        bool loaded = false;
+        uint32 count = 0;
+        String identifier = {};
+        Utility::Timepoint editTimestamp = {}; 
     };
 
     template <class T>
@@ -27,32 +27,32 @@ namespace Resource
         
         bool Load() override
         {
-            if (Loaded)
+            if (loaded)
                 return true;
-            Data.Unload();
-            Loaded = Data.Load(Identifier);
-            if (Loaded)
-                EditTimestamp = Data.GetEditTime();
+            data.Unload();
+            loaded = data.Load(identifier);
+            if (loaded)
+                editTimestamp = data.GetEditTime();
                 // TODO: Remove this requirement, maybe use template parameter? 
-            return Loaded;
+            return loaded;
         }
         
         bool Unload() override
         {
-            if (!Loaded)
+            if (!loaded)
                 return true; 
-            Loaded = !Data.Unload();
-            return !Loaded;  
+            loaded = !data.Unload();
+            return !loaded;  
         }
         
         bool TryHotReload() override
         {
-            CHECK_RETURN(Data.GetEditTime() == EditTimestamp, false);
-            LOG("Hot reloading resource: " + Identifier);
+            CHECK_RETURN(data.GetEditTime() == editTimestamp, false);
+            LOG("Hot reloading resource: " + identifier);
             Unload();
             return Load();
         }
         
-        T Data = {};
+        T data = {};
     };
 }

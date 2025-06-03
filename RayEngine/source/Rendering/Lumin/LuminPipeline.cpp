@@ -19,8 +19,8 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
 
-    auto frame = InArgs.viewportPtr->GetTargets().FrameTargets.Curr();
-    auto scene = InArgs.viewportPtr->GetTargets().SceneTargets.Curr();
+    auto frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();
+    auto scene = InArgs.viewportPtr->GetTargets().sceneTargets.Curr();
     Renderer::DrawFullscreen(InArgs, InTarget, InShader, { &frame, &scene }, -1, false);
     stats.fullscreenPasses++;
     

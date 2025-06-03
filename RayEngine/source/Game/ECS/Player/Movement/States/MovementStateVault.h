@@ -20,7 +20,7 @@ class MovementStateVault : public MovementState<MovementStateVault>
     PROPERTY_C(float, UpSpeed, 25.0f);
     PROPERTY_C(float, HeightOffset, 2.0f);
     
-    Vec3F LedgeLocation;
-    Vec3F SweepDirection; 
+    Vec3F ledgeLocation;
+    Vec3F sweepDirection; 
     
 };

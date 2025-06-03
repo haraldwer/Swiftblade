@@ -16,35 +16,35 @@ bool ECS::AnimationPoser::ShouldUpdate() const
 
 void ECS::AnimationPoser::VisualizePoses() const
 {
-    Mat4F A;
-    Mat4F B;
+    Mat4F a;
+    Mat4F b;
     for (auto c : GetPoses())
     {
         String name = Get<Attributes>(c).Name.Get();
         if (name.starts_with(VisualizePoseA.Get()) && !VisualizePoseA.Get().empty())
-            A = Get<Transform>(c).Local();
+            a = Get<Transform>(c).Local();
         if (name.starts_with(VisualizePoseB.Get()) && !VisualizePoseB.Get().empty())
-            B = Get<Transform>(c).Local();
+            b = Get<Transform>(c).Local();
     }
 
     auto& rs = Engine::Instance::Get().GetRenderScene();
-    if (A != Mat4F() || B != Mat4F())
+    if (a != Mat4F() || b != Mat4F())
     {
-        if (A != Mat4F())
+        if (a != Mat4F())
             rs.AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                A });
-        if (B != Mat4F())
+                a });
+        if (b != Mat4F())
             rs.AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                B });
-        if (A != Mat4F() && B != Mat4F())
+                b });
+        if (a != Mat4F() && b != Mat4F())
             rs.AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                Mat4F::Lerp(A, B, VisualizeLerp.Get()) });
+                Mat4F::Lerp(a, b, VisualizeLerp.Get()) });
         return;
     }
 

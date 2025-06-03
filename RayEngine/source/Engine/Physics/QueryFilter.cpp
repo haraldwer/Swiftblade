@@ -9,7 +9,7 @@
 
 void Physics::QueryFilter::SetIgnoredEntities(const Set<ECS::EntityID>& InEntities)
 {
-    IgnoredActors.clear();
+    ignoredActors.clear();
     auto& man = Manager::Get();
 
     Set<ECS::EntityID> entities;
@@ -18,26 +18,26 @@ void Physics::QueryFilter::SetIgnoredEntities(const Set<ECS::EntityID>& InEntiti
     
     for (auto e : entities)
     {
-        auto dynamicFind = man.Dynamics.find(e);
-        if (dynamicFind != man.Dynamics.end())
+        auto dynamicFind = man.dynamics.find(e);
+        if (dynamicFind != man.dynamics.end())
             if (dynamicFind->second)
-                IgnoredActors.insert(dynamicFind->second);
+                ignoredActors.insert(dynamicFind->second);
 
-        auto staticFind = man.Statics.find(e);
-        if (staticFind != man.Statics.end())
+        auto staticFind = man.statics.find(e);
+        if (staticFind != man.statics.end())
             if (staticFind->second)
-                IgnoredActors.insert(staticFind->second);
+                ignoredActors.insert(staticFind->second);
     }
 }
 
-physx::PxQueryHitType::Enum Physics::QueryFilter::preFilter(const physx::PxFilterData& filterData, const physx::PxShape* shape, const physx::PxRigidActor* actor, physx::PxHitFlags& queryFlags)
+physx::PxQueryHitType::Enum Physics::QueryFilter::preFilter(const physx::PxFilterData& InFilterData, const physx::PxShape* InShape, const physx::PxRigidActor* InActor, physx::PxHitFlags& InQueryFlags)
 {
-    if (IgnoredActors.contains(actor))
+    if (ignoredActors.contains(InActor))
         return physx::PxQueryHitType::eNONE;
     return physx::PxQueryHitType::eTOUCH;
 }
 
-physx::PxQueryHitType::Enum Physics::QueryFilter::postFilter(const physx::PxFilterData& filterData, const physx::PxQueryHit& hit, const physx::PxShape* shape, const physx::PxRigidActor* actor)
+physx::PxQueryHitType::Enum Physics::QueryFilter::postFilter(const physx::PxFilterData& InFilterData, const physx::PxQueryHit& InHit, const physx::PxShape* InShape, const physx::PxRigidActor* InActor)
 {
     return physx::PxQueryHitType::eTOUCH;
 }

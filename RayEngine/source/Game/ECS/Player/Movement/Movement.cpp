@@ -197,33 +197,33 @@ void ECS::Movement::GroundSnap()
     const auto& collider = GetCollider();
     
     Physics::SweepParams params;
-    params.Start = transform.GetPosition();
-    params.End = params.Start - Vec3F::Up() * GroundDist.Get();
-    params.IgnoredEntities = { GetID() };
-    params.Shape = static_cast<Physics::Shape>(collider.Shape.Get());
-    params.ShapeData = collider.ShapeData;
-    params.Pose = collTrans.Local(); 
+    params.start = transform.GetPosition();
+    params.end = params.start - Vec3F::Up() * GroundDist.Get();
+    params.ignoredEntities = { GetID() };
+    params.shape = static_cast<Physics::Shape>(collider.Shape.Get());
+    params.shapeData = collider.ShapeData;
+    params.pose = collTrans.Local(); 
 
     if (debugDraw)
     {
-        Engine::DebugCapsule(params.Start, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y); 
-        Engine::DebugCapsule(params.End, params.Pose.GetRotation(), params.ShapeData.x, params.ShapeData.y);
+        Engine::DebugCapsule(params.start, params.pose.GetRotation(), params.shapeData.x, params.shapeData.y); 
+        Engine::DebugCapsule(params.end, params.pose.GetRotation(), params.shapeData.x, params.shapeData.y);
     }
 
     // Sweep
     const Physics::QueryResult result = Physics::Query::Sweep(params);
     
-    if (result.IsHit)
+    if (result.isHit)
     {
         for (auto hit : result.DistanceSorted())
         {
-            if (CheckGroundHit(hit.Normal))
+            if (CheckGroundHit(hit.normal))
             {
                 // Set location
                 onGround = true;
                 groundTimestamp = GetTime(); 
     
-                const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.Distance; 
+                const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.distance; 
                 transform.SetPosition(newPos);
     
                 // Flatten velocity
@@ -234,9 +234,9 @@ void ECS::Movement::GroundSnap()
                 if (debugDraw)
                     Engine::DebugCapsule(
                         transform.GetPosition(),
-                        params.Pose.GetRotation(),
-                        params.ShapeData.x,
-                        params.ShapeData.y);
+                        params.pose.GetRotation(),
+                        params.shapeData.x,
+                        params.shapeData.y);
                 break;
             } 
         }

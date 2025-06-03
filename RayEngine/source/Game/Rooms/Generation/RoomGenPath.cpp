@@ -30,18 +30,18 @@ bool RoomGenPath::Step()
     CHECK_RETURN(!owner, true);
     
     Coord coord = path.empty() ? start : path.back();
-    if (coord.Key == target.Key)
+    if (coord.key == target.key)
         return true;
 
-    const Vec3F startPos = Vec3F(start.Pos.X, start.Pos.Y, start.Pos.Z);
-    const Vec3F targetPos = Vec3F(target.Pos.X, target.Pos.Y, target.Pos.Z);
-    const Vec3F basePos = Vec3F(coord.Pos.X, coord.Pos.Y, coord.Pos.Z);
+    const Vec3F startPos = Vec3F(start.pos.x, start.pos.y, start.pos.z);
+    const Vec3F targetPos = Vec3F(target.pos.x, target.pos.y, target.pos.z);
+    const Vec3F basePos = Vec3F(coord.pos.x, coord.pos.y, coord.pos.z);
     
     Vec3F lastDir = Vec3F::Forward();
     if (path.size() > 1)
     {
         Coord lastCoord = path[path.size() - 2];
-        Vec3F lastPos = Vec3F(lastCoord.Pos.X, lastCoord.Pos.Y, lastCoord.Pos.Z);
+        Vec3F lastPos = Vec3F(lastCoord.pos.x, lastCoord.pos.y, lastCoord.pos.z);
         lastDir = (basePos - lastPos).GetNormalized();
     }
 
@@ -50,30 +50,30 @@ bool RoomGenPath::Step()
     
     // Add every direction
     for (Coord direction : ECS::CubeVolume::GetNeighbors(coord))
-        if (direction.Key != 0)
+        if (direction.key != 0)
             EvaluateDirection(direction, targetPos, startPos, basePos, lastDir, pool);
 
     if (pool.Count() == 0)
     {
         path.push_back(target);
-        pathSet.insert(target.Key);
+        pathSet.insert(target.key);
         return true;
     }
     
     Coord result = pool.Pop();
-    CHECK_RETURN(pathSet.contains(result.Key), false);
+    CHECK_RETURN(pathSet.contains(result.key), false);
     path.push_back(result);
-    pathSet.insert(result.Key);
-    return result.Key == target.Key;
+    pathSet.insert(result.key);
+    return result.key == target.key;
 }
 
 void RoomGenPath::EvaluateDirection(const Coord InNewCoord, const Vec3F& InTargetPos, const Vec3F& InStartPos, const Vec3F& InBasePos, const Vec3F& InLastDir, Utility::RandomWeightedCollection<Coord>& InOutPool) const
 {
-    if (pathSet.contains(InNewCoord.Key))
+    if (pathSet.contains(InNewCoord.key))
         return;
         
     // Distance
-    Vec3F coordPos = Vec3F(InNewCoord.Pos.X, InNewCoord.Pos.Y, InNewCoord.Pos.Z);
+    Vec3F coordPos = Vec3F(InNewCoord.pos.x, InNewCoord.pos.y, InNewCoord.pos.z);
     float dist = (InTargetPos - coordPos).Length(); 
     float totalDist = (InTargetPos - InStartPos).Length();
     float distPart = Utility::Math::Min(1.0f, dist / totalDist);

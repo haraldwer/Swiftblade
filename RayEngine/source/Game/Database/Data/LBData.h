@@ -55,12 +55,12 @@ namespace DB
 		PROPERTY_D(int32, Seed, -1);
 		PROPERTY_D(int32, Entries, 10);
 
-		bool operator==(const LBRequest& anOther) const
+		bool operator==(const LBRequest& InOther) const
 		{
-			return Type == anOther.Type &&
-				SeedType == anOther.SeedType &&
-				Seed == anOther.Seed &&
-				Entries == anOther.Entries;
+			return Type == InOther.Type &&
+				SeedType == InOther.SeedType &&
+				Seed == InOther.Seed &&
+				Entries == InOther.Entries;
 		}
 	};
 
@@ -68,12 +68,12 @@ namespace DB
 	
 	struct OnListSuccess
 	{
-		LBData InData;
+		LBData data;
 	};
 
 	struct OnWriteSuccess
 	{
-		String InResult;
+		String result;
 	};
 	
 	struct OnListError : OnError {};

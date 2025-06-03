@@ -6,43 +6,43 @@
 
 void Rendering::Context::Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, const bool InRoot)
 {
-    Config = InConfig;
+    config = InConfig;
 
     // TODO: Use config when compiling shaders
     // Additional arguments for resource constructor?
     
     if (InRoot)
     {
-        if (LuminPtr)
-            LuminPtr->Deinit();
+        if (luminPtr)
+            luminPtr->Deinit();
 
-        if (Config.Lumin)
+        if (config.Lumin)
         {
-            if (!LuminPtr)
-                LuminPtr = new Lumin();
-            LuminPtr->Init(InLuminConfig);
+            if (!luminPtr)
+                luminPtr = new Lumin();
+            luminPtr->Init(InLuminConfig);
         }
 
-        if (LightsPtr)
-            LightsPtr->Deinit();
-        else LightsPtr = new Lights();
-        LightsPtr->Init(InConfig.Lights);
+        if (lightsPtr)
+            lightsPtr->Deinit();
+        else lightsPtr = new Lights();
+        lightsPtr->Init(InConfig.Lights);
     }
 }
 
 void Rendering::Context::Deinit()
 {
-    if (LuminPtr)
+    if (luminPtr)
     {
-        LuminPtr->Deinit();
-        delete LuminPtr;
-        LuminPtr = nullptr;
+        luminPtr->Deinit();
+        delete luminPtr;
+        luminPtr = nullptr;
     }
-    if (LightsPtr)
+    if (lightsPtr)
     {
-        LightsPtr->Deinit();
-        delete LightsPtr;
-        LightsPtr = nullptr;
+        lightsPtr->Deinit();
+        delete lightsPtr;
+        lightsPtr = nullptr;
     }
 
     rlState::current.Reset();

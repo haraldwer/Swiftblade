@@ -21,18 +21,18 @@ namespace Engine
         virtual bool IsEditor() const { return false; }
 
         Rendering::Scene& GetRenderScene();
-        EditorCamera& GetEditorCamera() { return EditorCamera; }
+        EditorCamera& GetEditorCamera() { return editorCamera; }
 
     protected:
-        Utility::Time Time = {};
-        Menu::Manager Menus = {};
-        Input::Manager Input = {};
+        Utility::Time time = {};
+        Menu::Manager menus = {};
+        Input::Manager input = {};
         
-        EditorCamera EditorCamera = {};
+        EditorCamera editorCamera = {};
         
     private:
-        Rendering::Scene RenderScene = {};
-        InstanceEventManager EventManager = {};
+        Rendering::Scene renderScene = {};
+        InstanceEventManager eventManager = {};
 
     };
 }

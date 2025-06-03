@@ -18,8 +18,8 @@ void MenuLeaderboard::Init()
      
      struct Entry
      {
-          String Name;
-          int Score; 
+          String name;
+          int score; 
      };
      Vector<Entry> entries;
      entries.push_back({"Harald", 999});
@@ -29,8 +29,8 @@ void MenuLeaderboard::Init()
      auto addEntry = [&](const Entry& InEntry)
      {
           builder.Push(UI::List(UI::Transform::Fill(), 0.0f, 0.0f, UI::List::FlowDirection::HORIZONTAL))
-               .Add(UI::Label(InEntry.Name))
-               .Add(UI::Label(std::to_string(InEntry.Score), Vec2F(1.0f, 0.0f)))
+               .Add(UI::Label(InEntry.name))
+               .Add(UI::Label(std::to_string(InEntry.score), Vec2F(1.0f, 0.0f)))
                .Pop();
      };
 

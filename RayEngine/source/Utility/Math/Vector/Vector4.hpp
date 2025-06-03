@@ -106,14 +106,14 @@ namespace Utility
 				return Math::Lerp(InA, InB, InT);
 			}
 			
-			const Type& operator [](int index) const
+			const Type& operator [](int InIndex) const
 			{
-				return data[index];
+				return data[InIndex];
 			}
 
-			Type& operator [](int index)
+			Type& operator [](int InIndex)
 			{
-				return data[index];
+				return data[InIndex];
 			}
 
 			Vector4& operator = (const Vector4& InOther)
@@ -189,13 +189,13 @@ namespace Utility
 				return *this;
 			}
 			
-			bool operator==(const Vector4& in) const
+			bool operator==(const Vector4& InOther) const
 			{
 				return
-					x == in.x &&
-					y == in.y &&
-					z == in.z &&
-					w == in.w;
+					x == InOther.x &&
+					y == InOther.y &&
+					z == InOther.z &&
+					w == InOther.w;
 			}
 
 			template <class OtherType>

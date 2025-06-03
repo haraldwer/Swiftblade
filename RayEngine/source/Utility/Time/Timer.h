@@ -12,6 +12,6 @@ namespace Utility
         double Ellapsed() const;
         
     private:
-        Timepoint Start;
+        Timepoint start;
     };
 }

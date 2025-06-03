@@ -4,31 +4,31 @@
 
 void DB::Component::Init(DB::Manager* InManager)
 {
-    Manager = InManager; 
+    manager = InManager; 
 }
 
 void DB::Component::Deinit()
 {
-    Manager = nullptr;
+    manager = nullptr;
 }
 
 DB::Manager& DB::Component::GetDB() const
 {
-    CHECK_ASSERT(!Manager, "Invalid DB manager");
-    return *Manager; 
+    CHECK_ASSERT(!manager, "Invalid DB manager");
+    return *manager; 
 }
 
 DB::Client& DB::Component::GetClient() const
 {
-    return GetDB().Client;
+    return GetDB().client;
 }
 
 DB::RtClient& DB::Component::GetRealtimeClient() const
 {
-    return GetDB().RtClient;
+    return GetDB().rtClient;
 }
 
 DB::Session& DB::Component::GetSession() const
 {
-    return GetDB().Session;
+    return GetDB().session;
 }

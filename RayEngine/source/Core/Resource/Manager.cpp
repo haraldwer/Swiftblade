@@ -41,9 +41,9 @@ void Resource::Manager::TryUnload() const
 
         const auto res = resources.at(queue[index]);
         CHECK_CONTINUE(!res)
-        CHECK_CONTINUE(!res->Loaded)
+        CHECK_CONTINUE(!res->loaded)
 
-        if (res->Count <= 0)
+        if (res->count <= 0)
         {
             PROFILE_NAMED("Unload");
             res->Unload();
@@ -65,7 +65,7 @@ void Resource::Manager::Deinit()
     {
         CHECK_CONTINUE(!res.second)
         res.second->Unload();
-        CHECK_CONTINUE_LOG(res.second->Count != 0, "Resource couldnt be destroyed properly, count: " + std::to_string(res.second->Count) + ", resource: " + res.first);
+        CHECK_CONTINUE_LOG(res.second->count != 0, "Resource couldnt be destroyed properly, count: " + std::to_string(res.second->count) + ", resource: " + res.first);
         delete(res.second);
         res.second = nullptr;
     }
@@ -78,7 +78,7 @@ void Resource::Manager::DrawDebugPanel()
 
     int c = 0;
     for (auto r : resources)
-        if (r.second->Loaded)
+        if (r.second->loaded)
             c++; 
     ImGui::Text("Loaded resources: %i", c);
 
@@ -94,15 +94,15 @@ void Resource::Manager::DrawDebugPanel()
         
         for (const auto& res : resources)
         {
-            CHECK_CONTINUE(showOnlyLoaded && !res.second->Loaded);
+            CHECK_CONTINUE(showOnlyLoaded && !res.second->loaded);
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::Text("%s", res.first.c_str());
             ImGui::TableNextColumn();
             CHECK_CONTINUE(!res.second); 
-            ImGui::Text("%i", res.second->Count);
+            ImGui::Text("%i", res.second->count);
             ImGui::TableNextColumn();
-            ImGui::Text(res.second->Loaded ? "True" : "False");
+            ImGui::Text(res.second->loaded ? "True" : "False");
         }
         ImGui::EndTable(); 
     }

@@ -18,16 +18,16 @@ namespace DB
         void Update() const;
         void Deinit();
 
-        Authentication Auth = {};
-        Leaderboard LB = {};
-        Blob Blob = {};
+        Authentication auth = {};
+        Leaderboard lb = {};
+        Blob blob = {};
         
     private:
-        Client Client = nullptr; 
-        RtClient RtClient = nullptr;
-        Session Session = nullptr;
+        Client client = nullptr; 
+        RtClient rtClient = nullptr;
+        Session session = nullptr;
 
-        Utility::Event<OnLoginSuccess, Manager, int>::Callback OnLoggedIn = {};
+        Utility::Event<OnLoginSuccess, Manager, int>::Callback onLoggedIn = {};
     };
 
     template <class EventT, class CallbackT = int>

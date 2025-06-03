@@ -16,23 +16,23 @@ namespace UI
         };
         
         List(const UI::Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false)
-            : Container(InTransform), Direction(InDirection), Reversed(InReversed), ElementSize(InSize), ElementSpacing(InSpacing) { }
+            : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing) { }
 
         void RefreshRect(const Rect& InContainer) override;
         
         void SetSpacing(const float InSpacing)
         {
-            ElementSpacing = InSpacing;
+            elementSpacing = InSpacing;
             Invalidate(); 
         }
 
     private:
 
-        Rect GetChildRect(const Rect& InRect, const float total, const float index) const;;
+        Rect GetChildRect(const Rect& InRect, float InTotal, float InIndex) const;
         
-        FlowDirection Direction;
-        bool Reversed;
-        float ElementSize = 0.0f; 
-        float ElementSpacing = 0.0f; 
+        FlowDirection direction;
+        bool reversed;
+        float elementSize = 0.0f; 
+        float elementSpacing = 0.0f; 
     };
 }

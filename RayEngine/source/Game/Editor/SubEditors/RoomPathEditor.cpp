@@ -71,22 +71,22 @@ void RoomPathEditor::Update()
     {
         struct RoomPathChange
         {
-            Vec3F NewPos;
-            Vec3F PrevPos;
+            Vec3F newPos;
+            Vec3F prevPos;
         };
         
         GetHistory().AddChange(Utility::Change<RoomPathChange>(
                 [&](const RoomPathChange& InData)
                 {
                     if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-                        t->SetPosition(InData.NewPos);
+                        t->SetPosition(InData.newPos);
                     if (owner)
                         owner->SetMode(SubEditorMode::GEN);
                 },
                 [&](const RoomPathChange& InData)
                 {
                     if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-                        t->SetPosition(InData.PrevPos);
+                        t->SetPosition(InData.prevPos);
                     if (owner)
                         owner->SetMode(SubEditorMode::GEN);
                 },

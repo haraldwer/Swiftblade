@@ -14,31 +14,31 @@ void ECS::Animator::Init()
     if (Engine::Instance::Get().IsEditor())
         return;
     
-    StateMachine = new AnimationStateMachine();
-    StateMachine->Init();
+    stateMachine = new AnimationStateMachine();
+    stateMachine->Init();
 }
 
 void ECS::Animator::Update()
 {
-    if (StateMachine)
-        StateMachine->Update();
+    if (stateMachine)
+        stateMachine->Update();
     UpdateHead();
     UpdateHands();
 }
 
 void ECS::Animator::TryOverrideState(const Type& InAnimState) const
 {
-    if (StateMachine)
-        StateMachine->TryOverrideState(InAnimState);
+    if (stateMachine)
+        stateMachine->TryOverrideState(InAnimState);
 }
 
 bool ECS::Animator::EditState() const
 {
-    if (!StateMachine)
+    if (!stateMachine)
         return false;
     if (ImGui::Button("Save##Animator"))
-        StateMachine->SaveConfig();
-    return StateMachine->Edit();
+        stateMachine->SaveConfig();
+    return stateMachine->Edit();
 }
 
 Mat4F ECS::Animator::GetPose(const String& InName) const
@@ -102,19 +102,19 @@ Mat4F ECS::Animator::HandBob(Mat4F InTrans, Vec2F InScale, float InFrequency, bo
 
 void ECS::Animator::UpdateHands()
 {
-    HandState tR = TargetRight;
-    HandState tL = TargetLeft;
+    HandState tR = targetRight;
+    HandState tL = targetLeft;
 
     const Vec3F vel = GetRB().GetVelocity();
     tR.transform.translation.xyz -= vel * tR.velocityOffset * 0.01f;
     tL.transform.translation.xyz -= vel * tL.velocityOffset * 0.01f;
     
     const float dt = static_cast<float>(Utility::Time::Get().Delta());
-    CurrentRight.LerpTo(tR, dt);
-    CurrentLeft.LerpTo(tL, dt);
+    currentRight.LerpTo(tR, dt);
+    currentLeft.LerpTo(tL, dt);
 
-    const Mat4F cr = ToCameraSpace(CurrentRight.transform, CurrentRight.cameraSpace);
-    const Mat4F cl = ToCameraSpace(CurrentLeft.transform, CurrentLeft.cameraSpace);
+    const Mat4F cr = ToCameraSpace(currentRight.transform, currentRight.cameraSpace);
+    const Mat4F cl = ToCameraSpace(currentLeft.transform, currentLeft.cameraSpace);
     GetRightTransform().SetLocal(cr);
     GetLeftTransform().SetLocal(cl);
     if (auto t = TryGet<Transform>(GetPlayer().GetWeaponID()))
@@ -124,25 +124,25 @@ void ECS::Animator::UpdateHands()
 void ECS::Animator::UpdateHead()
 {
     const float dt = static_cast<float>(Utility::Time::Get().Delta());
-    CurrentHead.LerpTo(TargetHead, dt);
+    currentHead.LerpTo(targetHead, dt);
     
     auto& camTrans = GetCameraTransform();
     const QuatF localRot = camTrans.GetRotation(Transform::Space::LOCAL);
     const Vec3F eulerRot = localRot.Euler();
     Mat4F trans = Mat4F(
-        Vec3F::Up() + CurrentHead.position,
-        QuatF::FromEuler(Vec3F(eulerRot.x, eulerRot.y, CurrentHead.tilt)),
+        Vec3F::Up() + currentHead.position,
+        QuatF::FromEuler(Vec3F(eulerRot.x, eulerRot.y, currentHead.tilt)),
         Vec3F::One());
     GetPlayerCamera().SetTransform(trans);
 }
 
 void ECS::Animator::SetHands(const HandState& InRight, const HandState& InLeft)
 {
-    TargetRight = InRight;
-    TargetLeft = InLeft;
+    targetRight = InRight;
+    targetLeft = InLeft;
 }
 
 void ECS::Animator::SetHead(const HeadState& InHead)
 {
-    TargetHead = InHead;
+    targetHead = InHead;
 }

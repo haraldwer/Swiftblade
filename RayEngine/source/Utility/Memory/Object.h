@@ -20,14 +20,14 @@ namespace Utility
         Object(const T& InData)
         {
             T* ptr = new T(InData);
-            CurrentType = Type::Get<T>();
-            Ptr = reinterpret_cast<BaseT*>(ptr);
+            currentType = Type::Get<T>();
+            ptr = reinterpret_cast<BaseT*>(ptr);
         }
 
         // Can be made into a weak ptr
         operator WeakPtr<BaseT>() const
         {
-            return WeakPtr<BaseT>(Ptr);
+            return WeakPtr<BaseT>(ptr);
         }
 
         // A valid object is guaranteed
@@ -35,7 +35,7 @@ namespace Utility
         T& Get()
         {
             CHECK_ASSERT(!IsA<T>(), "Invalid type");
-            BaseT* ptr = Ptr.Get();
+            BaseT* ptr = ptr.Get();
             CHECK_ASSERT(!ptr, "Invalid ptr");
             return *reinterpret_cast<T*>(ptr); 
         }
@@ -44,7 +44,7 @@ namespace Utility
         const T& Get() const
         {
             CHECK_ASSERT(!IsA<T>(), "Invalid type");
-            BaseT* ptr = Ptr.Get();
+            BaseT* ptr = ptr.Get();
             CHECK_ASSERT(!ptr, "Invalid ptr");
             return *reinterpret_cast<T*>(ptr); 
         }
@@ -64,14 +64,14 @@ namespace Utility
         {
             const auto type = Type::Get<T>(); 
             return
-                type == CurrentType ||
+                type == currentType ||
                 type == Type::Get<BaseT>(); 
         }
 
     private:
 
         // Object will be automatically destroyed when out of scope
-        ObjectPtr<BaseT> Ptr;
-        Type CurrentType; 
+        ObjectPtr<BaseT> ptr;
+        Type currentType; 
     };
 }
