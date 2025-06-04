@@ -8,7 +8,7 @@ void SceneInstance::Destroy()
 {
     for (const ECS::EntityID id : entities)
     {
-        CHECK_ASSERT(id == ECS::InvalidID, "Entity invalid");
+        CHECK_ASSERT(id == ECS::INVALID_ID, "Entity invalid");
         ECS::Manager::Get().DestroyEntity(id);
     }
     entities.clear();

@@ -28,7 +28,7 @@ namespace Resource
         
         bool IsLoaded() const
         {
-            return ptr && ptr->Loaded;    
+            return ptr && ptr->loaded;    
         }
 
         operator bool() const
@@ -44,7 +44,7 @@ namespace Resource
 
         String Identifier() const
         {
-            return ptr ? ptr->Identifier : ""; 
+            return ptr ? ptr->identifier : ""; 
         }
 
         T* Get() const
@@ -52,7 +52,7 @@ namespace Resource
             if (!IsLoaded() && ptr)
                 ptr->Load(); // Try load
             if (IsLoaded())
-                return &ptr->Data;
+                return &ptr->data;
             return nullptr;
         }
         
@@ -61,8 +61,8 @@ namespace Resource
         Ref(const Ref& InOther) { *this = InOther; }
         Ref(Ref&& InOther)
         {
-            ptr = InOther.Ptr;
-            InOther.Ptr = nullptr;
+            ptr = InOther.ptr;
+            InOther.ptr = nullptr;
         }
         
         virtual ~Ref() { Decrement(); }
@@ -71,7 +71,7 @@ namespace Resource
             if (this != &InPtr)
             {
                 Decrement();
-                ptr = InPtr.Ptr;
+                ptr = InPtr.ptr;
                 Increment();
             }        
             return *this;
@@ -84,7 +84,7 @@ namespace Resource
                 Utility::WriteValue(InOutObj, String());
                 return;
             }
-            Utility::WriteValue(InOutObj, ptr->Identifier);
+            Utility::WriteValue(InOutObj, ptr->identifier);
         }
         
         bool Deserialize(const GenericVal& InObj)
@@ -100,7 +100,7 @@ namespace Resource
         bool Edit(const String& InName, uint32 InOffset = 0)
         {
             // File picker
-            const String currID = ptr ? ptr->Identifier : "";
+            const String currID = ptr ? ptr->identifier : "";
             
             const String newID = Base::Pick(InName, currID);
             if (currID != newID)
@@ -112,11 +112,11 @@ namespace Resource
             // Inline editing
             if (Editable)
             {
-                 if (T* ptr = Get())
+                 if (T* res = Get())
                 {
-                    if (ptr->Edit(InName, InOffset))
+                    if (res->Edit(InName, InOffset))
                     {
-                        ptr->Save(currID);
+                        res->Save(currID);
                         ptr->TryHotReload(); 
                     }
                 }
@@ -128,13 +128,13 @@ namespace Resource
 
         bool operator==(const Ref& InOther) const
         {
-            return InOther.Ptr == ptr;
+            return InOther.ptr == ptr;
         }
         
     private:
         
-        void Increment() const { if (ptr) ptr->Count++; }
-        void Decrement() { if (ptr) ptr->Count--; }
+        void Increment() const { if (ptr) ptr->count++; }
+        void Decrement() { if (ptr) ptr->count--; }
         
         Impl<T>* ptr = nullptr;
     };

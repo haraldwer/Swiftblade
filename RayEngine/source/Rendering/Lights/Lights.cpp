@@ -37,16 +37,16 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     for (auto& light : frameLights)
     {
         CHECK_ASSERT(light->id == 0, "Invalid hash");
-        LightData& cache = cache[light->id];
+        LightData& lightData = cache[light->id];
 
         // Set data
-        cache.data = light->data;
-        cache.id = light->id;
+        lightData.data = light->data;
+        lightData.id = light->id;
 
         // Skip?
-        CHECK_CONTINUE(config.UpdateFrequency < 0.0f && cache.timestamp > 0.001f);
-        CHECK_CONTINUE(InArgs.contextPtr->Time() - cache.timestamp < config.UpdateFrequency)
-        Utility::SortedInsert(timeSortedCache, &cache, [&](const LightData* InFirst, const LightData* InSecond)
+        CHECK_CONTINUE(config.UpdateFrequency < 0.0f && lightData.timestamp > 0.001f);
+        CHECK_CONTINUE(InArgs.contextPtr->Time() - lightData.timestamp < config.UpdateFrequency)
+        Utility::SortedInsert(timeSortedCache, &lightData, [&](const LightData* InFirst, const LightData* InSecond)
         {
             return InFirst->timestamp < InSecond->timestamp;
         });
@@ -67,14 +67,14 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     
     int count = 0;
     Pipeline::Stats stats;
-    for (auto& cache : timeSortedCache) 
+    for (auto& lightData : timeSortedCache) 
     {
-        CHECK_CONTINUE(!cache);
-        cache->timestamp = args.contextPtr->Time();
-        cache->pos = cache->data.position;
+        CHECK_CONTINUE(!lightData);
+        lightData->timestamp = args.contextPtr->Time();
+        lightData->pos = lightData->data.position;
         
-        auto rect = atlas.GetRect(cache->id, 0).To<float>();
-        cache->rect = {
+        auto rect = atlas.GetRect(lightData->id, 0).To<float>();
+        lightData->rect = {
             rect.x / size.x,
             rect.y / size.y,
             rect.z / size.x,
@@ -84,12 +84,12 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         for (int i = 0; i < 6; i++)
         {
             args.perspectives.push_back({
-                .targetRect = atlas.GetRect(cache->id, i),
+                .targetRect = atlas.GetRect(lightData->id, i),
                 .camera = {
-                    .position = cache->data.position,
+                    .position = lightData->data.position,
                     .rotation = directions[i],
                     .fov = 90.0f,
-                    .far = cache->data.range,
+                    .far = lightData->data.range,
                     .near = 0.01f
                 }
             });

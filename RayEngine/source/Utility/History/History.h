@@ -25,8 +25,8 @@ namespace Utility
 			undoFunc(InUndo),
 			data(InData) {}
 
-		void Do() override { DoFunc(data); }
-		void Undo() override { UndoFunc(data); }
+		void Do() override { doFunc(data); }
+		void Undo() override { undoFunc(data); }
 
 	private: 
 		std::function<void(const T& InData)> doFunc = {};

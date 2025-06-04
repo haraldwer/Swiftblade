@@ -12,10 +12,10 @@ void PlayerStateMachine::Init()
 
 bool PlayerStateMachine::Edit(const String& InName, const uint32 InOffset)
 {
-    String current = "Current: ";
+    String current = {};
     if (const auto s = GetCurrentState())
         current += s->GetName();
-    ImGui::Text(current.c_str());
+    ImGui::Text("Current: %s", current.c_str());
     bool edited = false;
     for (StateBase* s : states)
     {

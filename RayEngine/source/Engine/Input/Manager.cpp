@@ -84,13 +84,13 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
     CHECK_RETURN(InAction.Key < 0);
     
     // Transitions
-    switch (InAction._Current)
+    switch (InAction.current)
     {
     case State::PRESSED:
-        InAction._Current = State::DOWN;
+        InAction.current = State::DOWN;
         break;
     case State::RELEASED:
-        InAction._Current = State::UP;
+        InAction.current = State::UP;
         break;
     case State::UP:
     case State::DOWN:
@@ -141,7 +141,7 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
         down = abs(value) > InAction.Deadzone;
     InAction.value = value; 
     if (down != InAction.Down())
-        InAction._Current = down ?
+        InAction.current = down ?
             State::PRESSED : State::RELEASED;
 }
 
@@ -218,7 +218,7 @@ void Input::Manager::DrawDebugPanel()
             {
                 for (size_t i = 0; i < actions.size(); i++)
                 {
-                    const bool selected = i == selectedAction; 
+                    const bool selected = static_cast<int>(i) == selectedAction; 
                     if (ImGui::Selectable((actions[i].Name.Get() + "##" + std::to_string(i)).c_str(), selected))
                         selectedAction = static_cast<int>(i); 
                 }
@@ -240,7 +240,7 @@ void Input::Manager::DrawDebugPanel()
             }
 
             // Edit selected action
-            if (selectedAction >= 0 && selectedAction < actions.size())
+            if (selectedAction >= 0 && selectedAction < static_cast<int>(actions.size()))
             {
                 ImGui::SeparatorText("Action");
                 auto& action = actions[selectedAction];
@@ -280,7 +280,7 @@ void Input::Manager::DrawDebugPanel()
                 action.Deadzone.Edit(1);
 
                 String state;
-                switch (action._Current)
+                switch (action.current)
                 {
                 case State::UP:
                     state = "UP";

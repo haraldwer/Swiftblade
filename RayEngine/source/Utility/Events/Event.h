@@ -73,9 +73,9 @@ namespace Utility
             for (auto callback : EventManagerT::Get().GetCallbacks(Type::Get<Event>()))
             {
                 auto* callbackPtr = reinterpret_cast<Callback*>(callback); 
-                for (const auto& binding : callbackPtr->Bindings)
-                    if (ShouldInvoke(InData, binding.CallbackData))
-                        binding.Function(InData);
+                for (const auto& binding : callbackPtr->bindings)
+                    if (ShouldInvoke(InData, binding.callbackData))
+                        binding.function(InData);
             } 
         }
 

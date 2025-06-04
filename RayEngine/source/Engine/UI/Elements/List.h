@@ -18,12 +18,12 @@ namespace UI
         List(const UI::Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false)
             : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing) { }
 
-        void RefreshRect(const Rect& InContainer) override;
+        void RefreshRect(Instance& InInstance, const Rect& InContainer) override;
         
-        void SetSpacing(const float InSpacing)
+        void SetSpacing(Instance& InInstance, const float InSpacing)
         {
             elementSpacing = InSpacing;
-            Invalidate(); 
+            Invalidate(InInstance); 
         }
 
     private:

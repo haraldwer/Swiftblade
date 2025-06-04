@@ -1,6 +1,8 @@
 ﻿#include "List.h"
 
-void UI::List::RefreshRect(const Rect& InContainer)
+#include "UI/Instance.h"
+
+void UI::List::RefreshRect(Instance& InInstance, const Rect& InContainer)
 {
     cachedRect = CalculateRect(InContainer);
 
@@ -12,12 +14,12 @@ void UI::List::RefreshRect(const Rect& InContainer)
 
     // Each child gets its own rect
     for (size_t i = 0; i < elements.size(); i++)
-        if (Element* e = elements[i].Get())
-            e->RefreshRect(
-                GetChildRect(
-                    rect,
-                    static_cast<float>(elements.size()),
-                    static_cast<float>(i)));
+        InInstance.Get<Element>(elements[i]).RefreshRect(
+            InInstance,
+            GetChildRect(
+                rect,
+                static_cast<float>(elements.size()),
+                static_cast<float>(i)));
 }
 
 UI::Rect UI::List::GetChildRect(const Rect& InRect, const float InTotal, const float InIndex) const

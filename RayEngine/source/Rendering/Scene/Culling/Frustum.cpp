@@ -6,8 +6,8 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 {
 	const Mat4F matrix = Mat4F::GetInverse(InView) * InProj;
 
-	auto& near = planes[0];
-	auto& far = planes[1];
+	auto& nearVec = planes[0];
+	auto& farVec = planes[1];
 	auto& left = planes[2];
 	auto& right = planes[3];
 	auto& top = planes[4];
@@ -18,10 +18,10 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 	for (int i = 3; i >= 0; i--) right[i]	= mat[i][3] - mat[i][0];
 	for (int i = 3; i >= 0; i--) bottom[i]	= mat[i][3] + mat[i][1];
 	for (int i = 3; i >= 0; i--) top[i]		= mat[i][3] - mat[i][1];
-	for (int i = 3; i >= 0; i--) near[i]	= mat[i][3] + mat[i][2];
-	for (int i = 3; i >= 0; i--) far[i]		= mat[i][3] - mat[i][2];
+	for (int i = 3; i >= 0; i--) nearVec[i]	= mat[i][3] + mat[i][2];
+	for (int i = 3; i >= 0; i--) farVec[i]		= mat[i][3] - mat[i][2];
 
-	far = InFar;
+	farVec = InFar;
 	position = InPos;
 }
 

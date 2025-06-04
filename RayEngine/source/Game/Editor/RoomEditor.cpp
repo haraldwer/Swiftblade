@@ -119,8 +119,8 @@ void RoomEditor::OpenScene()
     scene.Destroy();
     ecs.DestroyPending();
 
-    if (const auto scene = currConfig.Scene.Get().Get())
-        scene = scene->Create();
+    if (const auto sceneRes = currConfig.Scene.Get().Get())
+        scene = sceneRes->Create();
     
     subEditorManager.Init(currConfig.IsArena ?
         RoomType::ARENA : RoomType::ROOM); 
@@ -144,6 +144,6 @@ void RoomEditor::SaveRoom()
         scene.entities.insert(e);
     }
     
-    if (const auto scene = currConfig.Scene.Get().Get())
-        scene->Save(scene, subEditorManager.GetStartOffset());
+    if (const auto sceneRes = currConfig.Scene.Get().Get())
+        sceneRes->Save(scene, subEditorManager.GetStartOffset());
 }

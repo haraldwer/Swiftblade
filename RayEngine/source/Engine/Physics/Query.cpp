@@ -22,12 +22,12 @@ Physics::QueryResult::Hit Physics::QueryResult::ClosestHit() const
 
 Vector<Physics::QueryResult::Hit> Physics::QueryResult::DistanceSorted() const
 {
-    Vector<Hit> hits = hits;
-    std::ranges::sort(hits.begin(), hits.end(), [](const Hit& InFirst, const Hit& InSecond)
+    Vector<Hit> result = hits;
+    std::ranges::sort(result.begin(), result.end(), [](const Hit& InFirst, const Hit& InSecond)
     {
         return InFirst.distance < InSecond.distance; 
     });
-    return hits;
+    return result;
 }
 
 Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)

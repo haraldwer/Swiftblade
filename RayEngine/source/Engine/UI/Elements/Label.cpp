@@ -2,21 +2,21 @@
 
 #include "Core/Utility/RayUtility.h"
 
-void UI::Label::Init()
+void UI::Label::Init(Instance& InInstance)
 {
-    Element::Init();
+    Element::Init(InInstance);
     
     if (const auto fontRsc = font.Get())
     {
-        if (const auto font = fontRsc->Get())
+        if (const auto fontPtr = fontRsc->Get())
         {
-            Vector2 size = MeasureTextEx(*font, text.c_str(), size, spacing); 
-            cachedSize = { size.x, size.y };
+            Vector2 measure = MeasureTextEx(*fontPtr, text.c_str(), size, spacing); 
+            cachedSize = { measure.x, measure.y };
         }
     }
 }
 
-void UI::Label::Draw()
+void UI::Label::Draw(Instance& InInstance)
 {
     const Rect rect = GetRect();
     DrawRect(rect);
@@ -39,9 +39,9 @@ void UI::Label::Draw()
     const float rot = 0.0f;
     const Color tint = WHITE;
     if (const auto fontRsc = font.Get())
-        if (const auto font = fontRsc->Get())
+        if (const auto fontPtr = fontRsc->Get())
             DrawTextPro(
-                *font,
+                *fontPtr,
                 text.c_str(),
                 { viewPos.x, viewPos.y},
                 origin,
@@ -51,16 +51,16 @@ void UI::Label::Draw()
                 tint);
 }
 
-void UI::Label::SetText(const String& InText)
+void UI::Label::SetText(Instance& InInstance, const String& InText)
 {
     text = InText;
     if (const auto fontRsc = font.Get())
     {
-        if (const auto font = fontRsc->Get())
+        if (const auto fontPtr = fontRsc->Get())
         {
-            Vector2 size = MeasureTextEx(*font, text.c_str(), size, spacing); 
-            cachedSize = { size.x, size.y };
+            Vector2 measure = MeasureTextEx(*fontPtr, text.c_str(), size, spacing); 
+            cachedSize = { measure.x, measure.y };
         }
     }
-    Invalidate(); 
+    Invalidate(InInstance); 
 }

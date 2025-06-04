@@ -37,17 +37,17 @@ void Manager::RegisterSystems()
 {
 #define REG_ENTITY_SYSTEM(x) { \
 auto var = new CONCAT(Sys, x) (); \
-SystemMap[typeid(CONCAT(Sys, x)).hash_code()] = var; \
-ComponentMap[typeid(x).hash_code()] = var; \
-NameToSystem[String(#x)] = var; \
-SystemToName[var] = String(#x); } 
+systemMap[typeid(CONCAT(Sys, x)).hash_code()] = var; \
+componentMap[typeid(x).hash_code()] = var; \
+nameToSystem[String(#x)] = var; \
+systemToName[var] = String(#x); } 
 
 #define REG_UNIQUE_COMPONENT(x) { \
 auto var = new UniqueSystem<x>(); \
-SystemMap[typeid(UniqueSystem<x>).hash_code()] = var; \
-ComponentMap[typeid(x).hash_code()] = var; \
-NameToSystem[String(#x)] = var; \
-SystemToName[var] = String(#x); }
+systemMap[typeid(UniqueSystem<x>).hash_code()] = var; \
+componentMap[typeid(x).hash_code()] = var; \
+nameToSystem[String(#x)] = var; \
+systemToName[var] = String(#x); }
 
     // Register systems here!
     REG_ENTITY_SYSTEM(Attributes);

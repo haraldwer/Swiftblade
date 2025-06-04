@@ -2,20 +2,20 @@
 
 #include "raylib.h"
 
-void UI::Image::Draw()
+void UI::Image::Draw(Instance& InInstance)
 {
     const Rect rect = GetRect();
     DrawRect(rect);
     const Rect view = ReferenceToViewport(rect);
     if (const auto textureRes = texture.Get())
-        if (const auto texture = textureRes->Get())
+        if (const auto tex = textureRes->Get())
             DrawTexturePro(
-                *texture,
+                *tex,
                 {
                     0.0f,
                     0.0f,
-                    static_cast<float>(texture->width),
-                    static_cast<float>(texture->height)
+                    static_cast<float>(tex->width),
+                    static_cast<float>(tex->height)
                 }, {
                     view.start.x,
                     view.start.y,

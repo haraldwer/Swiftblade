@@ -76,7 +76,7 @@ EntityID Manager::CreateEntity()
 
 void Manager::DestroyEntity(const EntityID InEntity)
 {
-    CHECK_ASSERT(InEntity == InvalidID, "Invalid ID");
+    CHECK_ASSERT(InEntity == INVALID_ID, "Invalid ID");
     CHECK_ASSERT(!entities.contains(InEntity), "Entity does not exist");
     if (const auto t = GetComponent<Transform>(InEntity))
         for (const auto child : t->GetChildren())

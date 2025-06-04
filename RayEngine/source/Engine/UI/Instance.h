@@ -10,31 +10,62 @@ namespace UI
         friend class Builder;
         
     public:
-        void Init() override;
-        void Invalidate() override;
+        void Init();
+        void Invalidate();
+        void Draw();
         
-        template <class T = Element>
-        T& Get(const String& InIdentifier)
+
+        template <class T>
+        T& Get(const ElementID InID)
         {
-            const auto find = namedElements.find(InIdentifier);
-            CHECK_ASSERT(find == namedElements.end(), "Entry does not exist")
-            const auto ptr = find->second.Get();
-            CHECK_ASSERT(!ptr, "Invalid ptr");
-            return *reinterpret_cast<T*>(ptr); // TODO: Type safety? 
+            auto find = elements.find(InID);
+            CHECK_ASSERT(find == elements.end(), "Failed to find element");
+            return find->second.Get<T>();
         }
 
-        template <class T = Element>
-        T* TryGet(const String& InIdentifier)
+        Instance& Get(const ElementID InID)
         {
-            const auto find = namedElements.find(InIdentifier);
-            CHECK_RETURN(find == namedElements.end(), nullptr)
-            const auto ptr = find->second.Get();
-            CHECK_RETURN(!ptr, nullptr);
-            return reinterpret_cast<T*>(ptr); // TODO: Type safety? 
+            if (InID == 0)
+                return *this;
+            auto find = elements.find(InID);
+            CHECK_ASSERT(find == elements.end(), "Failed to find element");
+            return find->second.Get<Instance>();
+        }
+
+        ElementID GetID(const String& InName)
+        {
+            auto find = namedElements.find(InName);
+            CHECK_ASSERT(find == namedElements.end(), "Failed to find element");
+            return find->second;
         }
         
+        template <class T>
+        T& Get(const String& InName)
+        {
+            return Get<T>(InName);
+        }
+    
     private:
-        Map<String, WeakPtr<Element>> namedElements = {};
-        GlobalEvent<OnSetViewportSize>::Callback onCreateVirtualTarget = {};
+
+        // Hide access
+        void Init(Instance &InInstance) override;
+        void Invalidate(Instance &InInstance) override;
+        void Draw(Instance &InInstance) override;
+
+        template <class T>
+        ElementID CreateElement(const T& InElement, const String& InIdentifier)
+        {
+            idCounter++;
+            elements[idCounter] = Object<T>(InElement);
+            if (!InIdentifier.empty())
+                namedElements[InIdentifier] = idCounter;
+            return idCounter;
+        }
+        
+        ElementID idCounter = 0;
+        Map<ElementID, Object<Element>> elements = {};
+        Map<String, ElementID> namedElements = {};
+        
+        GlobalEvent<OnSetViewportSize>::Callback onSetViewportSize = {};
     };
 }

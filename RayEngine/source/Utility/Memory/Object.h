@@ -13,15 +13,16 @@ namespace Utility
 
         Object() : Object(BaseT()) { }
 
-        // Copy will create a new object
+        // WARNING: CANNOT COPY LIKE THIS!!
         Object(const Object& InOther) : Object(InOther.Get()) { }
+        Object(Object&& InOther) noexcept : Object(InOther.Get()) { }
 
         template <class T> 
         Object(const T& InData)
         {
-            T* ptr = new T(InData);
+            T* tPtr = new T(InData);
             currentType = Type::Get<T>();
-            ptr = reinterpret_cast<BaseT*>(ptr);
+            ptr = reinterpret_cast<BaseT*>(tPtr);
         }
 
         // Can be made into a weak ptr
@@ -35,18 +36,18 @@ namespace Utility
         T& Get()
         {
             CHECK_ASSERT(!IsA<T>(), "Invalid type");
-            BaseT* ptr = ptr.Get();
-            CHECK_ASSERT(!ptr, "Invalid ptr");
-            return *reinterpret_cast<T*>(ptr); 
+            auto* basePtr = ptr.Get();
+            CHECK_ASSERT(!basePtr, "Invalid ptr");
+            return *reinterpret_cast<T*>(basePtr); 
         }
 
         template <class T = BaseT>
         const T& Get() const
         {
             CHECK_ASSERT(!IsA<T>(), "Invalid type");
-            BaseT* ptr = ptr.Get();
-            CHECK_ASSERT(!ptr, "Invalid ptr");
-            return *reinterpret_cast<T*>(ptr); 
+            auto* basePtr = ptr.Get();
+            CHECK_ASSERT(!basePtr, "Invalid ptr");
+            return *reinterpret_cast<T*>(basePtr); 
         }
 
         template <class T = BaseT>

@@ -19,12 +19,12 @@ void GameInstance::Init()
 
     if (!startScene.Identifier().empty())
     {
-        Vector<ResScene> rooms;
-        rooms.push_back(startScene);
-        rooms.push_back(startScene);
-        rooms.push_back(startScene);
+        Vector<ResScene> roomList;
+        roomList.push_back(startScene);
+        roomList.push_back(startScene);
+        roomList.push_back(startScene);
         startScene.Unload(); // Force reload
-        rooms.Load(rooms, false);
+        rooms.Load(roomList, false);
     }
     else
     {

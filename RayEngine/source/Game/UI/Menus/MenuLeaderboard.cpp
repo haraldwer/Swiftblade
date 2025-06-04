@@ -14,7 +14,6 @@ void MenuLeaderboard::Init()
                .Push(UI::Container(UI::Transform::Fill({ 10.0f, { 50.0f, 10.0f }})))
                     .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))     
                     .Push(UI::List(UI::Transform::Fill(10.0f), 0.0f, 50.0f));
-                         
      
      struct Entry
      {

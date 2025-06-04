@@ -21,7 +21,7 @@ ECS::Player& ECS::PlayerInterface::GetPlayer() const
     return *ptr; 
 }
 
-ECS::EntityID ECS::PlayerInterface::GetPlayerID() const
+ECS::EntityID ECS::PlayerInterface::GetPlayerID()
 {
     const ECS::EntityID id = GameState::Get().GetPlayerID();
     CHECK_ASSERT(id == INVALID_ID, "Invalid player ID");

@@ -44,7 +44,7 @@ bool NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
     {
         if (const TextureResource* res = tex.Get())
         {
-            if (const Texture* tex = res->Get())
+            if (const Texture* texPtr = res->Get())
             {
                 // Adjust size
                 const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
@@ -54,41 +54,41 @@ bool NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
             
                 // Send to ImGui
                 rlImGuiImageRect(
-                    tex,
+                    texPtr,
                     static_cast<int>(minSize),
                     static_cast<int>(minSize),
                     Rectangle{ 0,0,
-                        static_cast<float>(tex->width),
-                        -static_cast<float>(tex->height)
+                        static_cast<float>(texPtr->width),
+                        -static_cast<float>(texPtr->height)
                     });
 
                 ImGui::SameLine();
                 rlImGuiImageRect(
-                    tex,
+                    texPtr,
                     static_cast<int>(minSize),
                     static_cast<int>(minSize),
                     Rectangle{ 0,0,
-                        static_cast<float>(tex->width),
-                        -static_cast<float>(tex->height)
+                        static_cast<float>(texPtr->width),
+                        -static_cast<float>(texPtr->height)
                     });
 
                 rlImGuiImageRect(
-                    tex,
+                    texPtr,
                     static_cast<int>(minSize),
                     static_cast<int>(minSize),
                     Rectangle{ 0,0,
-                        static_cast<float>(tex->width),
-                        -static_cast<float>(tex->height)
+                        static_cast<float>(texPtr->width),
+                        -static_cast<float>(texPtr->height)
                     });
 
                 ImGui::SameLine();
                 rlImGuiImageRect(
-                    tex,
+                    texPtr,
                     static_cast<int>(minSize),
                     static_cast<int>(minSize),
                     Rectangle{ 0,0,
-                        static_cast<float>(tex->width),
-                        -static_cast<float>(tex->height)
+                        static_cast<float>(texPtr->width),
+                        -static_cast<float>(texPtr->height)
                     });
             }
         }

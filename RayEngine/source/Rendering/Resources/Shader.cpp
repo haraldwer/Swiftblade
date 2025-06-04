@@ -109,12 +109,12 @@ Shader* ShaderResource::Get() const
 int ShaderResource::GetLocation(const String& InValue)
 {
     PROFILE_GL();
-    const Shader* ptr = Get();
-    CHECK_RETURN(!ptr, -1);
+    const Shader* shaderPtr = Get();
+    CHECK_RETURN(!shaderPtr, -1);
     const auto find = locations.find(InValue);
     if (find != locations.end())
         return find->second;
-    const int loc = rlGetLocationUniform(ptr->id, InValue.c_str());
+    const int loc = rlGetLocationUniform(shaderPtr->id, InValue.c_str());
     locations[InValue] = loc; 
     return loc; 
 }
@@ -231,12 +231,12 @@ String ShaderResource::ProcessDefines(const String& InShaderCode)
     return result;
     
     // Find defines
-    Set<String> defines;
+    Set<String> defineFinds;
     std::function foundDefine = [&](const String& InFindStr) -> String
     {
         const auto start = InFindStr.find_first_not_of(' ');
         const auto end = InFindStr.find_last_not_of(' ');
-        defines.insert(InFindStr.substr(start, end - start));
+        defineFinds.insert(InFindStr.substr(start, end - start));
         return "";
     };
 
@@ -252,7 +252,7 @@ String ShaderResource::ProcessDefines(const String& InShaderCode)
         const auto defStart = str.find_first_not_of(' ');
         const String def = str.substr(defStart, defEnd - defStart);
         
-        if (defines.contains(def) != negated)
+        if (defineFinds.contains(def) != negated)
             return str.substr(defEnd);
         return ""; 
     };

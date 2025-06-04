@@ -1,35 +1,36 @@
 ﻿#include "Element.h"
 
-#include "Container.h"
 #include "Input/Manager.h"
 #include "Rendering/Manager.h"
 #include "raylib.h"
 
-void UI::Element::Init()
+#include "UI/Instance.h"
+
+void UI::Element::Init(Instance& InInstance)
 {
 }
 
-void UI::Element::Update()
+void UI::Element::Update(Instance& InInstance)
 {
 }
 
-void UI::Element::Draw()
+void UI::Element::Draw(Instance& InInstance)
 {
     DrawRect(cachedRect); 
 }
 
-void UI::Element::Invalidate()
+void UI::Element::Invalidate(Instance& InInstance)
 {
-    if (parent)
-        parent->Invalidate();
+    if (parent != -1)
+        InInstance.Get<Instance>(parent).Invalidate();
 }
 
-void UI::Element::RefreshRect(const Rect& InContainer)
+void UI::Element::RefreshRect(Instance& InInstance, const Rect& InContainer)
 {
     cachedRect = CalculateRect(InContainer);
 }
 
-void UI::Element::SetTransform(const UI::Transform& InTransform)
+void UI::Element::SetTransform(const Transform& InTransform)
 {
     transform = InTransform;
 }
@@ -107,16 +108,16 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     // Margin - Margin inside the current element, used by container for child elements
 
     // Set up parent container
-    Rect parent = InContainer;
-    parent.start.x += transform.padding.horizontal.x;
-    parent.end.x -= transform.padding.horizontal.y;
-    parent.start.y += transform.padding.vertical.x;
-    parent.end.y -= transform.padding.vertical.y;
+    Rect parentRect = InContainer;
+    parentRect.start.x += transform.padding.horizontal.x;
+    parentRect.end.x -= transform.padding.horizontal.y;
+    parentRect.start.y += transform.padding.vertical.x;
+    parentRect.end.y -= transform.padding.vertical.y;
 
     // Calculate anchor point
     const Vec2F anchor = {
-        Utility::Math::Lerp(parent.start.x, parent.end.x, transform.anchor.x),
-        Utility::Math::Lerp(parent.start.y, parent.end.y, transform.anchor.y)
+        Utility::Math::Lerp(parentRect.start.x, parentRect.end.x, transform.anchor.x),
+        Utility::Math::Lerp(parentRect.start.y, parentRect.end.y, transform.anchor.y)
     };
     
     // Calculate position and size
@@ -126,17 +127,16 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     
     // And blend to container using alignment
     Rect result;
-    result.start.x = Utility::Math::Lerp(absolute.start.x, parent.start.x, transform.alignment.horizontal.x);
-    result.start.y = Utility::Math::Lerp(absolute.start.y, parent.start.y, transform.alignment.vertical.x);
-    result.end.x = Utility::Math::Lerp(absolute.end.x, parent.end.x, transform.alignment.horizontal.y);
-    result.end.y = Utility::Math::Lerp(absolute.end.y, parent.end.y, transform.alignment.vertical.y);
+    result.start.x = Utility::Math::Lerp(absolute.start.x, parentRect.start.x, transform.alignment.horizontal.x);
+    result.start.y = Utility::Math::Lerp(absolute.start.y, parentRect.start.y, transform.alignment.vertical.x);
+    result.end.x = Utility::Math::Lerp(absolute.end.x, parentRect.end.x, transform.alignment.horizontal.y);
+    result.end.y = Utility::Math::Lerp(absolute.end.y, parentRect.end.y, transform.alignment.vertical.y);
     
     return result; 
 }
 
 void UI::Element::DrawRect(const Rect& InRect)
 {
-    return; 
     const Rect view = ReferenceToViewport(InRect);
     const Vec2F size = view.end - view.start;
     const Vec2F pos = view.start;

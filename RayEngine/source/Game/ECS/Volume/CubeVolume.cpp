@@ -50,19 +50,19 @@ void ECS::CubeVolume::CustomSerialize(SerializeObj& InOutObj) const
 bool ECS::CubeVolume::CustomDeserialize(const DeserializeObj& InObj)
 {
     // Unpack
-    String data;
-    Utility::Deserialize(InObj, "Data", data);
+    String stringData;
+    Utility::Deserialize(InObj, "Data", stringData);
 
     size_t index = 0; 
     while (true)
     {
         // Find ;
-        const size_t find = data.find(';', index);
+        const size_t find = stringData.find(';', index);
         if (find == std::string::npos)
             break; // Has reached end!
 
         // Split on ; 
-        const String findStr = data.substr(index, find - index);
+        const String findStr = stringData.substr(index, find - index);
 
         // Find :
         const size_t split = findStr.find(':');

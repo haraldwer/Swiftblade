@@ -9,13 +9,13 @@ namespace UI
         friend class Builder; 
     public:
         Container() = default;
-        Container(const UI::Transform& InTransform) : Element(InTransform) {}
-        void Init() override;
-        void Update() override;
-        void Draw() override;
+        Container(const Transform& InTransform) : Element(InTransform) {}
+        void Init(Instance& InInstance) override;
+        void Update(Instance& InInstance) override;
+        void Draw(Instance& InInstance) override;
 
     protected:
-        void RefreshRect(const Rect& InContainer) override;
-        Vector<ObjectPtr<Element>> elements = {};
+        void RefreshRect(Instance& InInstance, const Rect& InContainer) override;
+        Vector<ElementID> elements = {};
     };
 }

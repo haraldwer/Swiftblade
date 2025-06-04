@@ -2,14 +2,14 @@
 
 #include "raylib.h"
 
-void UI::RectImage::Draw()
+void UI::RectImage::Draw(Instance& InInstance)
 {
     const Rect rect = GetRect();
     DrawRect(rect);
     
     if (const auto textureRes = texture.Get())
     {
-        if (const auto texture = textureRes->Get())
+        if (const auto tex = textureRes->Get())
         {
             auto getCorners = [&](const Rect& InRef)
             {
@@ -78,8 +78,8 @@ void UI::RectImage::Draw()
                     0.0f,
                 },
                 {
-                    static_cast<float>(texture->width),
-                    static_cast<float>(texture->height)
+                    static_cast<float>(tex->width),
+                    static_cast<float>(tex->height)
                 }
             };
 
@@ -91,7 +91,7 @@ void UI::RectImage::Draw()
                 const Rect& source = sourceCorners[i];
                 const Rect& dest = ReferenceToViewport(destCorners[i]);
                 DrawTexturePro(
-                    *texture,
+                    *tex,
                     {
                         source.start.x,
                         source.start.y,

@@ -3,7 +3,9 @@
 
 namespace UI
 {
+    class Instance;
     class Container;
+    typedef uint32 ElementID;
 
     // A UI element that other elements inherit from
     class Element
@@ -14,13 +16,13 @@ namespace UI
         Element(const Transform& InTransform) : transform(InTransform) {}
         virtual ~Element() = default;
         
-        virtual void Init();
-        virtual void Update();
-        virtual void Draw();
-        virtual void Invalidate();
+        virtual void Init(Instance& InInstance);
+        virtual void Update(Instance& InInstance);
+        virtual void Draw(Instance& InInstance);
+        virtual void Invalidate(Instance& InInstance);
 
         Rect GetRect() const { return cachedRect; }
-        virtual void RefreshRect(const Rect& InContainer);
+        virtual void RefreshRect(Instance& InInstance, const Rect& InContainer);
         
         Transform GetTransform() const { return transform; }
         void SetTransform(const Transform& InTransform);
@@ -38,7 +40,7 @@ namespace UI
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
         
-        WeakPtr<Container> parent = nullptr;
+        ElementID parent = -1;
         Transform transform = Transform::Fill();
         Rect cachedRect = {};
     };

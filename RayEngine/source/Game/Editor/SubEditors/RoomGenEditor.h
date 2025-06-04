@@ -21,7 +21,7 @@ public:
     void Enter() override;
     
 private:
-    ObjectPtr<UI::Instance> ui = nullptr;
+    UI::Instance ui = {};
     ECS::EntityID startEntity = ECS::INVALID_ID;
     ECS::EntityID endEntity = ECS::INVALID_ID;
     int seed = 0;

@@ -1,30 +1,29 @@
 ﻿#include "Container.h"
 
-void UI::Container::Init()
+#include "UI/Instance.h"
+
+void UI::Container::Init(Instance& InInstance)
 {
-    Element::Init();
-    for (auto& elem : elements)
-        if (Element* e = elem.Get())
-            e->Init();
+    Element::Init(InInstance);
+    for (const auto& elem : elements)
+        InInstance.Get<Element>(elem).Init(InInstance);
 }
 
-void UI::Container::Update()
+void UI::Container::Update(Instance& InInstance)
 {
-    Element::Update();
-    for (auto& elem : elements)
-        if (Element* e = elem.Get())
-            e->Update(); 
+    Element::Update(InInstance);
+    for (const auto& elem : elements)
+        InInstance.Get<Element>(elem).Update(InInstance);
 }
 
-void UI::Container::Draw()
+void UI::Container::Draw(Instance& InInstance)
 {
-    DrawRect(GetRect());
-    for (auto& elem : elements)
-        if (Element* e = elem.Get())
-            e->Draw();
+    Element::Draw(InInstance);
+    for (const auto& elem : elements)
+        InInstance.Get<Element>(elem).Draw(InInstance);
 }
 
-void UI::Container::RefreshRect(const Rect& InContainer)
+void UI::Container::RefreshRect(Instance& InInstance, const Rect& InContainer)
 {
     cachedRect = CalculateRect(InContainer);
     
@@ -34,7 +33,6 @@ void UI::Container::RefreshRect(const Rect& InContainer)
     rect.start.y += transform.margins.vertical.x;
     rect.end.y -= transform.margins.vertical.y;
     
-    for (auto& elem : elements)
-        if (Element* e = elem.Get())
-            e->RefreshRect(rect);
+    for (const auto& elem : elements)
+        InInstance.Get<Element>(elem).RefreshRect(InInstance, rect);
 }

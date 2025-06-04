@@ -42,12 +42,12 @@ namespace Utility
 
         const Vector<T>& GetAll() const
         {
-            return root.Data;
+            return root.data;
         }
 
         uint32 Count() const
         {
-            return static_cast<uint32>(root.Data.size());
+            return static_cast<uint32>(root.data.size());
         }
 
         bool Empty() const
@@ -69,90 +69,90 @@ namespace Utility
         
         static void Insert(Node& InNode, const T& InData, const Cullable& InCull)
         {
-            InNode.Data.push_back(InData);
-            InNode.CullData.push_back(InCull);
-            InNode.Total += InCull.Position;
+            InNode.data.push_back(InData);
+            InNode.cullData.push_back(InCull);
+            InNode.total += InCull.position;
         }
         
         void Split(Node& InNode, int InDepth)
         {
             CHECK_RETURN(InDepth == MaxDepth);
-            CHECK_RETURN(InNode.CullData.size() < MinSplitCount);
-            Vec3F average = InNode.Total / static_cast<float>(InNode.CullData.size());
+            CHECK_RETURN(InNode.cullData.size() < MinSplitCount);
+            Vec3F average = InNode.total / static_cast<float>(InNode.cullData.size());
 
             // Find the max point
             Vec3F maxPoint;
             float maxDist = 0.0f;
-            for (auto& data : InNode.CullData)
+            for (auto& data : InNode.cullData)
             {
-                float sqrDist = (data.Position - maxPoint).LengthSqr();
+                float sqrDist = (data.position - maxPoint).LengthSqr();
                 if (sqrDist > maxDist)
                 {
                     maxDist = sqrDist;
-                    maxPoint = data.Position;
+                    maxPoint = data.position;
                 }
             }
 
             // Create plane
             Vec3F direction = (maxPoint - average).GetNormalized();
-            InNode.Divisor = Math::Plane(average, direction);
+            InNode.divisor = Math::Plane(average, direction);
 
             // Create left and right nodes
-            CHECK_ASSERT(InNode.Left != static_cast<uint32>(-1), "Left index should not be set at this point");
-            CHECK_ASSERT(InNode.Right != static_cast<uint32>(-1), "Right index should not be set at this point");
-            InNode.Left = static_cast<uint32>(nodes.size());
-            InNode.Right = static_cast<uint32>(nodes.size() + 1);
+            CHECK_ASSERT(InNode.left != static_cast<uint32>(-1), "Left index should not be set at this point");
+            CHECK_ASSERT(InNode.right != static_cast<uint32>(-1), "Right index should not be set at this point");
+            InNode.left = static_cast<uint32>(nodes.size());
+            InNode.right = static_cast<uint32>(nodes.size() + 1);
             nodes.emplace_back();
             nodes.emplace_back();
             
             // Now every entry will be on either left, right or both sides of the plane
-            for (int i = 0; i < static_cast<int>(InNode.CullData.size()); i++)
+            for (int i = 0; i < static_cast<int>(InNode.cullData.size()); i++)
             {
-                auto& data = InNode.Data[i];
-                auto& cullData = InNode.CullData[i];
-                float distance = InNode.Divisor.SignedDistance(cullData.Position);
-                if (abs(distance) < cullData.Extent) // First, check face intersection
+                auto& data = InNode.data[i];
+                auto& cullData = InNode.cullData[i];
+                float distance = InNode.divisor.SignedDistance(cullData.position);
+                if (abs(distance) < cullData.extent) // First, check face intersection
                 {
-                    Insert(nodes[InNode.Left], data, cullData);
-                    Insert(nodes[InNode.Right], data,cullData);
+                    Insert(nodes[InNode.left], data, cullData);
+                    Insert(nodes[InNode.right], data,cullData);
                 }
                 else
                 {
-                    Insert(nodes[distance < 0 ? InNode.Left : InNode.Right], data, cullData);
+                    Insert(nodes[distance < 0 ? InNode.left : InNode.right], data, cullData);
                 }
             }
 
             // Do not keep copies
             if (InDepth != 0)
             {
-                InNode.Data.clear();
-                InNode.CullData.clear();
+                InNode.data.clear();
+                InNode.cullData.clear();
             }
 
             // Split both left and right
-            Split(nodes[InNode.Left], InDepth + 1);
-            Split(nodes[InNode.Right], InDepth + 1);
+            Split(nodes[InNode.left], InDepth + 1);
+            Split(nodes[InNode.right], InDepth + 1);
         }
 
         void Get(Node& InNode, const std::function<int(const Math::Plane<float>&)>& InQuery, Vector<Vector<T>*>& InOutResult) const
         {
-            if (InNode.Left == static_cast<uint32>(-1) && InNode.Right == static_cast<uint32>(-1))
+            if (InNode.left == static_cast<uint32>(-1) && InNode.right == static_cast<uint32>(-1))
             {
                 // Leaf node, return contents!
-                if (!InNode.Data.empty())
-                    InOutResult.insert(&InNode.Data);
+                if (!InNode.data.empty())
+                    InOutResult.insert(&InNode.data);
                 return;
             }
             
             // Get children
-            CHECK_ASSERT(InNode.Left == static_cast<uint32>(-1), "Invalid left index");
-            CHECK_ASSERT(InNode.Right == static_cast<uint32>(-1), "Invalid right index");
+            CHECK_ASSERT(InNode.left == static_cast<uint32>(-1), "Invalid left index");
+            CHECK_ASSERT(InNode.right == static_cast<uint32>(-1), "Invalid right index");
 
-            const int result = InQuery(InNode.Divisor);
+            const int result = InQuery(InNode.civisor);
             if (result <= 0)
-                Get(nodes[InNode.Left], InQuery, InOutResult);
+                Get(nodes[InNode.left], InQuery, InOutResult);
             if (result >= 0)
-                Get(nodes[InNode.Right], InQuery, InOutResult);
+                Get(nodes[InNode.right], InQuery, InOutResult);
         }
         
         Node root = {};

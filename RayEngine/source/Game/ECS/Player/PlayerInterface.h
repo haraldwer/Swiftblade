@@ -28,7 +28,7 @@ namespace ECS
         
         // Base getters
         Player& GetPlayer() const;
-        EntityID GetPlayerID() const;
+        static EntityID GetPlayerID();
 
         // Specific getters
         Transform& GetPlayerTransform() const;

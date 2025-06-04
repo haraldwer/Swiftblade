@@ -56,26 +56,26 @@ void RoomManager::LoadConfig()
         arenaCollection.Add(arena); 
 
     // Calculate scene order
-    Vector<ResScene> scenes;
-    scenes.push_back(config.GameStart);
+    Vector<ResScene> sceneOrder;
+    sceneOrder.push_back(config.GameStart);
     for (int arenaIndex = 0; arenaIndex <= config.NumArenas; arenaIndex++)
     {
         // Section start if not first
         if (arenaIndex > 0)
-            scenes.push_back(config.SectionStart);
+            sceneOrder.push_back(config.SectionStart);
 
         // Rooms
         for (int roomIndex = 0; roomIndex < config.NumRooms; roomIndex++)
-            scenes.push_back(roomCollection.Pop());
+            sceneOrder.push_back(roomCollection.Pop());
 
         // Maybe arena
         if (arenaIndex < config.NumArenas)
         {
-            scenes.push_back(config.SectionEnd);
-            scenes.push_back(arenaCollection.Pop());
+            sceneOrder.push_back(config.SectionEnd);
+            sceneOrder.push_back(arenaCollection.Pop());
         }
     }
-    scenes.push_back(config.GameEnd);
+    sceneOrder.push_back(config.GameEnd);
 
     // Only load a subset of these
     
@@ -88,13 +88,13 @@ void RoomManager::LoadConfig()
     if (state.arena)
     {
         // Only load end index
-        Load({ scenes[endIndex] }, true);
+        Load({ sceneOrder[endIndex] }, true);
     }
     else
     {
         Vector<ResScene> toLoad;
         for (int i = startIndex; i < endIndex; i++)
-            toLoad.push_back(scenes[i]);
+            toLoad.push_back(sceneOrder[i]);
         Load(toLoad, true);
     }
 }

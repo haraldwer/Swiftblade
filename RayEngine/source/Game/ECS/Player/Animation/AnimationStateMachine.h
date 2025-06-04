@@ -13,7 +13,7 @@ public:
     Utility::Type GetDefaultStateType() override { return Type::Get<AnimationStateDefault>(); }
 
 private:
-    AnimationStateDefault default; 
+    AnimationStateDefault defaultState; 
     AnimationStateSlide slide; 
     AnimationStateInAir inAir; 
     AnimationStateStrike strike; 

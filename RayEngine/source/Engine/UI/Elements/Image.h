@@ -10,7 +10,7 @@ namespace UI
         Image(const ResTexture& InTexture = String("Defaults/T_Missing.png"), const UI::Transform& InTransform = Transform::Fill()) :
             Element(InTransform), texture(InTexture) {}
         ~Image() override = default; 
-        void Draw() override;
+        void Draw(Instance& InInstance) override;
         
     protected:
         ResTexture texture;

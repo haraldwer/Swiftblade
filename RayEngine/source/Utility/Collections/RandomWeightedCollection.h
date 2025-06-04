@@ -36,7 +36,7 @@ namespace Utility
                     indices.insert(static_cast<int>(i));
                 total = 0.0;
                 for (const Entry& entry : entries)
-                    total += entry.Weight;
+                    total += entry.weight;
             }
 
             // Random range
@@ -46,13 +46,13 @@ namespace Utility
             for (int index : indices)
             {
                 auto& entry = entries[index];
-                val -= entry.Weight;
+                val -= entry.weight;
                 if (val < 0.0)
                 {
                     // Subtract from total and return result
-                    total -= entry.Weight;
+                    total -= entry.weight;
                     indices.erase(index); 
-                    return entry.Data; 
+                    return entry.data; 
                 }
             }
             

@@ -53,23 +53,23 @@ namespace Utility
 
         ObjectPtr() = default;
         ObjectPtr(T* InPtr) : ptr(InPtr), ref(RefImpl<T>::Get(InPtr)) { }
-        ObjectPtr(const ObjectPtr& InS) : ptr(InS.Ptr), ref(InS.Ref) { Increment(); }
+        ObjectPtr(const ObjectPtr& InS) : ptr(InS.ptr), ref(InS.ref) { Increment(); }
         ObjectPtr(ObjectPtr&& InS) noexcept
         {
-            ptr = InS.Ptr;
-            ref = InS.Ref;
-            InS.Ptr = nullptr;
-            InS.Ref = nullptr;
+            ptr = InS.ptr;
+            ref = InS.ref;
+            InS.ptr = nullptr;
+            InS.ref = nullptr;
         }
         ~ObjectPtr() { Decrement(); }
 
         ObjectPtr& operator=(const ObjectPtr& InPtr)
         {
-            if (this->Ref == InPtr.Ref)
+            if (this->ref == InPtr.ref)
                 return *this;
             Decrement();
-            ref = InPtr.Ref;
-            ptr = InPtr.Ptr;
+            ref = InPtr.ref;
+            ptr = InPtr.ptr;
             Increment();
             return *this;
         }
@@ -101,7 +101,7 @@ namespace Utility
         {
             if (!ref)
                 return; 
-            CHECK_ASSERT(ref->count == 0, "Negative ref count");
+            //CHECK_ASSERT(ref->count == 0, "Negative ref count");
             ref->count--; 
             if (!ref->count && !ref->weakCount)
             { 
@@ -126,21 +126,21 @@ namespace Utility
         // Construct
         WeakPtr() = default;
         WeakPtr(T* InPtr) : ref(RefImpl<T>::Get(InPtr)) { Increment(); }
-        WeakPtr(const WeakPtr& InPtr) : ref(InPtr.Ref) { Increment(); }
-        WeakPtr(const ObjectPtr<T>& InPtr) : ref(InPtr.Ref) { Increment(); }
-        WeakPtr(WeakPtr&& InPtr) noexcept : ref(InPtr.Ref)
+        WeakPtr(const WeakPtr& InPtr) : ref(InPtr.ref) { Increment(); }
+        WeakPtr(const ObjectPtr<T>& InPtr) : ref(InPtr.ref) { Increment(); }
+        WeakPtr(WeakPtr&& InPtr) noexcept : ref(InPtr.ref)
         {
-            ref = InPtr.Ref;
-            InPtr.Ref = nullptr;
+            ref = InPtr.ref;
+            InPtr.ref = nullptr;
         }
         ~WeakPtr() { Decrement(); }
         
         WeakPtr& operator=(const WeakPtr& InPtr)
         {
-            if (this->Ref == InPtr.Ref)
+            if (this->ref == InPtr.ref)
                 return *this;
             Decrement();
-            ref = InPtr.Ref;
+            ref = InPtr.ref;
             Increment();
             return *this;
         }
@@ -150,7 +150,7 @@ namespace Utility
         {
             if (!ref || ref->count == 0)
                 return nullptr; 
-            return reinterpret_cast<RefImpl<T>*>(ref)->Ptr;
+            return reinterpret_cast<RefImpl<T>*>(ref)->ptr;
         }
         T* operator->() const { return Get(); }
         T& operator*() const

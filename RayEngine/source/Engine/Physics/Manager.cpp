@@ -439,7 +439,7 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTrans
         Vec4F::One(),
         InScale);
 
-    auto& shapes = cubeShapes[InID]; 
+    auto& cubes = cubeShapes[InID]; 
     for (const Mat4F& trans : InTransforms)
     {
         PxShape* shape = persistent.physics->createShape(
@@ -452,15 +452,15 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTrans
             Utility::PhysX::ConvertQuat(trans.GetRotation()));
         shape->setLocalPose(pose);
         cubeOwner->attachShape(*shape); 
-        shapes.push_back(shape); 
+        cubes.push_back(shape); 
     }
 }
 
 void Physics::Manager::ClearCubes(ECS::EntityID InID)
 {
-    const auto shapes = cubeShapes.find(InID);
-    CHECK_RETURN(shapes == cubeShapes.end())
-    for (PxShape* shape : shapes->second)
+    const auto cubes = cubeShapes.find(InID);
+    CHECK_RETURN(cubes == cubeShapes.end())
+    for (PxShape* shape : cubes->second)
         shape->release();
     cubeShapes.erase(InID);
     if (cubeShapes.empty() && cubeOwner)

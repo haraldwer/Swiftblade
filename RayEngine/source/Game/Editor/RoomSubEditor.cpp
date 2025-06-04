@@ -21,7 +21,7 @@ ECS::EntityID RoomSubEditor::GetVolumeID() const
 ECS::CubeVolume& RoomSubEditor::GetVolume() const
 {
     const ECS::EntityID cube = GetVolumeID(); 
-    CHECK_ASSERT(cube == ECS::InvalidID, "Invalid id");
+    CHECK_ASSERT(cube == ECS::INVALID_ID, "Invalid id");
     auto* vol = ECS::Manager::Get().GetComponent<ECS::CubeVolume>(cube);
     CHECK_ASSERT(!vol, "Invalid ptr")
     return *vol; 

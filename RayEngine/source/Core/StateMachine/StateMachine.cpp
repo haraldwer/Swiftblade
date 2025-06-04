@@ -73,8 +73,8 @@ bool StateMachine::SetState(const Utility::Type& InType)
 
 	// When exiting previous state, current state should be new state
 	currentState = InType; 
-	if (const auto currentState = GetState(prevState))
-		currentState->Exit();
+	if (const auto current = GetState(prevState))
+		current->Exit();
 
 	// When entering new state, current state should be previous state
 	currentState = prevState;
@@ -90,12 +90,12 @@ bool StateMachine::TryOverrideState(const Utility::Type& InType)
 {
 	CHECK_RETURN(!InType, false);
 	CHECK_RETURN(InType == currentState, false);
-	const auto currentState = GetCurrentState();
+	const auto current = GetCurrentState();
 	const auto newState = GetState(InType);
 	
 	// Will still set state if equal priority!
-	if (currentState && newState)
-		if (currentState->Priority() > newState->Priority())
+	if (current && newState)
+		if (current->Priority() > newState->Priority())
 			return false; 
 	
 	return SetState(InType); 

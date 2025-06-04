@@ -4,22 +4,41 @@
 
 void UI::Instance::Init()
 {
-    Container::Init();
-
-    // When virtual target is recreated, invalidate hierarchy
-    onCreateVirtualTarget.Bind([&](const OnSetViewportSize& InData)
-    {
-        Invalidate(); 
-    });
+    Init(*this);
 }
 
 void UI::Instance::Invalidate()
 {
-    if (parent)
-    {
-        parent->Invalidate();
-        return; 
-    }
+    Invalidate(*this);
+}
 
-    RefreshRect(GetReferenceRect());
+void UI::Instance::Draw()
+{
+    Draw(*this);
+}
+
+void UI::Instance::Init(Instance &InInstance)
+{
+    Container::Init(InInstance);
+
+    if (parent == -1) // This is root instance
+    {
+        // When virtual target is recreated, invalidate hierarchy
+        onSetViewportSize.Bind([&](const OnSetViewportSize& InData)
+        {
+            Invalidate(); 
+        });
+    }
+}
+void UI::Instance::Invalidate(Instance &InInstance)
+{
+    Container::Invalidate(InInstance);
+    
+    if (parent == -1) // This is root instance
+        RefreshRect(*this, GetReferenceRect());
+}
+
+void UI::Instance::Draw(Instance &InInstance)
+{
+    Container::Draw(InInstance);
 }

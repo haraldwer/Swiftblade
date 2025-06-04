@@ -74,7 +74,7 @@ void BlueprintResource::Save(const ECS::EntityID InID)
 
 DeserializeObj BlueprintResource::GetObj() const
 {
-    const DocumentObj& doc = doc;
-    const auto obj = doc.GetObj();
+    const DocumentObj& docObj = doc;
+    const auto obj = docObj.GetObj();
     return obj; 
 }

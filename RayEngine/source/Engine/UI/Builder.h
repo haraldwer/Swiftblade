@@ -9,20 +9,19 @@ namespace UI
     public:
 
         Builder() = default;
-        Builder(const ObjectPtr<Instance>& InInstance, const String& InContainer)
+        Builder(const Instance& InInstance, const String& InContainer)
         {
             // Continue building on existing instance...
-            workingInstance = InInstance;
+            instance = InInstance;
             currentContainer = InContainer.empty() ?
-                workingInstance.Get() : &InInstance->Get<Container>(InContainer); 
+                0 : instance.GetID(InContainer); 
         }
 
         template <class T>
         Builder& Push(const T& InContainer, const String& InIdentifier = String())
         {
             instructions.emplace_back([container = InContainer, id = InIdentifier](Builder& InSelf) {
-                T* elem = InSelf.AddInternal(container, id);
-                InSelf.currentContainer = elem;
+                InSelf.currentContainer = InSelf.AddInternal(container, id);
             });
             return *this; 
         }
@@ -30,24 +29,29 @@ namespace UI
         template <class T>
         Builder& Add(const T& InElement, const String& InIdentifier = String());
 
-        Builder& AddWidget(const Builder& InBuilder, Transform InTransform = Transform::Fill(), const String& InIdentifier = "")
+        Builder& AddWidget(const Builder& InOther, Transform InTransform = Transform::Fill(), const String& InIdentifier = "")
         {
             // First, push widget instance
-            instructions.emplace_back([id = InIdentifier, trans = InTransform](Builder& InSelf) {
-                auto ptr = InSelf.AddInternal<Instance>({}, id);
-                ptr->transform = trans; 
-                InSelf.widgetStack.emplace_back(ptr);
-                InSelf.currentContainer = ptr;
+            instructions.emplace_back([strID = InIdentifier, trans = InTransform](Builder& InSelf) {
+
+                ElementID id = InSelf.AddInternal<Instance>({}, strID);
+                auto& element = InSelf.instance.Get<Instance>(id);
+                element.transform = trans;
+                InSelf.widgetStack.emplace_back(id);
+                InSelf.currentContainer = id;
             });
 
             // Then copy instructions
-            for (auto& i : InBuilder.instructions)
-                instructions.push_back(i); 
+            instructions.insert(
+                instructions.begin() + instructions.size(),
+                InOther.instructions.begin(),
+                InOther.instructions.end());
 
             // Then pop widget instance
             instructions.emplace_back([](Builder& InSelf) {
                 const auto last = InSelf.widgetStack.back();
-                InSelf.currentContainer = last->parent;
+                const auto& lastElem = InSelf.instance.Get<Instance>(last);
+                InSelf.currentContainer = lastElem.parent;
                 InSelf.widgetStack.pop_back();
                 CHECK_ASSERT(InSelf.widgetStack.empty(), "WidgetStack incorrect push/pop")
             });
@@ -58,69 +62,47 @@ namespace UI
         Builder& Pop()
         {
             instructions.emplace_back([](Builder& InSelf) {
-                CHECK_ASSERT(!InSelf.currentContainer->parent, "Already at root");
-                InSelf.currentContainer = InSelf.currentContainer->parent;
+                CHECK_ASSERT(InSelf.currentContainer == 0, "Already at root");
+                const auto& elem = InSelf.instance.Get<Instance>(InSelf.currentContainer);
+                InSelf.currentContainer = elem.parent;
             });
             return *this;
         }
 
-        ObjectPtr<Instance> Build()
+        Instance Build()
         {
             CHECK_ASSERT(instructions.empty(), "No instructions"); 
             
-            // Create instance
-            if (!workingInstance)
-                workingInstance = new Instance();
-            const ObjectPtr root = workingInstance;
-            if (!currentContainer)
-                currentContainer = workingInstance.Get();
-            widgetStack = { workingInstance.Get() };
-
             // Perform instructions
             for (auto& instruction : instructions)
                 instruction(*this);
 
             // Init
-            root->Invalidate();
-            root->Init();
+            instance.Invalidate();
+            instance.Init();
             
-            // Reset pointers
-            currentContainer = nullptr;
-            workingInstance = nullptr;
-            return root; 
+            return instance; 
         }
         
     private:
 
         template <class T>
-        T* AddInternal(const T& InElement, const String& InIdentifier)
+        ElementID AddInternal(const T& InElement, const String& InIdentifier)
         {
-            CHECK_ASSERT(!workingInstance, "No working instance");
-            CHECK_ASSERT(!currentContainer, "No current container");
-
             // Create element
-            T* ptr = new T(InElement);
-            ptr->Parent = currentContainer;
-            currentContainer->elements.push_back(ptr);
-            
-            if (!InIdentifier.empty())
-            {
-                CHECK_ASSERT(widgetStack.empty(), "WidgetStack empty");
-                if (const auto entry = widgetStack.back())
-                {
-                    CHECK_ASSERT(entry->namedElements.contains(InIdentifier), "Element with identifier already exists"); 
-                    entry->namedElements[InIdentifier] = ptr;
-                }
-                
-            }
-            
-            return ptr; 
+            const ElementID id = instance.CreateElement<T>(InElement, InIdentifier);
+            auto& element = instance.Get<Element>(id);
+            element.parent = currentContainer;
+            // Add to container
+            auto& container = instance.Get<Container>(currentContainer);
+            container.elements.push_back(id);
+            return id; 
         }
 
+        Instance instance = {};
+        ElementID currentContainer = 0;
+        Vector<ElementID> widgetStack = {};
         Vector<std::function<void(Builder&)>> instructions = {};
-        ObjectPtr<Instance> workingInstance = nullptr;
-        WeakPtr<Container> currentContainer = nullptr;
-        Vector<Instance*> widgetStack = {}; // For naming
     };
 
     template <>
