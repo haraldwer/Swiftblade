@@ -36,9 +36,7 @@ void MenuDeath::Deinit()
 
 void MenuDeath::Update()
 {
-    CHECK_RETURN(!ui);
-
-    if (const UI::Label* respawn = ui->TryGet<UI::Label>("Respawn"))
+    if (const UI::Label* respawn = ui.TryGet<UI::Label>("Respawn"))
     {
         if (respawn->IsClicked())
         {
@@ -49,8 +47,6 @@ void MenuDeath::Update()
         }
     }
     
-    if (ui->Get<UI::Label>("Main Menu").IsClicked())
-    {
+    if (ui["Main Menu"].IsClicked())
         Engine::Manager::Get().Pop();
-    }
 }

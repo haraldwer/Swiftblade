@@ -38,7 +38,7 @@ void Physics::PersistentPhysics::TryInit()
     dispatcher = PxDefaultCpuDispatcherCreate(0); 
 
     #ifdef _MSC_VER
-    ScratchBlock = _aligned_alloc(ScratchBlockSize, ScratchBlockAlignment);
+    scratchBlock = _aligned_malloc(SCRATCH_BLOCK_SIZE, SCRATCH_BLOCK_ALIGNMENT);
     #endif
 }
 
@@ -57,7 +57,7 @@ void Physics::PersistentPhysics::Deinit()
     if (scratchBlock)
     {
 #ifdef _MSC_VER
-        _aligned_free(ScratchBlock);
+        _aligned_free(scratchBlock);
 #else
         free(scratchBlock);
 #endif

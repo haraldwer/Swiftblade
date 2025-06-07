@@ -8,31 +8,36 @@ namespace UI
     class Instance : public Container
     {
         friend class Builder;
+
+        TYPE_INFO(Instance, Container)
         
     public:
         void Init();
         void Invalidate();
+        void Update();
         void Draw();
-        
 
         template <class T>
         T& Get(const ElementID InID)
         {
+            if (InID == 0 && IsA(Type::Get<T>()))
+                return *reinterpret_cast<T*>(this);
             auto find = elements.find(InID);
             CHECK_ASSERT(find == elements.end(), "Failed to find element");
             return find->second.Get<T>();
         }
 
-        Instance& Get(const ElementID InID)
+        template <class T>
+        const T& Get(const ElementID InID) const
         {
-            if (InID == 0)
-                return *this;
+            if (InID == 0 && IsA(Type::Get<T>()))
+                return *reinterpret_cast<const T*>(this);
             auto find = elements.find(InID);
             CHECK_ASSERT(find == elements.end(), "Failed to find element");
-            return find->second.Get<Instance>();
+            return find->second.Get<T>();
         }
 
-        ElementID GetID(const String& InName)
+        ElementID GetID(const String& InName) const
         {
             auto find = namedElements.find(InName);
             CHECK_ASSERT(find == namedElements.end(), "Failed to find element");
@@ -42,7 +47,31 @@ namespace UI
         template <class T>
         T& Get(const String& InName)
         {
-            return Get<T>(InName);
+            return Get<T>(GetID(InName));
+        }
+
+        template <class T>
+        const T& Get(const String& InName) const
+        {
+            return Get<T>(GetID(InName));
+        }
+
+        Instance& operator [](const String& InName)
+        {
+            return Get<Instance>(InName);
+        }
+
+        const Instance& operator [](const String& InName) const
+        {
+            return Get<Instance>(InName);
+        }
+
+        template <class T>
+        T* TryGet(const String& InName)
+        {
+            auto find = namedElements.find(InName);
+            CHECK_RETURN(find == namedElements.end(), nullptr)
+            return &Get<T>(find->second);
         }
     
     private:
@@ -56,7 +85,7 @@ namespace UI
         ElementID CreateElement(const T& InElement, const String& InIdentifier)
         {
             idCounter++;
-            elements[idCounter] = Object<T>(InElement);
+            elements[idCounter] = InElement;
             if (!InIdentifier.empty())
                 namedElements[InIdentifier] = idCounter;
             return idCounter;

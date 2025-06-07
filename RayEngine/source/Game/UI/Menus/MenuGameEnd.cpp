@@ -37,15 +37,13 @@ void MenuGameEnd::Deinit()
 
 void MenuGameEnd::Update()
 {
-    CHECK_RETURN(!ui);
-    
-    if (ui->Get<UI::Label>("Replay").IsClicked())
+    if (ui["Replay"].IsClicked())
     {
         // Push new game instance
         Engine::Manager::Get().Pop();
         Engine::Manager::Get().Push<GameInstance>();
     }
 
-    if (ui->Get<UI::Label>("Main Menu").IsClicked())
+    if (ui["Main Menu"].IsClicked())
         Engine::Manager::Get().Pop();
 }

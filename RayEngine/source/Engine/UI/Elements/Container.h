@@ -6,7 +6,10 @@ namespace UI
     // A container that contains other UI elements
     class Container : public Element
     {
-        friend class Builder; 
+        friend class Builder;
+        
+        TYPE_INFO(Container, Element)
+        
     public:
         Container() = default;
         Container(const Transform& InTransform) : Element(InTransform) {}
@@ -16,6 +19,6 @@ namespace UI
 
     protected:
         void RefreshRect(Instance& InInstance, const Rect& InContainer) override;
-        Vector<ElementID> elements = {};
+        Vector<ElementID> children = {};
     };
 }

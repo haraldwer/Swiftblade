@@ -40,5 +40,5 @@ private:
     SceneInstance scene = {};
     ECS::Manager ecs = {}; 
 
-    ObjectPtr<UI::Instance> ui = nullptr;
+    UI::Instance ui = {};
 };

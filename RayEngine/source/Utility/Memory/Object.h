@@ -1,78 +1,172 @@
 ﻿#pragma once
-#include "Pointers.h"
 
 namespace Utility
 {
+    // Base type for obj ptr
+    class ObjPtrBase
+    {
+    public:
+        // Virtual destructor for type overriding
+        virtual ~ObjPtrBase()
+        {
+            CHECK_ASSERT(ptr, "Object not destroyed properly, call Destroy()");
+        }
+        
+        virtual void Destroy()
+        {
+            CHECK_ASSERT(true, "Virtual destroy function not resolved");
+        }
+        
+        virtual ObjPtrBase* Copy()
+        {
+            CHECK_ASSERT(true, "Virtual copy function not resolved");
+            return nullptr;
+        }
+        
+        virtual Type GetType()
+        {
+            CHECK_ASSERT(true, "Virtual type function not resolved");
+            return Type();
+        }
+
+        virtual bool IsA(Type InType)
+        {
+            CHECK_ASSERT(true, "Virtual type checking not resolved")
+            return false;
+        }
+        
+        void* Get() const { return ptr; }
+
+    protected:
+        void* ptr = nullptr;
+    };
+
+    // Wrapper for destructor overriding
+    template <class T>
+    class ObjPtr final : ObjPtrBase
+    {
+    public:
+        ObjPtr() { ptr = new T(); }
+        ObjPtr(const T& InData) { ptr = new T(InData); }
+        
+        ~ObjPtr() override
+        {
+            CHECK_ASSERT(ptr, "Object not destroyed properly, call Destroy()");
+        }
+        
+        void Destroy() override
+        {
+            CHECK_ASSERT(!ptr, "Invalid ptr");
+            T* tPtr = static_cast<T*>(ptr);
+            delete tPtr;
+            ptr = nullptr;
+        }
+
+        ObjPtrBase* Copy() override
+        {
+            CHECK_ASSERT(!ptr, "Invalid ptr")
+            T* tPtr = static_cast<T*>(ptr);
+            return new ObjPtr(*tPtr);
+        }
+
+        Type GetType() override { return T::GetType(); }
+        bool IsA(Type InType) override { return T::IsA(InType); }
+    };
+
     // This scoped object can own an abstract type
     // And will be destroyed when out of scope
     // Basically just a normal object + inheritance!
+    // The wrapped object has to include TYPE_INFO().
     template <class BaseT>
-    class Object 
+    class Object
     {
     public:
+        Object()
+        {
+            // Default constructor, create default object
+            auto ptr = new ObjPtr<BaseT>();
+            obj = reinterpret_cast<ObjPtrBase*>(ptr);
+        }
 
-        Object() : Object(BaseT()) { }
-
-        // WARNING: CANNOT COPY LIKE THIS!!
-        Object(const Object& InOther) : Object(InOther.Get()) { }
-        Object(Object&& InOther) noexcept : Object(InOther.Get()) { }
-
-        template <class T> 
+        template <class T>
         Object(const T& InData)
         {
-            T* tPtr = new T(InData);
-            currentType = Type::Get<T>();
-            ptr = reinterpret_cast<BaseT*>(tPtr);
+            // Specialized constructor
+            auto ptr = new ObjPtr<T>(InData);
+            obj = reinterpret_cast<ObjPtrBase*>(ptr);
         }
 
-        // Can be made into a weak ptr
-        operator WeakPtr<BaseT>() const
+        
+        Object(const Object& InOther)
         {
-            return WeakPtr<BaseT>(ptr);
+            // Copy from another object
+            CHECK_ASSERT(!InOther.obj, "Invalid object");
+            obj = InOther.obj->Copy();
         }
 
-        // A valid object is guaranteed
+        Object& operator = (const Object& InOther)
+        {
+            obj = InOther.obj->Copy();
+            return *this;
+        }
+
+        /*
+        Object(Object&& InOther)
+        {
+            // Move from another object
+            obj = InOther.obj;
+            InOther.obj = nullptr;
+        }
+        */
+
+        ~Object()
+        {
+            if (obj)
+            {
+                obj->Destroy();
+                delete obj;
+                obj = nullptr;
+            }
+        }
+
         template <class T = BaseT>
         T& Get()
         {
             CHECK_ASSERT(!IsA<T>(), "Invalid type");
-            auto* basePtr = ptr.Get();
+            auto* basePtr = obj->Get();
             CHECK_ASSERT(!basePtr, "Invalid ptr");
-            return *reinterpret_cast<T*>(basePtr); 
+            return *static_cast<T*>(basePtr);
         }
 
         template <class T = BaseT>
         const T& Get() const
         {
             CHECK_ASSERT(!IsA<T>(), "Invalid type");
-            auto* basePtr = ptr.Get();
+            auto* basePtr = obj->Get();
             CHECK_ASSERT(!basePtr, "Invalid ptr");
-            return *reinterpret_cast<T*>(basePtr); 
+            return *static_cast<T*>(basePtr);
         }
 
         template <class T = BaseT>
         operator T&() { return Get<T>(); }
+
         template <class T = BaseT>
         operator const T&() const { return Get<T>(); }
-        
-        template <class T = BaseT>
-        T* operator->() { return &Get<T>(); }
-        template <class T = BaseT>
-        const T* operator->() const { return &Get<T>(); }
-        
+
         template <class T>
-        bool IsA()
+        bool IsA() const
         {
-            const auto type = Type::Get<T>(); 
-            return
-                type == currentType ||
-                type == Type::Get<BaseT>(); 
+            CHECK_ASSERT(!obj, "Invalid object")
+            return obj->IsA(Type::Get<T>());
         }
 
-    private:
+        Type GetType() const
+        {
+            CHECK_ASSERT(!obj, "Invalid object");
+            return obj->GetType();
+        } 
 
-        // Object will be automatically destroyed when out of scope
-        ObjectPtr<BaseT> ptr;
-        Type currentType; 
+    private:
+        ObjPtrBase* obj = nullptr;
     };
 }

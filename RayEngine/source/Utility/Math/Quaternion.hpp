@@ -156,13 +156,10 @@ namespace Utility
 				const float theta = theta0 * InT;
 
 				// Compute the second quaternion
-				const Quaternion q2New = InB - InA * dot;
-				q2New.Normalize();
+				const Quaternion q2New = (InB - InA * dot).GetNormalized();
 
 				// Perform the slerp interpolation
-				Quaternion result = InA * std::cos(theta) + q2New * std::sin(theta);
-				result.Normalize();
-
+				const Quaternion result = (InA * std::cos(theta) + q2New * std::sin(theta)).GetNormalized();
 				return result;
 			}
 			

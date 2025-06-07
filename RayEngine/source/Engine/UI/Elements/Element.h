@@ -11,6 +11,9 @@ namespace UI
     class Element
     {
         friend class Builder; 
+
+        BASE_TYPE_INFO(Element)
+        
     public:
         Element() = default;
         Element(const Transform& InTransform) : transform(InTransform) {}

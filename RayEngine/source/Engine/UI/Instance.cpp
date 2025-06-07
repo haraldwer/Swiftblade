@@ -12,6 +12,11 @@ void UI::Instance::Invalidate()
     Invalidate(*this);
 }
 
+void UI::Instance::Update()
+{
+    Container::Update(*this);
+}
+
 void UI::Instance::Draw()
 {
     Draw(*this);

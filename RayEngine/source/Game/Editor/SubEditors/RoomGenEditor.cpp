@@ -90,13 +90,10 @@ void RoomGenEditor::Update()
 
 void RoomGenEditor::Frame(bool InIsCameraControlling)
 {
-    if (ui)
-    {
-        //UI::Image& image = UI->Get<UI::Image>("Loading");
-        //UI::Transform trans = image.GetTransform();
-        //trans.Rotation = Utility::Time::Get().Total();
-        //image.SetTransform(trans);
-        
-        //UI->Draw();
-    }
+    //UI::Image& image = UI->Get<UI::Image>("Loading");
+    //UI::Transform trans = image.GetTransform();
+    //trans.Rotation = Utility::Time::Get().Total();
+    //image.SetTransform(trans);
+    
+    //UI->Draw();
 }

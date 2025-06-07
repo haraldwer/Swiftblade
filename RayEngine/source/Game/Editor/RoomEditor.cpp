@@ -46,19 +46,17 @@ void RoomEditor::Deinit()
 
 void RoomEditor::Logic(const double InDelta)
 {
-    CHECK_ASSERT(!ui, "UI Invalid");
-    
     Instance::Logic(InDelta);
     ecs.Update();
     editorCamera.Update();
-    ui->Update();
+    ui.Update();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
-    if (IsKeyPressed(KEY_ONE) || ui->Get("ModeVolume").IsClicked())
+    if (IsKeyPressed(KEY_ONE) || ui["ModeVolume"].IsClicked())
         newMode = SubEditorMode::VOLUME;
-    if (IsKeyPressed(KEY_TWO) || ui->Get("ModeObject").IsClicked())
+    if (IsKeyPressed(KEY_TWO) || ui["ModeObject"].IsClicked())
         newMode = SubEditorMode::OBJECTS;
-    if (IsKeyPressed(KEY_THREE) || ui->Get("ModeConnection").IsClicked())
+    if (IsKeyPressed(KEY_THREE) || ui["ModeConnection"].IsClicked())
         newMode = SubEditorMode::PATH;
     if (newMode != SubEditorMode::COUNT)
         subEditorManager.SetMode(newMode); 
@@ -74,11 +72,11 @@ void RoomEditor::Logic(const double InDelta)
             PlayScene();
     }
 
-    if (ui->Get("Save").IsClicked())
+    if (ui["Save"].IsClicked())
         SaveRoom();
-    if (ui->Get("Play").IsClicked())
+    if (ui["Play"].IsClicked())
         PlayScene();
-    if (ui->Get("Exit").IsClicked())
+    if (ui["Exit"].IsClicked())
         Engine::Manager::Get().Pop();
 }
 
@@ -87,8 +85,7 @@ void RoomEditor::Frame()
     ecs.Frame(); 
     Instance::Frame();
     
-    CHECK_ASSERT(!ui, "UI Invalid");
-    ui->Draw();
+    ui.Draw();
     subEditorManager.Frame(editorCamera.IsControlling());
 }
 

@@ -35,19 +35,17 @@ void MenuMain::Init()
     ui = builder.Build();
 
     for (const String& b : buttons)
-        ui->Get<UI::Instance>(b).Get<UI::Label>("Text").SetText(b);
+        ui[b].Get<UI::Label>("Text").SetText(ui, b);
 }
 
 void MenuMain::Update()
 {
-    CHECK_RETURN(!ui)
-    
-    if (ui->Get("Play").IsClicked())
+    if (ui["Play"].IsClicked())
         Engine::Manager::Get().Push<GameInstance>();
-    if (ui->Get("Leaderboard").IsClicked())
+    if (ui["Leaderboard"].IsClicked())
         Menu::Manager::Get().Push<MenuLeaderboard>();
-    if (ui->Get("Create").IsClicked())
+    if (ui["Create"].IsClicked())
         Engine::Manager::Get().Push<RoomEditor>();
-    if (ui->Get("Edit").IsClicked())
+    if (ui["Edit"].IsClicked())
         Engine::Manager::Get().Push<BlueprintEditor>(); 
 }

@@ -33,7 +33,6 @@ namespace UI
         {
             // First, push widget instance
             instructions.emplace_back([strID = InIdentifier, trans = InTransform](Builder& InSelf) {
-
                 ElementID id = InSelf.AddInternal<Instance>({}, strID);
                 auto& element = InSelf.instance.Get<Instance>(id);
                 element.transform = trans;
@@ -52,8 +51,8 @@ namespace UI
                 const auto last = InSelf.widgetStack.back();
                 const auto& lastElem = InSelf.instance.Get<Instance>(last);
                 InSelf.currentContainer = lastElem.parent;
-                InSelf.widgetStack.pop_back();
                 CHECK_ASSERT(InSelf.widgetStack.empty(), "WidgetStack incorrect push/pop")
+                InSelf.widgetStack.pop_back();
             });
         
             return *this; 
@@ -95,8 +94,15 @@ namespace UI
             element.parent = currentContainer;
             // Add to container
             auto& container = instance.Get<Container>(currentContainer);
-            container.elements.push_back(id);
+            container.children.push_back(id);
             return id; 
+        }
+
+        Instance& GetWorkingInstance()
+        {
+            if (!widgetStack.empty())
+                widgetStack.back();
+            return instance;
         }
 
         Instance instance = {};

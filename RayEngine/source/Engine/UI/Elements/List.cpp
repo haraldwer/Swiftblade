@@ -13,12 +13,12 @@ void UI::List::RefreshRect(Instance& InInstance, const Rect& InContainer)
     rect.end.y -= transform.margins.vertical.y;
 
     // Each child gets its own rect
-    for (size_t i = 0; i < elements.size(); i++)
-        InInstance.Get<Element>(elements[i]).RefreshRect(
+    for (size_t i = 0; i < children.size(); i++)
+        InInstance.Get<Element>(children[i]).RefreshRect(
             InInstance,
             GetChildRect(
                 rect,
-                static_cast<float>(elements.size()),
+                static_cast<float>(children.size()),
                 static_cast<float>(i)));
 }
 

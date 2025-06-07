@@ -1,13 +1,10 @@
-﻿#ifndef TYPE_H
-#define TYPE_H
-
-//#pragma once
+﻿#pragma once
 
 #include <typeinfo>
 
 namespace Utility
 {
-    typedef size_t TypeHash; 
+    typedef size_t TypeHash;
     
     class Type
     {
@@ -31,7 +28,7 @@ namespace Utility
             return hash;
         }
     
-        [[nodiscard]] TypeHash GetHash() const { return hash; }
+        TypeHash GetHash() const { return hash; }
         static Type None() { return {}; }
     
     private: 
@@ -39,4 +36,14 @@ namespace Utility
     };
 }
 
-#endif
+#define TYPE_INFO(self, parent) \
+public: \
+    static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
+    static bool IsA(const Utility::Type& InType) { return InType == GetType() || parent::IsA(InType); } \
+private:
+
+#define BASE_TYPE_INFO(self) \
+public: \
+    static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
+    static bool IsA(const Utility::Type& InType) { return InType == GetType(); } \
+private:

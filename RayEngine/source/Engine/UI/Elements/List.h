@@ -6,7 +6,8 @@ namespace UI
     // A container that contains other UI elements
     class List : public Container
     {
-        friend class Builder; 
+        TYPE_INFO(List, Container)
+        
     public:
 
         enum class FlowDirection : uint8

@@ -1,21 +1,27 @@
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+set(CMAKE_BUILD_PARALLEL_LEVEL 8)
 
+# Shared properties
 set_target_properties(${PROJECT_NAME} 
   PROPERTIES 
     CXX_STANDARD 26
     UNITY_BUILD false)
 
+# Shared definitions
 target_compile_definitions(${PROJECT_NAME} PUBLIC 
-  "$<$<CONFIG:Release>:NDEBUG>"
-  "$<$<CONFIG:Debug>:_DEBUG>"
   "TRACY_ENABLE")
 
 if(MSVC)
   
   message("-- Setting custom MSVC flags")
-  
+
+  target_compile_definitions(${PROJECT_NAME} PUBLIC 
+    "$<$<CONFIG:Release>:NDEBUG>"
+    "$<$<CONFIG:Debug>:_DEBUG>")
+
   target_compile_options(${PROJECT_NAME} PUBLIC 
     "/fp:fast" # Fast math
+    #"/Wall" # More warnings
     "$<$<CONFIG:Release>:/MD>" 
     "$<$<CONFIG:Debug>:/MDd>")
 
