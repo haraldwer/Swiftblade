@@ -40,5 +40,5 @@ private:
     SceneInstance scene = {};
     ECS::Manager ecs = {}; 
 
-    UI::Instance ui = {};
+    UI::Container ui = {};
 };

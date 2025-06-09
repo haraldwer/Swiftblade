@@ -2,7 +2,7 @@
 
 #include "raylib.h"
 
-void UI::Image::Draw(Instance& InInstance)
+void UI::Image::Draw(Container& InOwner)
 {
     const Rect rect = GetRect();
     DrawRect(rect);

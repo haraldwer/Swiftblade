@@ -2,9 +2,9 @@
 
 #include "Core/Utility/RayUtility.h"
 
-void UI::Label::Init(Instance& InInstance)
+void UI::Label::Init(Container& InOwner)
 {
-    Element::Init(InInstance);
+    Element::Init(InOwner);
     
     if (const auto fontRsc = font.Get())
     {
@@ -16,7 +16,7 @@ void UI::Label::Init(Instance& InInstance)
     }
 }
 
-void UI::Label::Draw(Instance& InInstance)
+void UI::Label::Draw(Container& InOwner)
 {
     const Rect rect = GetRect();
     DrawRect(rect);
@@ -51,7 +51,7 @@ void UI::Label::Draw(Instance& InInstance)
                 tint);
 }
 
-void UI::Label::SetText(Instance& InInstance, const String& InText)
+void UI::Label::SetText(const String& InText)
 {
     text = InText;
     if (const auto fontRsc = font.Get())
@@ -62,5 +62,5 @@ void UI::Label::SetText(Instance& InInstance, const String& InText)
             cachedSize = { measure.x, measure.y };
         }
     }
-    Invalidate(InInstance); 
+    Invalidate(); 
 }

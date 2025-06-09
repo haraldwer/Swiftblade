@@ -1,31 +1,56 @@
 ﻿#include "Container.h"
 
-#include "UI/Instance.h"
-
-void UI::Container::Init(Instance& InInstance)
+void UI::Container::Init()
 {
-    Element::Init(InInstance);
-    for (const auto& elem : children)
-        InInstance.Get<Element>(elem).Init(InInstance);
+    Init(*this);
+
+    // When virtual target is recreated, invalidate hierarchy
+    onSetViewportSize.Bind([&](const OnSetViewportSize& InData)
+    {
+        Invalidate(); 
+    });
 }
 
-void UI::Container::Update(Instance& InInstance)
+void UI::Container::Update()
 {
-    Element::Update(InInstance);
-    for (const auto& elem : children)
-        InInstance.Get<Element>(elem).Update(InInstance);
+    Update(*this);
 }
 
-void UI::Container::Draw(Instance& InInstance)
+void UI::Container::Draw()
 {
-    Element::Draw(InInstance);
-    for (const auto& elem : children)
-        InInstance.Get<Element>(elem).Draw(InInstance);
+    RefreshRect(*this, GetReferenceRect());
+    Draw(*this);
 }
 
-void UI::Container::RefreshRect(Instance& InInstance, const Rect& InContainer)
+void UI::Container::Init(Container& InOwner)
 {
-    cachedRect = CalculateRect(InContainer);
+    PROFILE();
+    Element::Init(InOwner);
+    for (auto& elem : elements)
+        elem.second.Get().Init(*this);
+}
+
+void UI::Container::Update(Container& InOwner)
+{
+    PROFILE();
+    Element::Update(InOwner);
+    for (auto& elem : elements)
+        elem.second.Get().Update(*this);
+}
+
+void UI::Container::Draw(Container& InOwner)
+{
+    PROFILE();
+    Element::Draw(InOwner);
+    for (auto& elem : elements)
+        elem.second.Get().Draw(*this);
+}
+
+bool UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
+{
+    PROFILE();
+    if (!Element::RefreshRect(InInstance, InContainer))
+        return false;
     
     Rect rect = GetRect();
     rect.start.x += transform.margins.horizontal.x;
@@ -33,6 +58,37 @@ void UI::Container::RefreshRect(Instance& InInstance, const Rect& InContainer)
     rect.start.y += transform.margins.vertical.x;
     rect.end.y -= transform.margins.vertical.y;
     
-    for (const auto& elem : children)
-        InInstance.Get<Element>(elem).RefreshRect(InInstance, rect);
+    for (auto& elem : elements)
+        elem.second.Get().RefreshRect(*this, rect);
+
+    return true;
+    
+}
+
+bool UI::Container::Invalidated() const
+{
+    if (Element::Invalidated())
+        return true;
+    for (auto& e : elements)
+        if (e.second.Get<>().Invalidated())
+            return true;
+    return false;
+}
+
+UI::ElementID UI::Container::GetID(const String& InName) const
+{
+    if (InName == "Root")
+        return 0;
+    auto find = namedElements.find(InName);
+    CHECK_RETURN(find == namedElements.end(), -1);
+    return find->second;
+}
+
+void UI::Container::Remove(const ElementID InID)
+{
+    CHECK_ASSERT(!elements.contains(InID), "Does not contain element")
+    elements.erase(InID);
+    for (int i = static_cast<int>(children.size()) - 1; i >= 0; i--)
+        if (children[i] == InID)
+            children.erase(children.begin() + i);
 }

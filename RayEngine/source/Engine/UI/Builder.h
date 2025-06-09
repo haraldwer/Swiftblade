@@ -1,6 +1,6 @@
 ﻿#pragma once
+
 #include "Elements/Container.h"
-#include "Instance.h"
 
 namespace UI
 {
@@ -9,106 +9,58 @@ namespace UI
     public:
 
         Builder() = default;
-        Builder(const Instance& InInstance, const String& InContainer)
+        Builder(const Container& InInstance)
         {
-            // Continue building on existing instance...
             instance = InInstance;
-            currentContainer = InContainer.empty() ?
-                0 : instance.GetID(InContainer); 
         }
 
+        void Push(const String& InIdentifier)
+        {
+            auto& i = GetInstance();
+            auto find = i.namedElements.find(InIdentifier);
+            CHECK_ASSERT(find == i.namedElements.end(), "No such container");
+            stack.push_back(find->second);
+        }
+        
         template <class T>
         Builder& Push(const T& InContainer, const String& InIdentifier = String())
         {
-            instructions.emplace_back([container = InContainer, id = InIdentifier](Builder& InSelf) {
-                InSelf.currentContainer = InSelf.AddInternal(container, id);
-            });
+            CHECK_ASSERT(!T::IsA(Type::Get<Container>()), "Can only push containers");
+            stack.push_back(GetInstance().Add<T>(InContainer, InIdentifier));
             return *this; 
         }
 
         template <class T>
         Builder& Add(const T& InElement, const String& InIdentifier = String());
 
-        Builder& AddWidget(const Builder& InOther, Transform InTransform = Transform::Fill(), const String& InIdentifier = "")
-        {
-            // First, push widget instance
-            instructions.emplace_back([strID = InIdentifier, trans = InTransform](Builder& InSelf) {
-                ElementID id = InSelf.AddInternal<Instance>({}, strID);
-                auto& element = InSelf.instance.Get<Instance>(id);
-                element.transform = trans;
-                InSelf.widgetStack.emplace_back(id);
-                InSelf.currentContainer = id;
-            });
-
-            // Then copy instructions
-            instructions.insert(
-                instructions.begin() + instructions.size(),
-                InOther.instructions.begin(),
-                InOther.instructions.end());
-
-            // Then pop widget instance
-            instructions.emplace_back([](Builder& InSelf) {
-                const auto last = InSelf.widgetStack.back();
-                const auto& lastElem = InSelf.instance.Get<Instance>(last);
-                InSelf.currentContainer = lastElem.parent;
-                CHECK_ASSERT(InSelf.widgetStack.empty(), "WidgetStack incorrect push/pop")
-                InSelf.widgetStack.pop_back();
-            });
-        
-            return *this; 
-        }
-        
         Builder& Pop()
         {
-            instructions.emplace_back([](Builder& InSelf) {
-                CHECK_ASSERT(InSelf.currentContainer == 0, "Already at root");
-                const auto& elem = InSelf.instance.Get<Instance>(InSelf.currentContainer);
-                InSelf.currentContainer = elem.parent;
-            });
+            CHECK_ASSERT(stack.empty(), "Already at root");
+            stack.pop_back();
             return *this;
         }
 
-        Instance Build()
+        Container Build()
         {
-            CHECK_ASSERT(instructions.empty(), "No instructions"); 
-            
-            // Perform instructions
-            for (auto& instruction : instructions)
-                instruction(*this);
-
-            // Init
+            stack.clear();
             instance.Invalidate();
             instance.Init();
-            
             return instance; 
         }
         
     private:
-
-        template <class T>
-        ElementID AddInternal(const T& InElement, const String& InIdentifier)
+        
+        Container& GetInstance()
         {
-            // Create element
-            const ElementID id = instance.CreateElement<T>(InElement, InIdentifier);
-            auto& element = instance.Get<Element>(id);
-            element.parent = currentContainer;
-            // Add to container
-            auto& container = instance.Get<Container>(currentContainer);
-            container.children.push_back(id);
-            return id; 
+            Container* i = &instance;
+            for (auto& id : stack)
+                i = &i->Get<Container>(id);
+            CHECK_ASSERT(!i, "Invalid instance");
+            return *i;
         }
-
-        Instance& GetWorkingInstance()
-        {
-            if (!widgetStack.empty())
-                widgetStack.back();
-            return instance;
-        }
-
-        Instance instance = {};
-        ElementID currentContainer = 0;
-        Vector<ElementID> widgetStack = {};
-        Vector<std::function<void(Builder&)>> instructions = {};
+        
+        Container instance = {};
+        Vector<ElementID> stack = {}; 
     };
 
     template <>
@@ -117,9 +69,7 @@ namespace UI
     template <class T>
     Builder& Builder::Add(const T& InElement, const String& InIdentifier)
     {
-        instructions.emplace_back([element = InElement, id = InIdentifier](Builder& InSelf) {
-            InSelf.AddInternal(element, id);
-        });
+        GetInstance().Add<T>(InElement, InIdentifier);
         return *this;
     }
 }

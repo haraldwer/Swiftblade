@@ -26,16 +26,18 @@ void MenuMain::Init()
         "Edit"
     };
 
-    const UI::Builder buttonWidget = UI::Builder()
+    UI::Container buttonWidget = UI::Builder()
        .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-       .Add(UI::Label("Text", 0.5f), "Text");
+       .Add(UI::Label("Text", 0.5f), "Text")
+        .Build();
+    
     for (const String& b : buttons)
-        builder.AddWidget(buttonWidget, UI::Transform::Fill(), b);
+    {
+        buttonWidget.Get<UI::Label>("Text").SetText(b);
+        builder.Add(buttonWidget, b);
+    }
     
     ui = builder.Build();
-
-    for (const String& b : buttons)
-        ui[b].Get<UI::Label>("Text").SetText(ui, b);
 }
 
 void MenuMain::Update()

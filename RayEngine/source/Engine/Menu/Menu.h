@@ -1,6 +1,5 @@
 ﻿#pragma once
-
-#include "UI/Instance.h"
+#include "UI/Elements/Container.h"
 
 namespace Menu
 {
@@ -17,6 +16,6 @@ namespace Menu
         virtual bool IsBlocking() const { return true; }
 
     protected:
-        UI::Instance ui = {}; 
+        UI::Container ui = {}; 
     };
 }

@@ -16,15 +16,15 @@ namespace UI
             HORIZONTAL
         };
         
-        List(const UI::Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false)
+        List(const Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false)
             : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing) { }
 
-        void RefreshRect(Instance& InInstance, const Rect& InContainer) override;
+        bool RefreshRect(Container& InOwner, const Rect& InContainer) override;
         
-        void SetSpacing(Instance& InInstance, const float InSpacing)
+        void SetSpacing(Container& InOwner, const float InSpacing)
         {
             elementSpacing = InSpacing;
-            Invalidate(InInstance); 
+            Invalidate(); 
         }
 
     private:

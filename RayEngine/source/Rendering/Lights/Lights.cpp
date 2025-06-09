@@ -4,6 +4,7 @@
 #include "Pipeline/Renderer.h"
 #include "RayRenderUtility.h"
 #include "Scene/Scene.h"
+#include "Scene/Culling/Frustum.h"
 #include "Utility/Collections/SortedInsert.h"
 
 void Rendering::Lights::Init(const LightConfig& InConfig)

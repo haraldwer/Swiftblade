@@ -5,6 +5,7 @@
 #include "Scene/Scene.h"
 #include "Utility/Collections/SortedInsert.h"
 #include "raylib.h"
+#include "Scene/Culling/Frustum.h"
 
 void Rendering::Lumin::Init(const LuminConfig& InConfig)
 {

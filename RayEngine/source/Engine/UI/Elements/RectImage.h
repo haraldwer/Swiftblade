@@ -10,7 +10,7 @@ namespace UI
     public:
         RectImage(const ResTexture& InTexture = String("Defaults/T_Missing.png"), const Margin& InMargin = 0.0f, const UI::Transform& InTransform = Transform::Fill()) :
             Image(InTexture, InTransform), edges(InMargin) {}
-        void Draw(Instance& InInstance) override;
+        void Draw(Container& InOwner) override;
 
     private:
         Margin edges; 

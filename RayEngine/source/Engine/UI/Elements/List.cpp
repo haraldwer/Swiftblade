@@ -1,10 +1,10 @@
 ﻿#include "List.h"
 
-#include "UI/Instance.h"
-
-void UI::List::RefreshRect(Instance& InInstance, const Rect& InContainer)
+bool UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
-    cachedRect = CalculateRect(InContainer);
+    PROFILE();
+    if (!Element::RefreshRect(InOwner, InContainingRect))
+        return false;
 
     Rect rect = GetRect();
     rect.start.x += transform.margins.horizontal.x;
@@ -14,12 +14,14 @@ void UI::List::RefreshRect(Instance& InInstance, const Rect& InContainer)
 
     // Each child gets its own rect
     for (size_t i = 0; i < children.size(); i++)
-        InInstance.Get<Element>(children[i]).RefreshRect(
-            InInstance,
+        Get<Element>(children[i]).RefreshRect(
+            *this,
             GetChildRect(
                 rect,
                 static_cast<float>(children.size()),
                 static_cast<float>(i)));
+
+    return true;
 }
 
 UI::Rect UI::List::GetChildRect(const Rect& InRect, const float InTotal, const float InIndex) const

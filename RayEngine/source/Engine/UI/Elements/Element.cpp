@@ -4,30 +4,17 @@
 #include "Rendering/Manager.h"
 #include "raylib.h"
 
-#include "UI/Instance.h"
-
-void UI::Element::Init(Instance& InInstance)
-{
-}
-
-void UI::Element::Update(Instance& InInstance)
-{
-}
-
-void UI::Element::Draw(Instance& InInstance)
+void UI::Element::Draw(Container& InOwner)
 {
     DrawRect(cachedRect); 
 }
 
-void UI::Element::Invalidate(Instance& InInstance)
+bool UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
-    if (parent != -1)
-        InInstance.Get<Instance>(parent).Invalidate();
-}
-
-void UI::Element::RefreshRect(Instance& InInstance, const Rect& InContainer)
-{
-    cachedRect = CalculateRect(InContainer);
+    CHECK_RETURN(!Invalidated(), false);
+    cachedRect = CalculateRect(InContainingRect);
+    invalidated = false;
+    return true;
 }
 
 void UI::Element::SetTransform(const Transform& InTransform)

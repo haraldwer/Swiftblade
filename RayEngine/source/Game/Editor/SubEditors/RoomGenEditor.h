@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "../RoomSubEditor.h"
-#include "Engine/UI/Instance.h"
 #include "Rooms/Generation/RoomGenPath.h"
 #include "Rooms/Generation/RoomGenProps.h"
 #include "Rooms/Generation/RoomGenVolume.h"
+#include "UI/Elements/Container.h"
 
 class RoomGenBase;
 
@@ -21,7 +21,7 @@ public:
     void Enter() override;
     
 private:
-    UI::Instance ui = {};
+    UI::Container ui = {};
     ECS::EntityID startEntity = ECS::INVALID_ID;
     ECS::EntityID endEntity = ECS::INVALID_ID;
     int seed = 0;
