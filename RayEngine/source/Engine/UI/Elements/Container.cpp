@@ -3,12 +3,6 @@
 void UI::Container::Init()
 {
     Init(*this);
-
-    // When virtual target is recreated, invalidate hierarchy
-    onSetViewportSize.Bind([&](const OnSetViewportSize& InData)
-    {
-        Invalidate(); 
-    });
 }
 
 void UI::Container::Update()
@@ -18,7 +12,12 @@ void UI::Container::Update()
 
 void UI::Container::Draw()
 {
-    RefreshRect(*this, GetReferenceRect());
+    auto refRect = GetReferenceRect();
+    if (refRect != cachedRefRect)
+        Invalidate();
+    if (Invalidated())
+        RefreshRect(*this, refRect);
+    
     Draw(*this);
 }
 
@@ -46,23 +45,25 @@ void UI::Container::Draw(Container& InOwner)
         elem.second.Get().Draw(*this);
 }
 
-bool UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
+void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
 {
     PROFILE();
-    if (!Element::RefreshRect(InInstance, InContainer))
-        return false;
-    
+
+    Rect prev = GetRect();
+    Element::RefreshRect(InInstance, InContainer);
+    cachedRefRect = InContainer;
+
     Rect rect = GetRect();
+    bool changed = prev != rect;
+    
     rect.start.x += transform.margins.horizontal.x;
     rect.end.x -= transform.margins.horizontal.y;
     rect.start.y += transform.margins.vertical.x;
     rect.end.y -= transform.margins.vertical.y;
     
     for (auto& elem : elements)
-        elem.second.Get().RefreshRect(*this, rect);
-
-    return true;
-    
+        if (changed || elem.second.Get().Invalidated())
+            elem.second.Get().RefreshRect(*this, rect);
 }
 
 bool UI::Container::Invalidated() const

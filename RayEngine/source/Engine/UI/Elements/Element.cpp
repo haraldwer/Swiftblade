@@ -9,12 +9,10 @@ void UI::Element::Draw(Container& InOwner)
     DrawRect(cachedRect); 
 }
 
-bool UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
+void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
-    CHECK_RETURN(!Invalidated(), false);
     cachedRect = CalculateRect(InContainingRect);
     invalidated = false;
-    return true;
 }
 
 void UI::Element::SetTransform(const Transform& InTransform)

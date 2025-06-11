@@ -26,7 +26,7 @@ void Rendering::Manager::Init()
     defaultContext.Init(currConfig.Context, currConfig.Lumin, true);
 
     rlImGuiSetup(false);
-    ImGui::ThemeMoonlight();
+    ImGui::Theme1();
     ImGui::LoadFont();
 }
 

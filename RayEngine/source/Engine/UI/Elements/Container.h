@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Element.h"
-#include "Events.h"
 
 namespace UI
 {
@@ -23,7 +22,7 @@ namespace UI
         void Update(Container& InOwner) override;
         void Draw(Container& InOwner) override;
         bool Invalidated() const override;
-        bool RefreshRect(Container& InInstance, const Rect& InContainer) override;
+        void RefreshRect(Container& InInstance, const Rect& InContainer) override;
 
         bool Contains(const String& InIdentifier) const { return TryGet<Element>(InIdentifier); }
 
@@ -64,13 +63,13 @@ namespace UI
 
         // Sorted list of children
         Vector<ElementID> children = {};
+        Rect cachedRefRect = {};
 
     private:
         
         Map<ElementID, Object<Element>> elements = {};
         Map<String, ElementID> namedElements = {};
         ElementID idCounter = 0;
-        GlobalEvent<OnSetViewportSize>::Callback onSetViewportSize = {};
     };
 
     

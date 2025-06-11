@@ -1,12 +1,16 @@
 ﻿#include "List.h"
 
-bool UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
+void UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
     PROFILE();
-    if (!Element::RefreshRect(InOwner, InContainingRect))
-        return false;
 
+    Rect prev = GetRect();
+    Element::RefreshRect(InOwner, InContainingRect);
+    cachedRefRect = InContainingRect;
+    
     Rect rect = GetRect();
+    bool changed = prev != rect;
+    
     rect.start.x += transform.margins.horizontal.x;
     rect.end.x -= transform.margins.horizontal.y;
     rect.start.y += transform.margins.vertical.x;
@@ -14,14 +18,16 @@ bool UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 
     // Each child gets its own rect
     for (size_t i = 0; i < children.size(); i++)
-        Get<Element>(children[i]).RefreshRect(
-            *this,
-            GetChildRect(
-                rect,
-                static_cast<float>(children.size()),
-                static_cast<float>(i)));
-
-    return true;
+    {
+        auto& elem = Get<Element>(children[i]);
+        if (changed || elem.Invalidated())
+            elem.RefreshRect(
+                *this,
+                GetChildRect(
+                    rect,
+                    static_cast<float>(children.size()),
+                    static_cast<float>(i)));
+    }
 }
 
 UI::Rect UI::List::GetChildRect(const Rect& InRect, const float InTotal, const float InIndex) const

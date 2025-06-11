@@ -25,7 +25,7 @@ namespace UI
         void Invalidate() { invalidated = true; }
         virtual bool Invalidated() const { return invalidated; }
         
-        virtual bool RefreshRect(Container& InOwner, const Rect& InContainingRect);
+        virtual void RefreshRect(Container& InOwner, const Rect& InContainingRect);
         Rect GetRect() const { return cachedRect; }
         
         Transform GetTransform() const { return transform; }
@@ -44,8 +44,8 @@ namespace UI
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);
 
-        ElementID id;
-        ElementID parent;
+        ElementID id = -1;
+        ElementID parent = -1;
         Transform transform = Transform::Fill();
         Rect cachedRect = {};
         bool invalidated = true;

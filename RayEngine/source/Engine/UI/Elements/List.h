@@ -19,7 +19,7 @@ namespace UI
         List(const Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false)
             : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing) { }
 
-        bool RefreshRect(Container& InOwner, const Rect& InContainer) override;
+        void RefreshRect(Container& InOwner, const Rect& InContainer) override;
         
         void SetSpacing(Container& InOwner, const float InSpacing)
         {

@@ -30,6 +30,13 @@ namespace UI
     
     struct Rect
     {
+        bool operator == (const Rect& InOther) const
+        {
+            return
+                start == InOther.start &&
+                end == InOther.end;
+        }
+
         Vec2F start = {};
         Vec2F end = {}; 
     };
@@ -45,7 +52,7 @@ namespace UI
         Vec2F pivot = {};
         float rotation = 0.0;
 
-        static Transform Fill(const struct Margin& InPadding = Margin::Zero(), const struct Margin& InMargin = Margin::Zero())
+        static Transform Fill(const Margin& InPadding = Margin::Zero(), const struct Margin& InMargin = Margin::Zero())
         {
             return {
                 Vec2F::Zero(),
