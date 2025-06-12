@@ -5,6 +5,7 @@
 #include "Core/Resource/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Rendering/Manager.h"
+#include "Engine/Audio/Manager.h"
 
 #include "Game/MenuInstance.h"
 #include "Utility/File/File.h"
@@ -17,11 +18,13 @@ int main()
     Debug::Manager debugManager;
     Resource::Manager resourceManager;
     Rendering::Manager renderer;
+    Audio::Manager audio;
     Engine::Manager instanceManager;
     GlobalEventManager eventManager;
     
     debugManager.Init();
     renderer.Init();
+    audio.Init();
 
     // Push menu instance by default
     instanceManager.Push<MenuInstance>();
@@ -65,6 +68,8 @@ int main()
         if (renderer.window.ShouldClose())
             break;
         
+        audio.Update();
+        
         // Render to target texture
         instance->GetRenderScene().Clear();
         instance->Frame();
@@ -78,7 +83,8 @@ int main()
     }
     
     debugManager.Deinit();
-    instanceManager.Clear(); 
+    instanceManager.Clear();
+    audio.Deinit();
     renderer.Deinit();
     resourceManager.Deinit();
     

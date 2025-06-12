@@ -176,13 +176,16 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
 {
     PROFILE_GL();
     
-    for (auto& entry : InScene.meshes.entries)
+    for (auto& entry : InScene.meshes.GetEntries())
     {
-        for (auto& trans : entry.second.transforms.GetAll())
+        if (entry.second.justRebuilt)
         {
-            // Get extent, maybe add coord?
-            const ProbeCoord coord = FromPos(trans.GetPosition());
-            TryCreateProbe(coord);
+            for (auto& trans : entry.second.transforms.GetAll())
+            {
+                // Get extent, maybe add coord?
+                const ProbeCoord coord = FromPos(trans.GetPosition());
+                TryCreateProbe(coord);
+            }
         }
     }
 }

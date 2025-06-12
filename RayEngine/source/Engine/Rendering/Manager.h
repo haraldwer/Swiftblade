@@ -40,6 +40,8 @@ namespace Rendering
         
         Config currConfig = {}; 
         Config queuedConfig = {};
+
+        Vector<Vec3F> cullPoints;
     };
 }
 

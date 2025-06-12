@@ -40,6 +40,10 @@ void Rendering::Manager::Deinit()
 void Rendering::Manager::Render(const Scene& InScene)
 {
     PROFILE_GL();
+
+    if (currConfig.UpdateCulling)
+        cullPoints = InScene.GetCamera().GetFrustumCorners(mainViewport.GetResolution().To<float>());
+    
     const RenderArgs args {
         .scenePtr= &InScene,
         .contextPtr= &defaultContext,
@@ -48,10 +52,12 @@ void Rendering::Manager::Render(const Scene& InScene)
             .referenceRect= Vec4F(),
             .targetRect= Vec4I(),
             .camera= InScene.GetCamera()
-        }}
+        }},
+        .cullPoints = cullPoints
     };
+    
     mainViewport.BeginFrame();
-
+    
     rlDrawRenderBatchActive();
     rlState::current.Reset();
     const Pipeline::Stats stats = defaultPipeline.Render(args);
@@ -110,8 +116,14 @@ void Rendering::Manager::EndFrame()
 {
     PROFILE_GL();
     ImGui::PopDefaultFont();
-    rlImGuiEnd();
-    EndDrawing(); // Swap buffers
+    {
+        PROFILE_GL_NAMED("rlImGuiEnd");
+        rlImGuiEnd();
+    }
+    {
+        PROFILE_GL_NAMED("EndDrawing (SwapBuffers)");
+        EndDrawing();
+    }
     PROFILE_GL_COLLECT();
     
     if (currConfig != queuedConfig)
@@ -126,6 +138,8 @@ void Rendering::Manager::QueueConfig(const Config& InConfig)
 
 void Rendering::Manager::ApplyConfig(const Config& InConfig)
 {
+    PROFILE_GL();
+    
     const auto prev = currConfig;
     currConfig = InConfig;
     queuedConfig = InConfig;

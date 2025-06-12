@@ -59,7 +59,7 @@ namespace Utility::Math
 	template <class T>
 	bool Plane<T>::IsInside(const Vector3<T>& InPos) const
 	{
-		return !(GetNormal().Dot(InPos - origin) > 0);
+		return !(Vector3<T>::Dot(GetNormal(), InPos - origin) > 0);
 	}
 	
 	template <class T>

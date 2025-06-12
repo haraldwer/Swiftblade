@@ -81,6 +81,8 @@ void RoomGenEditor::SetStage(const GenerationStage InStage)
 
 void RoomGenEditor::Update()
 {
+    PROFILE();
+    
     if (RoomGenBase* stage = GetCurrentStage())
         if (stage->Step())
             SetStage(static_cast<GenerationStage>(static_cast<uint8>(currentStage) + 1));

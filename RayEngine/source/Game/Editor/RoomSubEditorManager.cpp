@@ -50,6 +50,8 @@ void RoomSubEditorManager::Deinit()
 
 void RoomSubEditorManager::Update(const bool InIsCameraControlling)
 {
+    PROFILE();
+    
     CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
     
     if (InIsCameraControlling)

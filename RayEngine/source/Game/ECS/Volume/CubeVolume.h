@@ -47,8 +47,10 @@ namespace ECS
         int GetPriority() const override { return -101; }
         
     private:
-        MeshInstance blockMesh; 
-        MeshInstance editMesh;
+        MeshInstance blockMesh = {}; 
+        MeshInstance editMesh = {};
+        Coord cachedEditStart = {};
+        Coord cachedEditEnd = {};
     };
 }
 

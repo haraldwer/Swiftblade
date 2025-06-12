@@ -57,6 +57,8 @@ bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
     bool header = false;
     if (map.size() <= 1 || Utility::MaybeCollapse(InName, InOffset, header))
     {
+        if (header)
+            ImGui::Indent();
         const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this)) + InOffset;
         for (const auto& p : map)
         {
@@ -66,7 +68,7 @@ bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
                 edited = true;
         }
         if (header)
-            Utility::Separator();
+            ImGui::Unindent();
     }
     return edited;
 }

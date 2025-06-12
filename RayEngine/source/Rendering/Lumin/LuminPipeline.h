@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "Rendering/Pipeline/Pipeline.h"
+#include "TextureTargets/SwapTarget.h"
 
 namespace Rendering
 {
-    class SwapTarget;
 
     class LuminPipeline : public Pipeline
     {

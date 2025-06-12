@@ -18,5 +18,6 @@
 #define PROFILE_GL_COLLECT()
 #define PROFILE_GL_GPU(x)
 #define PROFILE_GL()
+#define PROFILE_GL_NAMED(x)
 
 #endif

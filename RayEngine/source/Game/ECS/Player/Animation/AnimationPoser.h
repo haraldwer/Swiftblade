@@ -16,10 +16,10 @@ namespace ECS
     private:
         
         Vector<ECS::EntityID> GetPoses() const;
-        void VisualizePoses() const;
+        void VisualizePoses();
         
-        PROPERTY_C(ResModel, VisualizationMesh, "Defaults/M_Cube.obj");
-        PROPERTY_C(ResRM, VisualizationMat, "Defaults/RM_Default.json");
+        PROPERTY_D(ResModel, VisualizationMesh, "Defaults/M_Cube.obj");
+        PROPERTY_D(ResRM, VisualizationMat, "Defaults/RM_Default.json");
         
         PROPERTY_C(String, VisualizePoseA, "");
         PROPERTY_C(String, VisualizePoseB, "");

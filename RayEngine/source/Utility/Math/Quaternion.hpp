@@ -33,7 +33,7 @@ namespace Utility
 				(*this).z = InOther.z;
 				return *this;
 			}
-
+			
 			Quaternion() : w(static_cast<Type>(1.0)), x(DefaultInitializationValue<Type>()), y(DefaultInitializationValue<Type>()), z(DefaultInitializationValue<Type>()) {}
 			Quaternion(const Quaternion& InQuat) : w(InQuat.w), x(InQuat.x), y(InQuat.y), z(InQuat.z) {}
 			Quaternion(float InW, float InX, float InY, float InZ) : w(InW), x(InX), y(InY), z(InZ) {}
@@ -123,6 +123,37 @@ namespace Utility
 			{
 				*this = GetNormalized();
 				return *this;
+			}
+			
+			// Rotate vector
+			Vector3<Type> operator * (const Vector3<Type>& InV) const
+			{
+				// Extract the vector part of the quaternion
+				Vector3 u(x, y, z);
+
+				// Extract the scalar part of the quaternion
+				float s = w;
+
+				// Do the math
+				return
+					2.0f * Vector3<Type>::Dot(u, InV) * u
+				   + (s * s - Vector3<Type>::Dot(u, u)) * InV
+				   + 2.0f * s * Vector3<Type>::Cross(u, InV);
+			}
+
+			Vector3<Type> ForwardDirection() const
+			{
+				return (*this) * Vector3<Type>::Forward();
+			}
+
+			Vector3<Type> RightDirection() const
+			{
+				return (*this) * Vector3<Type>::Right();
+			}
+
+			Vector3<Type> UpDirection() const
+			{
+				return (*this) * Vector3<Type>::Up();
 			}
 
 			static Type Dot(const Quaternion& InA, const Quaternion& InB)

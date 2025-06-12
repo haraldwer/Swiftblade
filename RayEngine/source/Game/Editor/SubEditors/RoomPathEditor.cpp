@@ -47,6 +47,8 @@ void RoomPathEditor::Deinit()
 
 void RoomPathEditor::Update()
 {
+    PROFILE();
+    
     // Trace location
     // Draw location
     // If clicked - Set the end transform, do stuff

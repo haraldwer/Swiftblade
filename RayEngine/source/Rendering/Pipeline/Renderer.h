@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Collections/SplitContainer.h"
 #include "Rendering/Scene/Instances/CameraInstance.h"
 #include "Rendering/Resources/Shader.h"
 
@@ -32,6 +33,7 @@ namespace Rendering
         Lumin* luminPtr = nullptr;
         Lights* lightsPtr = nullptr;
         Vector<Perspective> perspectives = {};
+        Vector<Vec3F> cullPoints = {};
     };
     
     class Renderer
@@ -40,7 +42,7 @@ namespace Rendering
         static int DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget);
         static Map<uint64, int> DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget);
         static void DrawQuad();
-        static int DrawInstances(const Mesh& InMesh, int InNum);
+        static int DrawInstances(const Mesh& InMesh, int InOffset, int InNum);
         static int DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
         static int DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
         static int DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);

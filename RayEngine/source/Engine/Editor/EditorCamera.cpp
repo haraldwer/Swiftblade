@@ -6,6 +6,8 @@
 
 void EditorCamera::Update()
 {
+    PROFILE();
+    
     if (Input::Action::Get("EditorCamera").Pressed())
     {
         if (bAlwaysEnabled)
@@ -74,6 +76,8 @@ void EditorCamera::Toggle()
 
 void EditorCamera::UpdateMovement()
 {
+    PROFILE();
+    
     float dt = static_cast<float>(Utility::Time::Get().Unscaled());
     
     auto& man = Input::Manager::Get();

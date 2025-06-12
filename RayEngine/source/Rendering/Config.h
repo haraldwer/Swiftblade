@@ -13,6 +13,8 @@ namespace Rendering
         PROPERTY(ViewportConfig, Viewport);
         PROPERTY(ContextConfig, Context);
         PROPERTY(LuminConfig, Lumin);
+        
+        PROPERTY_D(bool, UpdateCulling, true);
 
         String Name() const override { return "Rendering"; }
     };

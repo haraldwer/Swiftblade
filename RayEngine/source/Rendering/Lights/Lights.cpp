@@ -116,14 +116,19 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
     CHECK_RETURN(InArgs.perspectives.empty(), {});
     
     auto& cam = InArgs.perspectives.at(0).camera;
-    Frustum frustum;
-    frustum.ConstructFrustum(cam, atlasView.GetResolution());
-    Vector<const LightInstance*> result;
-
+    auto res = atlasView.GetResolution();
+    auto points = cam.GetFrustumCorners(res.To<float>());
+    
+    // Query spatialContainer
+    auto lights = InArgs.scenePtr->lights.Get(points);
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)
     {
         return (InFirst->data.position - cam.position).LengthSqr() < (InSecond->data.position - cam.position).LengthSqr();
     };
+    
+    Frustum frustum;
+    frustum.ConstructFrustum(cam, res);
+    Vector<const LightInstance*> result;
 
     auto checkFunc = [&](const LightInstance& InLight)
     {
@@ -135,10 +140,11 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
             return true;
         return false;
     };
-    
-    for (auto& light : InArgs.scenePtr->lights.GetAll())
-        if (checkFunc(light))
-            Utility::SortedInsert(result, &light, sortFunc);
+
+    for (auto& vec : lights)
+        for (auto& light : *vec)
+            if (checkFunc(light))
+                Utility::SortedInsert(result, &light, sortFunc);
 
     const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLights.Get());
     CHECK_RETURN(count <= 0, {});

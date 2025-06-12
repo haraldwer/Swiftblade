@@ -1,4 +1,5 @@
 #pragma once
+#include "Collections/SplitContainer.h"
 
 struct CameraInstance;
 
@@ -24,9 +25,10 @@ namespace Rendering
 		}
 
 	public:
+		
 		void ConstructFrustum(const Mat4F& InProj, const Mat4F& InView, float InFar, Vec3F InPos);
 		void ConstructFrustum(const CameraInstance& InCam, const Vec2I& InViewSize);
-		
+
 		bool CheckPoint(const Vec3F& InPos) const
 		{
 			if (far < 0.01f)

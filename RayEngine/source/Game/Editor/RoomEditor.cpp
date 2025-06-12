@@ -46,6 +46,8 @@ void RoomEditor::Deinit()
 
 void RoomEditor::Logic(const double InDelta)
 {
+    PROFILE();
+    
     Instance::Logic(InDelta);
     ecs.Update();
     editorCamera.Update();

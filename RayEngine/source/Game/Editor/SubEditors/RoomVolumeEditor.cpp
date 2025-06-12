@@ -12,6 +12,8 @@ void RoomVolumeEditor::Init()
 
 void RoomVolumeEditor::Update()
 {
+    PROFILE();
+    
     // Do cube trace
     lastTrace = GetVolume().PosToCoord(UpdateCameraTrace());
     if (!placing)

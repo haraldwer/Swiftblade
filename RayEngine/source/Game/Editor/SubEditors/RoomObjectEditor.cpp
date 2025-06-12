@@ -24,6 +24,8 @@ void RoomObjectEditor::Deinit()
 
 void RoomObjectEditor::Update()
 {
+    PROFILE();
+    
     CHECK_RETURN(objectID == ECS::INVALID_ID)
 
     auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(objectID);

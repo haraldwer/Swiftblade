@@ -14,7 +14,7 @@ bool ECS::AnimationPoser::ShouldUpdate() const
     return Engine::Instance::Get().IsEditor();
 }
 
-void ECS::AnimationPoser::VisualizePoses() const
+void ECS::AnimationPoser::VisualizePoses()
 {
     Mat4F a;
     Mat4F b;
@@ -27,32 +27,38 @@ void ECS::AnimationPoser::VisualizePoses() const
             b = Get<Transform>(c).Local();
     }
 
+    uint64 hash = MeshInstance::GenHash(VisualizationMesh.Get(), VisualizationMat.Get());
+    
     auto& rs = Engine::Instance::Get().GetRenderScene();
     if (a != Mat4F() || b != Mat4F())
     {
         if (a != Mat4F())
-            rs.AddMesh({
+            rs.Meshes().AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                a });
+                a,
+                hash });
         if (b != Mat4F())
-            rs.AddMesh({
+            rs.Meshes().AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                b });
+                b,
+                hash });
         if (a != Mat4F() && b != Mat4F())
-            rs.AddMesh({
+            rs.Meshes().AddMesh({
                 VisualizationMesh,
                 VisualizationMat,
-                Mat4F::Lerp(a, b, VisualizeLerp.Get()) });
+                Mat4F::Lerp(a, b, VisualizeLerp.Get()),
+                hash });
         return;
     }
 
     for (auto c : GetPoses())
-        rs.AddMesh({
+        rs.Meshes().AddMesh({
             VisualizationMesh,
             VisualizationMat,
-            Get<Transform>(c).Local()
+            Get<Transform>(c).Local(),
+            hash 
         });
 }
 

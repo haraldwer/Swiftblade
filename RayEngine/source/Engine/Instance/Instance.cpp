@@ -16,7 +16,6 @@ void Engine::Instance::Deinit()
 
 void Engine::Instance::Logic(const double InDelta)
 {
-    PROFILE();
     renderScene.Clear();
     time.Tick(InDelta);
     input.Update(); 

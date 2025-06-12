@@ -32,4 +32,47 @@ struct CameraInstance
         
         return proj;
     }
+
+    Vector<Vec3F> GetFrustumCorners(const Vec2F& InSize) const
+    {
+        // Calculate frustum edge points
+        // For each point, ask if on left or right side
+        
+        const Vec3F v = rotation.ForwardDirection();
+        const Vec3F up = rotation.UpDirection();
+        const Vec3F w = rotation.RightDirection();
+	
+        // First we will get the width and height of the near plane
+        const float ar = InSize.x / InSize.y;
+        const float Hnear = 2 * tan(fov / 2.0f) * near;
+        const float Wnear = Hnear * ar;
+
+        // Then we do the same for the far plane
+        const float Hfar = 2 * tan(fov / 2.0f) * far;
+        const float Wfar = Hfar * ar;
+
+        // Now we get the center of the planes
+        const Vec3F Cnear = position + v * near;
+        const Vec3F Cfar = position + v * far;
+
+        const Vec3F NearTopLeft = Cnear + (up * (Hnear / 2)) - (w * (Wnear / 2));
+        const Vec3F NearTopRight = Cnear + (up * (Hnear / 2)) + (w * (Wnear / 2));
+        const Vec3F NearBottomLeft = Cnear - (up * (Hnear / 2)) - (w * (Wnear /2));
+        const Vec3F NearBottomRight = Cnear - (up * (Hnear / 2)) + (w * (Wnear / 2));
+        const Vec3F FarTopLeft = Cfar + (up * (Hfar / 2)) - (w * (Wfar / 2));
+        const Vec3F FarTopRight = Cfar + (up * (Hfar / 2)) + (w * (Wfar / 2));
+        const Vec3F FarBottomLeft = Cfar - (up * (Hfar / 2)) - (w * (Wfar / 2));
+        const Vec3F FarBottomRight = Cfar - (up * (Hfar / 2)) + (w * (Wfar / 2));
+
+        return {
+            NearTopLeft,
+            NearTopRight,
+            NearBottomLeft,
+            NearBottomRight,
+            FarTopLeft,
+            FarTopRight,
+            FarBottomLeft,
+            FarBottomRight
+        };
+    }
 };
