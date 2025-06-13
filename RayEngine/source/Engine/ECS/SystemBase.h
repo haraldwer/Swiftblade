@@ -44,8 +44,21 @@ namespace ECS
     protected:
 
         ComponentID Translate(EntityID InID) const;
+
+        ComponentID RegisterID(EntityID InID);
+        void UnregisterID(EntityID InID, ComponentID InCompID);
+        virtual ComponentID NewID() = 0;
+
+        // For memory aligned iteration
+        const OrderedMap<ComponentID, EntityID>& ComponentMap() { return componentToEntity; }
+        const Map<EntityID, ComponentID>& EntityMap() { return entityToComponent; }
         
-        Map<EntityID, ComponentID> translation;
-        Vector<ComponentID> unused;
+    private:
+        
+        Map<EntityID, ComponentID> entityToComponent;
+        OrderedMap<ComponentID, EntityID> componentToEntity;
+        Set<ComponentID> unused;
     };
+
+    
 }

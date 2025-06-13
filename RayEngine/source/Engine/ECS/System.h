@@ -20,13 +20,13 @@ namespace ECS
         void SystemInit() override {}
         void SystemUpdate() override
         {
-            for (const auto& id : translation)
-                Update(id.first, GetInternal(id.second));
+            for (const auto& id : ComponentMap())
+                Update(id.second, GetInternal(id.first));
         }
         void SystemFrame() override
         {
-            for (const auto& id : translation)
-                Frame(id.first, GetInternal(id.second));
+            for (const auto& id : ComponentMap())
+                Frame(id.second, GetInternal(id.first));
         }
 
         // - Helpers - //
@@ -91,24 +91,8 @@ namespace ECS
             const ComponentID existingID = Translate(InID);
             CHECK_RETURN(existingID != INVALID_ID, existingID);
             
-            // Find ID
-            const auto findID = [&]()
-            {
-                if (unused.size())
-                {
-                    const ComponentID id = unused.back();
-                    unused.pop_back();
-                    return id; 
-                }
-                
-                const auto newID = static_cast<ComponentID>(components.size());
-                components.emplace_back();
-                return newID;
-            };
-            
             // Register
-            const ComponentID id = findID();
-            translation[InID] = id;
+            const ComponentID id = RegisterID(InID);
 
             // Init comp
             T& data = GetInternal(id);
@@ -136,8 +120,8 @@ namespace ECS
             T& data = GetInternal(id);
             Deinit(InID, GetInternal(id));
             data = T();
-            translation.erase(InID);
-            unused.push_back(id);
+
+            UnregisterID(InID, id);
         }
 
         void Serialize(EntityID InID, SerializeObj& OutObj) override
@@ -176,6 +160,12 @@ namespace ECS
         {
             CHECK_ASSERT(InID < 0 || InID > components.size(), "Invalid index");
             return components[InID];
+        }
+
+        ComponentID NewID() override
+        {
+            components.emplace_back();
+            return static_cast<ComponentID>(components.size() - 1);
         }
 
     private:

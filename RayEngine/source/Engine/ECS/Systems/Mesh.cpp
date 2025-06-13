@@ -10,10 +10,10 @@ void SysMesh::SystemFrame()
 {
     diff.Clear();
 
-    for (const auto& id : translation)
+    for (const auto& id : ComponentMap())
     {
-        Mesh& m = GetInternal(id.second);
-        const Transform& t = Get<Transform>(id.first);
+        Mesh& m = GetInternal(id.first);
+        const Transform& t = Get<Transform>(id.second);
         const Mat4F world = t.World();
         const uint64 hash = MeshInstance::GenHash(m.Model, m.Material);
         
@@ -26,7 +26,7 @@ void SysMesh::SystemFrame()
             diff.Modify(hash);
             m.worldCache = world;
             m.hashCache = hash;
-            hashToEntity[hash].insert(id.second);
+            hashToComponent[hash].insert(id.first);
         }
     }
 
@@ -37,7 +37,7 @@ void SysMesh::SystemFrame()
     {
         rs.Meshes().ClearPersistence(hash);
         hashToPersistence.erase(hash);
-        hashToEntity.erase(hash);
+        hashToComponent.erase(hash);
     }
     
     // For every modified hash
@@ -49,7 +49,7 @@ void SysMesh::SystemFrame()
         uint32 persistenceID = hashToPersistence.at(hash);
         
         // For every entity now using that hash
-        for (EntityID id : hashToEntity.at(hash))
+        for (EntityID id : hashToComponent.at(hash))
         {
             Mesh& m = GetInternal(id);
             rs.Meshes().AddMesh({

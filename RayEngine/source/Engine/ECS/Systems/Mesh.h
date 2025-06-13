@@ -29,7 +29,7 @@ namespace ECS
         
         Utility::PersistanceContainer<uint64> diff;
         Map<uint64, uint32> hashToPersistence;
-        Map<uint64, Set<EntityID>> hashToEntity;
+        Map<uint64, Set<ComponentID>> hashToComponent;
     };
 }
 
