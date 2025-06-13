@@ -6,25 +6,27 @@
 
 namespace Utility
 {
-    template <class T, int MaxDepth = 3, int MinSplitCount = 50, int NormalSampleCount = 20>
+    template <class T, int MaxDepth = 5, int MaxDist = 5, int MinSplitCount = 50, int NormalSampleCount = 20>
     class SplitContainer
     {
     public:
         
         void Insert(const T& InData, const Cullable& InCull)
         {
-            CHECK_ASSERT(nodes.empty(), "No root node");
             CHECK_ASSERT(data.size() != cullData.size(), "Invalid size");
-            const uint32 index = data.size();
             data.push_back(InData);
             cullData.push_back(InCull);
-            Insert(nodes[0], index);
         }
 
         void Build()
         {
-            CHECK_ASSERT(nodes.empty(), "No root node");
             CHECK_ASSERT(data.size() != cullData.size(), "Invalid size");
+            size_t s = nodes.size();
+            nodes.clear();
+            nodes.reserve(s);
+            auto& node = nodes.emplace_back();
+            for (int i = 0; i < data.size(); i++)
+                Insert(node, i);
             Split(0, 0);
         }
 
@@ -38,12 +40,11 @@ namespace Utility
             size_t s = nodes.size();
             nodes.clear();
             nodes.reserve(s);
-            nodes.emplace_back(); // Root
         }
         
         Set<uint32> GetIndices(const Vector<Vec3F>& InPoints) const
         {
-            CHECK_ASSERT(nodes.empty(), "No root node");
+            CHECK_RETURN(nodes.empty(), {});
             Set<uint32> indices;
             Get(nodes.at(0), InPoints, indices);
             return indices;
@@ -52,11 +53,6 @@ namespace Utility
         Vector<T> GetCulled(const Vector<Vec3F>& InPoints) const
         {
             return Utility::GroupData(data, GetIndices(InPoints));
-            
-            Vector<T> result;
-            for (uint32 i : GetIndices(InPoints))
-                result.push_back(data.at(i));
-            return result;
         }
         
         struct DebugNode
@@ -69,7 +65,7 @@ namespace Utility
         
         Vector<DebugNode> GetDebug(const Vector<Vec3F>& InPoints) const
         {
-            CHECK_ASSERT(nodes.empty(), "No root node");
+            CHECK_RETURN(nodes.empty(), {});
             Vector<DebugNode> result;
             GetDebug(nodes.at(0), 0, InPoints, result);
             return result;
@@ -104,6 +100,8 @@ namespace Utility
             uint32 left = static_cast<uint32>(-1);
             uint32 right = static_cast<uint32>(-1);
         };
+
+        Vector<Node> nodes = { Node() };
 
         enum class SpatialQueryResult : uint8
         {
@@ -148,6 +146,8 @@ namespace Utility
                     maxPoint = cull.position;
                 }
             }
+
+            CHECK_RETURN(maxDist < MaxDist);
 
             // Create plane
             Vec3F direction = (maxPoint - average).GetNormalized();
@@ -276,7 +276,5 @@ namespace Utility
                 return SpatialQueryResult::LEFT_INSIDE;
             return SpatialQueryResult::BOTH_INSIDE;
         }
-        
-        Vector<Node> nodes = { Node() };
      };
 }

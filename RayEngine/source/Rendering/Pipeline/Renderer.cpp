@@ -709,9 +709,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
         rlViewport(rect.x, rect.y, rect.z, rect.w);
         rlEnableSmoothLines();
 
-        // TODO: Debug shape culling
-
-        for (auto& shape : scene.debugShapes.GetAll())
+        for (auto& shape : scene.debugShapes.GetCulled(InArgs.cullPoints))
         {
             switch (shape.type)
             {
@@ -744,7 +742,7 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
             }
         }
 
-        for (auto& line : scene.debugLines.GetAll())
+        for (auto& line : scene.debugLines.GetCulled(InArgs.cullPoints))
             DrawLine3D(
                 Utility::Ray::ConvertVec(line.start),
                 Utility::Ray::ConvertVec(line.end),

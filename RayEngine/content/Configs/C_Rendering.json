@@ -18,7 +18,8 @@
 				"Val":"Defaults/T_Noise_Simplex.json"
 			}
 		],
-		"Quantize":false
+		"Quantize":false,
+		"SSAO":false
 	},
 	"Lumin":{
 		"UpdateFrequency":1.0,

@@ -216,6 +216,8 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
 
 Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
 {
+    PROFILE();
+    
     auto& v = Get<CubeVolume>(InID);
     const auto& volume = v.data;
 
@@ -224,7 +226,7 @@ Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const V
     
     Coord last = 0;
     int count = 0; 
-    for (const auto& intersect : GridIntersection(origin, InDir, 1000.0f))
+    for (const auto& intersect : GridIntersection(origin, InDir, InMaxDist * 1.5))
     {
         const uint8 max = -1; 
         if (intersect.x < 0 ||

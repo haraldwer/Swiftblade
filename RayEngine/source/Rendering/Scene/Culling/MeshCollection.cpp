@@ -8,7 +8,7 @@ void Rendering::MeshCollection::Clear()
         e.second.justRebuilt = false;
         if (e.second.persistentID == 0 || // No cache
             e.second.persistentID != e.second.prevPersistentID) // Cache changed
-            toBeRemoved.insert(e.second.persistentID);
+            toBeRemoved.insert(e.first);
     }
     for (auto& e : toBeRemoved)
         entries.erase(e);
