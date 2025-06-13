@@ -42,7 +42,6 @@ namespace Rendering
         static int DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget);
         static Map<uint64, int> DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget);
         static void DrawQuad();
-        static int DrawInstances(const Mesh& InMesh, int InOffset, int InNum);
         static int DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
         static int DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
         static int DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
@@ -60,5 +59,7 @@ namespace Rendering
         static void SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader);
         static void BindNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot);
         static void SetCustomShaderValues(ShaderResource& InShader);
+        
+        static int DrawInstances(const Mesh& InMesh, int InCount);
     };
 }

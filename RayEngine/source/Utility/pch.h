@@ -68,8 +68,6 @@ template <class Val>
 using StringMap = Map<String, Val>;  
 template <class Key, class Val>
 using OrderedMap = std::map<Key, Val>;
-template <class First, class Second>
-using Tuple = std::tuple<First, Second>;
 
 typedef uint64_t uint64;
 typedef int64_t int64;

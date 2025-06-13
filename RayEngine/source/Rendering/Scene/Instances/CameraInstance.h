@@ -44,11 +44,13 @@ struct CameraInstance
 	
         // First we will get the width and height of the near plane
         const float ar = InSize.x / InSize.y;
-        const float Hnear = 2 * tan(fov / 2.0f) * near;
+        const float fovRad = Utility::Math::DegreesToRadians(fov);
+        
+        const float Hnear = 2.0f * tanf(fovRad / 2.0f) * near;
         const float Wnear = Hnear * ar;
 
         // Then we do the same for the far plane
-        const float Hfar = 2 * tan(fov / 2.0f) * far;
+        const float Hfar = 2.0f * tanf(fovRad / 2.0f) * far;
         const float Wfar = Hfar * ar;
 
         // Now we get the center of the planes

@@ -120,7 +120,7 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
     auto points = cam.GetFrustumCorners(res.To<float>());
     
     // Query spatialContainer
-    auto lights = InArgs.scenePtr->lights.Get(points);
+    auto culled = InArgs.scenePtr->lights.GetIndices(points);
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)
     {
         return (InFirst->data.position - cam.position).LengthSqr() < (InSecond->data.position - cam.position).LengthSqr();
@@ -141,10 +141,10 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
         return false;
     };
 
-    for (auto& vec : lights)
-        for (auto& light : *vec)
-            if (checkFunc(light))
-                Utility::SortedInsert(result, &light, sortFunc);
+    auto& data = InArgs.scenePtr->lights.GetAll();
+    for (auto& index : culled)
+        if (checkFunc(data.at(index)))
+            Utility::SortedInsert(result, &data.at(index), sortFunc);
 
     const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLights.Get());
     CHECK_RETURN(count <= 0, {});

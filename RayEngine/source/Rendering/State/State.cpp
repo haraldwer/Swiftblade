@@ -77,9 +77,7 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
         
         rlEnableVertexArray(InCmd.vaoID);
 
-        const int instances = static_cast<int>(InMatrices.size());
-        const int bufferSize = instances * static_cast<int>(sizeof(Mat4F));
-        vbo = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
+        Set(InMatrices);
 
         // Set instance matrix data location
         const int matLoc = shader.locs[SHADER_LOC_MATRIX_MODEL];
@@ -106,19 +104,41 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
     return true;
 }
 
+
+bool Rendering::State::Set(const Vector<Mat4F>& InMatrices)
+{
+    const int instances = static_cast<int>(InMatrices.size());
+    const int bufferSize = instances * static_cast<int>(sizeof(Mat4F));
+
+    if (vbo != static_cast<uint32>(-1))
+        ResetTransforms();
+    vbo = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
+    
+    return true;
+}
+
 void Rendering::State::ResetMesh()
+{
+    if (mesh.vaoID != static_cast<uint32>(-1))
+    {
+        rlDisableVertexArray();
+        ResetTransforms();
+    }
+    mesh = {};
+}
+
+void Rendering::State::ResetTransforms()
 {
     if (vbo != static_cast<uint32>(-1))
     {
         PROFILE_GL_GPU("Reset mesh");
-        rlDisableVertexArray();
         rlDisableVertexBuffer();
         rlDisableVertexBufferElement();
         rlUnloadVertexBuffer(vbo);
         vbo = static_cast<uint32>(-1);
     }
+    
 }
-
 
 void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)
 {

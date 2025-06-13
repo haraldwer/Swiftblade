@@ -5,7 +5,7 @@
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 #include "RayRenderUtility.h"
-#include "Collections/VectorMerge.h"
+#include "Collections/VectorUtilities.h"
 #include "Scene/Scene.h"
 #include "Scene/Culling/Frustum.h"
 #include "State/Command.h"
@@ -196,7 +196,7 @@ int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarg
                 perspCmd.rect = perspective.targetRect;
                 rlState::current.Set(perspCmd);
                 SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-                c += DrawInstances(mesh, 0, 1);
+                c += DrawInstances(mesh, 1);
             }
             rlState::current.ResetMesh();
         }
@@ -218,6 +218,9 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     for (auto& entry : InArgs.scenePtr->meshes.GetEntries())
     {
         PROFILE_GL_NAMED("Mesh entry");
+        
+        CHECK_CONTINUE(entry.second.transforms.Empty());
+
         const ::Mesh* meshes = nullptr;
         int32 meshCount = 0;
         if (const auto resModel = entry.second.model.Get())
@@ -231,10 +234,8 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
                 }
             }
         }
-
         CHECK_CONTINUE(!meshes);
         CHECK_CONTINUE(meshCount == 0);
-        CHECK_CONTINUE(entry.second.transforms.Empty());
         
         const MaterialResource* resMat = entry.second.material.Get();
         CHECK_CONTINUE(!resMat);
@@ -268,11 +269,12 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
             PROFILE_GL_NAMED("Mesh");
             MeshCommand cmd;
             cmd.vaoID = meshes[i].vaoId;
-            
-            auto transforms = entry.second.transforms.Get(InArgs.cullPoints);
-            auto merged = Utility::MergeVectors(transforms);
-            
-            if (rlState::current.Set(cmd, merged))
+
+            // Culling
+            const Vector<Mat4F>& data = entry.second.transforms.GetCulled(InArgs.cullPoints);
+
+            // Copy to GPU
+            if (rlState::current.Set(cmd, data))
             {
                 for (auto& perspective : InArgs.perspectives)
                 {
@@ -281,7 +283,7 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
                     perspCmd.rect = perspective.targetRect;
                     SetPerspectiveShaderValues(InArgs, perspective, *resShader);
                     rlState::current.Set(perspCmd);
-                    count[entry.first] += DrawInstances(meshes[i], 0, static_cast<int>(merged.size()));
+                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(data.size()));
                 }
                 rlState::current.ResetMesh();
             }
@@ -298,14 +300,15 @@ void Rendering::Renderer::DrawQuad()
     rlLoadDrawQuad();
 }
 
-int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InOffset, const int InNum)
+
+int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InCount)
 {
     PROFILE_GL_GPU("Draw instances");
     if (InMesh.indices != nullptr)
-        rlDrawVertexArrayElementsInstanced(InOffset, InMesh.triangleCount * 3, nullptr, InNum);
+        rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount * 3, nullptr, InCount);
     else
-        rlDrawVertexArrayInstanced(InOffset, InMesh.vertexCount, InNum);
-    return InNum;
+        rlDrawVertexArrayInstanced(0, InMesh.vertexCount, InCount);
+    return InCount;
 }
 
 int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
@@ -477,7 +480,7 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
                     perspCmd.rect = perspective.targetRect;
                     rlState::current.Set(perspCmd);
                     SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
-                    DrawInstances(mesh, 0, 1);
+                    DrawInstances(mesh, 1);
                 }
                 rlState::current.ResetMesh();
             }
@@ -632,7 +635,7 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
                     perspCmd.rect = perspective.targetRect;
                     rlState::current.Set(perspCmd);
                     SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
-                    DrawInstances(mesh, 0, 1);
+                    DrawInstances(mesh, 1);
                 }
                 rlState::current.ResetMesh();
             }
@@ -706,6 +709,8 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
         rlViewport(rect.x, rect.y, rect.z, rect.w);
         rlEnableSmoothLines();
 
+        // TODO: Debug shape culling
+
         for (auto& shape : scene.debugShapes.GetAll())
         {
             switch (shape.type)
@@ -744,25 +749,6 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
                 Utility::Ray::ConvertVec(line.start),
                 Utility::Ray::ConvertVec(line.end),
                 { line.col.r, line.col.g, line.col.b, line.col.a });
-
-        for (auto& p : InArgs.cullPoints)
-            DrawSphereWires(Utility::Ray::ConvertVec(p), 1.0, 10, 10, ::ORANGE);
-        
-        for (auto& e : InArgs.scenePtr->meshes.GetEntries())
-        {
-            PROFILE_GL();
-            auto debugNodes = e.second.transforms.GetDebug(InArgs.cullPoints);
-            for (auto& node : debugNodes)
-            {
-                ::Color c;
-                if (node.leaf) c = node.inside ? ::GREEN : ::RED;                    
-                else c = node.inside ? ::PURPLE : ::DARKPURPLE;
-                DrawLine3D(
-                    Utility::Ray::ConvertVec(node.divisor.GetPoint()),
-                    Utility::Ray::ConvertVec(node.divisor.GetPoint() + node.divisor.GetNormal() * (10 / (node.depth + 1))),
-                    c);
-            }
-        }
         
         EndMode3D();
     }

@@ -1,12 +1,12 @@
 #pragma once
-#include <functional>
 
 #include "Cullable.h"
+#include "VectorUtilities.h"
 #include "Utility/Math/Geometry/Plane.h"
 
 namespace Utility
 {
-    template <class T, int MaxDepth = 5, int MinSplitCount = 50, int NormalSampleCount = 20>
+    template <class T, int MaxDepth = 3, int MinSplitCount = 50, int NormalSampleCount = 20>
     class SplitContainer
     {
     public:
@@ -14,31 +14,51 @@ namespace Utility
         void Insert(const T& InData, const Cullable& InCull)
         {
             CHECK_ASSERT(nodes.empty(), "No root node");
-            Insert(nodes[0], InData, InCull);
+            CHECK_ASSERT(data.size() != cullData.size(), "Invalid size");
+            const uint32 index = data.size();
+            data.push_back(InData);
+            cullData.push_back(InCull);
+            Insert(nodes[0], index);
         }
 
         void Build()
         {
             CHECK_ASSERT(nodes.empty(), "No root node");
+            CHECK_ASSERT(data.size() != cullData.size(), "Invalid size");
             Split(0, 0);
         }
 
         void Clear()
         {
+            size_t c = data.size();
+            data.clear();
+            cullData.clear();
+            data.reserve(c);
+            cullData.reserve(c);
             size_t s = nodes.size();
             nodes.clear();
             nodes.reserve(s);
             nodes.emplace_back(); // Root
         }
         
-        Vector<const Vector<T>*> Get(const Vector<Vec3F>& InPoints) const
+        Set<uint32> GetIndices(const Vector<Vec3F>& InPoints) const
         {
             CHECK_ASSERT(nodes.empty(), "No root node");
-            Vector<const Vector<T>*> result;
-            Get(nodes.at(0), InPoints, result);
-            return result;
+            Set<uint32> indices;
+            Get(nodes.at(0), InPoints, indices);
+            return indices;
         }
 
+        Vector<T> GetCulled(const Vector<Vec3F>& InPoints) const
+        {
+            return Utility::GroupData(data, GetIndices(InPoints));
+            
+            Vector<T> result;
+            for (uint32 i : GetIndices(InPoints))
+                result.push_back(data.at(i));
+            return result;
+        }
+        
         struct DebugNode
         {
             Math::Plane<float> divisor = {};
@@ -57,14 +77,12 @@ namespace Utility
         
         const Vector<T>& GetAll() const
         {
-            CHECK_ASSERT(nodes.empty(), "No root node");
-            return nodes.at(0).data;
+            return data;
         }
 
         uint32 Count() const
         {
-            CHECK_ASSERT(nodes.empty(), "No root node");
-            return static_cast<uint32>(nodes.at(0).data.size());
+            return static_cast<uint32>(data.size());
         }
 
         bool Empty() const
@@ -72,19 +90,16 @@ namespace Utility
             return Count() == 0;
         }
 
-        bool HasSplit() const
-        {
-            return nodes.size() > 1;
-        }
-
     private:
 
+        Vector<T> data;
+        Vector<Cullable> cullData;
+        
         struct Node
         {
+            Vector<uint32> indices = {};
             Vec3F total = {};
             float maxExtent = 0.0f;
-            Vector<T> data = {}; // Memory alignment is important here!
-            Vector<Cullable> cullData = {};
             Math::Plane<float> divisor = {};
             uint32 left = static_cast<uint32>(-1);
             uint32 right = static_cast<uint32>(-1);
@@ -98,37 +113,39 @@ namespace Utility
             BOTH_INSIDE,
         };
         
-        static void Insert(Node& InNode, const T& InData, const Cullable& InCull)
+        void Insert(Node& InNode, uint32 InIndex)
         {
-            InNode.data.push_back(InData);
-            InNode.cullData.push_back(InCull);
-            InNode.total += InCull.position;
-            InNode.maxExtent = Math::Max(InNode.maxExtent, InCull.extent);
+            InNode.indices.push_back(InIndex);
+            auto& cull = cullData.at(InIndex);
+            InNode.total += cull.position;
+            InNode.maxExtent = Math::Max(InNode.maxExtent, cull.extent);
         }
         
         void Split(uint32 InNodeIndex, int InDepth)
         {
             CHECK_ASSERT(InNodeIndex >= nodes.size(), "Invalid node index");
             auto& earlyNode = nodes[InNodeIndex];
+            size_t size = earlyNode.indices.size();
             CHECK_RETURN(InDepth == MaxDepth);
-            CHECK_RETURN(earlyNode.cullData.size() < MinSplitCount);
+            CHECK_RETURN(size < MinSplitCount);
 
-            Vec3F average = earlyNode.total / static_cast<float>(earlyNode.cullData.size());
+            Vec3F average = earlyNode.total / static_cast<float>(size);
 
             // Find the max point (randomly select a few points)
             Vec3F maxPoint;
             float maxDist = 0.0f;
-            int c = Math::Min(static_cast<int>(earlyNode.data.size()), NormalSampleCount);
-            float step = c / static_cast<float>(earlyNode.data.size());
+            int c = Math::Min(static_cast<int>(size), NormalSampleCount);
+            float step = static_cast<float>(c) / static_cast<float>(size);
             for (int i = 0; i < c; i++)
             {
-                int index = static_cast<int>(step * i);
-                auto& data = earlyNode.cullData[index];
-                float sqrDist = (data.position - maxPoint).LengthSqr();
+                int stepIndex = static_cast<int>(step * static_cast<float>(i));
+                int dataIndex = earlyNode.indices.at(stepIndex);
+                auto& cull = cullData.at(dataIndex);
+                float sqrDist = (cull.position - maxPoint).LengthSqr();
                 if (sqrDist > maxDist)
                 {
                     maxDist = sqrDist;
-                    maxPoint = data.position;
+                    maxPoint = cull.position;
                 }
             }
 
@@ -149,42 +166,33 @@ namespace Utility
 
             // Cache a new ref after changing nodes vector
             auto& lateNode = nodes[InNodeIndex];
-            size_t expectedSize = lateNode.data.size() / 2;
+            size_t expectedSize = lateNode.indices.size() / 2;
             auto& leftNode = nodes[left];
             auto& rightNode = nodes[right];
-            leftNode.data.reserve(expectedSize);
-            leftNode.cullData.reserve(expectedSize);
-            rightNode.data.reserve(expectedSize);
-            rightNode.cullData.reserve(expectedSize);
+            leftNode.indices.reserve(static_cast<size_t>(expectedSize * 1.5));
+            rightNode.indices.reserve(static_cast<size_t>(expectedSize * 1.5));
             
             // Now every entry will be on either left, right or both sides of the plane
-            for (int i = 0; i < static_cast<int>(lateNode.cullData.size()); i++)
+            for (const uint32& index : lateNode.indices)
             {
-                auto& data = lateNode.data[i];
-                auto& cullData = lateNode.cullData[i];
-                float distance = lateNode.divisor.SignedDistance(cullData.position);
-                Insert(distance < 0 ? leftNode : rightNode, data, cullData);
+                const Cullable& cull = cullData.at(index);
+                float distance = lateNode.divisor.SignedDistance(cull.position);
+                Insert(distance < 0 ? leftNode : rightNode, index);
             }
 
             // Do not keep copies
-            if (InDepth != 0)
-            {
-                lateNode.data.clear();
-                lateNode.cullData.clear();
-            }
+            lateNode.indices.clear();
 
             // Split both left and right
             Split(left, InDepth + 1);
             Split(right, InDepth + 1);
         }
 
-        void Get(const Node& InNode, const Vector<Vec3F>& InPoints, Vector<const Vector<T>*>& InOutResult) const
+        void Get(const Node& InNode, const Vector<Vec3F>& InPoints, Set<uint32>& OutIndices) const
         {
             if (InNode.left == static_cast<uint32>(-1) && InNode.right == static_cast<uint32>(-1))
             {
-                // Leaf node, return contents!
-                if (!InNode.data.empty())
-                    InOutResult.push_back(&InNode.data);
+                OutIndices.insert(InNode.indices.begin(), InNode.indices.end());
                 return;
             }
             
@@ -195,14 +203,14 @@ namespace Utility
             switch (Query(InNode, InPoints))
             {
             case SpatialQueryResult::LEFT_INSIDE:
-                Get(nodes.at(InNode.left), InPoints, InOutResult);
+                Get(nodes.at(InNode.left), InPoints, OutIndices);
                 break;
             case SpatialQueryResult::RIGHT_INSIDE:
-                Get(nodes.at(InNode.right), InPoints, InOutResult);
+                Get(nodes.at(InNode.right), InPoints, OutIndices);
                 break;
             case SpatialQueryResult::BOTH_INSIDE:
-                Get(nodes.at(InNode.left), InPoints, InOutResult);
-                Get(nodes.at(InNode.right), InPoints, InOutResult);
+                Get(nodes.at(InNode.left), InPoints, OutIndices);
+                Get(nodes.at(InNode.right), InPoints, OutIndices);
                 break;
             default:
             case SpatialQueryResult::NONE_INSIDE:
@@ -211,9 +219,9 @@ namespace Utility
             }
         }
 
-        void GetDebug(const Node& InNode, int InDepth, const Vector<Vec3F>& InPoints, Vector<DebugNode>& InOutResult) const
+        void GetDebug(const Node& InNode, int InDepth, const Vector<Vec3F>& InPoints, Vector<DebugNode>& OutResult) const
         {
-            auto& debugNode = InOutResult.emplace_back();
+            auto& debugNode = OutResult.emplace_back();
             debugNode.divisor = InNode.divisor;
             debugNode.inside = true;
             debugNode.depth = InDepth;
@@ -232,23 +240,23 @@ namespace Utility
             {
             case SpatialQueryResult::LEFT_INSIDE:
                 {
-                    GetDebug(nodes.at(InNode.left), InDepth + 1, InPoints, InOutResult);
-                    auto& rightNode = InOutResult.emplace_back();
+                    GetDebug(nodes.at(InNode.left), InDepth + 1, InPoints, OutResult);
+                    auto& rightNode = OutResult.emplace_back();
                     rightNode.divisor = nodes.at(InNode.right).divisor;
                     rightNode.depth = InDepth + 1;
                     break;
                 }
             case SpatialQueryResult::RIGHT_INSIDE:
                 {
-                    GetDebug(nodes.at(InNode.right), InDepth + 1, InPoints, InOutResult);
-                    auto& leftNode = InOutResult.emplace_back();
+                    GetDebug(nodes.at(InNode.right), InDepth + 1, InPoints, OutResult);
+                    auto& leftNode = OutResult.emplace_back();
                     leftNode.divisor = nodes.at(InNode.left).divisor;
                     leftNode.depth = InDepth + 1;
                     break;
                 }
             case SpatialQueryResult::BOTH_INSIDE:
-                GetDebug(nodes.at(InNode.left), InDepth + 1, InPoints, InOutResult);
-                GetDebug(nodes.at(InNode.right), InDepth + 1, InPoints, InOutResult);
+                GetDebug(nodes.at(InNode.left), InDepth + 1, InPoints, OutResult);
+                GetDebug(nodes.at(InNode.right), InDepth + 1, InPoints, OutResult);
                 break;
             default:
             case SpatialQueryResult::NONE_INSIDE:

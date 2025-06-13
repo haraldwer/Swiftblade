@@ -10,6 +10,7 @@ namespace Rendering
         void Set(const UniformCommand& InCmd, int InSlot);
         void Set(const TextureCommand& InCmd, int InSlot);
         bool Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatrices);
+        bool Set(const Vector<Mat4F>& InMatrices);
         void Set(const ShaderCommand& InCmd, bool InForce = false);
         void Set(const PerspectiveCommand& InCmd, bool InForce = false);
         void Set(const FrameCommand& InCmd);
@@ -21,6 +22,7 @@ namespace Rendering
         void ResetPerspective();
         void ResetFrame();
         void ResetMesh();
+        void ResetTransforms();
 
         static void Check();
         
@@ -32,6 +34,7 @@ namespace Rendering
         ShaderCommand shader = {};
         FrameCommand frame = {};
         PerspectiveCommand perspective = {};
+        MeshCommand mesh = {};
 
         uint32 vbo = static_cast<uint32>(-1);
     };
