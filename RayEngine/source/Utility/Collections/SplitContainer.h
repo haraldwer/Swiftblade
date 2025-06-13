@@ -28,6 +28,10 @@ namespace Utility
             for (int i = 0; i < data.size(); i++)
                 Insert(node, i);
             Split(0, 0);
+
+            for (auto& n : nodes)
+                for (auto& index : n.indices)
+                    n.cache.push_back(data[index]);
         }
 
         void Clear()
@@ -46,13 +50,27 @@ namespace Utility
         {
             CHECK_RETURN(nodes.empty(), {});
             Set<uint32> indices;
-            Get(nodes.at(0), InPoints, indices);
+            Set<uint32> nodeIndices;
+            Get(0, InPoints, nodeIndices);
+            for (auto& nI : nodeIndices)
+            {
+                auto& node = nodes[nI];
+                indices.insert(node.indices.begin(), node.indices.end());
+            }
             return indices;
         }
 
         Vector<T> GetCulled(const Vector<Vec3F>& InPoints) const
         {
-            return Utility::GroupData(data, GetIndices(InPoints));
+            Vector<T> result;
+            Set<uint32> nodeIndices;
+            Get(0, InPoints, nodeIndices);
+            for (auto& nI : nodeIndices)
+            {
+                auto& node = nodes[nI];
+                result.insert(result.end(), node.cache.begin(), node.cache.end());
+            }
+            return result;
         }
         
         struct DebugNode
@@ -93,6 +111,7 @@ namespace Utility
         
         struct Node
         {
+            Vector<T> cache;
             Vector<uint32> indices = {};
             Vec3F total = {};
             float maxExtent = 0.0f;
@@ -188,29 +207,30 @@ namespace Utility
             Split(right, InDepth + 1);
         }
 
-        void Get(const Node& InNode, const Vector<Vec3F>& InPoints, Set<uint32>& OutIndices) const
+        void Get(const uint32 InNodeIndex, const Vector<Vec3F>& InPoints, Set<uint32>& OutNodes) const
         {
-            if (InNode.left == static_cast<uint32>(-1) && InNode.right == static_cast<uint32>(-1))
+            auto& node = nodes.at(InNodeIndex);
+            if (node.left == static_cast<uint32>(-1) && node.right == static_cast<uint32>(-1))
             {
-                OutIndices.insert(InNode.indices.begin(), InNode.indices.end());
+                OutNodes.insert(InNodeIndex);
                 return;
             }
             
             // Get children
-            CHECK_ASSERT(InNode.left == static_cast<uint32>(-1), "Invalid left index");
-            CHECK_ASSERT(InNode.right == static_cast<uint32>(-1), "Invalid right index");
+            CHECK_ASSERT(node.left == static_cast<uint32>(-1), "Invalid left index");
+            CHECK_ASSERT(node.right == static_cast<uint32>(-1), "Invalid right index");
 
-            switch (Query(InNode, InPoints))
+            switch (Query(node, InPoints))
             {
             case SpatialQueryResult::LEFT_INSIDE:
-                Get(nodes.at(InNode.left), InPoints, OutIndices);
+                Get(node.left, InPoints, OutNodes);
                 break;
             case SpatialQueryResult::RIGHT_INSIDE:
-                Get(nodes.at(InNode.right), InPoints, OutIndices);
+                Get(node.right, InPoints, OutNodes);
                 break;
             case SpatialQueryResult::BOTH_INSIDE:
-                Get(nodes.at(InNode.left), InPoints, OutIndices);
-                Get(nodes.at(InNode.right), InPoints, OutIndices);
+                Get(node.left, InPoints, OutNodes);
+                Get(node.right, InPoints, OutNodes);
                 break;
             default:
             case SpatialQueryResult::NONE_INSIDE:

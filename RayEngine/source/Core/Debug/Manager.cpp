@@ -54,13 +54,15 @@ void Debug::Manager::Frame(const double InDeltaTime)
         }
         
         // Calculate ticks per frame
-        tpf = Utility::Math::Lerp(tpf, static_cast<double>(logicCounter), 2.0f * static_cast<float>(InDeltaTime));
-        const double tps = tpf / InDeltaTime;
+        float lerpSpeed = 2.0f * static_cast<float>(InDeltaTime);
+        fps = Utility::Math::Lerp(fps, 1.0 / InDeltaTime, lerpSpeed);
+        tpf = Utility::Math::Lerp(tpf, static_cast<double>(logicCounter), lerpSpeed);
+        tps = Utility::Math::Lerp(tps, tpf / InDeltaTime, lerpSpeed);
         logicCounter = 0;
         
-        ImGui::Text(" | FPS: %i TPS: %s TPF: %s",
-            static_cast<int>(1.0f / InDeltaTime),
-            std::to_string(tps).substr(0, 3).c_str(),
+        ImGui::Text("| FPS: %i TPS: %i TPF: %s",
+            static_cast<int>(fps),
+            static_cast<int>(tps),
             std::to_string(tpf).substr(0, 3).c_str());
         
         ImGui::EndMainMenuBar();

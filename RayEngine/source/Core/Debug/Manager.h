@@ -30,6 +30,8 @@ namespace Debug
 
         // Logic tick counter
         int logicCounter = 0;
-        double tpf = 0.0; 
+        double tpf = 0.0;
+        double fps = 0.0;
+        double tps = 0.0;
     };
 }
