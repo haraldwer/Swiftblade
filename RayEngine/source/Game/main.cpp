@@ -35,7 +35,7 @@ int main()
     constexpr double tickRate = 300.0; 
     constexpr double fixedDelta = 1.0 / tickRate;
     constexpr double maxFrameTickTime = 0.5;
-    
+
     while (true)
     {
         PROFILE();
@@ -65,20 +65,21 @@ int main()
             debugManager.Logic();
         }
 
-        if (renderer.window.ShouldClose())
+        if (Rendering::Window::ShouldClose())
             break;
-        
+
         audio.Update();
-        
+
+        /*
         // Render to target texture
         instance->GetRenderScene().Clear();
         instance->Frame();
-
+*/
+        
         // Render to screen
         renderer.BeginFrame();
         debugManager.Frame(frameDelta);
         renderer.EndFrame();
-
         PROFILE_FRAME();
     }
     
