@@ -8,11 +8,11 @@
 		},
 		"Lumin":false,
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
-			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
+			},{
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			},{
 				"Key":"TexSimplex",
 				"Val":"Defaults/T_Noise_Simplex.json"
@@ -27,8 +27,5 @@
 			"Height":1024,
 			"Width":1024
 		}
-	},
-	"Window":{
-		"TargetFPS":0
 	}
 }

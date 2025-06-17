@@ -14,7 +14,7 @@ namespace Utility
             frontChanged = true;
             do
             {
-                front = (front + 1) % 2;
+                front = (front + 1) % 3;
             } while (front == back);
             lock.unlock();
         }
@@ -26,7 +26,7 @@ namespace Utility
             {
                 do
                 {
-                    back = (back + 1) % 2;
+                    back = (back + 1) % 3;
                 } while (front == back);
                 frontChanged = false;
             }

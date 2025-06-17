@@ -15,6 +15,7 @@ namespace Audio
         void DrawDebugPanel() override;
 
     private:
-        Audio::Generator generator;
+        Generator generator;
+        Config config;
     };
 }
