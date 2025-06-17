@@ -29,6 +29,13 @@ Utility::Timepoint ModelResource::GetEditTime() const
     return Utility::GetFileWriteTime(identifier);
 }
 
+Model* ModelResource::Get() const
+{
+    if (IsModelValid(*ptr))
+        return ptr;
+    return nullptr;
+}
+
 uint32 ModelResource::Hash() const
 {
     return cachedHash;

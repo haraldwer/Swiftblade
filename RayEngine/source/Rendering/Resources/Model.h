@@ -11,7 +11,7 @@ public:
     bool Load(const String& InIdentifier);
     bool Unload();
     Utility::Timepoint GetEditTime() const;
-    Model* Get() const { return ptr; }
+    Model* Get() const;
 
     bool Save(const String& InPath) { return false; };
     bool Edit(const String& InName, uint32 InOffset = 0) { return false; };

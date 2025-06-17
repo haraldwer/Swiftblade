@@ -9,7 +9,8 @@ set_target_properties(${PROJECT_NAME}
 
 # Shared definitions
 target_compile_definitions(${PROJECT_NAME} PUBLIC 
-  "TRACY_ENABLE")
+  "TRACY_ENABLE"
+  "PX_PHYSX_STATIC_LIB")
 
 if(MSVC)
   

@@ -11,21 +11,6 @@ namespace Resource
         
     public:
         
-        // Create resource from identifier
-        Ref(const String& InIdentifier)
-        {
-            CHECK_RETURN(InIdentifier.empty());
-            Manager& man = Manager::Get();
-            auto* res = reinterpret_cast<Impl<T>*>(man.GetResource(InIdentifier));
-            if (!res)
-            {
-                res = new Impl<T>(InIdentifier);
-                man.Register(res, InIdentifier); 
-            }
-            ptr = res;
-            Increment(); 
-        }
-        
         bool IsLoaded() const
         {
             return ptr && ptr->loaded;    
@@ -55,17 +40,40 @@ namespace Resource
                 return &ptr->data;
             return nullptr;
         }
+
+        // Create resource from identifier
+        Ref(const String& InIdentifier)
+        {
+            CHECK_RETURN(InIdentifier.empty());
+            Manager& man = Manager::Get();
+            auto* res = reinterpret_cast<Impl<T>*>(man.GetResource(InIdentifier));
+            if (!res)
+            {
+                res = new Impl<T>(InIdentifier);
+                man.Register(res, InIdentifier); 
+            }
+            ptr = res;
+            Increment(); 
+        }
         
-        // Ref counting
         Ref() = default;
-        Ref(const Ref& InOther) { *this = InOther; }
-        Ref(Ref&& InOther)
+        
+        virtual ~Ref()
+        {
+            Decrement();
+        }
+
+        Ref(Ref&& InOther) noexcept
         {
             ptr = InOther.ptr;
             InOther.ptr = nullptr;
         }
         
-        virtual ~Ref() { Decrement(); }
+        Ref(const Ref& InOther)
+        {
+            *this = InOther;
+        }
+        
         Ref& operator=(const Ref& InPtr)
         {
             if (this != &InPtr)
@@ -133,8 +141,8 @@ namespace Resource
         
     private:
         
-        void Increment() const { if (ptr) ptr->count++; }
-        void Decrement() { if (ptr) ptr->count--; }
+        void Increment() const { if (ptr) ++ptr->count; }
+        void Decrement() { if (ptr) --ptr->count; }
         
         Impl<T>* ptr = nullptr;
     };

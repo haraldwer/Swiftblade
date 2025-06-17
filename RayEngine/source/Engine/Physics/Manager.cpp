@@ -75,7 +75,7 @@ void Physics::Manager::Init()
     persistent.TryInit();
 
     if (!callback)
-        callback = new Physics::Callback();
+        callback = new Callback();
     
     PxSceneDesc sceneDesc(persistent.physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, 0.0f, 0.0f); // Apply gravity manually

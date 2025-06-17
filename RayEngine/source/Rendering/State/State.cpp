@@ -137,7 +137,6 @@ void Rendering::State::ResetTransforms()
         rlUnloadVertexBuffer(vbo);
         vbo = static_cast<uint32>(-1);
     }
-    
 }
 
 void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)

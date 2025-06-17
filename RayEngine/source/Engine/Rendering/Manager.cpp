@@ -33,6 +33,7 @@ void Rendering::Manager::Init()
 void Rendering::Manager::Deinit()
 {
     rlImGuiShutdown();
+    defaultContext.Deinit();
     mainViewport.Deinit();
     window.Close();
 }

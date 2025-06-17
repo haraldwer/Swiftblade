@@ -3,12 +3,11 @@
 
 #include "Core/Debug/Manager.h"
 #include "Core/Resource/Manager.h"
+#include "Engine/Audio/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Rendering/Manager.h"
-#include "Engine/Audio/Manager.h"
 
 #include "Game/MenuInstance.h"
-#include "Utility/File/File.h"
 
 int main()
 {
@@ -70,11 +69,9 @@ int main()
 
         audio.Update();
 
-        /*
         // Render to target texture
         instance->GetRenderScene().Clear();
         instance->Frame();
-*/
         
         // Render to screen
         renderer.BeginFrame();

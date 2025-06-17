@@ -5,9 +5,7 @@
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 #include "RayRenderUtility.h"
-#include "Collections/VectorUtilities.h"
 #include "Scene/Scene.h"
-#include "Scene/Culling/Frustum.h"
 #include "State/Command.h"
 #include "State/State.h"
 #include "Viewport/Viewport.h"
@@ -146,8 +144,8 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
 {
     PROFILE_GL();
-    
-    auto model = InArgs.contextPtr->config.DefaultCube.Get().Get();
+
+    ModelResource* model = InArgs.contextPtr->config.DefaultCube.Get().Get();
     CHECK_RETURN(!model, 0);
     auto* modelRes = model->Get();
     CHECK_RETURN(!modelRes, 0);

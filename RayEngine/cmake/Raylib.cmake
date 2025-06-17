@@ -6,7 +6,9 @@ FetchContent_Declare(
   URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
 )
 set(PLATFORM Desktop)
-set(USE_EXTERNAL_GLFW)
+
+# set(USE_EXTERNAL_GLFW) # Heap corruption with this enabled
+
 set(OPENGL_VERSION 4.3)
 set(BUILD_EXAMPLES OFF)
 set(CUSTOMIZE_BUILD ON)
