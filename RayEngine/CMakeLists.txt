@@ -16,6 +16,7 @@ include(FetchContent)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Raylib.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/Tracy.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/miniaudio.cmake)
 
 # Projects
 add_subdirectory(source/ImGui)

@@ -18,11 +18,12 @@ void Audio::Manager::Update()
 void Audio::Manager::DrawDebugPanel()
 {
     auto& feedback = generator.feedback.SwapBack();
-    // Show feedback data...
 
-    ImGui::Text("DJ HarryBoyy in da houuuse");
+    // Display the output waves
     
     auto& conf = generator.config.Front();
-    conf.Edit();
+
+    // Edit everything
+    
     generator.config.SwapFront();
 }
