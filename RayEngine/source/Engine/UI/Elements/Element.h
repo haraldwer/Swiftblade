@@ -4,7 +4,8 @@
 namespace UI
 {
     typedef uint32 ElementID;
-
+    class Container;
+    
     // A UI element that other elements inherit from
     class Element
     {

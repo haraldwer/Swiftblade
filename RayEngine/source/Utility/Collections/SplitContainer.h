@@ -25,7 +25,7 @@ namespace Utility
             nodes.clear();
             nodes.reserve(s);
             auto& node = nodes.emplace_back();
-            for (int i = 0; i < data.size(); i++)
+            for (int i = 0; i < static_cast<int>(data.size()); i++)
                 Insert(node, i);
             Split(0, 0);
 

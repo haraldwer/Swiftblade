@@ -152,9 +152,9 @@ namespace UI
     template <class T>
     T* Container::TryGet(const String& InName)
     {
-        ElementID id = GetID(InName);
-        if (id != static_cast<ElementID>(-1))
-            return TryGet<T>(id);
+        ElementID elID = GetID(InName);
+        if (elID != static_cast<ElementID>(-1))
+            return TryGet<T>(elID);
         for (auto& elem : elements)
             if (elem.second.IsA<Container>())
                 if (T* ptr = elem.second.Get<Container>().TryGet<T>(InName))
@@ -165,9 +165,9 @@ namespace UI
     template <class T>
     const T* Container::TryGet(const String& InName) const
     {
-        ElementID id = GetID(InName);
-        if (id != static_cast<ElementID>(-1))
-            return TryGet<T>(id);
+        ElementID elID = GetID(InName);
+        if (elID != static_cast<ElementID>(-1))
+            return TryGet<T>(elID);
         for (const auto& elem : elements)
             if (elem.second.IsA<Container>())
                 if (const T* ptr = elem.second.Get<Container>().TryGet<T>(InName))

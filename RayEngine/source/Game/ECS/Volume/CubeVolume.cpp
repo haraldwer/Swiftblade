@@ -322,17 +322,17 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
 {
     // Calculate bounds
-    const Mat4F world = Get<Transform>(InComponent.GetID()).World();
-    const Coord minCoord = Coord(
-        InComponent.cachedMinBounds.x,
-        InComponent.cachedMinBounds.y,
-        InComponent.cachedMinBounds.z);
-    const Coord maxCoord = Coord(
-        InComponent.cachedMaxBounds.x,
-        InComponent.cachedMaxBounds.y,
-        InComponent.cachedMaxBounds.z);
-    const Vec3F min = InComponent.CoordToPos(minCoord, world); 
-    const Vec3F max = InComponent.CoordToPos(maxCoord, world);
+    //const Mat4F world = Get<Transform>(InComponent.GetID()).World();
+    //const Coord minCoord = Coord(
+    //    InComponent.cachedMinBounds.x,
+    //    InComponent.cachedMinBounds.y,
+    //    InComponent.cachedMinBounds.z);
+    //const Coord maxCoord = Coord(
+    //    InComponent.cachedMaxBounds.x,
+    //    InComponent.cachedMaxBounds.y,
+    //    InComponent.cachedMaxBounds.z);
+    //const Vec3F min = InComponent.CoordToPos(minCoord, world); 
+    //const Vec3F max = InComponent.CoordToPos(maxCoord, world);
     
     Engine::Instance::Get().GetRenderScene().Meshes().AddMeshes(
         blockMesh,
