@@ -17,5 +17,6 @@ namespace Audio
     private:
         Generator generator;
         Config config;
+        GenData workingGenData;
     };
 }

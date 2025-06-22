@@ -2,8 +2,6 @@
 	"OpenWindows":[
 		"Audio",
 		"Blueprint Editor",
-		"Rendering",
-		"Scene Rendering",
-		"Viewport"
+		"Scene Rendering"
 	]
 }

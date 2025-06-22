@@ -21,18 +21,23 @@ void Audio::Manager::DrawDebugPanel()
 {
     PROFILE();
     
-    const AudioData& audioData = generator.audioData.SwapBack();
-
-    // Display the output waves
-    
-    ImGui::PlotLines("Audio", audioData.Data.data(), static_cast<int>(audioData.Data.size()));
-
-
-    GenData& genData = generator.genData.Front();
-
     // Edit everything
+    workingGenData.tone.Edit();
+
+    generator.genData.Front() = workingGenData;
     generator.genData.SwapFront();
     
-    if (ImGuiKnobs::Knob("Master", &config.Master.Get(), 0.0f, 0.01f))
-        generator.Init(config);
+    // Display the output waves
+    if (ImGui::Begin("Audio Out"))
+    {
+        ImVec2 plotSize = ImVec2(0, 50); 
+        const AudioData& audioData = generator.audioData.SwapBack();
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        ImGui::PlotLines("##AudioOut", audioData.Data.data(), static_cast<int>(audioData.Data.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
+        
+        if (ImGuiKnobs::Knob("Master", &config.Master.Get(), 0.0f, 1.0f))
+            generator.Init(config);
+        
+        ImGui::End();
+    }
 }

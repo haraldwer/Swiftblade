@@ -125,6 +125,7 @@ uint16 PropertyOwnerBase::PtrToOff(PropertyBase* InPtr) const
     const uint64 diff = propertyAddr - thisAddr;
 
     CHECK_RETURN_LOG(diff > Size(), "Address difference too great, tried to register property from another class", static_cast<uint16>(-1));
+    CHECK_RETURN_LOG(diff > Size(), "Address difference too great, tried to register property from another class", static_cast<uint16>(-1));
 
     return static_cast<uint16>(diff);
 }

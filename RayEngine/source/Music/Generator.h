@@ -1,13 +1,19 @@
 #pragma once
 #include "Collections/SwapBuffer.h"
+#include "Composition.h"
+#include "Tone.h"
 
 struct AudioStream;
 
 namespace Audio
 {
+    typedef Map<String, Tone> ToneMap; 
+    
     struct GenData : PropertyOwner<GenData>
     {
-        
+        PROPERTY(Tone, tone);
+        PROPERTY(ToneMap, Tones);
+        PROPERTY(Composition, Comp);
     };
     
     struct AudioData
@@ -17,11 +23,11 @@ namespace Audio
 
     struct Config : BaseConfig<GenData>
     {
-        PROPERTY_D(float, Master, 0.005f);
-        PROPERTY_D(int, BufferSize, 256);
-        PROPERTY_D(int, SampleRate, 48000);
-        PROPERTY_D(int, SampleSize, 32);
-        PROPERTY_D(int, Channels, 1);
+        PROPERTY_D(float, Master, 0.0f);
+        PROPERTY_D(uint32, BufferSize, 1024);
+        PROPERTY_D(uint32, SampleRate, 48000);
+        PROPERTY_D(uint32, SampleSize, 32);
+        PROPERTY_D(uint32, Channels, 1);
 
         String Name() const override { return "Music"; }
     };
@@ -36,8 +42,11 @@ namespace Audio
         Utility::SwapBuffer<AudioData> audioData;
         
     private:
-        static void FillBuffer(void * buffer, unsigned int frames);
-        
+        static void StaticFillBuffer(void * buffer, unsigned int frames);
+        void FillBuffer(void * buffer, unsigned int frames);
+
+        Config config;
         AudioStream* stream = nullptr;
+        uint32 frame = 0;
     };
 }
