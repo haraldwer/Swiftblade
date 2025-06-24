@@ -1,11 +1,12 @@
 
 #include "raylib.h"
 
+/*
 int main()
 {
     InitWindow(100, 100, "test");
     
-    constexpr int RETRIES = 1000;
+    constexpr int RETRIES = 10000;
     for (int i = 0; i < RETRIES; i++)
     {
         auto model = LoadModel("C://Dev//Swiftblade//RayEngine//content//Defaults//M_Cube.obj");
@@ -15,9 +16,9 @@ int main()
     
     CloseWindow();
 }
+*/
 
 
-/*
 #include "Core/Debug/Manager.h"
 #include "Core/Resource/Manager.h"
 #include "Engine/Audio/Manager.h"
@@ -105,4 +106,3 @@ int main()
     
     return 0;
 }
-*/
