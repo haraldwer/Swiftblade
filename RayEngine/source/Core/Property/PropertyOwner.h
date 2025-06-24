@@ -9,7 +9,7 @@ public:
     virtual ~PropertyOwnerBase() = default;
 
     // Property registration
-    static void AddProperty(PropertyBase* InProperty);
+    static bool AddProperty(PropertyBase* InProperty);
     Map<String, PropertyBase*> GetProperties() const;
     virtual size_t Size() const = 0;
 
@@ -39,7 +39,7 @@ protected:
     
 private:
     
-    void AddPropertyInternal(PropertyBase* InProperty) const;
+    bool AddPropertyInternal(PropertyBase* InProperty) const;
 };
 
 template <class TSelf>
@@ -59,21 +59,24 @@ public:
         static bool hasRegistered = false;
         CHECK_RETURN(hasRegistered); 
         hasRegistered = true;
-        
-        // Cache instance, use recursion as stack 
-        PropertyOwnerBase* prevInstance = instance;
+
+        // No recursion
+        CHECK_RETURN(instance);
 
         // Allocate memory
         static TSelf local;
         instance = &local;
+
+        LOG("Reg");
         
-        // Create new copy
-        // Will run constructor
-        // And properties will be added
+        // Run constructor to add properties
         new (&local) TSelf();
         
         // Reset instance
-        instance = prevInstance;
+        instance = nullptr;
+
+        // Now run constructor again to capture sub-types
+        new (&local) TSelf();
     }
 
     size_t Size() const override { return sizeof(TSelf); }

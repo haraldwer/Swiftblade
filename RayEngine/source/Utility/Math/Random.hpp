@@ -24,7 +24,7 @@ namespace Utility
 		{
 		public: 
 			Random() = default;
-			Random(const int InSeed)
+			Random(const uint32 InSeed)
 			{
 				seed.seed(InSeed);
 			}

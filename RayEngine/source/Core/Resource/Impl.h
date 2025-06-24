@@ -5,7 +5,7 @@ namespace Resource
     struct Base
     { 
         virtual ~Base() = default;
-        Base(const String& InIdentifier) : identifier(InIdentifier) {}
+        Base(String InIdentifier) : identifier(std::move(InIdentifier)) {}
         virtual bool Load() = 0;
         virtual bool Unload() = 0;
         virtual bool TryHotReload() = 0;
@@ -14,10 +14,10 @@ namespace Resource
         static String Pick(const String& InLabel, const String& InID);
         static bool SaveButton(const String& InID);
 
-        bool loaded = false;
-        uint32 count = 0;
         String identifier = {};
         Utility::Timepoint editTimestamp = {}; 
+        uint32 count = 0;
+        bool loaded = false;
     };
 
     template <class T>

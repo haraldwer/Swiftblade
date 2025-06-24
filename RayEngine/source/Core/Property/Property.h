@@ -38,7 +38,7 @@ public:
     {
         return Utility::Edit(GetName(), data, InOffset); 
     }
-
+    
     // Comparisons
     
     bool operator==(const PropertyBase& InOther) const override

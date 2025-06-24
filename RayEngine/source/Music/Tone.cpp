@@ -21,6 +21,8 @@ float Tone::Evaluate(const ToneTiming& InTiming, const uint64 InFrame) const
 bool Tone::Edit(const String& InName, const uint32 InOffset)
 {
     bool result = false;
+
+    ImGui::Text(InName.c_str());
     
     ImGui::PushItemWidth(-FLT_MIN);
     constexpr ImVec2 plotSize = ImVec2(0, 50);

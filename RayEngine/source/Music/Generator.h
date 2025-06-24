@@ -11,7 +11,6 @@ namespace Audio
     
     struct GenData : PropertyOwner<GenData>
     {
-        PROPERTY(Tone, tone);
         PROPERTY(ToneMap, Tones);
         PROPERTY(Composition, Comp);
     };
@@ -24,7 +23,7 @@ namespace Audio
     struct Config : BaseConfig<GenData>
     {
         PROPERTY_D(float, Master, 0.0f);
-        PROPERTY_D(uint32, BufferSize, 1024);
+        PROPERTY_D(int, BufferSize, 1024);
         PROPERTY_D(uint32, SampleRate, 48000);
         PROPERTY_D(uint32, SampleSize, 32);
         PROPERTY_D(uint32, Channels, 1);
@@ -38,12 +37,12 @@ namespace Audio
         void Init(Config InConfig);
         void Deinit();
         
+        void FillBuffer(void * buffer, unsigned int frames);
+        
         Utility::SwapBuffer<GenData> genData;
         Utility::SwapBuffer<AudioData> audioData;
         
     private:
-        static void StaticFillBuffer(void * buffer, unsigned int frames);
-        void FillBuffer(void * buffer, unsigned int frames);
 
         Config config;
         AudioStream* stream = nullptr;

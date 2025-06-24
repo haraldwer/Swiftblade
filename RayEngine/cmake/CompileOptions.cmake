@@ -22,7 +22,8 @@ if(MSVC)
 
   target_compile_options(${PROJECT_NAME} PUBLIC 
     "/fp:fast" # Fast math
-    #"/Wall" # More warnings
+    # "/Wall" # More warnings
+    "/permissive" # Stricter types
     "$<$<CONFIG:Release>:/MD>" 
     "$<$<CONFIG:Debug>:/MDd>")
 
@@ -33,13 +34,14 @@ if(MSVC)
     "$<$<CONFIG:Release>:/Oy>" # Frame pointer omission
     "$<$<CONFIG:Release>:/O2>" # Maximize speed
     "$<$<CONFIG:Release>:/sdl->" # No SDL Checks
-    "$<$<CONFIG:Release>:/permissive->" # Conformance
-    "$<$<CONFIG:Release>:/GS->" # No security
+    "$<$<CONFIG:Release>:/Qspectre>" # Prevent speculative execution side-channel attacks
+    "$<$<CONFIG:Release>:/GS>" # Buffer security checks
     "$<$<CONFIG:Release>:/Gy>" # Function level linking
     "$<$<CONFIG:Release>:/GF>" # String pooling
     "$<$<CONFIG:Release>:/GT>" # Fiber safe optimizations
     "$<$<CONFIG:Release>:/GL>" # Whole program optimization
     "$<$<CONFIG:Release>:/Gw>") # Whole program global data optimization
+
     
   target_link_options(${PROJECT_NAME} PUBLIC 
     "$<$<CONFIG:Release>:/MANIFEST:NO>" # No manifest

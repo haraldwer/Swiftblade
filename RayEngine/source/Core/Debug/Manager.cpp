@@ -97,7 +97,7 @@ void Debug::Manager::Unregister(const Panel* InWindow)
     windowToName.erase(InWindow); 
     auto& vec = windows[name];
     for (int i = static_cast<int>(vec.size()) - 1; i >= 0; i--)
-        if (vec[i] == InWindow || !vec[i])
+        if (vec[static_cast<size_t>(i)] == InWindow || !vec[static_cast<size_t>(i)])
             vec.erase(vec.begin() + i);
     if (windows[name].empty())
         windows.erase(name);

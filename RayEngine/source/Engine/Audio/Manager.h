@@ -1,6 +1,6 @@
 #pragma once
-#include "Generator.h"
 #include "Debug/Panel.h"
+#include "Generator.h"
 
 namespace Audio
 {

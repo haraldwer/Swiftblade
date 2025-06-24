@@ -3,6 +3,11 @@
 #include "Math/Random.hpp"
 #include "raylib.h"
 
+void Fill(void* InBuffer, const unsigned int InFrames)
+{
+    Audio::Generator::Get().FillBuffer(InBuffer, InFrames);
+}
+
 void Audio::Generator::Init(Config InConfig)
 {
     PROFILE_AU();
@@ -23,7 +28,7 @@ void Audio::Generator::Init(Config InConfig)
     *stream = LoadAudioStream(InConfig.SampleRate, InConfig.SampleSize, InConfig.Channels);
 
     SetAudioStreamBufferSizeDefault(InConfig.BufferSize);
-    SetAudioStreamCallback(*stream, &StaticFillBuffer);
+    SetAudioStreamCallback(*stream, &Fill);
     PlayAudioStream(*stream);
 }
 
@@ -39,11 +44,6 @@ void Audio::Generator::Deinit()
     CloseAudioDevice();
 }
 
-void Audio::Generator::StaticFillBuffer(void* buffer, unsigned int frames)
-{
-    Get().FillBuffer(buffer, frames);
-}
-
 void Audio::Generator::FillBuffer(void* buffer, unsigned int frames)
 {
     PROFILE_AU();
@@ -54,13 +54,9 @@ void Audio::Generator::FillBuffer(void* buffer, unsigned int frames)
     // TODO: Get all active compositions and their active effects?
     auto& in = genData.SwapBack();
     in.Comp.Get().Fill(frame, samples, frames, config.SampleRate.Get());
+    
     for (unsigned int i = 0; i < frames; i++)
-    {
-        frame++;
-        ToneTiming t;
-        float val = in.tone.Get().Evaluate(t, frame);
-        samples[i] = Utility::Math::Clamp(val * config.Master.Get(), -1.0f, 1.0f);
-    }
+        samples[i] = Utility::Math::Clamp(samples[i] * config.Master.Get(), -1.0f, 1.0f);
 
     auto& out = audioData.Front().Data;
     out.clear();

@@ -40,9 +40,9 @@ namespace Utility
         
     private:
         Array<T, 3> buffers = {};
-        int front = 0;
-        int back = 1;
-        bool frontChanged = false;
         std::mutex lock;
+        size_t front = 0;
+        size_t back = 1;
+        bool frontChanged = false;
     };
 }

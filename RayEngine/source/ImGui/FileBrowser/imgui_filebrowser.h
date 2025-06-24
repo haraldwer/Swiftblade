@@ -43,16 +43,16 @@ namespace ImGui
         bool TryDelete(const std::string& InName) const;
         std::string TryDuplicate(const std::string& InName) const;
         
-        bool IsOpen = false; 
         std::string OriginalPath;
         std::string Path;
         std::string NavigationGuess;
         std::string EditedPath;
         std::string Selected;
         std::string RenameResult; 
-        bool newEntry = false;
         std::set<std::string> Ext;
         FileBrowserOption Option = FileBrowserOption::FILE;
+        bool IsOpen = false; 
+        bool newEntry = false;
         
         const float Width = 500.0f;
         const float Height = 400.0f;

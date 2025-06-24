@@ -1,11 +1,11 @@
-#include "PropertyOwner.h"
 #include "PropertyBase.h"
+#include "PropertyOwner.h"
 
-void PropertyOwnerBase::AddProperty(PropertyBase* InProperty)
+bool PropertyOwnerBase::AddProperty(PropertyBase* InProperty)
 {
-    CHECK_RETURN(!instance);
+    CHECK_RETURN(!instance, false);
     CHECK_ASSERT(!InProperty, "Property null");
-    instance->AddPropertyInternal(InProperty);
+    return instance->AddPropertyInternal(InProperty);
 }
 
 Map<String, PropertyBase*> PropertyOwnerBase::GetProperties() const
@@ -111,29 +111,31 @@ bool PropertyOwnerBase::operator==(const PropertyOwnerBase& InOther) const
     return true; 
 }
 
-void PropertyOwnerBase::AddPropertyInternal(PropertyBase* InProperty) const
+bool PropertyOwnerBase::AddPropertyInternal(PropertyBase* InProperty) const
 {
     uint16 off = PtrToOff(InProperty);
-    if (off != static_cast<uint16>(-1))
-        GetPropertyMap()[InProperty->GetName()] = off;
+    CHECK_RETURN(off == static_cast<uint16>(-1), false)
+    GetPropertyMap()[InProperty->GetName()] = off;
+    return true;
 }
 
 uint16 PropertyOwnerBase::PtrToOff(PropertyBase* InPtr) const
 {
     const uint64 propertyAddr = reinterpret_cast<uint64>(InPtr);
     const uint64 thisAddr = reinterpret_cast<uint64>(this);
-    const uint64 diff = propertyAddr - thisAddr;
-
-    CHECK_RETURN_LOG(diff > Size(), "Address difference too great, tried to register property from another class", static_cast<uint16>(-1));
-    CHECK_RETURN_LOG(diff > Size(), "Address difference too great, tried to register property from another class", static_cast<uint16>(-1));
-
-    return static_cast<uint16>(diff);
+    const uint64 diffStart = propertyAddr - thisAddr;
+    CHECK_RETURN(diffStart > Size(), static_cast<uint16>(-1));
+    return static_cast<uint16>(diffStart);
 }
 
 PropertyBase* PropertyOwnerBase::OffToPtr(const uint16 InOff) const
 {
-    const uint64 propertyAddr = static_cast<uint64>(InOff);
+    const uint64 propertyAddr = InOff;
     const uint64 thisAddr = reinterpret_cast<uint64>(this);
     const uint64 result = thisAddr + propertyAddr;
+    
+    const uint64 size = Size();
+    CHECK_ASSERT(propertyAddr > size , "Address difference too great, property belongs to another class");
+    
     return reinterpret_cast<PropertyBase*>(result);
 }

@@ -10,7 +10,7 @@ file(GLOB_RECURSE files
   "${CMAKE_CURRENT_SOURCE_DIR}/*.txt"
   "${CMAKE_CURRENT_SOURCE_DIR}/*.ini"
   "${CMAKE_CURRENT_SOURCE_DIR}/*.png"
-  "${CMAKE_CURRENT_SOURCE_DIR}/*.obj"
+  #"${CMAKE_CURRENT_SOURCE_DIR}/*.obj"
 )
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dummy.c "")
 add_library(${PROJECT_NAME} STATIC ${files} dummy.c)

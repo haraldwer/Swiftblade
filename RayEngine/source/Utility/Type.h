@@ -40,10 +40,14 @@ namespace Utility
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
     static bool IsA(const Utility::Type& InType) { return InType == GetType() || parent::IsA(InType); } \
+    static String TypeName() { return String(#self); } \
+    static size_t TypeSize() { return sizeof(self); } \
 private:
 
 #define BASE_TYPE_INFO(self) \
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
     static bool IsA(const Utility::Type& InType) { return InType == GetType(); } \
+    static String TypeName() { return String(#self); } \
+    static size_t TypeSize() { return sizeof(self); } \
 private:

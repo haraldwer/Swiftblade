@@ -10,8 +10,7 @@ public:
     virtual void Serialize(SerializeObj& InOutObj) const = 0;
     virtual bool Deserialize(const DeserializeObj& InObj) = 0;
     virtual bool Edit(uint32 InOffset) = 0;
-    
-    virtual bool operator==(const PropertyBase& InOther) const;
+    virtual bool operator==(const PropertyBase& InOther) const = 0;
 
 private:
     String name; // Should the property know about its own name?

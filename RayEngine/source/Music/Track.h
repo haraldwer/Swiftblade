@@ -1,4 +1,5 @@
 #pragma once
+#include "Effect.h"
 
 struct Note
 {
@@ -28,9 +29,10 @@ class Track : public PropertyOwner<Track>
 public:
 
     void Add(const Note& InNote);
-    
+    void Fill(uint64 InFrame, float* InSamples, uint32 InFrames, uint32 InSampleRate) const;
+
 private:
 
-    // Notes are just rythm beats but with a pitch
-    String toneName;
+    PROPERTY(String, Tone);
+    PROPERTY(EffectStack, Effects);
 };

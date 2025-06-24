@@ -32,7 +32,6 @@ namespace Utility
     
     class AssetPackGenerator
     {
-        
     public:
         bool Package();
 

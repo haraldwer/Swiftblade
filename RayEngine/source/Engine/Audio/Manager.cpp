@@ -22,7 +22,12 @@ void Audio::Manager::DrawDebugPanel()
     PROFILE();
     
     // Edit everything
-    workingGenData.tone.Edit();
+    if (ImGui::Begin("Tones"))
+    {
+        workingGenData.Tones.Edit();
+        ImGui::End();
+    }
+    workingGenData.Comp.Edit();
 
     generator.genData.Front() = workingGenData;
     generator.genData.SwapFront();

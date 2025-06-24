@@ -36,7 +36,7 @@ void Resource::Manager::TryUnload() const
 
     for (int i = 0; i < Utility::Math::Min(static_cast<int>(queue.size()), CHECK_NUM); i++)
     {
-        static int index = 0;
+        static size_t index = 0;
         index = (index + 1) % static_cast<int>(queue.size());
 
         const auto res = resources.at(queue[index]);
