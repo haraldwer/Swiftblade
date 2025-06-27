@@ -41,8 +41,11 @@ void UI::Container::Draw(Container& InOwner)
 {
     PROFILE();
     Element::Draw(InOwner);
-    for (auto& elem : elements)
-        elem.second.Get().Draw(*this);
+    for (auto& child : children)
+    {
+        CHECK_ASSERT(!elements.contains(child), "Unknown element id");
+        elements.at(child).Get().Draw(*this);
+    }
 }
 
 void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)

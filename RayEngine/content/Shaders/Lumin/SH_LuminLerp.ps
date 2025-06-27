@@ -1,3 +1,5 @@
+#include "Uniforms/SH_FrameUniforms.si"
+
 uniform sampler2D TexLuminCollect;
 uniform sampler2D TexLumin;
 
@@ -8,5 +10,5 @@ void main()
 {
     vec4 target = texture(TexLuminCollect, TexCoord);
     vec4 current = texture(TexLumin, TexCoord);
-    Output = mix(current, target, 0.2);
+    Output = mix(current, target, 0.01f);
 }

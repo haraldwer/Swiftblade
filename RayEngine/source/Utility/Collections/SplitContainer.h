@@ -13,6 +13,7 @@ namespace Utility
         
         void Insert(const T& InData, const Cullable& InCull)
         {
+            CHECK_ASSERT(IsBuilt(), "Clear before adding");
             CHECK_ASSERT(data.size() != cullData.size(), "Invalid size");
             data.push_back(InData);
             cullData.push_back(InCull);
@@ -32,6 +33,11 @@ namespace Utility
             for (auto& n : nodes)
                 for (auto& index : n.indices)
                     n.cache.push_back(data[index]);
+        }
+
+        bool IsBuilt() const
+        {
+            return !nodes.empty();
         }
 
         void Clear()
@@ -120,7 +126,7 @@ namespace Utility
             uint32 right = static_cast<uint32>(-1);
         };
 
-        Vector<Node> nodes = { Node() };
+        Vector<Node> nodes = { };
 
         enum class SpatialQueryResult : uint8
         {

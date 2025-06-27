@@ -1,14 +1,19 @@
 #include "Mesh.h"
 
+#include "Transform.h"
 #include "Instance/Instance.h"
 #include "Rendering/Scene/Instances/MeshInstance.h"
-#include "Transform.h"
 
 using namespace ECS;
 
+void SysMesh::SystemInit()
+{
+    persistentID = MeshInstance::GenPersistentID();
+}
+
 void SysMesh::SystemFrame()
 {
-    diff.Clear();
+    diff.Begin();
 
     for (const auto& id : ComponentMap())
     {
@@ -30,35 +35,30 @@ void SysMesh::SystemFrame()
         }
     }
 
-    auto& rs = Engine::Instance::Get().GetRenderScene();
+    Rendering::Scene &rs = Engine::Instance::Get().GetRenderScene();
 
     // Remove persistence for unused hashes
     for (uint64 hash : diff.GetRemoved())
     {
-        rs.Meshes().ClearPersistence(hash);
-        hashToPersistence.erase(hash);
+        rs.Meshes().Remove(hash, persistentID);
         hashToComponent.erase(hash);
     }
     
     // For every modified hash
     for (uint64 hash : diff.GetModified())
     {
-        // Maybe generate persistence
-        if (!hashToPersistence.contains(hash))
-            hashToPersistence[hash] = MeshInstance::GenPersistentID();
-        uint32 persistenceID = hashToPersistence.at(hash);
+        rs.Meshes().Remove(hash, persistentID);
         
         // For every entity now using that hash
         for (EntityID id : hashToComponent.at(hash))
         {
             Mesh& m = GetInternal(id);
-            rs.Meshes().AddMesh({
+            rs.Meshes().Add({
                 .model= m.Model,
                 .material= m.Material,
                 .transform= m.worldCache,
-                .hash= hash,
-                .persistentID= persistenceID
-            });
+                .hash= hash
+            }, persistentID);
         }
     }
 }

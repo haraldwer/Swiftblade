@@ -33,19 +33,19 @@ void ECS::AnimationPoser::VisualizePoses()
     if (a != Mat4F() || b != Mat4F())
     {
         if (a != Mat4F())
-            rs.Meshes().AddMesh({
+            rs.Meshes().Add({
                 VisualizationMesh,
                 VisualizationMat,
                 a,
                 hash });
         if (b != Mat4F())
-            rs.Meshes().AddMesh({
+            rs.Meshes().Add({
                 VisualizationMesh,
                 VisualizationMat,
                 b,
                 hash });
         if (a != Mat4F() && b != Mat4F())
-            rs.Meshes().AddMesh({
+            rs.Meshes().Add({
                 VisualizationMesh,
                 VisualizationMat,
                 Mat4F::Lerp(a, b, VisualizeLerp.Get()),
@@ -54,7 +54,7 @@ void ECS::AnimationPoser::VisualizePoses()
     }
 
     for (auto c : GetPoses())
-        rs.Meshes().AddMesh({
+        rs.Meshes().Add({
             VisualizationMesh,
             VisualizationMat,
             Get<Transform>(c).Local(),

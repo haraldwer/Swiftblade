@@ -78,7 +78,8 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .viewportPtr = &viewport,
         .luminPtr = this,
         .lightsPtr = InArgs.lightsPtr,
-        .perspectives = {}
+        .perspectives = {},
+        .cullPoints = InArgs.cullPoints,
     };
     float range = GetRange();
 
@@ -96,6 +97,8 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
             rect.z / size.x,
             rect.w / size.y
         };
+
+        args.cullPoints.push_back(probe->pos);
         
         for (int i = 0; i < 6; i++)
         {
@@ -176,10 +179,12 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
 {
     PROFILE_GL();
     
-    for (auto& entry : InScene.meshes.GetEntries())
+    for (auto& persistence : InScene.meshes.GetEntries())
     {
-        if (entry.second.justRebuilt)
+        CHECK_CONTINUE(persistence.first == 0);
+        for (auto& entry : persistence.second)
         {
+            CHECK_CONTINUE(!entry.second.justRebuilt);
             for (auto& trans : entry.second.transforms.GetAll())
             {
                 // Get extent, maybe add coord?

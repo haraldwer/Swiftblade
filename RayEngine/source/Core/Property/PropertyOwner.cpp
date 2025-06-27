@@ -134,8 +134,7 @@ PropertyBase* PropertyOwnerBase::OffToPtr(const uint16 InOff) const
     const uint64 thisAddr = reinterpret_cast<uint64>(this);
     const uint64 result = thisAddr + propertyAddr;
     
-    const uint64 size = Size();
-    CHECK_ASSERT(propertyAddr > size , "Address difference too great, property belongs to another class");
+    CHECK_ASSERT(propertyAddr > Size(), "Address difference too great, property belongs to another class");
     
     return reinterpret_cast<PropertyBase*>(result);
 }

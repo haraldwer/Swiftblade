@@ -63,7 +63,10 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         .viewportPtr = &atlasView,
         .luminPtr = InArgs.luminPtr,
         .lightsPtr = this,
-        .perspectives = {}
+        .perspectives = {},
+
+        // TODO: Cache cull results, or unique culling for each light?  
+        .cullPoints = InArgs.cullPoints,
     };
     
     int count = 0;
@@ -154,5 +157,10 @@ Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InAr
 const Rendering::LightData& Rendering::Lights::GetData(const uint32 InHash)
 {
     return cache.at(InHash);
+}
+
+Vec2F Rendering::Lights::GetFaceTexel() const
+{
+    return Vec2F(1.0f) / Vec2I(atlas.GetSlotRes()).To<float>();
 }
 

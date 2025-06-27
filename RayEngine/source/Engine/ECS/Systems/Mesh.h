@@ -21,6 +21,7 @@ namespace ECS
     class SysMesh : public System<Mesh>
     {
     public:
+        void SystemInit() override;
         void SystemFrame() override;
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -100; }
@@ -28,8 +29,8 @@ namespace ECS
     private:
         
         Utility::PersistanceContainer<uint64> diff;
-        Map<uint64, uint32> hashToPersistence;
         Map<uint64, Set<ComponentID>> hashToComponent;
+        uint32 persistentID = 0;
     };
 }
 

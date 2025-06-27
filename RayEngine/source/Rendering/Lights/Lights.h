@@ -31,7 +31,9 @@ namespace Rendering
         Vector<const LightInstance*> GetLights(const RenderArgs& InArgs);
         RenderTarget& GetShadowTarget() { return target; }
         const LightData& GetData(uint32 InHash);
-        
+
+        Vec2F GetFaceTexel() const;
+
     private:
         Map<uint32, LightData> cache = {};
         

@@ -17,6 +17,7 @@ uniform float Timestamp;
 uniform vec3 ShadowPosition;
 uniform vec4 ShadowRect;
 uniform sampler2D TexShadow;
+uniform vec2 FaceTexel;
 
 in vec2 TexCoord;
 out vec4 Output;
@@ -58,21 +59,21 @@ float Shadow(vec3 toLight)
     vec3 right = vec3(toLight.z, toLight.y, -toLight.x);
     vec3 up = vec3(toLight.x, toLight.z, -toLight.y);
     float interleaved = PI * 2.0f * InterleavedGradientNoise(TexCoord * SHADOW_NOISE_SCALE);
-    float depth = SampleCubeAtlas(TexShadow, ShadowRect, -toLightDir).a * Range;
+    float depth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -toLightDir).a * Range;
     float shadow = ShadowTest(depth, lightDist);
     vec2 texel = 1 / Resolution;
     for(int i = 1; i < SHADOW_SAMPLES; i++)
     {
         vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * texel * SHADOW_SAMPLE_SCALE;
         vec3 vec = normalize(toLight + right * off.x + up * off.y);
-        float shadowDepth = SampleCubeAtlas(TexShadow, ShadowRect, -vec).a * Range;
+        float shadowDepth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -vec).a * Range;
         shadow += ShadowTest(shadowDepth, lightDist);
     }
     shadow /= SHADOW_SAMPLES;
     
     #else
     
-    float depth = SampleCubeAtlas(TexShadow, ShadowRect, -toLightDir).a * Range;
+    float depth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -toLightDir).a * Range;
     float shadow = ShadowTest(depth, lightDist); 
     
     #endif
@@ -80,54 +81,16 @@ float Shadow(vec3 toLight)
     return 1.0 - clamp(shadow - 0.5, 0, 1);
 }
 
-const float DISK_FADE_DIST = 0.3;
-const float DISK_FADE_BIAS = 0.5;
-const float DISK_SIZE = 500;
-const float DISK_POINTYNESS = 200;
-
-float DiskIntensity(vec4 InWorld, vec3 InToLight)
-{
-    vec3 camToLight = CameraPosition - Position;
-    vec3 camToPixel = CameraPosition - InWorld.xyz;
-    float lightDist = length(camToLight);
-    float pixelDist = length(camToPixel);
-    float diff = (lightDist - pixelDist - DISK_FADE_BIAS) / DISK_FADE_DIST;
-    float mask = 1 - clamp(diff, 0, 1);
-    if (mask < 0.0001)
-        return 0.0f;
-    
-    vec3 camLightDir = camToLight / lightDist;
-    vec3 camPixelDir = camToPixel / pixelDist;
-    float d = dot(camLightDir, camPixelDir);
-    float offset = 1 - 1 / DISK_SIZE;
-    float angle = clamp(d - offset, 0, 1) / (1 - offset);
-    
-    // Rotate to view space
-    vec2 pixelCoord = WorldPosToCoord(InWorld.xyz, ViewProj);
-    vec2 lightCoord = WorldPosToCoord(Position, ViewProj);
-    float aspect = Resolution.x / Resolution.y;
-    pixelCoord.y *= aspect;
-    lightCoord.y *= aspect;
-    
-    vec2 coordDiff = abs(pixelCoord - lightCoord) * DISK_POINTYNESS;
-    float val = 1 - (coordDiff.x * coordDiff.y);
-    
-    return angle * val * 2;
-}
-
 void main()
 {
+    if (!CheckID(TexCoord, 0)) // Exclude skybox
+        return;
+    
     vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
     vec3 toLight = Position - worldPos.xyz;
     float lightDistSqr = SquaredLength(toLight);
     
-    float disk = DiskIntensity(worldPos, toLight);
-    bool showDisk = disk > 0.0001;
-
-    if (!CheckID(TexCoord, 0) && !showDisk) // Exclude skybox
-        return;
-    
-    if (lightDistSqr > Range * Range && !showDisk)
+    if (lightDistSqr > Range * Range)
         discard;
 
     float lightDist = sqrt(lightDistSqr);    
@@ -136,18 +99,18 @@ void main()
     vec3 toLightDir = toLight / lightDist;
     vec3 normal = SampleNormal(TexCoord);
     float d = dot(toLightDir, normal);
-    if (d < 0 && !showDisk)
+    if (d < 0)
         discard;
 
     float shadow = 1;
     if (Timestamp != 0)
     {
         shadow = Shadow(toLight);
-        if (shadow < 0.001f && !showDisk)
+        if (shadow < 0.001f)
             discard;
     }
     
     float intensity = Intensity * pow(d, 0.5) * fade * shadow;
     Output.rgb = Color;
-    Output.a = max(intensity, disk);
+    Output.a = intensity;
 }

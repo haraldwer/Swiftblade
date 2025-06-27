@@ -15,6 +15,7 @@ uniform vec4[MAX_PROBES] ProbeRect;
 uniform int ProbeCount;
 uniform float ProbeRange;
 uniform sampler2D TexLumin;
+uniform vec2 TexLuminRes;
 
 in vec2 TexCoord;
 out vec4 Output;
@@ -42,7 +43,7 @@ vec4 SampleProbe(int InIndex, vec3 InWorldPos, vec3 InNormal)
     vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist;
         
     // Is surface in view of probe?
-    float depth = SampleCubeAtlas(TexLumin, rect, pixelToProbeDir).a * ProbeRange * 2;
+    float depth = SampleCubeAtlas(TexLumin, TexLuminRes, rect, pixelToProbeDir).a * ProbeRange * 2;
     float depthDiff = max(0, pixelToProbeDist - depth);
     float depthVal = (abs(depthDiff) - DIST_BIAS) / DIST_FADE;
     float depthFade = 1 - clamp(depthVal, 0, 1);
@@ -70,7 +71,7 @@ vec4 SampleProbe(int InIndex, vec3 InWorldPos, vec3 InNormal)
 void main()
 {
     if (!CheckID(TexCoord, 0)) // Exclude skybox
-        return;
+        discard;
     
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     vec3 normal = SampleNormal(TexCoord);

@@ -5,7 +5,7 @@ using namespace Rendering;
 void Scene::Clear()
 {
     PROFILE_GL();
-    meshes.Clear();
+    meshes.ClearNonPersistent();
     environments = {};
     lights.Clear();
     debugShapes.Clear();

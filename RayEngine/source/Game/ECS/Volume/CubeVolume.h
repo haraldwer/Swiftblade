@@ -38,10 +38,11 @@ namespace ECS
         void Set(EntityID InID, Coord InStart, Coord InEnd, uint8 InVal);
         Coord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
         void DrawEditVolume(EntityID InID, Coord InStart, Coord InEnd);
-        
+
+        void SystemInit() override;
         void Init(EntityID InID, CubeVolume& InComponent) override;
         void Deinit(EntityID InID, CubeVolume& InComponent) override;
-        void Frame(EntityID InID, CubeVolume& InComponent) override;
+        void SystemFrame() override;
 
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -101; }
@@ -49,8 +50,8 @@ namespace ECS
     private:
         MeshInstance blockMesh = {}; 
         MeshInstance editMesh = {};
-        Coord cachedEditStart = {};
-        Coord cachedEditEnd = {};
+        bool updateMesh = false;
+        uint32 persistentID = 0;
     };
 }
 

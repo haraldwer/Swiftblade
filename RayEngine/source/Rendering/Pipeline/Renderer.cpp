@@ -213,77 +213,80 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
     rlState::current.Set(frameCmd);
     
     Map<uint64, int> count;
-    for (auto& entry : InArgs.scenePtr->meshes.GetEntries())
+    for (auto& persistence : InArgs.scenePtr->meshes.GetEntries())
     {
-        PROFILE_GL_NAMED("Mesh entry");
-        
-        CHECK_CONTINUE(entry.second.transforms.Empty());
-
-        const ::Mesh* meshes = nullptr;
-        int32 meshCount = 0;
-        if (const auto resModel = entry.second.model.Get())
+        for (auto& entry : persistence.second)
         {
-            if (const auto rlModel = resModel->Get())
+            PROFILE_GL_NAMED("Mesh entry");
+            
+            CHECK_CONTINUE(entry.second.transforms.Empty());
+
+            const ::Mesh* meshes = nullptr;
+            int32 meshCount = 0;
+            if (const auto resModel = entry.second.model.Get())
             {
-                if (rlModel->meshCount > 0)
+                if (const auto rlModel = resModel->Get())
                 {
-                    meshes = rlModel->meshes;
-                    meshCount = rlModel->meshCount;
+                    if (rlModel->meshCount > 0)
+                    {
+                        meshes = rlModel->meshes;
+                        meshCount = rlModel->meshCount;
+                    }
                 }
             }
-        }
-        CHECK_CONTINUE(!meshes);
-        CHECK_CONTINUE(meshCount == 0);
-        
-        const MaterialResource* resMat = entry.second.material.Get();
-        CHECK_CONTINUE(!resMat);
-        ShaderResource* resShader = resMat->SurfaceShader.Get().Get();
-        CHECK_CONTINUE(!resShader);
-        Shader* shader = resShader->Get();
-        CHECK_CONTINUE(!shader);
+            CHECK_CONTINUE(!meshes);
+            CHECK_CONTINUE(meshCount == 0);
+            
+            const MaterialResource* resMat = entry.second.material.Get();
+            CHECK_CONTINUE(!resMat);
+            ShaderResource* resShader = resMat->SurfaceShader.Get().Get();
+            CHECK_CONTINUE(!resShader);
+            Shader* shader = resShader->Get();
+            CHECK_CONTINUE(!shader);
 
-        // Enable shader
-        ShaderCommand shaderCmd;
-        shaderCmd.id = shader->id;
-        shaderCmd.locs = shader->locs;
-        shaderCmd.backfaceCulling = !resMat->TwoSided;
-        shaderCmd.depthTest = true;
-        shaderCmd.depthMask = true;
-        rlState::current.Set(shaderCmd);
+            // Enable shader
+            ShaderCommand shaderCmd;
+            shaderCmd.id = shader->id;
+            shaderCmd.locs = shader->locs;
+            shaderCmd.backfaceCulling = !resMat->TwoSided;
+            shaderCmd.depthTest = true;
+            shaderCmd.depthMask = true;
+            rlState::current.Set(shaderCmd);
 
-        const int id = static_cast<int32>(entry.second.deferredID);
-        SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-        SetFrameShaderValues(InArgs, *resShader, InSceneTarget);
+            const int id = static_cast<int32>(entry.second.deferredID);
+            SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
+            SetFrameShaderValues(InArgs, *resShader, InSceneTarget);
 
-        int texSlot = 0;
-        BindNoiseTextures(InArgs, *resShader, texSlot);
+            int texSlot = 0;
+            BindNoiseTextures(InArgs, *resShader, texSlot);
 
-        // Set values and textures from material or from model instance?
-        SetCustomShaderValues(*resShader);
+            // Set values and textures from material or from model instance?
+            SetCustomShaderValues(*resShader);
 
-        // Draw every mesh
-        for (int i = 0; i < meshCount; i++)
-        {
-            PROFILE_GL_NAMED("Mesh");
-            MeshCommand cmd;
-            cmd.vaoID = meshes[i].vaoId;
-
-            // Culling
-            const Vector<Mat4F>& data = entry.second.transforms.GetCulled(InArgs.cullPoints);
-
-            // Copy to GPU
-            if (rlState::current.Set(cmd, data))
+            // Draw every mesh
+            for (int i = 0; i < meshCount; i++)
             {
-                for (auto& perspective : InArgs.perspectives)
+                PROFILE_GL_NAMED("Mesh");
+                MeshCommand cmd;
+                cmd.vaoID = meshes[i].vaoId;
+
+                // Culling
+                const Vector<Mat4F>& data = entry.second.transforms.GetCulled(InArgs.cullPoints);
+
+                // Copy to GPU
+                if (rlState::current.Set(cmd, data))
                 {
-                    PROFILE_GL_NAMED("Perspective");
-                    PerspectiveCommand perspCmd;
-                    perspCmd.rect = perspective.targetRect;
-                    SetPerspectiveShaderValues(InArgs, perspective, *resShader);
-                    rlState::current.Set(perspCmd);
-                    count[entry.first] += DrawInstances(meshes[i], static_cast<int>(data.size()));
+                    for (auto& perspective : InArgs.perspectives)
+                    {
+                        PROFILE_GL_NAMED("Perspective");
+                        PerspectiveCommand perspCmd;
+                        perspCmd.rect = perspective.targetRect;
+                        SetPerspectiveShaderValues(InArgs, perspective, *resShader);
+                        rlState::current.Set(perspCmd);
+                        count[entry.first] += DrawInstances(meshes[i], static_cast<int>(data.size()));
+                    }
+                    rlState::current.ResetMesh();
                 }
-                rlState::current.ResetMesh();
             }
         }
     }
@@ -536,6 +539,8 @@ int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget
     int texSlot = 0;
     auto& t = lightMan.GetShadowTarget();
     t.Bind(*shaderResource, texSlot, RL_TEXTURE_FILTER_LINEAR);
+    Vec2F faceTexel = lightMan.GetFaceTexel();
+    SetValue(*shaderResource, "FaceTexel", &faceTexel, SHADER_UNIFORM_VEC2);
 
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     for (auto& b : InBuffers)

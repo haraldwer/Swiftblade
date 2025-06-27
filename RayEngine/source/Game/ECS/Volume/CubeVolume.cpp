@@ -211,7 +211,7 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     }
 
     v.UpdateCache(Get<Transform>(InID).World());
-    blockMesh.persistentID = MeshInstance::GenPersistentID();
+    updateMesh = true;
 }
 
 Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
@@ -274,13 +274,13 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
                     QuatF::Identity(),
                     Vec3F(1.01f));
 
-    Engine::Instance::Get().GetRenderScene().Meshes().AddMeshes(
-        editMesh,
-        matrices);
+    Engine::Instance::Get().GetRenderScene().Meshes().Add(editMesh, matrices);
 }
 
-void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
+void ECS::SysCubeVolume::SystemInit()
 {
+    persistentID = MeshInstance::GenPersistentID();
+    
     blockMesh = {
         .model = ResModel("Defaults/M_Cube.obj"),
         .material = ResRM("Dressing/RM_StoneWall.json"),
@@ -294,16 +294,18 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .transform = {},
         .hash = 0
     };
-
-    // Generate hash and id
-    blockMesh.hash = MeshInstance::GenHash(blockMesh.model, blockMesh.material);
-    blockMesh.persistentID = MeshInstance::GenPersistentID();
-    editMesh.hash = MeshInstance::GenHash(editMesh.model, editMesh.material);
-    editMesh.persistentID = 0; // No persistence
     
+    // Generate hash
+    blockMesh.hash = MeshInstance::GenHash(blockMesh.model, blockMesh.material);
+    editMesh.hash = MeshInstance::GenHash(editMesh.model, editMesh.material);
+}
+
+void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
+{
     // Cache cube transforms
     const Mat4F world = Get<Transform>(InID).World();
     InComponent.UpdateCache(world);
+    updateMesh = true;
     
     if (Engine::Instance::Get().IsEditor())
         return;
@@ -319,22 +321,17 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
     Physics::Manager::Get().ClearCubes(InID); 
 }
 
-void ECS::SysCubeVolume::Frame(EntityID InID, CubeVolume& InComponent)
+void ECS::SysCubeVolume::SystemFrame()
 {
-    // Calculate bounds
-    //const Mat4F world = Get<Transform>(InComponent.GetID()).World();
-    //const Coord minCoord = Coord(
-    //    InComponent.cachedMinBounds.x,
-    //    InComponent.cachedMinBounds.y,
-    //    InComponent.cachedMinBounds.z);
-    //const Coord maxCoord = Coord(
-    //    InComponent.cachedMaxBounds.x,
-    //    InComponent.cachedMaxBounds.y,
-    //    InComponent.cachedMaxBounds.z);
-    //const Vec3F min = InComponent.CoordToPos(minCoord, world); 
-    //const Vec3F max = InComponent.CoordToPos(maxCoord, world);
+    CHECK_RETURN(!updateMesh);
     
-    Engine::Instance::Get().GetRenderScene().Meshes().AddMeshes(
-        blockMesh,
-        InComponent.cachedCubeTransforms);
+    updateMesh = false;
+    Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
+    meshes.Remove(blockMesh.hash, persistentID);
+
+    for (const auto& id : ComponentMap())
+    {
+        auto& c = GetInternal(id.first);
+        meshes.Add(blockMesh, c.cachedCubeTransforms, persistentID);
+    }
 }

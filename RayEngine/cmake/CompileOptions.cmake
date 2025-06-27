@@ -10,16 +10,14 @@ set_target_properties(${PROJECT_NAME}
 # Shared definitions
 target_compile_definitions(${PROJECT_NAME} PUBLIC 
   "TRACY_ENABLE"
-  "PX_PHYSX_STATIC_LIB")
+  "PX_PHYSX_STATIC_LIB"
+  "$<$<CONFIG:Release>:NDEBUG>"
+  "$<$<CONFIG:Debug>:_DEBUG>")
 
 if(MSVC)
   
   message("-- Setting custom MSVC flags")
-
-  target_compile_definitions(${PROJECT_NAME} PUBLIC 
-    "$<$<CONFIG:Release>:NDEBUG>"
-    "$<$<CONFIG:Debug>:_DEBUG>")
-
+  
   target_compile_options(${PROJECT_NAME} PUBLIC 
     "/fp:fast" # Fast math
     # "/Wall" # More warnings

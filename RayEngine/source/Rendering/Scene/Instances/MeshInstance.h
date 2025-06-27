@@ -9,7 +9,6 @@ struct MeshInstance
     Mat4F transform;
     uint64 hash;
     float extent = 1.0f;
-    uint32 persistentID = 0;
 
     inline static uint32 PERSISTENT_ID = 0;
     static uint32 GenPersistentID()

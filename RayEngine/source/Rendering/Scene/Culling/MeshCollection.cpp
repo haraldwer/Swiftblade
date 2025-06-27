@@ -1,89 +1,76 @@
 #include "MeshCollection.h"
 
-void Rendering::MeshCollection::Clear()
+void Rendering::MeshCollection::ClearAll()
 {
-    Set<uint64> toBeRemoved; 
-    for (auto& e : entries)
+    entries.clear();
+    deferredShaders.clear(); 
+}
+
+void Rendering::MeshCollection::ClearNonPersistent()
+{
+    for (auto& persistence : entries)
     {
-        e.second.justRebuilt = false;
-        if (e.second.persistentID == 0 || // No cache
-            e.second.persistentID != e.second.prevPersistentID) // Cache changed
-            toBeRemoved.insert(e.first);
+        CHECK_CONTINUE(persistence.first != 0)
+        persistence.second.clear();
     }
-    for (auto& e : toBeRemoved)
-        entries.erase(e);
 }
 
 void Rendering::MeshCollection::Build()
 {
-    for (auto& e : entries)
+    for (auto& p : entries)
     {
-        // Different from prev and not zero
-        if (e.second.persistentID != e.second.prevPersistentID || e.second.persistentID == 0)
+        for (auto& e : p.second)
         {
-            e.second.prevPersistentID = e.second.persistentID;
+            if (e.second.transforms.IsBuilt())
+            {
+                e.second.justRebuilt = false;
+                continue;
+            }
             e.second.transforms.Build();
             e.second.justRebuilt = true;
         }
     }
 }
 
-bool Rendering::MeshCollection::UpdatePersistence(Entry& InEntry, const MeshInstance& InInstance)
+void Rendering::MeshCollection::Add(const MeshInstance& InInstance, const uint32 InPersistentID)
 {
-    // Persistent and equal
-    if (InEntry.persistentID != 0 &&
-        InEntry.persistentID == InInstance.persistentID &&
-        InEntry.persistentID == InEntry.prevPersistentID)
-        return true;
-
-    // New persistent ID
-    if (InEntry.persistentID != InInstance.persistentID)
-        InEntry.persistentID = InInstance.persistentID;
-
-    return false;
-}
-
-void Rendering::MeshCollection::AddMesh(const MeshInstance& InInstance)
-{
-    auto& entry = GetEntry(InInstance);
-    
-    if (UpdatePersistence(entry, InInstance))
-        return;
-    
+    Entry &entry = GetEntry(InInstance, InPersistentID);
+    CHECK_ASSERT(entry.transforms.IsBuilt(), "Clear before adding");
     entry.transforms.Insert(InInstance.transform, {
         .position = InInstance.transform.GetPosition(),
         .extent = InInstance.extent
     });
 }
 
-void Rendering::MeshCollection::AddMeshes(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms)
+void Rendering::MeshCollection::Add(const MeshInstance& InInstance, const Vector<Mat4F>& InTransforms, const uint32 InPersistentID)
 {
-    Entry& entry = GetEntry(InInstance);
-
-    if (UpdatePersistence(entry, InInstance))
-        return;
-    
+    Entry& entry = GetEntry(InInstance, InPersistentID);
+    CHECK_ASSERT(entry.transforms.IsBuilt(), "Clear before adding")
     for (auto& t : InTransforms)
-    {
         entry.transforms.Insert(t, {
             .position = t.GetPosition(),
             .extent = InInstance.extent
         });
+}
+
+void Rendering::MeshCollection::Remove(const uint64 InHash, const uint32 InPersistenceID)
+{
+    CHECK_ASSERT(InPersistenceID == 0, "Cannot remove non-persistent objects");
+    if (entries.contains(InPersistenceID))
+    {
+        auto& persistence = entries.at(InPersistenceID);
+        if (persistence.contains(InHash))
+            persistence.erase(InHash);
     }
 }
 
-void Rendering::MeshCollection::ClearPersistence(uint64 InHash)
-{
-    if (entries.contains(InHash))
-        entries.at(InHash).persistentID = 0;
-}
-
-Rendering::MeshCollection::Entry& Rendering::MeshCollection::GetEntry(const MeshInstance& InInstance)
+Rendering::MeshCollection::Entry& Rendering::MeshCollection::GetEntry(const MeshInstance& InInstance, const uint32 InPersistent)
 {
     CHECK_ASSERT(InInstance.hash == 0, "Invalid hash");
     
     // Get / add entry
-    Entry& entry = entries[InInstance.hash];
+    auto& persistence = entries[InPersistent];
+    Entry& entry = persistence[InInstance.hash];
     if (!entry.initialized)
     {
         entry.material = InInstance.material;
@@ -95,7 +82,7 @@ Rendering::MeshCollection::Entry& Rendering::MeshCollection::GetEntry(const Mesh
         if (auto mat = entry.material.Get())
         {
             entry.deferredID = mat->DeferredHash();
-            if (!deferredShaders.contains(entry.deferredID) && entry.deferredID != 0 && mat)
+            if (!deferredShaders.contains(entry.deferredID) && entry.deferredID != 0)
                 deferredShaders[entry.deferredID] = mat->DeferredShader.Get();
         }
     }

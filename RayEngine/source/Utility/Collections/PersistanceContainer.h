@@ -7,7 +7,7 @@ namespace Utility
     {
     public:
         
-        void Clear()
+        void Begin()
         {
             removed.clear();
             removed.insert(modified.begin(), modified.end());

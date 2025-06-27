@@ -10,6 +10,7 @@ namespace Rendering
         
         // Map ids to coordinates on the map
         Vec4I GetRect(uint64 InID, int InFace = 0);
+        int GetSlotRes() const { return slotResolution; }
 
     private:
 
