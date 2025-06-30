@@ -68,9 +68,19 @@ Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& I
     PROFILE_GL();
     Stats stats;
     auto& sceneTargets = InArgs.viewportPtr->targets.sceneTargets;
-    auto& shader = InArgs.contextPtr->config.ProcessSceneShader;
-    sceneTargets.Iterate();
-    Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), shader, { &sceneTargets.Prev() });
+
+    if (InArgs.contextPtr->config.Bump)
+    {
+        auto& bumpShader = InArgs.contextPtr->config.BumpShader;
+        sceneTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), bumpShader, { &sceneTargets.Prev() });
+    }
+    if (InArgs.contextPtr->config.Parallax)
+    {
+        auto& pomShader = InArgs.contextPtr->config.POMShader;
+        sceneTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), pomShader, { &sceneTargets.Prev() });
+    }
     return stats;
 }
 

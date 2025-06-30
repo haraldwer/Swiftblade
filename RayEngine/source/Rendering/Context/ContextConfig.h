@@ -23,9 +23,12 @@ namespace Rendering
         PROPERTY_D(ResShader, DistortShader, "Shaders/PostProcessing/SH_Distort.ps");
         PROPERTY_D(ResShader, FireShader, "Shaders/PostProcessing/SH_Fire.ps");
         PROPERTY_D(ResShader, FireBlipShader, "Shaders/PostProcessing/SH_FireBlip.ps");
-        PROPERTY_D(ResShader, ProcessSceneShader, "Shaders/SH_ProcessScene.ps");
+        PROPERTY_D(ResShader, POMShader, "Shaders/PostProcessing/SH_POM.ps");
+        PROPERTY_D(ResShader, BumpShader, "Shaders/PostProcessing/SH_Bump.ps");
         
         PROPERTY_D(bool, SSAO, true);
+        PROPERTY_D(bool, Bump, true);
+        PROPERTY_D(bool, Parallax, true);
         PROPERTY_D(bool, MotionBlur, true);
         PROPERTY_D(bool, Quantize, true);
         PROPERTY_D(bool, FXAA, true);

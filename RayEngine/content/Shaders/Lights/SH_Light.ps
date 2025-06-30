@@ -27,7 +27,8 @@ out vec4 Output;
 const int SHADOW_SAMPLES = 8;
 const float SHADOW_SAMPLE_SCALE = 11.0f;
 const float SHADOW_NOISE_SCALE = 2.0f;
-const float SHADOW_DIST_BIAS = 0.5f;
+const float SHADOW_DIST_BIAS = 0.05f;
+const float SHADOW_DIST_BIAS_MULTIPLIER = 3.0f;
 
 float InterleavedGradientNoise(vec2 uv)
 {
@@ -46,7 +47,7 @@ vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
 float ShadowTest(float InSampleDepth, float InLightDist)
 {
     float shadowDiff = InSampleDepth - InLightDist;
-    return max(0, -shadowDiff - SHADOW_DIST_BIAS);
+    return max(0, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
 }
 
 float Shadow(vec3 toLight)

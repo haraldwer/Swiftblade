@@ -51,7 +51,7 @@ void Default()
     float fade = SurfaceFade();
     color.rgb *= fade;
     
-    float aoFade = pow(texture(TexAO, TexCoord).x, 0.5);
+    float aoFade = texture(TexAO, TexCoord).x;
     color.rgb *= 1.0 - aoFade;
 
     Output = vec4(color.rgb, 1.0);

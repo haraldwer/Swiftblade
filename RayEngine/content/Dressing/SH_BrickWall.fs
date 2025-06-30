@@ -35,4 +35,7 @@ void main()
     brick *= step(0.2, bigNoise * brick);
     
     OutData.z = 1 - brick;
+    
+    float n = -(CalcSimplex(pos * 3) + 1) / 2; 
+    OutData.z += n * 0.2 * clamp((1 - brick * 2), 0, 1);
 }

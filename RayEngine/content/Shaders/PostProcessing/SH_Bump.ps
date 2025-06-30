@@ -1,0 +1,75 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Uniforms/SH_DeferredOut.si"
+#include "Shaders/Utility/SH_DeferredID.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+in vec2 TexCoord;
+in vec2 RectCoord;
+out vec3 Output;
+
+const float BUMP_MIX = 1.0;
+const float BUMP_SAMPLE_SCALE = 1.0;
+
+vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InWorldPos)
+{
+    vec2 texel = vec2(1) / Resolution;
+    vec2 coord = InCoord + texel * InDir;
+    return normalize(InWorldPos - SampleWorldPos(coord).xyz);
+}
+
+// xyz for direction + dx / dy
+float BumpSample(vec2 InCoord, vec2 InDir, float InH, float InID, vec3 InNormal, vec3 InPos)
+{
+    vec2 texel = vec2(1) / Resolution;
+    vec2 offset = texel * InDir * BUMP_SAMPLE_SCALE;
+    vec2 upCoord = TexCoord + offset;
+    vec2 downCoord = TexCoord - offset;
+    
+    // Checking coord
+    float upDot = max(0, dot(InNormal, texture(TexNormal, upCoord).xyz));
+    float downDot = max(0, dot(InNormal, texture(TexNormal, downCoord).xyz));
+    
+    float upDist = max(0, 1 - length(InPos - texture(TexPosition, upCoord).xyz) * 10);
+    float downDist = max(0, 1 - length(InPos - texture(TexPosition, downCoord).xyz) * 10);
+
+    float updx = (InH - texture(TexData, upCoord).z) * upDot * upDist;
+    float downdx = (texture(TexData, downCoord).z - InH) * downDot * downDist;
+
+    return (updx + downdx) / 2;
+}
+
+vec3 BumpNormal(vec2 InCoord, vec3 InCamPos)
+{
+    // Get surface directions
+    vec3 worldPos = InCamPos + CameraPosition;
+    vec3 right = GetSurfaceDirection(TexCoord, vec2(1, 0), worldPos);
+    vec3 up = GetSurfaceDirection(TexCoord, vec2(0, 1), worldPos);
+    vec3 forward = cross(right, up);
+    
+    vec4 normal = texture(TexNormal, InCoord);
+    float height = texture(TexData, InCoord).z;
+    float dx = BumpSample(InCoord, vec2(1, 0), height, normal.a, normal.xyz, InCamPos);
+    float dy = BumpSample(InCoord, vec2(0, 1), height, normal.a, normal.xyz, InCamPos);
+    
+    float dz = sqrt(1 - Pow2(dx) - Pow2(dy));
+    //float dz = sqrt(1 - Pow2(dx) - Pow2(dy));
+    // pow2dx + pow2dy + pow2dz = pow21 (normalized vector)
+        
+    vec3 newNormal = normalize(right * dx + up * dy + forward * dz);
+    return normalize(mix(normal.xyz, newNormal, BUMP_MIX));
+}
+
+void main()
+{
+    // Copy data
+    OutPosition = texture(TexPosition, TexCoord);
+    OutNormal = texture(TexNormal, TexCoord);
+    OutColor = texture(TexColor, TexCoord);
+    OutData = texture(TexData, TexCoord).xyz;
+
+    if (!CheckID(TexCoord, 0)) // Exclude skybox
+        return;
+    
+    OutNormal.xyz = BumpNormal(TexCoord, OutPosition.xyz);
+}
