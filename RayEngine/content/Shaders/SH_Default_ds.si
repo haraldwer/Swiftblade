@@ -43,10 +43,7 @@ void Default()
 
     // PBR och Image Based Lighting
     
-    // Sample textures
-    vec4 color = texture(TexColor, TexCoord.xy).rgba;
-    if (color.a < 0.01)
-        discard;
+    vec4 color = vec4(1.0f);
     
     float fade = SurfaceFade();
     color.rgb *= fade;

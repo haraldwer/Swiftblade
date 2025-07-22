@@ -65,8 +65,7 @@ void main()
     // Copy data
     OutPosition = texture(TexPosition, TexCoord);
     OutNormal = texture(TexNormal, TexCoord);
-    OutColor = texture(TexColor, TexCoord);
-    OutData = texture(TexData, TexCoord).xyz;
+    OutData = texture(TexData, TexCoord);
 
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;

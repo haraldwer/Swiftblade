@@ -21,8 +21,6 @@ namespace Rendering
         PROPERTY_D(ResShader, FXAAShader, "Shaders/PostProcessing/SH_FXAA.ps");
         PROPERTY_D(ResShader, TonemappingShader, "Shaders/PostProcessing/SH_Tonemapping.ps");
         PROPERTY_D(ResShader, DistortShader, "Shaders/PostProcessing/SH_Distort.ps");
-        PROPERTY_D(ResShader, FireShader, "Shaders/PostProcessing/SH_Fire.ps");
-        PROPERTY_D(ResShader, FireBlipShader, "Shaders/PostProcessing/SH_FireBlip.ps");
         PROPERTY_D(ResShader, POMShader, "Shaders/PostProcessing/SH_POM.ps");
         PROPERTY_D(ResShader, BumpShader, "Shaders/PostProcessing/SH_Bump.ps");
         

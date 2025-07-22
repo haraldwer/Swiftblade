@@ -1,7 +1,8 @@
 {
+	"DebugEnabled":false,
 	"OpenWindows":[
-		"Audio",
 		"Blueprint Editor",
+		"Rendering",
 		"Scene Rendering"
 	]
 }

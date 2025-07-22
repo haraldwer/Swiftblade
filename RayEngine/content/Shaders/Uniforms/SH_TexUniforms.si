@@ -3,8 +3,7 @@
 
 uniform sampler2D TexPosition; // xyz - Position (camera relative), w - Linear depth
 uniform sampler2D TexNormal; // xyz - Normal, a - DeferredID
-uniform sampler2D TexColor; // rgb - Color, a - Unused (for gameplay)
-uniform sampler2D TexData; // xy - Velocity, z - Height
+uniform sampler2D TexData; // xy - Velocity, z - Height, w - Gameplay
 
 uniform sampler2D TexAO;
 uniform sampler2D TexFrame;

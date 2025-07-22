@@ -106,7 +106,8 @@ void main()
     float shadow = 1;
     if (Timestamp != 0)
     {
-        shadow = Shadow(toLight);
+        vec3 toLightShadow = ShadowPosition - worldPos.xyz;
+        shadow = Shadow(toLightShadow); 
         if (shadow < 0.001f)
             discard;
     }

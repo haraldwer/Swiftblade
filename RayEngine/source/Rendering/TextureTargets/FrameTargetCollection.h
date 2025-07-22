@@ -12,7 +12,6 @@ namespace Rendering
 
         SwapTarget sceneTargets = SwapTarget(3);
         SwapTarget aoTargets = {};
-        SwapTarget fireTargets = {};
         SwapTarget frameTargets = {};
     };
 }

@@ -88,8 +88,7 @@ void main()
     // Copy data
     OutPosition = texture(TexPosition, TexCoord);
     OutNormal = texture(TexNormal, TexCoord);
-    OutColor = texture(TexColor, TexCoord);
-    OutData = texture(TexData, TexCoord).xyz;
+    OutData = texture(TexData, TexCoord);
     
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;    
@@ -100,6 +99,5 @@ void main()
     // Update buffer values
     OutPosition.xyz = offset.worldPos - CameraPosition;
     OutNormal = texture(TexNormal, offset.uv);
-    OutColor = texture(TexColor, offset.uv);
-    OutData = texture(TexData, offset.uv).xyz;
+    OutData = texture(TexData, offset.uv);
 }

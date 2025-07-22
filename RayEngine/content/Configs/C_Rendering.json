@@ -1,5 +1,7 @@
 {
 	"Context":{
+		"Bump":false,
+		"FXAA":false,
 		"Lights":{
 			"Viewport":{
 				"Height":2048,
@@ -7,6 +9,7 @@
 			}
 		},
 		"Lumin":false,
+		"MotionBlur":false,
 		"NoiseTextures":[{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
@@ -18,6 +21,7 @@
 				"Val":"Defaults/T_Noise_Simplex.json"
 			}
 		],
+		"Parallax":false,
 		"Quantize":false,
 		"SSAO":false
 	},
