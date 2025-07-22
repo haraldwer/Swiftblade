@@ -1,0 +1,155 @@
+
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+
+// From LearnOpenGL:
+/*
+float DistributionGGX(vec3 N, vec3 H, float a)
+{
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+
+    float nom    = a2;
+    float denom  = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom        = PI * denom * denom;
+
+    return nom / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+*/
+
+// From http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx
+
+float ChiGGX(float v)
+{
+    return v > 0 ? 1 : 0;
+}
+
+float GGX_Distribution(vec3 n, vec3 h, float alpha)
+{
+    float NoH = dot(n,h);
+    float alpha2 = alpha * alpha;
+    float NoH2 = NoH * NoH;
+    float den = NoH2 * alpha2 + (1 - NoH2);
+    return (ChiGGX(NoH) * alpha2) / ( PI * den * den );
+}
+
+float GGX_PartialGeometryTerm(vec3 v, vec3 n, vec3 h, float alpha)
+{
+    float VoH2 = clamp(dot(v,h), 0, 1);
+    float chi = ChiGGX( VoH2 / clamp(dot(v,n), 0, 1) );
+    VoH2 = VoH2 * VoH2;
+    float tan2 = ( 1 - VoH2 ) / VoH2;
+    return (chi * 2) / ( 1 + sqrt( 1 + alpha * alpha * tan2 ) );
+}
+
+vec3 Fresnel_Schlick(float cosT, vec3 F0)
+{
+    float c = 1 - cosT;
+    return F0 + (1 - F0) * (c * c * c * c * c);
+}
+
+vec3 F0_Approx(vec3 InAlbedo, float InMetallic, float InR) // TODO: What's surface.r?
+{
+    // Calculate colour at normal incidence
+    float ior = 1 + InR;
+    vec3 F0 = vec3(abs((1.0 - ior) / (1.0 + ior)));
+    F0 = F0 * F0;
+    F0 = mix(F0, InAlbedo, InMetallic);
+    return F0;
+}
+
+const int SAMPLES = 16;
+const int MIP_COUNT = 4;
+
+
+vec3 GGX_Specular(sampler2D InTexSpecular, vec2 InFaceTexel, vec4 InRect, vec3 normal, vec3 viewVector, float roughness, vec3 F0, out vec3 kS)
+{
+    vec3 reflectionVector = reflect(-viewVector, normal);
+    mat3x3 worldFrame = GenerateFrame(reflectionVector);
+    vec3 radiance = vec3(0);
+    float NoV = clamp(dot(normal, viewVector), 0, 1);
+
+    for(int i = 0; i < SAMPLES; ++i)
+    {
+        // Generate a sample vector in some local space
+        vec3 sampleVector = GenerateGGXsampleVector(i, SAMPLES, roughness);
+        // Convert the vector in world space
+        sampleVector = normalize(sampleVector * worldFrame);
+
+        // Calculate the half vector
+        vec3 halfVector = normalize(sampleVector + viewVector);
+        float cosT = clamp(dot( sampleVector, normal), 0, 1);
+        float sinT = sqrt( 1 - cosT * cosT);
+
+        // Calculate fresnel
+        vec3 fresnel = Fresnel_Schlick(clamp(dot(halfVector, viewVector), 0, 1), F0);
+        // Geometry term
+        float ggx_partialView = GGX_PartialGeometryTerm(viewVector, normal, halfVector, roughness);
+        float ggx_partialSample = GGX_PartialGeometryTerm(sampleVector, normal, halfVector, roughness); 
+        float geometry = ggx_partialView * ggx_partialSample; 
+        // Calculate the Cook-Torrance denominator
+        float denominator = clamp(4 * (NoV * clamp(dot(halfVector, normal), 0, 1) + 0.05), 0, 1);
+        kS += fresnel;
+        
+        // Accumulate the radiance
+        vec3 tex = SampleCubeAtlasMip(InTexSpecular, InFaceTexel, InRect, sampleVector, (roughness * MIP_COUNT));
+        radiance += tex * geometry * fresnel * sinT / denominator;
+    }
+
+    // Scale back for the samples count
+    kS = clamp(kS / SAMPLES, 0, 1);
+    return radiance / SAMPLES;
+}
+
+vec3 Specular(vec3 InColor, float InRoughness, float InMetallic, vec3 InNormal, vec3 InViewVec, out vec3 kd)
+{
+    // Calculate colour at normal incidence
+    vec3 F0 = F0_Approx(InColor, InMetallic, surface.r);
+
+    // Calculate the specular contribution
+    vec3 ks = vec3(0);
+    vec3 specular = GGX_Specular(TexSpec, FaceTexel, Rect, InNormal, InViewVec, InRoughness, F0, ks );
+    kd = (1 - ks) * (1 - InMetallic);
+    return specular;
+}
+
+vec3 Diffuse(vec3 InColor, vec3 InNormal)
+{
+    // Calculate the diffuse contribution
+    vec3 irradiance = SampleCubeAtlas(TexDiff, FaceTexel, Rect, InNormal).rgb;
+    return InColor * irradiance;
+}
+
+vec3 PBR(vec3 InColor, float InRoughness, float InMetallic, vec3 InNormal, vec3 InViewVec)
+{
+    float roughness = clamp(InRoughness - EPSILON, 0, 1) + EPSILON;
+    vec3 kd = vec3(0);
+    
+    vec3 specular = Specular(InColor, roughness, InMetallic, InNormal, InViewVec, kd);
+    vec3 diffuse = Diffuse(InColor, InNormal);
+    return vec3(kd * diffuse + specular, 1);
+}

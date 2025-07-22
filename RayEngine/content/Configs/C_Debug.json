@@ -4,5 +4,6 @@
 		"Rendering",
 		"Scene Rendering",
 		"Viewport"
-	]
+	],
+	"DebugEnabled":false
 }

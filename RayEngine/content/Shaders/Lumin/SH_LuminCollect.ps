@@ -26,6 +26,9 @@ vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
     return vec2(r * cos(theta), r * sin(theta));
 }
 
+// Monte carlo estimator for calculating irradiance
+// http://www.codinglabs.net/article_physically_based_rendering.aspx
+
 void main()
 {
     vec2 texel = vec2(0);

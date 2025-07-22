@@ -95,8 +95,8 @@ float ScreenSpaceShadow(vec4 InPos)
     for (int i = 0; i < SSSHADOW_STEPS; i++)
     {
         vec3 sampleWorldPos = InPos.xyz + dir * (i + 1) * SSSHADOW_SCALE;
-        vec4 sampleViewPos = (ViewProj * vec4(sampleWorldPos, 1.0));
-        vec2 sampleCoord = clamp((sampleViewPos.xy / sampleViewPos.w + 1) / 2, 0, 1);
+        vec4 sampleViewPos = WorldToView(sampleWorldPos, ViewProj);
+        vec2 sampleCoord = clamp(ViewToCoord(sampleViewPos), 0, 1);
         float depth = SampleWorldPos(sampleCoord).w;
         float depthDiff = sampleViewPos.z - depth;
         
@@ -111,8 +111,6 @@ float ScreenSpaceShadow(vec4 InPos)
 
 float Godrays(vec4 InWorldPos, vec3 InToLight)
 {
-    
-    
     return 0.0;
 }
 
