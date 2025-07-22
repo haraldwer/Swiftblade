@@ -114,7 +114,8 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& I
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
-    stats.lights += Renderer::DrawLights(InArgs, frameTarget, { &sceneTarget });
+    auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
+    stats.lights += Renderer::DrawLights(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
     return stats;
 }
 

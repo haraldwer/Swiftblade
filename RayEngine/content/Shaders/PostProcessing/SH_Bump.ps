@@ -8,56 +8,38 @@ in vec2 TexCoord;
 in vec2 RectCoord;
 out vec3 Output;
 
-const float BUMP_MIX = 1.0;
-const float BUMP_SAMPLE_SCALE = 1.0;
+const float BUMP_SCALE = 0.1;
+const float BUMP_MAX_DIST = 1.0;
 
-vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InWorldPos)
+vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InCamPos, vec3 InNormal, float InHeight)
 {
     vec2 texel = vec2(1) / Resolution;
-    vec2 coord = InCoord + texel * InDir;
-    return normalize(InWorldPos - SampleWorldPos(coord).xyz);
+    vec2 rightCoord = InCoord + texel * InDir;
+    vec2 leftCoord = InCoord - texel * InDir;
+
+    vec3 orgPos = InCamPos.xyz - InNormal * InHeight * BUMP_SCALE;
+    
+    float rightHeight = texture(TexData, rightCoord).z;
+    float leftHeight = texture(TexData, leftCoord).z;
+    vec3 rightPos = texture(TexPosition, rightCoord).xyz;
+    vec3 leftPos = texture(TexPosition, leftCoord).xyz;
+    rightPos -= InNormal * rightHeight * BUMP_SCALE;
+    leftPos -= InNormal * leftHeight * BUMP_SCALE;
+    
+    vec3 rightDiff = orgPos - rightPos;
+    vec3 leftDiff = leftPos - orgPos;
+    float rightDist = max(0, 1 - length(rightDiff) / BUMP_MAX_DIST);
+    float leftDist = max(0, 1 - length(leftDiff) / BUMP_MAX_DIST);
+    
+    return normalize((rightDiff * rightDist + leftDiff * leftDist + InNormal * 0.001) / (rightDist + leftDist + 0.001));
 }
 
-// xyz for direction + dx / dy
-float BumpSample(vec2 InCoord, vec2 InDir, float InH, float InID, vec3 InNormal, vec3 InPos)
+vec3 BumpNormal(vec2 InCoord, vec4 InCamPos, vec3 InNormal, float InHeight)
 {
-    vec2 texel = vec2(1) / Resolution;
-    vec2 offset = texel * InDir * BUMP_SAMPLE_SCALE;
-    vec2 upCoord = TexCoord + offset;
-    vec2 downCoord = TexCoord - offset;
-    
-    // Checking coord
-    float upDot = max(0, dot(InNormal, texture(TexNormal, upCoord).xyz));
-    float downDot = max(0, dot(InNormal, texture(TexNormal, downCoord).xyz));
-    
-    float upDist = max(0, 1 - length(InPos - texture(TexPosition, upCoord).xyz) * 10);
-    float downDist = max(0, 1 - length(InPos - texture(TexPosition, downCoord).xyz) * 10);
-
-    float updx = (InH - texture(TexData, upCoord).z) * upDot * upDist;
-    float downdx = (texture(TexData, downCoord).z - InH) * downDot * downDist;
-
-    return (updx + downdx) / 2;
-}
-
-vec3 BumpNormal(vec2 InCoord, vec3 InCamPos)
-{
-    // Get surface directions
-    vec3 worldPos = InCamPos + CameraPosition;
-    vec3 right = GetSurfaceDirection(TexCoord, vec2(1, 0), worldPos);
-    vec3 up = GetSurfaceDirection(TexCoord, vec2(0, 1), worldPos);
+    vec3 right = GetSurfaceDirection(InCoord, vec2(1, 0), InCamPos.xyz, InNormal, InHeight);
+    vec3 up = GetSurfaceDirection(InCoord, vec2(0, 1), InCamPos.xyz, InNormal, InHeight);
     vec3 forward = cross(right, up);
-    
-    vec4 normal = texture(TexNormal, InCoord);
-    float height = texture(TexData, InCoord).z;
-    float dx = BumpSample(InCoord, vec2(1, 0), height, normal.a, normal.xyz, InCamPos);
-    float dy = BumpSample(InCoord, vec2(0, 1), height, normal.a, normal.xyz, InCamPos);
-    
-    float dz = sqrt(1 - Pow2(dx) - Pow2(dy));
-    //float dz = sqrt(1 - Pow2(dx) - Pow2(dy));
-    // pow2dx + pow2dy + pow2dz = pow21 (normalized vector)
-        
-    vec3 newNormal = normalize(right * dx + up * dy + forward * dz);
-    return normalize(mix(normal.xyz, newNormal, BUMP_MIX));
+    return forward;
 }
 
 void main()
@@ -70,5 +52,5 @@ void main()
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;
     
-    OutNormal.xyz = BumpNormal(TexCoord, OutPosition.xyz);
+    OutNormal.xyz = BumpNormal(TexCoord, OutPosition, OutNormal.xyz, OutData.z);
 }
