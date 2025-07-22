@@ -80,6 +80,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .lightsPtr = InArgs.lightsPtr,
         .perspectives = {},
         .cullPoints = InArgs.cullPoints,
+        .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
     float range = GetRange();
 

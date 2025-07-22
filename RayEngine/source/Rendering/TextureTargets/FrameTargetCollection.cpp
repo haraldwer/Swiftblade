@@ -18,7 +18,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
     }
 
     for (auto& target : aoTargets.All())
-        target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 0.8f);
     for (auto& target : frameTargets.All())
         target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
 }

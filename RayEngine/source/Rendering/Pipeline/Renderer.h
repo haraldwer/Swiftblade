@@ -34,6 +34,7 @@ namespace Rendering
         Lights* lightsPtr = nullptr;
         Vector<Perspective> perspectives = {};
         Vector<Vec3F> cullPoints = {};
+        uint8 cullMask = 255;
     };
     
     class Renderer

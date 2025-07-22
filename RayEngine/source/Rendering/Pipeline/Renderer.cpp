@@ -206,6 +206,8 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
 {
     PROFILE_GL();
     
+    CHECK_ASSERT(InArgs.cullMask == 0, "Invalid mask");
+    
     FrameCommand frameCmd;
     frameCmd.fboID = InSceneTarget.GetFBO();
     frameCmd.size = InSceneTarget.Size();
@@ -220,7 +222,8 @@ Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, Render
             PROFILE_GL_NAMED("Mesh entry");
             
             CHECK_CONTINUE(entry.second.transforms.Empty());
-
+            CHECK_CONTINUE(!(entry.second.mask & InArgs.cullMask));
+            
             const ::Mesh* meshes = nullptr;
             int32 meshCount = 0;
             if (const auto resModel = entry.second.model.Get())

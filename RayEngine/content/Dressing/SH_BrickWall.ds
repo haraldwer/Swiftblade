@@ -36,5 +36,5 @@ void main()
     shadow = clamp(shadow, 0.1, 0.5);
     
     vec3 color = hsv2rgb(vec3(hue, sat, shadow)) * 0.2;
-    Output.rgb = color;
+    Output.rgb *= color;
 }

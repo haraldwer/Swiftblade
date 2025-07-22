@@ -12,9 +12,7 @@
 			"Data":{}
 		},{
 			"Name":"Environment",
-			"Data":{
-				"Skybox":"Dressing/Skybox/RM_Skybox.json"
-			}
+			"Data":{}
 		},{
 			"Name":"PlayerCamera",
 			"Data":{}
@@ -114,6 +112,7 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
+										"Mask":1,
 										"Material":"Gameplay/Player/RM_Hands.json",
 										"Model":"Gameplay/Player/M_Hand_Open.obj"
 									}
@@ -127,7 +126,7 @@
 									"Data":{
 										"Rotation":[
 											0.0,
-											-90.00016784667969,
+											-90.00019836425781,
 											0.0
 										],
 										"Scale":[
@@ -165,6 +164,7 @@
 							"Components":[{
 									"Name":"Mesh",
 									"Data":{
+										"Mask":1,
 										"Material":"Gameplay/Player/RM_Hands.json",
 										"Model":"Gameplay/Player/M_Hand_Open.obj"
 									}
@@ -178,7 +178,7 @@
 									"Data":{
 										"Rotation":[
 											0.0,
-											-90.00010681152344,
+											-90.00012969970703,
 											0.0
 										],
 										"Scale":[
@@ -210,8 +210,8 @@
 							],
 							"Rotation":[
 								7.424868106842041,
-								15.106157302856445,
-								-8.367189407348633
+								15.106159210205078,
+								-8.367191314697266
 							],
 							"Scale":[
 								1.0000001192092896,

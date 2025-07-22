@@ -30,7 +30,9 @@ public:
 protected:
 
     // Property map owned by template  
-    virtual OrderedMap<String, uint16>& GetPropertyMap() const = 0;
+    virtual Map<String, uint16>& GetPropertyMap() const = 0;
+    virtual Vector<String>& GetPropertyOrder() const = 0;
+    
     uint16 PtrToOff(PropertyBase* InPtr) const;
     PropertyBase* OffToPtr(uint16 InOff) const;
 
@@ -83,10 +85,12 @@ public:
     
 private:
 
-    OrderedMap<String, uint16>& GetPropertyMap() const override { return properties; }
+    Map<String, uint16>& GetPropertyMap() const override { return properties; }
+    Vector<String>& GetPropertyOrder() const override { return propertyOrder; }
     
     // Store memory offset compared to (this)
     // Shared between all instances of the same type T
-    static inline OrderedMap<String, uint16> properties;
+    static inline Map<String, uint16> properties;
+    static inline Vector<String> propertyOrder;
     
 };

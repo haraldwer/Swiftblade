@@ -16,7 +16,7 @@ namespace Rendering
             bool cubemap = false;
         };
         
-        bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat);
+        bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat, float InResScale = 1.0f);
         bool TryBeginSetup(const RenderTexture& InRenderTexture);
         void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InMips = 1, bool InCubemap = false);
         void EndSetup(const RenderTexture& InRenderTexture) const;
