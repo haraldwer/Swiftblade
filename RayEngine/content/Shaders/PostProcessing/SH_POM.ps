@@ -133,5 +133,5 @@ void main()
     OutPosition.xyz = offset.worldPos - CameraPosition;
     OutNormal.xyz = offset.normal;
     OutNormal.a = texture(TexNormal, offset.uv).a;
-    OutData = texture(TexData, offset.uv).xyz;
+    OutData = texture(TexData, offset.uv);
 }
