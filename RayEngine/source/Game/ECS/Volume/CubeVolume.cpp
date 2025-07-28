@@ -9,7 +9,8 @@ void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
 {
     cachedMaxBounds = Utility::Math::Vector3<uint8>(0);
     cachedMinBounds = Utility::Math::Vector3<uint8>(-1);
-    
+
+    cacheUpdated = true;
     cachedCubeTransforms.clear();
     cachedCubeTransforms.reserve(data.size());
     for (const auto& entry : data)
@@ -211,7 +212,6 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     }
 
     v.UpdateCache(Get<Transform>(InID).World());
-    updateMesh = true;
 }
 
 Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
@@ -305,7 +305,6 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
     // Cache cube transforms
     const Mat4F world = Get<Transform>(InID).World();
     InComponent.UpdateCache(world);
-    updateMesh = true;
     
     if (Engine::Instance::Get().IsEditor())
         return;
@@ -323,12 +322,21 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::SystemFrame()
 {
-    CHECK_RETURN(!updateMesh);
+    bool updated = false;
+    for (const auto& id : ComponentMap())
+    {
+        auto& c = GetInternal(id.first);
+        if (c.cacheUpdated)
+        {
+            c.cacheUpdated = false;
+            updated = true;
+        }
+    }
     
-    updateMesh = false;
+    CHECK_RETURN(!updated);
+    
     Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
     meshes.Remove(blockMesh.hash, persistentID);
-
     for (const auto& id : ComponentMap())
     {
         auto& c = GetInternal(id.first);

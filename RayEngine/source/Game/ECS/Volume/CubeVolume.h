@@ -17,6 +17,7 @@ namespace ECS
         Utility::Math::Vector3<uint8> cachedMinBounds;
         Utility::Math::Vector3<uint8> cachedMaxBounds;
         Vector<Mat4F> cachedCubeTransforms;
+        bool cacheUpdated = false;
 
         void UpdateCache(const Mat4F& InWorld);
         
@@ -50,7 +51,6 @@ namespace ECS
     private:
         MeshInstance blockMesh = {}; 
         MeshInstance editMesh = {};
-        bool updateMesh = false;
         uint32 persistentID = 0;
     };
 }

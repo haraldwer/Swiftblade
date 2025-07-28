@@ -1,17 +1,17 @@
 #pragma once
+
 #include "Collections/SwapBuffer.h"
 #include "Composition.h"
 #include "Tone.h"
+#include "ToneLibrary.h"
 
 struct AudioStream;
 
 namespace Audio
 {
-    typedef Map<String, Tone> ToneMap; 
-    
     struct GenData : PropertyOwner<GenData>
     {
-        PROPERTY(ToneMap, Tones);
+        PROPERTY(ToneLibrary, Tones);
         PROPERTY(Composition, Comp);
     };
     

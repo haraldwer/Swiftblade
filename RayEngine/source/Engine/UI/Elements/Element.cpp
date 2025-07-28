@@ -33,7 +33,7 @@ bool UI::Element::IsHovered() const
 
 bool UI::Element::IsClicked() const
 {
-    return IsHovered() && Input::Action::Get("LM").Pressed();
+    return IsHovered() && Input::Action::Get("LM").Pressed() && Rendering::Manager::Get().IsViewportClickable();
 }
 
 UI::Rect UI::Element::GetReferenceRect()

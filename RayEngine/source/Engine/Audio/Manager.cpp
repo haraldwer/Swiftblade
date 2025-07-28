@@ -21,28 +21,22 @@ void Audio::Manager::DrawDebugPanel()
 {
     PROFILE();
     
-    // Edit everything
-    if (ImGui::Begin("Tones"))
-    {
-        workingGenData.Tones.Edit();
-        ImGui::End();
-    }
-    workingGenData.Comp.Edit();
+    workingGenData.Tones.Edit();
+    
+    if (ImGui::Begin("Composition"))
+        workingGenData.Comp.Edit();
+    ImGui::End();
 
     generator.genData.Front() = workingGenData;
     generator.genData.SwapFront();
     
+    if (ImGuiKnobs::Knob("Master", &config.Master.Get(), 0.0f, 1.0f, 0, "%.3f", ImGuiKnobVariant_Tick, 50.0f, ImGuiKnobFlags_NoTitle))
+        generator.Init(config);
+    
     // Display the output waves
-    if (ImGui::Begin("Audio Out"))
-    {
-        ImVec2 plotSize = ImVec2(0, 50); 
-        const AudioData& audioData = generator.audioData.SwapBack();
-        ImGui::SetNextItemWidth(-FLT_MIN);
-        ImGui::PlotLines("##AudioOut", audioData.Data.data(), static_cast<int>(audioData.Data.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
-        
-        if (ImGuiKnobs::Knob("Master", &config.Master.Get(), 0.0f, 1.0f))
-            generator.Init(config);
-        
-        ImGui::End();
-    }
+    const AudioData& audioData = generator.audioData.SwapBack();
+    ImVec2 plotSize = ImVec2(0, 50); 
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    ImGui::PlotLines("##AudioOut", audioData.Data.data(), static_cast<int>(audioData.Data.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
 }

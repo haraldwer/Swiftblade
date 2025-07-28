@@ -17,6 +17,7 @@ struct Expression : PropertyOwner<Expression>
     void Remove(uint8 InKey);
     void DeclareFunc(const String& InName, te_variant_type InFunc);
     void RemoveFunc(const String& InName);
+    bool Compile(); // Needs manual recompile after adding functions
     float Evaluate() const;
     
     bool Edit(const String& InName, uint32 InOffset) override;
@@ -25,7 +26,7 @@ struct Expression : PropertyOwner<Expression>
 private:
     PROPERTY(String, Expr);
     
-    bool Compile();
+    
     te_parser* parser = nullptr;
 
     struct Var

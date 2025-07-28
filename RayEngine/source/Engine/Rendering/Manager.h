@@ -29,6 +29,8 @@ namespace Rendering
         String DebugPanelName() const override { return "Viewport"; }
         void DrawDebugPanel() override;
 
+        bool IsViewportClickable() const;
+        
         Window window = {};
         Viewport mainViewport = {};
         Context defaultContext = {};
@@ -40,6 +42,7 @@ namespace Rendering
         
         Config currConfig = {}; 
         Config queuedConfig = {};
+        bool hovered = false;
 
         Vector<Vec3F> cullPoints;
     };

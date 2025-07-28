@@ -18,14 +18,19 @@ float Tone::Evaluate(const ToneTiming& InTiming, const uint64 InFrame) const
     return f * v;
 }
 
-bool Tone::Edit(const String& InName, const uint32 InOffset)
+bool Tone::Edit(const String &InName, uint32 InOffset)
+{
+    return PropertyOwner::Edit(InName, InOffset);
+}
+
+bool Tone::Edit()
 {
     bool result = false;
-
-    ImGui::Text("%s", InName.c_str());
     
     ImGui::PushItemWidth(-FLT_MIN);
     constexpr ImVec2 plotSize = ImVec2(0, 50);
+    
+    Name.Edit();
 
     ToneTiming previewTiming;
     previewTiming.sampleRate = TONE_PLOT_ACCURACY;
@@ -33,45 +38,60 @@ bool Tone::Edit(const String& InName, const uint32 InOffset)
     previewTiming.noteLength = TONE_PLOT_ACCURACY / 4;
 
     ImGui::SeparatorText("Frequency");
-    const bool freqEdit = Frequency.Edit(InOffset);
+    const bool freqEdit = Frequency.Edit();
     if (freqEdit || freqPreview.empty())
-    {
-        const ToneTiming freqTiming = previewTiming;
-        freqPreview.resize(TONE_PLOT_ACCURACY);
-        for (uint64 i = 0; i < TONE_PLOT_ACCURACY; i++)
-            freqPreview[i] = Evaluate(Frequency, freqTiming, i);
-    }
+        UpdatePreview(Frequency, previewTiming, freqPreview);
     ImGui::PlotLines("##Freq", freqPreview.data(), static_cast<int>(freqPreview.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
     result |= freqEdit;
     
     ImGui::SeparatorText("Volume");
-    const bool volEdit = Volume.Edit(InOffset);
+    const bool volEdit = Volume.Edit();
     if (volEdit || volumePreview.empty())
-    {
-        const ToneTiming volTiming = previewTiming;
-        volumePreview.resize(TONE_PLOT_ACCURACY);
-        for (uint64 i = 0; i < TONE_PLOT_ACCURACY; i++)
-            volumePreview[i] = Evaluate(Volume, volTiming, i);
-    }
+        UpdatePreview(Volume, previewTiming, volumePreview);
     ImGui::PlotLines("##Vol", volumePreview.data(), static_cast<int>(volumePreview.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
     result |= volEdit;
 
     if (result || tonePreview.empty())
-    {
-        tonePreview.resize(TONE_PLOT_ACCURACY);
-        for (uint64 i = 0; i < TONE_PLOT_ACCURACY; i++)
-            tonePreview[i] = Utility::Math::Clamp(
-                Evaluate(Frequency, previewTiming, i) *
-                Evaluate(Volume, previewTiming, i),
-                -1.0f,
-                1.0f);
-    }
+        UpdateTonePreview(previewTiming);
     ImGui::SeparatorText("Tone");
     ImGui::PlotLines("##Tone", tonePreview.data(), static_cast<int>(tonePreview.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
 
     ImGui::PopItemWidth();
     
     return result; 
+}
+
+void Tone::Plot(const String& InOverlay)
+{
+    if (tonePreview.empty())
+    {
+        ToneTiming previewTiming;
+        previewTiming.sampleRate = TONE_PLOT_ACCURACY;
+        previewTiming.beatLength = TONE_PLOT_ACCURACY;
+        previewTiming.noteLength = TONE_PLOT_ACCURACY / 4;
+        UpdateTonePreview(previewTiming);
+    }
+    
+    constexpr ImVec2 plotSize = ImVec2(0, 50);
+    ImGui::PlotLines("##Tone", tonePreview.data(), static_cast<int>(tonePreview.size()), 0, InOverlay.c_str(), FLT_MAX, FLT_MAX, plotSize);
+}
+
+void Tone::UpdateTonePreview(const ToneTiming &InTiming)
+{
+    tonePreview.resize(TONE_PLOT_ACCURACY);
+    for (uint64 i = 0; i < TONE_PLOT_ACCURACY; i++)
+        tonePreview[i] = Utility::Math::Clamp(
+            Evaluate(Frequency, InTiming, i) *
+            Evaluate(Volume, InTiming, i),
+            -1.0f,
+            1.0f);
+}
+
+void Tone::UpdatePreview(const Expression& InExpr, const ToneTiming& InTiming, Vector<float>& InPreview)
+{
+    InPreview.resize(TONE_PLOT_ACCURACY);
+    for (uint64 i = 0; i < TONE_PLOT_ACCURACY; i++)
+        InPreview[i] = Evaluate(InExpr, InTiming, i);
 }
 
 float Tone::Evaluate(const Expression& InFunc, const ToneTiming& InTiming, const uint64 InFrame)
@@ -109,4 +129,5 @@ void Tone::Declare(Expression& InFunc)
     TONE_DECLARE(InFunc, END);
     InFunc.DeclareFunc("octaves", &octaves);
     InFunc.DeclareFunc("smooth", &smooth);
+    InFunc.Compile();
 }

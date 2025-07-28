@@ -67,8 +67,6 @@ public:
         static TSelf local;
         instance = &local;
 
-        LOG("Reg");
-        
         // Run constructor to add properties
         new (&local) TSelf();
         

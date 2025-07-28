@@ -85,6 +85,15 @@ void Rendering::Manager::DrawDebugPanel()
         mainViewport.Resize(size);
         mainViewport.ImDraw();
     }
+
+    hovered = ImGui::IsWindowHovered();
+}
+
+bool Rendering::Manager::IsViewportClickable() const
+{
+    if (hovered)
+        return true;
+    return !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 }
 
 void Rendering::Manager::BeginFrame()
