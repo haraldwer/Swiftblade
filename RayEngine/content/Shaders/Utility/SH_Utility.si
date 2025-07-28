@@ -3,16 +3,27 @@
 
 const float PI = 3.1415926535f;
 
-vec2 WorldPosToCoord(vec3 InWorldPosition, mat4 InMVP)
+// World position -> View position
+vec4 WorldToView(vec3 InWorldPos, mat4 InMVP)
+{
+    return (InMVP * vec4(InWorldPos, 1));
+}
+
+// View position -> Screen coordinate
+vec2 ViewToCoord(vec4 InViewPos)
+{
+    return (InViewPos.xy / InViewPos.w + 1) / 2;
+}
+
+// World position -> Screen coordinate (0-1)
+vec2 WorldToCoord(vec3 InWorldPosition, mat4 InMVP)
 {    
-    vec4 screenPos = InMVP * vec4(InWorldPosition, 1.0);
-    vec2 coord = (1 + screenPos.xy / screenPos.w) / 2;
-    return coord;
+    return ViewToCoord(WorldToView(InWorldPosition, InMVP));
 }
 
 vec2 GetPrevCoord(vec3 InWorldPosition)
 {
-    return WorldPosToCoord(InWorldPosition, ViewProjPrev);
+    return WorldToCoord(InWorldPosition, ViewProjPrev);
 }
 
 float SquaredLength(vec2 InDist)
@@ -42,5 +53,7 @@ vec4 WorldPosToTex(vec4 InPos)
 
 vec3 GetViewDir(vec2 InUV)
 {
+    
+    
     return vec3(0); // Cant get this to work...
 }

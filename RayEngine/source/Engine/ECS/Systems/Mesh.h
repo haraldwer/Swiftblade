@@ -11,6 +11,7 @@ namespace ECS
     struct Mesh : Component<Mesh>
     { 
         PROPERTY_D(bool, Visible, true);
+        PROPERTY_D(uint8, Mask, 255);
         PROPERTY_D(ResModel, Model, "Defaults/M_Cube.obj");
         PROPERTY_D(ResRM, Material, "Defaults/RM_Default.json");
 

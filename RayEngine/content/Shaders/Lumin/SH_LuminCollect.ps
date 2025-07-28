@@ -26,8 +26,13 @@ vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
     return vec2(r * cos(theta), r * sin(theta));
 }
 
+// Monte carlo estimator for calculating irradiance
+// http://www.codinglabs.net/article_physically_based_rendering.aspx
+
 void main()
 {
+    vec2 texel = vec2(0);
+    
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     vec3 camDiff = CameraPosition - worldPos.xyz;
     float camDist = length(camDiff);
@@ -39,15 +44,15 @@ void main()
     
     float total = 1;
     vec4 result = vec4(0);
-    result.xyz += SampleCubeAtlas(TexFrame, RefRect, -camDir).xyz;
-    result.w += SampleCubeAtlas(TexPosition, RefRect, -camDir).w;
+    result.xyz += SampleCubeAtlas(TexFrame, texel, RefRect, -camDir).xyz;
+    result.w += SampleCubeAtlas(TexPosition, texel, RefRect, -camDir).w;
     for(int i = 1; i < SAMPLES; i++)
     {
         vec2 off = VogelDiskSample(i, SAMPLES, interleaved) * SAMPLE_SCALE;
         vec3 vec = normalize(camDir + right * off.x + up * off.y);
         float weight = max(0, dot(vec, camDir));
-        result.xyz += SampleCubeAtlas(TexFrame, RefRect, -vec).xyz * weight;
-        result.w += SampleCubeAtlas(TexPosition, RefRect, -vec).w * weight;
+        result.xyz += SampleCubeAtlas(TexFrame, texel, RefRect, -vec).xyz * weight;
+        result.w += SampleCubeAtlas(TexPosition, texel, RefRect, -vec).w * weight;
         total += weight;   
     }
     result /= total;

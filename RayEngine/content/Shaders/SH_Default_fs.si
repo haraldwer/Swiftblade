@@ -17,6 +17,5 @@ void Default()
     OutNormal.xyz = WorldNormal;
     OutNormal.a = DeferredIDToTexID(DeferredID);
     OutData.xy = Velocity.xy;
-    OutData.z = 0.0;
-    OutColor = vec4(1.0f);
+    OutData.zw = vec2(0.0);
 }

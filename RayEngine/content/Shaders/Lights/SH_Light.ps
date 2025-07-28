@@ -27,7 +27,8 @@ out vec4 Output;
 const int SHADOW_SAMPLES = 8;
 const float SHADOW_SAMPLE_SCALE = 11.0f;
 const float SHADOW_NOISE_SCALE = 2.0f;
-const float SHADOW_DIST_BIAS = 0.5f;
+const float SHADOW_DIST_BIAS = 0.05f;
+const float SHADOW_DIST_BIAS_MULTIPLIER = 3.0f;
 
 float InterleavedGradientNoise(vec2 uv)
 {
@@ -46,7 +47,7 @@ vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
 float ShadowTest(float InSampleDepth, float InLightDist)
 {
     float shadowDiff = InSampleDepth - InLightDist;
-    return max(0, -shadowDiff - SHADOW_DIST_BIAS);
+    return max(0, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
 }
 
 float Shadow(vec3 toLight)
@@ -81,17 +82,53 @@ float Shadow(vec3 toLight)
     return 1.0 - clamp(shadow - 0.5, 0, 1);
 }
 
+const float SSSHADOW_STEPS = 16;
+const float SSSHADOW_SCALE = 0.05;
+const float SSSHADOW_NEAR_RANGE = 0.1;
+const float SSSHADOW_FAR_RANGE = 0.5;
+
+float ScreenSpaceShadow(vec4 InPos)
+{
+    // TODO: Step in screen-space direction instead of world space
+    
+    vec3 dir = normalize(Position - InPos.xyz);
+    for (int i = 0; i < SSSHADOW_STEPS; i++)
+    {
+        vec3 sampleWorldPos = InPos.xyz + dir * (i + 1) * SSSHADOW_SCALE;
+        vec4 sampleViewPos = WorldToView(sampleWorldPos, ViewProj);
+        vec2 sampleCoord = clamp(ViewToCoord(sampleViewPos), 0, 1);
+        float depth = SampleWorldPos(sampleCoord).w;
+        float depthDiff = sampleViewPos.z - depth;
+        
+        if (depthDiff > SSSHADOW_NEAR_RANGE && depthDiff < SSSHADOW_FAR_RANGE)
+        {
+            float shadowFade = clamp(Pow2(i / SSSHADOW_STEPS), 0, 1); 
+            return shadowFade;
+        }
+    }
+    return 1.0;
+}
+
+float Godrays(vec4 InWorldPos, vec3 InToLight)
+{
+    return 0.0;
+}
+
 void main()
 {
-    if (!CheckID(TexCoord, 0)) // Exclude skybox
-        return;
-    
     vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
     vec3 toLight = Position - worldPos.xyz;
     float lightDistSqr = SquaredLength(toLight);
+
+    float godrays = Godrays(worldPos, toLight);
+    Output.rgb = Color;
+    Output.a = godrays;
+    
+    if (!CheckID(TexCoord, 0)) // Exclude skybox
+        return;
     
     if (lightDistSqr > Range * Range)
-        discard;
+        return;
 
     float lightDist = sqrt(lightDistSqr);    
     float fade = Pow2(1 - lightDist / Range);
@@ -100,17 +137,22 @@ void main()
     vec3 normal = SampleNormal(TexCoord);
     float d = dot(toLightDir, normal);
     if (d < 0)
-        discard;
+        return;
 
     float shadow = 1;
     if (Timestamp != 0)
     {
-        shadow = Shadow(toLight);
+        vec3 toLightShadow = ShadowPosition - worldPos.xyz;
+        shadow = Shadow(toLightShadow); 
         if (shadow < 0.001f)
-            discard;
+            return;
+        shadow = min(shadow, ScreenSpaceShadow(worldPos));
+        if (shadow < 0.001f)
+            return;
     }
     
-    float intensity = Intensity * pow(d, 0.5) * fade * shadow;
+    float ao = 1.0 - texture(TexAO, TexCoord).x;
+    float intensity = Intensity * pow(d, 0.5) * fade * shadow * ao;
     Output.rgb = Color;
-    Output.a = intensity;
+    Output.a = intensity + godrays;
 }

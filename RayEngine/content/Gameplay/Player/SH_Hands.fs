@@ -4,7 +4,5 @@
 void main()
 {
     Default();
-
-    OutColor.rgb = vec3(0.15);
-    OutData = vec3(0);
+    OutData = vec4(0);
 }

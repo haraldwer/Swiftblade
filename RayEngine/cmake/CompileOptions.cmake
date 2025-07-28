@@ -32,8 +32,8 @@ if(MSVC)
     "$<$<CONFIG:Release>:/Oy>" # Frame pointer omission
     "$<$<CONFIG:Release>:/O2>" # Maximize speed
     "$<$<CONFIG:Release>:/sdl->" # No SDL Checks
-    "$<$<CONFIG:Release>:/Qspectre>" # Prevent speculative execution side-channel attacks
-    "$<$<CONFIG:Release>:/GS>" # Buffer security checks
+    #"$<$<CONFIG:Release>:/Qspectre>" # Prevent speculative execution side-channel attacks
+    #"$<$<CONFIG:Release>:/GS>" # Buffer security checks
     "$<$<CONFIG:Release>:/Gy>" # Function level linking
     "$<$<CONFIG:Release>:/GF>" # String pooling
     "$<$<CONFIG:Release>:/GT>" # Fiber safe optimizations

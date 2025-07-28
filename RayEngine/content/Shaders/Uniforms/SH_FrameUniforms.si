@@ -4,6 +4,7 @@ uniform vec4 Rect; // xywh
 uniform vec4 RefRect;
 uniform mat4 ViewProj;
 uniform mat4 ViewProjPrev;
+uniform mat4 ViewProjInv;
 uniform vec3 CameraPosition;
 uniform vec2 NearFar;
 

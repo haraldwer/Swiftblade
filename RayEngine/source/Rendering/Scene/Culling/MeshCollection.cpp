@@ -75,6 +75,7 @@ Rendering::MeshCollection::Entry& Rendering::MeshCollection::GetEntry(const Mesh
     {
         entry.material = InInstance.material;
         entry.model = InInstance.model;
+        entry.mask = InInstance.mask;
         entry.initialized = true;
         
         // Add to deferred

@@ -54,7 +54,8 @@ void Rendering::Manager::Render(const Scene& InScene)
             .targetRect= Vec4I(),
             .camera= InScene.GetCamera()
         }},
-        .cullPoints = cullPoints
+        .cullPoints = cullPoints,
+        .cullMask = static_cast<uint8>(MeshMask::DEFAULT)
     };
     
     mainViewport.BeginFrame();

@@ -46,8 +46,6 @@ namespace Rendering
         static Stats RenderDeferred(const RenderArgs& InArgs);
         static Stats RenderLights(const RenderArgs& InArgs);
         static Stats RenderLumin(const RenderArgs& InArgs);
-        static Stats RenderFire(const RenderArgs& InArgs);
-        static Stats ApplyFire(const RenderArgs& InArgs);
         static Stats RenderAO(const RenderArgs& InArgs);
         static Stats RenderFX(const RenderArgs& InArgs);
         static Stats Blip(const RenderArgs& InArgs);

@@ -53,16 +53,18 @@ bool PropertyOwnerBase::Deserialize(const GenericVal& InVal)
 bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
 {
     bool edited = false;
+    const auto& order = GetPropertyOrder();
     const auto& map = GetPropertyMap();
     bool header = false;
-    if (map.size() <= 1 || Utility::MaybeCollapse(InName, InOffset, header))
+    if (order.size() <= 1 || Utility::MaybeCollapse(InName, InOffset, header))
     {
         if (header)
             ImGui::Indent();
         const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this)) + InOffset;
-        for (const auto& p : map)
+        for (const auto& p : order)
         {
-            PropertyBase* ptr = OffToPtr(p.second);
+            auto& pOff = map.at(p);
+            PropertyBase* ptr = OffToPtr(pOff);
             CHECK_ASSERT(!ptr, "Invalid property");
             if (ptr->Edit(offset))
                 edited = true;
@@ -115,7 +117,9 @@ bool PropertyOwnerBase::AddPropertyInternal(PropertyBase* InProperty) const
 {
     uint16 off = PtrToOff(InProperty);
     CHECK_RETURN(off == static_cast<uint16>(-1), false)
-    GetPropertyMap()[InProperty->GetName()] = off;
+    String name = InProperty->GetName();
+    GetPropertyMap()[name] = off;
+    GetPropertyOrder().push_back(name);
     return true;
 }
 

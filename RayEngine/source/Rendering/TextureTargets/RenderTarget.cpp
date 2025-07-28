@@ -5,11 +5,11 @@
 #include "rlgl.h"
 #include "State/State.h"
 
-bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat)
+bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat, float InResScale)
 {
     if (TryBeginSetup(InTarget))
     {
-        CreateBuffer(InName, InFormat);
+        CreateBuffer(InName, InFormat, InResScale);
         EndSetup(InTarget);
         return true;
     }

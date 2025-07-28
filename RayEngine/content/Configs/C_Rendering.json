@@ -1,12 +1,5 @@
 {
 	"Context":{
-		"Lights":{
-			"Viewport":{
-				"Height":2048,
-				"Width":2048
-			}
-		},
-		"Lumin":false,
 		"NoiseTextures":[{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
@@ -18,14 +11,23 @@
 				"Val":"Defaults/T_Noise_Simplex.json"
 			}
 		],
+		"Lights":{
+			"Viewport":{
+				"Width":2048,
+				"Height":2048
+			}
+		},
+		"SSAO":false,
+		"MotionBlur":false,
+		"Parallax":false,
 		"Quantize":false,
-		"SSAO":false
+		"Lumin":false
 	},
 	"Lumin":{
-		"UpdateFrequency":1.0,
 		"Viewport":{
-			"Height":1024,
-			"Width":1024
-		}
+			"Width":1024,
+			"Height":1024
+		},
+		"UpdateFrequency":1.0
 	}
 }

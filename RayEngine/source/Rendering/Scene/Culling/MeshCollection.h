@@ -23,6 +23,7 @@ namespace Rendering
             
             ResModel model;
             ResRM material;
+            uint8 mask = 0;
             uint32 deferredID = 0;
             bool initialized = false;
             bool justRebuilt = false;

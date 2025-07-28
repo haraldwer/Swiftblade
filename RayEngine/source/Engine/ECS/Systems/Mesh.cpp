@@ -57,7 +57,8 @@ void SysMesh::SystemFrame()
                 .model= m.Model,
                 .material= m.Material,
                 .transform= m.worldCache,
-                .hash= hash
+                .hash= hash,
+                .mask= m.Mask
             }, persistentID);
         }
     }

@@ -2,12 +2,22 @@
 #include "Rendering/Resources/Material.h"
 #include "Rendering/Resources/Model.h"
 
+enum class MeshMask : uint8
+{
+    DEFAULT = 1 << 0,
+    SHADOWS = 1 << 1,
+    LUMIN = 1 << 2,
+    
+    ALL = 255
+};
+
 struct MeshInstance
 {
     ResModel model;
     ResRM material;
     Mat4F transform;
     uint64 hash;
+    uint8 mask = static_cast<uint8>(MeshMask::ALL);
     float extent = 1.0f;
 
     inline static uint32 PERSISTENT_ID = 0;

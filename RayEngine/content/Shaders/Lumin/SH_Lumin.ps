@@ -59,10 +59,10 @@ vec4 SampleProbe(int InIndex, vec3 InWorldPos, vec3 InNormal)
         return vec4(0);
     
     vec3 color = vec3(0);
-    color += SampleCubeAtlas(TexLumin, rect, -InNormal).rgb;
-    color += SampleCubeAtlas(TexLumin, rect, InNormal).rgb;
-    color += SampleCubeAtlas(TexLumin, rect, -pixelToProbeDir).rgb;
-    color += SampleCubeAtlas(TexLumin, rect, pixelToProbeDir).rgb;
+    color += SampleCubeAtlas(TexLumin, TexLuminRes, rect, -InNormal).rgb;
+    color += SampleCubeAtlas(TexLumin, TexLuminRes, rect, InNormal).rgb;
+    color += SampleCubeAtlas(TexLumin, TexLuminRes, rect, -pixelToProbeDir).rgb;
+    color += SampleCubeAtlas(TexLumin, TexLuminRes, rect, pixelToProbeDir).rgb;
     color /= 4;
     color *= depthFade * distFade * surfaceFade;
     return vec4(color, depthFade * distFade);

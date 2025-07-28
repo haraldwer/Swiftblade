@@ -32,12 +32,10 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs);
     stats += ProcessScene(InArgs);
-    stats += RenderFire(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
     stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
-    stats += ApplyFire(InArgs);
     stats += RenderFX(InArgs);
     stats += Blip(InArgs);
     stats += RenderDebug(InArgs);
@@ -68,22 +66,19 @@ Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& I
     PROFILE_GL();
     Stats stats;
     auto& sceneTargets = InArgs.viewportPtr->targets.sceneTargets;
-    auto& shader = InArgs.contextPtr->config.ProcessSceneShader;
-    sceneTargets.Iterate();
-    Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), shader, { &sceneTargets.Prev() });
-    return stats;
-}
 
-Rendering::Pipeline::Stats Rendering::Pipeline::RenderFire(const RenderArgs& InArgs)
-{
-    PROFILE_GL();
-    Stats stats;
-    auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
-    auto& fireTargets = InArgs.viewportPtr->targets.fireTargets;
-    auto& fireShader = InArgs.contextPtr->config.FireShader;
-    fireTargets.Iterate();
-    Renderer::DrawFullscreen(InArgs, fireTargets.Curr(), fireShader, { &sceneTarget, &fireTargets.Prev() });
-    stats.fullscreenPasses++;
+    if (InArgs.contextPtr->config.Bump)
+    {
+        auto& bumpShader = InArgs.contextPtr->config.BumpShader;
+        sceneTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), bumpShader, { &sceneTargets.Prev() });
+    }
+    if (InArgs.contextPtr->config.Parallax)
+    {
+        auto& pomShader = InArgs.contextPtr->config.POMShader;
+        sceneTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), pomShader, { &sceneTargets.Prev() });
+    }
     return stats;
 }
 
@@ -119,7 +114,8 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& I
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
-    stats.lights += Renderer::DrawLights(InArgs, frameTarget, { &sceneTarget });
+    auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
+    stats.lights += Renderer::DrawLights(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
     return stats;
 }
 
@@ -133,20 +129,6 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& In
     stats.probes += Renderer::DrawLuminProbes(InArgs, frameTarget, { &sceneTarget });
     return stats;
 }
-
-Rendering::Pipeline::Stats Rendering::Pipeline::ApplyFire(const RenderArgs& InArgs)
-{
-    PROFILE_GL();
-    Stats stats;
-    auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
-    const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
-    auto& fireTargets = InArgs.viewportPtr->targets.fireTargets;
-    auto& fireBlipShader = InArgs.contextPtr->config.FireBlipShader;
-    Renderer::DrawFullscreen(InArgs, frameTarget, fireBlipShader, { &sceneTarget, &fireTargets.Curr() }, -1, false);
-    stats.fullscreenPasses++;
-    return stats;
-}
-
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArgs)
 {

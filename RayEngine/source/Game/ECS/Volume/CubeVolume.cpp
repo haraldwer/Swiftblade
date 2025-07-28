@@ -285,14 +285,16 @@ void ECS::SysCubeVolume::SystemInit()
         .model = ResModel("Defaults/M_Cube.obj"),
         .material = ResRM("Dressing/RM_StoneWall.json"),
         .transform = {},
-        .hash = 0
+        .hash = 0,
+        .mask = static_cast<uint8>(MeshMask::ALL)
     };
 
     editMesh = {
         .model = ResModel("Defaults/M_Cube.obj"),
         .material = ResRM("Editor/RM_EditCube.json"),
         .transform = {},
-        .hash = 0
+        .hash = 0,
+        .mask = static_cast<uint8>(MeshMask::ALL)
     };
     
     // Generate hash

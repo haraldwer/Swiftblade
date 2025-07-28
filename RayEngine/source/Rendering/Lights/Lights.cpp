@@ -67,6 +67,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
         // TODO: Cache cull results, or unique culling for each light?  
         .cullPoints = InArgs.cullPoints,
+        .cullMask = static_cast<uint8>(MeshMask::SHADOWS)
     };
     
     int count = 0;
