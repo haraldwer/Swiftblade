@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Lights/LightConfig.h"
-#include "Rendering/Resources/NoiseTexture.h"
+#include "Resources/BakedTexture.h"
 #include "Resources/Model.h"
+#include "Resources/NoiseTexture.h"
 
 namespace Rendering
 {
@@ -11,6 +12,7 @@ namespace Rendering
         PROPERTY(Vector<String>, GlobalDefines)
         PROPERTY(StringMap<ResNoiseTex>, NoiseTextures)
         PROPERTY_D(ResModel, DefaultCube, "Defaults/M_Cube.obj");
+        PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json");
 
         PROPERTY(LightConfig, Lights); // TODO: Move
 

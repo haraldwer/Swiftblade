@@ -1,0 +1,5 @@
+{
+	"Shader":"Shaders/PBR/SH_BakeBRDF.fs",
+	"Name":"TexBRDF",
+	"Res":1024
+}

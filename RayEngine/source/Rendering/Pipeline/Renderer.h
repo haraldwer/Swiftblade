@@ -17,6 +17,7 @@ namespace Rendering
     class Context;
     class Viewport;
     class Scene;
+    class BakedTexture;
 
     struct Perspective
     {
@@ -49,6 +50,7 @@ namespace Rendering
         static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
         static int DrawDebug(const RenderArgs& InArgs);
         static void Blip(const RenderTexture& InTarget, const RenderTarget& InBuffer);
+        static bool Bake(const BakedTexture& InTex);
     
     private:
         static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, int InType, int InCount = 1);

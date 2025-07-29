@@ -9,6 +9,7 @@
 #include "State/Command.h"
 #include "State/State.h"
 #include "Viewport/Viewport.h"
+#include "Resources/BakedTexture.h"
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType, const int InCount)
 {
@@ -118,6 +119,7 @@ void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
 void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
 {
     PROFILE_GL();
+    CHECK_ASSERT(!InArgs.contextPtr, "Invalid context");
     
     auto& config = InArgs.contextPtr->config;
     for (auto& entry : config.NoiseTextures.Get())
@@ -785,4 +787,28 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
         ::WHITE);
 
     EndTextureMode();
+}
+
+bool Rendering::Renderer::Bake(const BakedTexture& InTex)
+{
+    ShaderResource* shaderResource = InTex.Shader.Get().Get();
+    CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource", false);
+    const Shader* shader = shaderResource->Get();
+    CHECK_RETURN_LOG(!shader, "Failed to get shader", false);
+    
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTex.target.GetFBO();
+    frameCmd.size = InTex.target.Size();
+    frameCmd.clearTarget = true;
+    rlState::current.Set(frameCmd);
+
+    ShaderCommand shaderCmd;
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    shaderCmd.blendMode = -1;
+    rlState::current.Set(shaderCmd);
+
+    DrawQuad();
+    
+    return true;
 }

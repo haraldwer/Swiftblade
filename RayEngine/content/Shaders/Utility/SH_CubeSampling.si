@@ -88,7 +88,7 @@ vec4 SampleCubeAtlasMip(sampler2D InAtlas, vec2 InFaceTexel, vec4 InRect, vec3 I
     faceUV.x -= fl;
 
     // TODO: Mip
-    return texture(InAtlas, faceUV);
+    return texture(InAtlas, faceUV, InMip);
 }
 
 // Spheres and octahedrons

@@ -1,0 +1,109 @@
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+#include "Shaders/PBR/SH_PBR_Common.si"
+
+// From LearnOpenGL
+// https://learnopengl.com/PBR/Lighting
+
+uniform sampler2D TexBRDF;
+uniform sampler2D TexIrradiance;
+uniform sampler2D TexPrefilter;
+
+uniform sampler2D TexLights;
+
+uniform vec2 EnvFaceTexel;
+uniform vec4 EnvRect;
+
+const float MAX_REFLECTION_LOD = 4.0;
+const float HDR_GAMMA = 2.2f;
+
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+// PBR equation for per-light radiance
+vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InLightPos, vec3 InLightColor, float InAttenuation, vec3 InSurface)
+{
+    float metallic = InSurface.r;
+    float roughness = InSurface.g;
+    float ao = InSurface.b;
+
+    vec3 N = normalize(InNormal);
+    vec3 V = normalize(CameraPosition - InWorldPos);
+
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, InAlbedo, metallic);
+    
+    // Calculate per-light radiance
+    vec3 diff = InLightPos - InWorldPos;
+    float distance = length(diff);
+    vec3 L = diff / distance;
+    vec3 H = normalize(V + L);
+    float attenuation = 1 / Pow2(distance);
+    vec3 radiance = InLightColor * InAttenuation;
+
+    // cook-torrance brdf
+    float NDF = DistributionGGX(N, H, roughness);
+    float G = GeometrySmith(N, V, L, roughness);
+    
+    // Calculate fresnel
+    vec3 F = FresnelSchlickRoughness(max(dot(H, V), 0), F0, roughness);
+    vec3 kD = vec3(1) - F; // kS = F
+    kD *= 1 - metallic;
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4 * max(dot(N, V), 0) * max(dot(N, L), 0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    // Add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0);
+    return (kD * InAlbedo / PI + specular) * radiance * NdotL;
+}
+
+vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
+{
+    float metallic = InSurface.r;
+    float roughness = InSurface.g;
+    float ao = InSurface.b;
+    
+    vec3 N = normalize(InNormal);
+    vec3 V = normalize(CameraPosition - InWorldPos);
+    
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, InAlbedo, metallic);
+    
+    // Calculate fresnel from view vector
+    vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0), F0, roughness);
+    vec3 kD = vec3(1) - F; // kS = F
+    kD *= 1 - metallic;
+
+    // Get irradiance
+    vec3 irradiance = SampleCubeAtlas(TexIrradiance, N).rgb;
+    vec3 diffuse    = irradiance * InAlbedo;
+
+    // Get specular using BRDF
+    vec3 prefilteredColor = SampleCubeAtlasMip(TexPrefilter, EnvFaceTexel, EnvRect, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 envBRDF  = texture(TexBRDF, vec2(max(dot(N, V), 0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+    // Add diffuse and specular 
+    vec3 ambient = (kD * diffuse + specular) * ao;
+
+    // For each light (separate pass)
+    vec3 Lo = texture(TexLights, TexCoord).rgb;
+    
+    // Collect from lights
+    vec3 color = ambient + Lo;
+    
+    // Linear to HDR
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0 / HDR_GAMMA));
+    return color;
+}

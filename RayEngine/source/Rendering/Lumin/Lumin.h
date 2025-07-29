@@ -5,6 +5,7 @@
 #include "Rendering/Context/Context.h"
 #include "Rendering/TextureTargets/AtlasMap.h"
 #include "Rendering/Viewport/Viewport.h"
+#include "Resources/BakedTexture.h"
 
 namespace Rendering
 {
@@ -61,10 +62,12 @@ namespace Rendering
         LuminConfig config = {};
         Context context = {};
         Viewport viewport = {};
+        LuminPipeline pipeline = {};
+        
+        
+        AtlasMap atlasMap = {};
         RenderTarget target = {};
         SwapTarget lerpTarget = {};
-        AtlasMap atlasMap = {};
-        LuminPipeline pipeline = {};
     };
 }
 

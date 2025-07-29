@@ -23,7 +23,8 @@ void Rendering::Viewport::Init(const ViewportConfig& InConfig)
         virtualTarget->texture.height == virtualHeight)
         return;
 
-    UnloadRenderTexture(*virtualTarget);
+    if (IsRenderTextureValid(*virtualTarget))
+        UnloadRenderTexture(*virtualTarget);
     *virtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
     targets.Init(*virtualTarget);
 }
