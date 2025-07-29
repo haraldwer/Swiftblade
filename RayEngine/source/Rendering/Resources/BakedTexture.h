@@ -12,6 +12,8 @@ namespace Rendering
         bool Load(const String& InPath) override;
         bool Unload() override;
         Utility::Timepoint GetEditTime() const;
+        bool Bake();
+        bool IsBaked() const { return baked; }
         RenderTarget& Get() { return target; };
         
     private:
@@ -22,6 +24,7 @@ namespace Rendering
         
         RenderTarget target;
         RenderTexture* tex = nullptr;
+        bool baked = false;
     };
 }
 

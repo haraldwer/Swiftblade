@@ -26,6 +26,5 @@ out vec4 Output;
 void main()
 {
     vec3 diff = normalize(ObjectPosition - WorldPosition.xyz);
-    Output.rgb = vec3(1) * SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -diff).a;
-    Output.a = 1.0f;
+    Output = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -diff);
 }

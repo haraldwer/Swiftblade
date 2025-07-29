@@ -16,7 +16,6 @@ uniform vec2 EnvFaceTexel;
 uniform vec4 EnvRect;
 
 const float MAX_REFLECTION_LOD = 4.0;
-const float HDR_GAMMA = 2.2f;
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -93,17 +92,6 @@ vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
     vec2 envBRDF  = texture(TexBRDF, vec2(max(dot(N, V), 0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-    // Add diffuse and specular 
-    vec3 ambient = (kD * diffuse + specular) * ao;
-
-    // For each light (separate pass)
-    vec3 Lo = texture(TexLights, TexCoord).rgb;
-    
-    // Collect from lights
-    vec3 color = ambient + Lo;
-    
-    // Linear to HDR
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0 / HDR_GAMMA));
-    return color;
+    // Add diffuse and specular
+    return (kD * diffuse + specular) * ao;
 }

@@ -1,0 +1,64 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+#define SOFT_SHADOWS
+
+const int SHADOW_SAMPLES = 8;
+const float SHADOW_SAMPLE_SCALE = 11.0f;
+const float SHADOW_NOISE_SCALE = 2.0f;
+const float SHADOW_DIST_BIAS = 0.05f;
+const float SHADOW_DIST_BIAS_MULTIPLIER = 3.0f;
+
+float InterleavedGradientNoise(vec2 uv)
+{
+    vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
+    return fract(magic.z * fract(dot(uv, magic.xy)));
+}
+
+vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
+{
+    float GoldenAngle = 2.4f;
+    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
+    float theta = sampleIndex * GoldenAngle + phi;
+    return vec2(r * cos(theta), r * sin(theta));
+}
+
+float ShadowTest(float InSampleDepth, float InLightDist)
+{
+    float shadowDiff = InSampleDepth - InLightDist;
+    return max(0, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
+}
+
+float Shadow(vec3 toLight)
+{
+    float lightDist = length(toLight);
+    vec3 toLightDir = toLight / lightDist;
+
+    #ifdef SOFT_SHADOWS
+
+    vec3 right = vec3(toLight.z, toLight.y, -toLight.x);
+    vec3 up = vec3(toLight.x, toLight.z, -toLight.y);
+    float interleaved = PI * 2.0f * InterleavedGradientNoise(TexCoord * SHADOW_NOISE_SCALE);
+    float depth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -toLightDir).a * Range;
+    float shadow = ShadowTest(depth, lightDist);
+    vec2 texel = 1 / Resolution;
+    for(int i = 1; i < SHADOW_SAMPLES; i++)
+    {
+        vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * texel * SHADOW_SAMPLE_SCALE;
+        vec3 vec = normalize(toLight + right * off.x + up * off.y);
+        float shadowDepth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -vec).a * Range;
+        shadow += ShadowTest(shadowDepth, lightDist);
+    }
+    shadow /= SHADOW_SAMPLES;
+
+    #else
+
+    float depth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -toLightDir).a * Range;
+    float shadow = ShadowTest(depth, lightDist);
+
+    #endif
+
+    return 1.0 - clamp(shadow - 0.5, 0, 1);
+}

@@ -5,7 +5,6 @@
 #include "Rendering/Context/Context.h"
 #include "Rendering/TextureTargets/AtlasMap.h"
 #include "Rendering/Viewport/Viewport.h"
-#include "Resources/BakedTexture.h"
 
 namespace Rendering
 {
@@ -45,27 +44,27 @@ namespace Rendering
         void Deinit();
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
-        Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs); // Unsafe!
+        Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs, int InLayer); // Unsafe!
         RenderTarget& GetProbeTarget() { return lerpTarget.Curr(); }
-        float GetRange() const;
 
     private:
         Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
         Pipeline::Stats LerpProbes(const RenderArgs& InArgs);
         void ExpandVolume(const Scene& InScene);
         void TryCreateProbe(ProbeCoord InCoord);
-        ProbeCoord FromPos(const Vec3F& InPos);
+        ProbeCoord FromPos(const Vec3F& InPos, int InLayer);
         Vec3F FromCoord(const ProbeCoord& InCoord);
-
-        Map<uint64, LuminProbe> probes = {};
 
         LuminConfig config = {};
         Context context = {};
         Viewport viewport = {};
         LuminPipeline pipeline = {};
-        
-        
-        AtlasMap atlasMap = {};
+
+        // Probe data
+        LuminProbe fallback;
+        Map<uint64, LuminProbe> probes = {};
+        Map<int, uint64> layerProbes = {};
+        AtlasMap atlas = {};
         RenderTarget target = {};
         SwapTarget lerpTarget = {};
     };

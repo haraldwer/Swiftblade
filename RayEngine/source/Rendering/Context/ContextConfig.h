@@ -12,7 +12,6 @@ namespace Rendering
         PROPERTY(Vector<String>, GlobalDefines)
         PROPERTY(StringMap<ResNoiseTex>, NoiseTextures)
         PROPERTY_D(ResModel, DefaultCube, "Defaults/M_Cube.obj");
-        PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json");
 
         PROPERTY(LightConfig, Lights); // TODO: Move
 

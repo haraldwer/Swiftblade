@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Debug/Panel.h"
 #include "Rendering/Pipeline/Pipeline.h"
+#include "TextureTargets/RenderTarget.h"
 
 namespace Rendering
 {
@@ -12,6 +13,7 @@ namespace Rendering
         void SetStats(const Pipeline::Stats& InStats) { stats = InStats; }
         
     private:
+        void DrawTex(const RenderTarget::TargetTex &tex);
         Pipeline::Stats stats = {};
     };
 }

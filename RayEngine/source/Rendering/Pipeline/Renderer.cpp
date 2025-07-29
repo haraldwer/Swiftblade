@@ -321,8 +321,12 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 {
     PROFILE_GL();
     
+    auto brdf = InArgs.contextPtr->config.TexBRDF.Get().Get();
+    if (brdf && !brdf->IsBaked())
+        brdf->Bake();
+    
     auto& scene = *InArgs.scenePtr;
-
+    
     FrameCommand frameCmd;
     frameCmd.fboID = InTarget.GetFBO();
     frameCmd.size = InTarget.Size();
@@ -351,8 +355,12 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
         int texSlot = 0;
         for (auto& b : InBuffers)
             if (b) b->Bind(*shaderResource, texSlot);
+        
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
 
+        if (brdf)
+            brdf->Get().Bind(*shaderResource, texSlot);
+        
         for (auto& perspective : InArgs.perspectives)
         {
             PerspectiveCommand perspCmd;
@@ -791,15 +799,16 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
 
 bool Rendering::Renderer::Bake(const BakedTexture& InTex)
 {
+    rlState::current.Reset();
+    
     ShaderResource* shaderResource = InTex.Shader.Get().Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource", false);
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN_LOG(!shader, "Failed to get shader", false);
-    
+
     FrameCommand frameCmd;
     frameCmd.fboID = InTex.target.GetFBO();
     frameCmd.size = InTex.target.Size();
-    frameCmd.clearTarget = true;
     rlState::current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
@@ -808,7 +817,12 @@ bool Rendering::Renderer::Bake(const BakedTexture& InTex)
     shaderCmd.blendMode = -1;
     rlState::current.Set(shaderCmd);
 
+    Vec4F rect = Vec4F(0, 0, 1, 1);
+    SetValue(*shaderResource, ShaderResource::DefaultLoc::RECT, &rect, SHADER_UNIFORM_VEC4);
+    
     DrawQuad();
+
+    rlState::current.Reset();
     
     return true;
 }

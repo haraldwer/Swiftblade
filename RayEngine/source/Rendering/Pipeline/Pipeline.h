@@ -36,7 +36,8 @@ namespace Rendering
                     meshDrawCount[s.first] += s.second;
             }
         };
-        
+
+
         virtual Stats Render(RenderArgs InArgs);
 
     protected:

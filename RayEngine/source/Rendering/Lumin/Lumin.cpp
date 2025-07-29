@@ -12,10 +12,30 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
     config = InConfig;
     viewport.Init(config.Viewport);
     context.Init(config.Context, InConfig);
-    atlasMap.Init(viewport.GetResolution(), config.MaxProbes + config.AtlasPadding, true);
-    target.Setup(viewport.GetVirtualTarget(), "TexLuminCollect", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    atlas.Init(viewport.GetResolution(), config.MaxProbes + config.AtlasPadding, true);
+
+    if (target.TryBeginSetup(viewport.GetVirtualTarget()))
+    {
+        target.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexPrefilter0", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexPrefilter1", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexPrefilter2", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexPrefilter3", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.EndSetup(viewport.GetVirtualTarget());
+    }
+    
     for (auto& t : lerpTarget.All())
-        t.Setup(viewport.GetVirtualTarget(), "TexLumin", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    {
+        if (t.TryBeginSetup(viewport.GetVirtualTarget()))
+        {
+            target.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            target.CreateBuffer("TexPrefilter0", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            target.CreateBuffer("TexPrefilter1", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            target.CreateBuffer("TexPrefilter2", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            target.CreateBuffer("TexPrefilter3", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            t.EndSetup(viewport.GetVirtualTarget());
+        }
+    }
 }
 
 void Rendering::Lumin::Deinit()
@@ -23,7 +43,7 @@ void Rendering::Lumin::Deinit()
     probes.clear();
     viewport.Deinit();
     context.Deinit();
-    atlasMap.Deinit();
+    atlas.Deinit();
     target.Unload();
     for (auto& t : lerpTarget.All())
         t.Unload();
@@ -36,18 +56,15 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
     CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
 
+    if (auto tex = config.TexBRDF.Get().Get())
+        if (!tex->IsBaked())
+            tex->Bake();
+    
     ExpandVolume(*InArgs.scenePtr);
     Pipeline::Stats stats;
     stats += UpdateProbes(InArgs);
     stats += LerpProbes(InArgs);
     return stats;
-}
-
-float Rendering::Lumin::GetRange() const
-{
-    const Vec3F range = Vec3F::One() * config.RangeMultiplier.Get() / config.Density.Get();
-    const float maxRange = Utility::Math::Max(Utility::Math::Max(range.x, range.y), range.z);
-    return maxRange;
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
@@ -63,7 +80,6 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         CHECK_CONTINUE(InArgs.contextPtr->Time() - probe->timestamp < config.UpdateFrequency)
         Utility::SortedInsert(timeSorted, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
         {
-            // TODO: Also consider distance
             return InFirst->timestamp < InSecond->timestamp;
         });
     }
@@ -91,7 +107,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         probe->timestamp = context.Time();
         probe->iterations++;
 
-        auto rect = atlasMap.GetRect(probe->coord.id, 0).To<float>();
+        auto rect = atlas.GetRect(probe->coord.id, 0).To<float>();
         probe->rect = {
             rect.x / size.x,
             rect.y / size.y,
@@ -105,7 +121,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         {
             args.perspectives.push_back({
                 .referenceRect = rect,
-                .targetRect = atlasMap.GetRect(probe->coord.id, i),
+                .targetRect = atlas.GetRect(probe->coord.id, i),
                 .camera = {
                     .position = probe->pos,
                     .rotation = directions[i],
@@ -142,7 +158,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs
     return pipeline.LerpProbes(lerpArgs, config.LerpShader, target, lerpTarget);
 }
 
-Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs)
+Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InArgs, int InLayer)
 {
     PROFILE_GL();
     
@@ -158,18 +174,20 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
         return (InFirst->pos - cam.position).LengthSqr() < (InSecond->pos - cam.position).LengthSqr();
     };
 
-    auto checkFunc = [&](const LuminProbe& InProbe)
+    auto checkFunc = [&](const ProbeCoord& InCoord)
     {
+        const Vec3F pos = FromCoord(InCoord);
         const Vec3F maxDist = (Vec3F(1.0f) / config.Density.Get()) * config.CullMultiplier.Get();
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
-        if (frustum.CheckSphere(InProbe.pos, cullDist))
+        if (frustum.CheckSphere(pos, cullDist))
             return true;
         return false;
     };
-    
-    for (auto& probe : probes)
-        if (checkFunc(probe.second))
-            Utility::SortedInsert(result, &probe.second, sortFunc);
+
+    auto& layer = layerProbes.at(InLayer);
+    for (auto& probeCoord : layer)
+        if (checkFunc(probeCoord))
+            Utility::SortedInsert(result, &probes.at(probeCoord), sortFunc);
 
     const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxProbes.Get());
     CHECK_RETURN(count <= 0, {});
@@ -208,9 +226,9 @@ void Rendering::Lumin::TryCreateProbe(const ProbeCoord InCoord)
     }
 }
 
-Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos)
+Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer)
 {
-    const auto density = config.Density.Get();
+    const auto density = config.BaseDensity.Get() * (1 + config.LayerScale.Get() * InLayer);
     return {
         .x = static_cast<int16>(InPos.x * density.x - 0.5f),
         .y = static_cast<int16>(InPos.y * density.y - 0.5f),
@@ -220,7 +238,7 @@ Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos)
 
 Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord)
 {
-    const auto density = config.Density.Get();
+    const auto density = config.BaseDensity.Get() * (1 + config.LayerScale.Get() * InCoord.layer);
     return {                                
         (static_cast<float>(InCoord.x) + 0.5f) / density.x,
         (static_cast<float>(InCoord.y) + 0.5f) / density.y,

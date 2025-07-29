@@ -11,9 +11,9 @@ const uint BRDF_SAMPLE_COUNT = 1024u;
 vec2 IntegrateBRDF(float InNdotV, float InRoughness)
 {
     vec3 V;
-    V.x = sqrt(1.0 - Pow2(NdotV));
+    V.x = sqrt(1.0 - Pow2(InNdotV));
     V.y = 0.0;
-    V.z = NdotV;
+    V.z = InNdotV;
 
     float A = 0.0;
     float B = 0.0;
@@ -33,7 +33,7 @@ vec2 IntegrateBRDF(float InNdotV, float InRoughness)
         if(NdotL > 0.0)
         {
             float G = GeometrySmith(N, V, L, InRoughness);
-            float G_Vis = (G * VdotH) / (NdotH * NdotV);
+            float G_Vis = (G * VdotH) / (NdotH * InNdotV);
             float Fc = pow(1.0 - VdotH, 5.0);
 
             A += (1.0 - Fc) * G_Vis;

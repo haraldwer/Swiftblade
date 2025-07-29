@@ -28,7 +28,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
         stats += InArgs.luminPtr->Update(InArgs);
     if (InArgs.lightsPtr)
         stats += InArgs.lightsPtr->Update(InArgs); 
-    
+
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs);
     stats += ProcessScene(InArgs);
@@ -136,6 +136,14 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
     auto& conf = InArgs.contextPtr->config;
     auto& frameTargets = InArgs.viewportPtr->targets.frameTargets;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
+
+    if (conf.Tonemapping)
+    {
+        PROFILE_GL_NAMED("Tonemapping");
+        frameTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.TonemappingShader, { &frameTargets.Prev() });
+        stats.fullscreenPasses++;
+    }
     if (conf.Quantize)
     {
         PROFILE_GL_NAMED("Quantize");
@@ -162,13 +170,6 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
         PROFILE_GL_NAMED("FXAA");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FXAAShader, { &frameTargets.Prev() });
-        stats.fullscreenPasses++;
-    }
-    if (conf.Tonemapping)
-    {
-        PROFILE_GL_NAMED("Tonemapping");
-        frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.TonemappingShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
     return stats;

@@ -1,0 +1,11 @@
+#include "Shaders/PBR/SH_PBR_IntegrateBRDF.si"
+
+in vec2 TexCoord;
+out vec4 Output;
+
+void main()
+{
+    Output.rg = IntegrateBRDF(TexCoord.x, TexCoord.y);
+    Output.b = 0;
+    Output.a = 1;
+}

@@ -1,9 +1,11 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
-#include "Shaders/Utility/SH_CubeSampling.si"
 #include "Shaders/Utility/SH_Utility.si"
-#include "Shaders/Utility/SH_Random.si"
 #include "Shaders/Utility/SH_DeferredID.si"
+
+#include "Shaders/PBR/SH_PBR.si"
+#include "Shaders/SH_Shadows.si"
+#include "Shaders/SH_SSShadows.si"
 
 // TODO: Pack these neater
 uniform vec3 Position;
@@ -22,93 +24,6 @@ uniform vec2 FaceTexel;
 in vec2 TexCoord;
 out vec4 Output;
 
-#define SOFT_SHADOWS
-
-const int SHADOW_SAMPLES = 8;
-const float SHADOW_SAMPLE_SCALE = 11.0f;
-const float SHADOW_NOISE_SCALE = 2.0f;
-const float SHADOW_DIST_BIAS = 0.05f;
-const float SHADOW_DIST_BIAS_MULTIPLIER = 3.0f;
-
-float InterleavedGradientNoise(vec2 uv)
-{
-    vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
-    return fract(magic.z * fract(dot(uv, magic.xy)));
-}
-
-vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
-{
-    float GoldenAngle = 2.4f;
-    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
-    float theta = sampleIndex * GoldenAngle + phi;
-    return vec2(r * cos(theta), r * sin(theta));
-}
-
-float ShadowTest(float InSampleDepth, float InLightDist)
-{
-    float shadowDiff = InSampleDepth - InLightDist;
-    return max(0, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
-}
-
-float Shadow(vec3 toLight)
-{
-    float lightDist = length(toLight);
-    vec3 toLightDir = toLight / lightDist;
-
-    #ifdef SOFT_SHADOWS
-    
-    vec3 right = vec3(toLight.z, toLight.y, -toLight.x);
-    vec3 up = vec3(toLight.x, toLight.z, -toLight.y);
-    float interleaved = PI * 2.0f * InterleavedGradientNoise(TexCoord * SHADOW_NOISE_SCALE);
-    float depth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -toLightDir).a * Range;
-    float shadow = ShadowTest(depth, lightDist);
-    vec2 texel = 1 / Resolution;
-    for(int i = 1; i < SHADOW_SAMPLES; i++)
-    {
-        vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * texel * SHADOW_SAMPLE_SCALE;
-        vec3 vec = normalize(toLight + right * off.x + up * off.y);
-        float shadowDepth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -vec).a * Range;
-        shadow += ShadowTest(shadowDepth, lightDist);
-    }
-    shadow /= SHADOW_SAMPLES;
-    
-    #else
-    
-    float depth = SampleCubeAtlas(TexShadow, FaceTexel, ShadowRect, -toLightDir).a * Range;
-    float shadow = ShadowTest(depth, lightDist); 
-    
-    #endif
-    
-    return 1.0 - clamp(shadow - 0.5, 0, 1);
-}
-
-const float SSSHADOW_STEPS = 16;
-const float SSSHADOW_SCALE = 0.05;
-const float SSSHADOW_NEAR_RANGE = 0.1;
-const float SSSHADOW_FAR_RANGE = 0.5;
-
-float ScreenSpaceShadow(vec4 InPos)
-{
-    // TODO: Step in screen-space direction instead of world space
-    
-    vec3 dir = normalize(Position - InPos.xyz);
-    for (int i = 0; i < SSSHADOW_STEPS; i++)
-    {
-        vec3 sampleWorldPos = InPos.xyz + dir * (i + 1) * SSSHADOW_SCALE;
-        vec4 sampleViewPos = WorldToView(sampleWorldPos, ViewProj);
-        vec2 sampleCoord = clamp(ViewToCoord(sampleViewPos), 0, 1);
-        float depth = SampleWorldPos(sampleCoord).w;
-        float depthDiff = sampleViewPos.z - depth;
-        
-        if (depthDiff > SSSHADOW_NEAR_RANGE && depthDiff < SSSHADOW_FAR_RANGE)
-        {
-            float shadowFade = clamp(Pow2(i / SSSHADOW_STEPS), 0, 1); 
-            return shadowFade;
-        }
-    }
-    return 1.0;
-}
-
 float Godrays(vec4 InWorldPos, vec3 InToLight)
 {
     return 0.0;
@@ -119,10 +34,6 @@ void main()
     vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
     vec3 toLight = Position - worldPos.xyz;
     float lightDistSqr = SquaredLength(toLight);
-
-    float godrays = Godrays(worldPos, toLight);
-    Output.rgb = Color;
-    Output.a = godrays;
     
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;
@@ -151,8 +62,13 @@ void main()
             return;
     }
     
-    float ao = 1.0 - texture(TexAO, TexCoord).x;
-    float intensity = Intensity * pow(d, 0.5) * fade * shadow * ao;
-    Output.rgb = Color;
-    Output.a = intensity + godrays;
+    //float ao = 1.0 - texture(TexAO, TexCoord).x;
+    //float intensity = Intensity * pow(d, 0.5) * fade * shadow * ao;
+    //Output.rgb = Color;
+    //Output.a = intensity + godrays;
+    
+    vec3 normal = SampleNormal(TexCoord).xyz;
+    
+    PBRLight(worldPos.xyz, normal, )
+    
 }
