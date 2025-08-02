@@ -12,7 +12,9 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
     config = InConfig;
     viewport.Init(config.Viewport);
     context.Init(config.Context, InConfig);
-    atlas.Init(viewport.GetResolution(), config.MaxProbes + config.AtlasPadding, true);
+
+    int maxProbes = config.MaxLayerProbes * config.Layers;
+    atlas.Init(viewport.GetResolution(), maxProbes + config.AtlasPadding, true);
 
     if (target.TryBeginSetup(viewport.GetVirtualTarget()))
     {
@@ -70,21 +72,21 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
 {
     PROFILE_GL();
-    
-    Vector<LuminProbe*> frameProbes = GetProbes(InArgs);
-    Vector<LuminProbe*> timeSorted;
+
+    Vector<LuminProbe*> probes;
+    Vector<LuminProbe*> frameProbes = GetProbes(InArgs, 0);
     for (auto& probe : frameProbes)
     {
         CHECK_CONTINUE(config.UpdateFrequency < 0.0f && probe->timestamp > 0.001f);
         CHECK_CONTINUE(config.Iterations > 0 && probe->iterations >= config.Iterations);
         CHECK_CONTINUE(InArgs.contextPtr->Time() - probe->timestamp < config.UpdateFrequency)
-        Utility::SortedInsert(timeSorted, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
+        Utility::SortedInsert(probes, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
         {
             return InFirst->timestamp < InSecond->timestamp;
         });
     }
-
-    CHECK_RETURN(timeSorted.empty(), {});
+    
+    CHECK_RETURN(probes.empty(), {});
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     Vec2F size = target.Size().To<float>();
@@ -98,10 +100,9 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .cullPoints = InArgs.cullPoints,
         .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
-    float range = GetRange();
 
     int count = 0;
-    for (auto probe : timeSorted)
+    for (auto probe : probes)
     {
         CHECK_CONTINUE(!probe);
         probe->timestamp = context.Time();
@@ -117,6 +118,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
 
         args.cullPoints.push_back(probe->pos);
         
+        
         for (int i = 0; i < 6; i++)
         {
             args.perspectives.push_back({
@@ -126,17 +128,17 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
                     .position = probe->pos,
                     .rotation = directions[i],
                     .fov = 90.0f,
-                    .far = range * 2,
-                    .near = 0.1f
+                    .far = 20.0f,
+                    .near = 0.01f
                 }
             });
         }
-        
+            
         count++;
-        if (count >= config.MaxProbeRenders)
+        if (count >= config.MaxFrameRenders)
             break;
     }
-
+    
     viewport.BeginFrame();
     return pipeline.RenderProbes(args, config.CollectShader, target);
 }
@@ -177,7 +179,7 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
     auto checkFunc = [&](const ProbeCoord& InCoord)
     {
         const Vec3F pos = FromCoord(InCoord);
-        const Vec3F maxDist = (Vec3F(1.0f) / config.Density.Get()) * config.CullMultiplier.Get();
+        const Vec3F maxDist = Vec3F::One() / GetDensity(InLayer);
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
         if (frustum.CheckSphere(pos, cullDist))
             return true;
@@ -187,9 +189,9 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
     auto& layer = layerProbes.at(InLayer);
     for (auto& probeCoord : layer)
         if (checkFunc(probeCoord))
-            Utility::SortedInsert(result, &probes.at(probeCoord), sortFunc);
+            Utility::SortedInsert(result, &probes.at(probeCoord.id), sortFunc);
 
-    const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxProbes.Get());
+    const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLayerProbes.Get());
     CHECK_RETURN(count <= 0, {});
     return { result.begin(), result.begin() + count };
 }
@@ -207,7 +209,7 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
             for (auto& trans : entry.second.transforms.GetAll())
             {
                 // Get extent, maybe add coord?
-                const ProbeCoord coord = FromPos(trans.GetPosition());
+                const ProbeCoord coord = FromPos(trans.GetPosition(), 0);
                 TryCreateProbe(coord);
             }
         }
@@ -223,12 +225,18 @@ void Rendering::Lumin::TryCreateProbe(const ProbeCoord InCoord)
     {
         probe.coord = InCoord;
         probe.pos = FromCoord(InCoord);
+        layerProbes[InCoord.layer].push_back(InCoord);
     }
 }
 
-Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer)
+Vec3F Rendering::Lumin::GetDensity(int InLayer) const
 {
-    const auto density = config.BaseDensity.Get() * (1 + config.LayerScale.Get() * InLayer);
+    return config.BaseDensity.Get() * powf(config.LayerScale.Get(), InLayer);
+}
+
+Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer) const
+{
+    const auto density = GetDensity(InLayer);
     return {
         .x = static_cast<int16>(InPos.x * density.x - 0.5f),
         .y = static_cast<int16>(InPos.y * density.y - 0.5f),
@@ -236,9 +244,9 @@ Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer)
     };
 }
 
-Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord)
+Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord) const
 {
-    const auto density = config.BaseDensity.Get() * (1 + config.LayerScale.Get() * InCoord.layer);
+    const auto density = GetDensity(InCoord.layer);
     return {                                
         (static_cast<float>(InCoord.x) + 0.5f) / density.x,
         (static_cast<float>(InCoord.y) + 0.5f) / density.y,

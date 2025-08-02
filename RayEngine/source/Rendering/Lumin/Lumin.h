@@ -52,8 +52,9 @@ namespace Rendering
         Pipeline::Stats LerpProbes(const RenderArgs& InArgs);
         void ExpandVolume(const Scene& InScene);
         void TryCreateProbe(ProbeCoord InCoord);
-        ProbeCoord FromPos(const Vec3F& InPos, int InLayer);
-        Vec3F FromCoord(const ProbeCoord& InCoord);
+        ProbeCoord FromPos(const Vec3F& InPos, int InLayer) const;
+        Vec3F FromCoord(const ProbeCoord& InCoord) const;
+        Vec3F GetDensity(int InLayer) const;
 
         LuminConfig config = {};
         Context context = {};
@@ -63,7 +64,7 @@ namespace Rendering
         // Probe data
         LuminProbe fallback;
         Map<uint64, LuminProbe> probes = {};
-        Map<int, uint64> layerProbes = {};
+        Map<int, Vector<ProbeCoord>> layerProbes = {};
         AtlasMap atlas = {};
         RenderTarget target = {};
         SwapTarget lerpTarget = {};

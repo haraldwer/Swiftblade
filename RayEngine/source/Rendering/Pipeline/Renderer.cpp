@@ -143,6 +143,14 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
     }
 }
 
+void Rendering::Renderer::BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
+{
+    if (InArgs.luminPtr)
+        if (auto brdf = InArgs.luminPtr->config.TexBRDF.Get().Get())
+            if (brdf->IsBaked())
+                brdf->Get().Bind(InShader, InOutSlot);
+}
+
 int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
 {
     PROFILE_GL();
@@ -321,10 +329,6 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
 {
     PROFILE_GL();
     
-    auto brdf = InArgs.contextPtr->config.TexBRDF.Get().Get();
-    if (brdf && !brdf->IsBaked())
-        brdf->Bake();
-    
     auto& scene = *InArgs.scenePtr;
     
     FrameCommand frameCmd;
@@ -357,9 +361,7 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
             if (b) b->Bind(*shaderResource, texSlot);
         
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
-
-        if (brdf)
-            brdf->Get().Bind(*shaderResource, texSlot);
+        BindBRDF(InArgs, *shaderResource, texSlot);
         
         for (auto& perspective : InArgs.perspectives)
         {
@@ -373,25 +375,20 @@ int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const Rende
     return static_cast<int>(passes.size());
 }
 
-int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
+int Rendering::Renderer::DrawLuminProbesDebug(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
     PROFILE_GL();
     
     CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
     auto& lumin = *InArgs.luminPtr;
     
-    auto probes = lumin.GetProbes(InArgs);
+    auto probes = lumin.GetProbes(InArgs, 0);
     CHECK_RETURN(probes.empty(), 0);
 
     LuminConfig conf = InArgs.luminPtr->config;
+    Vec3F range = Vec3F(20.0f);
+    auto& t = lumin.GetProbeTarget();
     
-    // Get shader
-    auto res = conf.LightingShader;
-    ShaderResource* shaderResource = res.Get().Get();
-    CHECK_RETURN(!shaderResource, 0);
-    const Shader* shader = shaderResource->Get();
-    CHECK_RETURN(!shader, 0);
-
     const auto& debugRes = conf.DebugShader;
     ShaderResource* debugShaderResource = debugRes.Get().Get();
     CHECK_RETURN(!debugShaderResource, 0);
@@ -408,53 +405,6 @@ int Rendering::Renderer::DrawLuminProbes(const RenderArgs& InArgs, const RenderT
     frameCmd.fboID = InTarget.GetFBO();
     frameCmd.size = InTarget.Size();
     rlState::current.Set(frameCmd);
-
-    ShaderCommand shaderCmd;
-    shaderCmd.locs = shader->locs;
-    shaderCmd.id = shader->id;
-    shaderCmd.blendMode = RL_BLEND_ADDITIVE;
-    rlState::current.Set(shaderCmd);
-    
-    SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-    
-    int texSlot = 0;
-    auto& t = lumin.GetProbeTarget();
-    t.Bind(*shaderResource, texSlot, RL_TEXTURE_FILTER_LINEAR);
-
-    BindNoiseTextures(InArgs, *shaderResource, texSlot);
-    for (auto& b : InBuffers)
-        if (b) b->Bind(*shaderResource, texSlot);
-
-    // Collect
-    int c = static_cast<int>(probes.size());
-    Vector<float> timestamps;
-    Vector<Vec3F> positions;
-    Vector<Vec4F> rects;
-    timestamps.reserve(c);
-    positions.reserve(c);
-    rects.reserve(c);
-    for (auto& probe : probes)
-    {
-        timestamps.push_back(probe->timestamp);
-        positions.push_back(probe->pos);
-        rects.push_back(probe->rect);
-    }
-
-    float range = lumin.GetRange();
-    SetValue(*shaderResource, "ProbeRange", &range, SHADER_UNIFORM_FLOAT);
-    SetValue(*shaderResource, "ProbeCount", &c, SHADER_UNIFORM_INT);
-    SetValue(*shaderResource, "Timestamp", timestamps.data(), SHADER_UNIFORM_FLOAT, c);
-    SetValue(*shaderResource, "ProbePosition", positions.data(), SHADER_UNIFORM_VEC3, c);
-    SetValue(*shaderResource, "ProbeRect", rects.data(), SHADER_UNIFORM_VEC4, c);
-    
-    for (auto& perspective : InArgs.perspectives)
-    {
-        PerspectiveCommand perspCmd;
-        perspCmd.rect = perspective.targetRect;
-        rlState::current.Set(perspCmd);
-        SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-        DrawQuad(); // TODO: Replace with cube mesh
-    }
 
     if (conf.Debug)
     {

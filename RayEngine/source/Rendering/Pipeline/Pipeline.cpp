@@ -126,7 +126,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& In
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
-    stats.probes += Renderer::DrawLuminProbes(InArgs, frameTarget, { &sceneTarget });
+    stats.probes += Renderer::DrawLuminProbesDebug(InArgs, frameTarget, { &sceneTarget });
     return stats;
 }
 
