@@ -1,37 +1,33 @@
 {
 	"Context":{
-		"Bump":false,
-		"SSAO":false,
-		"Parallax":false,
 		"NoiseTextures":[{
-				"Key":"TexPerlin",
-				"Val":"Defaults/T_Noise_Perlin.json"
-			},{
 				"Key":"TexCellular",
 				"Val":"Defaults/T_Noise_Cellular.json"
+			},{
+				"Key":"TexPerlin",
+				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
 				"Key":"TexSimplex",
 				"Val":"Defaults/T_Noise_Simplex.json"
 			}
 		],
-		"Quantize":false,
-		"MotionBlur":false,
 		"Lights":{
 			"Viewport":{
-				"Height":2048,
-				"Width":2048
+				"Width":2048,
+				"Height":2048
 			}
-		}
+		},
+		"SSAO":false,
+		"Bump":false,
+		"MotionBlur":false,
+		"Parallax":false,
+		"Quantize":false
 	},
 	"Lumin":{
-		"Debug":true,
 		"Viewport":{
-			"Height":2048,
-			"Width":2048
-		}
-	},
-	"Window":{
-		"Height":1800,
-		"Width":3200
+			"Width":2048,
+			"Height":2048
+		},
+		"Debug":true
 	}
 }

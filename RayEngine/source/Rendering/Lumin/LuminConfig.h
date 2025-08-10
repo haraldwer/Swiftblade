@@ -23,7 +23,7 @@ namespace Rendering
         PROPERTY_D(int, Layers, 2);
         PROPERTY_D(int, MaxLayerCount, 10); // Total = LayerCount * Layers
         PROPERTY_D(int, AtlasPadding, 4); // For reusing nearby probes
-        PROPERTY_D(int, MaxGridCount, 4096); // For mapping grid -> probe
+        PROPERTY_D(int, MaxGridCount, 1024); // For mapping grid -> probe
 
         // Probe update rules
         PROPERTY_D(float, UpdateFrequency, 0.0f);

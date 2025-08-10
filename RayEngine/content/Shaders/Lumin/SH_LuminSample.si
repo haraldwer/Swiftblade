@@ -5,7 +5,7 @@
 const int LAYERS = 2;
 const int LAYER_PROBES = 10;
 const int PROBE_COUNT = (LAYERS * LAYER_PROBES) + 1;
-const int GRID_COUNT = 4096; 
+const int GRID_COUNT = 1024; 
 
 uniform sampler2D TexBRDF;
 uniform sampler2D TexIrradiance;
@@ -37,7 +37,8 @@ vec4 GetProbe(vec3 InWorldPos)
         int startIndex = Sizes[layer].w;
         int endIndex = Starts[layer].w;
         
-        vec3 pos = InWorldPos * density + 0.5;
+        vec3 pos = InWorldPos * density;
+        pos = round(pos);
         ivec3 gridPos = ivec3(pos) - start;
         
         // Map to index

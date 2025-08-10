@@ -1,6 +1,6 @@
 #include "DeferredRenderer.h"
 
-#include "LuminRenderer.h"
+#include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"

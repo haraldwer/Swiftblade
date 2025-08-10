@@ -119,6 +119,7 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
                 p.y - layer.start.y,
                 p.z - layer.start.z,
             };
+            
             int index = c.x + c.y * layer.size.x + c.z * layer.size.x * layer.size.y;
             layer.indices.at(index) = probeIndex + startIndex;
         }

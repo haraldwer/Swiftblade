@@ -1,6 +1,6 @@
 #include "LightsRenderer.h"
 
-#include "LuminRenderer.h"
+#include "Lumin/LuminRenderer.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 #include "RayRenderUtility.h"

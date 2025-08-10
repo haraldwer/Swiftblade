@@ -1,8 +1,8 @@
 ﻿#include "Pipeline.h"
 
 #include "DeferredRenderer.h"
-#include "LightsRenderer.h"
-#include "LuminRenderer.h"
+#include "Lights/LightsRenderer.h"
+#include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
