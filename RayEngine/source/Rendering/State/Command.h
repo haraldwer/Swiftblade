@@ -36,7 +36,7 @@ namespace Rendering
 
     struct PerspectiveCommand
     {
-        Vec4I rect = {};
+        Vec4F rect = {};
     };
 
     struct MeshCommand

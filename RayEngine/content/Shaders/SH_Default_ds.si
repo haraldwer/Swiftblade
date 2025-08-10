@@ -2,10 +2,10 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 
-#include "Shaders/Utility/SH_Random.si"
 #include "Shaders/Utility/SH_Utility.si"
-#include "Shaders/Utility/SH_HSV.si"
 #include "Shaders/Utility/SH_DeferredID.si"
+
+#include "Shaders/PBR/SH_PBR.si"
 
 in vec2 TexCoord;
 in vec2 RectCoord;
@@ -17,39 +17,30 @@ const float FADE_DOT_PART = 0.2;
 
 float DistanceFade(float InCameraDistance)
 {
-    return 1.0f - clamp((InCameraDistance - DIST_FADE_START) / (DIST_FADE_END - DIST_FADE_START), 0.0f, 1.0f);
+    return 1.0f - Saturate((InCameraDistance - DIST_FADE_START) / (DIST_FADE_END - DIST_FADE_START));
 }
 
-float SurfaceFade()
+float SurfaceFade(vec3 InWorldPos, vec3 InNormal)
 {
-    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
-    vec3 worldNormal = SampleNormal(TexCoord);
-    
     // Camera distance and dot
-    vec3 cameraDifference = CameraPosition - worldPosition;
+    vec3 cameraDifference = CameraPosition - InWorldPos;
     float cameraDistance = length(cameraDifference);
     vec3 cameraDirection = cameraDifference / cameraDistance;
-    float cameraDot = dot(cameraDirection, worldNormal);
+    float cameraDot = dot(cameraDirection, InNormal);
 
     // Fade
     float cameraDistanceFade = DistanceFade(cameraDistance);
     return mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
 }
 
-void Default()
+void Default(vec3 InAlbedo, vec3 InSurface)
 {
     if (CheckID(TexCoord, DeferredID))
         discard;
 
-    // PBR och Image Based Lighting
+    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
+    vec3 worldNormal = SampleNormal(TexCoord);
     
-    vec4 color = vec4(1.0f);
-    
-    float fade = SurfaceFade();
-    color.rgb *= fade;
-    
-    float aoFade = texture(TexAO, TexCoord).x;
-    color.rgb *= 1.0 - aoFade;
-
-    Output = vec4(color.rgb, 1.0);
+    vec3 pbr = PBR(worldPosition, worldNormal, InAlbedo, InSurface);
+    Output = vec4(pbr, 1.0);
 }

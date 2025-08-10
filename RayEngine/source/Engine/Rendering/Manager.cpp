@@ -27,7 +27,7 @@ void Rendering::Manager::Init()
 
     rlImGuiSetup(false);
     ImGui::Theme1();
-    ImGui::LoadFont();
+    ImGui::LoadFont(GetWindowScaleDPI().y);
 }
 
 void Rendering::Manager::Deinit()
@@ -51,7 +51,7 @@ void Rendering::Manager::Render(const Scene& InScene)
         .viewportPtr= &mainViewport,
         .perspectives = {{
             .referenceRect= Vec4F(),
-            .targetRect= Vec4I(),
+            .targetRect= Vec4F(),
             .camera= InScene.GetCamera()
         }},
         .cullPoints = cullPoints,

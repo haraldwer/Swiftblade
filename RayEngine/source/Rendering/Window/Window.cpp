@@ -7,30 +7,33 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
 {
     config = InConfig;
 
+    config.Width = Utility::Math::Max(500, config.Width.Get());
+    config.Height = Utility::Math::Max(500, config.Height.Get());
+    
+    unsigned flags = 0;
+    if (config.Fullscreen)
+        flags |= FLAG_BORDERLESS_WINDOWED_MODE;
+    if (config.VSync)
+        flags |= FLAG_VSYNC_HINT;
+    if (config.MSAA)
+        flags |= FLAG_MSAA_4X_HINT;
+    flags |= FLAG_WINDOW_ALWAYS_RUN;
+    SetWindowState(flags);
+
     if (!IsWindowReady())
     {
         InitWindow(
-            InConfig.Width,
-            InConfig.Height,
+            config.Width,
+            config.Height,
             "RayEngine");
     }
     else
     {
         SetWindowSize(
-            InConfig.Width,
-            InConfig.Height);
+            config.Width,
+            config.Height);
     }
 
-    unsigned flags = 0;
-    if (InConfig.Fullscreen)
-        flags |= FLAG_BORDERLESS_WINDOWED_MODE;
-    if (InConfig.VSync)
-        flags |= FLAG_VSYNC_HINT;
-    if (InConfig.MSAA)
-        flags |= FLAG_MSAA_4X_HINT;
-    flags |= FLAG_WINDOW_ALWAYS_RUN;
-    SetWindowState(flags);
-    
     SetExitKey(KEY_F4);
 }
 

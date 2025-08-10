@@ -19,28 +19,17 @@ namespace Rendering
 
         // Probe locations and layering
         PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.1f));
-        PROPERTY_D(float, LayerScale, 0.5f);
-        PROPERTY_D(int, Layers, 3);
-        PROPERTY_D(int, MaxLayerProbes, 15); // Total = MaxLayer * Layers
+        PROPERTY_D(float, LayerScale, 0.4f);
+        PROPERTY_D(int, Layers, 2);
+        PROPERTY_D(int, MaxLayerCount, 10); // Total = LayerCount * Layers
         PROPERTY_D(int, AtlasPadding, 4); // For reusing nearby probes
-
-
-        // Grid of probes
-        // Select some probes
-        // Can we assume grid?
-        // Is every position valid?
-        // What if not?
-        // Fewer well-placed probes is better
-        // Looping is not going to work
-        // Selection should be a grid around camera
-        // What about angle? Very efficient but a lot of math
-        //
-        
+        PROPERTY_D(int, MaxGridCount, 4096); // For mapping grid -> probe
 
         // Probe update rules
-        PROPERTY_D(float, UpdateFrequency, 0.1f);
+        PROPERTY_D(float, UpdateFrequency, 0.0f);
         PROPERTY_D(int, Iterations, 0);
         PROPERTY_D(int, MaxFrameRenders, 1);
+        PROPERTY_D(bool, ResetCache, false);
         
         // Debugging
         PROPERTY_D(ResShader, DebugShader, "Shaders/Lumin/SH_LuminDebug.fs");

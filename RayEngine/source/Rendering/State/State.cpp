@@ -181,9 +181,19 @@ void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
     
     if (perspective.rect != InCmd.rect || InForce)
     {
-        const int w = InCmd.rect.z > 0 ? InCmd.rect.z : frame.size.x;
-        const int h = InCmd.rect.w > 0 ? InCmd.rect.w : frame.size.y;
-        rlViewport(InCmd.rect.x, InCmd.rect.y, w, h);
+        Vec4F rect = {
+            InCmd.rect.x,
+            InCmd.rect.y,
+            InCmd.rect.z > 0.0f ? InCmd.rect.z : 1.0f,
+            InCmd.rect.w > 0.0f ? InCmd.rect.w : 1.0f
+        };
+        Vec2F size = frame.size.To<float>();
+        rect.x *= size.x;
+        rect.y *= size.y;
+        rect.z *= size.x;
+        rect.w *= size.y;
+        const Vec4I intRect = rect.To<int>();
+        rlViewport(intRect.x, intRect.y, intRect.z, intRect.w);
     }
     perspective = InCmd;
 }

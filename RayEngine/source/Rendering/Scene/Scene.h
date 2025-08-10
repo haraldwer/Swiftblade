@@ -12,6 +12,7 @@ namespace Rendering
     class Scene
     {
         friend class Renderer;
+        friend class DeferredRenderer;
         friend class Lumin;
         friend class Lights;
     public:

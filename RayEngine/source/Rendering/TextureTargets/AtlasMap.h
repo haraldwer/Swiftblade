@@ -5,16 +5,16 @@ namespace Rendering
     class AtlasMap
     {
     public:
-        void Init(const Vec2I& InResolution, int InSlots, bool InCubemap);
+        void Init(int InSlots, bool InCubemap);
         void Deinit();
         
         // Map ids to coordinates on the map
-        Vec4I GetRect(uint64 InID, int InFace = 0);
-        int GetSlotRes() const { return slotResolution; }
+        Vec4F GetRect(uint64 InID, int InFace = 0);
+        float GetSlotSize() const { return slotSize; }
 
     private:
 
-        Vec4I CalcRect(int InIndex) const;
+        Vec4F CalcRect(int InIndex) const;
         
         struct Face
         {
@@ -25,7 +25,7 @@ namespace Rendering
         Map<uint64, Face> slots = {};
         Vector<int> available = {}; 
 
-        int slotResolution = 0;
+        float slotSize = 0;
         int axisSlots = 0;
         bool cubemap = false;
         Utility::Timer timer = {};

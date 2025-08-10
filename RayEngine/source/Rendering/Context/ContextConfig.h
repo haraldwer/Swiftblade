@@ -33,6 +33,5 @@ namespace Rendering
         PROPERTY_D(bool, FXAA, true);
         PROPERTY_D(bool, Tonemapping, true);
         PROPERTY_D(bool, Distort, true);
-        PROPERTY_D(bool, Lumin, true);
     };
 }

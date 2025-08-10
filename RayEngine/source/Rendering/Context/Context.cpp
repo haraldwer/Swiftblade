@@ -15,14 +15,8 @@ void Rendering::Context::Init(const ContextConfig& InConfig, const LuminConfig& 
     {
         if (luminPtr)
             luminPtr->Deinit();
-
-        if (config.Lumin)
-        {
-            if (!luminPtr)
-                luminPtr = new Lumin();
-            luminPtr->Init(InLuminConfig);
-        }
-
+        else luminPtr = new Lumin();
+        luminPtr->Init(InLuminConfig);
         if (lightsPtr)
             lightsPtr->Deinit();
         else lightsPtr = new Lights();

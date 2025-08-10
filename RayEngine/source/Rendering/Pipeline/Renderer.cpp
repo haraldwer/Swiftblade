@@ -58,9 +58,8 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, SHADER_UNIFORM_FLOAT);
     const float delta = static_cast<float>(viewport.delta); 
     SetValue(InShader, ShaderResource::DefaultLoc::DELTA, &delta, SHADER_UNIFORM_FLOAT);
-    const Vec2I res = viewport.GetResolution();
-    const Vec2F resf = { static_cast<float>(res.x), static_cast<float>(res.y) };
-    SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &resf, SHADER_UNIFORM_VEC2);
+    const Vec2F res = viewport.GetResolution().To<float>();
+    SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &res, SHADER_UNIFORM_VEC2);
 }
 
 void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader)
@@ -72,17 +71,22 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     CHECK_RETURN(!ptr);
 
     const Vec2F res = viewport.GetResolution().To<float>();
-    float w = InPerspective.targetRect.z > 0 ?
-        static_cast<float>(InPerspective.targetRect.z) : res.x;
-    float h = InPerspective.targetRect.w > 0 ?
-        static_cast<float>(InPerspective.targetRect.w) : res.y;
-    Vec4F rect = Vec4F{
-        static_cast<float>(InPerspective.targetRect.x),
-        static_cast<float>(InPerspective.targetRect.y),
-        w, h };
+    Vec4F refRect = {
+        InPerspective.referenceRect.x,
+        InPerspective.referenceRect.y,
+        InPerspective.referenceRect.z > 0.0f ? InPerspective.referenceRect.z : 1.0f,
+        InPerspective.referenceRect.w > 0.0f ? InPerspective.referenceRect.w : 1.0f
+    };
+    Vec4F rect = {
+        InPerspective.targetRect.x,
+        InPerspective.targetRect.y,
+        InPerspective.targetRect.z > 0.0f ? InPerspective.targetRect.z : 1.0f,
+        InPerspective.targetRect.w > 0.0f ? InPerspective.targetRect.w : 1.0f
+    };
     
     // Matrices
-    Vec2F size = { rect.z, rect.w };
+    Vec2F size = Vec2F(rect.z, rect.w) * res;
+    size = { floorf(size.x), floorf(size.y) };
     Mat4F view = InPerspective.camera.GetViewMatrix();
     Mat4F proj = InPerspective.camera.GetProjectionMatrix(size);
     viewport.viewProj = Mat4F::GetInverse(view) * proj;
@@ -90,17 +94,6 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ, Mat4F::Transpose(viewport.viewProj));
     SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_PREV, Mat4F::Transpose(viewport.viewProjPrev));
     SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_INV, Mat4F::Transpose(Mat4F::GetInverse(viewport.viewProj)));
-
-    // Make resolution independent
-    Vec4F refRect = InPerspective.referenceRect;
-    rect.x /= res.x;
-    rect.y /= res.y;
-    rect.z /= res.x;
-    rect.w /= res.y;
-    refRect.x /= res.x;
-    refRect.y /= res.y;
-    refRect.z /= res.x;
-    refRect.w /= res.y;
     
     SetValue(InShader, ShaderResource::DefaultLoc::RECT, &rect, SHADER_UNIFORM_VEC4);
     SetValue(InShader, ShaderResource::DefaultLoc::REF_RECT, &refRect, SHADER_UNIFORM_VEC4);
@@ -143,169 +136,6 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
     }
 }
 
-void Rendering::Renderer::BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
-{
-    if (InArgs.luminPtr)
-        if (auto brdf = InArgs.luminPtr->config.TexBRDF.Get().Get())
-            if (brdf->IsBaked())
-                brdf->Get().Bind(InShader, InOutSlot);
-}
-
-int Rendering::Renderer::DrawSkyboxes(const RenderArgs& InArgs, const RenderTarget& InTarget)
-{
-    PROFILE_GL();
-
-    ModelResource* model = InArgs.contextPtr->config.DefaultCube.Get().Get();
-    CHECK_RETURN(!model, 0);
-    auto* modelRes = model->Get();
-    CHECK_RETURN(!modelRes, 0);
-    CHECK_RETURN(!modelRes->meshCount, 0);
-    Mesh& mesh = modelRes->meshes[0];
-    
-    FrameCommand frameCmd;
-    frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.size = InTarget.Size();
-    frameCmd.clearDepth = true;
-    frameCmd.clearTarget = true;
-    rlState::current.Set(frameCmd);
-    
-    int c = 0;
-    for (auto& environment : InArgs.scenePtr->environments)
-    {
-        MaterialResource* rm = environment.skybox.Get();
-        CHECK_CONTINUE(!rm);
-        ShaderResource* shaderResource = rm->SurfaceShader.Get().Get();
-        CHECK_CONTINUE(!shaderResource);
-        const Shader* shader = shaderResource->Get();
-        CHECK_CONTINUE(!shader);
-
-        ShaderCommand shaderCmd;
-        shaderCmd.locs = shader->locs;
-        shaderCmd.id = shader->id;
-        rlState::current.Set(shaderCmd);
-
-        int id = 0;
-        SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-        SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-        SetValue(*shaderResource, "Bounds", &environment.shape, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Position", &environment.position, SHADER_UNIFORM_VEC3);
-
-        int texSlot = 0;
-        BindNoiseTextures(InArgs, *shaderResource, texSlot);
-
-        MeshCommand cmd;
-        cmd.vaoID = mesh.vaoId;
-        if (rlState::current.Set(cmd, { environment.position }))
-        {
-            // Draw every perspective
-            for (auto& perspective : InArgs.perspectives)
-            {
-                PerspectiveCommand perspCmd;
-                perspCmd.rect = perspective.targetRect;
-                rlState::current.Set(perspCmd);
-                SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-                c += DrawInstances(mesh, 1);
-            }
-            rlState::current.ResetMesh();
-        }
-    }
-    return c;
-}
-
-Map<uint64, int> Rendering::Renderer::DrawScene(const RenderArgs& InArgs, RenderTarget& InSceneTarget)
-{
-    PROFILE_GL();
-    
-    CHECK_ASSERT(InArgs.cullMask == 0, "Invalid mask");
-    
-    FrameCommand frameCmd;
-    frameCmd.fboID = InSceneTarget.GetFBO();
-    frameCmd.size = InSceneTarget.Size();
-    frameCmd.clearDepth = true;
-    rlState::current.Set(frameCmd);
-    
-    Map<uint64, int> count;
-    for (auto& persistence : InArgs.scenePtr->meshes.GetEntries())
-    {
-        for (auto& entry : persistence.second)
-        {
-            PROFILE_GL_NAMED("Mesh entry");
-            
-            CHECK_CONTINUE(entry.second.transforms.Empty());
-            CHECK_CONTINUE(!(entry.second.mask & InArgs.cullMask));
-            
-            const ::Mesh* meshes = nullptr;
-            int32 meshCount = 0;
-            if (const auto resModel = entry.second.model.Get())
-            {
-                if (const auto rlModel = resModel->Get())
-                {
-                    if (rlModel->meshCount > 0)
-                    {
-                        meshes = rlModel->meshes;
-                        meshCount = rlModel->meshCount;
-                    }
-                }
-            }
-            CHECK_CONTINUE(!meshes);
-            CHECK_CONTINUE(meshCount == 0);
-            
-            const MaterialResource* resMat = entry.second.material.Get();
-            CHECK_CONTINUE(!resMat);
-            ShaderResource* resShader = resMat->SurfaceShader.Get().Get();
-            CHECK_CONTINUE(!resShader);
-            Shader* shader = resShader->Get();
-            CHECK_CONTINUE(!shader);
-
-            // Enable shader
-            ShaderCommand shaderCmd;
-            shaderCmd.id = shader->id;
-            shaderCmd.locs = shader->locs;
-            shaderCmd.backfaceCulling = !resMat->TwoSided;
-            shaderCmd.depthTest = true;
-            shaderCmd.depthMask = true;
-            rlState::current.Set(shaderCmd);
-
-            const int id = static_cast<int32>(entry.second.deferredID);
-            SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-            SetFrameShaderValues(InArgs, *resShader, InSceneTarget);
-
-            int texSlot = 0;
-            BindNoiseTextures(InArgs, *resShader, texSlot);
-
-            // Set values and textures from material or from model instance?
-            SetCustomShaderValues(*resShader);
-
-            // Draw every mesh
-            for (int i = 0; i < meshCount; i++)
-            {
-                PROFILE_GL_NAMED("Mesh");
-                MeshCommand cmd;
-                cmd.vaoID = meshes[i].vaoId;
-
-                // Culling
-                const Vector<Mat4F>& data = entry.second.transforms.GetCulled(InArgs.cullPoints);
-
-                // Copy to GPU
-                if (rlState::current.Set(cmd, data))
-                {
-                    for (auto& perspective : InArgs.perspectives)
-                    {
-                        PROFILE_GL_NAMED("Perspective");
-                        PerspectiveCommand perspCmd;
-                        perspCmd.rect = perspective.targetRect;
-                        SetPerspectiveShaderValues(InArgs, perspective, *resShader);
-                        rlState::current.Set(perspCmd);
-                        count[entry.first] += DrawInstances(meshes[i], static_cast<int>(data.size()));
-                    }
-                    rlState::current.ResetMesh();
-                }
-            }
-        }
-    }
-
-    return count;
-}
 
 void Rendering::Renderer::DrawQuad()
 {
@@ -323,292 +153,6 @@ int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InCount)
     else
         rlDrawVertexArrayInstanced(0, InMesh.vertexCount, InCount);
     return InCount;
-}
-
-int Rendering::Renderer::DrawDeferredScene(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
-{
-    PROFILE_GL();
-    
-    auto& scene = *InArgs.scenePtr;
-    
-    FrameCommand frameCmd;
-    frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.size = InTarget.Size();
-    frameCmd.clearTarget = true;
-    rlState::current.Set(frameCmd);
-
-    Map<uint32, ResShader> passes = scene.meshes.GetDeferredShaders();
-    passes[0] = InArgs.contextPtr->config.DeferredSkyboxShader; // Inject skybox
-    for (auto& entry : passes)
-    {
-        PROFILE_GL_NAMED("Deferred pass");
-        ShaderResource* shaderResource = entry.second.Get();
-        CHECK_CONTINUE(!shaderResource);
-        const Shader* shader = shaderResource->Get();
-        CHECK_CONTINUE(!shader);
-
-        ShaderCommand shaderCmd;
-        shaderCmd.locs = shader->locs;
-        shaderCmd.id = shader->id;
-        rlState::current.Set(shaderCmd);
-
-        const int id = static_cast<int32>(entry.first);
-        SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-        SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-        
-        int texSlot = 0;
-        for (auto& b : InBuffers)
-            if (b) b->Bind(*shaderResource, texSlot);
-        
-        BindNoiseTextures(InArgs, *shaderResource, texSlot);
-        BindBRDF(InArgs, *shaderResource, texSlot);
-        
-        for (auto& perspective : InArgs.perspectives)
-        {
-            PerspectiveCommand perspCmd;
-            perspCmd.rect = perspective.targetRect;
-            rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-            DrawQuad();
-        }
-    }
-    return static_cast<int>(passes.size());
-}
-
-int Rendering::Renderer::DrawLuminProbesDebug(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
-{
-    PROFILE_GL();
-    
-    CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
-    auto& lumin = *InArgs.luminPtr;
-    
-    auto probes = lumin.GetProbes(InArgs, 0);
-    CHECK_RETURN(probes.empty(), 0);
-
-    LuminConfig conf = InArgs.luminPtr->config;
-    Vec3F range = Vec3F(20.0f);
-    auto& t = lumin.GetProbeTarget();
-    
-    const auto& debugRes = conf.DebugShader;
-    ShaderResource* debugShaderResource = debugRes.Get().Get();
-    CHECK_RETURN(!debugShaderResource, 0);
-    const Shader* debugShader = debugShaderResource->Get();
-    CHECK_RETURN(!debugShader, 0);
-
-    auto model = conf.SphereModel.Get().Get();
-    auto* modelRes = model->Get();
-    CHECK_RETURN(!modelRes, 0);
-    CHECK_RETURN(!modelRes->meshCount, 0);
-    Mesh& mesh = modelRes->meshes[0];
-
-    FrameCommand frameCmd;
-    frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.size = InTarget.Size();
-    rlState::current.Set(frameCmd);
-
-    if (conf.Debug)
-    {
-        PROFILE_GL_NAMED("Lumin debug");
-        ShaderCommand debugShaderCmd;
-        debugShaderCmd.locs = debugShader->locs;
-        debugShaderCmd.id = debugShader->id;
-        debugShaderCmd.depthTest = true;
-        debugShaderCmd.depthMask = true;
-        rlState::current.Set(debugShaderCmd);
-        
-        SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
-        SetValue(*debugShaderResource, "ProbeRange", &range, SHADER_UNIFORM_VEC3);
-
-        int debugTexSlot = 0;
-        t.Bind(*debugShaderResource, debugTexSlot);
-        BindNoiseTextures(InArgs, *debugShaderResource, debugTexSlot);
-        for (auto& b : InBuffers)
-            if (b) b->Bind(*debugShaderResource, debugTexSlot);
-        
-        for (auto& probe : probes)
-        {
-            PROFILE_GL_NAMED("Lumin probe debug");
-            
-            SetValue(*debugShaderResource, "Timestamp", &probe->timestamp, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "ProbePosition", &probe->pos, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "ProbeRect", &probe->rect, SHADER_UNIFORM_VEC4);
-            
-            MeshCommand cmd;
-            cmd.vaoID = mesh.vaoId;
-            if (rlState::current.Set(cmd, { probe->pos }))
-            {
-                // Draw every perspective
-                for (auto& perspective : InArgs.perspectives)
-                {
-                    PerspectiveCommand perspCmd;
-                    perspCmd.rect = perspective.targetRect;
-                    rlState::current.Set(perspCmd);
-                    SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
-                    DrawInstances(mesh, 1);
-                }
-                rlState::current.ResetMesh();
-            }
-        }
-    }
-
-    return static_cast<int>(probes.size());
-}
-
-int Rendering::Renderer::DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
-{
-    PROFILE_GL();
-    
-    CHECK_ASSERT(!InArgs.lightsPtr, "Invalid lightptr");
-    auto& lightMan = *InArgs.lightsPtr;
-    
-    auto lights = lightMan.GetLights(InArgs);
-    CHECK_RETURN(lights.empty(), 0);
-
-    LightConfig conf = lightMan.config;
-    
-    // Get shader
-    auto res = conf.LightShader;
-    ShaderResource* shaderResource = res.Get().Get();
-    CHECK_RETURN(!shaderResource, 0);
-    const Shader* shader = shaderResource->Get();
-    CHECK_RETURN(!shader, 0);
-
-    const auto& debugRes = conf.DebugShader;
-    ShaderResource* debugShaderResource = debugRes.Get().Get();
-    CHECK_RETURN(!debugShaderResource, 0);
-    const Shader* debugShader = debugShaderResource->Get();
-    CHECK_RETURN(!debugShader, 0);
-
-    auto model = conf.CubeModel.Get().Get();
-    auto* modelRes = model->Get();
-    CHECK_RETURN(!modelRes, 0);
-    CHECK_RETURN(!modelRes->meshCount, 0);
-    Mesh& mesh = modelRes->meshes[0];
-    
-    FrameCommand frameCmd;
-    frameCmd.fboID = InTarget.GetFBO();
-    frameCmd.size = InTarget.Size();
-    rlState::current.Set(frameCmd);
-    
-    ShaderCommand shaderCmd;
-    shaderCmd.locs = shader->locs;
-    shaderCmd.id = shader->id;
-    shaderCmd.blendMode = RL_BLEND_ADDITIVE;
-    rlState::current.Set(shaderCmd);
-    
-    SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-    SetValue(*shaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
-
-    int texSlot = 0;
-    auto& t = lightMan.GetShadowTarget();
-    t.Bind(*shaderResource, texSlot, RL_TEXTURE_FILTER_LINEAR);
-    Vec2F faceTexel = lightMan.GetFaceTexel();
-    SetValue(*shaderResource, "FaceTexel", &faceTexel, SHADER_UNIFORM_VEC2);
-
-    BindNoiseTextures(InArgs, *shaderResource, texSlot);
-    for (auto& b : InBuffers)
-        if (b) b->Bind(*shaderResource, texSlot);
-    
-    for (auto& light : lights)
-    {
-        PROFILE_GL_NAMED("Light");
-        
-        CHECK_ASSERT(!light, "Invalid light");
-    
-        SetValue(*shaderResource, "Position", &light->data.position, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Direction", &light->data.direction, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Color", &light->data.color, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Range", &light->data.range, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "ConeRadius", &light->data.radius, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "Intensity", &light->data.intensity, SHADER_UNIFORM_FLOAT);
-
-        auto find = lightMan.cache.find(light->id);
-        LightData* shadowCache = find == lightMan.cache.end() ? nullptr : &find->second;
-
-        if (shadowCache && light->shadows)
-        {
-            float time = static_cast<float>(shadowCache->timestamp);
-            SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-            SetValue(*shaderResource, "ShadowPosition", &shadowCache->pos, SHADER_UNIFORM_VEC3);
-            SetValue(*shaderResource, "ShadowRect", &shadowCache->rect, SHADER_UNIFORM_VEC4);
-        }
-        else
-        {
-            float time = 0;
-            SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-        }
-
-        for (auto& perspective : InArgs.perspectives)
-        {
-            PerspectiveCommand perspCmd;
-            perspCmd.rect = perspective.targetRect;
-            rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-            DrawQuad(); // TODO: Replace with cube mesh
-        }
-    }
-
-    // Debug draw shadow maps
-    if (conf.Debug)
-    {
-        PROFILE_GL_NAMED("Light debug");
-        
-        ShaderCommand debugShaderCmd;
-        debugShaderCmd.locs = debugShader->locs;
-        debugShaderCmd.id = debugShader->id;
-        debugShaderCmd.depthTest = true;
-        debugShaderCmd.depthMask = true;
-        rlState::current.Set(debugShaderCmd);
-        
-        SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
-        SetValue(*debugShaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
-
-        int debugTexSlot = 0;
-        t.Bind(*debugShaderResource, debugTexSlot);
-        BindNoiseTextures(InArgs, *debugShaderResource, debugTexSlot);
-        for (auto& b : InBuffers)
-            if (b) b->Bind(*debugShaderResource, debugTexSlot);
-        
-        for (auto& light : lights)
-        {
-            PROFILE_GL_NAMED("Light cube debug");
-            
-            auto find = lightMan.cache.find(light->id);
-            LightData* shadowCache = find == lightMan.cache.end() ? nullptr : &find->second;
-            CHECK_CONTINUE(!shadowCache);
-            CHECK_CONTINUE(!light->shadows);
-
-            SetValue(*debugShaderResource, "Position", &light->data.position, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "Direction", &light->data.direction, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "Color", &light->data.color, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "Range", &light->data.range, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "ConeRadius", &light->data.radius, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "Intensity", &light->data.intensity, SHADER_UNIFORM_FLOAT);
-            
-            float time = static_cast<float>(shadowCache->timestamp);
-            SetValue(*debugShaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-            SetValue(*debugShaderResource, "ShadowPosition", &shadowCache->pos, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "ShadowRect", &shadowCache->rect, SHADER_UNIFORM_VEC4);
-            
-            MeshCommand cmd;
-            cmd.vaoID = mesh.vaoId;
-            if (rlState::current.Set(cmd, { light->data.position }))
-            {
-                // Draw every perspective
-                for (auto& perspective : InArgs.perspectives)
-                {
-                    PerspectiveCommand perspCmd;
-                    perspCmd.rect = perspective.targetRect;
-                    rlState::current.Set(perspCmd);
-                    SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
-                    DrawInstances(mesh, 1);
-                }
-                rlState::current.ResetMesh();
-            }
-        }
-    }
-    
-    return static_cast<int>(lights.size());
 }
 
 void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend, bool InClear)

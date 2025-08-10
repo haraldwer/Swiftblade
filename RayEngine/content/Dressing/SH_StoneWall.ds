@@ -2,7 +2,8 @@
 
 void main()
 {
-    Default();
+    if (CheckID(TexCoord, DeferredID))
+        discard;
     
     float noiseScale = 0.5;
     float yStepNoiseScale = 0.1;
@@ -18,6 +19,9 @@ void main()
     noise *= abs(cos(yStep * yTileScale));
     float bigNoise = Simplex(worldPosition * bigNoiseScale, normal);
     noise *= bigNoise * step(0.2, bigNoise);
-    noise *= step(0.1, noise); 
-    Output.rgb *= vec3(0.6 + noise * 0.5);
+    noise *= step(0.1, noise);
+    
+    vec3 color = vec3(0.6 + noise * 0.5);
+    
+    Default(color, vec3(0, 1, 1));
 }

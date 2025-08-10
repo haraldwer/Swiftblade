@@ -1,5 +1,8 @@
 ﻿#include "Pipeline.h"
 
+#include "DeferredRenderer.h"
+#include "LightsRenderer.h"
+#include "LuminRenderer.h"
 #include "Context/Context.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
@@ -24,7 +27,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     if (InArgs.lightsPtr == nullptr)
         InArgs.lightsPtr = InArgs.contextPtr->lightsPtr;
     
-    if (InArgs.luminPtr && InArgs.contextPtr->config.Lumin)
+    if (InArgs.luminPtr)
         stats += InArgs.luminPtr->Update(InArgs);
     if (InArgs.lightsPtr)
         stats += InArgs.lightsPtr->Update(InArgs); 
@@ -34,7 +37,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += ProcessScene(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
-    stats += RenderLights(InArgs);
+    //stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
     stats += RenderFX(InArgs);
     stats += Blip(InArgs);
@@ -48,7 +51,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderSkybox(const RenderArgs& I
     PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets;
-    stats.skyboxes += Renderer::DrawSkyboxes(InArgs, sceneTarget.Curr());
+    stats.skyboxes += DeferredRenderer::DrawSkyboxes(InArgs, sceneTarget.Curr());
     return stats;
 }
 
@@ -57,7 +60,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderScene(const RenderArgs& In
     PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets;
-    stats.meshDrawCount = Renderer::DrawScene(InArgs, sceneTarget.Curr());
+    stats.meshDrawCount = DeferredRenderer::DrawScene(InArgs, sceneTarget.Curr());
     return stats;
 }
 
@@ -104,7 +107,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs&
     const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
-    stats.deferredDrawCount = Renderer::DrawDeferredScene(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
+    stats.deferredDrawCount = DeferredRenderer::DrawDeferredScene(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
     return stats;
 }
 
@@ -115,18 +118,17 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& I
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
     auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
-    stats.lights += Renderer::DrawLights(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
+    stats.lights += LightsRenderer::DrawLights(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
     return stats;
 }
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& InArgs)
 {
-    CHECK_RETURN(!InArgs.contextPtr->config.Lumin, {})
     PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
-    stats.probes += Renderer::DrawLuminProbesDebug(InArgs, frameTarget, { &sceneTarget });
+    stats.probes += LuminRenderer::DrawLuminProbesDebug(InArgs, frameTarget, { &sceneTarget });
     return stats;
 }
 

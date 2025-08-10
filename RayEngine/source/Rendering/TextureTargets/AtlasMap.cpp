@@ -1,12 +1,12 @@
 #include "AtlasMap.h"
 
-void Rendering::AtlasMap::Init(const Vec2I& InResolution, const int InSlots, const bool InCubemap)
+void Rendering::AtlasMap::Init(const int InSlots, const bool InCubemap)
 {
     int numSlots = InSlots;
     if (InCubemap)
         numSlots *= 6;
     axisSlots = Utility::Math::SquareRoot(numSlots);
-    slotResolution = InResolution.y / axisSlots;
+    slotSize = 1.0f / axisSlots;
     cubemap = InCubemap;
     
     for (int i = 0; i < InSlots; i++)
@@ -21,7 +21,7 @@ void Rendering::AtlasMap::Deinit()
     available.clear();
 }
 
-Vec4I Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
+Vec4F Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
 {
     // Track last access time
     auto& slot = slots[InID];
@@ -54,9 +54,9 @@ Vec4I Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
     return CalcRect(slot.index + InFace);
 }
 
-Vec4I Rendering::AtlasMap::CalcRect(const int InIndex) const
+Vec4F Rendering::AtlasMap::CalcRect(const int InIndex) const
 {
     int hI = InIndex % axisSlots;
     int vI = InIndex / axisSlots;
-    return Vec4I({ hI, vI, 1, 1 }) * slotResolution;
+    return Vec4I({ hI, vI, 1, 1 }).To<float>() * slotSize;
 }

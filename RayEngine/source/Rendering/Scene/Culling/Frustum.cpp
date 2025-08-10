@@ -21,7 +21,7 @@ void Rendering::Frustum::ConstructFrustum(const Mat4F& InProj, const Mat4F& InVi
 	for (int i = 3; i >= 0; i--) nearVec[i]	= mat[i][3] + mat[i][2];
 	for (int i = 3; i >= 0; i--) farVec[i]		= mat[i][3] - mat[i][2];
 
-	farVec = InFar;
+	far = InFar;
 	position = InPos;
 }
 

@@ -5,8 +5,9 @@ uniform float Timestamp;
 uniform vec3 ProbePosition;
 uniform vec3 ProbeRange;
 uniform vec4 ProbeRect;
-uniform sampler2D TexLumin;
-uniform vec2 TexLuminRes;
+uniform vec2 LuminTexel;
+
+uniform sampler2D TexIrradiance;
 
 // In
 in vec4 WorldPosition;
@@ -20,6 +21,6 @@ out vec4 Output;
 void main()
 {
     vec3 diff = normalize(ProbePosition - WorldPosition.xyz);
-    Output.rgb = SampleCubeAtlas(TexLumin, TexLuminRes, ProbeRect, -diff).rgb;
+    Output.rgb = SampleCubeAtlas(TexIrradiance, LuminTexel, ProbeRect, -diff).rgb;
     Output.a = 1.0f;
 }

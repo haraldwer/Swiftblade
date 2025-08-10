@@ -1,3 +1,4 @@
 {
-	"SurfaceShader":"Dressing/Skybox/SH_Skybox"
+	"SurfaceShader":"Dressing/Skybox/SH_Skybox",
+	"DeferredShader":"Dressing/Skybox/SH_Skybox.ds"
 }

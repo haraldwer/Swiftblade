@@ -1,5 +1,6 @@
 ﻿#include "Shaders/SH_Default_ds.si"
 #include "Shaders/Utility/SH_Noise.si"
+#include "Shaders/Utility/SH_HSV.si"
 
 vec2 AxisStep(float InAxis, vec3 InPos, float InScale, float InOffset, float InPadding)
 {
@@ -11,19 +12,20 @@ vec2 AxisStep(float InAxis, vec3 InPos, float InScale, float InOffset, float InP
 
 void main()
 {
-    Default();
-
+    if (CheckID(TexCoord, DeferredID))
+        discard;
+    
     vec3 pos = SampleWorldPos(TexCoord).xyz;
     vec3 normal = SampleNormal(TexCoord).xyz;
     float brick = 1 - texture(TexData, TexCoord).z;
-    
+
     float bigNoise = Simplex(pos * 0.005, normal).r;
     bigNoise += abs(normal.y) * 0.5;
-    
+
     // Select color
     float cement = 30.0f / 255.0f;
     float stone = 150.0f / 255.0f;
-    float hueMix = step(0.4, brick); 
+    float hueMix = step(0.4, brick);
     float hue = mix(cement, stone, hueMix);
     float cementSat = clamp(bigNoise * 1, 0.0, 1.0) * 0.4;
     float sat = mix(cementSat, 0.2, step(0.4, brick));
@@ -36,5 +38,6 @@ void main()
     shadow = clamp(shadow, 0.1, 0.5);
     
     vec3 color = hsv2rgb(vec3(hue, sat, shadow)) * 0.2;
-    Output.rgb *= color;
+    
+    Default(color, vec3(0, 1, 1));
 }

@@ -259,13 +259,10 @@ namespace ImGui
 
 	inline static ImFont* font = nullptr;
 	
-	inline void LoadFont()
+	inline void LoadFont(float InScale)
 	{
 		const ImGuiIO& io = GetIO();
-		float scale = 1.0f;
-		font = io.Fonts->AddFontFromFileTTF("Defaults/F_FiraCode.ttf", 16 / scale);
-		if (font)
-			font->Scale = scale;
+		font = io.Fonts->AddFontFromFileTTF("Defaults/F_FiraCode.ttf", 16 * InScale);
 		rlImGuiReloadFonts();
 	}
 

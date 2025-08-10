@@ -1,0 +1,10 @@
+#include "Shaders/SH_Default_ds.si"
+#include "Shaders/Utility/SH_Noise.si"
+#include "Shaders/Utility/SH_HSV.si"
+
+void main()
+{
+    vec3 pos = (SampleWorldPos(TexCoord).xyz - CameraPosition) * 0.1 ;
+    Output.rgb = hsv2rgb(vec3(CalcSimplex(pos), CalcSimplex(pos * 2), CalcSimplex(pos * 3)));
+    Output.a = 1;
+}

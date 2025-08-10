@@ -65,8 +65,14 @@ void Rendering::FrameViewer::DrawDebugPanel()
         for (auto& tex : man.GetConfig().Lumin.Get().TexBRDF.Get().Get()->Get().GetTextures())
             DrawTex(tex);
 
+    if (ImGui::CollapsingHeader("Lumin Frame"))
+        if (const auto l = man.defaultContext.GetLumin())
+            for (auto& tex : l->GetFrameTarget().GetTextures())
+                DrawTex(tex);
+    
     if (ImGui::CollapsingHeader("Lumin Target"))
         if (const auto l = man.defaultContext.GetLumin())
             for (auto& tex : l->GetProbeTarget().GetTextures())
                 DrawTex(tex);
+
 }

@@ -3,11 +3,10 @@
 #include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_DeferredID.si"
 
-#include "Shaders/PBR/SH_PBR.si"
-#include "Shaders/SH_Shadows.si"
-#include "Shaders/SH_SSShadows.si"
+#include "Shaders/Lights/SH_Shadows.si"
+#include "Shaders/Lights/SH_SSShadows.si"
 
-// TODO: Pack these neater
+// TODO: Pack these neater, do all lights in one pass? 
 uniform vec3 Position;
 uniform vec3 Direction;
 uniform vec3 Color;
@@ -35,6 +34,8 @@ void main()
     vec3 toLight = Position - worldPos.xyz;
     float lightDistSqr = SquaredLength(toLight);
     
+    Output = vec4(0);
+    
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;
     
@@ -54,21 +55,20 @@ void main()
     if (Timestamp != 0)
     {
         vec3 toLightShadow = ShadowPosition - worldPos.xyz;
-        shadow = Shadow(toLightShadow); 
+        shadow = Shadow(toLightShadow, TexShadow, TexCoord, FaceTexel, ShadowRect, Range); 
         if (shadow < 0.001f)
             return;
-        shadow = min(shadow, ScreenSpaceShadow(worldPos));
+        shadow = min(shadow, ScreenSpaceShadow(worldPos, Position));
         if (shadow < 0.001f)
             return;
     }
     
-    //float ao = 1.0 - texture(TexAO, TexCoord).x;
-    //float intensity = Intensity * pow(d, 0.5) * fade * shadow * ao;
-    //Output.rgb = Color;
-    //Output.a = intensity + godrays;
+    float ao = 1.0 - texture(TexAO, TexCoord).x;
+    float intensity = Intensity * pow(d, 0.5) * fade * shadow * ao;
+    Output.rgb = Color;
+    Output.a = intensity;
     
-    vec3 normal = SampleNormal(TexCoord).xyz;
-    
-    PBRLight(worldPos.xyz, normal, )
+    //vec3 normal = SampleNormal(TexCoord).xyz;
+    //PBRLight(worldPos.xyz, normal, )
     
 }

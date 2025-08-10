@@ -12,6 +12,7 @@ namespace Rendering
     {
         friend class Pipeline;
         friend class Renderer;
+        friend class DeferredRenderer;
         
     public:
         void Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, bool InRoot = false);

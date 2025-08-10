@@ -1,0 +1,69 @@
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+
+const int LAYERS = 2;
+const int LAYER_PROBES = 10;
+const int PROBE_COUNT = (LAYERS * LAYER_PROBES) + 1;
+const int GRID_COUNT = 4096; 
+
+uniform sampler2D TexBRDF;
+uniform sampler2D TexIrradiance;
+uniform sampler2D TexPrefilter;
+
+uniform vec2 FaceTexel;
+
+// Layer data
+uniform vec3 Densities[LAYERS];
+uniform ivec4 Sizes[LAYERS];
+uniform ivec4 Starts[LAYERS];
+
+// Probe data
+uniform int Indices[GRID_COUNT]; // Map grid -> probe
+uniform vec4 Positions[PROBE_COUNT];
+uniform vec4 Rects[PROBE_COUNT];
+
+vec4 GetProbe(vec3 InWorldPos)
+{
+    // Convert position to grid
+    // Find probe, use fallback
+    // Possibly sample multiple probes?
+    
+    for (int layer = 0; layer < LAYERS; layer++)
+    {
+        vec3 density = Densities[layer];
+        ivec3 size = Sizes[layer].xyz;
+        ivec3 start = Starts[layer].xyz;
+        int startIndex = Sizes[layer].w;
+        int endIndex = Starts[layer].w;
+        
+        vec3 pos = InWorldPos * density + 0.5;
+        ivec3 gridPos = ivec3(pos) - start;
+        
+        // Map to index
+        int index = gridPos.x + gridPos.y * size.x + gridPos.z * size.x * size.y;
+        index += startIndex;
+        
+        // Map index to probe
+        int probe_index = Indices[index];
+        if (probe_index != 0)
+            return Rects[probe_index];
+    }
+    
+    return Rects[0]; // Use fallback
+}
+
+vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
+{
+    return texture(TexBRDF, vec2(max(dot(InN, InV), 0), InRoughness)).rg;
+}
+
+vec3 SampleIrradiance(vec4 InRect, vec3 InDir)
+{
+    return SampleCubeAtlas(TexIrradiance, FaceTexel, InRect, InDir).rgb;
+}
+
+vec3 SamplePrefilter(vec4 InRect, vec3 InDir, int InMip)
+{
+    return SampleCubeAtlasMip(TexPrefilter, FaceTexel, InRect, InDir, InMip).rgb;
+}

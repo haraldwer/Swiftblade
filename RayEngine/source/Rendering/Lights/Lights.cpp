@@ -11,7 +11,7 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
 {
     config = InConfig;
     atlasView.Init(config.Viewport);
-    atlas.Init(atlasView.GetResolution(), config.MaxLights, true);
+    atlas.Init(config.MaxLights, true);
     target.Setup(atlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
@@ -56,7 +56,6 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     CHECK_RETURN(timeSortedCache.empty(), {});
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
-    Vec2F size = target.Size().To<float>();
     RenderArgs args = {
         .scenePtr = InArgs.scenePtr,
         .contextPtr = InArgs.contextPtr,
@@ -77,14 +76,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         CHECK_CONTINUE(!lightData);
         lightData->timestamp = args.contextPtr->Time();
         lightData->pos = lightData->data.position;
-        
-        auto rect = atlas.GetRect(lightData->id, 0).To<float>();
-        lightData->rect = {
-            rect.x / size.x,
-            rect.y / size.y,
-            rect.z / size.x,
-            rect.w / size.y
-        };
+        lightData->rect = atlas.GetRect(lightData->id, 0).To<float>();
         
         for (int i = 0; i < 6; i++)
         {
@@ -108,8 +100,6 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     atlasView.BeginFrame();
     stats += pipeline.RenderShadows(args, config.CollectShader, target);
 
-    // TODO: Clear unused lights
-    
     return stats;
 }
 
@@ -162,6 +152,6 @@ const Rendering::LightData& Rendering::Lights::GetData(const uint32 InHash)
 
 Vec2F Rendering::Lights::GetFaceTexel() const
 {
-    return Vec2F(1.0f) / Vec2I(atlas.GetSlotRes()).To<float>();
+    return Vec2F(1.0f) / (target.Size().To<float>() * atlas.GetSlotSize());
 }
 

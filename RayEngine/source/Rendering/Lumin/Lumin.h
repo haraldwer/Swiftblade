@@ -35,20 +35,37 @@ namespace Rendering
         int iterations = 0;
         Vec4F rect = {};
     };
+
+    struct LuminRenderData
+    {
+        struct Layer
+        {
+            Vec3I start = Vec3I::Zero();
+            Vec3I size = Vec3I::Zero();
+            Vec3F density = Vec3F::Zero();
+            Vector<int> indices = {}; // Only some slots will be filled
+        };
+        LuminProbe* fallback;
+        Vector<Layer> layers = {};
+        Vector<LuminProbe*> probes;
+    };
     
     class Lumin
     {
-        friend class Renderer;
+        friend class LuminRenderer;
     public:
         void Init(const LuminConfig& InConfig);
         void Deinit();
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
-        Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs, int InLayer); // Unsafe!
-        RenderTarget& GetProbeTarget() { return lerpTarget.Curr(); }
+        LuminRenderData GetFrameProbes(const RenderArgs& InArgs);
+        RenderTarget& GetProbeTarget() { return lerpTarget; }
+        RenderTarget& GetFrameTarget() { return target; }
 
     private:
+        Vector<LuminProbe*> GetProbes(const RenderArgs& InArgs, int InLayer); // Unsafe!
         Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
+        Pipeline::Stats UpdateFallbackProbe(const RenderArgs& InArgs);
         Pipeline::Stats LerpProbes(const RenderArgs& InArgs);
         void ExpandVolume(const Scene& InScene);
         void TryCreateProbe(ProbeCoord InCoord);
@@ -67,7 +84,7 @@ namespace Rendering
         Map<int, Vector<ProbeCoord>> layerProbes = {};
         AtlasMap atlas = {};
         RenderTarget target = {};
-        SwapTarget lerpTarget = {};
+        RenderTarget lerpTarget = {};
     };
 }
 

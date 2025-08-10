@@ -58,37 +58,29 @@ vec3 GetFlatCubeUV(vec3 InDir)
     return vec3(uv, side);
 }
 
-vec4 SampleCubeAtlas(sampler2D InAtlas, vec2 InFaceTexel, vec4 InRect, vec3 InDir)
+vec2 GetCubeAtlasUV(vec2 InFaceTexel, vec4 InRect, vec3 InDir)
 {
     vec3 uv = GetFlatCubeUV(InDir);
-    
+
     vec2 faceUV = InRect.zw * uv.xy;
     faceUV = clamp(faceUV, InFaceTexel, InRect.zw - InFaceTexel);
     faceUV += InRect.xy;
     faceUV.x += InRect.z * uv.z; // Add face index
-    
+
     float fl = floor(faceUV.x);
     faceUV.y += fl * InRect.w;
     faceUV.x -= fl;
-    
-    return texture(InAtlas, faceUV);
+    return faceUV;
+}
+
+vec4 SampleCubeAtlas(sampler2D InAtlas, vec2 InFaceTexel, vec4 InRect, vec3 InDir)
+{
+    return texture(InAtlas, GetCubeAtlasUV(InFaceTexel, InRect, InDir));
 }
 
 vec4 SampleCubeAtlasMip(sampler2D InAtlas, vec2 InFaceTexel, vec4 InRect, vec3 InDir, int InMip)
 {
-    vec3 uv = GetFlatCubeUV(InDir);
-
-    vec2 faceUV = InRect.zw * uv.xy;
-    faceUV = clamp(faceUV, InFaceTexel, InRect.zw - InFaceTexel);
-    faceUV += InRect.xy;
-    faceUV.x += InRect.z * uv.z; // Add face index
-
-    float fl = floor(faceUV.x);
-    faceUV.y += fl * InRect.w;
-    faceUV.x -= fl;
-
-    // TODO: Mip
-    return texture(InAtlas, faceUV, InMip);
+    return texture(InAtlas, GetCubeAtlasUV(InFaceTexel, InRect, InDir));
 }
 
 // Spheres and octahedrons

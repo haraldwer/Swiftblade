@@ -23,7 +23,7 @@ namespace Rendering
     
     class Lights
     {
-        friend class Renderer;
+        friend class LightsRenderer;
     public:
         void Init(const LightConfig& InConfig);
         void Deinit();
