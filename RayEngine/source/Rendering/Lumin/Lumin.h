@@ -61,7 +61,7 @@ namespace Rendering
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
         LuminRenderData GetFrameProbes(const RenderArgs& InArgs);
-        RenderTarget& GetProbeTarget() { return lerpTarget; }
+        RenderTarget& GetProbeTarget() { return lerpTarget.Curr(); }
         RenderTarget& GetFrameTarget() { return target; }
 
     private:
@@ -86,7 +86,7 @@ namespace Rendering
         Map<int, Vector<ProbeCoord>> layerProbes = {};
         AtlasMap atlas = {};
         RenderTarget target = {};
-        RenderTarget lerpTarget = {};
+        SwapTarget lerpTarget = {};
     };
 }
 

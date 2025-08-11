@@ -15,7 +15,8 @@ struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 
 class RoomEditor : public Engine::Instance, public Debug::Panel
 {
-
+    TYPE_INFO(RoomEditor, Engine::Instance);
+    
 public:
     void Init() override;
     void Deinit() override;

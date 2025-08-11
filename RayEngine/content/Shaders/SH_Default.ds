@@ -2,5 +2,5 @@
 
 void main()
 {
-    Default(vec3(1), vec3(0, 1, 1)); 
+    Default(vec3(1), vec3(0, 1, 0)); 
 }

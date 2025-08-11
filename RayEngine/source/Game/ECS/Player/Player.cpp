@@ -10,7 +10,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Menu/Manager.h"
-#include "GameInstance.h"
+#include "../../Instances/GameInstance.h"
 #include "GameState.h"
 #include "ECS/Obstacles/Obstacle.h"
 #include "ECS/Obstacles/Projectile.h"

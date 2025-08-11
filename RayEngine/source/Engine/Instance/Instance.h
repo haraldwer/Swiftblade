@@ -10,6 +10,8 @@ namespace Engine
 {
     class Instance : public Utility::Singelton<Instance>
     {
+        BASE_TYPE_INFO(Instance);
+        
     public:
         ~Instance() override = default;
 
@@ -33,6 +35,5 @@ namespace Engine
     private:
         Rendering::Scene renderScene = {};
         InstanceEventManager eventManager = {};
-
     };
 }

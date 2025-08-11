@@ -23,5 +23,5 @@ void main()
     
     vec3 color = vec3(0.6 + noise * 0.5);
     
-    Default(color, vec3(0, 1, 1));
+    Default(color, vec3(0, 1, 0));
 }

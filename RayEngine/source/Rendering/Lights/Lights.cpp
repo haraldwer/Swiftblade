@@ -5,6 +5,7 @@
 #include "RayRenderUtility.h"
 #include "Scene/Scene.h"
 #include "Scene/Culling/Frustum.h"
+#include "State/State.h"
 #include "Utility/Collections/SortedInsert.h"
 
 void Rendering::Lights::Init(const LightConfig& InConfig)
@@ -99,7 +100,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
     atlasView.BeginFrame();
     stats += pipeline.RenderShadows(args, config.CollectShader, target);
-
+    rlState::current.Reset();
     return stats;
 }
 

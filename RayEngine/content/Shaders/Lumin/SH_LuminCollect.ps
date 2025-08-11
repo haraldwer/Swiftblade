@@ -9,7 +9,7 @@ in vec2 TexCoord;
 in vec2 RectCoord;
 
 out vec4 OutIrradiance;
-out vec4 OutPrefilter;
+out vec3 OutPrefilter;
 
 void main()
 {
@@ -17,11 +17,11 @@ void main()
     
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     vec3 camDiff = worldPos.xyz - CameraPosition;
-    vec3 camDir = normalize(camDiff);
+    float camDist = length(camDiff);
+    vec3 camDir = camDiff / camDist;
     
     OutIrradiance.rgb = ConvoluteIrradiance(TexFrame, texel, RefRect, camDir);
-    OutPrefilter.rgb = Prefilter(TexFrame, texel, RefRect, camDir, 0.1);
+    OutPrefilter.rgb = Prefilter(TexFrame, texel, RefRect, camDir, 1.0);
     
-    OutIrradiance.a = 1;
-    OutPrefilter.a = 1;
+    OutIrradiance.a = camDist / NearFar.y;
 }

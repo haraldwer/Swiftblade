@@ -5,9 +5,10 @@
 #include "Core/Resource/Manager.h"
 #include "Engine/Audio/Manager.h"
 #include "Engine/Instance/Manager.h"
+#include "Instance/Launcher.h"
 #include "Rendering/Manager.h"
 
-#include "Game/MenuInstance.h"
+#include "Instances/MenuInstance.h"
 
 int main()
 {
@@ -19,14 +20,13 @@ int main()
     Rendering::Manager renderer;
     Audio::Manager audio;
     Engine::Manager instanceManager;
+    Engine::Launcher launcher;
     GlobalEventManager eventManager;
     
     debugManager.Init();
     renderer.Init();
     audio.Init();
-
-    // Push menu instance by default
-    instanceManager.Push<MenuInstance>();
+    launcher.Init();
 
     // Timekeeping
     double logicTimeCounter = 0.0;
@@ -79,7 +79,8 @@ int main()
         renderer.EndFrame();
         PROFILE_FRAME();
     }
-    
+
+    launcher.Deinit(); 
     debugManager.Deinit();
     instanceManager.Clear();
     audio.Deinit();

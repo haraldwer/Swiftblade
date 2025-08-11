@@ -13,9 +13,11 @@ struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
 
 class BlueprintEditor : public Engine::Instance, public Debug::Panel
 {
+    TYPE_INFO(BlueprintEditor, Engine::Instance);
+    
     friend class BlueprintDebugUI;
+    
 public:
-
     void Init() override;
     void Deinit() override;
     void Logic(double InDelta) override;

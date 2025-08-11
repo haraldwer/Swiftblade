@@ -5,7 +5,7 @@
 #include "Engine/UI/Elements/Label.h"
 #include "Engine/UI/Elements/List.h"
 #include "Engine/UI/Transform.h"
-#include "GameInstance.h"
+#include "../../Instances/GameInstance.h"
 
 void MenuDeath::Init()
 {

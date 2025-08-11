@@ -1,7 +1,9 @@
 {
 	"Components":[{
 			"Name":"Mesh",
-			"Data":{}
+			"Data": {
+				"Mask": 1
+			}
 		},{
 			"Name":"Attributes",
 			"Data":{

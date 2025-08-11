@@ -17,8 +17,13 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+float AttenuationFunction(float InDistance, float InRange)
+{
+    return Pow2(Pow2(1 - InDistance / InRange)); // Realistic attenuation: 1 / Pow2(distance);
+}
+
 // PBR equation for per-light radiance
-vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface, vec3 InLightPos, vec3 InLightColor)
+vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface, vec3 InLightPos, vec3 InLightColor, float InLightRange)
 {
     float metallic = InSurface.r;
     float roughness = InSurface.g;
@@ -35,7 +40,7 @@ vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface, vec
     float distance = length(diff);
     vec3 L = diff / distance;
     vec3 H = normalize(V + L);
-    float attenuation = 1 / Pow2(distance);
+    float attenuation = AttenuationFunction(distance, InLightRange);
     vec3 radiance = InLightColor * attenuation;
 
     // cook-torrance brdf

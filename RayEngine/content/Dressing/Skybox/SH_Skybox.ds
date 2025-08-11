@@ -6,7 +6,14 @@ void main()
 {
     if (CheckID(TexCoord, DeferredID))
         discard;
-    vec3 pos = (SampleWorldPos(TexCoord).xyz - CameraPosition) * 0.1 ;
-    Output.rgb = hsv2rgb(vec3(CalcSimplex(pos), CalcSimplex(pos * 2), CalcSimplex(pos * 3) * 0.2 + 0.5));
+    vec3 pos = normalize(SampleWorldPos(TexCoord).xyz - CameraPosition);
+    float dot = dot(pos, vec3(0,1,0));
+    float brightness = (CalcPerlin(pos * 20 * (1 - abs(dot))) + 1) / 2;
+    float horizon = Pow2(Pow2(1 - abs(dot)));
+    float val = brightness * horizon + horizon * 3;
+    val += 0.05;
+    val += Random(pos) * 0.005;
+    
+    Output.rgb = hsv2rgb(vec3(0, 0, val));
     Output.a = 1;
 }

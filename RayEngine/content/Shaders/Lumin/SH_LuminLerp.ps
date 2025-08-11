@@ -1,16 +1,22 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 
+uniform sampler2D TexIrradiance;
+uniform sampler2D TexPrefilter;
+
 uniform sampler2D TexFrameIrradiance;
 uniform sampler2D TexFramePrefilter;
 
 in vec2 TexCoord;
 out vec4 OutIrradiance;
-out vec4 OutPrefilter;
+out vec3 OutPrefilter;
 
 void main()
 {
-    OutIrradiance = texture(TexFrameIrradiance, TexCoord);
-    OutPrefilter = texture(TexFramePrefilter, TexCoord);
-    OutIrradiance.a = 0.1;
-    OutPrefilter.a = 0.1;
+    vec4 irradianceFrame = texture(TexFrameIrradiance, TexCoord);
+    vec3 prefilterFrame = texture(TexFramePrefilter, TexCoord).rgb;
+    vec4 irradiance = texture(TexIrradiance, TexCoord);
+    vec3 prefilter = texture(TexPrefilter, TexCoord).rgb;
+    
+    OutIrradiance = mix(irradiance, irradianceFrame, 0.1);
+    OutPrefilter = mix(prefilter, prefilterFrame, 0.1);
 }

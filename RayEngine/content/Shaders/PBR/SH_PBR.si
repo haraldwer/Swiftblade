@@ -24,7 +24,7 @@ vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
     float roughness = InSurface.g;
     float ao = InSurface.b;
     
-    vec3 N = normalize(InNormal);
+    vec3 N = InNormal;
     vec3 V = normalize(CameraPosition - InWorldPos);
     vec3 R = reflect(-V, N);
     

@@ -6,7 +6,7 @@
 #include "ECS/Systems/Attributes.h"
 #include "ECS/Systems/Transform.h"
 #include "Instance/Manager.h"
-#include "Game/GameInstance.h"
+#include "../../Game/Instances/GameInstance.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
 #include "ImGui/imgui_stdlib.h"

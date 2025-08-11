@@ -36,6 +36,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderFallbackProbe(const R
     
     Stats stats;
     stats += RenderSkybox(InArgs);
+    stats += RenderScene(InArgs);
     stats += RenderDeferred(InArgs);
 
     auto frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();
@@ -46,7 +47,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderFallbackProbe(const R
     return stats;
 }
 
-Rendering::Pipeline::Stats Rendering::LuminPipeline::LerpProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget, const RenderTarget& InLerpTarget)
+Rendering::Pipeline::Stats Rendering::LuminPipeline::LerpProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InFrame, SwapTarget& InTarget)
 {
     PROFILE_GL();
     
@@ -55,7 +56,8 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::LerpProbes(const RenderArgs
     CHECK_ASSERT(!InArgs.contextPtr, "Invalid context");
     
     Stats stats;
-    Renderer::DrawFullscreen(InArgs, InLerpTarget, InShader, { &InTarget }, RL_BLEND_ALPHA, false);
+    InTarget.Iterate();
+    Renderer::DrawFullscreen(InArgs, InTarget.Curr(), InShader, { &InFrame, &InTarget.Prev() });
     stats.fullscreenPasses++;
     return stats;
 }

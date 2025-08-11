@@ -6,6 +6,7 @@
 #include "Utility/Collections/SortedInsert.h"
 #include "raylib.h"
 #include "Scene/Culling/Frustum.h"
+#include "State/State.h"
 
 void Rendering::Lumin::Init(const LuminConfig& InConfig)
 {
@@ -18,16 +19,19 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
 
     if (target.TryBeginSetup(viewport.GetVirtualTarget()))
     {
-        target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
-        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
         target.EndSetup(viewport.GetVirtualTarget());
     }
 
-    if (lerpTarget.TryBeginSetup(viewport.GetVirtualTarget()))
+    for (auto& t : lerpTarget.All())
     {
-        lerpTarget.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
-        lerpTarget.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
-        lerpTarget.EndSetup(viewport.GetVirtualTarget());
+        if (t.TryBeginSetup(viewport.GetVirtualTarget()))
+        {
+            t.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            t.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+            t.EndSetup(viewport.GetVirtualTarget());
+        }
     }
 }
 
@@ -40,7 +44,8 @@ void Rendering::Lumin::Deinit()
     context.Deinit();
     atlas.Deinit();
     target.Unload();
-    lerpTarget.Unload();
+    for (auto& t : lerpTarget.All())
+        t.Unload();
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
@@ -59,6 +64,9 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     stats += UpdateProbes(InArgs);
     stats += UpdateFallbackProbe(InArgs);
     stats += LerpProbes(InArgs);
+
+    rlState::current.Reset();
+    
     return stats;
 }
 
@@ -183,7 +191,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         probe->iterations++;
         probe->rect = atlas.GetRect(probe->coord.id, 0);
 
-        float far = 30.0f;
+        float far = InArgs.scenePtr->GetCamera().far;
         Array<Vec3F, 9> points = {
             probe->pos,
             probe->pos + Vec3F(far, far, far),
@@ -224,8 +232,9 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArgs &InArgs)
 {
     Vec4F rect = atlas.GetRect(0, 0); // Refresh rect
-    if (fallback.iterations > 0)
-        return {};
+    
+    CHECK_RETURN(fallback.iterations > 0, {});
+    CHECK_RETURN(InArgs.scenePtr->environments.empty(), {});
 
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     RenderArgs args = {
@@ -235,12 +244,16 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
         .luminPtr = this,
         .lightsPtr = InArgs.lightsPtr,
         .perspectives = {},
-        .cullMask = static_cast<uint8>(MeshMask::NONE)
+        .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
 
     fallback.timestamp = context.Time();
     fallback.iterations++;
     fallback.rect = rect;
+    
+    for (auto& probe : probes)
+        fallback.pos += probe.second.pos;
+    fallback.pos /= static_cast<float>(probes.size());
     
     for (int i = 0; i < 6; i++)
     {
@@ -256,6 +269,20 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
             }
         });
     }
+
+    float far = InArgs.scenePtr->GetCamera().far;
+    Array<Vec3F, 9> points = {
+        fallback.pos,
+        fallback.pos + Vec3F(far, far, far),
+        fallback.pos + Vec3F(far, -far, far),
+        fallback.pos + Vec3F(-far, -far, far),
+        fallback.pos + Vec3F(-far, far, far),
+        fallback.pos + Vec3F(far, far, -far),
+        fallback.pos + Vec3F(far, -far, -far),
+        fallback.pos + Vec3F(-far, -far, -far),
+        fallback.pos + Vec3F(-far, far, -far),
+    };
+    args.cullPoints.insert(args.cullPoints.end(), points.begin(), points.end());
     
     viewport.BeginFrame();
     return pipeline.RenderFallbackProbe(args, config.CollectShader, target);
@@ -299,9 +326,7 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
         const Vec3F pos = FromCoord(InCoord);
         const Vec3F maxDist = Vec3F::One() / GetDensity(InLayer);
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
-        if (frustum.CheckSphere(pos, cullDist))
-            return true;
-        return false;
+        return frustum.CheckSphere(pos, cullDist);
     };
 
     Vector<ProbeCoord>& layer = layerProbes[InLayer];

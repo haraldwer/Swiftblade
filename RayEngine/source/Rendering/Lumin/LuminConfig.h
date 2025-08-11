@@ -20,10 +20,12 @@ namespace Rendering
         // Probe locations and layering
         PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.15f));
         PROPERTY_D(float, LayerScale, 0.5f);
+
+        // Has to match SH_LumnSample.si!!
         PROPERTY_D(int, Layers, 1);
-        PROPERTY_D(int, MaxLayerCount, 64); // Total = LayerCount * Layers
-        PROPERTY_D(int, AtlasPadding, 32); // For reusing nearby probes
-        PROPERTY_D(int, MaxGridCount, 1024); // For mapping grid -> probe
+        PROPERTY_D(int, MaxLayerCount, 256 - 64 - 1); // Total = LayerCount * Layers (+ fallback)
+        PROPERTY_D(int, AtlasPadding, 64); // For reusing nearby probes
+        PROPERTY_D(int, MaxGridCount, 512); // For mapping grid -> probe
 
         // Probe update rules
         PROPERTY_D(float, UpdateFrequency, 0.0f);

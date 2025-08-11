@@ -214,7 +214,8 @@ void Rendering::State::Set(const FrameCommand& InCmd)
         textures.clear();
         if (InCmd.fboID != static_cast<uint32>(-1))
             rlEnableFramebuffer(InCmd.fboID);
-        else rlDisableFramebuffer();
+        else
+            rlDisableFramebuffer();
         perspective = PerspectiveCommand();
         CHECK_ASSERT(InCmd.size.x == 0, "Invalid size x")
         CHECK_ASSERT(InCmd.size.y == 0, "Invalid size y")

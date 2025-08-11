@@ -4,5 +4,5 @@
 void main()
 {
     Default();
-    OutData = vec4(0);
+    OutData.xy = vec2(0);
 }

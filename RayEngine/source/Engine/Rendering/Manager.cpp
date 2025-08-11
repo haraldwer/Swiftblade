@@ -27,7 +27,10 @@ void Rendering::Manager::Init()
 
     rlImGuiSetup(false);
     ImGui::Theme1();
-    ImGui::LoadFont(GetWindowScaleDPI().y);
+
+    Vec2F windowScale = window.GetSize().To<float>() / Vec2F(1920.0f, 1080.0f);
+    float fontScale = Utility::Math::Max(windowScale.x, windowScale.y);
+    ImGui::LoadFont(fontScale);
 }
 
 void Rendering::Manager::Deinit()

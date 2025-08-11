@@ -3,14 +3,14 @@
 		"SSAO":false,
 		"Parallax":false,
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
+				"Key":"d",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
-				"Key":"TexSimplex",
-				"Val":"Defaults/T_Noise_Simplex.json"
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			}
 		],
 		"Quantize":false,
@@ -23,7 +23,6 @@
 		}
 	},
 	"Lumin":{
-		"Debug":true,
 		"Viewport":{
 			"Height":4096,
 			"Width":4096

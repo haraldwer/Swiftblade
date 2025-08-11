@@ -14,11 +14,17 @@ namespace Utility
         virtual ~Type() = default;
 
         template <class T>
+        static TypeHash GetHash()
+        {
+            return typeid(T).hash_code();
+        }
+        
+        template <class T>
         static Type Get()
         {
-            return Type(typeid(T).hash_code());
+            return Type(GetHash<T>());
         }
-
+        
         // Convenience operators
         bool operator==(const Type& InOther) const { return InOther.hash == hash; }
         bool operator!() const { return *this == None(); }
@@ -39,15 +45,21 @@ namespace Utility
 #define TYPE_INFO(self, parent) \
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
+    static Utility::TypeHash GetTypeHash() { return Utility::Type::GetHash<self>(); } \
     static bool IsA(const Utility::Type& InType) { return InType == GetType() || parent::IsA(InType); } \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
+    Utility::Type GetObjType() const override { return GetType(); } \
+    String GetObjName() const override { return TypeName(); } \
 private:
 
 #define BASE_TYPE_INFO(self) \
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
+    static Utility::TypeHash GetTypeHash() { return Utility::Type::GetHash<self>(); } \
     static bool IsA(const Utility::Type& InType) { return InType == GetType(); } \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
+    virtual Utility::Type GetObjType() const { return GetType(); } \
+    virtual String GetObjName() const { return TypeName(); } \
 private:

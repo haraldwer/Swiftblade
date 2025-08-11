@@ -10,7 +10,8 @@ namespace Rendering
 
         OrderedMap<String, Vector<RenderTarget::TargetTex>> GetNamed();
 
-        SwapTarget sceneTargets = SwapTarget(3);
+        SwapTarget sceneTargets = {};
+        SwapTarget pbrTargets = {}; 
         SwapTarget aoTargets = {};
         SwapTarget frameTargets = {};
     };
