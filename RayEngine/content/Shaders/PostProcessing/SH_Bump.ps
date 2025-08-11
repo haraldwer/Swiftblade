@@ -39,7 +39,7 @@ vec3 BumpNormal(vec2 InCoord, vec4 InCamPos, vec3 InNormal, float InHeight)
     vec3 right = GetSurfaceDirection(InCoord, vec2(1, 0), InCamPos.xyz, InNormal, InHeight);
     vec3 up = GetSurfaceDirection(InCoord, vec2(0, 1), InCamPos.xyz, InNormal, InHeight);
     vec3 forward = cross(right, up);
-    return forward;
+    return normalize(forward);
 }
 
 void main()

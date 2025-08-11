@@ -18,11 +18,11 @@ namespace Rendering
         PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json");
 
         // Probe locations and layering
-        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.1f));
-        PROPERTY_D(float, LayerScale, 0.4f);
-        PROPERTY_D(int, Layers, 2);
-        PROPERTY_D(int, MaxLayerCount, 10); // Total = LayerCount * Layers
-        PROPERTY_D(int, AtlasPadding, 4); // For reusing nearby probes
+        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.15f));
+        PROPERTY_D(float, LayerScale, 0.5f);
+        PROPERTY_D(int, Layers, 1);
+        PROPERTY_D(int, MaxLayerCount, 64); // Total = LayerCount * Layers
+        PROPERTY_D(int, AtlasPadding, 32); // For reusing nearby probes
         PROPERTY_D(int, MaxGridCount, 1024); // For mapping grid -> probe
 
         // Probe update rules

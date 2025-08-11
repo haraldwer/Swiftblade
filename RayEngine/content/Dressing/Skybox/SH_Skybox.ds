@@ -4,7 +4,9 @@
 
 void main()
 {
+    if (CheckID(TexCoord, DeferredID))
+        discard;
     vec3 pos = (SampleWorldPos(TexCoord).xyz - CameraPosition) * 0.1 ;
-    Output.rgb = hsv2rgb(vec3(CalcSimplex(pos), CalcSimplex(pos * 2), CalcSimplex(pos * 3)));
+    Output.rgb = hsv2rgb(vec3(CalcSimplex(pos), CalcSimplex(pos * 2), CalcSimplex(pos * 3) * 0.2 + 0.5));
     Output.a = 1;
 }

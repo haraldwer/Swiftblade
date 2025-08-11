@@ -5,20 +5,20 @@
 
 #include "Shaders/Lights/SH_Shadows.si"
 #include "Shaders/Lights/SH_SSShadows.si"
+#include "Shaders/PBR/SH_PBR_Light.si"
 
-// TODO: Pack these neater, do all lights in one pass? 
-uniform vec3 Position;
-uniform vec3 Direction;
-uniform vec3 Color;
-uniform float Range;
-uniform float ConeRadius;
-uniform float Intensity;
+const int MAX_LIGHTS = 10;
 
-uniform float Timestamp;
-uniform vec3 ShadowPosition;
-uniform vec4 ShadowRect;
+uniform vec4 Positions[MAX_LIGHTS]; // + ranges
+uniform vec4 Directions[MAX_LIGHTS]; // + cones
+uniform vec4 Colors[MAX_LIGHTS]; // + intensity
+
+uniform vec4 ShadowPositions[MAX_LIGHTS]; // + timestamps
+uniform vec4 ShadowRects[MAX_LIGHTS];
+
 uniform sampler2D TexShadow;
 uniform vec2 FaceTexel;
+uniform int Lights;
 
 in vec2 TexCoord;
 out vec4 Output;
@@ -30,45 +30,47 @@ float Godrays(vec4 InWorldPos, vec3 InToLight)
 
 void main()
 {
-    vec4 worldPos = SampleWorldPos(TexCoord).xyzw;
-    vec3 toLight = Position - worldPos.xyz;
-    float lightDistSqr = SquaredLength(toLight);
-    
     Output = vec4(0);
-    
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;
     
-    if (lightDistSqr > Range * Range)
-        return;
-
-    float lightDist = sqrt(lightDistSqr);    
-    float fade = Pow2(1 - lightDist / Range);
-    
-    vec3 toLightDir = toLight / lightDist;
+    vec4 worldPos = SampleWorldPos(TexCoord);
     vec3 normal = SampleNormal(TexCoord);
-    float d = dot(toLightDir, normal);
-    if (d < 0)
-        return;
-
-    float shadow = 1;
-    if (Timestamp != 0)
-    {
-        vec3 toLightShadow = ShadowPosition - worldPos.xyz;
-        shadow = Shadow(toLightShadow, TexShadow, TexCoord, FaceTexel, ShadowRect, Range); 
+    
+    for (int i = 0; i < Lights; i++)
+    {   
+        vec3 position = Positions[i].xyz;
+        vec3 toLight = position - worldPos.xyz;
+        float lightDistSqr = SquaredLength(toLight);
+        
+        float range = Positions[i].w;
+        if (lightDistSqr > range * range)
+            continue;
+        
+        float lightDist = sqrt(lightDistSqr);
+        vec3 toLightDir = toLight / lightDist;
+        float d = dot(toLightDir, normal);
+        if (d < -0.1)
+            continue;
+        
+        vec3 shadowPos = ShadowPositions[i].xyz;
+        vec4 shadowRect = ShadowRects[i];
+        vec3 toLightShadow = shadowPos - worldPos.xyz;
+        float shadow = Shadow(toLightShadow, TexShadow, TexCoord, FaceTexel, shadowRect, range);
         if (shadow < 0.001f)
-            return;
-        shadow = min(shadow, ScreenSpaceShadow(worldPos, Position));
-        if (shadow < 0.001f)
-            return;
+            continue;
+        //shadow = min(shadow, ScreenSpaceShadow(worldPos, position));
+        //if (shadow < 0.001f)
+        //    continue;
+        
+        float ao = 1.0 - texture(TexAO, TexCoord).x;
+        vec3 albedo = vec3(1);
+        vec3 surface = vec3(1, 1, 0);
+        vec3 color = Colors[i].xyz * Colors[i].w;
+        
+        vec3 light = PBRLight(worldPos.xyz, normal, albedo, surface, position, color);
+        
+        Output.rgb += light;
+        Output.a = 1;
     }
-    
-    float ao = 1.0 - texture(TexAO, TexCoord).x;
-    float intensity = Intensity * pow(d, 0.5) * fade * shadow * ao;
-    Output.rgb = Color;
-    Output.a = intensity;
-    
-    //vec3 normal = SampleNormal(TexCoord).xyz;
-    //PBRLight(worldPos.xyz, normal, )
-    
 }

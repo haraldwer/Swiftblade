@@ -18,15 +18,15 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
 
     if (target.TryBeginSetup(viewport.GetVirtualTarget()))
     {
-        target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
         target.EndSetup(viewport.GetVirtualTarget());
     }
 
     if (lerpTarget.TryBeginSetup(viewport.GetVirtualTarget()))
     {
-        lerpTarget.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-        lerpTarget.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        lerpTarget.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        lerpTarget.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
         lerpTarget.EndSetup(viewport.GetVirtualTarget());
     }
 }
@@ -67,14 +67,14 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
     LuminRenderData data;
     for (int layerIndex = 0 ; layerIndex < config.Layers; ++layerIndex)
     {
-        int startIndex = data.probes.size();
+        int probeStartIndex = static_cast<int>(data.probes.size());
         auto& layer = data.layers.emplace_back();
         Vector<LuminProbe*> frameProbes = GetProbes(InArgs, layerIndex);
         data.probes.insert(data.probes.end(), frameProbes.begin(), frameProbes.end());
         
         Vec3F min = Vec3F::Zero();
         Vec3F max = Vec3F::Zero();
-        for (auto& probe : frameProbes)
+        for (LuminProbe* probe: frameProbes)
         {
             if (min == Vec3F::Zero() && max == Vec3F::Zero())
             {
@@ -91,37 +91,51 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
             max.z = Utility::Math::Max(max.z, probe->pos.z);
         }
 
+        ProbeCoord minCoord = FromPos(min, layerIndex);
+        ProbeCoord maxCoord = FromPos(max, layerIndex);
+        
         layer.density = GetDensity(layerIndex);
+        layer.start = {
+            minCoord.x,
+            minCoord.y,
+            minCoord.z
+        };
+        layer.size = {
+            maxCoord.x - minCoord.x + 1,
+            maxCoord.y - minCoord.y + 1,
+            maxCoord.z - minCoord.z + 1
+        };
         
-        Vec3F minGrid = (min * layer.density); 
-        Vec3F sizeGrid = (max - min) * layer.density;
-        
-        layer.start = Vec3F({
-            floor(minGrid.x),
-            floor(minGrid.y),
-            floor(minGrid.z),
-        }).To<int>();
-        layer.size = Vec3F({
-            ceil(sizeGrid.x),
-            ceil(sizeGrid.y),
-            ceil(sizeGrid.z),
-        }).To<int>() + Vec3I::One();
-           
         int layer_max = config.MaxGridCount / config.Layers;
         int size = Utility::Math::Min(layer.size.x * layer.size.y * layer.size.z, layer_max);
-        layer.indices.resize(size, -1);
+        layer.startIndex = static_cast<int>(data.indices.size());
+        layer.endIndex = layer.startIndex + size;
+        data.indices.resize(layer.startIndex + size, -1);
 
         for (int probeIndex = 0; probeIndex < static_cast<int>(frameProbes.size()); ++probeIndex)
         {
-            auto p = frameProbes[probeIndex]->coord;
-            Vec3I c = {
-                p.x - layer.start.x,
-                p.y - layer.start.y,
-                p.z - layer.start.z,
+            ProbeCoord coord = frameProbes[probeIndex]->coord;
+            Vec3I gridPos = {
+                coord.x - layer.start.x,
+                coord.y - layer.start.y,
+                coord.z - layer.start.z,
             };
+            int index = gridPos.x + gridPos.y * layer.size.x + gridPos.z * layer.size.x * layer.size.y;
+
+            // Now try to calculate the index like in the shader
+            //auto coord = FromPos(frameProbes[probeIndex]->pos, layerIndex);
+            //Vec3I realCoord = {
+            //    coord.x - layer.start.x,
+            //    coord.y - layer.start.y,
+            //    coord.z - layer.start.z,
+            //};
+            //int realIndex = realCoord.x + realCoord.y * layer.size.x + realCoord.z * layer.size.x * layer.size.y;
+            //LOG("I: " + Utility::ToStr(index - realIndex))
             
-            int index = c.x + c.y * layer.size.x + c.z * layer.size.x * layer.size.y;
-            layer.indices.at(index) = probeIndex + startIndex;
+            index += layer.startIndex;
+            if (index < 0 || index >= static_cast<int>(data.indices.size()))
+                continue;
+            data.indices.at(index) = probeIndex + probeStartIndex;
         }
     }
     data.fallback = &fallback;
@@ -157,7 +171,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .luminPtr = this,
         .lightsPtr = InArgs.lightsPtr,
         .perspectives = {},
-        .cullPoints = InArgs.cullPoints,
+        .cullPoints = {},
         .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
 
@@ -168,7 +182,20 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         probe->timestamp = context.Time();
         probe->iterations++;
         probe->rect = atlas.GetRect(probe->coord.id, 0);
-        args.cullPoints.push_back(probe->pos);
+
+        float far = 30.0f;
+        Array<Vec3F, 9> points = {
+            probe->pos,
+            probe->pos + Vec3F(far, far, far),
+            probe->pos + Vec3F(far, -far, far),
+            probe->pos + Vec3F(-far, -far, far),
+            probe->pos + Vec3F(-far, far, far),
+            probe->pos + Vec3F(far, far, -far),
+            probe->pos + Vec3F(far, -far, -far),
+            probe->pos + Vec3F(-far, -far, -far),
+            probe->pos + Vec3F(-far, far, -far),
+        };
+        args.cullPoints.insert(args.cullPoints.end(), points.begin(), points.end());
         
         for (int i = 0; i < 6; i++)
         {
@@ -179,7 +206,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
                     .position = probe->pos,
                     .rotation = directions[i],
                     .fov = 90.0f,
-                    .far = 20.0f,
+                    .far = far,
                     .near = 0.01f
                 }
             });
@@ -298,12 +325,39 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
         for (auto& entry : persistence.second)
         {
             CHECK_CONTINUE(!entry.second.justRebuilt);
-            for (auto& trans : entry.second.transforms.GetAll())
+            CHECK_CONTINUE(!(entry.second.mask & static_cast<uint8>(MeshMask::LUMIN)));
+            for (int i = 0; i < config.Layers; i++)
             {
-                for (int i = 0; i < config.Layers; i++)
+                const auto density = GetDensity(i);
+                for (auto& trans : entry.second.transforms.GetAll())
                 {
-                    const ProbeCoord coord = FromPos(trans.GetPosition(), i);
-                    TryCreateProbe(coord);
+                    Vec3F pos = trans.GetPosition();
+                    ProbeCoord ceil {
+                        .x = static_cast<int16>(ceilf(pos.x * density.x)),
+                        .y = static_cast<int16>(ceilf(pos.y * density.y)),
+                        .z = static_cast<int16>(ceilf(pos.z * density.z)),
+                        .layer = static_cast<int16>(i)
+                    };
+                    ProbeCoord floor {
+                        .x = static_cast<int16>(floorf(pos.x * density.x)),
+                        .y = static_cast<int16>(floorf(pos.y * density.y)),
+                        .z = static_cast<int16>(floorf(pos.z * density.z)),
+                        .layer = static_cast<int16>(i)
+                    };
+                    ProbeCoord coords[8] =
+                    {
+                        { ceil.x, ceil.y, ceil.z, ceil.layer },
+                        { floor.x, ceil.y, ceil.z, ceil.layer },
+                        { ceil.x, floor.y, ceil.z, ceil.layer },
+                        { floor.x, floor.y, ceil.z, ceil.layer },
+                        { ceil.x, ceil.y, floor.z, ceil.layer },
+                        { floor.x, ceil.y, floor.z, ceil.layer },
+                        { ceil.x, floor.y, floor.z, ceil.layer },
+                        { floor.x, floor.y, floor.z, ceil.layer },
+                    };
+
+                    for (auto& coord : coords)
+                        TryCreateProbe(coord);
                     changed = true;
                 }
             }
@@ -341,9 +395,9 @@ Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer)
 {
     const auto density = GetDensity(InLayer);
     return {
-        .x = static_cast<int16>(InPos.x * density.x - 0.5f),
-        .y = static_cast<int16>(InPos.y * density.y - 0.5f),
-        .z = static_cast<int16>(InPos.z * density.z - 0.5f),
+        .x = static_cast<int16>(round(InPos.x * density.x)),
+        .y = static_cast<int16>(round(InPos.y * density.y)),
+        .z = static_cast<int16>(round(InPos.z * density.z)),
         .layer = static_cast<int16>(InLayer)
     };
 }
@@ -352,8 +406,8 @@ Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord) const
 {
     const auto density = GetDensity(InCoord.layer);
     return {                                
-        (static_cast<float>(InCoord.x) + 0.5f) / density.x,
-        (static_cast<float>(InCoord.y) + 0.5f) / density.y,
-        (static_cast<float>(InCoord.z) + 0.5f) / density.z,
+        static_cast<float>(InCoord.x) / density.x,
+        static_cast<float>(InCoord.y) / density.y,
+        static_cast<float>(InCoord.z) / density.z,
     };
 }

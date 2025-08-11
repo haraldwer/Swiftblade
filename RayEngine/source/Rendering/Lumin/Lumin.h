@@ -43,10 +43,12 @@ namespace Rendering
             Vec3I start = Vec3I::Zero();
             Vec3I size = Vec3I::Zero();
             Vec3F density = Vec3F::Zero();
-            Vector<int> indices = {}; // Only some slots will be filled
+            int startIndex = 0;
+            int endIndex = 0;
         };
         LuminProbe* fallback;
         Vector<Layer> layers = {};
+        Vector<int> indices = {}; // Only some slots will be filled
         Vector<LuminProbe*> probes;
     };
     

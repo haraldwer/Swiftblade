@@ -32,7 +32,7 @@ vec2 IntegrateBRDF(float InNdotV, float InRoughness)
 
         if(NdotL > 0.0)
         {
-            float G = GeometrySmith(N, V, L, InRoughness);
+            float G = BRDFGeometrySmith(N, V, L, InRoughness);
             float G_Vis = (G * VdotH) / (NdotH * InNdotV);
             float Fc = pow(1.0 - VdotH, 5.0);
 

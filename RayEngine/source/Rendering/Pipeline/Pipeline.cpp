@@ -37,7 +37,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += ProcessScene(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
-    //stats += RenderLights(InArgs);
+    stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
     stats += RenderFX(InArgs);
     stats += Blip(InArgs);

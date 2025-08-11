@@ -10,7 +10,7 @@
 
 int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
-    PROFILE_GL();
+    PROFILE_GL_NAMED("Lights");
     
     CHECK_ASSERT(!InArgs.lightsPtr, "Invalid lightptr");
     auto& lightMan = *InArgs.lightsPtr;
@@ -51,7 +51,6 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
     rlState::current.Set(shaderCmd);
     
     SetFrameShaderValues(InArgs, *shaderResource, InTarget);
-    SetValue(*shaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
 
     int texSlot = 0;
     auto& t = lightMan.GetShadowTarget();
@@ -62,46 +61,74 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     for (auto& b : InBuffers)
         if (b) b->Bind(*shaderResource, texSlot);
-    
+
+    Vector<Vec4F> positions; // + ranges
+    Vector<Vec4F> directions; // + cones
+    Vector<Vec4F> colors; // + intensity
+    Vector<Vec4F> shadowPositions; // + timestamps
+    Vector<Vec4F> shadowRects;
+
     for (auto& light : lights)
     {
-        PROFILE_GL_NAMED("Light");
 
         // TODO: Some lights shouldn't be rendered during Lumin!!
         
         CHECK_ASSERT(!light, "Invalid light");
-    
-        SetValue(*shaderResource, "Position", &light->data.position, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Direction", &light->data.direction, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Color", &light->data.color, SHADER_UNIFORM_VEC3);
-        SetValue(*shaderResource, "Range", &light->data.range, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "ConeRadius", &light->data.radius, SHADER_UNIFORM_FLOAT);
-        SetValue(*shaderResource, "Intensity", &light->data.intensity, SHADER_UNIFORM_FLOAT);
 
+        positions.emplace_back(
+            light->data.position.x,
+            light->data.position.y,
+            light->data.position.z,
+            light->data.range
+        );
+        directions.emplace_back(
+            light->data.direction.x,
+            light->data.direction.y,
+            light->data.direction.z,
+            light->data.radius
+        );
+        colors.emplace_back(
+            light->data.color.x,
+            light->data.color.y,
+            light->data.color.z,
+            light->data.intensity
+        );
+        
         auto find = lightMan.cache.find(light->id);
         LightData* shadowCache = find == lightMan.cache.end() ? nullptr : &find->second;
-
         if (shadowCache && light->shadows)
         {
-            float time = static_cast<float>(shadowCache->timestamp);
-            SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
-            SetValue(*shaderResource, "ShadowPosition", &shadowCache->pos, SHADER_UNIFORM_VEC3);
-            SetValue(*shaderResource, "ShadowRect", &shadowCache->rect, SHADER_UNIFORM_VEC4);
+            shadowPositions.emplace_back(
+                shadowCache->pos.x,
+                shadowCache->pos.y,
+                shadowCache->pos.z,
+                static_cast<float>(shadowCache->timestamp)
+            );
+            shadowRects.push_back(shadowCache->rect);
         }
         else
         {
-            float time = 0;
-            SetValue(*shaderResource, "Timestamp", &time, SHADER_UNIFORM_FLOAT);
+            shadowPositions.emplace_back(0);
+            shadowRects.emplace_back(0);
         }
+    }
 
-        for (auto& perspective : InArgs.perspectives)
-        {
-            PerspectiveCommand perspCmd;
-            perspCmd.rect = perspective.targetRect;
-            rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
-            DrawQuad(); // TODO: Replace with cube mesh
-        }
+    SetValue(*shaderResource, "Positions", positions.data(), SHADER_UNIFORM_VEC4, static_cast<int>(positions.size()));
+    SetValue(*shaderResource, "Directions", directions.data(), SHADER_UNIFORM_VEC4, static_cast<int>(directions.size()));
+    SetValue(*shaderResource, "Colors", colors.data(), SHADER_UNIFORM_VEC4, static_cast<int>(colors.size()));
+    SetValue(*shaderResource, "ShadowPositions", shadowPositions.data(), SHADER_UNIFORM_VEC4, static_cast<int>(shadowPositions.size()));
+    SetValue(*shaderResource, "ShadowRects", shadowRects.data(), SHADER_UNIFORM_VEC4, static_cast<int>(shadowRects.size()));
+
+    int numLights = static_cast<int>(lights.size());
+    SetValue(*shaderResource, "Lights", &numLights, SHADER_UNIFORM_INT);
+
+    for (auto& perspective : InArgs.perspectives)
+    {
+        PerspectiveCommand perspCmd;
+        perspCmd.rect = perspective.targetRect;
+        rlState::current.Set(perspCmd);
+        SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+        DrawQuad();
     }
 
     // Debug draw shadow maps

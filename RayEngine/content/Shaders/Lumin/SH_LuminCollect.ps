@@ -16,11 +16,11 @@ void main()
     vec2 texel = vec2(1) / Resolution;
     
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
-    vec3 camDiff = CameraPosition - worldPos.xyz;
+    vec3 camDiff = worldPos.xyz - CameraPosition;
     vec3 camDir = normalize(camDiff);
     
     OutIrradiance.rgb = ConvoluteIrradiance(TexFrame, texel, RefRect, camDir);
-    OutPrefilter.rgb = Prefilter(TexFrame, texel, RefRect, camDir, 0.5);
+    OutPrefilter.rgb = Prefilter(TexFrame, texel, RefRect, camDir, 0.1);
     
     OutIrradiance.a = 1;
     OutPrefilter.a = 1;

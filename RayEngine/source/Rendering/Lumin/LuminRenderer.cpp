@@ -17,16 +17,20 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs &InArgs, ShaderResour
     
     // Collect probe data
     Vector<Vec4F> positions;
-    Vector<Vec4F> rects;
+    Vector<Vec2F> rects;
 
     // Add fallback
-    rects.emplace_back(probeData.fallback->rect);
+    rects.emplace_back(probeData.fallback->rect.xy);
     positions.emplace_back(
         probeData.fallback->rect.x,
         probeData.fallback->rect.y,
         probeData.fallback->rect.z,
         static_cast<float>(time - probeData.fallback->timestamp)
     );
+    Vec2F rectSize = {
+        probeData.fallback->rect.z,
+        probeData.fallback->rect.w
+    };
     
     for (auto& probe : probeData.probes)
     {
@@ -37,36 +41,28 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs &InArgs, ShaderResour
             probe->pos.z,
             static_cast<float>(time - probe->timestamp)
         );
-        rects.push_back(probe->rect);
+        rects.push_back(probe->rect.xy);
     }
     
     // Collect layer data
     Vector<Vec3F> densities;
     Vector<Vec4I> sizes;
     Vector<Vec4I> starts;
-    Vector<int> indices;
     for (auto& layer : probeData.layers)
     {
-        int startIndex = static_cast<int>(indices.size());
-        int endIndex = startIndex + static_cast<int>(layer.indices.size());
-
         densities.push_back(layer.density);
         sizes.emplace_back(
             layer.size.x,
             layer.size.y,
             layer.size.z,
-            startIndex
+            layer.startIndex
         );
         starts.emplace_back(
             layer.start.x,
             layer.start.y,
             layer.start.z,
-            endIndex
+            layer.endIndex
         );
-        indices.insert(
-            indices.end(),
-            layer.indices.begin(),
-            layer.indices.end());
     }
 
     // Set layer data
@@ -75,9 +71,10 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs &InArgs, ShaderResour
     SetValue(InShader, "Starts", starts.data(), SHADER_UNIFORM_IVEC4, static_cast<int>(starts.size()));
 
     // Set probe data
-    SetValue(InShader, "Indices", indices.data(), SHADER_UNIFORM_INT, static_cast<int>(indices.size()));
+    SetValue(InShader, "Indices", probeData.indices.data(), SHADER_UNIFORM_INT, static_cast<int>(probeData.indices.size()));
     SetValue(InShader, "Positions", positions.data(), SHADER_UNIFORM_VEC4, static_cast<int>(positions.size()));
-    SetValue(InShader, "Rects", rects.data(), SHADER_UNIFORM_VEC4, static_cast<int>(rects.size()));
+    SetValue(InShader, "Rects", rects.data(), SHADER_UNIFORM_VEC2, static_cast<int>(rects.size()));
+    SetValue(InShader, "RectSize", &rectSize, SHADER_UNIFORM_VEC2);
 
     // Set probe texture data
     auto& target = lumin.GetProbeTarget();
@@ -133,7 +130,7 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
         ShaderCommand debugShaderCmd;
         debugShaderCmd.locs = debugShader->locs;
         debugShaderCmd.id = debugShader->id;
-        debugShaderCmd.depthTest = false;
+        debugShaderCmd.depthTest = true;
         debugShaderCmd.depthMask = true;
         rlState::current.Set(debugShaderCmd);
         
@@ -155,8 +152,9 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
         for (auto& layer : probeData.layers)
         {
             l++;
-            for (auto& probeIndex : layer.indices)
+            for (int i = layer.startIndex; i < layer.endIndex; i++)
             {
+                int probeIndex = probeData.indices[i];
                 CHECK_CONTINUE(probeIndex == -1);
                 PROFILE_GL_NAMED("Lumin probe debug");
                 

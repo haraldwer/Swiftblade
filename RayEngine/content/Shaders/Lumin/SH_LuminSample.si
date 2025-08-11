@@ -1,9 +1,10 @@
 
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Utility/SH_CubeSampling.si"
+#include "Shaders/Utility/SH_Utility.si"
 
-const int LAYERS = 2;
-const int LAYER_PROBES = 10;
+const int LAYERS = 1;
+const int LAYER_PROBES = 64;
 const int PROBE_COUNT = (LAYERS * LAYER_PROBES) + 1;
 const int GRID_COUNT = 1024; 
 
@@ -12,6 +13,7 @@ uniform sampler2D TexIrradiance;
 uniform sampler2D TexPrefilter;
 
 uniform vec2 FaceTexel;
+uniform vec2 RectSize;
 
 // Layer data
 uniform vec3 Densities[LAYERS];
@@ -21,14 +23,36 @@ uniform ivec4 Starts[LAYERS];
 // Probe data
 uniform int Indices[GRID_COUNT]; // Map grid -> probe
 uniform vec4 Positions[PROBE_COUNT];
-uniform vec4 Rects[PROBE_COUNT];
+uniform vec2 Rects[PROBE_COUNT];
 
-vec4 GetProbe(vec3 InWorldPos)
+const int PROBE_SAMPLES = 6;
+
+struct ProbeData
+{
+    int index[PROBE_SAMPLES * LAYERS];
+    float weight[PROBE_SAMPLES * LAYERS];
+};
+
+float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec3 InProbePos)
+{
+    vec3 pixelToProbe = InWorldPos - InProbePos;
+    float pixelToProbeDist = length(pixelToProbe);
+    vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist;
+    
+    // Is surface pointing towards probe?
+    float surfaceDot = -dot(pixelToProbeDir, InNormal);
+    if (surfaceDot < -0.1)
+        return 0.0;
+    
+    return 1 / (pixelToProbeDist + 0.001);
+}
+
+ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
 {
     // Convert position to grid
     // Find probe, use fallback
     // Possibly sample multiple probes?
-    
+    ProbeData data;
     for (int layer = 0; layer < LAYERS; layer++)
     {
         vec3 density = Densities[layer];
@@ -37,21 +61,46 @@ vec4 GetProbe(vec3 InWorldPos)
         int startIndex = Sizes[layer].w;
         int endIndex = Starts[layer].w;
         
-        vec3 pos = InWorldPos * density;
-        pos = round(pos);
-        ivec3 gridPos = ivec3(pos) - start;
+        // Round to all directions
+        vec3 posCeil = ceil(InWorldPos * density);
+        ivec3 gridPosCeil = ivec3(posCeil) - start;
+        vec3 posFloor = floor(InWorldPos * density);
+        ivec3 gridPosFloor = ivec3(posFloor) - start;
+        vec3 posRound = round(InWorldPos * density);
+        ivec3 gridPosRound = ivec3(posRound) - start;
         
-        // Map to index
-        int index = gridPos.x + gridPos.y * size.x + gridPos.z * size.x * size.y;
-        index += startIndex;
+        // Grid positions to test
+        ivec3 positions[PROBE_SAMPLES] = ivec3[PROBE_SAMPLES](
+            ivec3(gridPosRound.xy, gridPosCeil.z),
+            ivec3(gridPosRound.xy, gridPosFloor.z),
+            ivec3(gridPosRound.x, gridPosCeil.y, gridPosRound.z),
+            ivec3(gridPosRound.x, gridPosFloor.y, gridPosRound.z),
+            ivec3(gridPosCeil.x, gridPosRound.yz),
+            ivec3(gridPosFloor.x, gridPosRound.yz)
+        );
         
-        // Map index to probe
-        int probe_index = Indices[index];
-        if (probe_index != 0)
-            return Rects[probe_index];
+        for (int posIndex = 0; posIndex < PROBE_SAMPLES; posIndex++)
+        {
+            int dataIndex = posIndex + layer * PROBE_SAMPLES;
+            
+            // Map to grid index
+            ivec3 gridPos = positions[posIndex];
+            int index = gridPos.x + gridPos.y * size.x + gridPos.z * size.x * size.y;
+            
+            // Map index to probe
+            int probeIndex = Indices[index + startIndex] + 1;
+            vec3 probePos = Positions[probeIndex].xyz; 
+            float weight = ProbeOcclusion(InWorldPos, InNormal, probePos);
+            if (probeIndex == 0)
+                weight = 0.1; 
+            if (weight < 0.01)
+                probeIndex = 0;
+            data.index[dataIndex] = probeIndex;
+            data.weight[dataIndex] = weight; 
+        }
     }
     
-    return Rects[0]; // Use fallback
+    return data;
 }
 
 vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
@@ -59,12 +108,28 @@ vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
     return texture(TexBRDF, vec2(max(dot(InN, InV), 0), InRoughness)).rg;
 }
 
-vec3 SampleIrradiance(vec4 InRect, vec3 InDir)
+vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 {
-    return SampleCubeAtlas(TexIrradiance, FaceTexel, InRect, InDir).rgb;
+    vec4 c = vec4(0);
+    for (int i = 0; i < PROBE_SAMPLES * LAYERS; i++)
+    {
+        int index = InProbe.index[i];
+        float weight = InProbe.weight[i];
+        vec2 rectPos = Rects[index];
+        vec4 rect = vec4(rectPos, RectSize);
+        vec3 color = SampleCubeAtlasMip(TexIrradiance, FaceTexel, rect, InDir, InMip).rgb;
+        c.rgb += color * weight;
+        c.a += weight;
+    }
+    return c.rgb / c.a;
 }
 
-vec3 SamplePrefilter(vec4 InRect, vec3 InDir, int InMip)
+vec3 SampleIrradiance(ProbeData InProbe, vec3 InDir)
 {
-    return SampleCubeAtlasMip(TexPrefilter, FaceTexel, InRect, InDir, InMip).rgb;
+    return ProbeSample(TexIrradiance, InProbe, InDir, 0);
+}
+
+vec3 SamplePrefilter(ProbeData InProbe, vec3 InDir, int InMip)
+{
+    return ProbeSample(TexPrefilter, InProbe, InDir, InMip);
 }

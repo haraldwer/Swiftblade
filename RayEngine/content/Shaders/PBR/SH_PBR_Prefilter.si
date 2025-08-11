@@ -4,7 +4,7 @@
 
 // https://learnopengl.com/PBR/IBL/Specular-IBL
 
-const uint FILTER_SAMPLE_COUNT = 128u;
+const uint FILTER_SAMPLE_COUNT = 256u;
 
 vec3 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float InRoughness)
 {
@@ -20,12 +20,12 @@ vec3 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float
         vec3 H  = ImportanceSampleGGX(Xi, N, InRoughness);
         vec3 L  = normalize(2.0 * dot(V, H) * H - V);
         
-        float NdotH = dot(N, H);
-        float HdotV = dot(H, V);
-        float D   = GeometrySchlickGGX(NdotH, InRoughness); // Should maybe be DistributionGGX??
-        float pdf = (D * NdotH / (4.0 * HdotV)) + 0.0001;
-
         // A solution to bright dots (requires mips)
+        //float NdotH = dot(N, H);
+        //float HdotV = dot(H, V);
+        //float D   = DistributionGGX(NdotH, InRoughness); // Should maybe be DistributionGGX??
+        //float pdf = (D * NdotH / (4.0 * HdotV)) + 0.0001;
+
         //float saTexel  = 4.0 * PI / (6.0 * Pow2(EnvResolution));
         //float saSample = 1.0 / (float(FILTER_SAMPLE_COUNT) * pdf + 0.0001);
         //float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);

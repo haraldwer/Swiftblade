@@ -48,7 +48,7 @@ vec4 SampleProbe(int InIndex, vec3 InWorldPos, vec3 InNormal)
     float depthVal = (abs(depthDiff) - DIST_BIAS) / DIST_FADE;
     float depthFade = 1 - clamp(depthVal, 0, 1);
     if (depthFade < 0.001)
-      return vec4(0);
+        return vec4(0);
     
     // Is surface pointing towards probe?
     vec3 normal = SampleNormal(TexCoord);
