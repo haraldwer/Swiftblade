@@ -3,7 +3,7 @@
 		"SSAO":false,
 		"Parallax":false,
 		"NoiseTextures":[{
-				"Key":"d",
+				"Key":"TexSimplex",
 				"Val":"Defaults/T_Noise_Simplex.json"
 			},{
 				"Key":"TexPerlin",
@@ -23,6 +23,7 @@
 		}
 	},
 	"Lumin":{
+		"Enabled":false,
 		"Viewport":{
 			"Height":4096,
 			"Width":4096

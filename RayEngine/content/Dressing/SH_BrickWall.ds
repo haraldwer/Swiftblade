@@ -39,5 +39,5 @@ void main()
     
     vec3 color = hsv2rgb(vec3(hue, sat, shadow)) * 0.2f;
     
-    Default(color, vec3(0, 1, 1));
+    DefaultMatte(color);
 }

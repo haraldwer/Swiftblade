@@ -13,7 +13,7 @@ out vec4 Output;
 
 const float DIST_FADE_START = 20.0;
 const float DIST_FADE_END = 50.0;
-const float FADE_DOT_PART = 0.2; 
+const float FADE_DOT_PART = 0.5; 
 
 float DistanceFade(float InCameraDistance)
 {
@@ -43,4 +43,19 @@ void Default(vec3 InAlbedo, vec3 InSurface)
     
     vec3 pbr = PBR(worldPosition, worldNormal, InAlbedo, InSurface);
     Output = vec4(pbr, 1.0);
+}
+
+void DefaultMatte(vec3 InAlbedo)
+{
+    Default(InAlbedo, vec3(0, 1, 1));
+}
+
+void DefaultMetal(vec3 InAlbedo)
+{
+    Default(InAlbedo, vec3(1, 1, 1));
+}
+
+void DefaultShiny(vec3 InAlbedo)
+{
+    Default(InAlbedo, vec3(0, 0, 1));
 }

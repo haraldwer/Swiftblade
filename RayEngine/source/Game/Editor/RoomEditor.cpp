@@ -84,6 +84,10 @@ void RoomEditor::Logic(const double InDelta)
 
 void RoomEditor::Frame()
 {
+    EnvironmentInstance env;
+    env.skybox = currConfig.Skybox;
+    GetRenderScene().AddEnvironment(env);
+    
     ecs.Frame(); 
     Instance::Frame();
     
@@ -122,7 +126,7 @@ void RoomEditor::OpenScene()
         scene = sceneRes->Create();
     
     subEditorManager.Init(currConfig.IsArena ?
-        RoomType::ARENA : RoomType::ROOM); 
+        RoomType::ARENA : RoomType::ROOM);
 }
 
 void RoomEditor::PlayScene()

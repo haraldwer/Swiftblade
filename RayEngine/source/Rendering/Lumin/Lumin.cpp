@@ -6,7 +6,6 @@
 #include "Utility/Collections/SortedInsert.h"
 #include "raylib.h"
 #include "Scene/Culling/Frustum.h"
-#include "State/State.h"
 
 void Rendering::Lumin::Init(const LuminConfig& InConfig)
 {
@@ -61,11 +60,12 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     
     ExpandVolume(*InArgs.scenePtr);
     Pipeline::Stats stats;
-    stats += UpdateProbes(InArgs);
+
+    if (config.Enabled)
+        stats += UpdateProbes(InArgs);
+    
     stats += UpdateFallbackProbe(InArgs);
     stats += LerpProbes(InArgs);
-
-    rlState::current.Reset();
     
     return stats;
 }
@@ -73,6 +73,14 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &InArgs)
 {
     LuminRenderData data;
+    data.fallback = &fallback;
+
+    if (!config.Enabled)
+    {
+        data.layers.emplace_back();
+        return data;    
+    }
+    
     for (int layerIndex = 0 ; layerIndex < config.Layers; ++layerIndex)
     {
         int probeStartIndex = static_cast<int>(data.probes.size());
@@ -146,9 +154,9 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
             data.indices.at(index) = probeIndex + probeStartIndex;
         }
     }
-    data.fallback = &fallback;
     return data;
 }
+
 
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
 {
@@ -159,12 +167,12 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     {
         for (auto& probe : GetProbes(InArgs, layer))
         {
-            CHECK_CONTINUE(config.UpdateFrequency < 0.0f && probe->timestamp > 0.001f);
+            CHECK_CONTINUE(config.UpdateFrequency < 0.0f && probe->renderTimestamp > 0.001f);
             CHECK_CONTINUE(config.Iterations > 0 && probe->iterations >= config.Iterations);
-            CHECK_CONTINUE(InArgs.contextPtr->Time() - probe->timestamp < config.UpdateFrequency)
+            CHECK_CONTINUE(InArgs.contextPtr->Time() - probe->renderTimestamp < config.UpdateFrequency)
             Utility::SortedInsert(frameProbes, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
             {
-                return InFirst->timestamp < InSecond->timestamp;
+                return InFirst->renderTimestamp < InSecond->renderTimestamp;
             });
         }
     }
@@ -183,26 +191,28 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
 
+    float time = context.Time();
+    for (auto probe : frameProbes)
+    {
+        if (!atlas.Contains(probe->coord.id))
+        {
+            probe->iterations = 0;
+            probe->atlasTimestamp = 0;
+            probe->renderTimestamp = 0;
+        }
+    }
+    
     int count = 0;
     for (auto probe : frameProbes)
     {
-        CHECK_CONTINUE(!probe);
-        probe->timestamp = context.Time();
+        if (probe->iterations == 0)
+            probe->atlasTimestamp = time; // just got assigned an atlas
+        
         probe->iterations++;
+        probe->renderTimestamp = time; // Just rendered
         probe->rect = atlas.GetRect(probe->coord.id, 0);
 
-        float far = InArgs.scenePtr->GetCamera().far;
-        Array<Vec3F, 9> points = {
-            probe->pos,
-            probe->pos + Vec3F(far, far, far),
-            probe->pos + Vec3F(far, -far, far),
-            probe->pos + Vec3F(-far, -far, far),
-            probe->pos + Vec3F(-far, far, far),
-            probe->pos + Vec3F(far, far, -far),
-            probe->pos + Vec3F(far, -far, -far),
-            probe->pos + Vec3F(-far, -far, -far),
-            probe->pos + Vec3F(-far, far, -far),
-        };
+        Array<Vec3F, 9> points = GetCullPoints(probe->pos);
         args.cullPoints.insert(args.cullPoints.end(), points.begin(), points.end());
         
         for (int i = 0; i < 6; i++)
@@ -214,8 +224,8 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
                     .position = probe->pos,
                     .rotation = directions[i],
                     .fov = 90.0f,
-                    .far = far,
-                    .near = 0.01f
+                    .far = config.Far,
+                    .near = config.Near
                 }
             });
         }
@@ -247,7 +257,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
         .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
 
-    fallback.timestamp = context.Time();
+    fallback.renderTimestamp = context.Time();
     fallback.iterations++;
     fallback.rect = rect;
     
@@ -261,31 +271,20 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
             .referenceRect = fallback.rect,
             .targetRect = atlas.GetRect(0, i),
             .camera = {
-                .position = Vec3F::Zero(),
+                .position = fallback.pos,
                 .rotation = directions[i],
                 .fov = 90.0f,
-                .far = InArgs.scenePtr->GetCamera().far,
-                .near = 0.1f
+                .far = config.Far,
+                .near = config.Near
             }
         });
     }
 
-    float far = InArgs.scenePtr->GetCamera().far;
-    Array<Vec3F, 9> points = {
-        fallback.pos,
-        fallback.pos + Vec3F(far, far, far),
-        fallback.pos + Vec3F(far, -far, far),
-        fallback.pos + Vec3F(-far, -far, far),
-        fallback.pos + Vec3F(-far, far, far),
-        fallback.pos + Vec3F(far, far, -far),
-        fallback.pos + Vec3F(far, -far, -far),
-        fallback.pos + Vec3F(-far, -far, -far),
-        fallback.pos + Vec3F(-far, far, -far),
-    };
+    Array<Vec3F, 9> points = GetCullPoints(fallback.pos);
     args.cullPoints.insert(args.cullPoints.end(), points.begin(), points.end());
     
     viewport.BeginFrame();
-    return pipeline.RenderFallbackProbe(args, config.CollectShader, target);
+    return pipeline.RenderFallbackProbe(args, config.CollectShader, target, config.SceneFallback);
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs)
@@ -351,6 +350,7 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
         {
             CHECK_CONTINUE(!entry.second.justRebuilt);
             CHECK_CONTINUE(!(entry.second.mask & static_cast<uint8>(MeshMask::LUMIN)));
+            changed = true;
             for (int i = 0; i < config.Layers; i++)
             {
                 const auto density = GetDensity(i);
@@ -383,18 +383,20 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
 
                     for (auto& coord : coords)
                         TryCreateProbe(coord);
-                    changed = true;
                 }
             }
         }
     }
-
+    
     // Reset cache, redo every probe
-    if (changed && config.ResetCache)
+    if (changed)
     {
-        fallback = {};
-        for (auto& probe : probes)
-            probe.second.iterations = 0;
+        LOG("Changed");
+        if (config.InvalidateFallback)
+            fallback = {};
+        if (config.InvalidateCache)
+            for (auto& probe : probes)
+                probe.second.iterations = 0;
     }
 }
 
@@ -434,5 +436,21 @@ Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord) const
         static_cast<float>(InCoord.x) / density.x,
         static_cast<float>(InCoord.y) / density.y,
         static_cast<float>(InCoord.z) / density.z,
+    };
+}
+
+Array<Vec3F, 9> Rendering::Lumin::GetCullPoints(const Vec3F &InPos) const
+{
+    float InFar = config.Far;
+    return {
+        InPos,
+        InPos + Vec3F(InFar, InFar, InFar),
+        InPos + Vec3F(InFar, -InFar, InFar),
+        InPos + Vec3F(-InFar, -InFar, InFar),
+        InPos + Vec3F(-InFar, InFar, InFar),
+        InPos + Vec3F(InFar, InFar, -InFar),
+        InPos + Vec3F(InFar, -InFar, -InFar),
+        InPos + Vec3F(-InFar, -InFar, -InFar),
+        InPos + Vec3F(-InFar, InFar, -InFar),
     };
 }

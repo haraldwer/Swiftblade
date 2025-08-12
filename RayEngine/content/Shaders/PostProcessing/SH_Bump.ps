@@ -52,5 +52,9 @@ void main()
     if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;
     
-    OutNormal.xyz = BumpNormal(TexCoord, OutPosition, OutNormal.xyz, OutData.z);
+    if (OutData.z < 0.0001)
+        return;
+    
+    vec3 bump = BumpNormal(TexCoord, OutPosition, OutNormal.xyz, OutData.z); 
+    OutNormal.xyz = normalize(mix(bump, OutNormal.xyz, 0.5));
 }

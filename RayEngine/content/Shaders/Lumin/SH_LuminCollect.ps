@@ -21,7 +21,7 @@ void main()
     vec3 camDir = camDiff / camDist;
     
     OutIrradiance.rgb = ConvoluteIrradiance(TexFrame, texel, RefRect, camDir);
-    OutPrefilter.rgb = Prefilter(TexFrame, texel, RefRect, camDir, 1.0);
+    OutPrefilter.rgb = Prefilter(TexFrame, texel, RefRect, camDir, 1);
     
     OutIrradiance.a = camDist / NearFar.y;
 }

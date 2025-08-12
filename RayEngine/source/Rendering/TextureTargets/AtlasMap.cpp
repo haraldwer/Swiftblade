@@ -21,6 +21,11 @@ void Rendering::AtlasMap::Deinit()
     available.clear();
 }
 
+bool Rendering::AtlasMap::Contains(uint64 InID) const
+{
+    return slots.contains(InID);
+}
+
 Vec4F Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
 {
     // Track last access time

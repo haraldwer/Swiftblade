@@ -1,0 +1,13 @@
+#include "Shaders/SH_Default_ds.si"
+#include "Shaders/Utility/SH_Random.si"
+
+void main()
+{
+    DefaultMatte(vec3(0.5));
+    
+    vec3 pos = SampleWorldPos(TexCoord).xyz;
+    vec3 normal = SampleNormal(TexCoord);
+    float dist = length(pos - CameraPosition);
+    float fade = DistanceFade(dist) * SurfaceFade(pos, normal);
+    Output.rgb = mix(vec3(fade), Output.rgb, 0.95);
+}

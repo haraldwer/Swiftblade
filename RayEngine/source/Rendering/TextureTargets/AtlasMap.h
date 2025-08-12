@@ -9,6 +9,7 @@ namespace Rendering
         void Deinit();
         
         // Map ids to coordinates on the map
+        bool Contains(uint64 InID) const;
         Vec4F GetRect(uint64 InID, int InFace = 0);
         float GetSlotSize() const { return slotSize; }
 

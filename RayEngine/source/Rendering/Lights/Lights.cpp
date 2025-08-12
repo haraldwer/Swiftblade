@@ -100,7 +100,6 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
     atlasView.BeginFrame();
     stats += pipeline.RenderShadows(args, config.CollectShader, target);
-    rlState::current.Reset();
     return stats;
 }
 

@@ -9,7 +9,10 @@ namespace ECS
 {
     struct CubeVolume : Component<CubeVolume>
     {
-        PROPERTY_D(float, Scale, 1.0f); 
+        PROPERTY_D(float, Scale, 1.0f);
+        PROPERTY_D(ResRM, Material, "Dressing/RM_StoneWall.json");
+        PROPERTY_D(ResRM, EditMaterial, "Editor/RM_EditBlock.json");
+        PROPERTY_D(ResRM, MarkerMaterial, "Editor/RM_EditMarker.json");
 
         // Manually serialized / deserialized
         CubeVolumeData data;
@@ -30,6 +33,9 @@ namespace ECS
 
         static Coord TryOffset(Coord InCoord, Vec3I InOffset);
         static Array<Coord, 6> GetNeighbors(Coord InCoord);
+        
+        MeshInstance blockMesh = {}; 
+        MeshInstance editMesh = {};
     };
 
     class SysCubeVolume : public System<CubeVolume>
@@ -49,8 +55,6 @@ namespace ECS
         int GetPriority() const override { return -101; }
         
     private:
-        MeshInstance blockMesh = {}; 
-        MeshInstance editMesh = {};
         uint32 persistentID = 0;
     };
 }

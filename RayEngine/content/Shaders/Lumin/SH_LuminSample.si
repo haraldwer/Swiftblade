@@ -4,38 +4,45 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 const int LAYERS = 1;
-const int LAYER_PROBES = 256 - 64 - 1;
+const int LAYER_PROBES = 18 * 18 * 1 - 64 - 1;
 const int PROBE_COUNT = (LAYERS * LAYER_PROBES) + 1;
-const int GRID_COUNT = 512; 
+const int GRID_COUNT = 512;
+
+const float PROBE_NORMAL_OFFSET = 0.1f;
+const float PROBE_DEPTH_FADE_DIST = 0.8f;
+const float PROBE_DEPTH_FADE_BIAS = 0.2f;
 
 uniform sampler2D TexBRDF;
 uniform sampler2D TexIrradiance;
 uniform sampler2D TexPrefilter;
 
-uniform vec2 FaceTexel;
-uniform vec2 RectSize;
+uniform vec2 ProbeFaceTexel;
+uniform vec2 ProbeRectSize;
+uniform vec2 ProbeNearFar;
 
 // Layer data
-uniform vec3 Densities[LAYERS];
-uniform ivec4 Sizes[LAYERS];
-uniform ivec4 Starts[LAYERS];
+uniform vec3 ProbeDensities[LAYERS];
+uniform ivec4 ProbeSizes[LAYERS];
+uniform ivec4 ProbeStarts[LAYERS];
 
 // Probe data
-uniform int Indices[GRID_COUNT]; // Map grid -> probe
-uniform vec4 Positions[PROBE_COUNT];
-uniform vec2 Rects[PROBE_COUNT];
+uniform int ProbeIndices[GRID_COUNT]; // Map grid -> probe
+uniform vec4 ProbePositions[PROBE_COUNT];
+uniform vec2 ProbeRects[PROBE_COUNT];
 
 const int PROBE_SAMPLES = 8;
+const int PROBE_DATA_SIZE = PROBE_SAMPLES * LAYERS + 1;
+const float PROBE_FALLBACK_WEIGHT = 0.000000001;
 
 struct ProbeData
 {
-    int index[PROBE_SAMPLES * LAYERS];
-    float weight[PROBE_SAMPLES * LAYERS];
+    int index[PROBE_DATA_SIZE];
+    float weight[PROBE_DATA_SIZE];
 };
 
-float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec3 InProbePos, vec3 InDensity)
+float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDensity, int InRectIndex)
 {
-    vec3 pixelToProbe = InWorldPos - InProbePos;
+    vec3 pixelToProbe = InWorldPos - InProbePos.xyz;
     float pixelToProbeDist = length(pixelToProbe);
     vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist;
     
@@ -47,6 +54,21 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec3 InProbePos, vec3 InDen
     float maxDist = max(max(denseDist.x, denseDist.y), denseDist.z);
     occluded *= Saturate(1 - maxDist);
     
+    if (occluded > 0.00001)
+    {
+        vec4 rect = vec4(ProbeRects[InRectIndex], ProbeRectSize);
+        float probeDepth = SampleCubeAtlas(TexIrradiance, ProbeFaceTexel, rect, pixelToProbeDir).a;
+        probeDepth *= ProbeNearFar.y;
+        
+        float depthDiff = probeDepth - pixelToProbeDist;
+        float depthDiffBias = max(-depthDiff - PROBE_DEPTH_FADE_BIAS, 0);
+        float depthDiffScaled = depthDiffBias / PROBE_DEPTH_FADE_DIST;
+        occluded *= Saturate(1 - depthDiffScaled);
+    }
+
+    float time = InProbePos.w * 0.1f;
+    occluded *= Pow2(Pow2(Saturate(time)));
+    
     return occluded;
 }
 
@@ -56,17 +78,18 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
     // Find probe, use fallback
     // Possibly sample multiple probes?
     ProbeData data;
+    float totalWeight = 0;
     
     for (int layer = 0; layer < LAYERS; layer++)
     {
-        vec3 density = Densities[layer];
-        ivec3 size = Sizes[layer].xyz;
-        ivec3 start = Starts[layer].xyz;
-        int startIndex = Sizes[layer].w;
-        int endIndex = Starts[layer].w;
+        vec3 density = ProbeDensities[layer];
+        ivec3 size = ProbeSizes[layer].xyz;
+        int startIndex = ProbeSizes[layer].w;
+        ivec3 start = ProbeStarts[layer].xyz;
+        int endIndex = ProbeStarts[layer].w;
         
         // Push pixelpos towards normal
-        vec3 pixelPos = InWorldPos + (InNormal / density) * 0.1f;  
+        vec3 pixelPos = InWorldPos + (InNormal * PROBE_NORMAL_OFFSET);  
         
         // Round to all directions
         vec3 posCeil = ceil(pixelPos * density);
@@ -94,26 +117,26 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
             ivec3 gridPos = positions[posIndex];
             int index = gridPos.x + gridPos.y * size.x + gridPos.z * size.x * size.y + startIndex;
             
-            int probeIndex = 0;
-            float weight = 0.0001f;
-            
             // Map index to probe
             if (index < endIndex)
             {
-                int testProbeIndex = Indices[index + startIndex] + 1;
-                vec3 testProbePos = Positions[testProbeIndex].xyz; 
-                float testWeight = ProbeOcclusion(pixelPos, InNormal, testProbePos, density);
-                if (testWeight > 0.0001f)
-                {
-                    probeIndex = testProbeIndex;
-                    weight = testWeight;
-                }
+                int testProbeIndex = ProbeIndices[index + startIndex] + 1;
+                vec4 testProbePos = ProbePositions[testProbeIndex];
+                float testWeight = ProbeOcclusion(pixelPos, InNormal, testProbePos, density, testProbeIndex);
+                data.index[dataIndex] = testProbeIndex;
+                data.weight[dataIndex] = testWeight; 
+                totalWeight += testWeight;
             }
-            
-            data.index[dataIndex] = probeIndex;
-            data.weight[dataIndex] = weight; 
+            else
+            {
+                data.index[dataIndex] = 0;
+                data.weight[dataIndex] = 0;
+            }
         }
     }
+    
+    data.index[PROBE_DATA_SIZE - 1] = 0;
+    data.weight[PROBE_DATA_SIZE - 1] = max(0, PROBE_FALLBACK_WEIGHT - totalWeight); // Fallback
     
     return data;
 }
@@ -126,13 +149,13 @@ vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
 vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 {
     vec4 c = vec4(0);
-    for (int i = 0; i < PROBE_SAMPLES * LAYERS; i++)
+    for (int i = 0; i < PROBE_DATA_SIZE; i++)
     {
         int index = InProbe.index[i];
         float weight = InProbe.weight[i];
-        vec2 rectPos = Rects[index];
-        vec4 rect = vec4(rectPos, RectSize);
-        vec3 color = SampleCubeAtlasMip(InTex, FaceTexel, rect, InDir, InMip).rgb;
+        vec2 rectPos = ProbeRects[index];
+        vec4 rect = vec4(rectPos, ProbeRectSize);
+        vec3 color = SampleCubeAtlasMip(InTex, ProbeFaceTexel, rect, InDir, InMip).rgb;
         c.rgb += color * weight;
         c.a += weight;
     }

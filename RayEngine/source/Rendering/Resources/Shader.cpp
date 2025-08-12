@@ -115,7 +115,7 @@ int ShaderResource::GetLocation(const String& InValue)
     if (find != locations.end())
         return find->second;
     const int loc = rlGetLocationUniform(shaderPtr->id, InValue.c_str());
-    locations[InValue] = loc; 
+    locations[InValue] = loc;
     return loc; 
 }
 

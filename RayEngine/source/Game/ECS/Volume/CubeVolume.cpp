@@ -274,32 +274,14 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
                     QuatF::Identity(),
                     Vec3F(1.01f));
 
-    Engine::Instance::Get().GetRenderScene().Meshes().Add(editMesh, matrices);
+    Engine::Instance::Get().GetRenderScene().Meshes().Add(v.editMesh, matrices);
 }
 
 void ECS::SysCubeVolume::SystemInit()
 {
     persistentID = MeshInstance::GenPersistentID();
     
-    blockMesh = {
-        .model = ResModel("Defaults/M_Cube.obj"),
-        .material = ResRM("Dressing/RM_StoneWall.json"),
-        .transform = {},
-        .hash = 0,
-        .mask = static_cast<uint8>(MeshMask::ALL)
-    };
 
-    editMesh = {
-        .model = ResModel("Defaults/M_Cube.obj"),
-        .material = ResRM("Editor/RM_EditCube.json"),
-        .transform = {},
-        .hash = 0,
-        .mask = static_cast<uint8>(MeshMask::ALL)
-    };
-    
-    // Generate hash
-    blockMesh.hash = MeshInstance::GenHash(blockMesh.model, blockMesh.material);
-    editMesh.hash = MeshInstance::GenHash(editMesh.model, editMesh.material);
 }
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
@@ -307,6 +289,26 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
     // Cache cube transforms
     const Mat4F world = Get<Transform>(InID).World();
     InComponent.UpdateCache(world);
+
+    InComponent.blockMesh = {
+        .model = ResModel("Defaults/M_Cube.obj"),
+        .material = Engine::Instance::Get().IsEditor() ? InComponent.EditMaterial : InComponent.Material,
+        .transform = {},
+        .hash = 0,
+        .mask = static_cast<uint8>(MeshMask::ALL)
+    };
+
+    InComponent.editMesh = {
+        .model = ResModel("Defaults/M_Cube.obj"),
+        .material = InComponent.MarkerMaterial,
+        .transform = {},
+        .hash = 0,
+        .mask = static_cast<uint8>(MeshMask::DEFAULT)
+    };
+    
+    // Generate hash
+    InComponent.blockMesh.hash = MeshInstance::GenHash(InComponent.blockMesh.model, InComponent.blockMesh.material);
+    InComponent.editMesh.hash = MeshInstance::GenHash(InComponent.editMesh.model, InComponent.editMesh.material);
     
     if (Engine::Instance::Get().IsEditor())
         return;
@@ -324,24 +326,20 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::SystemFrame()
 {
-    bool updated = false;
     for (const auto& id : ComponentMap())
     {
         auto& c = GetInternal(id.first);
         if (c.cacheUpdated)
         {
             c.cacheUpdated = false;
-            updated = true;
+
+            Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
+            meshes.Remove(c.blockMesh.hash, persistentID);
+            for (const auto& id : ComponentMap())
+            {
+                auto& c = GetInternal(id.first);
+                meshes.Add(c.blockMesh, c.cachedCubeTransforms, persistentID);
+            }
         }
-    }
-    
-    CHECK_RETURN(!updated);
-    
-    Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
-    meshes.Remove(blockMesh.hash, persistentID);
-    for (const auto& id : ComponentMap())
-    {
-        auto& c = GetInternal(id.first);
-        meshes.Add(blockMesh, c.cachedCubeTransforms, persistentID);
     }
 }

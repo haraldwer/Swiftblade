@@ -8,7 +8,7 @@ enum class MeshMask : uint8
     DEFAULT = 1 << 0,
     SHADOWS = 1 << 1,
     LUMIN = 1 << 2,
-    ALL = 255
+    ALL = 255,
 };
 
 struct MeshInstance

@@ -14,6 +14,16 @@ namespace Rendering
         int wrap = -1;
         int filter = -1;
         bool cubemap = false;
+
+        bool operator==(const TextureCommand& InOther) const
+        {
+            return
+                InOther.id == id &&
+                InOther.shaderLoc == shaderLoc &&
+                InOther.wrap == wrap &&
+                InOther.filter == filter &&
+                InOther.cubemap == cubemap;
+        }
     };
     
     struct ShaderCommand

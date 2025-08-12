@@ -26,7 +26,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     return stats;
 }
 
-Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderFallbackProbe(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget)
+Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderFallbackProbe(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget, bool InUseScene)
 {
     PROFILE_GL();
     
@@ -36,7 +36,8 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderFallbackProbe(const R
     
     Stats stats;
     stats += RenderSkybox(InArgs);
-    stats += RenderScene(InArgs);
+    if (InUseScene)
+        stats += RenderScene(InArgs);
     stats += RenderDeferred(InArgs);
 
     auto frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();

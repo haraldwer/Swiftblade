@@ -186,10 +186,11 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
         CHECK_CONTINUE(!rm);
         passes[0] = rm->DeferredShader;
     }
-    
+
     for (auto& entry : passes)
     {
         PROFILE_GL_NAMED("Deferred pass");
+        
         ShaderResource* shaderResource = entry.second.Get();
         CHECK_CONTINUE(!shaderResource);
         const Shader* shader = shaderResource->Get();
@@ -207,9 +208,8 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
         int texSlot = 0;
         for (auto& b : InBuffers)
             if (b) b->Bind(*shaderResource, texSlot);
-        
-        BindNoiseTextures(InArgs, *shaderResource, texSlot);
         LuminRenderer::ApplyLumin(InArgs, *shaderResource, texSlot);
+        BindNoiseTextures(InArgs, *shaderResource, texSlot);
         
         for (auto& perspective : InArgs.perspectives)
         {

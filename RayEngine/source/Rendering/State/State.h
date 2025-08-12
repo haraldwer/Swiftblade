@@ -37,6 +37,7 @@ namespace Rendering
         MeshCommand mesh = {};
 
         uint32 vbo = static_cast<uint32>(-1);
+        int activeTexSlot = -1;
     };
 
     struct rlState

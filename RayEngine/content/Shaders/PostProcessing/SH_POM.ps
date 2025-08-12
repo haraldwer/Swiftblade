@@ -124,7 +124,10 @@ void main()
     OutData = texture(TexData, TexCoord);
     
     if (!CheckID(TexCoord, 0)) // Exclude skybox
-        return;    
+        return;
+
+    if (OutData.z < 0.0001)
+        return;
     
     // Parallax occlusion mapping
     ParallaxOffset offset = ParallaxOcclusion(OutData.z, OutPosition.xyzw, OutNormal.xyz);

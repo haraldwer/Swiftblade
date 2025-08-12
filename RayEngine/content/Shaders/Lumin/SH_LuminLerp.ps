@@ -17,6 +17,8 @@ void main()
     vec4 irradiance = texture(TexIrradiance, TexCoord);
     vec3 prefilter = texture(TexPrefilter, TexCoord).rgb;
     
-    OutIrradiance = mix(irradiance, irradianceFrame, 0.1);
+    OutIrradiance.rgb = mix(irradiance.rgb, irradianceFrame.rgb, 0.1);
+    OutIrradiance.a = irradianceFrame.a;
+    
     OutPrefilter = mix(prefilter, prefilterFrame, 0.1);
 }

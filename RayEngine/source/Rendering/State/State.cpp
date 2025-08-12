@@ -14,40 +14,48 @@ void Rendering::State::Set(const TextureCommand& InCmd, const int InSlot)
 {
     PROFILE_GL_GPU("Set texture");
 
-    const auto& tex = textures[InSlot];
-    
-    if (InCmd.wrap != tex.wrap)
-    {
-        const int w = InCmd.wrap >= 0 ? InCmd.wrap : RL_TEXTURE_WRAP_CLAMP;
-        rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_S, w);
-        rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_T, w);
-    }
+    TextureCommand& tex = textures[InSlot];
 
-    if (InCmd.filter != tex.filter)
+    if (InCmd != tex)
     {
-        const int f = InCmd.filter > 0 ? InCmd.filter : RL_TEXTURE_FILTER_NEAREST;
-        rlTextureParameters(InCmd.id, RL_TEXTURE_MIN_FILTER, f);
-        rlTextureParameters(InCmd.id, RL_TEXTURE_MAG_FILTER, f);
-    }
-    
-    if (InCmd.id != tex.id)
-    {
-        rlActiveTextureSlot(InSlot);
-        if (InCmd.id != static_cast<uint32>(-1))
+        if (activeTexSlot != InSlot)
         {
-            InCmd.cubemap ? rlEnableTextureCubemap(InCmd.id) : rlEnableTexture(InCmd.id);
-            if (InCmd.shaderLoc >= 0) // Textures are cleared when switching shader
-                rlSetUniform(InCmd.shaderLoc, &InSlot, SHADER_UNIFORM_INT, 1);
+            rlActiveTextureSlot(InSlot);
+            activeTexSlot = InSlot;
         }
-        else
+        
+        if (InCmd.wrap != tex.wrap)
         {
-            InCmd.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
-            const int l = 0;
-            rlSetUniform(InCmd.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
+            const int w = InCmd.wrap >= 0 ? InCmd.wrap : RL_TEXTURE_WRAP_CLAMP;
+            rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_S, w);
+            rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_T, w);
         }
-    }
+
+        if (InCmd.filter != tex.filter)
+        {
+            const int f = InCmd.filter > 0 ? InCmd.filter : RL_TEXTURE_FILTER_NEAREST;
+            rlTextureParameters(InCmd.id, RL_TEXTURE_MIN_FILTER, f);
+            rlTextureParameters(InCmd.id, RL_TEXTURE_MAG_FILTER, f);
+        }
     
-    textures[InSlot] = InCmd;
+        if (InCmd.id != tex.id)
+        {
+            if (InCmd.id != static_cast<uint32>(-1))
+            {
+                InCmd.cubemap ? rlEnableTextureCubemap(InCmd.id) : rlEnableTexture(InCmd.id);
+                if (InCmd.shaderLoc >= 0) // Textures are cleared when switching shader
+                    rlSetUniform(InCmd.shaderLoc, &InSlot, SHADER_UNIFORM_INT, 1);
+            }
+            else
+            {
+                InCmd.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
+                const int l = 0;
+                rlSetUniform(InCmd.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
+            }
+        }
+        
+        tex = InCmd;
+    }
 }
 
 void Rendering::State::ResetTextures()
@@ -58,12 +66,17 @@ void Rendering::State::ResetTextures()
         for (const auto& tex : textures)
         {
             rlActiveTextureSlot(tex.first);
-            tex.second.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
+            rlTextureParameters(tex.second.id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
+            rlTextureParameters(tex.second.id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
+            rlTextureParameters(tex.second.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_NEAREST);
+            rlTextureParameters(tex.second.id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_NEAREST);
             int l = 0;
             rlSetUniform(tex.second.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
+            tex.second.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
         }
         textures.clear();
         rlActiveTextureSlot(0);
+        activeTexSlot = -1;
     }
 }
 
@@ -212,6 +225,7 @@ void Rendering::State::Set(const FrameCommand& InCmd)
     if (InCmd.fboID != frame.fboID)
     {
         textures.clear();
+        activeTexSlot = -1;
         if (InCmd.fboID != static_cast<uint32>(-1))
             rlEnableFramebuffer(InCmd.fboID);
         else

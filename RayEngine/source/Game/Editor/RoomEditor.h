@@ -10,6 +10,7 @@ struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 {
     PROPERTY_D(ResScene, Scene, "Scenes/untitled.json");
     PROPERTY_D(bool, IsArena, false);
+    PROPERTY_D(ResRM, Skybox, "Dressing/Skybox/RM_Skybox.json");
     String Name() const override { return "RoomEditor"; }
 };
 

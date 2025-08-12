@@ -2,6 +2,7 @@
 
 #include "LuminConfig.h"
 #include "LuminPipeline.h"
+#include "Collections/PersistanceContainer.h"
 #include "Rendering/Context/Context.h"
 #include "Rendering/TextureTargets/AtlasMap.h"
 #include "Rendering/Viewport/Viewport.h"
@@ -31,7 +32,8 @@ namespace Rendering
     {
         ProbeCoord coord = {};
         Vec3F pos = {};
-        double timestamp = 0.0;
+        double atlasTimestamp = 0.0;
+        double renderTimestamp = 0.0;
         int iterations = 0;
         Vec4F rect = {};
     };
@@ -42,7 +44,7 @@ namespace Rendering
         {
             Vec3I start = Vec3I::Zero();
             Vec3I size = Vec3I::Zero();
-            Vec3F density = Vec3F::Zero();
+            Vec3F density = Vec3F::One();
             int startIndex = 0;
             int endIndex = 0;
         };
@@ -75,6 +77,8 @@ namespace Rendering
         Vec3F FromCoord(const ProbeCoord& InCoord) const;
         Vec3F GetDensity(int InLayer) const;
 
+        Array<Vec3F, 9> GetCullPoints(const Vec3F &InPos) const;
+
         LuminConfig config = {};
         Context context = {};
         Viewport viewport = {};
@@ -87,6 +91,8 @@ namespace Rendering
         AtlasMap atlas = {};
         RenderTarget target = {};
         SwapTarget lerpTarget = {};
+        
+        Utility::PersistanceContainer<uint64> probePersistance = {};
     };
 }
 
