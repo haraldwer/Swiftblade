@@ -23,6 +23,7 @@ namespace UI
         void Draw(Container& InOwner) override;
         bool Invalidated() const override;
         void RefreshRect(Container& InInstance, const Rect& InContainer) override;
+        Vec2F GetDesiredSize() const override;
 
         bool Contains(const String& InIdentifier) const { return TryGet<Element>(InIdentifier); }
 
@@ -74,7 +75,7 @@ namespace UI
 
     
     template <class T>
-    ElementID Container::Add(const T& InElement, const String& InIdentifier)
+    ElementID Container::Add(const T& InElement, const String& InIdentifier = "")
     {
         idCounter++;
         CHECK_ASSERT(elements.contains(idCounter), "ID already exists");

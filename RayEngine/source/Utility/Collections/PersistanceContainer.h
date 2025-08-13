@@ -42,6 +42,14 @@ namespace Utility
         bool WasUnchanged(IDType InType) { return unchanged.contains(InType); }
         bool WasAdded(IDType InType) { return added.contains(InType); }
 
+        bool Changed() const
+        {
+            return
+                removed.empty() &&
+                modified.empty() &&
+                added.empty();
+        }
+
     private:
 
         void Update(IDType InID)

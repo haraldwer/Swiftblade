@@ -16,10 +16,11 @@ namespace UI
             HORIZONTAL
         };
         
-        List(const Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false)
-            : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing) { }
+        List(const Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false, const float InAutoSize = 0.0f)
+            : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing), elementAutoSize(InAutoSize) { }
 
         void RefreshRect(Container& InOwner, const Rect& InContainer) override;
+        Vec2F GetDesiredSize() const override;
         
         void SetSpacing(Container& InOwner, const float InSpacing)
         {
@@ -29,11 +30,12 @@ namespace UI
 
     private:
 
-        Rect GetChildRect(const Rect& InRect, float InTotal, float InIndex) const;
+        Rect GetChildRect(const Element& InElem, const Rect& InRect, float InCount, float InIndex, float& InOutTotal) const;
         
         FlowDirection direction;
         bool reversed;
         float elementSize = 0.0f; 
-        float elementSpacing = 0.0f; 
+        float elementSpacing = 0.0f;
+        float elementAutoSize = 0.0f;
     };
 }

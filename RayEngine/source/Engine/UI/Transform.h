@@ -26,6 +26,13 @@ namespace UI
                 Vec2F::Zero()
             };
         }
+
+        bool operator==(const Margin & InMargin) const
+        {
+            return
+                horizontal == InMargin.horizontal &&
+                vertical == InMargin.vertical;
+        }
     };
     
     struct Rect
@@ -43,6 +50,14 @@ namespace UI
     
     struct Transform  
     {
+        // Position - The actual position information
+        // Size - The actual size information
+        // Alignment - How the position and size should be used relative to parent
+        // Padding - Padding around the current element
+        // Anchor - Reference point on InContainer
+        // Pivot - Size point relative to position
+        // Margin - Margin inside the current element, used by container for child elements
+        
         Vec2F position = {};
         Vec2F size = {}; 
         Margin alignment = {};
@@ -51,7 +66,7 @@ namespace UI
         Vec2F anchor = {};
         Vec2F pivot = {};
         float rotation = 0.0;
-
+        
         static Transform Fill(const Margin& InPadding = Margin::Zero(), const struct Margin& InMargin = Margin::Zero())
         {
             return {
@@ -93,5 +108,18 @@ namespace UI
                 0.0
             };
         }
+
+        bool operator==(const Transform & InTransform) const
+        {
+            return
+                position == InTransform.position &&
+                size == InTransform.size &&
+                alignment == InTransform.alignment &&
+                padding == InTransform.padding &&
+                margins == InTransform.margins &&
+                pivot == InTransform.pivot &&
+                anchor == InTransform.anchor &&
+                rotation == InTransform.rotation;
+        };
     };
 }

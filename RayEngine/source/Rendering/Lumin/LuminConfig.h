@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Context/ContextConfig.h"
 #include "Rendering/Resources/Shader.h"
+#include "Rendering/Resources/BakedTexture.h"
 #include "Resources/Model.h"
 #include "Viewport/ViewportConfig.h"
 
@@ -9,7 +9,6 @@ namespace Rendering
 {
     struct LuminConfig : PropertyOwner<LuminConfig>
     {
-        PROPERTY(ContextConfig, Context);
         PROPERTY(ViewportConfig, Viewport);
 
         // Shaders
@@ -18,7 +17,8 @@ namespace Rendering
         PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json");
 
         // Probe locations and layering
-        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.125f));
+        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.2f));
+        PROPERTY_D(Vec3F, Offset, Vec3F(0.5f));
         PROPERTY_D(float, LayerScale, 0.5f);
         PROPERTY_D(float, Far, 50.0f);
         PROPERTY_D(float, Near, 0.01f);

@@ -1,110 +1,67 @@
 ﻿#include "RoomSubEditorManager.h"
 
-#include "ECS/Volume/CubeVolume.h"
 #include "Engine/ECS/Manager.h"
-#include "Engine/ECS/Systems/Transform.h"
-#include "Input/Action.h"
+#include "SubEditors/RoomGenEditor.h"
+#include "SubEditors/RoomObjectEditor.h"
+#include "SubEditors/RoomPathEditor.h"
+#include "SubEditors/RoomVolumeEditor.h"
 
-void RoomSubEditorManager::Init(const RoomType InType)
+#define CREATE_SUBEDITOR(x) \
+editors[Type::Get<x>()] = x();
+
+void RoomSubEditorManager::Init()
 {
-    // Cache CubeVolume
-    const auto& ecs = ECS::Manager::Get(); 
-    const auto& sys = ecs.GetSystem<ECS::SysCubeVolume>();
-    const auto volumes = sys.GetEntities();
-    if (!volumes.empty())
-    {
-        cubeVolume = volumes[0];
-    }
-    else
-    {
-        if (const auto bp = ResBlueprint("Blueprints/BP_CubeVolume.json").Get())
-            cubeVolume = bp->Instantiate();
-    }
-
-    // Force reset cube transform 
-    if (cubeVolume != ECS::INVALID_ID)
-        if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(cubeVolume))
-            cubeTrans->SetWorld(Mat4F());
+    CREATE_SUBEDITOR(RoomConnectionEditor)
+    CREATE_SUBEDITOR(RoomPathEditor)
+    CREATE_SUBEDITOR(RoomGenEditor)
+    CREATE_SUBEDITOR(RoomObjectEditor)
+    CREATE_SUBEDITOR(RoomVolumeEditor)
     
-    pathEditor.SetOwner(this); 
-    genEditor.SetOwner(this); 
-    volumeEditor.SetOwner(this); 
-    objectEditor.SetOwner(this); 
-
-    type = InType; 
-    
-    pathEditor.Init(); 
-    genEditor.Init(); 
-    volumeEditor.Init();
-    objectEditor.Init();
+    for (auto& e : editors)
+        e.second.Get().SetOwner(this);
+    for (auto& e : editors)
+        e.second.Get().Init();
 }
+
+#undef CREATE_SUBEDITOR
 
 void RoomSubEditorManager::Deinit()
 {
-    pathEditor.Deinit();
-    genEditor.Deinit();
-    volumeEditor.Deinit();
-    objectEditor.Deinit();
-    history.Clear();
+    for (auto& e : editors)
+        e.second.Get().Deinit();
 }
 
-void RoomSubEditorManager::Update(const bool InIsCameraControlling)
+void RoomSubEditorManager::Update()
 {
-    PROFILE();
-    
-    CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
-    
-    if (InIsCameraControlling)
-        GetSubEditor(mode).Update();
-
-    // Keyboard shortcuts
-    if (Input::Action::Get("Ctrl").Down())
-    {
-        if (Input::Action::Get("Undo").Pressed())
-            history.Undo();
-        if (Input::Action::Get("Redo").Pressed())
-            history.Redo();
-    }
+    for (auto& e : editors)
+        e.second.Get().Update();
 }
 
-void RoomSubEditorManager::Frame(const bool InIsCameraControlling)
+void RoomSubEditorManager::Frame()
 {
-    CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
-    GetSubEditor(mode).Frame(InIsCameraControlling);
+    for (auto& e : editors)
+        e.second.Get().Frame();
 }
 
-void RoomSubEditorManager::DebugDraw(const bool InIsCameraControlling)
+void RoomSubEditorManager::DebugDraw()
 {
-    CHECK_RETURN(cubeVolume == ECS::INVALID_ID);
-    GetSubEditor(mode).DebugDraw(InIsCameraControlling);
+    for (auto& e : editors)
+        e.second.Get().Frame();
 }
 
-void RoomSubEditorManager::SetMode(const SubEditorMode InMode)
+void RoomSubEditorManager::SetCurrent(const Type &InType)
 {
-    GetSubEditor(mode).Exit();
-    mode = InMode; 
-    GetSubEditor(InMode).Enter();
+    CHECK_RETURN(currentEditor == InType);
+    if (editors.contains(currentEditor))
+        editors.at(currentEditor).Get().Exit();
+    currentEditor = InType;
+    editors.at(currentEditor).Get().Enter();
 }
 
-RoomSubEditor& RoomSubEditorManager::GetSubEditor(const SubEditorMode InMode)
+bool RoomSubEditorManager::IgnoreSave(const ECS::EntityID InID)
 {
-    switch (InMode)
-    {
-    case SubEditorMode::GEN:
-        return genEditor;
-    case SubEditorMode::PATH:
-        return pathEditor; 
-    case SubEditorMode::VOLUME:
-        return volumeEditor;
-    case SubEditorMode::OBJECTS:
-        return objectEditor;
-    default:
-        break;
-    }
-    return objectEditor; 
-}
-
-bool RoomSubEditorManager::IgnoreSave(const ECS::EntityID InID) const
-{
-    return InID == objectEditor.GetEditEntity(); 
+    for (auto& e : editors)
+        if (e.second.Get().IgnoreSave(InID))
+            return true;
+    return false;
 }

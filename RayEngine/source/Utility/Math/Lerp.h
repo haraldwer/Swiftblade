@@ -11,5 +11,11 @@ namespace Utility
         {
             return InA + (InB - InA) * Saturate(InT);
         }
+
+        template<class T, class F>
+        T LerpDelta(const T& InA, const T& InB, const F InSpeed, const F InDelta)
+        {
+            return InA + (InB - InA) * Saturate(pow(InSpeed, InDelta));
+        }
     }
 }

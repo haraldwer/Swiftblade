@@ -15,7 +15,7 @@ namespace Rendering
         friend class DeferredRenderer;
         
     public:
-        void Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, bool InRoot = false);
+        void Init(const ContextConfig& InConfig, bool InRoot = false);
         void Deinit();
         double Time() const { return timer.Ellapsed(); }
         Lights* GetLights() const { return lightsPtr; }

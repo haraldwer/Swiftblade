@@ -4,23 +4,20 @@
 #include "Lumin/Lumin.h"
 #include "State/State.h"
 
-void Rendering::Context::Init(const ContextConfig& InConfig, const LuminConfig& InLuminConfig, const bool InRoot)
+void Rendering::Context::Init(const ContextConfig& InConfig, const bool InRoot)
 {
     config = InConfig;
 
-    // TODO: Use config when compiling shaders
-    // Additional arguments for resource constructor?
-    
     if (InRoot)
     {
         if (luminPtr)
             luminPtr->Deinit();
         else luminPtr = new Lumin();
-        luminPtr->Init(InLuminConfig);
+        luminPtr->Init(config);
         if (lightsPtr)
             lightsPtr->Deinit();
         else lightsPtr = new Lights();
-        lightsPtr->Init(InConfig.Lights);
+        lightsPtr->Init(config.Lights);
     }
 }
 

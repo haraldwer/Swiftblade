@@ -58,7 +58,7 @@ namespace Rendering
     {
         friend class LuminRenderer;
     public:
-        void Init(const LuminConfig& InConfig);
+        void Init(const ContextConfig& InConfig);
         void Deinit();
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
@@ -71,8 +71,9 @@ namespace Rendering
         Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
         Pipeline::Stats UpdateFallbackProbe(const RenderArgs& InArgs);
         Pipeline::Stats LerpProbes(const RenderArgs& InArgs);
-        void ExpandVolume(const Scene& InScene);
-        void TryCreateProbe(ProbeCoord InCoord);
+        void ExpandVolume(const RenderArgs& InArgs);
+        void CreateProbe(ProbeCoord InCoord);
+        void RemoveProbe(ProbeCoord InCoord);
         ProbeCoord FromPos(const Vec3F& InPos, int InLayer) const;
         Vec3F FromCoord(const ProbeCoord& InCoord) const;
         Vec3F GetDensity(int InLayer) const;
@@ -87,12 +88,12 @@ namespace Rendering
         // Probe data
         LuminProbe fallback;
         Map<uint64, LuminProbe> probes = {};
-        Map<int, Vector<ProbeCoord>> layerProbes = {};
+        Map<int, Set<uint64>> layerProbes = {};
         AtlasMap atlas = {};
         RenderTarget target = {};
         SwapTarget lerpTarget = {};
-        
-        Utility::PersistanceContainer<uint64> probePersistance = {};
+
+        Utility::PersistanceContainer<uint64> probePersistence = {};
     };
 }
 

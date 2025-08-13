@@ -16,7 +16,7 @@ namespace UI
         
     public:
         Element() = default;
-        Element(const Transform& InTransform) : transform(InTransform) {}
+        Element(const Transform& InTransform, const Vec4F& InColor = Vec4F(1, 1, 1, 0)) : transform(InTransform), color(InColor) {}
         virtual ~Element() = default;
         
         virtual void Init(Container& InOwner) {}
@@ -29,11 +29,14 @@ namespace UI
         virtual void RefreshRect(Container& InOwner, const Rect& InContainingRect);
         Rect GetRect() const { return cachedRect; }
         
+        virtual Vec2F GetDesiredSize() const { return transform.size; } 
+        
         Transform GetTransform() const { return transform; }
         void SetTransform(const Transform& InTransform);
         
         bool IsHovered() const;
         bool IsClicked() const;
+        bool IsPressed() const;
         
     protected:
         
@@ -48,6 +51,7 @@ namespace UI
         ElementID id = -1;
         ElementID parent = -1;
         Transform transform = Transform::Fill();
+        Vec4F color = Vec4F(1, 1, 1, 0);
         Rect cachedRect = {};
         bool invalidated = true;
     };

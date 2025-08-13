@@ -6,6 +6,8 @@
 #include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"
 
+class MenuRoomEditor;
+
 struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 {
     PROPERTY_D(ResScene, Scene, "Scenes/untitled.json");
@@ -16,6 +18,8 @@ struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 
 class RoomEditor : public Engine::Instance, public Debug::Panel
 {
+    friend MenuRoomEditor;
+    
     TYPE_INFO(RoomEditor, Engine::Instance);
     
 public:
@@ -35,12 +39,13 @@ private:
     void SaveRoom();
     
     // Editor stuff
+    MenuRoomEditor* menu = nullptr;
     RoomEditorConfig currConfig = {};
-    RoomSubEditorManager subEditorManager = {}; 
+    RoomSubEditorManager subEditorManager; 
     
     // Scene stuff
     SceneInstance scene = {};
-    ECS::Manager ecs = {}; 
+    ECS::Manager ecs = {};
 
-    UI::Container ui = {};
+    Utility::History history = {}; // Shared history
 };

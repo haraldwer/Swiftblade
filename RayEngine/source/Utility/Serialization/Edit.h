@@ -114,6 +114,7 @@ namespace Utility
             int off = 0;
             int moveUp = -1;
             int remove = -1;
+            bool wasEmpty = InOutData.empty();
             for (auto& data : InOutData)
             {
                 if (Button("^", InOffset + 1234 * off))
@@ -129,6 +130,8 @@ namespace Utility
                 off++;
             }
 
+            if (wasEmpty)
+                ImGui::SameLine();
             if (Button("+##" + InName, InOffset))
             {
                 InOutData.emplace_back();

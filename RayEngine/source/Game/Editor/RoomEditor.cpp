@@ -2,12 +2,11 @@
 
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
-#include "Engine/UI/Builder.h"
-#include "Engine/UI/Elements/List.h"
-#include "Engine/UI/Elements/RectImage.h"
-#include "../Instances/GameInstance.h"
+#include "Instances/GameInstance.h"
 #include "raylib.h"
 #include "ImGui/imgui.h"
+#include "Menus/MenuRoomEditor.h"
+#include "SubEditors/RoomObjectEditor.h"
 
 void RoomEditor::Init()
 {
@@ -16,30 +15,19 @@ void RoomEditor::Init()
     currConfig.LoadConfig();
     
     OpenScene();
-    subEditorManager.SetMode(SubEditorMode::PATH);
+    subEditorManager.SetCurrent(Type::Get<RoomObjectEditor>());
     
     editorCamera.Toggle(); 
     editorCamera.SetAlwaysEnabled(true);
 
-    // Create UI
-    UI::Builder builder = UI::Builder()
-        .Push(UI::Container(UI::Transform::FromRect(Vec2F(600.0f, 80.0f), 20.0f)))
-            .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
-            .Push(UI::List(UI::Transform::Fill(), 5.0f, 80.0f, UI::List::FlowDirection::HORIZONTAL))
-                .Add(UI::Image(ResTexture("UI/T_Exit.png")), "Exit")
-                .Add(UI::Image(ResTexture("UI/T_Save.png")), "Save")
-                .Add(UI::Image(ResTexture("UI/T_Load.png")), "Load")
-                .Add(UI::Image(ResTexture("UI/T_Play.png")), "Play")
-                .Add(UI::Image(ResTexture("UI/T_ModeVolume.png")), "ModeVolume")
-                .Add(UI::Image(ResTexture("UI/T_ModeObject.png")), "ModeObject")
-                .Add(UI::Image(ResTexture("UI/T_ModeConnection.png")), "ModeConnection");
-    ui = builder.Build();
+    menu = Menu::Manager::Get().Push<MenuRoomEditor>();
 }
 
 void RoomEditor::Deinit()
 {
     currConfig.SaveConfig();
     subEditorManager.Deinit();
+    history.Clear();
     ecs.Deinit();
     Instance::Deinit();
 }
@@ -51,14 +39,13 @@ void RoomEditor::Logic(const double InDelta)
     Instance::Logic(InDelta);
     ecs.Update();
     editorCamera.Update();
-    ui.Update();
     
     SubEditorMode newMode = SubEditorMode::COUNT;  
-    if (IsKeyPressed(KEY_ONE) || ui["ModeVolume"].IsClicked())
+    if (IsKeyPressed(KEY_ONE))
         newMode = SubEditorMode::VOLUME;
-    if (IsKeyPressed(KEY_TWO) || ui["ModeObject"].IsClicked())
+    if (IsKeyPressed(KEY_TWO))
         newMode = SubEditorMode::OBJECTS;
-    if (IsKeyPressed(KEY_THREE) || ui["ModeConnection"].IsClicked())
+    if (IsKeyPressed(KEY_THREE))
         newMode = SubEditorMode::PATH;
     if (newMode != SubEditorMode::COUNT)
         subEditorManager.SetMode(newMode); 
@@ -68,18 +55,16 @@ void RoomEditor::Logic(const double InDelta)
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
     {
+        if (Input::Action::Get("Undo").Pressed())
+            history.Undo();
+        if (Input::Action::Get("Redo").Pressed())
+            history.Redo();
+        
         if (Input::Action::Get("Save").Pressed())
             SaveRoom();
         if (Input::Action::Get("Play").Pressed())
             PlayScene();
     }
-
-    if (ui["Save"].IsClicked())
-        SaveRoom();
-    if (ui["Play"].IsClicked())
-        PlayScene();
-    if (ui["Exit"].IsClicked())
-        Engine::Manager::Get().Pop();
 }
 
 void RoomEditor::Frame()
@@ -91,7 +76,6 @@ void RoomEditor::Frame()
     ecs.Frame(); 
     Instance::Frame();
     
-    ui.Draw();
     subEditorManager.Frame(editorCamera.IsControlling());
 }
 
@@ -125,8 +109,7 @@ void RoomEditor::OpenScene()
     if (const auto sceneRes = currConfig.Scene.Get().Get())
         scene = sceneRes->Create();
     
-    subEditorManager.Init(currConfig.IsArena ?
-        RoomType::ARENA : RoomType::ROOM);
+    subEditorManager.Init();
 }
 
 void RoomEditor::PlayScene()

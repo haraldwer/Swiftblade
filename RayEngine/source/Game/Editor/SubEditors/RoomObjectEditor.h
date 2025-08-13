@@ -22,8 +22,8 @@ public:
     void Init() override;
     void Deinit() override;
     void Update() override;
-    void Frame(bool InIsCameraControlling) override;
-    void DebugDraw(bool InIsCameraControlling) override;
+    void Frame() override;
+    void DebugDraw() override;
     void Enter() override;
     void Exit() override;
 

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "FXConfig.h"
 #include "Lights/LightConfig.h"
-#include "Resources/BakedTexture.h"
+#include "Lumin/LuminConfig.h"
 #include "Resources/Model.h"
 #include "Resources/NoiseTexture.h"
 
@@ -13,25 +14,8 @@ namespace Rendering
         PROPERTY(StringMap<ResNoiseTex>, NoiseTextures)
         PROPERTY_D(ResModel, DefaultCube, "Defaults/M_Cube.obj");
 
-        PROPERTY(LightConfig, Lights); // TODO: Move
-
-        PROPERTY_D(ResShader, DeferredSkyboxShader, "Shaders/SH_Default.ds");
-        PROPERTY_D(ResShader, SSAOShader, "Shaders/PostProcessing/SH_SSAO.ps"); 
-        PROPERTY_D(ResShader, MotionBlurShader, "Shaders/PostProcessing/SH_MotionBlur.ps");
-        PROPERTY_D(ResShader, QuantizeShader, "Shaders/PostProcessing/SH_Quantize.ps");
-        PROPERTY_D(ResShader, FXAAShader, "Shaders/PostProcessing/SH_FXAA.ps");
-        PROPERTY_D(ResShader, TonemappingShader, "Shaders/PostProcessing/SH_Tonemapping.ps");
-        PROPERTY_D(ResShader, DistortShader, "Shaders/PostProcessing/SH_Distort.ps");
-        PROPERTY_D(ResShader, POMShader, "Shaders/PostProcessing/SH_POM.ps");
-        PROPERTY_D(ResShader, BumpShader, "Shaders/PostProcessing/SH_Bump.ps");
-        
-        PROPERTY_D(bool, SSAO, true);
-        PROPERTY_D(bool, Bump, true);
-        PROPERTY_D(bool, Parallax, true);
-        PROPERTY_D(bool, MotionBlur, true);
-        PROPERTY_D(bool, Quantize, true);
-        PROPERTY_D(bool, FXAA, true);
-        PROPERTY_D(bool, Tonemapping, true);
-        PROPERTY_D(bool, Distort, true);
+        PROPERTY(LightConfig, Lights);
+        PROPERTY(LuminConfig, Lumin);
+        PROPERTY(FXConfig, FX);
     };
 }

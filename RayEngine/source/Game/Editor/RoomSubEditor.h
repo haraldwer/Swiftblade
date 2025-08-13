@@ -28,10 +28,11 @@ public:
     virtual void Init() {}
     virtual void Deinit() {}
     virtual void Update() {}
-    virtual void Frame(bool InIsCameraControlling) {}
-    virtual void DebugDraw(bool InIsCameraControlling) {}
+    virtual void Frame() {}
+    virtual void DebugDraw() {}
     virtual void Enter() {}
     virtual void Exit() {}
+    virtual bool IgnoreSave(ECS::EntityID InID) { return false; }
     
     void SetOwner(RoomSubEditorManager* InOwner);
     

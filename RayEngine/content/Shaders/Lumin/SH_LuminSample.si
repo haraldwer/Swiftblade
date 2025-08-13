@@ -19,6 +19,7 @@ uniform sampler2D TexPrefilter;
 uniform vec2 ProbeFaceTexel;
 uniform vec2 ProbeRectSize;
 uniform vec2 ProbeNearFar;
+uniform vec3 ProbeOffset;
 
 // Layer data
 uniform vec3 ProbeDensities[LAYERS];
@@ -92,9 +93,9 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
         vec3 pixelPos = InWorldPos + (InNormal * PROBE_NORMAL_OFFSET);  
         
         // Round to all directions
-        vec3 posCeil = ceil(pixelPos * density);
+        vec3 posCeil = ceil(pixelPos * density - ProbeOffset);
         ivec3 gridPosCeil = ivec3(posCeil) - start;
-        vec3 posFloor = floor(pixelPos * density);
+        vec3 posFloor = floor(pixelPos * density - ProbeOffset);
         ivec3 gridPosFloor = ivec3(posFloor) - start;
         
         // Grid positions to test

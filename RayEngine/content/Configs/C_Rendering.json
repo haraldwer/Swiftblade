@@ -1,7 +1,28 @@
 {
 	"Context":{
-		"SSAO":false,
-		"Parallax":false,
+		"FX":{
+			"MotionBlur":true,
+			"Bump":true,
+			"FXAA":true,
+			"Distort":true,
+			"Tonemapping":true
+		},
+		"Lumin":{
+			"Enabled":false,
+			"InvalidateFallback":true,
+			"Viewport":{
+				"Height":4096,
+				"Width":4096
+			},
+			"SceneFallback":true,
+			"InvalidateCache":true
+		},
+		"Lights":{
+			"Viewport":{
+				"Height":2048,
+				"Width":2048
+			}
+		},
 		"NoiseTextures":[{
 				"Key":"TexSimplex",
 				"Val":"Defaults/T_Noise_Simplex.json"
@@ -12,22 +33,7 @@
 				"Key":"TexCellular",
 				"Val":"Defaults/T_Noise_Cellular.json"
 			}
-		],
-		"Quantize":false,
-		"MotionBlur":false,
-		"Lights":{
-			"Viewport":{
-				"Height":2048,
-				"Width":2048
-			}
-		}
-	},
-	"Lumin":{
-		"Enabled":false,
-		"Viewport":{
-			"Height":4096,
-			"Width":4096
-		}
+		]
 	},
 	"Window":{
 		"Height":1700,

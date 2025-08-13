@@ -17,7 +17,11 @@ void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 
 void UI::Element::SetTransform(const Transform& InTransform)
 {
-    transform = InTransform;
+    if (transform != InTransform)
+    {
+        transform = InTransform;
+        Invalidate();
+    }
 }
 
 bool UI::Element::IsHovered() const
@@ -28,12 +32,18 @@ bool UI::Element::IsHovered() const
         relative.x > cachedRect.start.x &&
         relative.x < cachedRect.end.x &&
         relative.y > cachedRect.start.y &&
-        relative.y < cachedRect.end.y;
+        relative.y < cachedRect.end.y &&
+        Rendering::Manager::Get().IsViewportClickable();
 }
 
 bool UI::Element::IsClicked() const
 {
-    return IsHovered() && Input::Action::Get("LM").Pressed() && Rendering::Manager::Get().IsViewportClickable();
+    return IsHovered() && Input::Action::Get("LM").Released();
+}
+
+bool UI::Element::IsPressed() const
+{
+    return IsHovered() && Input::Action::Get("LM").Down();
 }
 
 UI::Rect UI::Element::GetReferenceRect()
@@ -84,14 +94,6 @@ Vec2F UI::Element::ScreenToViewport(const Vec2F& InScreenPos)
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
 {
-    // Position - The actual position information
-    // Size - The actual size information
-    // Alignment - How the position and size should be used relative to parent
-    // Padding - Padding around the current element
-    // Anchor - Reference point on InContainer
-    // Pivot - Size point relative to position
-    // Margin - Margin inside the current element, used by container for child elements
-
     // Set up parent container
     Rect parentRect = InContainer;
     parentRect.start.x += transform.padding.horizontal.x;
@@ -104,11 +106,13 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
         Utility::Math::Lerp(parentRect.start.x, parentRect.end.x, transform.anchor.x),
         Utility::Math::Lerp(parentRect.start.y, parentRect.end.y, transform.anchor.y)
     };
+
+    Vec2F size = GetDesiredSize();
     
     // Calculate position and size
     Rect absolute;
-    absolute.start = anchor + transform.position + transform.size * transform.pivot;
-    absolute.end = anchor + transform.position + transform.size * (Vec2F(1.0f) - transform.pivot);
+    absolute.start = anchor + transform.position + size * transform.pivot;
+    absolute.end = anchor + transform.position + size * (Vec2F(1.0f) - transform.pivot);
     
     // And blend to container using alignment
     Rect result;

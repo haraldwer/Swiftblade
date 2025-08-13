@@ -7,11 +7,11 @@
 #include "raylib.h"
 #include "Scene/Culling/Frustum.h"
 
-void Rendering::Lumin::Init(const LuminConfig& InConfig)
+void Rendering::Lumin::Init(const ContextConfig& InConfig)
 {
-    config = InConfig;
+    config = InConfig.Lumin;
     viewport.Init(config.Viewport);
-    context.Init(config.Context, InConfig);
+    context.Init(InConfig);
 
     int maxProbes = config.MaxLayerCount * config.Layers + 1;
     atlas.Init(maxProbes + config.AtlasPadding, true);
@@ -36,6 +36,7 @@ void Rendering::Lumin::Init(const LuminConfig& InConfig)
 
 void Rendering::Lumin::Deinit()
 {
+    probePersistence = {};
     fallback = {};
     probes.clear();
     layerProbes.clear();
@@ -58,12 +59,10 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
         if (!tex->IsBaked())
             tex->Bake();
     
-    ExpandVolume(*InArgs.scenePtr);
     Pipeline::Stats stats;
-
+    ExpandVolume(InArgs);
     if (config.Enabled)
         stats += UpdateProbes(InArgs);
-    
     stats += UpdateFallbackProbe(InArgs);
     stats += LerpProbes(InArgs);
     
@@ -328,70 +327,86 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
         return frustum.CheckSphere(pos, cullDist);
     };
 
-    Vector<ProbeCoord>& layer = layerProbes[InLayer];
-    for (auto& probeCoord : layer)
-        if (checkFunc(probeCoord))
-            Utility::SortedInsert(result, &probes.at(probeCoord.id), sortFunc);
+    Set<uint64>& layer = layerProbes[InLayer];
+    for (auto& id : layer)
+        if (checkFunc({ .id = id }))
+            Utility::SortedInsert(result, &probes.at(id), sortFunc);
 
     const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLayerCount.Get());
     CHECK_RETURN(count <= 0, {});
     return { result.begin(), result.begin() + count };
 }
 
-void Rendering::Lumin::ExpandVolume(const Scene& InScene)
+void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
 {
     PROFILE_GL();
+    
+    CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
 
-    bool changed = false;
-    for (auto& persistence : InScene.meshes.GetEntries())
+    bool changed = probes.empty();
+    Vector<const Utility::SplitContainer<Mat4F>*> transformCollections;
+    for (auto& persistence : InArgs.scenePtr->meshes.GetEntries())
     {
         CHECK_CONTINUE(persistence.first == 0);
-        for (auto& entry : persistence.second)
+        for (const std::pair<const unsigned long, MeshCollection::Entry> &entry: persistence.second)
         {
-            CHECK_CONTINUE(!entry.second.justRebuilt);
             CHECK_CONTINUE(!(entry.second.mask & static_cast<uint8>(MeshMask::LUMIN)));
-            changed = true;
-            for (int i = 0; i < config.Layers; i++)
-            {
-                const auto density = GetDensity(i);
-                for (auto& trans : entry.second.transforms.GetAll())
-                {
-                    Vec3F pos = trans.GetPosition();
-                    ProbeCoord ceil {
-                        .x = static_cast<int16>(ceilf(pos.x * density.x)),
-                        .y = static_cast<int16>(ceilf(pos.y * density.y)),
-                        .z = static_cast<int16>(ceilf(pos.z * density.z)),
-                        .layer = static_cast<int16>(i)
-                    };
-                    ProbeCoord floor {
-                        .x = static_cast<int16>(floorf(pos.x * density.x)),
-                        .y = static_cast<int16>(floorf(pos.y * density.y)),
-                        .z = static_cast<int16>(floorf(pos.z * density.z)),
-                        .layer = static_cast<int16>(i)
-                    };
-                    ProbeCoord coords[8] =
-                    {
-                        { ceil.x, ceil.y, ceil.z, ceil.layer },
-                        { floor.x, ceil.y, ceil.z, ceil.layer },
-                        { ceil.x, floor.y, ceil.z, ceil.layer },
-                        { floor.x, floor.y, ceil.z, ceil.layer },
-                        { ceil.x, ceil.y, floor.z, ceil.layer },
-                        { floor.x, ceil.y, floor.z, ceil.layer },
-                        { ceil.x, floor.y, floor.z, ceil.layer },
-                        { floor.x, floor.y, floor.z, ceil.layer },
-                    };
+            changed |= entry.second.justRebuilt; 
+            transformCollections.push_back(&entry.second.transforms);
+        }
+    }
 
-                    for (auto& coord : coords)
-                        TryCreateProbe(coord);
-                }
+    CHECK_RETURN(!changed) // Only recheck if anything was rebuilt
+    LOG("Checking lumin volume")
+    
+    // Find changes
+    probePersistence.Begin();
+    Vec3F offset = config.Offset;
+    for (int layer = 0; layer < config.Layers; layer++)
+    {
+        const auto density = GetDensity(layer);
+        for (auto& transforms : transformCollections)
+        {
+            for (const Mat4F& t : transforms->GetAll())
+            {
+                const Vec3F pos = t.GetPosition();
+                const ProbeCoord ceil {
+                    .x = static_cast<int16>(ceilf(pos.x * density.x - offset.x)),
+                    .y = static_cast<int16>(ceilf(pos.y * density.y - offset.y)),
+                    .z = static_cast<int16>(ceilf(pos.z * density.z - offset.z)),
+                    .layer = static_cast<int16>(layer)
+                };
+                const ProbeCoord floor {
+                    .x = static_cast<int16>(floorf(pos.x * density.x - offset.x)),
+                    .y = static_cast<int16>(floorf(pos.y * density.y - offset.y)),
+                    .z = static_cast<int16>(floorf(pos.z * density.z - offset.z)),
+                    .layer = static_cast<int16>(layer)
+                };
+                const ProbeCoord coords[8] =
+                {
+                    { ceil.x, ceil.y, ceil.z, ceil.layer },
+                    { floor.x, ceil.y, ceil.z, ceil.layer },
+                    { ceil.x, floor.y, ceil.z, ceil.layer },
+                    { floor.x, floor.y, ceil.z, ceil.layer },
+                    { ceil.x, ceil.y, floor.z, ceil.layer },
+                    { floor.x, ceil.y, floor.z, ceil.layer },
+                    { ceil.x, floor.y, floor.z, ceil.layer },
+                    { floor.x, floor.y, floor.z, ceil.layer },
+                };
+                for (auto& coord : coords)
+                    probePersistence.Touch(coord.id);
             }
         }
     }
+
+    for (auto added : probePersistence.GetAdded())
+        CreateProbe({ .id = added });
+    for (auto& removed : probePersistence.GetRemoved())
+        RemoveProbe({ .id = removed });
     
     // Reset cache, redo every probe
-    if (changed)
+    if (probePersistence.Changed())
     {
-        LOG("Changed");
         if (config.InvalidateFallback)
             fallback = {};
         if (config.InvalidateCache)
@@ -400,7 +415,7 @@ void Rendering::Lumin::ExpandVolume(const Scene& InScene)
     }
 }
 
-void Rendering::Lumin::TryCreateProbe(const ProbeCoord InCoord)
+void Rendering::Lumin::CreateProbe(const ProbeCoord InCoord)
 {
     if (InCoord.id == 0)
         return;
@@ -409,8 +424,16 @@ void Rendering::Lumin::TryCreateProbe(const ProbeCoord InCoord)
     {
         probe.coord = InCoord;
         probe.pos = FromCoord(InCoord);
-        layerProbes[InCoord.layer].push_back(InCoord);
+        layerProbes[InCoord.layer].insert(InCoord.id);
     }
+}
+
+void Rendering::Lumin::RemoveProbe(ProbeCoord InCoord)
+{
+    if (InCoord.id == 0)
+        return;
+    probes.erase(InCoord.id);
+    layerProbes.at(InCoord.layer).erase(InCoord.id);
 }
 
 Vec3F Rendering::Lumin::GetDensity(const int InLayer) const
@@ -420,22 +443,24 @@ Vec3F Rendering::Lumin::GetDensity(const int InLayer) const
 
 Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer) const
 {
+    const Vec3F offset = config.Offset;
     const auto density = GetDensity(InLayer);
     return {
-        .x = static_cast<int16>(round(InPos.x * density.x)),
-        .y = static_cast<int16>(round(InPos.y * density.y)),
-        .z = static_cast<int16>(round(InPos.z * density.z)),
+        .x = static_cast<int16>(round(InPos.x * density.x - offset.x)),
+        .y = static_cast<int16>(round(InPos.y * density.y - offset.y)),
+        .z = static_cast<int16>(round(InPos.z * density.z - offset.z)),
         .layer = static_cast<int16>(InLayer)
     };
 }
 
 Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord) const
 {
+    const Vec3F offset = config.Offset;
     const auto density = GetDensity(InCoord.layer);
     return {                                
-        static_cast<float>(InCoord.x) / density.x,
-        static_cast<float>(InCoord.y) / density.y,
-        static_cast<float>(InCoord.z) / density.z,
+        (static_cast<float>(InCoord.x) + offset.x) / density.x,
+        (static_cast<float>(InCoord.y) + offset.y) / density.y,
+        (static_cast<float>(InCoord.z) + offset.z) / density.z,
     };
 }
 

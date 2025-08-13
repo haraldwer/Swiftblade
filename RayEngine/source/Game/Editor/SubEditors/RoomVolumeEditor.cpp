@@ -1,5 +1,7 @@
 ﻿#include "RoomVolumeEditor.h"
 
+#include "Blueprints/Blueprint.h"
+#include "ECS/Systems/Transform.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
@@ -8,6 +10,24 @@
 
 void RoomVolumeEditor::Init()
 {
+    // Create / Cache CubeVolume
+    const auto& ecs = ECS::Manager::Get(); 
+    const auto& sys = ecs.GetSystem<ECS::SysCubeVolume>();
+    const auto volumes = sys.GetEntities();
+    if (!volumes.empty())
+    {
+        cubeVolume = volumes[0];
+    }
+    else
+    {
+        if (const auto bp = ResBlueprint("Blueprints/BP_CubeVolume.json").Get())
+            cubeVolume = bp->Instantiate();
+    }
+
+    // Force reset cube transform 
+    if (cubeVolume != ECS::INVALID_ID)
+        if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(cubeVolume))
+            cubeTrans->SetWorld(Mat4F());
 }
 
 void RoomVolumeEditor::Update()
@@ -67,7 +87,7 @@ void RoomVolumeEditor::Update()
         }));
 }
 
-void RoomVolumeEditor::DebugDraw(bool InIsCameraControlling)
+void RoomVolumeEditor::DebugDraw()
 {
     ImGui::Text("Volume editing mode"); 
     const auto size = GetVolume().data.size();

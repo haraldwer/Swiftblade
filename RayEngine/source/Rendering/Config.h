@@ -12,7 +12,6 @@ namespace Rendering
         PROPERTY(WindowConfig, Window);
         PROPERTY(ViewportConfig, Viewport);
         PROPERTY(ContextConfig, Context);
-        PROPERTY(LuminConfig, Lumin);
         
         PROPERTY_D(bool, UpdateCulling, true);
 

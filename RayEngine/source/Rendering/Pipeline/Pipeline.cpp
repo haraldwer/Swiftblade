@@ -70,15 +70,15 @@ Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& I
     Stats stats;
     auto& sceneTargets = InArgs.viewportPtr->targets.sceneTargets;
 
-    if (InArgs.contextPtr->config.Bump)
+    if (InArgs.contextPtr->config.FX.Get().Bump)
     {
-        auto& bumpShader = InArgs.contextPtr->config.BumpShader;
+        auto& bumpShader = InArgs.contextPtr->config.FX.Get().BumpShader;
         sceneTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), bumpShader, { &sceneTargets.Prev() });
     }
-    if (InArgs.contextPtr->config.Parallax)
+    if (InArgs.contextPtr->config.FX.Get().Parallax)
     {
-        auto& pomShader = InArgs.contextPtr->config.POMShader;
+        auto& pomShader = InArgs.contextPtr->config.FX.Get().POMShader;
         sceneTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), pomShader, { &sceneTargets.Prev() });
     }
@@ -87,13 +87,13 @@ Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& I
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderAO(const RenderArgs& InArgs)
 {
-    if (!InArgs.contextPtr->config.SSAO)
+    if (!InArgs.contextPtr->config.FX.Get().SSAO)
         return {};
     PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
-    auto& ssaoShader = InArgs.contextPtr->config.SSAOShader;
+    auto& ssaoShader = InArgs.contextPtr->config.FX.Get().SSAOShader;
     ssaoTargets.Iterate();
     Renderer::DrawFullscreen(InArgs, ssaoTargets.Curr(), ssaoShader, { &sceneTarget, &ssaoTargets.Prev() });
     stats.fullscreenPasses++;
@@ -139,39 +139,39 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
     auto& frameTargets = InArgs.viewportPtr->targets.frameTargets;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
 
-    if (conf.Tonemapping)
+    if (conf.FX.Get().Tonemapping)
     {
         PROFILE_GL_NAMED("Tonemapping");
         frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.TonemappingShader, { &frameTargets.Prev() });
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().TonemappingShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
-    if (conf.Quantize)
+    if (conf.FX.Get().Quantize)
     {
         PROFILE_GL_NAMED("Quantize");
         frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.QuantizeShader, { &frameTargets.Prev() });
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().QuantizeShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
-    if (conf.MotionBlur)
+    if (conf.FX.Get().MotionBlur)
     {
         PROFILE_GL_NAMED("MotionBlur");
         frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.MotionBlurShader, { &sceneTarget, &frameTargets.Prev() });
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().MotionBlurShader, { &sceneTarget, &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
-    if (conf.Distort)
+    if (conf.FX.Get().Distort)
     {
         PROFILE_GL_NAMED("Distort");
         frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.DistortShader, { &frameTargets.Prev() });
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().DistortShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
-    if (conf.FXAA)
+    if (conf.FX.Get().FXAA)
     {
         PROFILE_GL_NAMED("FXAA");
         frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FXAAShader, { &frameTargets.Prev() });
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().FXAAShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
     return stats;

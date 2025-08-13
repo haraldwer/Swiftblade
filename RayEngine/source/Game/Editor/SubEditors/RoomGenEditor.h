@@ -17,7 +17,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Update() override;
-    void Frame(bool InIsCameraControlling) override;
+    void Frame() override;
     void Enter() override;
     
 private:

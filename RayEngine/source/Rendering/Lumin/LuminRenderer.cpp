@@ -87,6 +87,7 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResour
 
     Vec2F nearfar = Vec2F(lumin.config.Near, lumin.config.Far);
     SetValue(InShader, "ProbeNearFar", &nearfar, SHADER_UNIFORM_VEC2);
+    SetValue(InShader, "ProbeOffset", &lumin.config.Offset.Get(), SHADER_UNIFORM_VEC3);
 
     // Bind textures
     target.Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);

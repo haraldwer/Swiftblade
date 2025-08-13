@@ -23,7 +23,7 @@ void Rendering::Manager::Init()
     PROFILE_GL_INIT();
     
     mainViewport.Init(currConfig.Viewport);
-    defaultContext.Init(currConfig.Context, currConfig.Lumin, true);
+    defaultContext.Init(currConfig.Context, true);
 
     rlImGuiSetup(false);
     ImGui::Theme1();
@@ -158,8 +158,8 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
     currConfig = InConfig;
     queuedConfig = InConfig;
 
-    if (currConfig.Context != prev.Context || currConfig.Lumin != prev.Lumin)
-        defaultContext.Init(currConfig.Context, currConfig.Lumin, true);
+    if (currConfig.Context != prev.Context)
+        defaultContext.Init(currConfig.Context, true);
 
     if (currConfig.Viewport != prev.Viewport)
         mainViewport.Init(currConfig.Viewport);

@@ -1,8 +1,7 @@
 {
+	"DebugEnabled":false,
 	"OpenWindows":[
 		"Blueprint Editor",
-		"Rendering",
-		"Scene Rendering",
-		"Viewport"
+		"Scene Rendering"
 	]
 }

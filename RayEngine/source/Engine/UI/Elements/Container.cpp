@@ -69,6 +69,20 @@ void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
             elem.second.Get().RefreshRect(*this, rect);
 }
 
+Vec2F UI::Container::GetDesiredSize() const
+{
+    Vec2F max = transform.size;
+    for (auto& el : elements)
+    {
+        Vec2F s = el.second.Get().GetDesiredSize();
+        max = {
+            Utility::Math::Max(max.x, s.x),
+            Utility::Math::Max(max.y, s.y)
+        };
+    }
+    return max;
+}
+
 bool UI::Container::Invalidated() const
 {
     if (Element::Invalidated())

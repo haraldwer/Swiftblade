@@ -26,8 +26,9 @@ void Utility::ExternalLog(const String& InStr)
     const uint32 minutes = static_cast<uint32>(time / 60);
     const uint32 seconds = static_cast<uint32>(time) % 60;
     const uint32 milliseconds = static_cast<uint32>(time * 1000) % 1000;
-    const String t = std::to_string(minutes) + ":" + std::to_string(seconds) + ":" + std::to_string(milliseconds) + " | ";
-    TraceLog(LOG_WARNING, (t + InStr).c_str());
+    const String t = "ENGINE: " + std::to_string(minutes) + ":" + std::to_string(seconds) + ":" + std::to_string(milliseconds) + " | ";
+    printf((t + InStr).c_str());
+    //TraceLog(LOG_WARNING, (t + InStr).c_str());
     last = InStr;
     lastC = 0;
 }

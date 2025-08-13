@@ -9,10 +9,11 @@ namespace UI
         TYPE_INFO(Label, Element)
         
     public:
-        explicit Label(const String& InText, const Vec2F& InCentering = Vec2F::Zero(), const Transform& InTransform = Transform::Fill(), const ResFont& InFont = ResFont("Defaults/F_FiraCode.ttf"), const float InSize = 30.0f, const float InSpacing = 0.0f) :
+        explicit Label(const String& InText, const Vec2F& InCentering = Vec2F::Zero(), const Transform& InTransform = {}, const ResFont& InFont = ResFont("Defaults/F_FiraCode.ttf"), const float InSize = 30.0f, const float InSpacing = 0.0f) :
             Element(InTransform), centering(InCentering), font(InFont), text(InText), size(InSize), spacing(InSpacing) {}
         void Init(Container& InOwner) override;
         void Draw(Container& InOwner) override;
+        Vec2F GetDesiredSize() const override;
         
         void SetText(const String& InText);
 

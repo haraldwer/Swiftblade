@@ -51,6 +51,13 @@ void UI::Label::Draw(Container& InOwner)
                 tint);
 }
 
+Vec2F UI::Label::GetDesiredSize() const
+{
+    if (transform.size == Vec2F::Zero())
+        return cachedSize;
+    return transform.size;
+}
+
 void UI::Label::SetText(const String& InText)
 {
     text = InText;
