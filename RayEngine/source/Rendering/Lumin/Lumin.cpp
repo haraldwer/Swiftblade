@@ -329,7 +329,7 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
 
     Set<uint64>& layer = layerProbes[InLayer];
     for (auto& id : layer)
-        if (checkFunc({ .id = id }))
+        if (checkFunc(ProbeCoord(id)))
             Utility::SortedInsert(result, &probes.at(id), sortFunc);
 
     const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLayerCount.Get());
@@ -370,18 +370,18 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
             for (const Mat4F& t : transforms->GetAll())
             {
                 const Vec3F pos = t.GetPosition();
-                const ProbeCoord ceil {
-                    .x = static_cast<int16>(ceilf(pos.x * density.x - offset.x)),
-                    .y = static_cast<int16>(ceilf(pos.y * density.y - offset.y)),
-                    .z = static_cast<int16>(ceilf(pos.z * density.z - offset.z)),
-                    .layer = static_cast<int16>(layer)
-                };
-                const ProbeCoord floor {
-                    .x = static_cast<int16>(floorf(pos.x * density.x - offset.x)),
-                    .y = static_cast<int16>(floorf(pos.y * density.y - offset.y)),
-                    .z = static_cast<int16>(floorf(pos.z * density.z - offset.z)),
-                    .layer = static_cast<int16>(layer)
-                };
+                const ProbeCoord ceil(
+                    static_cast<int16>(ceilf(pos.x * density.x - offset.x)),
+                    static_cast<int16>(ceilf(pos.y * density.y - offset.y)),
+                    static_cast<int16>(ceilf(pos.z * density.z - offset.z)),
+                    static_cast<int16>(layer)
+                );
+                const ProbeCoord floor(
+                    static_cast<int16>(floorf(pos.x * density.x - offset.x)),
+                    static_cast<int16>(floorf(pos.y * density.y - offset.y)),
+                    static_cast<int16>(floorf(pos.z * density.z - offset.z)),
+                    static_cast<int16>(layer)
+                );
                 const ProbeCoord coords[8] =
                 {
                     { ceil.pos.x, ceil.pos.y, ceil.pos.z, ceil.pos.w },
@@ -400,9 +400,9 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
     }
 
     for (auto added : probePersistence.GetAdded())
-        CreateProbe({ .id = added });
+        CreateProbe({ added });
     for (auto& removed : probePersistence.GetRemoved())
-        RemoveProbe({ .id = removed });
+        RemoveProbe({ removed });
     
     // Reset cache, redo every probe
     if (probePersistence.Changed())
@@ -446,10 +446,10 @@ Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer)
     const Vec3F offset = config.Offset;
     const auto density = GetDensity(InLayer);
     return {
-        .x = static_cast<int16>(round(InPos.x * density.x - offset.x)),
-        .y = static_cast<int16>(round(InPos.y * density.y - offset.y)),
-        .z = static_cast<int16>(round(InPos.z * density.z - offset.z)),
-        .layer = static_cast<int16>(InLayer)
+        static_cast<int16>(round(InPos.x * density.x - offset.x)),
+        static_cast<int16>(round(InPos.y * density.y - offset.y)),
+        static_cast<int16>(round(InPos.z * density.z - offset.z)),
+        static_cast<int16>(InLayer)
     };
 }
 

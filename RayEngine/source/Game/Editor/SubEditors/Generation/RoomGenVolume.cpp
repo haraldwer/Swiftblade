@@ -1,22 +1,12 @@
 ﻿#include "RoomGenVolume.h"
 
 #include "ECS/Volume/CubeVolume.h"
-#include "Editor/SubEditors/RoomGenEditor.h"
 
-void RoomGenVolume::Clear()
+RoomGenVolume::RoomGenVolume(const Vector<ECS::VolumeCoord>& InPath)
 {
-    queuedCoords.clear();
-    nextQueue.clear();
-    checkedCoords.clear();
-    result.clear();
-    volumeDepth = 0;
-}
-
-void RoomGenVolume::Init()
-{
-    CHECK_RETURN(!owner);
-    for (const ECS::VolumeCoord& c : owner->pathGen.GetPath())
-        queuedCoords.push_back({c.key, c.key}); 
+    path = InPath;
+    for (const ECS::VolumeCoord& c : InPath)
+        queuedCoords.push_back({.coord= c.key, .ref= c.key}); 
 }
 
 void RoomGenVolume::TryQueueEntry(const ECS::VolumeCoord InNewCoord, const ECS::VolumeCoord InReference)
@@ -29,11 +19,9 @@ void RoomGenVolume::TryQueueEntry(const ECS::VolumeCoord InNewCoord, const ECS::
 
 bool RoomGenVolume::EvaluateCoord(const ECS::VolumeCoord InCoord, const ECS::VolumeCoord InReference, uint8& InOutValue)
 {
-    CHECK_RETURN(!owner, false);
-    
     // Start and end
-    const ECS::VolumeCoord front = owner->pathGen.GetPath().front();
-    const ECS::VolumeCoord back = owner->pathGen.GetPath().back();
+    const ECS::VolumeCoord front = path.front();
+    const ECS::VolumeCoord back = path.back();
     if (InCoord.pos.z <= front.pos.z ||
         InCoord.pos.z >= back.pos.z)
     {
@@ -85,13 +73,9 @@ bool RoomGenVolume::EvaluateCoord(const ECS::VolumeCoord InCoord, const ECS::Vol
     return true;
 }
 
-bool RoomGenVolume::Step()
+bool RoomGenVolume::Step(ECS::CubeVolumeData& InOutVolume)
 {
-    CHECK_RETURN(!owner, true);
-    
-    auto& v = owner->GetVolume();
-
-    for (int i = 0; i < 200; i++)
+    for (int i = 0; i < stepSize; i++)
     {
         if (queuedCoords.empty())
             break;
@@ -106,9 +90,9 @@ bool RoomGenVolume::Step()
         {
             existingValue = val;
             if (val > 0)
-                v.data.data[entry.coord] = val;
-            else if (v.data.data.contains(entry.coord))
-                v.data.data.erase(entry.coord);
+                InOutVolume.data[entry.coord] = val;
+            else if (InOutVolume.data.contains(entry.coord))
+                InOutVolume.data.erase(entry.coord);
         }
 
         if (!success)
@@ -124,18 +108,17 @@ bool RoomGenVolume::Step()
         for (const auto& q : nextQueue)
             queuedCoords.push_back({q.first, q.second});
         nextQueue.clear();
-        
         volumeDepth++;
-        v.UpdateCache(Mat4F());
+        // Update cache
     }
 
     if (queuedCoords.empty())
     {
-        v.data.data.clear();
+        InOutVolume.data.clear();
         for (auto& val : result)
             if (val.second > 0)
-                v.data.data[val.first] = val.second;
-        v.UpdateCache(Mat4F());
+                InOutVolume.data[val.first] = val.second;
+        // Update cache
         return true;
     }
     

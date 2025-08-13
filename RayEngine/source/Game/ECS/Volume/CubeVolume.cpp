@@ -7,23 +7,38 @@
 
 void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
 {
-    cachedMaxBounds = Utility::Math::Vector3<uint8>(0);
-    cachedMinBounds = Utility::Math::Vector3<uint8>(-1);
+    cachedMaxBounds = Utility::Math::Vector3<VolumeCoordValue>(0);
+    cachedMinBounds = Utility::Math::Vector3<VolumeCoordValue>(0);
 
+    bool set = false;
     cacheUpdated = true;
     cachedCubeTransforms.clear();
     cachedCubeTransforms.reserve(data.data.size());
-    for (const auto& entry : data)
+    for (const auto& entry : data.data)
     {
         CHECK_CONTINUE(entry.second == 0);
         const VolumeCoord coord = VolumeCoord(entry.first);
         cachedCubeTransforms.emplace_back(CoordToPos(entry.first, InWorld));
-        cachedMinBounds.x = Utility::Math::Min(coord.pos.x, cachedMinBounds.x);
-        cachedMinBounds.y = Utility::Math::Min(coord.pos.y, cachedMinBounds.y);
-        cachedMinBounds.z = Utility::Math::Min(coord.pos.z, cachedMinBounds.z);
-        cachedMaxBounds.x = Utility::Math::Max(coord.pos.x, cachedMaxBounds.x);
-        cachedMaxBounds.y = Utility::Math::Max(coord.pos.y, cachedMaxBounds.y);
-        cachedMaxBounds.z = Utility::Math::Max(coord.pos.z, cachedMaxBounds.z);
+
+        if (!set)
+        {
+            set = true;
+            cachedMinBounds.x = coord.pos.x;
+            cachedMinBounds.y = coord.pos.y;
+            cachedMinBounds.z = coord.pos.z;
+            cachedMaxBounds.x = coord.pos.x;
+            cachedMaxBounds.y = coord.pos.y;
+            cachedMaxBounds.z = coord.pos.z;
+        }
+        else
+        {
+            cachedMinBounds.x = Utility::Math::Min(coord.pos.x, cachedMinBounds.x);
+            cachedMinBounds.y = Utility::Math::Min(coord.pos.y, cachedMinBounds.y);
+            cachedMinBounds.z = Utility::Math::Min(coord.pos.z, cachedMinBounds.z);
+            cachedMaxBounds.x = Utility::Math::Max(coord.pos.x, cachedMaxBounds.x);
+            cachedMaxBounds.y = Utility::Math::Max(coord.pos.y, cachedMaxBounds.y);
+            cachedMaxBounds.z = Utility::Math::Max(coord.pos.z, cachedMaxBounds.z);
+        }
     }
 }
 
@@ -116,18 +131,18 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const VolumeCoord InStart, con
     auto& minB = v.cachedMinBounds;
     auto& maxB = v.cachedMaxBounds;
     
-    const uint8 startX = Utility::Math::Min(InStart.pos.x, InEnd.pos.x); 
-    const uint8 startY = Utility::Math::Min(InStart.pos.y, InEnd.pos.y); 
-    const uint8 startZ = Utility::Math::Min(InStart.pos.z, InEnd.pos.z);
-    const uint8 endX = Utility::Math::Max(InStart.pos.x, InEnd.pos.x); 
-    const uint8 endY = Utility::Math::Max(InStart.pos.y, InEnd.pos.y); 
-    const uint8 endZ = Utility::Math::Max(InStart.pos.z, InEnd.pos.z);
+    const VolumeCoordValue startX = Utility::Math::Min(InStart.pos.x, InEnd.pos.x); 
+    const VolumeCoordValue startY = Utility::Math::Min(InStart.pos.y, InEnd.pos.y); 
+    const VolumeCoordValue startZ = Utility::Math::Min(InStart.pos.z, InEnd.pos.z);
+    const VolumeCoordValue endX = Utility::Math::Max(InStart.pos.x, InEnd.pos.x); 
+    const VolumeCoordValue endY = Utility::Math::Max(InStart.pos.y, InEnd.pos.y); 
+    const VolumeCoordValue endZ = Utility::Math::Max(InStart.pos.z, InEnd.pos.z);
     
-    for (uint8 x = startX; x <= endX; x++)
+    for (VolumeCoordValue x = startX; x <= endX; x++)
     {
-        for (uint8 y = startY; y <= endY; y++)
+        for (VolumeCoordValue y = startY; y <= endY; y++)
         {
-            for (uint8 z = startZ; z <= endZ; z++)
+            for (VolumeCoordValue z = startZ; z <= endZ; z++)
             {
                 if (InVal == 0)
                 {

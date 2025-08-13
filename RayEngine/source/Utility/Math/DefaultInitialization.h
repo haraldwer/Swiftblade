@@ -6,6 +6,7 @@ template<typename Type>
 Type DefaultInitializationValue()
 {
     assert(false && "DataType has no supported default initialization value.");
+    return {};
 }
 
 template<>
@@ -34,6 +35,12 @@ inline unsigned int DefaultInitializationValue<unsigned int>()
 
 template<>
 inline unsigned char DefaultInitializationValue<unsigned char>()
+{
+    return 0;
+}
+
+template<>
+inline char DefaultInitializationValue<char>()
 {
     return 0;
 }

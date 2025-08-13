@@ -35,7 +35,7 @@ void RoomVolumeEditor::Update()
     PROFILE();
     
     // Do cube trace
-    lastTrace = GetVolume().PosToCoord(UpdateCameraTrace());
+    lastTrace = GetVolume().PosToCoord(CameraTrace(4));
     if (!placing)
     {
         placeStart = lastTrace.key;
@@ -46,7 +46,7 @@ void RoomVolumeEditor::Update()
     }
 
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-    sys.DrawEditVolume(GetVolumeID(), Coord(placeStart), lastTrace);
+    sys.DrawEditVolume(GetVolumeID(), ECS::VolumeCoord(placeStart), lastTrace);
 
     // End placement? 
     CHECK_RETURN(!placing)
@@ -59,10 +59,10 @@ void RoomVolumeEditor::Update()
 
     struct VolumeChange
     {
-        ECS::ID volumeID; 
-        CubeVolumeData orgVolume; 
-        Coord start;
-        Coord end;
+        ECS::ID volumeID;
+        ECS::CubeVolumeData orgVolume; 
+        ECS::VolumeCoord start;
+        ECS::VolumeCoord end;
     };
             
     GetHistory().AddChange(Utility::Change<VolumeChange>(
@@ -90,6 +90,6 @@ void RoomVolumeEditor::Update()
 void RoomVolumeEditor::DebugDraw()
 {
     ImGui::Text("Volume editing mode"); 
-    const auto size = GetVolume().data.size();
+    const auto size = GetVolume().data.data.size();
     ImGui::Text("Blocks: %i", static_cast<int>(size));
 }

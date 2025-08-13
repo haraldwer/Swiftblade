@@ -54,11 +54,11 @@ void RoomObjectEditor::Update()
         RemoveObject();
 }
 
-void RoomObjectEditor::Frame(bool InIsCameraControlling)
+void RoomObjectEditor::Frame()
 {
 }
 
-void RoomObjectEditor::DebugDraw(const bool InIsCameraControlling)
+void RoomObjectEditor::DebugDraw()
 {
     ImGui::Text("Object editing mode");
     

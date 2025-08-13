@@ -17,8 +17,8 @@ namespace ECS
         // Manually serialized / deserialized
         CubeVolumeData data;
 
-        Utility::Math::Vector3<uint8> cachedMinBounds;
-        Utility::Math::Vector3<uint8> cachedMaxBounds;
+        Utility::Math::Vector3<VolumeCoordValue> cachedMinBounds;
+        Utility::Math::Vector3<VolumeCoordValue> cachedMaxBounds;
         Vector<Mat4F> cachedCubeTransforms;
         bool cacheUpdated = false;
 

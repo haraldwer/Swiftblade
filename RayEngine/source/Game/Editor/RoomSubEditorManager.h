@@ -12,8 +12,8 @@ public:
     void Frame();
     void DebugDraw();
     
-    template <class T>
-    T& Get() { return editors.at(Type::Get<T>()).Get(); }
+    template <typename T>
+    T& Get() { return editors.at(Type::GetHash<T>()).Get<T>(); }
     void SetCurrent(const Type& InType);
     Type GetCurrent() const { return currentEditor; }
 

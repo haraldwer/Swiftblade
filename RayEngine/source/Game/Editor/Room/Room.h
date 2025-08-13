@@ -23,6 +23,7 @@ struct Room : PropertyOwner<Room>
     {
         return volumeData.Deserialize(InObj);
     }
+    
     void CustomSerialize(SerializeObj &InOutObj) const override
     {
         volumeData.Serialize(InOutObj);

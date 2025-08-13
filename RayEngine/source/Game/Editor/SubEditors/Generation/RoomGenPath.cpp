@@ -1,34 +1,9 @@
 ﻿#include "RoomGenPath.h"
 
 #include "ECS/Volume/CubeVolume.h"
-#include "Editor/SubEditors/RoomGenEditor.h"
-#include "Engine/ECS/Manager.h"
-#include "Engine/ECS/Systems/Transform.h"
-
-void RoomGenPath::Clear()
-{
-    path.clear();
-    pathSet.clear();
-    start = ECS::VolumeCoord();
-    target = ECS::VolumeCoord(); 
-}
-
-void RoomGenPath::Init()
-{
-    CHECK_RETURN(!owner);
-    
-    // Cache start and end position
-    const ECS::CubeVolume& v = owner->GetVolume();
-    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(owner->startEntity))
-        start = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
-    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(owner->endEntity))
-        target = v.PosToCoord(t->GetPosition() + Vec3F(1, 1, -1) * 0.6f);
-}
 
 bool RoomGenPath::Step()
 {
-    CHECK_RETURN(!owner, true);
-    
     ECS::VolumeCoord coord = path.empty() ? start : path.back();
     if (coord.key == target.key)
         return true;
@@ -46,7 +21,7 @@ bool RoomGenPath::Step()
     }
 
     // Collect in random pool
-    Utility::RandomWeightedCollection<ECS::VolumeCoord> pool(owner->seed + static_cast<int>(path.size()));
+    Utility::RandomWeightedCollection<ECS::VolumeCoord> pool(seed + static_cast<int>(path.size()));
     
     // Add every direction
     for (ECS::VolumeCoord direction : ECS::CubeVolume::GetNeighbors(coord))
