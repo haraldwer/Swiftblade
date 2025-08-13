@@ -1,28 +1,17 @@
-﻿#include "RoomGenProps.h"
+#include "PropGenerator.h"
 
-#include "ECS/Volume/CubeVolume.h"
-#include "Editor/SubEditors/RoomGenEditor.h"
+/*
 
-void RoomGenProps::Clear()
+void Init()
 {
-    queue.clear();
-    for (const auto rule : ruleList)
-        rule->Clear();
-}
-
-void RoomGenProps::Init()
-{
-    CHECK_RETURN(!owner);
     PopulateRules();
     const auto& data = owner->GetVolume().data;
     for (const auto& entry : data)
         queue.emplace_back(entry.first);
 }
 
-bool RoomGenProps::Step()
+void Step()
 {
-    CHECK_RETURN(!owner, true);
-    
     // Every rule is applied once for every grid position
     // Every rule defines its own behavior
 
@@ -46,12 +35,14 @@ bool RoomGenProps::Step()
     }
     
     return queue.empty(); 
+    
 }
 
-bool RoomGenProps::Evaluate(const ECS::CubeVolume& InVolume, const Coord InCoord) const
+void Evaluate()
 {
     for (const auto rule : ruleList)
         if (rule->Evaluate(InVolume, InCoord))
             return true;
     return false;
 }
+*/

@@ -5,6 +5,7 @@
 #include "Editor/RoomSubEditorManager.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "History/History.h"
 #include "ImGui/imgui.h"
 #include "Input/Action.h"
 
@@ -57,12 +58,11 @@ void RoomPathEditor::Update()
 
     auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity);
     CHECK_RETURN(!trans);
-    CHECK_RETURN(!owner);
 
     const float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Move object using trace 
-    targetPos = UpdateCameraTrace() + Vec3F(1.0, -1.0, 1.0);
+    targetPos = CameraTrace(3) + Vec3F(1.0, -1.0, 1.0);
     if (targetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
@@ -78,44 +78,30 @@ void RoomPathEditor::Update()
         };
         
         GetHistory().AddChange(Utility::Change<RoomPathChange>(
-                [&](const RoomPathChange& InData)
-                {
-                    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-                        t->SetPosition(InData.newPos);
-                    if (owner)
-                        owner->SetMode(SubEditorMode::GEN);
-                },
-                [&](const RoomPathChange& InData)
-                {
-                    if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-                        t->SetPosition(InData.prevPos);
-                    if (owner)
-                        owner->SetMode(SubEditorMode::GEN);
-                },
-                {
-                    targetPos,
-                    trans->GetPosition()
-                }));
+            [&](const RoomPathChange& InData)
+            {
+                if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
+                    t->SetPosition(InData.newPos);
+            },
+            [&](const RoomPathChange& InData)
+            {
+                if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
+                    t->SetPosition(InData.prevPos);
+            },
+            {
+                targetPos,
+                trans->GetPosition()
+            }));
     }
 }
 
-void RoomPathEditor::Frame(bool InIsCameraControlling)
+void RoomPathEditor::Frame()
 {
 }
 
-void RoomPathEditor::DebugDraw(bool InIsCameraControlling)
+void RoomPathEditor::DebugDraw()
 {
     ImGui::Text("Connection editing mode"); 
-}
-
-Mat4F RoomPathEditor::GetStartOffset() const
-{
-    return Mat4F::GetFastInverse(GetTrans(startEntity));
-}
-
-ECS::EntityID RoomPathEditor::GetCurrent() const
-{
-    return endEntity;
 }
 
 Mat4F RoomPathEditor::GetTrans(const ECS::EntityID InID)

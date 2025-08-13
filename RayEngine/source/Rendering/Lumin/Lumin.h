@@ -3,6 +3,7 @@
 #include "LuminConfig.h"
 #include "LuminPipeline.h"
 #include "Collections/PersistanceContainer.h"
+#include "Math/Coord.h"
 #include "Rendering/Context/Context.h"
 #include "Rendering/TextureTargets/AtlasMap.h"
 #include "Rendering/Viewport/Viewport.h"
@@ -11,22 +12,8 @@ namespace Rendering
 {
     struct RenderArgs;
     class Scene;
-    
-    struct ProbeCoord
-    {
-        union
-        {
-            struct
-            {
-                int16 x; 
-                int16 y; 
-                int16 z; 
-                int16 layer; 
-            };
 
-            uint64 id = 0;
-        };
-    };
+    typedef Utility::Coord<uint64, int16> ProbeCoord;
     
     struct LuminProbe
     {

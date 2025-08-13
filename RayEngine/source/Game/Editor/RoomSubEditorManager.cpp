@@ -1,15 +1,17 @@
 ﻿#include "RoomSubEditorManager.h"
 
 #include "Engine/ECS/Manager.h"
+#include "Input/Action.h"
 #include "SubEditors/RoomGenEditor.h"
 #include "SubEditors/RoomObjectEditor.h"
 #include "SubEditors/RoomPathEditor.h"
 #include "SubEditors/RoomVolumeEditor.h"
+#include "SubEditors/RoomConnectionEditor.h"
 
 #define CREATE_SUBEDITOR(x) \
-editors[Type::Get<x>()] = x();
+editors[Type::GetHash<x>()] = x();
 
-void RoomSubEditorManager::Init()
+void RoomSubEditorManager::Init(RoomEditor* InEditor)
 {
     CREATE_SUBEDITOR(RoomConnectionEditor)
     CREATE_SUBEDITOR(RoomPathEditor)
@@ -18,7 +20,7 @@ void RoomSubEditorManager::Init()
     CREATE_SUBEDITOR(RoomVolumeEditor)
     
     for (auto& e : editors)
-        e.second.Get().SetOwner(this);
+        e.second.Get().editor = InEditor;
     for (auto& e : editors)
         e.second.Get().Init();
 }
@@ -33,6 +35,10 @@ void RoomSubEditorManager::Deinit()
 
 void RoomSubEditorManager::Update()
 {
+    for (auto& e : editors)
+        if (Input::Action::Get(e.second.Get().GetObjName()))
+            SetCurrent(Type(e.first));
+    
     for (auto& e : editors)
         e.second.Get().Update();
 }
@@ -52,10 +58,10 @@ void RoomSubEditorManager::DebugDraw()
 void RoomSubEditorManager::SetCurrent(const Type &InType)
 {
     CHECK_RETURN(currentEditor == InType);
-    if (editors.contains(currentEditor))
-        editors.at(currentEditor).Get().Exit();
+    if (editors.contains(currentEditor.GetHash()))
+        editors.at(currentEditor.GetHash()).Get().Exit();
     currentEditor = InType;
-    editors.at(currentEditor).Get().Enter();
+    editors.at(currentEditor.GetHash()).Get().Enter();
 }
 
 bool RoomSubEditorManager::IgnoreSave(const ECS::EntityID InID)

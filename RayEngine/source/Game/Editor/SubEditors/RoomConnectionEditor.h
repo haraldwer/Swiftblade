@@ -2,6 +2,9 @@
 
 #include "Editor/RoomSubEditor.h"
 
-class RoomConnectionEditor : public RoomSubEditor<RoomConnectionEditor>
+class RoomConnectionEditor : public RoomSubEditor
 {
+    TYPE_INFO(RoomConnectionEditor, RoomSubEditor);
+    
+public:
 };

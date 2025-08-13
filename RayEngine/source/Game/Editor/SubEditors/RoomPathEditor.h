@@ -16,6 +16,8 @@ struct RoomPathEditorConfig : BaseConfig<RoomPathEditorConfig>
 
 class RoomPathEditor : public RoomSubEditor
 {
+    TYPE_INFO(RoomPathEditor, RoomSubEditor);
+    
 public:
     void Init() override;
     void Deinit() override;
@@ -23,8 +25,6 @@ public:
     void Frame() override;
     void DebugDraw() override;
     
-    Mat4F GetStartOffset() const;
-
 private:
     
     RoomPathEditorConfig config = {};
@@ -33,6 +33,5 @@ private:
     Vec3F targetPos = {};
     Vec3F orgPos = {};
 
-    ECS::EntityID GetCurrent() const;
     static Mat4F GetTrans(ECS::EntityID InID);
 };

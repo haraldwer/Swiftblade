@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Coord.h"
+#include "CubeVolumeData.h"
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 #include "Rendering/Scene/Instances/MeshInstance.h"
@@ -27,12 +27,12 @@ namespace ECS
         void CustomSerialize(SerializeObj& InOutObj) const override;
         bool CustomDeserialize(const DeserializeObj& InObj) override;
         
-        Vec3F CoordToPos(Coord InCoord, const Mat4F& InWorld = Mat4F()) const;
-        Coord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld = Mat4F()) const;
+        Vec3F CoordToPos(VolumeCoord InCoord, const Mat4F& InWorld = Mat4F()) const;
+        VolumeCoord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld = Mat4F()) const;
         Vec3F GetCenter(bool InStart) const;
 
-        static Coord TryOffset(Coord InCoord, Vec3I InOffset);
-        static Array<Coord, 6> GetNeighbors(Coord InCoord);
+        static VolumeCoord TryOffset(VolumeCoord InCoord, Vec3I InOffset);
+        static Array<VolumeCoord, 6> GetNeighbors(VolumeCoord InCoord);
         
         MeshInstance blockMesh = {}; 
         MeshInstance editMesh = {};
@@ -41,10 +41,10 @@ namespace ECS
     class SysCubeVolume : public System<CubeVolume>
     {
     public:
-        uint8 GetVal(EntityID InID, Coord InCoord);
-        void Set(EntityID InID, Coord InStart, Coord InEnd, uint8 InVal);
-        Coord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
-        void DrawEditVolume(EntityID InID, Coord InStart, Coord InEnd);
+        uint8 GetVal(EntityID InID, VolumeCoord InCoord);
+        void Set(EntityID InID, VolumeCoord InStart, VolumeCoord InEnd, uint8 InVal);
+        VolumeCoord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
+        void DrawEditVolume(EntityID InID, VolumeCoord InStart, VolumeCoord InEnd);
 
         void SystemInit() override;
         void Init(EntityID InID, CubeVolume& InComponent) override;

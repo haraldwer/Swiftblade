@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/ECS/Entity.h"
 
-class RoomSubEditorManager;
+class RoomEditor;
 
 namespace Utility
 {
@@ -22,6 +22,8 @@ enum class RoomType : uint8
 
 class RoomSubEditor
 {
+    BASE_TYPE_INFO(RoomSubEditor);
+    friend class RoomSubEditorManager;
 public:
     virtual ~RoomSubEditor() = default;
 
@@ -34,20 +36,16 @@ public:
     virtual void Exit() {}
     virtual bool IgnoreSave(ECS::EntityID InID) { return false; }
     
-    void SetOwner(RoomSubEditorManager* InOwner);
-    
     ECS::EntityID GetVolumeID() const;
     ECS::CubeVolume& GetVolume() const;
     Utility::History& GetHistory() const;
+    RoomEditor& GetEditor() const;
 
-    RoomType GetType() const;
-    Vec3F UpdateCameraTrace();
-
-protected:
-    RoomSubEditorManager* owner = nullptr;
+    Type GetCurrent() const;
+    bool IsCurrent() const { return GetCurrent() == GetObjType(); }
+    Vec3F CameraTrace(int32 InDist) const;
     
 private:
-    
-    Vec3F lastTracePos = {};
+    RoomEditor* editor = nullptr;
     
 };

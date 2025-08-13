@@ -6,6 +6,7 @@
 #include "raylib.h"
 #include "ImGui/imgui.h"
 #include "Menus/MenuRoomEditor.h"
+#include "SubEditors/RoomConnectionEditor.h"
 #include "SubEditors/RoomObjectEditor.h"
 
 void RoomEditor::Init()
@@ -40,17 +41,7 @@ void RoomEditor::Logic(const double InDelta)
     ecs.Update();
     editorCamera.Update();
     
-    SubEditorMode newMode = SubEditorMode::COUNT;  
-    if (IsKeyPressed(KEY_ONE))
-        newMode = SubEditorMode::VOLUME;
-    if (IsKeyPressed(KEY_TWO))
-        newMode = SubEditorMode::OBJECTS;
-    if (IsKeyPressed(KEY_THREE))
-        newMode = SubEditorMode::PATH;
-    if (newMode != SubEditorMode::COUNT)
-        subEditorManager.SetMode(newMode); 
-    
-    subEditorManager.Update(editorCamera.IsControlling());
+    subEditorManager.Update();
 
     // Keyboard shortcuts
     if (Input::Action::Get("Ctrl").Down())
@@ -76,7 +67,7 @@ void RoomEditor::Frame()
     ecs.Frame(); 
     Instance::Frame();
     
-    subEditorManager.Frame(editorCamera.IsControlling());
+    subEditorManager.Frame();
 }
 
 void RoomEditor::DrawDebugPanel()
@@ -90,7 +81,7 @@ void RoomEditor::DrawDebugPanel()
     ImGui::Text("Entities: %i", static_cast<int>(scene.entities.size()));
     ImGui::Text("ECS Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
 
-    subEditorManager.DebugDraw(editorCamera.IsControlling()); 
+    subEditorManager.DebugDraw(); 
     
     if (ImGui::Button("Save"))
         SaveRoom(); 
@@ -109,7 +100,7 @@ void RoomEditor::OpenScene()
     if (const auto sceneRes = currConfig.Scene.Get().Get())
         scene = sceneRes->Create();
     
-    subEditorManager.Init();
+    subEditorManager.Init(this);
 }
 
 void RoomEditor::PlayScene()
@@ -131,5 +122,5 @@ void RoomEditor::SaveRoom()
     }
     
     if (const auto sceneRes = currConfig.Scene.Get().Get())
-        sceneRes->Save(scene, subEditorManager.GetStartOffset());
+        sceneRes->Save(scene, Mat4F());
 }

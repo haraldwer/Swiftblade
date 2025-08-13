@@ -1,13 +1,13 @@
-﻿#include "RoomManager.h"
+﻿#include "LevelManager.h"
 
 #include "ECS/RoomConnection.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "GameState.h"
-#include "RoomConfig.h"
+#include "LevelConfig.h"
 #include "Utility/Collections/RandomWeightedCollection.h"
 
-void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
+void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
 {
     Unload(); 
     
@@ -41,9 +41,9 @@ void RoomManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
     }
 }
 
-void RoomManager::LoadConfig()
+void LevelManager::LoadConfig()
 {
-    RoomConfig config;
+    LevelConfig config;
     config.Load("Scenes/Configs/C_Default.json");
 
     // How far has the player come?
@@ -99,7 +99,7 @@ void RoomManager::LoadConfig()
     }
 }
 
-void RoomManager::Unload()
+void LevelManager::Unload()
 {
     for (auto& scene : scenes)
         scene.Destroy();

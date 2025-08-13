@@ -4,7 +4,6 @@
 #include "ECS/RoomConnection.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomSubEditorManager.h"
-#include "Rooms/Generation/RoomGenBase.h"
 #include "UI/Builder.h"
 #include "UI/Elements/RectImage.h"
 
@@ -16,10 +15,7 @@ void RoomGenEditor::Init()
             .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
             .Add(UI::Image(ResTexture("UI/T_Exit.png"), UI::Transform::SimpleAnchor(0.5f)), "Loading");
     ui = builder.Build();
-
-    pathGen.SetOwner(this); 
-    volumeGen.SetOwner(this); 
-    propsGen.SetOwner(this); 
+ 
 }
 
 void RoomGenEditor::Deinit()
@@ -44,58 +40,24 @@ void RoomGenEditor::Enter()
 
     // Clear current volume
     auto& v = GetVolume();
-    v.data.clear();
+    v.data.data.clear();
     v.UpdateCache(Mat4F());
-
-    // Maybe clear spawned objects too?
-    
-    // Clear gen data
-    pathGen.Clear();
-    volumeGen.Clear();
-    propsGen.Clear();
-    SetStage(GenerationStage::PATH);
-}
-
-RoomGenBase* RoomGenEditor::GetCurrentStage()
-{
-    switch (currentStage)
-    {
-    case GenerationStage::PATH:
-        return &pathGen;
-    case GenerationStage::VOLUME:
-        return &volumeGen;
-    case GenerationStage::PROPPING:
-        return &propsGen;
-    case GenerationStage::FINISHED:
-    default:
-            return nullptr;
-    }
-}
-
-void RoomGenEditor::SetStage(const GenerationStage InStage)
-{
-    currentStage = InStage;
-    if (RoomGenBase* s = GetCurrentStage())
-        s->Init();
 }
 
 void RoomGenEditor::Update()
 {
     PROFILE();
+
+    // Maybe step
+
     
-    if (RoomGenBase* stage = GetCurrentStage())
-        if (stage->Step())
-            SetStage(static_cast<GenerationStage>(static_cast<uint8>(currentStage) + 1));
-    if (currentStage == GenerationStage::FINISHED)
-        owner->SetMode(SubEditorMode::OBJECTS);
 }
 
-void RoomGenEditor::Frame(bool InIsCameraControlling)
+void RoomGenEditor::Frame()
 {
     auto& image = ui.Get<UI::Image>("Loading");
     UI::Transform trans = image.GetTransform();
     trans.rotation = Utility::Time::Get().Total();
     image.SetTransform(trans);
-    
     ui.Draw();
 }

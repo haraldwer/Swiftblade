@@ -111,14 +111,14 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
         
         layer.density = GetDensity(layerIndex);
         layer.start = {
-            minCoord.x,
-            minCoord.y,
-            minCoord.z
+            minCoord.pos.x,
+            minCoord.pos.y,
+            minCoord.pos.z
         };
         layer.size = {
-            maxCoord.x - minCoord.x + 1,
-            maxCoord.y - minCoord.y + 1,
-            maxCoord.z - minCoord.z + 1
+            maxCoord.pos.x - minCoord.pos.x + 1,
+            maxCoord.pos.y - minCoord.pos.y + 1,
+            maxCoord.pos.z - minCoord.pos.z + 1
         };
         
         int layer_max = config.MaxGridCount / config.Layers;
@@ -131,9 +131,9 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
         {
             ProbeCoord coord = frameProbes[probeIndex]->coord;
             Vec3I gridPos = {
-                coord.x - layer.start.x,
-                coord.y - layer.start.y,
-                coord.z - layer.start.z,
+                coord.pos.x - layer.start.x,
+                coord.pos.y - layer.start.y,
+                coord.pos.z - layer.start.z,
             };
             int index = gridPos.x + gridPos.y * layer.size.x + gridPos.z * layer.size.x * layer.size.y;
 
@@ -193,7 +193,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     float time = context.Time();
     for (auto probe : frameProbes)
     {
-        if (!atlas.Contains(probe->coord.id))
+        if (!atlas.Contains(probe->coord.key))
         {
             probe->iterations = 0;
             probe->atlasTimestamp = 0;
@@ -209,7 +209,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         
         probe->iterations++;
         probe->renderTimestamp = time; // Just rendered
-        probe->rect = atlas.GetRect(probe->coord.id, 0);
+        probe->rect = atlas.GetRect(probe->coord.key, 0);
 
         Array<Vec3F, 9> points = GetCullPoints(probe->pos);
         args.cullPoints.insert(args.cullPoints.end(), points.begin(), points.end());
@@ -218,7 +218,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         {
             args.perspectives.push_back({
                 .referenceRect = probe->rect,
-                .targetRect = atlas.GetRect(probe->coord.id, i),
+                .targetRect = atlas.GetRect(probe->coord.key, i),
                 .camera = {
                     .position = probe->pos,
                     .rotation = directions[i],
@@ -384,17 +384,17 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
                 };
                 const ProbeCoord coords[8] =
                 {
-                    { ceil.x, ceil.y, ceil.z, ceil.layer },
-                    { floor.x, ceil.y, ceil.z, ceil.layer },
-                    { ceil.x, floor.y, ceil.z, ceil.layer },
-                    { floor.x, floor.y, ceil.z, ceil.layer },
-                    { ceil.x, ceil.y, floor.z, ceil.layer },
-                    { floor.x, ceil.y, floor.z, ceil.layer },
-                    { ceil.x, floor.y, floor.z, ceil.layer },
-                    { floor.x, floor.y, floor.z, ceil.layer },
+                    { ceil.pos.x, ceil.pos.y, ceil.pos.z, ceil.pos.w },
+                    { floor.pos.x, ceil.pos.y, ceil.pos.z, ceil.pos.w },
+                    { ceil.pos.x, floor.pos.y, ceil.pos.z, ceil.pos.w },
+                    { floor.pos.x, floor.pos.y, ceil.pos.z, ceil.pos.w },
+                    { ceil.pos.x, ceil.pos.y, floor.pos.z, ceil.pos.w },
+                    { floor.pos.x, ceil.pos.y, floor.pos.z, ceil.pos.w },
+                    { ceil.pos.x, floor.pos.y, floor.pos.z, ceil.pos.w },
+                    { floor.pos.x, floor.pos.y, floor.pos.z, ceil.pos.w },
                 };
                 for (auto& coord : coords)
-                    probePersistence.Touch(coord.id);
+                    probePersistence.Touch(coord.key);
             }
         }
     }
@@ -417,23 +417,23 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
 
 void Rendering::Lumin::CreateProbe(const ProbeCoord InCoord)
 {
-    if (InCoord.id == 0)
+    if (InCoord.key == 0)
         return;
-    auto& probe = probes[InCoord.id];
-    if (probe.coord.id == 0)
+    auto& probe = probes[InCoord.key];
+    if (probe.coord.key == 0)
     {
         probe.coord = InCoord;
         probe.pos = FromCoord(InCoord);
-        layerProbes[InCoord.layer].insert(InCoord.id);
+        layerProbes[InCoord.pos.w].insert(InCoord.key);
     }
 }
 
 void Rendering::Lumin::RemoveProbe(ProbeCoord InCoord)
 {
-    if (InCoord.id == 0)
+    if (InCoord.key == 0)
         return;
-    probes.erase(InCoord.id);
-    layerProbes.at(InCoord.layer).erase(InCoord.id);
+    probes.erase(InCoord.key);
+    layerProbes.at(InCoord.pos.w).erase(InCoord.key);
 }
 
 Vec3F Rendering::Lumin::GetDensity(const int InLayer) const
@@ -456,11 +456,11 @@ Rendering::ProbeCoord Rendering::Lumin::FromPos(const Vec3F& InPos, int InLayer)
 Vec3F Rendering::Lumin::FromCoord(const ProbeCoord& InCoord) const
 {
     const Vec3F offset = config.Offset;
-    const auto density = GetDensity(InCoord.layer);
+    const auto density = GetDensity(InCoord.pos.w);
     return {                                
-        (static_cast<float>(InCoord.x) + offset.x) / density.x,
-        (static_cast<float>(InCoord.y) + offset.y) / density.y,
-        (static_cast<float>(InCoord.z) + offset.z) / density.z,
+        (static_cast<float>(InCoord.pos.x) + offset.x) / density.x,
+        (static_cast<float>(InCoord.pos.y) + offset.y) / density.y,
+        (static_cast<float>(InCoord.pos.z) + offset.z) / density.z,
     };
 }
 

@@ -18,6 +18,8 @@ struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 
 class RoomObjectEditor : public RoomSubEditor
 {
+    TYPE_INFO(RoomObjectEditor, RoomSubEditor);
+    
 public:
     void Init() override;
     void Deinit() override;

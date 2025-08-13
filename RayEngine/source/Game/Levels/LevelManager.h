@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneResource.h"
 
-class RoomManager
+class LevelManager
 {
 public:
     void Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset);

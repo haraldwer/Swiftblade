@@ -15,11 +15,11 @@ void RoomGenVolume::Clear()
 void RoomGenVolume::Init()
 {
     CHECK_RETURN(!owner);
-    for (const Coord& c : owner->pathGen.GetPath())
+    for (const ECS::VolumeCoord& c : owner->pathGen.GetPath())
         queuedCoords.push_back({c.key, c.key}); 
 }
 
-void RoomGenVolume::TryQueueEntry(const Coord InNewCoord, const Coord InReference)
+void RoomGenVolume::TryQueueEntry(const ECS::VolumeCoord InNewCoord, const ECS::VolumeCoord InReference)
 {
     if (checkedCoords[InReference.key].contains(InNewCoord.key))
         return;
@@ -27,19 +27,19 @@ void RoomGenVolume::TryQueueEntry(const Coord InNewCoord, const Coord InReferenc
     nextQueue[InNewCoord.key] = InReference.key;
 }
 
-bool RoomGenVolume::EvaluateCoord(const Coord InCoord, const Coord InReference, uint8& InOutValue)
+bool RoomGenVolume::EvaluateCoord(const ECS::VolumeCoord InCoord, const ECS::VolumeCoord InReference, uint8& InOutValue)
 {
     CHECK_RETURN(!owner, false);
     
     // Start and end
-    const Coord front = owner->pathGen.GetPath().front();
-    const Coord back = owner->pathGen.GetPath().back();
+    const ECS::VolumeCoord front = owner->pathGen.GetPath().front();
+    const ECS::VolumeCoord back = owner->pathGen.GetPath().back();
     if (InCoord.pos.z <= front.pos.z ||
         InCoord.pos.z >= back.pos.z)
     {
         if (InCoord.pos.z == front.pos.z || InCoord.pos.z == back.pos.z)
         {
-            const Coord comp = InCoord.pos.z == front.pos.z ? front : back;
+            const ECS::VolumeCoord comp = InCoord.pos.z == front.pos.z ? front : back;
             if (InCoord.pos.x - comp.pos.x > 0 ||
                 InCoord.pos.x - comp.pos.x < -1 ||
                 InCoord.pos.y - comp.pos.y > 2 ||
@@ -106,15 +106,15 @@ bool RoomGenVolume::Step()
         {
             existingValue = val;
             if (val > 0)
-                v.data[entry.coord] = val;
-            else if (v.data.contains(entry.coord))
-                v.data.erase(entry.coord);
+                v.data.data[entry.coord] = val;
+            else if (v.data.data.contains(entry.coord))
+                v.data.data.erase(entry.coord);
         }
 
         if (!success)
             continue;
 
-        for (const Coord c : ECS::CubeVolume::GetNeighbors(entry.coord))
+        for (const ECS::VolumeCoord c : ECS::CubeVolume::GetNeighbors(entry.coord))
             if (c.key != 0)
                 TryQueueEntry(c, entry.ref);
     }
@@ -131,10 +131,10 @@ bool RoomGenVolume::Step()
 
     if (queuedCoords.empty())
     {
-        v.data.clear();
+        v.data.data.clear();
         for (auto& val : result)
             if (val.second > 0)
-                v.data[val.first] = val.second;
+                v.data.data[val.first] = val.second;
         v.UpdateCache(Mat4F());
         return true;
     }

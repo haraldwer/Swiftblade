@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneResource.h"
 
-struct RoomConfig : PropertyOwner<RoomConfig>
+struct LevelConfig : PropertyOwner<LevelConfig>
 {
     PROPERTY(ResScene, SectionStart);
     PROPERTY(ResScene, SectionEnd);

@@ -1,21 +1,17 @@
 ﻿#include "RoomSubEditor.h"
 
+#include "RoomEditor.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Engine/ECS/Entity.h"
 #include "Engine/ECS/Manager.h"
 #include "Instance/Instance.h"
 #include "Rendering/Scene/Instances/CameraInstance.h"
-#include "RoomSubEditorManager.h"
-
-void RoomSubEditor::SetOwner(RoomSubEditorManager* InOwner)
-{
-    owner = InOwner; 
-}
+#include "SubEditors/RoomVolumeEditor.h"
 
 ECS::EntityID RoomSubEditor::GetVolumeID() const
 {
-    CHECK_ASSERT(!owner, "Invalid owner")
-    return owner->GetCubeVolume();
+    CHECK_ASSERT(!editor, "Invalid editor")
+    return editor->GetSubEditors().Get<RoomVolumeEditor>().GetCubeVolumeID();
 }
 
 ECS::CubeVolume& RoomSubEditor::GetVolume() const
@@ -29,27 +25,30 @@ ECS::CubeVolume& RoomSubEditor::GetVolume() const
 
 Utility::History& RoomSubEditor::GetHistory() const
 {
-    CHECK_ASSERT(!owner, "Invalid owner");
-    return owner->GetHistory();
+    CHECK_ASSERT(!editor, "Invalid editor");
+    return editor->GetHistory();
 }
 
-RoomType RoomSubEditor::GetType() const
+RoomEditor& RoomSubEditor::GetEditor() const
 {
-    return owner->GetType();
+    CHECK_ASSERT(!editor, "Invalid editor");
+    return *editor;
 }
 
-Vec3F RoomSubEditor::UpdateCameraTrace()
+Type RoomSubEditor::GetCurrent() const
+{
+    CHECK_ASSERT(!editor, "Invalid editor");
+    return editor->GetSubEditors().GetCurrent();
+}
+
+Vec3F RoomSubEditor::CameraTrace(const int32 InDist) const
 {
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
     const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
-    const Coord coord = sys.Trace(
+    const ECS::VolumeCoord coord = sys.Trace(
         GetVolumeID(),
         cam.position,
         Mat4F(cam.rotation).Forward(),
-        7);
-
-    const Vec3F pos = GetVolume().CoordToPos(coord);
-    const float dt = static_cast<float>(Utility::Time::Get().Delta());
-    lastTracePos = Lerp(lastTracePos, pos, 50.0f * dt);
-    return lastTracePos;
+        InDist);
+    return GetVolume().CoordToPos(coord);
 }

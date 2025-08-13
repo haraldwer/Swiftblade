@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "ECS/Volume/Coord.h"
+#include "ECS/Volume/CubeVolumeCoord.h"
 #include "RoomGenBase.h"
 
 class RoomGenVolume : public RoomGenBase
@@ -12,8 +12,8 @@ public:
 
 private:
 
-    void TryQueueEntry(Coord InNewCoord, Coord InReference);
-    bool EvaluateCoord(Coord InCoord, Coord InReference, uint8& InOutValue);
+    void TryQueueEntry(ECS::VolumeCoord InNewCoord, ECS::VolumeCoord InReference);
+    bool EvaluateCoord(ECS::VolumeCoord InCoord, ECS::VolumeCoord InReference, uint8& InOutValue);
     
     struct QueuedEntry
     {

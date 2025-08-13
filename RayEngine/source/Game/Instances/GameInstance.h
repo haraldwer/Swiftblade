@@ -4,7 +4,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/SceneResource.h"
-#include "../Rooms/RoomManager.h"
+#include "../Levels/LevelManager.h"
 
 class GameInstance : public Engine::Instance, public Debug::Panel
 {
@@ -27,7 +27,7 @@ private:
     Physics::Manager physics = {};
     ECS::Manager ecs = {}; 
     SceneInstance scene = {};
-    RoomManager rooms = {};
+    LevelManager rooms = {};
     GameState state = {}; 
     
     ResScene startScene = {};

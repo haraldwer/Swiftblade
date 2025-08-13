@@ -2,43 +2,14 @@
 #include <functional>
 
 #include "Cullable.h"
+#include "pch.h"
+#include "Math/Coord.h"
 
 namespace Utility
 {
-    template <class T>
+    template <class T, class KeyType, class CoordType>
     class GridContainer
     {
-        struct Coord
-        {
-            Coord()
-            {
-            }
-    
-            Coord(const int16 InX, const int16 InY, const int16 InZ)
-            {
-                pos.x = InX;
-                pos.y = InY;
-                pos.z = InZ;
-                pos.padding = 0; 
-            }
-
-            Coord(const uint64 InKey) : key(InKey) {}
-
-            struct Vec
-            {
-                int16 x;
-                int16 y;
-                int16 z;
-                int16 padding; 
-            };
-        
-            union
-            {
-                Vec pos;
-                uint64 key = 0; 
-            };
-        };
-        
         struct Node
         {
             Vector<T> data;
@@ -63,11 +34,11 @@ namespace Utility
             nodes.reserve(s);
         }
 
-        Vector<const Vector<T>*> Get(const std::function<bool(const Coord&, int)>& InQuery) const
+        Vector<const Vector<T>*> Get(const std::function<bool(const Coord<KeyType, CoordType>&, int)>& InQuery) const
         {
             Vector<const Vector<T>*> result;
             for (auto& node : nodes)
-                if (InQuery(Coord(node.first), size))
+                if (InQuery(Coord<KeyType, CoordType>(node.first), size))
                     result.push_back(&node.second.data);
             return result;
         }
@@ -84,7 +55,7 @@ namespace Utility
         
     private:
         
-        Coord GetCoord(const Vec3F& InPos)
+        Coord<KeyType, CoordType> GetCoord(const Vec3F& InPos)
         {
             return Coord(
                 InPos.x / size,

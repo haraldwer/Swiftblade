@@ -9,8 +9,8 @@ void RoomGenPath::Clear()
 {
     path.clear();
     pathSet.clear();
-    start = Coord();
-    target = Coord(); 
+    start = ECS::VolumeCoord();
+    target = ECS::VolumeCoord(); 
 }
 
 void RoomGenPath::Init()
@@ -29,7 +29,7 @@ bool RoomGenPath::Step()
 {
     CHECK_RETURN(!owner, true);
     
-    Coord coord = path.empty() ? start : path.back();
+    ECS::VolumeCoord coord = path.empty() ? start : path.back();
     if (coord.key == target.key)
         return true;
 
@@ -40,16 +40,16 @@ bool RoomGenPath::Step()
     Vec3F lastDir = Vec3F::Forward();
     if (path.size() > 1)
     {
-        Coord lastCoord = path[path.size() - 2];
+        ECS::VolumeCoord lastCoord = path[path.size() - 2];
         Vec3F lastPos = Vec3F(lastCoord.pos.x, lastCoord.pos.y, lastCoord.pos.z);
         lastDir = (basePos - lastPos).GetNormalized();
     }
 
     // Collect in random pool
-    Utility::RandomWeightedCollection<Coord> pool(owner->seed + static_cast<int>(path.size()));
+    Utility::RandomWeightedCollection<ECS::VolumeCoord> pool(owner->seed + static_cast<int>(path.size()));
     
     // Add every direction
-    for (Coord direction : ECS::CubeVolume::GetNeighbors(coord))
+    for (ECS::VolumeCoord direction : ECS::CubeVolume::GetNeighbors(coord))
         if (direction.key != 0)
             EvaluateDirection(direction, targetPos, startPos, basePos, lastDir, pool);
 
@@ -60,14 +60,14 @@ bool RoomGenPath::Step()
         return true;
     }
     
-    Coord result = pool.Pop();
+    ECS::VolumeCoord result = pool.Pop();
     CHECK_RETURN(pathSet.contains(result.key), false);
     path.push_back(result);
     pathSet.insert(result.key);
     return result.key == target.key;
 }
 
-void RoomGenPath::EvaluateDirection(const Coord InNewCoord, const Vec3F& InTargetPos, const Vec3F& InStartPos, const Vec3F& InBasePos, const Vec3F& InLastDir, Utility::RandomWeightedCollection<Coord>& InOutPool) const
+void RoomGenPath::EvaluateDirection(const ECS::VolumeCoord InNewCoord, const Vec3F& InTargetPos, const Vec3F& InStartPos, const Vec3F& InBasePos, const Vec3F& InLastDir, Utility::RandomWeightedCollection<ECS::VolumeCoord>& InOutPool) const
 {
     if (pathSet.contains(InNewCoord.key))
         return;

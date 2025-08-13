@@ -5,6 +5,8 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"
+#include "History/History.h"
+#include "Room/Room.h"
 
 class MenuRoomEditor;
 
@@ -32,7 +34,9 @@ public:
     String DebugPanelName() const override { return "Room Editor"; }
     
     bool IsEditor() const override { return true; }
-
+    RoomSubEditorManager& GetSubEditors() { return subEditorManager; }
+    Utility::History& GetHistory() { return history; }
+    
 private:
     void OpenScene();
     void PlayScene();
@@ -46,6 +50,5 @@ private:
     // Scene stuff
     SceneInstance scene = {};
     ECS::Manager ecs = {};
-
     Utility::History history = {}; // Shared history
 };

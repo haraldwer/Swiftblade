@@ -1,12 +1,13 @@
 ﻿#pragma once
-#include "ECS/Volume/Coord.h"
+
+#include "ECS/Volume/CubeVolumeCoord.h"
 #include "Engine/Blueprints/Blueprint.h"
 
 class PropRuleBase
 {
 public:
     virtual ~PropRuleBase() = default;
-    virtual bool Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord) = 0;
+    virtual bool Evaluate(const ECS::CubeVolume& InVolume, ECS::VolumeCoord InCoord) = 0;
     virtual void Clear();
 
 protected:

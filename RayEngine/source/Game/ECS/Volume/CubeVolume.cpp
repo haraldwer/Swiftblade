@@ -12,11 +12,11 @@ void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
 
     cacheUpdated = true;
     cachedCubeTransforms.clear();
-    cachedCubeTransforms.reserve(data.size());
+    cachedCubeTransforms.reserve(data.data.size());
     for (const auto& entry : data)
     {
         CHECK_CONTINUE(entry.second == 0);
-        const Coord coord = Coord(entry.first);
+        const VolumeCoord coord = VolumeCoord(entry.first);
         cachedCubeTransforms.emplace_back(CoordToPos(entry.first, InWorld));
         cachedMinBounds.x = Utility::Math::Min(coord.pos.x, cachedMinBounds.x);
         cachedMinBounds.y = Utility::Math::Min(coord.pos.y, cachedMinBounds.y);
@@ -27,79 +27,17 @@ void ECS::CubeVolume::UpdateCache(const Mat4F& InWorld)
     }
 }
 
-void ECS::CubeVolume::CustomSerialize(SerializeObj& InOutObj) const
-{   
-    Map<uint8, Vector<uint32>> entries;
-    for (const auto& entry : data)
-    {
-        CHECK_CONTINUE(!entry.second)
-        entries[entry.second].push_back(entry.first); 
-    }
-
-    String result;
-    for (const auto& value : entries)
-    {
-        result += std::to_string(value.first) + ":";
-        for (const auto& entry : value.second)
-            result += std::to_string(entry) + ",";
-        result += ";";
-    }
-
-    Utility::Serialize(InOutObj, "Data", result); 
-}
-
-bool ECS::CubeVolume::CustomDeserialize(const DeserializeObj& InObj)
+void ECS::CubeVolume::CustomSerialize(SerializeObj &InOutObj) const
 {
-    // Unpack
-    String stringData;
-    Utility::Deserialize(InObj, "Data", stringData);
-
-    size_t index = 0; 
-    while (true)
-    {
-        // Find ;
-        const size_t find = stringData.find(';', index);
-        if (find == std::string::npos)
-            break; // Has reached end!
-
-        // Split on ; 
-        const String findStr = stringData.substr(index, find - index);
-
-        // Find :
-        const size_t split = findStr.find(':');
-        if (split == std::string::npos)
-            break; // Has reached end!
-
-        // Split on :
-        const String valueStr = findStr.substr(0, split);
-        const uint8 value = static_cast<uint8>(std::stoi(valueStr));
-        const String entriesStr = findStr.substr(split + 1);
-
-        // Find all values
-        size_t valueIndex = 0; 
-        while (true)
-        {
-            // Find ,
-            const size_t entryFind = entriesStr.find(',', valueIndex);
-            if (entryFind == std::string::npos)
-                break; // Has reached end of entries
-
-            // Split on ,
-            const String entryStr = entriesStr.substr(valueIndex, entryFind - valueIndex);
-            const uint32 entry = std::stoi(entryStr);
-
-            // Add to data!
-            data[entry] = value;
-            valueIndex = entryFind + 1; 
-        }
-        
-        index = find + 1; 
-    }
-
-    return true; 
+    data.Serialize(InOutObj);
 }
 
-Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld) const
+bool ECS::CubeVolume::CustomDeserialize(const DeserializeObj &InObj)
+{
+    return data.Deserialize(InObj); 
+}
+
+Vec3F ECS::CubeVolume::CoordToPos(const VolumeCoord InCoord, const Mat4F& InWorld) const
 {
     const Mat4F mat = Vec3F(
         InCoord.pos.x,
@@ -111,24 +49,24 @@ Vec3F ECS::CubeVolume::CoordToPos(const Coord InCoord, const Mat4F& InWorld) con
     return (mat * InWorld).GetPosition(); 
 }
 
-Coord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) const
+ECS::VolumeCoord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& InWorld) const
 {
     // Transform to local space
     const Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition();
     const Vec3F p = localP * (1.0f / (Scale * 2.0f));
-    return {
+    return VolumeCoord(
         static_cast<uint8>(round(p.x)),
         static_cast<uint8>(round(p.y)),
         static_cast<uint8>(round(p.z))
-    };
+    );
 }
 
 Vec3F ECS::CubeVolume::GetCenter(const bool InStart) const
 {
-    return CoordToPos(Coord(255 / 2, 255 / 2, (255 / 2) * static_cast<uint8>(!InStart)));
+    return CoordToPos(VolumeCoord(255 / 2, 255 / 2, (255 / 2) * static_cast<uint8>(!InStart)));
 }
 
-Coord ECS::CubeVolume::TryOffset(Coord InCoord, Vec3I InOffset)
+ECS::VolumeCoord ECS::CubeVolume::TryOffset(VolumeCoord InCoord, Vec3I InOffset)
 {
     Vec3I pos = {
         InCoord.pos.x,
@@ -142,16 +80,16 @@ Coord ECS::CubeVolume::TryOffset(Coord InCoord, Vec3I InOffset)
         newPos.x > static_cast<uint8>(-1) ||
         newPos.y > static_cast<uint8>(-1) ||
         newPos.z > static_cast<uint8>(-1))
-        return Coord(0);
-    return Coord(
+        return VolumeCoord(0);
+    return VolumeCoord(
         static_cast<uint8>(newPos.x),
         static_cast<uint8>(newPos.y),
         static_cast<uint8>(newPos.z));
 }
 
-Array<Coord, 6> ECS::CubeVolume::GetNeighbors(const Coord InCoord)
+Array<ECS::VolumeCoord, 6> ECS::CubeVolume::GetNeighbors(const VolumeCoord InCoord)
 {
-    Array<Coord, 6> result;
+    Array<VolumeCoord, 6> result;
     result[0] = TryOffset(InCoord,{ 1, 0, 0 });
     result[1] = TryOffset(InCoord,{ -1, 0, 0 });
     result[2] = TryOffset(InCoord,{ 0, 1, 0 });
@@ -161,20 +99,20 @@ Array<Coord, 6> ECS::CubeVolume::GetNeighbors(const Coord InCoord)
     return result;
 }
 
-uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const Coord InCoord)
+uint8 ECS::SysCubeVolume::GetVal(const EntityID InID, const VolumeCoord InCoord)
 {
     auto& v = Get<CubeVolume>(InID);
-    auto& data = v.data;
-    const auto find = data.find(InCoord.key);
-    if (find != data.end())
+    auto& volume = v.data;
+    const auto find = volume.data.find(InCoord.key);
+    if (find != volume.data.end())
         return find->second;
     return 0; 
 }
 
-void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coord InEnd, const uint8 InVal)
+void ECS::SysCubeVolume::Set(const EntityID InID, const VolumeCoord InStart, const VolumeCoord InEnd, const uint8 InVal)
 {
     auto& v = Get<CubeVolume>(InID);
-    auto& data = v.data;
+    auto& volume = v.data;
     auto& minB = v.cachedMinBounds;
     auto& maxB = v.cachedMaxBounds;
     
@@ -193,11 +131,11 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
             {
                 if (InVal == 0)
                 {
-                    data.erase(Coord(x, y, z).key);
+                    volume.data.erase(VolumeCoord(x, y, z).key);
                 }
                 else
                 {
-                    data[Coord(x, y, z).key] = InVal;
+                    volume.data[VolumeCoord(x, y, z).key] = InVal;
 
                     // Set cached bound
                     minB.x = Utility::Math::Min(x, minB.x);
@@ -214,7 +152,7 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const Coord InStart, const Coo
     v.UpdateCache(Get<Transform>(InID).World());
 }
 
-Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
+ECS::VolumeCoord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
 {
     PROFILE();
     
@@ -224,7 +162,7 @@ Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const V
     // Convert pos
     const Vec3F origin = InPos * (1.0f / (v.Scale.Get() * 2.0f));
     
-    Coord last = 0;
+    VolumeCoord last = 0;
     int count = 0; 
     for (const auto& intersect : GridIntersection(origin, InDir, InMaxDist * 1.5))
     {
@@ -236,12 +174,12 @@ Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const V
             intersect.y >= max ||
             intersect.z >= max)
             continue; 
-        const Coord c = Coord(
+        const VolumeCoord c = VolumeCoord(
             static_cast<uint8>(intersect.x),
             static_cast<uint8>(intersect.y),
             static_cast<uint8>(intersect.z));
-        const auto find = volume.find(c.key);
-        const bool block = find != volume.end() && find->second != 0; 
+        const auto find = volume.data.find(c.key);
+        const bool block = find != volume.data.end() && find->second != 0; 
         if (block || count == InMaxDist)
             return last.key != 0 ? last : c;
         last = c;
@@ -250,7 +188,7 @@ Coord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const V
     return last;
 }
 
-void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEnd)
+void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, VolumeCoord InStart, VolumeCoord InEnd)
 {
     auto& v = Get<CubeVolume>(InID);
     const Mat4F world = Get<Transform>(InID).World();
@@ -267,7 +205,7 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, Coord InStart, Coord InEn
         for (int y = startY; y <= endY; y++)   
             for (int z = startZ; z <= endZ; z++)
                 matrices.emplace_back(
-                    v.CoordToPos(Coord(
+                    v.CoordToPos(VolumeCoord(
                         static_cast<uint8>(x),
                         static_cast<uint8>(y),
                         static_cast<uint8>(z)), world),

@@ -1,12 +1,12 @@
-﻿#include "PropRuleVerticalCorner.h"
+﻿#include "PropRuleHorizontalCorner.h"
 
 #include "ECS/Volume/CubeVolume.h"
 
-bool PropRuleVerticalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InCoord)
+bool PropRuleHorizontalCorner::Evaluate(const ECS::CubeVolume& InVolume, ECS::VolumeCoord InCoord)
 {
     return false;
     
-    if (!InVolume.data.contains(InCoord.key))
+    if (!InVolume.data.data.contains(InCoord.key))
         return false;
     
     // 0right 1left 2up 3down 4forward 5back
@@ -14,7 +14,7 @@ bool PropRuleVerticalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InC
 
     // Is up clear? 
     if (neighbors[2].key != 0)
-        if (InVolume.data.contains(neighbors[2].key))
+        if (InVolume.data.data.contains(neighbors[2].key))
             return false;
 
     // Test every direction
@@ -23,14 +23,14 @@ bool PropRuleVerticalCorner::Evaluate(const ECS::CubeVolume& InVolume, Coord InC
     {
         if (neighbors[InIndex].key != 0)
         {
-            if (!InVolume.data.contains(neighbors[InIndex].key))
+            if (!InVolume.data.data.contains(neighbors[InIndex].key))
             {
                 Vec3F pos = InVolume.CoordToPos(InCoord);
                 Mat4F trans = Mat4F(
                     pos + InDir + Vec3F::Up(),
                     QuatF::FromDirection(InDir),
                     Vec3F(1.0f, 0.3f, 0.3f));
-                AddProp(trans, ledgeBP);
+                AddProp(trans, cornerBP);
                 success = true;
             }
         }
