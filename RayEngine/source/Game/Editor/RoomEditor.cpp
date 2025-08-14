@@ -1,5 +1,6 @@
 ﻿#include "RoomEditor.h"
 
+#include "ECS/Volume/CubeVolume.h"
 #include "Engine/Instance/Manager.h"
 #include "Instances/GameInstance.h"
 #include "ImGui/imgui.h"
@@ -15,21 +16,37 @@ void RoomEditor::Init()
     config.LoadConfig();
     menu = menus.Push<MenuRoomEditor>();
     ecs.Init();
-    
-    room = config.WorkingRoom;
+
+    if (config.LoadLast)
+        room = config.LastRoom;
     subEditorManager.Init(this);
+    if (!config.EditMode.Get().empty())
+        subEditorManager.SetCurrent(config.EditMode.Get());
     
     editorCamera.Toggle(); 
     editorCamera.SetAlwaysEnabled(true);
-
+    if (config.CamPos.Get() != Vec3F::Zero() && config.CamRot.Get() != Vec3F::Zero())
+    {
+        editorCamera.SetState(config.CamPos, config.CamRot);
+    }
+    else
+    {
+        auto& volume = subEditorManager.Get<RoomConnectionEditor>().GetVolume();
+        ECS::VolumeCoord center = volume.GetCenter();
+        editorCamera.SetTarget(volume.CoordToPos(center));
+    }
+    
     Input::Manager::Get().Push("RoomEditor");
 }
 
 void RoomEditor::Deinit()
 {
     Input::Manager::Get().Pop("RoomEditor");
-    
-    config.WorkingRoom = room;
+
+    config.CamPos = editorCamera.GetPosition();
+    config.CamRot = editorCamera.GetRotation();
+    config.LastRoom = room;
+    config.EditMode = subEditorManager.GetCurrentName();
     config.SaveConfig();
     subEditorManager.Deinit();
     history.Clear();
@@ -59,6 +76,8 @@ void RoomEditor::Logic(const double InDelta)
             SaveRoom();
         if (Input::Action::Get("Play").Pressed())
             PlayRoom();
+
+        // TODO: Reset camera?
     }
 }
 
@@ -68,10 +87,9 @@ void RoomEditor::Frame()
     env.skybox = config.Skybox;
     GetRenderScene().AddEnvironment(env);
     
+    subEditorManager.Frame();
     ecs.Frame(); 
     Instance::Frame();
-    
-    subEditorManager.Frame();
 }
 
 void RoomEditor::OpenRoom(const Room& InRoom)

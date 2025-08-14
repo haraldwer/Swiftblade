@@ -12,7 +12,7 @@ UI::ButtonEditorTab::ButtonEditorTab(const String &InOption) : Container()
         .size = { 10, 5 } ,
         .anchor = { 0, 1 }
     };
-    underline = Add(Image(ResTexture("Defaults/T_Missing.png"), t));
+    underline = Add(Image(ResTexture("Defaults/T_Temp.png"), t));
 }
 
 void UI::ButtonEditorTab::Update(Container &InOwner)

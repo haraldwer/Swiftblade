@@ -8,6 +8,7 @@ public:
     void Update() override;
     bool IsBlocking() const override { return false; }
 
+    void AddOption(const String &InName, const String &InText);
     String GetSelected() const { return selected; }
     void SetSelected(const String& InStr);
 
@@ -18,12 +19,11 @@ public:
     InstanceEvent<OnClickedEvent> OnClicked;
     
 private:
-    Array<String, 5> options = {
-        "Connection",
-        "Path",
-        "Generate",
-        "Block",
-        "Objects",
+    struct Option
+    {
+        String name;
+        String text;
     };
+    Vector<Option> options;
     String selected;
 };

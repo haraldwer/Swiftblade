@@ -23,8 +23,8 @@ void MenuRoomEditor::Init()
             true,
             1.0),
         "List");
-    for (auto & option : std::ranges::reverse_view(options))
-        builder.Add(UI::ButtonEditorTab(option), option);
+    for (auto& o : std::ranges::reverse_view(options))
+        builder.Add(UI::ButtonEditorTab(o.text), o.name);
     ui = builder.Build();
 }
 
@@ -33,14 +33,19 @@ void MenuRoomEditor::Update()
     Instance::Update();
 
     auto& l = ui.Get<UI::List>("List");
-    for (String& o : options)
+    for (Option& o : options)
     {
-        auto& b = l.Get<UI::ButtonEditorTab>(o);
-        b.SetSelected(o == selected);
+        auto& b = l.Get<UI::ButtonEditorTab>(o.name);
+        b.SetSelected(o.name == selected);
         if (b.IsClicked())
-            OnClicked.Invoke({ o });
+            OnClicked.Invoke({ o.name });
         
     }
+}
+
+void MenuRoomEditor::AddOption(const String &InName, const String &InText)
+{
+    options.push_back({ InName, InText });
 }
 
 void MenuRoomEditor::SetSelected(const String &InStr)

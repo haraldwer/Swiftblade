@@ -21,15 +21,15 @@ public:
     }
     
     void SetCurrent(const Type& InType);
+    void SetCurrent(const String& InName);
     Type GetCurrent() const { return currentEditor; }
+    String GetCurrentName() const;
 
     bool IgnoreSave(ECS::EntityID InID);
 
 
 private: 
     Map<Utility::TypeHash, Object<RoomSubEditor>> editors;
-    Map<Utility::TypeHash, String> typeToName;
-    Map<String, Utility::TypeHash> nameToType;
     Type currentEditor;
     
     InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback OnMenuClicked;

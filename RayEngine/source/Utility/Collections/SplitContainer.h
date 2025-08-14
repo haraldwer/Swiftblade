@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Cullable.h"
-#include "VectorUtilities.h"
 #include "Utility/Math/Geometry/Plane.h"
 
 namespace Utility

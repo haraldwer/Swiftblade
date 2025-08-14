@@ -50,7 +50,7 @@ public:
     bool IsCurrent() const { return GetCurrent() == GetObjType(); }
     
     ECS::VolumeCoord CameraTrace(int32 InDist = 7) const;
-    ECS::VolumeCoord CameraOffset(float InDist = 3.0f) const;
+    ECS::VolumeCoord CameraOffset(float InDist = 5.0f) const;
     
 private:
     RoomEditor* editor = nullptr;

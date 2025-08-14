@@ -45,6 +45,13 @@ void EditorCamera::Deinit()
     bUseEditCamera = false;
 }
 
+void EditorCamera::SetState(const Vec3F &InPos, const Vec3F &InRot)
+{
+    targetState.position = InPos;
+    targetState.rotation = InRot;
+    currentState = targetState;
+}
+
 void EditorCamera::SetTarget(const Vec3F& InPosition, const float InDistance)
 {
     const Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();

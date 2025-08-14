@@ -99,13 +99,35 @@ namespace Utility
 
 			static Quaternion FromDirection(const Vector3<Type>& InDirection)
 			{
-				const float angle = atan2(InDirection.z, InDirection.x); // Maybe switch
-				Quaternion q; 
-				q.x = 0; 
-				q.y = 1 * sin(angle / 2); 
-				q.z = 0;
-				q.w = cos(angle / 2);
-				return q;
+				Vector3<Type> up_vec = Vector3<Type>::Up();
+				Vector3<Type> target_vec = InDirection.GetNormalized();
+
+				Type dot_product = up_vec.x*target_vec.x + up_vec.y*target_vec.y + up_vec.z*target_vec.z;
+
+				// Handle edge cases
+				if (dot_product >= 1.0f) {
+					return {1, 0, 0, 0}; // No rotation needed
+				}
+				if (dot_product < -0.9999f) {
+					// Vectors are opposite, rotate 180 degrees around an arbitrary perpendicular axis
+					Vector3<Type> axis = {1, 0, 0};
+					if (std::abs(up_vec.x) > 0.99f) {
+						axis = {0, 1, 0};
+					}
+					
+					axis = Vector3<Type>::Cross(up_vec, axis).GetNormalized();
+					return {0, axis.x, axis.y, axis.z};
+				}
+
+				Vector3<Type> rotation_axis = Vector3<Type>::Cross(up_vec, target_vec).GetNormalized();
+				float half_cos = sqrt((1 + dot_product) / 2);
+				float half_sin = sqrt((1 - dot_product) / 2);
+
+				return {
+					half_cos,
+					rotation_axis.x * half_sin,
+					rotation_axis.y * half_sin,
+					rotation_axis.z * half_sin};
 			}
 
 			Type Length() const
@@ -220,6 +242,20 @@ namespace Utility
 		}
 
 		template <class Type>
+		Quaternion<Type>& operator *= (Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
+		{	
+			InFirst = InFirst * InSecond;
+			return InFirst;
+		}
+
+		template <class Type>
+		Quaternion<Type>& operator *= (Quaternion<Type>& InFirst, Type InValue)
+		{
+			InFirst = InFirst * InValue;
+			return InFirst;
+		}
+		
+		template <class Type>
 		Quaternion<Type> operator / (const Quaternion<Type>& InFirst, Type InValue)
 		{
 			Quaternion<Type> t;
@@ -247,14 +283,7 @@ namespace Utility
 			t.z = InFirst.z * InValue;
 			return t;
 		}
-
-		template <class Type>
-		Quaternion<Type>& operator *= (Quaternion<Type>& InFirst, Type InValue)
-		{
-			InFirst = InFirst * InValue;
-			return InFirst;
-		}
-
+		
 		template <class Type>
 		Quaternion<Type> operator + (const Quaternion<Type>& InFirst, const Quaternion<Type>& InSecond)
 		{

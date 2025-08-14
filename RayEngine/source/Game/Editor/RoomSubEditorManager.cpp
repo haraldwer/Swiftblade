@@ -12,12 +12,13 @@
 
 #define CREATE_SUBEDITOR(x, name) \
 editors[Type::GetHash<x>()] = x(); \
-typeToName[Type::GetHash<x>()] = name; \
-nameToType[name] = Type::GetHash<x>();
+menu.AddOption(#x, name)
 
 void RoomSubEditorManager::Init(RoomEditor* InEditor)
 {
     CHECK_ASSERT(!InEditor, "Invalid editor")
+
+    auto& menu = InEditor->GetMenu();
     
     CREATE_SUBEDITOR(RoomConnectionEditor, "Connection");
     CREATE_SUBEDITOR(RoomPathEditor, "Path");
@@ -41,8 +42,7 @@ void RoomSubEditorManager::Init(RoomEditor* InEditor)
     
     OnMenuClicked.Bind([&](MenuRoomEditor::OnClickedEvent e)
     {
-        SetCurrent(Type(nameToType.at(e.InOption)));
-        
+        SetCurrent(e.InOption);
     });
 }
 
@@ -86,7 +86,19 @@ void RoomSubEditorManager::SetCurrent(const Type &InType)
     currentEditor = InType;
     auto& c = editors.at(currentEditor.GetHash()).Get(); 
     c.Enter();
-    c.GetEditor().GetMenu().SetSelected(typeToName.at(GetCurrent().GetHash()));
+    c.GetEditor().GetMenu().SetSelected(GetCurrentName());
+}
+
+void RoomSubEditorManager::SetCurrent(const String &InName)
+{
+    for (auto& editor : editors)
+        if (editor.second.Get().GetObjName() == InName)
+            SetCurrent(Type(editor.first));
+}
+
+String RoomSubEditorManager::GetCurrentName() const
+{
+    return editors.at(GetCurrent().GetHash()).Get().GetObjName();
 }
 
 bool RoomSubEditorManager::IgnoreSave(const ECS::EntityID InID)

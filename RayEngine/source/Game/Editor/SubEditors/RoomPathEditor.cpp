@@ -1,5 +1,6 @@
 ﻿#include "RoomPathEditor.h"
 
+#include "RoomConnectionEditor.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"
 #include "Editor/Room/Room.h"
@@ -12,9 +13,10 @@ void RoomPathEditor::Init()
     VerifyPath();
     renderCacheChanged = true;
 
-    if (persistentID == 0)
+    if (pointID == 0)
     {
-        persistentID = MeshInstance::GenPersistentID();
+        pointID = MeshInstance::GenPersistentID();
+        linkID = MeshInstance::GenPersistentID();
         pointHash = MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
         linkHash = MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
     }
@@ -23,18 +25,17 @@ void RoomPathEditor::Init()
 void RoomPathEditor::Deinit()
 {
     auto& meshes = GetEditor().GetRenderScene().Meshes();
-    meshes.Remove(pointHash, persistentID);
-    meshes.Remove(linkHash, persistentID);
+    meshes.Remove(pointHash, pointID);
+    meshes.Remove(linkHash, linkID);
     config.SaveConfig();
 }
 
 void RoomPathEditor::Update()
 {
-    if (!IsCurrent())
-        return;
-    
+    CHECK_RETURN(GetCurrent() == Type::Get<RoomConnectionEditor>());
     VerifyPath();
 
+    CHECK_RETURN(!IsCurrent())
     auto& path = GetRoom().Path.Get();
     
     // Select
@@ -46,13 +47,18 @@ void RoomPathEditor::Update()
 
     if (Input::Action::Get("Ctrl").Down())
     {
-        if (Input::Action::Get("Generate").Pressed())
+        if (Input::Action::Get("Generate", "RoomEditor").Pressed())
         {
-            auto startCoord = GetVolume().GetCenter().key;
-            auto endCoord = GetRoom().Connection.Get();
-            RoomGenPath pathGenerator = RoomGenPath(startCoord, endCoord, 0);
-            while (pathGenerator.Step()) {} // TODO: Step path generation (it'll look really cool)
+            LOG("Generating path!");
+            ECS::VolumeCoord startCoord = GetVolume().GetCenter();
+            ECS::VolumeCoord endCoord = GetRoom().Connection.Get();
+            double time = Utility::Time::Get().Total();
+            RoomGenPath pathGenerator = RoomGenPath(startCoord, endCoord, static_cast<int>(time * 100));
+            while (!pathGenerator.Step()) {} // TODO: Step path generation (it'll look really cool)
             path = pathGenerator.GetPath();
+            path.insert(path.begin(), startCoord.key);
+            path.push_back(endCoord.key);
+            renderCacheChanged = true;
         }
     }
 }
@@ -65,8 +71,8 @@ void RoomPathEditor::Frame()
         
     auto& volume = GetVolume();
     auto& meshes = GetEditor().GetRenderScene().Meshes();
-    meshes.Remove(pointHash, persistentID);
-    meshes.Remove(linkHash, persistentID);
+    meshes.Remove(pointHash, pointID);
+    meshes.Remove(linkHash, linkID);
     
     Vec3F prevPos = Vec3F::Zero();
     Vector<Mat4F> links;
@@ -75,31 +81,32 @@ void RoomPathEditor::Frame()
     for (auto c : GetRoom().Path.Get())
     {
         const ECS::VolumeCoord coord(c);
-        Vec3F pos = volume.CoordToPos(coord);
-        points.push_back(Mat4F(pos, QuatF::Identity(), scale));
+        Vec3F pos = volume.CoordToPos(coord) + Vec3F::Up();
+        points.emplace_back(pos, QuatF::Identity(), scale);
         if (prevPos != Vec3F::Zero())
         {
             const Vec3F diff = prevPos - pos;
-            const float dist = diff.Length();
-            const QuatF rot = QuatF::FromDirection(diff / dist);
+            QuatF rot = QuatF::FromDirection(diff);
+            //rot *= QuatF::FromEuler(Vec3F(PI/2, 0, 0));
             const Vec3F middlePos = (prevPos + pos) / 2;
-            links.push_back(Mat4F(middlePos, rot, Vec3F(scale, scale, dist)));
+            const Vec3F size = Vec3F(scale * 0.5f, diff.Length() * 0.5f, scale * 0.5f);
+            links.emplace_back(middlePos, rot, size);
         }
         prevPos = pos; 
     }
 
     MeshInstance link {
-        .model = config.PathLink.Get(),
-        .material = config.PathMaterial.Get(),
+        .model = config.PathLink,
+        .material = config.PathMaterial,
         .hash = linkHash
     };
     MeshInstance point {
-        .model = config.PathPoint.Get(),
-        .material = config.PathMaterial.Get(),
-        .hash = linkHash
+        .model = config.PathPoint,
+        .material = config.PathMaterial,
+        .hash = pointHash
     };
-    meshes.Add(link, links, persistentID);
-    meshes.Add(point, points, persistentID);
+    meshes.Add(link, links, pointID);
+    meshes.Add(point, points, linkID);
 }
 
 void RoomPathEditor::VerifyPath()
@@ -110,9 +117,18 @@ void RoomPathEditor::VerifyPath()
     auto startCoord = GetVolume().GetCenter().key;
     auto endCoord = room.Connection.Get();
 
-    if (path.size() < 2 || path.front() != startCoord || path.back() != endCoord)
+    if (path.empty() || path.front() != startCoord)
     {
-        path = { startCoord, endCoord };
+        path = { startCoord };
+        renderCacheChanged = true;
+    }
+
+    if (path.back() != endCoord)
+    {
+        for (int i = static_cast<int>(path.size()) - 1; i >= 0; i--)
+            if (ECS::VolumeCoord(path[i]).pos.z >= ECS::VolumeCoord(endCoord).pos.z)
+                path.erase(path.begin() + i);
+        path.push_back(endCoord);
         renderCacheChanged = true;
     }
 }

@@ -89,17 +89,18 @@ ECS::VolumeCoord ECS::CubeVolume::TryOffset(VolumeCoord InCoord, Vec3I InOffset)
         InCoord.pos.z
     };
     Vec3I newPos = pos + InOffset;
-    if (newPos.x < 0 ||
-        newPos.y < 0 ||
-        newPos.z < 0 ||
-        newPos.x > static_cast<uint8>(-1) ||
-        newPos.y > static_cast<uint8>(-1) ||
-        newPos.z > static_cast<uint8>(-1))
-        return VolumeCoord(0);
-    return VolumeCoord(
-        static_cast<uint8>(newPos.x),
-        static_cast<uint8>(newPos.y),
-        static_cast<uint8>(newPos.z));
+    if (newPos.x == INT8_MAX ||
+        newPos.y == INT8_MAX ||
+        newPos.z == INT8_MAX ||
+        newPos.x == INT8_MIN ||
+        newPos.y == INT8_MIN ||
+        newPos.z == INT8_MIN)
+        return { 0 };
+    return {
+        static_cast<VolumeCoordValue>(newPos.x),
+        static_cast<VolumeCoordValue>(newPos.y),
+        static_cast<VolumeCoordValue>(newPos.z)
+    };
 }
 
 Array<ECS::VolumeCoord, 6> ECS::CubeVolume::GetNeighbors(const VolumeCoord InCoord)
@@ -233,8 +234,6 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, VolumeCoord InStart, Volu
 void ECS::SysCubeVolume::SystemInit()
 {
     persistentID = MeshInstance::GenPersistentID();
-    
-
 }
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)

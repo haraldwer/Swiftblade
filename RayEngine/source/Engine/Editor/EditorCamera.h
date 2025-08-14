@@ -9,12 +9,15 @@ public:
     void Update();
     void Deinit();
 
+    void SetState(const Vec3F &InPos, const Vec3F &InRot);
     void SetTarget(const Vec3F& InPosition, float InDistance = 10.0f);
     Vec3F GetPosition() const { return targetState.position; }
+    Vec3F GetRotation() const { return targetState.rotation; };
     bool IsControlling() const { return bUseEditCamera && bInputEnabled; }
     void SetAlwaysEnabled(const bool InEnabled) { bAlwaysEnabled = InEnabled; }
     void Toggle();
-    
+
+
 private:
 
     void UpdateMovement(); 

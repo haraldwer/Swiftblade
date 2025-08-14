@@ -25,7 +25,7 @@ bool RoomGenPath::Step()
     
     // Add every direction
     for (ECS::VolumeCoord direction : ECS::CubeVolume::GetNeighbors(coord))
-        if (direction.key != 0)
+        if (direction.key != 0 && direction.pos.z <= target.pos.z)
             EvaluateDirection(direction, targetPos, startPos, basePos, lastDir, pool);
 
     if (pool.Count() == 0)
@@ -39,6 +39,15 @@ bool RoomGenPath::Step()
     CHECK_RETURN(pathSet.contains(result.key), false);
     path.push_back(result.key);
     pathSet.insert(result.key);
+
+    sparseCountdown--;
+    if (sparseCountdown <= 0 && result.key != target.key)
+    {
+        Random rnd(seed + static_cast<int>(path.size()));
+        sparseCountdown = static_cast<int>(rnd.Range(minSparseStep, maxSparseStep));
+        sparsePath.push_back(result.key);
+    }
+    
     return result.key == target.key;
 }
 

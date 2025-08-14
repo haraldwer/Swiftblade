@@ -107,7 +107,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
             }
             CHECK_CONTINUE(!meshes);
             CHECK_CONTINUE(meshCount == 0);
-            
+
             const MaterialResource* resMat = entry.second.material.Get();
             CHECK_CONTINUE(!resMat);
             ShaderResource* resShader = resMat->SurfaceShader.Get().Get();

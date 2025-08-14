@@ -20,7 +20,9 @@ void RoomConnectionEditor::Init()
             startEntity = connection;
     }
 
-    const Vec3F center = GetVolume().CoordToPos(GetVolume().GetCenter());
+    auto& v = GetVolume();
+    auto centerCoord = v.GetCenter();
+    const Vec3F center = v.CoordToPos(centerCoord);
     if (startEntity == ECS::INVALID_ID)
     {
         if (const auto bp = config.StartBP.Get().Get())
@@ -29,10 +31,13 @@ void RoomConnectionEditor::Init()
             sys.Get<RoomConnection>(startEntity).IsEnd = false; 
         }
     }
-    
+
+    ECS::VolumeCoord endCoord = GetRoom().Connection.Get();
+    if (endCoord.key == 0)
+        endCoord = centerCoord;
     if (endEntity == ECS::INVALID_ID)
         if (const auto bp = config.EndBP.Get().Get())
-            endEntity = bp->Instantiate(center);
+            endEntity = bp->Instantiate(v.CoordToPos(endCoord));
 }
 
 void RoomConnectionEditor::Deinit()

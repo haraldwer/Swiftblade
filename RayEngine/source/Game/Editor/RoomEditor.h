@@ -13,8 +13,12 @@ class MenuRoomEditor;
 // User preferences for the editor 
 struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 {
-    PROPERTY_D(ResRM, Skybox, "Dressing/Skybox/RM_Skybox.json");
-    PROPERTY(Room, WorkingRoom)
+    PROPERTY_C(ResRM, Skybox, "Dressing/Skybox/RM_Skybox.json");
+    PROPERTY_C(bool, LoadLast, true)
+    PROPERTY(Room, LastRoom)
+    PROPERTY(String, EditMode)
+    PROPERTY(Vec3F, CamPos)
+    PROPERTY(Vec3F, CamRot)
     
     String Name() const override { return "RoomEditor"; }
 };
