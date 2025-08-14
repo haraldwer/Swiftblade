@@ -55,6 +55,7 @@ void RoomGenEditor::Update()
 
 void RoomGenEditor::Frame()
 {
+    return;
     auto& image = ui.Get<UI::Image>("Loading");
     UI::Transform trans = image.GetTransform();
     trans.rotation = Utility::Time::Get().Total();

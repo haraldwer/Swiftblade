@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Identifier.h"
+
 namespace Resource
 {
     struct Base
     { 
         virtual ~Base() = default;
-        Base(String InIdentifier) : identifier(std::move(InIdentifier)) {}
+        Base(const ID& InID) : id(InID) {}
         virtual bool Load() = 0;
         virtual bool Unload() = 0;
         virtual bool TryHotReload() = 0;
@@ -14,7 +16,7 @@ namespace Resource
         static String Pick(const String& InLabel, const String& InID);
         static bool SaveButton(const String& InID);
 
-        String identifier = {};
+        ID id = {};
         Utility::Timepoint editTimestamp = {}; 
         uint32 count = 0;
         bool loaded = false;
@@ -23,14 +25,14 @@ namespace Resource
     template <class T>
     struct Impl : Base
     {
-        Impl(const String& InIdentifier) : Base(InIdentifier) {}
+        Impl(const ID& InID) : Base(InID) {}
         
         bool Load() override
         {
             if (loaded)
                 return true;
             data.Unload();
-            loaded = data.Load(identifier);
+            loaded = data.Load(id.Str());
             if (loaded)
                 editTimestamp = data.GetEditTime();
                 // TODO: Remove this requirement, maybe use template parameter? 
@@ -48,7 +50,7 @@ namespace Resource
         bool TryHotReload() override
         {
             CHECK_RETURN(data.GetEditTime() == editTimestamp, false);
-            LOG("Hot reloading resource: " + identifier);
+            LOG("Hot reloading resource: " + id.Str());
             Unload();
             return Load();
         }

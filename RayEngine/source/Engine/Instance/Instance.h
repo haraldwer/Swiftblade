@@ -21,6 +21,7 @@ namespace Engine
         virtual void Frame();
         
         virtual bool IsEditor() const { return false; }
+        bool IsFreecam() const { return editorCamera.IsControlling(); }
 
         Rendering::Scene& GetRenderScene();
         EditorCamera& GetEditorCamera() { return editorCamera; }

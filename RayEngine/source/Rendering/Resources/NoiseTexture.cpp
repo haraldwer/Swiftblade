@@ -116,14 +116,14 @@ void NoiseTextureResource::Generate()
     const int res = Resolution;
     Color* data = new Color[res * res];
 
-    if (static_cast<int>(Type.Get()) >= static_cast<int>(NoiseType::COUNT) ||
-        static_cast<int>(Type.Get()) < 0)
+    if (Type.Get() >= static_cast<int>(NoiseType::COUNT) ||
+        Type.Get() < 0)
         Type = 0;
 
     Generate(data, res);
     
     // Cache file
-    const String filename = tex.Identifier();
+    const String filename = tex.Identifier().Str();
     const int channels = 4;
     const int result = stbi_write_png(filename.c_str(), res, res, channels, data, channels * res);
     if (result == 1)

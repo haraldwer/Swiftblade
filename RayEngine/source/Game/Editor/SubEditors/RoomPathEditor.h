@@ -1,17 +1,17 @@
 ﻿#pragma once
 
 #include "../RoomSubEditor.h"
-#include "Engine/Blueprints/Blueprint.h"
+#include "Resources/Material.h"
+#include "Resources/Model.h"
 
 struct RoomPathEditorConfig : BaseConfig<RoomPathEditorConfig>
 {
-    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/BP_RoomConnection.json");
-    PROPERTY_C(ResBlueprint, EndBP, "Gameplay/BP_RoomConnection.json");
-
-    PROPERTY_C(ResBlueprint, ArenaStartBP, "Gameplay/BP_RoomConnection.json");
-    PROPERTY_C(ResBlueprint, CheckpointBP, "Gameplay/BP_Checkpoint.json");
-
-    String Name() const override { return "RoomConnectionEditor"; }
+    PROPERTY_C(ResModel, PathPoint, "Defaults/M_Sphere.obj");
+    PROPERTY_C(ResModel, PathLink, "Defaults/M_Cylinder.obj");
+    PROPERTY_C(ResRM, PathMaterial, "Editor/RM_EditorPathLink.json");
+    PROPERTY_C(float, Scale, 1.0f);
+    
+    String Name() const override { return "RoomPathEditor"; }
 };
 
 class RoomPathEditor : public RoomSubEditor
@@ -23,15 +23,13 @@ public:
     void Deinit() override;
     void Update() override;
     void Frame() override;
-    void DebugDraw() override;
-    
-private:
-    
-    RoomPathEditorConfig config = {};
-    ECS::EntityID endEntity = ECS::INVALID_ID;
-    ECS::EntityID startEntity = ECS::INVALID_ID;
-    Vec3F targetPos = {};
-    Vec3F orgPos = {};
 
-    static Mat4F GetTrans(ECS::EntityID InID);
+private:
+    void VerifyPath();
+    
+    RoomPathEditorConfig config;
+    uint32 persistentID = 0;
+    uint32 pointHash = 0;
+    uint32 linkHash = 0;
+    bool renderCacheChanged = false;
 };

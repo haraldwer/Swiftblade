@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "RoomSubEditor.h"
+#include "Menus/MenuRoomEditor.h"
 
 // Just a wrapper for all the sub-editors
 class RoomSubEditorManager
@@ -12,8 +13,13 @@ public:
     void Frame();
     void DebugDraw();
     
-    template <typename T>
-    T& Get() { return editors.at(Type::GetHash<T>()).Get<T>(); }
+    template <typename EditorT>
+    EditorT& Get()
+    {
+        Object<RoomSubEditor>& obj = editors.at(Type::GetHash<EditorT>());
+        return obj.Get<EditorT>();
+    }
+    
     void SetCurrent(const Type& InType);
     Type GetCurrent() const { return currentEditor; }
 
@@ -22,6 +28,9 @@ public:
 
 private: 
     Map<Utility::TypeHash, Object<RoomSubEditor>> editors;
+    Map<Utility::TypeHash, String> typeToName;
+    Map<String, Utility::TypeHash> nameToType;
     Type currentEditor;
     
+    InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback OnMenuClicked;
 };

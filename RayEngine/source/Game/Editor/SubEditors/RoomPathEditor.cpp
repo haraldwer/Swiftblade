@@ -1,113 +1,118 @@
 ﻿#include "RoomPathEditor.h"
 
-#include "ECS/RoomConnection.h"
 #include "ECS/Volume/CubeVolume.h"
-#include "Editor/RoomSubEditorManager.h"
-#include "Engine/ECS/Manager.h"
-#include "Engine/ECS/Systems/Transform.h"
-#include "History/History.h"
-#include "ImGui/imgui.h"
+#include "Editor/RoomEditor.h"
+#include "Editor/Room/Room.h"
+#include "Generation/RoomGenPath.h"
 #include "Input/Action.h"
 
 void RoomPathEditor::Init()
 {
-    // Get / create connections
-    auto& sys = ECS::Manager::Get().GetSystem<SysRoomConnection>();
-    for (const ECS::EntityID connection : sys.GetEntities())
-    {
-        if (sys.Get<RoomConnection>(connection).IsEnd)
-            endEntity = connection;
-        else
-            startEntity = connection;
-    }
+    config.LoadConfig();
+    VerifyPath();
+    renderCacheChanged = true;
 
-    const Vec3F center = GetVolume().GetCenter(true) + Vec3F(1.0, -1.0, 1.0);
-    
-    if (startEntity == ECS::INVALID_ID)
+    if (persistentID == 0)
     {
-        if (const auto bp = config.StartBP.Get().Get())
-        {
-            startEntity = bp->Instantiate(center);
-            sys.Get<RoomConnection>(startEntity).IsEnd = false; 
-        }
+        persistentID = MeshInstance::GenPersistentID();
+        pointHash = MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
+        linkHash = MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
     }
-    
-    if (endEntity == ECS::INVALID_ID)
-        if (const auto bp = config.EndBP.Get().Get())
-            endEntity = bp->Instantiate(center);
 }
 
 void RoomPathEditor::Deinit()
 {
-    if (startEntity != ECS::INVALID_ID)
-    {
-        ECS::Manager::Get().DestroyEntity(startEntity);
-        startEntity = ECS::INVALID_ID;
-    }
+    auto& meshes = GetEditor().GetRenderScene().Meshes();
+    meshes.Remove(pointHash, persistentID);
+    meshes.Remove(linkHash, persistentID);
+    config.SaveConfig();
 }
 
 void RoomPathEditor::Update()
 {
-    PROFILE();
+    if (!IsCurrent())
+        return;
     
-    // Trace location
-    // Draw location
-    // If clicked - Set the end transform, do stuff
+    VerifyPath();
 
-    CHECK_RETURN(endEntity == ECS::INVALID_ID)
-
-    auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity);
-    CHECK_RETURN(!trans);
-
-    const float dt = static_cast<float>(Utility::Time::Get().Delta());
+    auto& path = GetRoom().Path.Get();
     
-    // Move object using trace 
-    targetPos = CameraTrace(3) + Vec3F(1.0, -1.0, 1.0);
-    if (targetPos != Vec3F::Zero())
-    {
-        const Vec3F currPos = trans->GetPosition();
-        trans->SetPosition(Lerp(currPos, targetPos, 50.0f * dt));
-    } 
+    // Select
+    // Move
+    // Remove 
+    // Add
+    // Generate
+    // Clear all
 
-    if (Input::Action::Get("LM").Pressed())
+    if (Input::Action::Get("Ctrl").Down())
     {
-        struct RoomPathChange
+        if (Input::Action::Get("Generate").Pressed())
         {
-            Vec3F newPos;
-            Vec3F prevPos;
-        };
-        
-        GetHistory().AddChange(Utility::Change<RoomPathChange>(
-            [&](const RoomPathChange& InData)
-            {
-                if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-                    t->SetPosition(InData.newPos);
-            },
-            [&](const RoomPathChange& InData)
-            {
-                if (const auto t = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-                    t->SetPosition(InData.prevPos);
-            },
-            {
-                targetPos,
-                trans->GetPosition()
-            }));
+            auto startCoord = GetVolume().GetCenter().key;
+            auto endCoord = GetRoom().Connection.Get();
+            RoomGenPath pathGenerator = RoomGenPath(startCoord, endCoord, 0);
+            while (pathGenerator.Step()) {} // TODO: Step path generation (it'll look really cool)
+            path = pathGenerator.GetPath();
+        }
     }
 }
 
 void RoomPathEditor::Frame()
 {
+    if (!renderCacheChanged)
+        return;
+    renderCacheChanged = false;
+        
+    auto& volume = GetVolume();
+    auto& meshes = GetEditor().GetRenderScene().Meshes();
+    meshes.Remove(pointHash, persistentID);
+    meshes.Remove(linkHash, persistentID);
+    
+    Vec3F prevPos = Vec3F::Zero();
+    Vector<Mat4F> links;
+    Vector<Mat4F> points;
+    float scale = config.Scale.Get();
+    for (auto c : GetRoom().Path.Get())
+    {
+        const ECS::VolumeCoord coord(c);
+        Vec3F pos = volume.CoordToPos(coord);
+        points.push_back(Mat4F(pos, QuatF::Identity(), scale));
+        if (prevPos != Vec3F::Zero())
+        {
+            const Vec3F diff = prevPos - pos;
+            const float dist = diff.Length();
+            const QuatF rot = QuatF::FromDirection(diff / dist);
+            const Vec3F middlePos = (prevPos + pos) / 2;
+            links.push_back(Mat4F(middlePos, rot, Vec3F(scale, scale, dist)));
+        }
+        prevPos = pos; 
+    }
+
+    MeshInstance link {
+        .model = config.PathLink.Get(),
+        .material = config.PathMaterial.Get(),
+        .hash = linkHash
+    };
+    MeshInstance point {
+        .model = config.PathPoint.Get(),
+        .material = config.PathMaterial.Get(),
+        .hash = linkHash
+    };
+    meshes.Add(link, links, persistentID);
+    meshes.Add(point, points, persistentID);
 }
 
-void RoomPathEditor::DebugDraw()
+void RoomPathEditor::VerifyPath()
 {
-    ImGui::Text("Connection editing mode"); 
-}
+    auto& room = GetRoom();
+    auto& path = room.Path.Get();
 
-Mat4F RoomPathEditor::GetTrans(const ECS::EntityID InID)
-{
-    if (InID != ECS::INVALID_ID)
-        if (const auto trans = ECS::Manager::Get().GetComponent<ECS::Transform>(InID))
-            return trans->World();
-    return {}; 
+    auto startCoord = GetVolume().GetCenter().key;
+    auto endCoord = room.Connection.Get();
+
+    if (path.size() < 2 || path.front() != startCoord || path.back() != endCoord)
+    {
+        path = { startCoord, endCoord };
+        renderCacheChanged = true;
+    }
 }

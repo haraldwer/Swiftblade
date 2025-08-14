@@ -3,17 +3,17 @@
 #include "Impl.h"
 #include "ImGui/imgui.h"
 
-Resource::Base* Resource::Manager::GetResource(const String& InIdentifier)
+Resource::Base* Resource::Manager::GetResource(const ID& InID)
 {
-    const auto find = resources.find(InIdentifier);
+    const auto find = resources.find(InID.Hash());
     if (find == resources.end())
         return nullptr; 
     return find->second;
 }
 
-void Resource::Manager::Register(Base* InResource, const String& InIdentifier)
+void Resource::Manager::Register(Base* InResource, const ID& InID)
 {
-    resources[InIdentifier] = InResource;
+    resources[InID.Hash()] = InResource;
 }
 
 void Resource::Manager::Update()
@@ -29,7 +29,7 @@ void Resource::Manager::Update()
 void Resource::Manager::TryUnload() const
 {
     PROFILE();
-    Vector<String> queue;
+    Vector<uint32> queue;
     queue.reserve(resources.size());
     for (const auto& res : resources)
         queue.push_back(res.first);
@@ -65,7 +65,7 @@ void Resource::Manager::Deinit()
     {
         CHECK_CONTINUE(!res.second)
         res.second->Unload();
-        CHECK_CONTINUE_LOG(res.second->count != 0, "Resource couldnt be destroyed properly, count: " + std::to_string(res.second->count) + ", resource: " + res.first);
+        CHECK_CONTINUE_LOG(res.second->count != 0, "Resource couldnt be destroyed properly, count: " + std::to_string(res.second->count) + ", resource: " + res.second->id.Str());
         delete(res.second);
         res.second = nullptr;
     }
@@ -97,7 +97,7 @@ void Resource::Manager::DrawDebugPanel()
             CHECK_CONTINUE(showOnlyLoaded && !res.second->loaded);
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            ImGui::Text("%s", res.first.c_str());
+            ImGui::Text("%s", res.second->id.Str().c_str());
             ImGui::TableNextColumn();
             CHECK_CONTINUE(!res.second); 
             ImGui::Text("%i", res.second->count);

@@ -44,3 +44,10 @@ inline char DefaultInitializationValue<char>()
 {
     return 0;
 }
+
+template<>
+inline int8 DefaultInitializationValue<int8>()
+{
+    return 0;
+}
+

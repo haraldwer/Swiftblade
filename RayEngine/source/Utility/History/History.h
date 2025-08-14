@@ -51,7 +51,8 @@ namespace Utility
 		void Undo();
 		void Redo();
 		void Clear();
-		
+		int Count() { return changes.size(); };
+
 	private:
 		void AddChangeInternal(const ObjectPtr<ChangeBase>& InChange);
 		std::vector<ObjectPtr<ChangeBase>> changes = {};

@@ -28,6 +28,8 @@ namespace UI
         bool Contains(const String& InIdentifier) const { return TryGet<Element>(InIdentifier); }
 
         template <class T>
+        ElementID Add(const T& InElement);
+        template <class T>
         ElementID Add(const T& InElement, const String& InIdentifier);
         void Remove(ElementID InID);
 
@@ -73,9 +75,15 @@ namespace UI
         ElementID idCounter = 0;
     };
 
+
+    template <class T>
+    ElementID Container::Add(const T& InElement)
+    {
+        return Add(InElement, "");
+    }
     
     template <class T>
-    ElementID Container::Add(const T& InElement, const String& InIdentifier = "")
+    ElementID Container::Add(const T& InElement, const String& InIdentifier)
     {
         idCounter++;
         CHECK_ASSERT(elements.contains(idCounter), "ID already exists");

@@ -1,32 +1,36 @@
 ﻿#include "RoomEditor.h"
 
-#include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
 #include "Instances/GameInstance.h"
-#include "raylib.h"
 #include "ImGui/imgui.h"
 #include "Menus/MenuRoomEditor.h"
 #include "SubEditors/RoomConnectionEditor.h"
 #include "SubEditors/RoomObjectEditor.h"
+#include "SubEditors/RoomVolumeEditor.h"
 
 void RoomEditor::Init()
 {
     Instance::Init();
+
+    config.LoadConfig();
+    menu = menus.Push<MenuRoomEditor>();
     ecs.Init();
-    currConfig.LoadConfig();
     
-    OpenScene();
-    subEditorManager.SetCurrent(Type::Get<RoomObjectEditor>());
+    room = config.WorkingRoom;
+    subEditorManager.Init(this);
     
     editorCamera.Toggle(); 
     editorCamera.SetAlwaysEnabled(true);
 
-    menu = Menu::Manager::Get().Push<MenuRoomEditor>();
+    Input::Manager::Get().Push("RoomEditor");
 }
 
 void RoomEditor::Deinit()
 {
-    currConfig.SaveConfig();
+    Input::Manager::Get().Pop("RoomEditor");
+    
+    config.WorkingRoom = room;
+    config.SaveConfig();
     subEditorManager.Deinit();
     history.Clear();
     ecs.Deinit();
@@ -54,14 +58,14 @@ void RoomEditor::Logic(const double InDelta)
         if (Input::Action::Get("Save").Pressed())
             SaveRoom();
         if (Input::Action::Get("Play").Pressed())
-            PlayScene();
+            PlayRoom();
     }
 }
 
 void RoomEditor::Frame()
 {
     EnvironmentInstance env;
-    env.skybox = currConfig.Skybox;
+    env.skybox = config.Skybox;
     GetRenderScene().AddEnvironment(env);
     
     ecs.Frame(); 
@@ -70,57 +74,55 @@ void RoomEditor::Frame()
     subEditorManager.Frame();
 }
 
-void RoomEditor::DrawDebugPanel()
+void RoomEditor::OpenRoom(const Room& InRoom)
 {
-    if (editorCamera.IsControlling())
-        ImGui::SetWindowFocus(nullptr); 
-    
-    if (currConfig.Edit())
-        OpenScene();
-    
-    ImGui::Text("Entities: %i", static_cast<int>(scene.entities.size()));
-    ImGui::Text("ECS Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
-
-    subEditorManager.DebugDraw(); 
-    
-    if (ImGui::Button("Save"))
-        SaveRoom(); 
-    ImGui::SameLine();
-    if (ImGui::Button("Play"))
-        PlayScene(); 
+    Deinit();
+    room = InRoom;
+    Init();
 }
 
-void RoomEditor::OpenScene()
+void RoomEditor::PlayRoom()
 {
-    subEditorManager.Deinit();
-    subEditorManager = {};
-    scene.Destroy();
-    ecs.DestroyPending();
-
-    if (const auto sceneRes = currConfig.Scene.Get().Get())
-        scene = sceneRes->Create();
-    
-    subEditorManager.Init(this);
-}
-
-void RoomEditor::PlayScene()
-{
+    SaveRoom();
+    ResScene tempScene = ConvertRoomToScene();
     if (GameInstance* game = Engine::Manager::Get().Push<GameInstance>())
-        game->PlayScene(currConfig.Scene, editorCamera.GetPosition());
+        game->PlayScene(tempScene, editorCamera.GetPosition());
+}
+
+ResScene RoomEditor::ConvertRoomToScene()
+{
+    SceneInstance scene;
+
+    auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
+    auto& objEditor = GetSubEditors().Get<RoomObjectEditor>();
+    auto& conEditor = GetSubEditors().Get<RoomConnectionEditor>();
+
+    // Reuses existing instantiated objects
+    scene.entities.insert(conEditor.GetConnection(true));
+    scene.entities.insert(volEditor.GetCubeVolumeID());
+    for (auto& obj : room.Objects.Get())
+        scene.entities.insert(objEditor.GetObject(obj, true));
+
+    Resource::ID id = Resource::ID("EditorRoom", true);
+    ResScene resScene = ResScene(id);
+    SceneResource* sceneResource = resScene.Get();
+    CHECK_ASSERT(!sceneResource, "Invalid scene resource");
+    sceneResource->FromInstance(scene);
+    return resScene;
 }
 
 void RoomEditor::SaveRoom()
 {
-    auto& man = ECS::Manager::Get();
-    for (auto e : man.GetAllEntities())
-    {
-        const auto trans = man.GetComponent<ECS::Transform>(e);
-        CHECK_CONTINUE(!trans);
-        CHECK_CONTINUE(trans->GetParent() != ECS::INVALID_ID);
-        CHECK_CONTINUE(subEditorManager.IgnoreSave(e));
-        scene.entities.insert(e);
-    }
-    
-    if (const auto sceneRes = currConfig.Scene.Get().Get())
-        sceneRes->Save(scene, Mat4F());
+    // What's the path to the current room?
+    // Is the room actually a resource?? I don't know...
+    //room.Save(""); 
+}
+
+void RoomEditor::DrawDebugPanel()
+{
+    if (IsFreecam())
+        ImGui::SetWindowFocus(nullptr); 
+    ImGui::Text("Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
+    ImGui::Text("History: %i", history.Count());
+    subEditorManager.DebugDraw();
 }

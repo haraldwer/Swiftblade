@@ -10,6 +10,7 @@ namespace ECS
 class RoomGenVolume
 {
 public:
+    RoomGenVolume() = default;
     RoomGenVolume(const Vector<ECS::VolumeCoord>& InPath);
     bool Step(ECS::CubeVolumeData& InOutVolume);
 
@@ -31,5 +32,5 @@ private:
     Map<ECS::VolumeCoordKey, ECS::VolumeDataType> result = {};
     
     int volumeDepth = 0;
-    constexpr int stepSize = 200;
+    const int stepSize = 200;
 };

@@ -76,9 +76,9 @@ ECS::VolumeCoord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& In
     );
 }
 
-Vec3F ECS::CubeVolume::GetCenter(const bool InStart) const
+ECS::VolumeCoord ECS::CubeVolume::GetCenter() const
 {
-    return CoordToPos(VolumeCoord(255 / 2, 255 / 2, (255 / 2) * static_cast<uint8>(!InStart)));
+    return VolumeCoord(0, 0, 1 - INT8_MAX);
 }
 
 ECS::VolumeCoord ECS::CubeVolume::TryOffset(VolumeCoord InCoord, Vec3I InOffset)
@@ -288,11 +288,7 @@ void ECS::SysCubeVolume::SystemFrame()
 
             Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
             meshes.Remove(c.blockMesh.hash, persistentID);
-            for (const auto& id : ComponentMap())
-            {
-                auto& c = GetInternal(id.first);
-                meshes.Add(c.blockMesh, c.cachedCubeTransforms, persistentID);
-            }
+            meshes.Add(c.blockMesh, c.cachedCubeTransforms, persistentID);
         }
     }
 }

@@ -1,26 +1,29 @@
 #pragma once
 
 #include "Blueprints/Blueprint.h"
-#include "Core/Resource/Resource.h"
 
 struct SceneInstance
 {
     void Destroy();
     Set<ECS::EntityID> entities = {};
     Mat4F offset = {};
+
+    String ToStr() const;
 };
 
 class SceneResource
 {
 public:
-    SceneInstance Create(const Mat4F& InOffset = Mat4F(), bool InIsRoot = true) const;
-    bool Save(const SceneInstance& InInstance, const Mat4F& InOffset) const;
     bool Load(const String& InIdentifier);
     bool Unload(); 
     Utility::Timepoint GetEditTime() const;
+    
+    SceneInstance Instantiate(const Mat4F& InOffset = Mat4F(), bool InIsRoot = true) const;
+    bool FromInstance(const SceneInstance& InInstance) { return FromStr(InInstance.ToStr()); }
+    bool FromStr(const String& InStr);
 
-    bool Save(const String& InPath) { return false; };
-    bool Edit(const String& InName, uint32 InOffset = 0) { return false; };
+    bool Save(const String& InPath) { CHECK_ASSERT(false, "Not implemented!") };
+    bool Edit(const String& InName, uint32 InOffset = 0) { CHECK_ASSERT(false, "Not implemented!") };
     
 protected:
     

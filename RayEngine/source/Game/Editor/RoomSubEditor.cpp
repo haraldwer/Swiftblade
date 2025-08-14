@@ -8,6 +8,17 @@
 #include "Rendering/Scene/Instances/CameraInstance.h"
 #include "SubEditors/RoomVolumeEditor.h"
 
+void RoomSubEditor::Deinit()
+{
+    editor = nullptr;
+}
+
+void RoomSubEditor::DebugDraw()
+{
+    if (IsCurrent())
+        ImGui::Text("Current room: %s", this->GetObjName().c_str());
+}
+
 ECS::EntityID RoomSubEditor::GetVolumeID() const
 {
     CHECK_ASSERT(!editor, "Invalid editor")
@@ -35,20 +46,31 @@ RoomEditor& RoomSubEditor::GetEditor() const
     return *editor;
 }
 
+Room & RoomSubEditor::GetRoom() const
+{
+    return GetEditor().GetRoom();
+}
+
 Type RoomSubEditor::GetCurrent() const
 {
     CHECK_ASSERT(!editor, "Invalid editor");
     return editor->GetSubEditors().GetCurrent();
 }
 
-Vec3F RoomSubEditor::CameraTrace(const int32 InDist) const
+ECS::VolumeCoord RoomSubEditor::CameraTrace(const int32 InDist) const
 {
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
     const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
-    const ECS::VolumeCoord coord = sys.Trace(
+    return sys.Trace(
         GetVolumeID(),
         cam.position,
         Mat4F(cam.rotation).Forward(),
         InDist);
-    return GetVolume().CoordToPos(coord);
+}
+
+ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
+{
+    const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
+    Vec3F targetPos = cam.position + cam.rotation.ForwardDirection() * InDist;
+    return GetVolume().PosToCoord(targetPos);
 }

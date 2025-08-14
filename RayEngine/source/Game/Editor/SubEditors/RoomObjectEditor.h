@@ -3,6 +3,7 @@
 #include "../RoomSubEditor.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Core/Property/Property.h"
+#include "Editor/Room/Room.h"
 
 struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 {
@@ -31,6 +32,14 @@ public:
 
     void PlaceObject();
     void RemoveObject();
+
+
+
+    // Automatically create object if it doesnt exist
+    // Move object smoothly to the coord location and rotation, or snap  
+    ECS::EntityID GetObject(const RoomObject& InObj, bool InSnap = false) { return ECS::INVALID_ID; }
+    
+    
 
     ECS::EntityID GetEditEntity() const { return objectID; }
 

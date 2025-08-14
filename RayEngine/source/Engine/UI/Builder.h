@@ -60,7 +60,7 @@ namespace UI
         }
         
         Container instance = {};
-        Vector<ElementID> stack = {}; 
+        Vector<ElementID> stack = {};
     };
 
     template <>

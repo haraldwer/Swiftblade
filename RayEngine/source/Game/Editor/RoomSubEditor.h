@@ -1,6 +1,8 @@
 ﻿#pragma once
+#include "ECS/Volume/CubeVolumeCoord.h"
 #include "Engine/ECS/Entity.h"
 
+struct Room;
 class RoomEditor;
 
 namespace Utility
@@ -28,10 +30,12 @@ public:
     virtual ~RoomSubEditor() = default;
 
     virtual void Init() {}
-    virtual void Deinit() {}
+    virtual void Deinit();
+
     virtual void Update() {}
     virtual void Frame() {}
-    virtual void DebugDraw() {}
+    virtual void DebugDraw();
+
     virtual void Enter() {}
     virtual void Exit() {}
     virtual bool IgnoreSave(ECS::EntityID InID) { return false; }
@@ -40,10 +44,13 @@ public:
     ECS::CubeVolume& GetVolume() const;
     Utility::History& GetHistory() const;
     RoomEditor& GetEditor() const;
+    Room& GetRoom() const;
 
     Type GetCurrent() const;
     bool IsCurrent() const { return GetCurrent() == GetObjType(); }
-    Vec3F CameraTrace(int32 InDist) const;
+    
+    ECS::VolumeCoord CameraTrace(int32 InDist = 7) const;
+    ECS::VolumeCoord CameraOffset(float InDist = 3.0f) const;
     
 private:
     RoomEditor* editor = nullptr;

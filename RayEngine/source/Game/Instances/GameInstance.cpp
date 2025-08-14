@@ -17,7 +17,7 @@ void GameInstance::Init()
     ecs.Init();
     physics.Init();
 
-    if (!startScene.Identifier().empty())
+    if (!startScene.Identifier().IsValid())
     {
         Vector<ResScene> roomList;
         roomList.push_back(startScene);

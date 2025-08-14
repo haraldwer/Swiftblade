@@ -14,11 +14,11 @@ void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
     Mat4F offset;
     for (const ResScene& room : InRooms)
     {
-        LOG("Loading scene: " + room.Identifier()); 
+        LOG("Loading scene: " + room.Identifier().Str()); 
         
         const SceneResource* scene = room.Get();
         CHECK_CONTINUE(!scene);
-        SceneInstance instance = scene->Create(offset, scenes.empty() && !InApplyRootOffset);
+        SceneInstance instance = scene->Instantiate(offset, scenes.empty() && !InApplyRootOffset);
         scenes.push_back(instance);
 
         bool foundEnd = false; 

@@ -1,5 +1,5 @@
 #pragma once
-#include "Instance/Instance.h"
+#include "Menu/Menu.h"
 
 class MenuRoomEditor : Menu::Instance
 {
@@ -11,6 +11,12 @@ public:
     String GetSelected() const { return selected; }
     void SetSelected(const String& InStr);
 
+    struct OnClickedEvent
+    {
+        String InOption;
+    };
+    InstanceEvent<OnClickedEvent> OnClicked;
+    
 private:
     Array<String, 5> options = {
         "Connection",

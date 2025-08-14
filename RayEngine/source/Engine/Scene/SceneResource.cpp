@@ -14,7 +14,46 @@ void SceneInstance::Destroy()
     entities.clear();
 }
 
-SceneInstance SceneResource::Create(const Mat4F& InOffset, bool InIsRoot) const
+String SceneInstance::ToStr() const
+{
+    rapidjson::StringBuffer s;
+    rapidjson::Writer writer(s);
+
+    writer.StartObject();
+
+    // Write offset
+    writer.Key("Data");
+    writer.StartObject();
+    Utility::Serialize(writer, "Offset", offset);
+    writer.EndObject();
+
+    // Write entities
+    if (!entities.empty())
+    {
+        writer.Key("Objects");
+        writer.StartArray();
+        auto& ecs = ECS::Manager::Get();
+        for (const ECS::EntityID entity : entities)
+        {
+            writer.StartObject();
+            
+            // Write blueprint name
+            if (const auto attr = ecs.GetComponent<ECS::Attributes>(entity))
+                Utility::Serialize(writer, "Blueprint", attr->blueprint.Identifier()); 
+
+            // Write entity data
+            writer.Key("Overrides");
+            ecs.Serialize(entity, writer, false);
+            
+            writer.EndObject(); 
+        }
+        writer.EndArray();
+    }
+    writer.EndObject();
+    return Utility::FormatJson(s.GetString());
+}
+
+SceneInstance SceneResource::Instantiate(const Mat4F& InOffset, bool InIsRoot) const
 {
     SceneInstance instance;
     if (!InIsRoot)
@@ -54,51 +93,17 @@ SceneInstance SceneResource::Create(const Mat4F& InOffset, bool InIsRoot) const
     return instance; 
 }
 
-bool SceneResource::Save(const SceneInstance& InInstance, const Mat4F& InOffset) const
+
+bool SceneResource::FromStr(const String &InStr)
 {
-    rapidjson::StringBuffer s;
-    rapidjson::Writer writer(s);
-
-    writer.StartObject();
-
-    // Write offset
-    writer.Key("Data");
-    writer.StartObject();
-    Utility::Serialize(writer, "Offset", InOffset);
-    writer.EndObject();
-
-    // Write entities
-    if (!InInstance.entities.empty())
-    {
-        writer.Key("Objects");
-        writer.StartArray();
-        auto& ecs = ECS::Manager::Get();
-        for (const ECS::EntityID entity : InInstance.entities)
-        {
-            writer.StartObject();
-            
-            // Write blueprint name
-            if (const auto attr = ecs.GetComponent<ECS::Attributes>(entity))
-                Utility::Serialize(writer, "Blueprint", attr->blueprint.Identifier()); 
-
-            // Write entity data
-            writer.Key("Overrides");
-            ecs.Serialize(entity, writer, false);
-            
-            writer.EndObject(); 
-        }
-        writer.EndArray();
-    }
-    writer.EndObject();
-    
-    const String formatted = Utility::FormatJson(s.GetString());
-    return Utility::WriteFile(identifier, formatted);
+    doc = rapidjson::Document();
+    doc.Parse(InStr.c_str());
+    return doc.IsObject();
 }
 
 bool SceneResource::Load(const String& InIdentifier)
 {
     identifier = InIdentifier;
-    doc = rapidjson::Document();
     if (!Utility::FileExists(InIdentifier))
     {
         doc.Parse("{}");
@@ -112,8 +117,7 @@ bool SceneResource::Load(const String& InIdentifier)
         LOG("Scene file empty")
         return true;
     }
-    doc.Parse(fileContent.c_str());
-    return true;
+    return FromStr(fileContent.c_str());
 }
 
 bool SceneResource::Unload()

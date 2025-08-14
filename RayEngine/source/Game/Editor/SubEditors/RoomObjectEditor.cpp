@@ -1,6 +1,7 @@
 ﻿#include "RoomObjectEditor.h"
 
 #include "ECS/Volume/CubeVolume.h"
+#include "Editor/RoomEditor.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Attributes.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -24,6 +25,9 @@ void RoomObjectEditor::Deinit()
 
 void RoomObjectEditor::Update()
 {
+    if (!IsCurrent())
+        return;
+    
     PROFILE();
     
     CHECK_RETURN(objectID == ECS::INVALID_ID)
@@ -34,7 +38,7 @@ void RoomObjectEditor::Update()
     const float dt = static_cast<float>(Utility::Time::Get().Delta());
     
     // Move object using trace 
-    targetPos = UpdateCameraTrace();
+    targetPos = GetVolume().CoordToPos(CameraTrace());
     if (targetPos != Vec3F::Zero())
     {
         const Vec3F currPos = trans->GetPosition();
@@ -69,7 +73,7 @@ void RoomObjectEditor::DebugDraw()
     CHECK_RETURN(!trans);
     
     transSys.EditValues(objectID);
-    if (!InIsCameraControlling)
+    if (!GetEditor().IsFreecam())
     {
         if (transSys.EditGizmo(objectID))
         {
@@ -169,7 +173,7 @@ void RoomObjectEditor::LoadPlacedObjects()
     Map<String, int> blueprintMap;
     auto& bps = config.Blueprints.Get();
     for (size_t i = 0; i < bps.size(); i++)
-        blueprintMap[bps[i].Identifier()] = i; 
+        blueprintMap[bps[i].Identifier().Str()] = i; 
     
     const auto entities = ECS::Manager::Get().GetAllEntities();
     for (const ECS::EntityID entity : entities)
@@ -182,7 +186,7 @@ void RoomObjectEditor::LoadPlacedObjects()
         CHECK_CONTINUE(!trans || !attr);
 
         // Try to find BP index
-        String bpID = attr->blueprint.Identifier();
+        String bpID = attr->blueprint.Identifier().Str();
         auto bpFind = blueprintMap.find(bpID);
         CHECK_CONTINUE(bpFind == blueprintMap.end());
         

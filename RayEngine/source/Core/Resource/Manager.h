@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Identifier.h"
 #include "Core/Debug/Panel.h"
 
 namespace Resource
@@ -10,8 +11,8 @@ namespace Resource
     {
     public:
 
-        Base* GetResource(const String& InIdentifier);
-        void Register(Base* InResource, const String& InIdentifier);
+        Base* GetResource(const ID& InID);
+        void Register(Base* InResource, const ID& InID);
         
         void Update();
         void Deinit();
@@ -22,9 +23,9 @@ namespace Resource
     private:
         void TryUnload() const;
         
-        Map<String, Base*> resources = {};
+        Map<uint32, Base*> resources = {};
         Utility::Timer checkTimer = {};
-        Vector<String> hotReloadQueue = {};
+        Vector<uint32> hotReloadQueue = {};
         
         static constexpr float CHECK_INTERVAL = 0.05f; 
         static constexpr int CHECK_NUM = 1; 

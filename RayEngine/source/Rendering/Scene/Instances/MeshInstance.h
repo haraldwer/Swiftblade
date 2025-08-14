@@ -27,7 +27,7 @@ struct MeshInstance
         return PERSISTENT_ID;
     }
 
-    static uint64 GenHash(ResModel& InModel, ResRM& InMat)
+    static uint64 GenHash(const ResModel& InModel, const ResRM& InMat)
     {
         union Union
         {

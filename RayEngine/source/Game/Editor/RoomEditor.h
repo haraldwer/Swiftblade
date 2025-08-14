@@ -10,18 +10,17 @@
 
 class MenuRoomEditor;
 
+// User preferences for the editor 
 struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 {
-    PROPERTY_D(ResScene, Scene, "Scenes/untitled.json");
-    PROPERTY_D(bool, IsArena, false);
     PROPERTY_D(ResRM, Skybox, "Dressing/Skybox/RM_Skybox.json");
+    PROPERTY(Room, WorkingRoom)
+    
     String Name() const override { return "RoomEditor"; }
 };
 
 class RoomEditor : public Engine::Instance, public Debug::Panel
 {
-    friend MenuRoomEditor;
-    
     TYPE_INFO(RoomEditor, Engine::Instance);
     
 public:
@@ -30,25 +29,32 @@ public:
     void Logic(double InDelta) override;
     void Frame() override;
     
+    void OpenRoom(const Room& InRoom);
+    void PlayRoom();
+    void SaveRoom();
+    
     void DrawDebugPanel() override;
     String DebugPanelName() const override { return "Room Editor"; }
     
     bool IsEditor() const override { return true; }
+
+    Room& GetRoom() { return room; }
     RoomSubEditorManager& GetSubEditors() { return subEditorManager; }
     Utility::History& GetHistory() { return history; }
+    MenuRoomEditor& GetMenu() { CHECK_ASSERT(!menu, "Invalid menu"); return *menu; }
     
 private:
-    void OpenScene();
-    void PlayScene();
-    void SaveRoom();
+
+    ResScene ConvertRoomToScene();
+    
+    Room room;
     
     // Editor stuff
     MenuRoomEditor* menu = nullptr;
-    RoomEditorConfig currConfig = {};
+    RoomEditorConfig config;
     RoomSubEditorManager subEditorManager; 
     
     // Scene stuff
-    SceneInstance scene = {};
     ECS::Manager ecs = {};
     Utility::History history = {}; // Shared history
 };

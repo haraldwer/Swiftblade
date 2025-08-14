@@ -1,127 +1,148 @@
 {
 	"Contexts":[{
-			"Name":"Player",
+			"CursorVisible":false,
 			"Actions":[{
-					"Name":"Jump",
-					"Key":32
+					"Key":32,
+					"Name":"Jump"
 				},{
-					"Name":"Dash",
-					"Key":340
+					"Key":340,
+					"Name":"Dash"
 				},{
-					"Name":"Crouch",
-					"Key":341
+					"Key":341,
+					"Name":"Crouch"
 				},{
-					"Name":"Forward",
-					"Key":87
+					"Key":87,
+					"Name":"Forward"
 				},{
-					"Name":"Backward",
-					"Key":83
+					"Key":83,
+					"Name":"Backward"
 				},{
-					"Name":"Left",
-					"Key":65
+					"Key":65,
+					"Name":"Left"
 				},{
-					"Name":"Right",
-					"Key":68
+					"Key":68,
+					"Name":"Right"
 				},{
-					"Name":"LookHorizontal",
 					"KeyType":4,
-					"Key":0
+					"Key":0,
+					"Name":"LookHorizontal"
 				},{
-					"Name":"LookVertical",
 					"KeyType":4,
-					"Key":1
+					"Key":1,
+					"Name":"LookVertical"
 				},{
-					"Name":"Strike",
 					"KeyType":3,
-					"Key":0
+					"Key":0,
+					"Name":"Strike"
 				}
 			],
-			"CursorVisible":false
+			"Name":"Player"
 		},{
 			"Blocking":true,
-			"Name":"Default",
 			"Actions":[{
-					"Name":"LM",
 					"KeyType":3,
-					"Key":0
+					"Key":0,
+					"Name":"LM"
 				},{
-					"Name":"RM",
 					"KeyType":3,
-					"Key":1
+					"Key":1,
+					"Name":"RM"
 				},{
-					"Name":"EditorCamera",
-					"Key":258
+					"Key":258,
+					"Name":"EditorCamera"
 				},{
-					"Name":"Debug",
-					"Key":291
+					"Key":291,
+					"Name":"Debug"
 				},{
-					"Name":"Back",
-					"Key":256
+					"Key":256,
+					"Name":"Back"
 				},{
-					"Name":"Ctrl",
-					"Key":341
+					"Key":341,
+					"Name":"Ctrl"
 				},{
-					"Name":"Save",
-					"Key":83
+					"Key":83,
+					"Name":"Save"
 				},{
-					"Name":"Play",
-					"Key":80
+					"Key":80,
+					"Name":"Play"
 				},{
-					"Name":"Rotate",
-					"Key":82
+					"Key":82,
+					"Name":"Rotate"
 				},{
-					"Name":"Undo",
-					"Key":90
+					"Key":90,
+					"Name":"Undo"
 				},{
-					"Name":"Redo",
-					"Key":89
-				}
-			]
-		},{
-			"Blocking":false,
-			"Name":"EditorCamera",
-			"Actions":[{
-					"Name":"Control",
-					"Key":341
-				},{
-					"Name":"RM",
-					"KeyType":3,
-					"Key":1
-				},{
-					"Name":"Forward",
-					"Key":87
-				},{
-					"Name":"Backward",
-					"Key":83
-				},{
-					"Name":"Left",
-					"Key":65
-				},{
-					"Name":"Right",
-					"Key":68
-				},{
-					"Name":"Up",
-					"Key":69
-				},{
-					"Name":"Down",
-					"Key":81
-				},{
-					"Name":"IncreaseFOV",
-					"Key":81
-				},{
-					"Name":"DecreaseFOV",
-					"Key":81
-				},{
-					"Name":"LookHorizontal",
-					"KeyType":4,
-					"Key":0
-				},{
-					"Name":"LookVertical",
-					"KeyType":4,
-					"Key":1
+					"Key":89,
+					"Name":"Redo"
 				}
 			],
-			"CursorVisible":false
+			"Name":"Default"
+		},{
+			"CursorVisible":false,
+			"Actions":[{
+					"Key":341,
+					"Name":"Control"
+				},{
+					"KeyType":3,
+					"Key":1,
+					"Name":"RM"
+				},{
+					"Key":87,
+					"Name":"Forward"
+				},{
+					"Key":83,
+					"Name":"Backward"
+				},{
+					"Key":65,
+					"Name":"Left"
+				},{
+					"Key":68,
+					"Name":"Right"
+				},{
+					"Key":69,
+					"Name":"Up"
+				},{
+					"Key":81,
+					"Name":"Down"
+				},{
+					"Key":81,
+					"Name":"IncreaseFOV"
+				},{
+					"Key":81,
+					"Name":"DecreaseFOV"
+				},{
+					"KeyType":4,
+					"Key":0,
+					"Name":"LookHorizontal"
+				},{
+					"KeyType":4,
+					"Key":1,
+					"Name":"LookVertical"
+				}
+			],
+			"Name":"EditorCamera"
+		},{
+			"Actions":[{
+					"Key":71,
+					"Name":"Generate"
+				},{
+					"Key":49,
+					"Name":"RoomConnectionEditor"
+				},{
+					"Key":50,
+					"Name":"RoomPathEditor"
+				},{
+					"Key":51,
+					"Name":"RoomGenEditor"
+				},{
+					"Key":52,
+					"Name":"RoomVolumeEditor"
+				},{
+					"Key":53,
+					"Name":"RoomObjectEditor"
+				}
+			],
+			"Name":"RoomEditor"
 		}
 	]
 }

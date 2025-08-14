@@ -13,7 +13,7 @@ struct RoomObject : PropertyOwner<RoomObject>
 // This room will be converted to a scene before being played.
 struct Room : PropertyOwner<Room>
 {
-    PROPERTY(ECS::VolumeCoordKey, Connection);
+    PROPERTY_D(ECS::VolumeCoordKey, Connection, 0);
     PROPERTY(Vector<ECS::VolumeCoordKey>, Path);
     PROPERTY(Vector<RoomObject>, Objects);
     

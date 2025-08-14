@@ -30,14 +30,14 @@ bool RoomGenPath::Step()
 
     if (pool.Count() == 0)
     {
-        path.push_back(target);
+        path.push_back(target.key);
         pathSet.insert(target.key);
         return true;
     }
     
     ECS::VolumeCoord result = pool.Pop();
     CHECK_RETURN(pathSet.contains(result.key), false);
-    path.push_back(result);
+    path.push_back(result.key);
     pathSet.insert(result.key);
     return result.key == target.key;
 }

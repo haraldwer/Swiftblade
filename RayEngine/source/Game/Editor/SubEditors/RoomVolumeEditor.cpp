@@ -32,10 +32,13 @@ void RoomVolumeEditor::Init()
 
 void RoomVolumeEditor::Update()
 {
+    if (!IsCurrent())
+        return;
+    
     PROFILE();
     
     // Do cube trace
-    lastTrace = GetVolume().PosToCoord(CameraTrace(4));
+    lastTrace = CameraTrace(4);
     if (!placing)
     {
         placeStart = lastTrace.key;

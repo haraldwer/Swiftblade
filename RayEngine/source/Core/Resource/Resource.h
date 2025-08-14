@@ -1,14 +1,21 @@
 #pragma once
 
 #include "Impl.h"
-#include "Manager.h"
 
 namespace Resource
 {
-    template <class T, bool Editable = false>
-    class Ref
+    class BaseRef
     {
-        
+    public:
+        virtual ~BaseRef() {}
+    protected:
+        Base* Register(const ID& InID);
+        virtual Base* NewRes(const ID& InID) { return nullptr; };
+    };
+    
+    template <class T, bool Editable = false>
+    class Ref final : BaseRef
+    {
     public:
         
         bool IsLoaded() const
@@ -27,9 +34,9 @@ namespace Resource
             return ptr->Unload();  
         }
 
-        String Identifier() const
+        ID Identifier() const
         {
-            return ptr ? ptr->identifier : ""; 
+            return ptr ? ptr->id : ID(); 
         }
 
         T* Get() const
@@ -42,17 +49,13 @@ namespace Resource
         }
 
         // Create resource from identifier
-        Ref(const String& InIdentifier)
+        Ref(const String& InID) : Ref(ID(InID)) { }
+
+        // Create resource from identifier
+        Ref(const ID& InID)
         {
-            CHECK_RETURN(InIdentifier.empty());
-            Manager& man = Manager::Get();
-            auto* res = reinterpret_cast<Impl<T>*>(man.GetResource(InIdentifier));
-            if (!res)
-            {
-                res = new Impl<T>(InIdentifier);
-                man.Register(res, InIdentifier); 
-            }
-            ptr = res;
+            CHECK_RETURN(InID.Str().empty());
+            ptr = reinterpret_cast<Impl<T>*>(Register(InID));
             Increment(); 
         }
         
@@ -65,6 +68,9 @@ namespace Resource
 
         Ref(Ref&& InOther) noexcept
         {
+            if (InOther.ptr == ptr)
+                return;
+            Decrement();
             ptr = InOther.ptr;
             InOther.ptr = nullptr;
         }
@@ -92,7 +98,7 @@ namespace Resource
                 Utility::WriteValue(InOutObj, String());
                 return;
             }
-            Utility::WriteValue(InOutObj, ptr->identifier);
+            Utility::WriteValue(InOutObj, ptr->id.Str());
         }
         
         bool Deserialize(const GenericVal& InObj)
@@ -108,7 +114,7 @@ namespace Resource
         bool Edit(const String& InName, uint32 InOffset = 0)
         {
             // File picker
-            const String currID = ptr ? ptr->identifier : "";
+            const String currID = ptr ? ptr->id.Str() : "";
             
             const String newID = Base::Pick(InName, currID);
             if (currID != newID)
@@ -140,6 +146,11 @@ namespace Resource
         }
         
     private:
+
+        Base* NewRes(const ID& InID) override
+        {
+            return new Impl<T>(InID);
+        }
         
         void Increment() const { if (ptr) ++ptr->count; }
         void Decrement() { if (ptr) --ptr->count; }
