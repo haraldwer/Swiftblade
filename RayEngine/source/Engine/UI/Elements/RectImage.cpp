@@ -4,9 +4,9 @@
 
 void UI::RectImage::Draw(Container& InOwner)
 {
-    const Rect rect = GetRect();
-    DrawRect(rect);
+    Element::Draw(InOwner);
     
+    const Rect rect = GetRect();
     if (const auto textureRes = texture.Get())
     {
         if (const auto tex = textureRes->Get())

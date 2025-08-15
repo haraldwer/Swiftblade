@@ -23,22 +23,22 @@ void RoomConnectionEditor::Init()
 
     auto& v = GetVolume();
     auto centerCoord = v.GetCenter();
-    const Vec3F center = v.CoordToPos(centerCoord);
     if (startEntity == ECS::INVALID_ID)
     {
         if (const auto bp = config.StartBP.Get().Get())
         {
+            const Vec3F center = v.CoordToPos(centerCoord) + GetOff(true);
             startEntity = bp->Instantiate(center);
             sys.Get<RoomConnection>(startEntity).IsEnd = false; 
         }
     }
-
+    
     ECS::VolumeCoord endCoord = GetRoom().Connection.Get();
     if (endCoord.key == 0)
         endCoord = centerCoord;
     if (endEntity == ECS::INVALID_ID)
         if (const auto bp = config.EndBP.Get().Get())
-            endEntity = bp->Instantiate(v.CoordToPos(endCoord));
+            endEntity = bp->Instantiate(v.CoordToPos(endCoord) + GetOff(false));
 }
 
 void RoomConnectionEditor::Deinit()
@@ -58,10 +58,11 @@ void RoomConnectionEditor::Update()
     ECS::VolumeCoordKey& coord = GetRoom().Connection.Get();
     if (coord == 0)
         coord = CameraOffset(6).key;
-    Vec3F pos = GetVolume().CoordToPos(coord);
+    Vec3F pos = GetVolume().CoordToPos(coord) + GetOff(false);
     trans->SetPosition(Lerp(trans->GetPosition(), pos, config.LerpSpeed.Get()));
 
     CHECK_RETURN(!IsCurrent());
+    CHECK_RETURN(!GetEditor().CanEdit())
 
     auto addChange = [&](const ECS::VolumeCoordKey InPrev)
     {
@@ -93,7 +94,7 @@ void RoomConnectionEditor::Update()
         if (Input::Action::Get("LM").Pressed())
         {
             selectCoord = coord;
-            coord = CameraOffset(6).key;    
+            coord = CameraOffset(6).key;
         }
     }
     else
@@ -117,6 +118,11 @@ ECS::EntityID RoomConnectionEditor::GetConnection(bool InSnap) const
 {
     if (InSnap)
         if (auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
-            trans->SetPosition(GetVolume().CoordToPos(GetRoom().Connection.Get()));
+            trans->SetPosition(GetVolume().CoordToPos(GetRoom().Connection.Get()) + GetOff(false));
     return endEntity;
+}
+
+Vec3F RoomConnectionEditor::GetOff(bool IsStart) const
+{
+    return GetVolume().Scale * config.Offset.Get() * (IsStart ? Vec3F::One() : Vec3F(1, 1, -1));
 }

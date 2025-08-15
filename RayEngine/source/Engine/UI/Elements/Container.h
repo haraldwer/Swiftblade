@@ -24,6 +24,7 @@ namespace UI
         bool Invalidated() const override;
         void RefreshRect(Container& InInstance, const Rect& InContainer) override;
         Vec2F GetDesiredSize() const override;
+        bool IsHovered() const override;
 
         bool Contains(const String& InIdentifier) const { return TryGet<Element>(InIdentifier); }
 

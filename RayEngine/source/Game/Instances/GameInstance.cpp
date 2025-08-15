@@ -17,13 +17,14 @@ void GameInstance::Init()
     ecs.Init();
     physics.Init();
 
-    if (!startScene.Identifier().IsValid())
+    if (startScene.Identifier().IsValid())
     {
         Vector<ResScene> roomList;
         roomList.push_back(startScene);
         roomList.push_back(startScene);
         roomList.push_back(startScene);
-        startScene.Unload(); // Force reload
+        if (!startScene.Identifier().Unique())
+            startScene.Unload(); // Force reload
         rooms.Load(roomList, false);
     }
     else

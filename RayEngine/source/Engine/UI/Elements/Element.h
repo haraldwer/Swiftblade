@@ -5,6 +5,12 @@ namespace UI
 {
     typedef uint32 ElementID;
     class Container;
+
+    struct Background
+    {
+        Vec4F color = Vec4F(1, 1, 1, 0);
+        float cornerRadius = 0.0f;
+    };
     
     // A UI element that other elements inherit from
     class Element
@@ -16,7 +22,7 @@ namespace UI
         
     public:
         Element() = default;
-        Element(const Transform& InTransform, const Vec4F& InColor = Vec4F(1, 1, 1, 0)) : transform(InTransform), color(InColor) {}
+        Element(const Transform& InTransform, const Background& InBG = {}) : transform(InTransform), background(InBG) {}
         virtual ~Element() = default;
         
         virtual void Init(Container& InOwner) {}
@@ -33,8 +39,11 @@ namespace UI
         
         Transform GetTransform() const { return transform; }
         void SetTransform(const Transform& InTransform);
+
+        Background GetBackground() const { return background; }
+        void SetBackground(const Background& InBackground) { background = InBackground; }
         
-        bool IsHovered() const;
+        virtual bool IsHovered() const;
         bool IsClicked() const;
         bool IsPressed() const;
         
@@ -50,7 +59,7 @@ namespace UI
         ElementID id = -1;
         ElementID parent = -1;
         Transform transform = Transform::Fill();
-        Vec4F color = Vec4F(1, 1, 1, 0);
+        Background background = Background();
         Rect cachedRect = {};
         bool invalidated = true;
     };

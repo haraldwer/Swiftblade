@@ -63,11 +63,13 @@ ECS::VolumeCoord RoomSubEditor::CameraTrace(const int32 InDist) const
     const Vec3F camPos = cam.GetPosition();
     const Vec3F mouseDir = cam.GetMouseDirection();
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
+    ECS::VolumeCoord hit = false;
     return sys.Trace(
-        GetVolumeID(),
-        camPos,
-        mouseDir,
-        InDist);
+            GetVolumeID(),
+            camPos,
+            mouseDir,
+            InDist,
+            hit);
 }
 
 ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
@@ -79,9 +81,26 @@ ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
 
 Vec3F RoomSubEditor::DragMove(Vec3F InRef) const
 {
+    // First try to trace
     const EditorCamera &cam = GetEditor().GetEditorCamera();
     const Vec3F camPos = cam.GetPosition();
-    const float objDist = (InRef - camPos).Length();
     const Vec3F mouseDir = cam.GetMouseDirection();
+    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
+    ECS::VolumeCoord hit = false;
+    ECS::VolumeCoord trace = sys.Trace(
+            GetVolumeID(),
+            camPos,
+            mouseDir,
+            8,
+            hit);
+    if (hit.key != 0) return GetVolume().CoordToPos(trace);
+
+    // Otherwise just drag on object plane!
+    const float objDist = (InRef - camPos).Length();
     return camPos + mouseDir * objDist;
+}
+
+Vec3F RoomSubEditor::DragMoveDelta(const Vec3F &InRef) const
+{
+    return DragMove(InRef) - InRef;
 }

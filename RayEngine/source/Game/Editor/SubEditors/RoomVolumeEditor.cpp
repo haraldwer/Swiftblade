@@ -40,7 +40,7 @@ void RoomVolumeEditor::Init()
 void RoomVolumeEditor::Update()
 {
     CHECK_RETURN(!IsCurrent());
-    CHECK_RETURN(GetEditor().IsFreecam());
+    CHECK_RETURN(!GetEditor().CanEdit())
     
     auto trace = CameraTrace(8);
     
@@ -92,7 +92,7 @@ void RoomVolumeEditor::Update()
 void RoomVolumeEditor::Frame()
 {
     CHECK_RETURN(!IsCurrent());
-    CHECK_RETURN(GetEditor().IsFreecam());
+    CHECK_RETURN(!GetEditor().CanEdit())
     CHECK_RETURN(editStart.key == 0 || editEnd.key == 0)
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
     sys.DrawEditVolume(GetVolumeID(), ECS::VolumeCoord(editStart), editEnd);

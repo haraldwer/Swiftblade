@@ -168,7 +168,7 @@ void ECS::SysCubeVolume::Set(const EntityID InID, const VolumeCoord InStart, con
     v.UpdateCache(Get<Transform>(InID).World());
 }
 
-ECS::VolumeCoord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist)
+ECS::VolumeCoord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InPos, const Vec3F& InDir, const int32 InMaxDist, VolumeCoord& OutHit)
 {
     PROFILE();
     
@@ -178,8 +178,9 @@ ECS::VolumeCoord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InP
     // Convert pos
     const Vec3F origin = InPos * (1.0f / (v.Scale.Get() * 2.0f));
     
+    OutHit = false;
     VolumeCoord last = 0;
-    int count = 0; 
+    int count = 0;
     for (const auto& intersect : GridIntersection(origin, InDir, InMaxDist * 1.5))
     {
         const VolumeCoordValue max = INT8_MAX; 
@@ -198,7 +199,10 @@ ECS::VolumeCoord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InP
         const auto find = volume.data.find(c.key);
         const bool block = find != volume.data.end() && find->second != 0; 
         if (block || count == InMaxDist)
+        {
+            OutHit = block ? c : 0;
             return last.key != 0 ? last : c;
+        }
         last = c;
         count++;
     }
@@ -279,14 +283,13 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::SystemFrame()
 {
+    Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
     for (const auto& id : ComponentMap())
     {
         auto& c = GetInternal(id.first);
         if (c.cacheUpdated)
         {
             c.cacheUpdated = false;
-
-            Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
             meshes.Remove(c.blockMesh.hash, persistentID);
             meshes.Add(c.blockMesh, c.cachedCubeTransforms, persistentID);
         }

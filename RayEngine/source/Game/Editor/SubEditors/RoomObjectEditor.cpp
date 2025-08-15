@@ -30,7 +30,7 @@ void RoomHoverMenu::Deinit()
 
 void RoomHoverMenu::Update(const EditorCamera& InCamera)
 {
-    wheelRot = sin(Utility::Time::Get().Total());
+    wheelRot = Utility::Time::Get().Total() * 0.2;
     objRot = Utility::Time::Get().Total() * 0.5;
     
     auto& ecs = ECS::Manager::Get();
@@ -69,7 +69,7 @@ String RoomHoverMenu::TryPick(const EditorCamera& InCamera, float InDotThreshold
         }
     }
 
-    CHECK_RETURN(index == -1, "");
+    CHECK_RETURN(index == -1, {});
     return objectTypes.at(index).name;
 }
 
@@ -90,7 +90,6 @@ Mat4F RoomHoverMenu::GetTrans(const EditorCamera& InCamera, int InIndex)
 void RoomObjectEditor::Init()
 {
     config.LoadConfig();
-
 }
 
 void RoomObjectEditor::Deinit()
@@ -102,56 +101,245 @@ void RoomObjectEditor::Update()
 {
     CHECK_RETURN(!IsCurrent());
 
+    auto& cam = GetEditor().GetEditorCamera();
+    hoverMenu.Update(cam);
+    
+    CHECK_RETURN(!GetEditor().CanEdit())
+    
+    if (Input::Action::Get("LM").Pressed())
+    {
+        TryPickObject();
+        
+        if (placeObj.Coord != 0 && placeID != ECS::INVALID_ID &&
+            Input::Action::Get("Ctrl").Down())
+            RemoveObject();
+    }
+    
+    if (placeObj.Coord != 0 && placeID != ECS::INVALID_ID)
+    {
+        if (Input::Action::Get("LM").Down())
+            MovePlaceObject();
+        if (Input::Action::Get("LM").Released())
+            PlaceObject(); 
+    }
+    
+    UpdateTransforms();
+}
+
+void RoomObjectEditor::TryPickObject()
+{
+    auto& objects = GetRoom().Objects.Get();
     auto& v = GetVolume();
     auto& cam = GetEditor().GetEditorCamera();
     Vec3F mouseDir = cam.GetMouseDirection();
     Vec3F camPos = cam.GetPosition();
     
-    CHECK_RETURN(GetEditor().IsFreecam())
-    hoverMenu.Update(cam);
-    
-    
-    // Clicks
-    // On object - select object and drag
-    // On miniature - create object and drag
-
-    if (Input::Action::Get("LM").Pressed())
+    // Is hovering miniature?
+    String pick = hoverMenu.TryPick(cam, config.DotThreshold);
+    if (!pick.empty() && pick != "")
     {
-        // Is hovering miniature?
-        hoverMenu.TryPick(cam, config.DotThreshold);
+        LOG("Pick!");
+        CHECK_RETURN_LOG(!config.ObjectTypes.Get().contains(pick), "Unknown object type when picked: " + pick);
+        
+        // Create new!
+        RoomObject obj;
+        obj.Coord = CameraTrace(8).key;
+        obj.Object = pick;
+        placeObj= obj;
+        placeID = CreateObject(obj);
+        return;
+    }
 
-        // Else is picking placed objects?
-        float minDot = 0.0f;
-        ECS::VolumeCoordKey coord = 0;
-        for (auto& o : loadedObjects)
+    // Else is picking placed objects?
+    float minDot = 0.0f;
+    ECS::VolumeCoordKey coord = 0;
+    for (auto& o : objects)
+    {
+        Vec3F pos = v.CoordToPos(o.first);
+        Vec3F objDir = (pos - camPos).GetNormalized();
+        float dot = Vec3F::Dot(mouseDir, objDir);
+        if (dot > config.DotThreshold && dot > minDot)
         {
-            Vec3F pos = v.CoordToPos(o.first);
-            Vec3F objDir = (pos - camPos).GetNormalized();
-            float dot = Vec3F::Dot(mouseDir, objDir);
-            if (dot > config.DotThreshold && dot > minDot)
-            {
-                minDot = dot;
-                coord = o.first;
-            }
-        }
-
-        // Begin dragging the obj!
-        if (coord != 0)
-        {
-            
+            minDot = dot;
+            coord = o.first;
         }
     }
+
+    if (coord != 0)
+    {
+        // Set place object
+        placeObj = objects[coord];
+        if (loadedObjects.contains(coord))
+            placeID = loadedObjects.at(coord);
+        else placeID = CreateObject(placeObj);
+
+        // Remove from everywhere!
+        objects.erase(coord);
+        loadedObjects.erase(coord);
+        movedFrom = coord;
+        return;
+    }
+
+    // Reset!
+    placeObj = RoomObject();
+    placeID = ECS::INVALID_ID;
+}
+
+void RoomObjectEditor::MovePlaceObject()
+{
+    if (Input::Action::Get("Rotate").Pressed())
+        placeObj.Rotations.Get()++;
+
+    // Move differently if holding something? 
+    auto& v = GetVolume();
+    placeObj.Coord = v.PosToCoord(DragMove(v.CoordToPos(placeObj.Coord.Get()))).key;
+}
+
+void RoomObjectEditor::PlaceObject()
+{
+    auto& objects = GetRoom().Objects.Get();
+    const struct RoomObjChange
+    {
+        RoomObject prevObj;
+        RoomObject newObj;
+        ECS::VolumeCoordKey coord;
+        ECS::VolumeCoordKey from;
+    } change {
+        objects.contains(placeObj.Coord) ? objects.at(placeObj.Coord) : RoomObject(),
+        placeObj,
+        placeObj.Coord,
+        movedFrom.key
+    };
     
-    // Move object using trace 
-     
+    GetHistory().AddChange(Utility::Change<RoomObjChange>(
+        [&](const RoomObjChange& InData)
+        {
+            // Destroy existing object
+            RemoveLoaded(InData.coord);
 
-    // Rotate object!
-    //if (Input::Action::Get("Rotate").Pressed())
+            // Set object
+            auto& localObjects = GetRoom().Objects.Get();
+            localObjects[InData.coord] = InData.newObj;
 
+            // Handle instance
+            if (InData.newObj == placeObj) // We are sure that the newly placed object is the same as this history object 
+                loadedObjects[InData.coord] = placeID;
+            else
+                LoadObject(InData.newObj);
+
+            // Clear where it was moved from
+            if (InData.from != 0)
+            {
+                localObjects.erase(InData.from);
+                RemoveLoaded(InData.from);
+            }
+        },
+        [&](const RoomObjChange& InData)
+        {
+            // Maybe destroy existing object
+            RemoveLoaded(InData.coord);
+
+            // Reset previous object
+            auto& localObjects = GetRoom().Objects.Get();
+            if (InData.prevObj.Coord == 0)
+            {
+                localObjects.erase(InData.coord);
+            }
+            else
+            {
+                // Set to what was there before
+                localObjects[InData.coord] = InData.prevObj;
+                LoadObject(InData.prevObj);
+            }
+
+            // Move this back to original position
+            if (InData.from != 0)
+            {
+                auto orgObj = InData.newObj;
+                orgObj.Coord.Get() = InData.from;
+                localObjects[InData.from] = orgObj;
+                RemoveLoaded(InData.from);
+                LoadObject(orgObj);
+            }
+        },
+        change));
+
+    placeID = ECS::INVALID_ID;
+    placeObj = {};
+    movedFrom = {};
+}
+
+void RoomObjectEditor::RemoveObject()
+{
+    const struct RoomObjRemove
+    {
+        RoomObject obj;
+        ECS::VolumeCoordKey from;
+    } change {
+        placeObj,
+        movedFrom.key
+    };
+    
+    GetHistory().AddChange(Utility::Change<RoomObjRemove>(
+    [&](const RoomObjRemove& InData)
+        {
+            RemoveLoaded(InData.from);
+            auto& objects = GetRoom().Objects.Get();
+            objects.erase(InData.from);
+        },
+        [&](const RoomObjRemove& InData)
+        {
+            // Clear whats there now
+            RemoveLoaded(InData.from);
+
+            // And set the data
+            RoomObject obj = InData.obj;
+            obj.Coord = InData.from;
+            auto& objects = GetRoom().Objects.Get();
+            objects[InData.from] = obj;
+            LoadObject(obj);
+            
+        },
+        change));
+    
+    ECS::Manager::Get().DestroyEntity(placeID);
+    
+    placeObj = RoomObject();
+    placeID = ECS::INVALID_ID;
+    movedFrom = {};
+}
+
+void RoomObjectEditor::UpdateTransforms()
+{
+    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysTransform>();
+    auto& objects = GetRoom().Objects.Get();
+    for (auto& o : objects)
+        if (loadedObjects.contains(o.first))
+            UpdateTransform(sys, loadedObjects.at(o.first), o.second);
+    if (placeObj.Coord != 0 && placeID != ECS::INVALID_ID)
+        UpdateTransform(sys, placeID, placeObj);
+}
+
+void RoomObjectEditor::UpdateTransform(ECS::SysTransform &InSys, ECS::EntityID InID, const RoomObject &InObj)
+{
+    auto& t = InSys.Get(InID);
+    Mat4F current = t.World();
+    Mat4F target = GetTrans(InObj);
+    Mat4F world = Mat4F::Lerp(current, target, config.LerpSpeed.Get());
+    InSys.Get(InID).SetWorld(world);
+}
+
+Mat4F RoomObjectEditor::GetTrans(const RoomObject &InObj) const
+{
+    Vec3F pos = GetVolume().CoordToPos(InObj.Coord.Get());
+    float angle = InObj.Rotations.Get() * PI_FLOAT / 4.0f;
+    QuatF rot = QuatF::FromEuler({0, angle, 0});
+    return Mat4F(pos, rot, Vec3F::One());
 }
 
 void RoomObjectEditor::Frame()
 {
+    
 }
 
 void RoomObjectEditor::Enter()
@@ -166,53 +354,51 @@ void RoomObjectEditor::Exit()
     hoverMenu.Deinit();
 }
 
-ECS::EntityID RoomObjectEditor::GetObject(const RoomObject &InObj, bool InSnap)
+ECS::EntityID RoomObjectEditor::LoadObject(const RoomObject &InObj)
 {
+    bool contains = loadedObjects.contains(InObj.Coord);
     auto& obj = loadedObjects[InObj.Coord];
-    if (obj.id == ECS::INVALID_ID)
-        return LoadObject(InObj);
-    
-    if (InSnap)
+    if (!contains)
     {
-        Vec3F pos = GetVolume().CoordToPos(InObj.Coord.Get());
-        float angle = InObj.Rotations.Get() * PI_FLOAT / 4.0f;
-        QuatF rot = QuatF::FromEuler({0, angle, 0});
-        if (auto trans = ECS::Manager::Get().GetComponent<ECS::Transform>(obj.id))
-            trans->SetWorld(Mat4F(pos, rot, Vec3F::One()));
+        obj = CreateObject(InObj);
     }
-    return obj.id;    
+    else if (auto trans = ECS::Manager::Get().GetComponent<ECS::Transform>(obj))
+        trans->SetWorld(GetTrans(InObj));
+    return obj;
 }
 
-ECS::EntityID RoomObjectEditor::LoadObject(const RoomObject &InObj) const
+ECS::EntityID RoomObjectEditor::CreateObject(const RoomObject &InObj) const
 {
     auto& objType = config.ObjectTypes.Get().at(InObj.Object);
     auto bp = objType.Get();
     CHECK_RETURN_LOG(!bp, "Unknown object type: " + InObj.Object.Get(), ECS::INVALID_ID);
-
-    Vec3F pos = GetVolume().CoordToPos(InObj.Coord.Get());
-    float angle = InObj.Rotations.Get() * PI_FLOAT / 4.0f;
-    QuatF rot = QuatF::FromEuler({0, angle, 0});
-    return bp->Instantiate(Mat4F(pos, rot, Vec3F::One()));
+    return bp->Instantiate(GetTrans(InObj));
 }
 
 void RoomObjectEditor::LoadRoom()
 {
     // TODO: Diff
-    DestroyLoaded(); 
+    DestroyLoaded();
     for (auto& o : GetRoom().Objects.Get())
     {
         o.second.Coord = o.first;
-        GetObject(o.second, true);
+        LoadObject(o.second);
     }
 }
 
 void RoomObjectEditor::DestroyLoaded()
 {
     for (auto& o : loadedObjects)
-        ECS::Manager::Get().DestroyEntity(o.second.id);
+        ECS::Manager::Get().DestroyEntity(o.second);
     loadedObjects.clear();
 }
 
-
-
-
+void RoomObjectEditor::RemoveLoaded(ECS::VolumeCoordKey InKey)
+{
+    if (loadedObjects.contains(InKey))
+    {
+        const ECS::EntityID id = loadedObjects.at(InKey);
+        ECS::Manager::Get().DestroyEntity(id);
+        loadedObjects.erase(InKey);
+    }
+}

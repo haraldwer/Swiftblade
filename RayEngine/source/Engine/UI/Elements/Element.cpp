@@ -6,7 +6,26 @@
 
 void UI::Element::Draw(Container& InOwner)
 {
-    DrawRect(cachedRect); 
+    if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
+        DrawRect(cachedRect);
+
+    // Also draw
+    const Rect view = ReferenceToViewport(cachedRect);
+    const Vec2F size = view.end - view.start;
+    const Vec2F pos = view.start;
+    if (background.color.a > 0.001f)
+    {
+        DrawRectangleRounded(
+            { pos.x, pos.y, size.x, size.y },
+            background.cornerRadius,
+            16,
+            {
+                static_cast<uint8>(background.color.r * 255),
+                static_cast<uint8>(background.color.g * 255),
+                static_cast<uint8>(background.color.b * 255),
+                static_cast<uint8>(background.color.a * 255)
+            });
+    }
 }
 
 void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)

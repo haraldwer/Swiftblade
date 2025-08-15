@@ -13,7 +13,7 @@ void MenuDeath::Init()
     UI::Builder builder = UI::Builder()
         .Push(UI::Container(UI::Transform::FromRect(600.0f, -300.0f, 0.5f)))
             .Push(UI::List(UI::Transform::Fill(10.0f), 10.0f), "List")
-                .Add(UI::Label("Death", 0.5f, UI::Transform::Fill(), ResFont("F_GothBallCrap.ttf"), 80.0f));
+                .Add(UI::Label("Death", 0.5f, UI::Transform::Fill(), ResFont("UI/F_GothBallCrap.ttf"), 80.0f));
 
     if (GameState::Get().deaths < 3)
         builder.Add(UI::Label("Respawn", 0.5f), "Respawn");

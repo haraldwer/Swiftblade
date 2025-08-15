@@ -18,5 +18,6 @@ namespace UI
         ElementID text;
         ElementID underline;
         bool selected = false;
+        float alpha = 0.0f; 
     };
 }

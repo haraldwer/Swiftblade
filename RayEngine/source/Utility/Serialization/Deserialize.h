@@ -184,8 +184,11 @@ namespace Utility
             K key;
             V val;
             if (ReadValue(entry["Key"], key))
-                if (ReadValue(entry["Val"], val))
-                    OutData[key] = val;
+            {
+                // Create entry even if value fails to read
+                ReadValue(entry["Val"], val);
+                OutData[key] = val;
+            }
         }
         return true; 
     }
@@ -203,8 +206,11 @@ namespace Utility
             K key;
             V val;
             if (ReadValue(entry["Key"], key))
-                if (ReadValue(entry["Val"], val))
-                    OutData[key] = val;
+            {
+                // Create entry even if value fails to read
+                ReadValue(entry["Val"], val);
+                OutData[key] = val;
+            }
         }
         return true; 
     }

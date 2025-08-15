@@ -12,6 +12,8 @@ public:
     String GetSelected() const { return selected; }
     void SetSelected(const String& InStr);
 
+    UI::Container& GetUI() { return ui; }
+
     struct OnClickedEvent
     {
         String InOption;

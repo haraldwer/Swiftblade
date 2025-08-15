@@ -17,7 +17,7 @@ void MenuMain::Init()
         .Push(UI::Container(UI::Transform::FromRect(600.0f, -300.0f, 0.5f)))
             .Add(UI::RectImage(ResTexture("UI/T_Rectangle.png"), UI::Margin(5.0f)))
             .Push(UI::List(UI::Transform::Fill(10.0f), 10.0f), "List")
-                .Add(UI::Label("Swiftblade", 0.5f, UI::Transform::Fill(), ResFont("F_GothBallCrap.ttf"), 80.0f));
+                .Add(UI::Label("Swiftblade", 0.5f, UI::Transform::Fill(), ResFont("UI/F_GothBallCrap.ttf"), 80.0f));
     
     const Vector<String> buttons = {
         "Play",

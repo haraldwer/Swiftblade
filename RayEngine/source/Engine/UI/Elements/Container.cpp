@@ -83,6 +83,14 @@ Vec2F UI::Container::GetDesiredSize() const
     return max;
 }
 
+bool UI::Container::IsHovered() const
+{
+    for (auto& e : elements)
+        if (e.second.Get<>().IsHovered())
+            return true;
+    return false;
+}
+
 bool UI::Container::Invalidated() const
 {
     if (Element::Invalidated())

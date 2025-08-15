@@ -34,6 +34,8 @@ void RoomPathEditor::Update()
     VerifyPath();
 
     CHECK_RETURN(!IsCurrent())
+    CHECK_RETURN(!GetEditor().CanEdit())
+    
     auto& path = GetRoom().Path.Get();
     SmoothPath();
     
@@ -127,7 +129,12 @@ void RoomPathEditor::SmoothPath()
     float lerpSpeed = config.LerpSpeed.Get();
     float minLerpDist = config.MinLerpDist.Get();
     auto& path = GetRoom().Path.Get();
-    smoothPath.resize(path.size());
+    if (smoothPath.size() != path.size())
+    {
+        smoothPath.resize(path.size());
+        renderCacheChanged = true;
+    }
+    
     for (int i = 0; i < static_cast<int>(path.size()); ++i)
     {
         Vec3F targetPos = volume.CoordToPos(path[i]);
@@ -135,6 +142,7 @@ void RoomPathEditor::SmoothPath()
         if (currPos == Vec3F::Zero())
         {
             smoothPath[i] = targetPos;
+            renderCacheChanged = true;
             continue;
         }
         

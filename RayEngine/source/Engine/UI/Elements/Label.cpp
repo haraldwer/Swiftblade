@@ -18,9 +18,9 @@ void UI::Label::Init(Container& InOwner)
 
 void UI::Label::Draw(Container& InOwner)
 {
-    const Rect rect = GetRect();
-    DrawRect(rect);
+    Element::Draw(InOwner);
     
+    const Rect rect = GetRect();
     const Vec2F startPos = rect.start;
     const Vec2F endPos = rect.end - cachedSize;
     const Vec2F pos {

@@ -9,11 +9,12 @@ namespace Rendering
 {
     struct Config : BaseConfig<Config>
     {
-        PROPERTY(WindowConfig, Window);
+        PROPERTY(WindowConfig, Window)
         PROPERTY(ViewportConfig, Viewport);
         PROPERTY(ContextConfig, Context);
         
         PROPERTY_D(bool, UpdateCulling, true);
+        PROPERTY_D(bool, DrawElementRects, false);
 
         String Name() const override { return "Rendering"; }
     };

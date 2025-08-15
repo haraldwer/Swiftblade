@@ -4,11 +4,12 @@
 
 void UI::Image::Draw(Container& InOwner)
 {
-    const Rect rect = GetRect();
-    DrawRect(rect);
-    const Rect view = ReferenceToViewport(rect);
+    Element::Draw(InOwner);
+    const Rect view = ReferenceToViewport(GetRect());
     if (const auto textureRes = texture.Get())
+    {
         if (const auto tex = textureRes->Get())
+        {
             DrawTexturePro(
                 *tex,
                 {
@@ -24,5 +25,13 @@ void UI::Image::Draw(Container& InOwner)
                 },
                 { 0.0f, 0.0f },
                 transform.rotation,
-                WHITE);
+                {
+                    static_cast<uint8>(imageColor.r),
+                    static_cast<uint8>(imageColor.g),
+                    static_cast<uint8>(imageColor.b),
+                    static_cast<uint8>(imageColor.a)
+                });
+            return;
+        }
+    }
 }

@@ -8,7 +8,7 @@ struct RoomPathEditorConfig : BaseConfig<RoomPathEditorConfig>
 {
     PROPERTY_C(ResModel, PathPoint, "Defaults/M_Sphere.obj");
     PROPERTY_C(ResModel, PathLink, "Defaults/M_Cylinder.obj");
-    PROPERTY_C(ResRM, PathMaterial, "Editor/RM_EditorPathLink.json");
+    PROPERTY_C(ResRM, PathMaterial, "Editor/RM_EditPath.json");
     PROPERTY_C(float, Scale, 0.3f);
     PROPERTY_C(float, SelectedScale, 0.6f);
     PROPERTY_C(float, DotThreshold, 0.8f);

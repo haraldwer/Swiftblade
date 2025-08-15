@@ -41,12 +41,13 @@ public:
     String DebugPanelName() const override { return "Room Editor"; }
     
     bool IsEditor() const override { return true; }
+    bool CanEdit() const;
 
     Room& GetRoom() { return room; }
     RoomSubEditorManager& GetSubEditors() { return subEditorManager; }
     Utility::History& GetHistory() { return history; }
     MenuRoomEditor& GetMenu() { CHECK_ASSERT(!menu, "Invalid menu"); return *menu; }
-    
+
 private:
 
     ResScene ConvertRoomToScene();

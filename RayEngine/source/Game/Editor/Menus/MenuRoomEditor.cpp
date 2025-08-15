@@ -13,7 +13,7 @@ void MenuRoomEditor::Init()
     UI::Builder builder = UI::Builder()
         .Push(UI::List(
             {
-                .position = {-600, 50},
+                .position = {-610, 50},
                 .anchor = {1, 0},
                 .pivot = {0, 0}
             },

@@ -119,7 +119,7 @@ ResScene RoomEditor::ConvertRoomToScene()
     scene.entities.insert(conEditor.GetConnection(true));
     scene.entities.insert(volEditor.GetCubeVolumeID());
     for (auto& obj : room.Objects.Get())
-        scene.entities.insert(objEditor.GetObject(obj.second, true));
+        scene.entities.insert(objEditor.LoadObject(obj.second));
 
     Resource::ID id = Resource::ID("EditorRoom", true);
     ResScene resScene = ResScene(id);
@@ -143,4 +143,15 @@ void RoomEditor::DrawDebugPanel()
     ImGui::Text("Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
     ImGui::Text("History: %i", history.Count());
     subEditorManager.DebugDraw();
+}
+
+bool RoomEditor::CanEdit() const
+{
+    if (IsFreecam())
+        return false;
+    if (menu->GetUI().IsHovered())
+        return false;
+    if (ImGui::IsAnyItemActive())
+        return false;
+    return true; 
 }

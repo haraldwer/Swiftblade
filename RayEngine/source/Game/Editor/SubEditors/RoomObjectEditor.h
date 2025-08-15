@@ -3,6 +3,8 @@
 #include "../RoomSubEditor.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Core/Property/Property.h"
+#include "ECS/Manager.h"
+#include "ECS/Systems/Transform.h"
 #include "Editor/EditorCamera.h"
 #include "Editor/Room/Room.h"
 
@@ -26,6 +28,7 @@ struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
     }));
     
     PROPERTY_C(float, DotThreshold, 0.8f);
+    PROPERTY_C(float, LerpSpeed, 0.1f);
     
     String Name() const override { return "RoomObjectEditor"; }
 };
@@ -65,31 +68,38 @@ class RoomObjectEditor : public RoomSubEditor
 public:
     void Init() override;
     void Deinit() override;
+
+
     void Update() override;
     void Frame() override;
     void Enter() override;
     void Exit() override;
-
-    void PlaceObject();
-    void RemoveObject();
     
     // Automatically create object if it doesnt exist
     // Move object smoothly to the coord location and rotation, or snap  
-    ECS::EntityID GetObject(const RoomObject& InObj, bool InSnap = false);
+    ECS::EntityID LoadObject(const RoomObject& InObj);
 
 private:
 
-    ECS::EntityID LoadObject(const RoomObject &InObj) const;
+    void TryPickObject();
+    void MovePlaceObject();
+    void PlaceObject();
+    void RemoveObject();
+    
+    void UpdateTransforms();
+    void UpdateTransform(ECS::SysTransform& InSys, ECS::EntityID InID, const RoomObject& InObj);
+    Mat4F GetTrans(const RoomObject& InObj) const;
+
+    ECS::EntityID CreateObject(const RoomObject &InObj) const;
     void LoadRoom();
     void DestroyLoaded();
+    void RemoveLoaded(ECS::VolumeCoordKey InKey);
 
-    struct LoadedObject
-    {
-        ECS::EntityID id = ECS::INVALID_ID;
-        RoomObject obj;
-    };
-    Map<ECS::VolumeCoordKey, LoadedObject> loadedObjects;
-    LoadedObject placeObject;
+    Map<ECS::VolumeCoordKey, ECS::EntityID> loadedObjects;
+    ECS::EntityID placeID = ECS::INVALID_ID;
+    RoomObject placeObj;
+    ECS::VolumeCoord movedFrom;
+    
     
     RoomObjectEditorConfig config = {};
     RoomHoverMenu hoverMenu;

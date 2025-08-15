@@ -43,7 +43,7 @@ namespace ECS
     public:
         uint8 GetVal(EntityID InID, VolumeCoord InCoord);
         void Set(EntityID InID, VolumeCoord InStart, VolumeCoord InEnd, uint8 InVal);
-        VolumeCoord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist);
+        VolumeCoord Trace(EntityID InID, const Vec3F& InPos, const Vec3F& InDir, int32 InMaxDist, VolumeCoord& OutHit);
         void DrawEditVolume(EntityID InID, VolumeCoord InStart, VolumeCoord InEnd);
 
         void SystemInit() override;

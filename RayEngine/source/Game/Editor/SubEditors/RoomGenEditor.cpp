@@ -3,6 +3,7 @@
 #include "ECS/Manager.h"
 #include "ECS/RoomConnection.h"
 #include "ECS/Volume/CubeVolume.h"
+#include "Editor/RoomEditor.h"
 #include "Editor/RoomSubEditorManager.h"
 #include "Editor/Room/Room.h"
 #include "Input/Action.h"
@@ -27,6 +28,7 @@ void RoomGenEditor::Enter()
 void RoomGenEditor::Update()
 {
     CHECK_RETURN(!IsCurrent())
+    CHECK_RETURN(!GetEditor().CanEdit())
     
     if (Input::Action::Get("Ctrl").Down())
         if (Input::Action::Get("Generate", "RoomEditor").Pressed())

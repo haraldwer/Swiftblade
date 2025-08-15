@@ -3,11 +3,20 @@
 
 void main()
 {
-    DefaultMatte(vec3(0.5));
-    
     vec3 pos = SampleWorldPos(TexCoord).xyz;
     vec3 normal = SampleNormal(TexCoord);
+    
+    float gridScale = 0.5f;
+    vec3 gridPos = pos * gridScale;
+    vec3 grid = abs(round(gridPos) - gridPos) * (1 - abs(normal));
+    float gridValue = max(max(grid.x, grid.y), grid.z) / gridScale;
+    float gridLines = step(0.95, gridValue);
+    float gridFade = mix(0.95, 0.8, gridLines);
+    
+    DefaultMatte(vec3(gridFade));
+    
     float dist = length(pos - CameraPosition);
     float fade = DistanceFade(dist) * SurfaceFade(pos, normal);
-    Output.rgb = mix(vec3(fade), Output.rgb, 0.95);
+    
+    Output.rgb *= mix(fade, 1.0f, 0.4);
 }
