@@ -4,6 +4,7 @@
 #include "ECS/RoomConnection.h"
 #include "ECS/Systems/Transform.h"
 #include "ECS/Volume/CubeVolume.h"
+#include "Editor/RoomEditor.h"
 #include "Editor/Room/Room.h"
 #include "History/History.h"
 #include "Input/Action.h"
@@ -54,26 +55,20 @@ void RoomConnectionEditor::Update()
     CHECK_RETURN(!trans);
     
     // Lerp connection towards coord
-    ECS::VolumeCoordKey coord = GetRoom().Connection.Get();
+    ECS::VolumeCoordKey& coord = GetRoom().Connection.Get();
+    if (coord == 0)
+        coord = CameraOffset(6).key;
     Vec3F pos = GetVolume().CoordToPos(coord);
-    const float dt = static_cast<float>(Utility::Time::Get().Delta());
-    trans->SetPosition(LerpDelta(trans->GetPosition(), pos, 50.0f, dt));
+    trans->SetPosition(Lerp(trans->GetPosition(), pos, config.LerpSpeed.Get()));
 
     CHECK_RETURN(!IsCurrent());
 
-    ECS::VolumeCoord newCoord = CameraOffset();
-
-        
-    // TODO: Show some kind of preview...
-    // TODO: Drag to move
-    
-        
-    if (Input::Action::Get("LM").Pressed())
+    auto addChange = [&](const ECS::VolumeCoordKey InPrev)
     {
         struct RoomConnectionChange
         {
             ECS::VolumeCoord prevCoord;
-            ECS::VolumeCoord newCoord;;
+            ECS::VolumeCoord newCoord;
         };
         
         GetHistory().AddChange(Utility::Change<RoomConnectionChange>(
@@ -88,10 +83,34 @@ void RoomConnectionEditor::Update()
                     
             },
             {
-                ECS::VolumeCoord(GetRoom().Connection.Get()),
-                newCoord
+                InPrev,
+                coord
             }));
+    };
+    
+    if (Input::Action::Get("Ctrl").Down())
+    {
+        if (Input::Action::Get("LM").Pressed())
+        {
+            selectCoord = coord;
+            coord = CameraOffset(6).key;    
+        }
     }
+    else
+    {
+        if (Input::Action::Get("LM").Pressed())
+            selectCoord = coord;
+        
+        if (Input::Action::Get("LM").Down())
+        {
+            auto& v = GetVolume();
+            Vec3F newPos = DragMove(v.CoordToPos(coord));
+            coord = v.PosToCoord(newPos).key;
+        }
+    }
+        
+    if (Input::Action::Get("LM").Released() && selectCoord.key != 0)
+        addChange(selectCoord.key);
 }
 
 ECS::EntityID RoomConnectionEditor::GetConnection(bool InSnap) const

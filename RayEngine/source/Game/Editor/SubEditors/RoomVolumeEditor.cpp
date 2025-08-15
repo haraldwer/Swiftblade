@@ -3,6 +3,8 @@
 #include "Blueprints/Blueprint.h"
 #include "ECS/Systems/Transform.h"
 #include "ECS/Volume/CubeVolume.h"
+#include "Editor/RoomEditor.h"
+#include "Editor/Room/Room.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
 #include "ImGui/imgui.h"
@@ -12,7 +14,7 @@ void RoomVolumeEditor::Init()
 {
     // Create / Cache CubeVolume
     const auto& ecs = ECS::Manager::Get(); 
-    const auto& sys = ecs.GetSystem<ECS::SysCubeVolume>();
+    auto& sys = ecs.GetSystem<ECS::SysCubeVolume>();
     const auto volumes = sys.GetEntities();
     if (!volumes.empty())
     {
@@ -28,66 +30,72 @@ void RoomVolumeEditor::Init()
     if (cubeVolume != ECS::INVALID_ID)
         if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(cubeVolume))
             cubeTrans->SetWorld(Mat4F());
+
+    // Copy volume data to system
+    auto& v = sys.Get(cubeVolume); 
+    v.data = GetRoom().volumeData;
+    v.UpdateCache(Mat4F());
 }
 
 void RoomVolumeEditor::Update()
 {
-    if (!IsCurrent())
-        return;
+    CHECK_RETURN(!IsCurrent());
+    CHECK_RETURN(GetEditor().IsFreecam());
     
-    PROFILE();
+    auto trace = CameraTrace(8);
     
-    // Do cube trace
-    lastTrace = CameraTrace(4);
-    if (!placing)
+    if (Input::Action::Get("LM").Down())
     {
-        placeStart = lastTrace.key;
-        // Begin place? 
-        if ((Input::Action::Get("LM").Pressed() ||
-            Input::Action::Get("RM").Pressed()))
-            placing = true; 
+        // Update placement :3
+        auto& v = GetVolume();
+        Vec3F objPos = v.CoordToPos(editEnd);
+        editEnd = v.PosToCoord(DragMove(objPos)); 
     }
-
-    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-    sys.DrawEditVolume(GetVolumeID(), ECS::VolumeCoord(placeStart), lastTrace);
-
-    // End placement? 
-    CHECK_RETURN(!placing)
-    CHECK_RETURN(
-        Input::Action::Get("LM").Down() ||
-        Input::Action::Get("RM").Pressed())
-    
-    placing = false;
-    const uint8 val = Input::Action::Get("LM").Released() ? 1 : 0;
-
-    struct VolumeChange
+    else if (Input::Action::Get("LM").Released())
     {
-        ECS::ID volumeID;
-        ECS::CubeVolumeData orgVolume; 
-        ECS::VolumeCoord start;
-        ECS::VolumeCoord end;
-    };
-            
-    GetHistory().AddChange(Utility::Change<VolumeChange>(
-        [&](const VolumeChange& InData)
+        uint8 placeValue = Input::Action::Get("Ctrl").Down() ? 0 : 1;
+        struct VolumeChange
         {
-            auto& localSystem = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-            localSystem.Set(GetVolumeID(), InData.start, InData.end, val);
-        },
-        [&](const VolumeChange& InData)
-        {
-            if (const auto localVolume = ECS::Manager::Get().GetComponent<ECS::CubeVolume>(InData.volumeID))
+            ECS::CubeVolumeData orgVolume;
+            ECS::VolumeCoord start;
+            ECS::VolumeCoord end;
+            uint8 val;
+        };
+    
+        GetHistory().AddChange(Utility::Change<VolumeChange>(
+            [&](const VolumeChange& InData)
             {
-                localVolume->data = InData.orgVolume;
-                localVolume->UpdateCache(Mat4F()); 
-            }
-        },
-        {
-            GetVolumeID(),
-            GetVolume().data,
-            placeStart,
-            lastTrace
-        }));
+                auto& localSystem = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
+                localSystem.Set(GetVolumeID(), InData.start, InData.end, InData.val);
+                GetRoom().volumeData = GetVolume().data;
+            },
+            [&](const VolumeChange& InData)
+            {
+                SetData(InData.orgVolume);
+            },
+            {
+                GetVolume().data,
+                editStart,
+                editEnd,
+                placeValue,
+            }));
+    }
+    else
+    {
+        // Show the trace location
+        editStart = trace;
+        editEnd = trace;
+    }
+    
+}
+
+void RoomVolumeEditor::Frame()
+{
+    CHECK_RETURN(!IsCurrent());
+    CHECK_RETURN(GetEditor().IsFreecam());
+    CHECK_RETURN(editStart.key == 0 || editEnd.key == 0)
+    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
+    sys.DrawEditVolume(GetVolumeID(), ECS::VolumeCoord(editStart), editEnd);
 }
 
 void RoomVolumeEditor::DebugDraw()
@@ -95,4 +103,19 @@ void RoomVolumeEditor::DebugDraw()
     ImGui::Text("Volume editing mode"); 
     const auto size = GetVolume().data.data.size();
     ImGui::Text("Blocks: %i", static_cast<int>(size));
+}
+
+void RoomVolumeEditor::Enter()
+{
+    auto& v =GetVolume(); 
+    v.data = GetRoom().volumeData;
+    v.UpdateCache(Mat4F());
+}
+
+void RoomVolumeEditor::SetData(const ECS::CubeVolumeData &InData) const
+{
+    GetRoom().volumeData = InData;
+    auto& v = GetVolume();
+    v.data = InData;
+    v.UpdateCache(Mat4F());
 }

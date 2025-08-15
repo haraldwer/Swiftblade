@@ -9,13 +9,15 @@ struct RoomObject : PropertyOwner<RoomObject>
     PROPERTY(int, Rotations);
 };
 
+typedef Map<ECS::VolumeCoordKey, RoomObject> RoomObjectMap; 
+
 // A room representation for the editor.
 // This room will be converted to a scene before being played.
 struct Room : PropertyOwner<Room>
 {
     PROPERTY_D(ECS::VolumeCoordKey, Connection, 0);
     PROPERTY(Vector<ECS::VolumeCoordKey>, Path);
-    PROPERTY(Vector<RoomObject>, Objects);
+    PROPERTY(RoomObjectMap, Objects);
     
     ECS::CubeVolumeData volumeData;
     

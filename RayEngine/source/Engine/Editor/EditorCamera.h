@@ -11,12 +11,16 @@ public:
 
     void SetState(const Vec3F &InPos, const Vec3F &InRot);
     void SetTarget(const Vec3F& InPosition, float InDistance = 10.0f);
-    Vec3F GetPosition() const { return targetState.position; }
-    Vec3F GetRotation() const { return targetState.rotation; };
+    Vec3F GetPosition() const { return currentState.position; }
+    Vec3F GetRotation() const { return currentState.rotation; };
+    
     bool IsControlling() const { return bUseEditCamera && bInputEnabled; }
     void SetAlwaysEnabled(const bool InEnabled) { bAlwaysEnabled = InEnabled; }
     void Toggle();
-
+    
+    Vec3F GetMouseDirection() const;
+    Vec3F ScreenToWorld(const Vec2F &InScreen) const;
+    Vec3F ClipToWorld(Vec2F InClip) const;
 
 private:
 

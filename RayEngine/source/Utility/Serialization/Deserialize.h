@@ -189,6 +189,25 @@ namespace Utility
         }
         return true; 
     }
+
+    template <class K, class V>
+    bool ReadValue(const GenericVal& InVal, OrderedMap<K, V>& OutData)
+    {
+        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected arr");
+        for (auto& entry : InVal.GetArray())
+        {
+            DESERIALIZE_CHECK_RETURN(!entry.IsObject(), "Incorrect type, expected object");
+            DESERIALIZE_CHECK_RETURN(!entry.HasMember("Key"), "No key");
+            DESERIALIZE_CHECK_RETURN(!entry.HasMember("Val"), "No value");
+
+            K key;
+            V val;
+            if (ReadValue(entry["Key"], key))
+                if (ReadValue(entry["Val"], val))
+                    OutData[key] = val;
+        }
+        return true; 
+    }
     
     template <class T>
     bool Deserialize(const DeserializeObj& InContent, const String& InName, T& OutData)

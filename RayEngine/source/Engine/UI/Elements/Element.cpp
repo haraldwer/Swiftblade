@@ -27,7 +27,12 @@ void UI::Element::SetTransform(const Transform& InTransform)
 bool UI::Element::IsHovered() const
 {
     const Vector2 mp = GetMousePosition();
-    const Vec2F relative = ScreenToViewport({ mp.x, mp.y });
+
+    auto& view = Rendering::Manager::Get().mainViewport;
+    const Rect ref = GetReferenceRect();
+    const Vec2F abs = view.ScreenToViewportAbsolute({ mp.x, mp.y });
+    const Vec2F screen = abs * ref.end;
+    const Vec2F relative = screen;
     return
         relative.x > cachedRect.start.x &&
         relative.x < cachedRect.end.x &&
@@ -78,18 +83,6 @@ Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
     return {
         (InVec / ref.end) * res,
     };
-}
-
-Vec2F UI::Element::ScreenToViewport(const Vec2F& InScreenPos)
-{
-    // From screen to reference space
-    const auto& man = Rendering::Manager::Get();
-    const Vec2F viewportPos = InScreenPos - man.mainViewport.GetPosition();
-    const Vec2I si = man.mainViewport.GetSize();
-    const Vec2F s = { static_cast<float>(si.x), static_cast<float>(si.y) };
-    const Vec2F absolute = viewportPos / s;
-    const Rect ref = GetReferenceRect();
-    return absolute * ref.end; 
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const

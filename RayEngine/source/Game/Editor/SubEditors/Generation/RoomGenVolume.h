@@ -11,7 +11,7 @@ class RoomGenVolume
 {
 public:
     RoomGenVolume() = default;
-    RoomGenVolume(const Vector<ECS::VolumeCoord>& InPath);
+    RoomGenVolume(const Vector<ECS::VolumeCoordKey>& InPath);
     bool Step(ECS::CubeVolumeData& InOutVolume);
 
 private:
@@ -25,12 +25,12 @@ private:
         ECS::VolumeCoordKey ref = 0;
     };
     
-    Vector<ECS::VolumeCoord> path = {};
+    Vector<ECS::VolumeCoordKey> path = {};
     Vector<QueuedEntry> queuedCoords = {};
     Map<ECS::VolumeCoordKey, ECS::VolumeCoordKey> nextQueue = {};
     Map<ECS::VolumeCoordKey, Set<ECS::VolumeCoordKey>> checkedCoords = {};
     Map<ECS::VolumeCoordKey, ECS::VolumeDataType> result = {};
     
     int volumeDepth = 0;
-    const int stepSize = 200;
+    static const int stepSize = 200;
 };

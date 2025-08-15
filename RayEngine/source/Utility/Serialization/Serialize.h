@@ -64,6 +64,22 @@ namespace Utility
         InOutObj.EndArray();
     }
 
+    template <class K, class V>
+    void WriteValue(SerializeObj& InOutObj, const OrderedMap<K, V>& InData)
+    {
+        InOutObj.StartArray();
+        for (auto& entry : InData)
+        {
+            InOutObj.StartObject();
+            InOutObj.Key("Key");
+            WriteValue(InOutObj, entry.first);
+            InOutObj.Key("Val");
+            WriteValue(InOutObj, entry.second);
+            InOutObj.EndObject();
+        }
+        InOutObj.EndArray();
+    }
+
     template <class T>
     void Serialize(SerializeObj& InOutObj, const String& InName, const T& InData)
     {

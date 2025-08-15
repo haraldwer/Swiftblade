@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../RoomSubEditor.h"
+#include "Generation/RoomGenVolume.h"
 #include "UI/Elements/Container.h"
 
 class RoomGenBase;
@@ -12,12 +13,11 @@ public:
     void Init() override;
     void Deinit() override;
     void Update() override;
-    void Frame() override;
     void Enter() override;
-    
+
+    void StartGen();
+
 private:
-    UI::Container ui = {};
-    ECS::EntityID startEntity = ECS::INVALID_ID;
-    ECS::EntityID endEntity = ECS::INVALID_ID;
-    int seed = 0;
+    RoomGenVolume volumeGenerator;
+    bool generating = false;
 };

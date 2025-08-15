@@ -25,6 +25,9 @@ namespace Rendering
         Vec2F GetPosition() const { return position; }
         void ResetPosition();
 
+        Vec2F ScreenToViewport(const Vec2F& InScreenPos);
+        Vec2F ScreenToViewportAbsolute(const Vec2F& InScreenPos); // 0 - 1
+
     private:
         ViewportConfig config = {};
         

@@ -5,8 +5,9 @@
 
 struct RoomConnectionEditorConfig : BaseConfig<RoomConnectionEditorConfig>
 {
-    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/BP_RoomConnection.json");
+    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/BP_RoomConnection.json")
     PROPERTY_C(ResBlueprint, EndBP, "Gameplay/BP_RoomConnection.json");
+    PROPERTY_C(float, LerpSpeed, 0.1f);
 
     PROPERTY_C(ResBlueprint, ArenaStartBP, "Gameplay/BP_RoomConnection.json");
     PROPERTY_C(ResBlueprint, CheckpointBP, "Gameplay/BP_Checkpoint.json");
@@ -30,6 +31,7 @@ private:
     ECS::EntityID startEntity = ECS::INVALID_ID;
     ECS::EntityID endEntity = ECS::INVALID_ID;
     RoomConnectionEditorConfig config = {};
+    ECS::VolumeCoord selectCoord;
     
     
 };

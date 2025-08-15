@@ -319,7 +319,7 @@ void Input::Manager::UpdateCursorState()
         }
         else
         {
-            //DisableCursor();
+            DisableCursor();
         }
     }
 

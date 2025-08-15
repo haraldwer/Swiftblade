@@ -104,14 +104,14 @@ namespace Utility
 
 				Type dot_product = up_vec.x*target_vec.x + up_vec.y*target_vec.y + up_vec.z*target_vec.z;
 
-				// Handle edge cases
-				if (dot_product >= 1.0f) {
-					return {1, 0, 0, 0}; // No rotation needed
-				}
-				if (dot_product < -0.9999f) {
-					// Vectors are opposite, rotate 180 degrees around an arbitrary perpendicular axis
+				if (dot_product >= 1.0f)
+					return {1, 0, 0, 0};
+				
+				if (dot_product < -0.9999f)
+				{
 					Vector3<Type> axis = {1, 0, 0};
-					if (std::abs(up_vec.x) > 0.99f) {
+					if (std::abs(up_vec.x) > 0.99f)
+					{
 						axis = {0, 1, 0};
 					}
 					
@@ -127,7 +127,8 @@ namespace Utility
 					half_cos,
 					rotation_axis.x * half_sin,
 					rotation_axis.y * half_sin,
-					rotation_axis.z * half_sin};
+					rotation_axis.z * half_sin
+				};
 			}
 
 			Type Length() const

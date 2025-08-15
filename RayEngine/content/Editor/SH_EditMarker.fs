@@ -2,7 +2,7 @@
 
 void main()
 {
-    vec3 pos = VertexPosition;//WorldPosition.xyz - ObjectPosition.xyz;
+    vec3 pos = VertexPosition;
     float dist = min(min(
         abs(pos.x),
         abs(pos.y)),

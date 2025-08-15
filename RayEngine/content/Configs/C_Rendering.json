@@ -14,8 +14,7 @@
 				"Height":4096,
 				"Width":4096
 			},
-			"SceneFallback":true,
-			"InvalidateCache":true
+			"SceneFallback":true
 		},
 		"Lights":{
 			"Viewport":{

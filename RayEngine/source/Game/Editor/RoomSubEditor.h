@@ -51,6 +51,7 @@ public:
     
     ECS::VolumeCoord CameraTrace(int32 InDist = 7) const;
     ECS::VolumeCoord CameraOffset(float InDist = 5.0f) const;
+    Vec3F DragMove(Vec3F InRef) const;
     
 private:
     RoomEditor* editor = nullptr;

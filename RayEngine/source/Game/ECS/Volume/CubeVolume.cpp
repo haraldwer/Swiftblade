@@ -182,10 +182,11 @@ ECS::VolumeCoord ECS::SysCubeVolume::Trace(const EntityID InID, const Vec3F& InP
     int count = 0; 
     for (const auto& intersect : GridIntersection(origin, InDir, InMaxDist * 1.5))
     {
-        const uint8 max = -1; 
-        if (intersect.x < 0 ||
-            intersect.y < 0 ||
-            intersect.z < 0 ||
+        const VolumeCoordValue max = INT8_MAX; 
+        const VolumeCoordValue min = INT8_MIN; 
+        if (intersect.x <= min ||
+            intersect.y <= min ||
+            intersect.z <= min ||
             intersect.x >= max ||
             intersect.y >= max ||
             intersect.z >= max)

@@ -119,7 +119,7 @@ ResScene RoomEditor::ConvertRoomToScene()
     scene.entities.insert(conEditor.GetConnection(true));
     scene.entities.insert(volEditor.GetCubeVolumeID());
     for (auto& obj : room.Objects.Get())
-        scene.entities.insert(objEditor.GetObject(obj, true));
+        scene.entities.insert(objEditor.GetObject(obj.second, true));
 
     Resource::ID id = Resource::ID("EditorRoom", true);
     ResScene resScene = ResScene(id);

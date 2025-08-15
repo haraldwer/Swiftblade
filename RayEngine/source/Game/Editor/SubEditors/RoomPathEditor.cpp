@@ -10,16 +10,14 @@
 void RoomPathEditor::Init()
 {
     config.LoadConfig();
-    VerifyPath();
-    renderCacheChanged = true;
 
-    if (pointID == 0)
-    {
-        pointID = MeshInstance::GenPersistentID();
-        linkID = MeshInstance::GenPersistentID();
-        pointHash = MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
-        linkHash = MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
-    }
+    VerifyPath();
+    selectedIndex = -1;
+
+    pointID = MeshInstance::GenPersistentID();
+    linkID = MeshInstance::GenPersistentID();
+    pointHash = MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
+    linkHash = MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
 }
 
 void RoomPathEditor::Deinit()
@@ -37,6 +35,7 @@ void RoomPathEditor::Update()
 
     CHECK_RETURN(!IsCurrent())
     auto& path = GetRoom().Path.Get();
+    SmoothPath();
     
     // Select
     // Move
@@ -45,11 +44,36 @@ void RoomPathEditor::Update()
     // Generate
     // Clear all
 
+    struct RoomPathChange
+    {
+        Vector<ECS::VolumeCoordKey> newPath;
+        Vector<ECS::VolumeCoordKey> prevPath;
+    };
+
+    auto addChange = [&](const Vector<ECS::VolumeCoordKey> &InPrev) {
+        GetHistory().AddChange(Utility::Change<RoomPathChange>(
+            [&](const RoomPathChange& InData)
+            {
+                GetRoom().Path = InData.newPath;
+                    
+            },
+            [&](const RoomPathChange& InData)
+            {
+                GetRoom().Path = InData.prevPath;
+                    
+            },
+            {
+                path,
+                InPrev
+            }));
+    };
+    
     if (Input::Action::Get("Ctrl").Down())
     {
         if (Input::Action::Get("Generate", "RoomEditor").Pressed())
         {
             LOG("Generating path!");
+            Vector<ECS::VolumeCoordKey> prevPath = path; 
             ECS::VolumeCoord startCoord = GetVolume().GetCenter();
             ECS::VolumeCoord endCoord = GetRoom().Connection.Get();
             double time = Utility::Time::Get().Total();
@@ -58,18 +82,90 @@ void RoomPathEditor::Update()
             path = pathGenerator.GetPath();
             path.insert(path.begin(), startCoord.key);
             path.push_back(endCoord.key);
+            addChange(prevPath);
+        }
+    }
+
+    if (Input::Action::Get("LM").Pressed())
+    {
+        SelectClosest();
+        if (selectedIndex >= 0 && Input::Action::Get("Ctrl").Down()) // Maybe make a copy of selected!
+        {
+            path.insert(path.begin() + selectedIndex + 1, path[selectedIndex]);
+            selectedIndex++;
+        }
+    }
+    if (Input::Action::Get("LM").Down())
+        MoveSelected();
+    if (Input::Action::Get("LM").Released())
+        if (selectedIndex >= 0)
+            if (selectPath != path)
+                addChange(selectPath);
+
+    if (Input::Action::Get("Remove", "RoomEditor").Pressed())
+    {
+        path.erase(path.begin() + selectedIndex);
+        selectedIndex = -1;
+        addChange(selectPath);
+    }
+    
+    if (Input::Action::Get("RM").Pressed() && Input::Action::Get("Ctrl").Down())
+    {
+        SelectClosest();
+        if (selectedIndex >= 0)
+        {
+            path.erase(path.begin() + selectedIndex);
+            selectedIndex = -1;
+            addChange(selectPath);
+        }
+    }
+}
+
+void RoomPathEditor::SmoothPath()
+{
+    auto& volume = GetVolume();
+    float lerpSpeed = config.LerpSpeed.Get();
+    float minLerpDist = config.MinLerpDist.Get();
+    auto& path = GetRoom().Path.Get();
+    smoothPath.resize(path.size());
+    for (int i = 0; i < static_cast<int>(path.size()); ++i)
+    {
+        Vec3F targetPos = volume.CoordToPos(path[i]);
+        Vec3F currPos = smoothPath[i];
+        if (currPos == Vec3F::Zero())
+        {
+            smoothPath[i] = targetPos;
+            continue;
+        }
+        
+        float lenSqr = (currPos - targetPos).LengthSqr(); 
+        if (lenSqr > minLerpDist * minLerpDist)
+        {
+            Vec3F newPos = Utility::Math::Lerp(currPos, targetPos, lerpSpeed);
+            smoothPath[i] = newPos;
             renderCacheChanged = true;
         }
     }
 }
 
+void RoomPathEditor::Enter()
+{
+}
+
+void RoomPathEditor::Exit()
+{
+    // Only show when active
+    auto& meshes = GetEditor().GetRenderScene().Meshes();
+    meshes.Remove(pointHash, pointID);
+    meshes.Remove(linkHash, linkID);
+    smoothPath.clear();
+}
+
 void RoomPathEditor::Frame()
 {
-    if (!renderCacheChanged)
-        return;
-    renderCacheChanged = false;
+    CHECK_RETURN(!IsCurrent());
+    CHECK_RETURN(!renderCacheChanged);
         
-    auto& volume = GetVolume();
     auto& meshes = GetEditor().GetRenderScene().Meshes();
     meshes.Remove(pointHash, pointID);
     meshes.Remove(linkHash, linkID);
@@ -77,19 +173,18 @@ void RoomPathEditor::Frame()
     Vec3F prevPos = Vec3F::Zero();
     Vector<Mat4F> links;
     Vector<Mat4F> points;
-    float scale = config.Scale.Get();
-    for (auto c : GetRoom().Path.Get())
+    for (int i = 0; i < static_cast<int>(smoothPath.size()); ++i)
     {
-        const ECS::VolumeCoord coord(c);
-        Vec3F pos = volume.CoordToPos(coord) + Vec3F::Up();
+        Vec3F pos = smoothPath[i] + Vec3F::Up();
+        float scale = i == selectedIndex ? config.SelectedScale : config.Scale;
         points.emplace_back(pos, QuatF::Identity(), scale);
         if (prevPos != Vec3F::Zero())
         {
             const Vec3F diff = prevPos - pos;
             QuatF rot = QuatF::FromDirection(diff);
-            //rot *= QuatF::FromEuler(Vec3F(PI/2, 0, 0));
             const Vec3F middlePos = (prevPos + pos) / 2;
-            const Vec3F size = Vec3F(scale * 0.5f, diff.Length() * 0.5f, scale * 0.5f);
+            float s = config.Scale * 0.5f;
+            const Vec3F size = Vec3F(s, diff.Length() * 0.5f, s);
             links.emplace_back(middlePos, rot, size);
         }
         prevPos = pos; 
@@ -109,7 +204,7 @@ void RoomPathEditor::Frame()
     meshes.Add(point, points, linkID);
 }
 
-void RoomPathEditor::VerifyPath()
+void RoomPathEditor::VerifyPath() const
 {
     auto& room = GetRoom();
     auto& path = room.Path.Get();
@@ -118,10 +213,7 @@ void RoomPathEditor::VerifyPath()
     auto endCoord = room.Connection.Get();
 
     if (path.empty() || path.front() != startCoord)
-    {
         path = { startCoord };
-        renderCacheChanged = true;
-    }
 
     if (path.back() != endCoord)
     {
@@ -129,6 +221,45 @@ void RoomPathEditor::VerifyPath()
             if (ECS::VolumeCoord(path[i]).pos.z >= ECS::VolumeCoord(endCoord).pos.z)
                 path.erase(path.begin() + i);
         path.push_back(endCoord);
-        renderCacheChanged = true;
     }
+}
+
+void RoomPathEditor::SelectClosest()
+{
+    auto& cam = GetEditor().GetEditorCamera();
+    Vec3F camPos = cam.GetPosition();
+    Vec3F mouseDir = cam.GetMouseDirection();
+
+    auto& room = GetRoom();
+    auto& path = room.Path.Get();
+    auto& v = GetVolume();
+    int min = -1;
+    float minDot = -1;
+    for (int i = 1; i < static_cast<int>(path.size()); i++) // Can't select first
+    {
+        Vec3F pos = v.CoordToPos(path[i]);
+        Vec3F dir = (pos - camPos).GetNormalized();
+        float dot = Vec3F::Dot(mouseDir, dir);
+        if (dot > minDot && dot > config.DotThreshold)
+        {
+            min = i;
+            minDot = dot;
+        }
+    }
+
+    selectedIndex = min;
+    if (selectedIndex > 0)
+    {
+        selectPos = v.CoordToPos(path.at(selectedIndex)); 
+        selectPath = path; // For history 
+    }
+}
+
+void RoomPathEditor::MoveSelected()
+{
+    CHECK_RETURN(selectedIndex < 0);
+    auto& coord = GetRoom().Path.Get().at(selectedIndex);
+    auto& v = GetVolume();
+    Vec3F newPos = DragMove(v.CoordToPos(coord));
+    coord = v.PosToCoord(newPos).key;
 }

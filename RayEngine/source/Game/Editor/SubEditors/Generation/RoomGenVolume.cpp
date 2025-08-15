@@ -2,11 +2,13 @@
 
 #include "ECS/Volume/CubeVolume.h"
 
-RoomGenVolume::RoomGenVolume(const Vector<ECS::VolumeCoord>& InPath)
+RoomGenVolume::RoomGenVolume(const Vector<ECS::VolumeCoordKey>& InPath)
 {
+    // TODO: Fill out path steps
+    
     path = InPath;
-    for (const ECS::VolumeCoord& c : InPath)
-        queuedCoords.push_back({.coord= c.key, .ref= c.key}); 
+    for (const ECS::VolumeCoordKey& c : InPath)
+        queuedCoords.push_back({ .coord= c, .ref= c }); 
 }
 
 void RoomGenVolume::TryQueueEntry(const ECS::VolumeCoord InNewCoord, const ECS::VolumeCoord InReference)
@@ -75,6 +77,9 @@ bool RoomGenVolume::EvaluateCoord(const ECS::VolumeCoord InCoord, const ECS::Vol
 
 bool RoomGenVolume::Step(ECS::CubeVolumeData& InOutVolume)
 {
+    if (queuedCoords.empty() && nextQueue.empty())
+        return false;
+    
     for (int i = 0; i < stepSize; i++)
     {
         if (queuedCoords.empty())
@@ -109,7 +114,6 @@ bool RoomGenVolume::Step(ECS::CubeVolumeData& InOutVolume)
             queuedCoords.push_back({q.first, q.second});
         nextQueue.clear();
         volumeDepth++;
-        // Update cache
     }
 
     if (queuedCoords.empty())
@@ -118,9 +122,7 @@ bool RoomGenVolume::Step(ECS::CubeVolumeData& InOutVolume)
         for (auto& val : result)
             if (val.second > 0)
                 InOutVolume.data[val.first] = val.second;
-        // Update cache
-        return true;
     }
     
-    return false;
+    return true;
 }

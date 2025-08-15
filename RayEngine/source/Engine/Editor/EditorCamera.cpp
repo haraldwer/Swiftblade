@@ -3,6 +3,7 @@
 #include "Input/Action.h"
 #include "Instance/Instance.h"
 #include "raylib.h"
+#include "Rendering/Manager.h"
 
 void EditorCamera::Update()
 {
@@ -60,6 +61,39 @@ void EditorCamera::SetTarget(const Vec3F& InPosition, const float InDistance)
     currentState = targetState;
 }
 
+Vec3F EditorCamera::GetMouseDirection() const
+{
+    Vector2 mouse = GetMousePosition();
+    return ScreenToWorld({ mouse.x, mouse.y });
+}
+
+Vec3F EditorCamera::ScreenToWorld(const Vec2F &InScreen) const
+{
+    auto& view = Rendering::Manager::Get().mainViewport;
+    auto viewPos = view.ScreenToViewportAbsolute(InScreen);
+    Vec2F clipPos = viewPos * 2 - 1;
+    return ClipToWorld(clipPos);
+}
+
+Vec3F EditorCamera::ClipToWorld(Vec2F InClip) const
+{
+    CameraInstance c {
+        currentState.position,
+         QuatF::FromEuler(currentState.rotation),
+         currentState.fov,
+         50.0f,
+         0.01f
+    };
+    
+    auto& view = Rendering::Manager::Get().mainViewport;
+    auto size = view.GetSize();
+    Vec4F clip = { InClip.x, -InClip.y, -1, 1 };
+    Vec4F rayEye = Mat4F::Transpose(Mat4F::GetInverse(c.GetProjectionMatrix(size.To<float>()))) * clip;
+    rayEye = { rayEye.x, rayEye.y, 1, 1};
+    Vec4F world = Mat4F::Transpose(Mat4F::GetInverse(c.GetViewMatrix())) * rayEye;
+    return world.xyz.GetNormalized();
+}
+
 void EditorCamera::Toggle()
 {
     bUseEditCamera = !bUseEditCamera;
@@ -107,6 +141,7 @@ void EditorCamera::UpdateMovement()
     const Vec3F right = rotMat.Right() * -1.0f;
     const Vec3F forward = rotMat.Forward();
 
+    
     const float scrollDelta = GetMouseWheelMove() * 0.1f;
     targetState.movementSpeed = Utility::Math::Clamp(targetState.movementSpeed + scrollDelta * (50.0f + targetState.movementSpeed * 0.5f), 1.0f, 300.0f);
     

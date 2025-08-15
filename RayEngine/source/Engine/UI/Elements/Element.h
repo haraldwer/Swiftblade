@@ -43,7 +43,6 @@ namespace UI
         static Rect GetReferenceRect();
         static Rect ReferenceToViewport(const Rect& InRect);
         static Vec2F ReferenceToViewport(const Vec2F& InVec);
-        static Vec2F ScreenToViewport(const Vec2F& InScreenPos);
         
         Rect CalculateRect(const Rect& InContainer) const;
         static void DrawRect(const Rect& InRect);

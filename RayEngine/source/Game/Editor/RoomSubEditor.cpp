@@ -59,12 +59,14 @@ Type RoomSubEditor::GetCurrent() const
 
 ECS::VolumeCoord RoomSubEditor::CameraTrace(const int32 InDist) const
 {
+    const EditorCamera &cam = GetEditor().GetEditorCamera();
+    const Vec3F camPos = cam.GetPosition();
+    const Vec3F mouseDir = cam.GetMouseDirection();
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
-    const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
     return sys.Trace(
         GetVolumeID(),
-        cam.position,
-        Mat4F(cam.rotation).Forward(),
+        camPos,
+        mouseDir,
         InDist);
 }
 
@@ -73,4 +75,13 @@ ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
     const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
     Vec3F targetPos = cam.position + cam.rotation.ForwardDirection() * InDist;
     return GetVolume().PosToCoord(targetPos);
+}
+
+Vec3F RoomSubEditor::DragMove(Vec3F InRef) const
+{
+    const EditorCamera &cam = GetEditor().GetEditorCamera();
+    const Vec3F camPos = cam.GetPosition();
+    const float objDist = (InRef - camPos).Length();
+    const Vec3F mouseDir = cam.GetMouseDirection();
+    return camPos + mouseDir * objDist;
 }

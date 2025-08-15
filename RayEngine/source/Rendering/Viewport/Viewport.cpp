@@ -65,6 +65,18 @@ void Rendering::Viewport::ResetPosition()
     position = Vec2F::Zero();
 }
 
+Vec2F Rendering::Viewport::ScreenToViewport(const Vec2F &InScreenPos)
+{
+    return InScreenPos - GetPosition();
+}
+
+Vec2F Rendering::Viewport::ScreenToViewportAbsolute(const Vec2F &InScreenPos)
+{
+    const Vec2I si = GetSize();
+    const Vec2F s = { static_cast<float>(si.x), static_cast<float>(si.y) };
+    return ScreenToViewport(InScreenPos) / s;
+}
+
 RenderTexture& Rendering::Viewport::GetVirtualTarget() const
 {
     CHECK_ASSERT(!virtualTarget, "Invalid target");
