@@ -30,8 +30,10 @@ void UI::LevelEntryWidget::Update(Container &InOwner)
 {
     Container::Update(InOwner);
 
-    float opacity = IsClicked() ? 0.5 : (IsHovered() ? 0.2f : 0.0f);    
+    float opacity = IsClicked() ? 0.5 : 0.0;
     background.color.a = Utility::Math::Lerp(background.color.a, opacity, 0.1f);
+    if (IsHovered())
+        background.color.a = Utility::Math::Max(background.color.a, 0.2f);
 }
 
 void UI::LevelEntryWidget::SetLevel(const String &InLevel)

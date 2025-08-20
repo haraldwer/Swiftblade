@@ -8,17 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "1fc93849a5de3ca6",
+            "id": "3dbfb17bab616dca",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Planning/Timeline.md",
+                "file": "Server architecture.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Timeline"
+              "title": "Server architecture"
             }
           }
         ]
@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "78b0926d3271ad6a",
@@ -155,6 +156,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -163,10 +165,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "1fc93849a5de3ca6",
+  "active": "3dbfb17bab616dca",
   "lastOpenFiles": [
-    "Planning/Testing.md",
+    "Documentation.md",
+    "Server architecture.md",
     "Planning/Timeline.md",
+    "Planning/Testing.md",
     "Planning/Release.md",
     "Planning/Conditions.md",
     "Planning/Game Creation Process.md",
@@ -189,8 +193,6 @@
     "Tasks/2 - Static rendering.md",
     "Tasks/2 - Ledge material.md",
     "Tasks/Archive/0 - Brick material.md",
-    "Tasks/Archive/0 - Room generation.md",
-    "Tasks/1 - Improved editor UI.md",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

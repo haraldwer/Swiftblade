@@ -1,2 +1,0 @@
-
--- For managing friends etc
