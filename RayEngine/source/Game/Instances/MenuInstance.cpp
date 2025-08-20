@@ -1,21 +1,41 @@
 ﻿#include "MenuInstance.h"
 
 #include "../UI/Menus/MenuMain.h"
+#include "Instance/Manager.h"
+#include "Scene/SceneResource.h"
 
 void MenuInstance::Init()
 {
     Instance::Init();
     menus.Push<MenuMain>();
+    ecs.Init();
     db.Init();
 
     DB::AuthData auth;
     auth.User = "TestUser";
     auth.create = true;
     db.auth.Authenticate(auth);
+    
+    config.LoadConfig();
+    if (auto ptr = config.Scene.Get().Get())
+        scene = ptr->Instantiate();
+
+    editorCamera.Toggle();
+    editorCamera.SetState(
+        config.CameraPosition,
+        config.CameraRotation);
 }
 
 void MenuInstance::Deinit()
 {
+#ifdef _DEBUG
+    config.CameraPosition = editorCamera.GetPosition();
+    config.CameraRotation = editorCamera.GetRotation();
+    config.SaveConfig();
+#endif
+
+    scene.Destroy();
+    ecs.Deinit();
     Instance::Deinit();
     db.Deinit();
 }
@@ -23,5 +43,23 @@ void MenuInstance::Deinit()
 void MenuInstance::Logic(const double InDelta)
 {
     Instance::Logic(InDelta);
+    
     db.Update();
+    ecs.Update();
+    editorCamera.Update();
+    
+    if (Input::Action::Get("Back").Pressed())
+        menus.Pop();
+
+    if (menus.Empty())
+        Engine::Manager::Get().Pop();
+}
+
+void MenuInstance::Frame()
+{
+    EnvironmentInstance env;
+    env.skybox = config.Skybox;
+    GetRenderScene().AddEnvironment(env);
+    ecs.Frame(); 
+    Instance::Frame();
 }

@@ -24,7 +24,7 @@ nk.logger_info("Lua Blob module loaded.")
 local function GetLastSeed(user_id)
 	local object_ids = {{ 
 		collection = "blob", 
-		key = "mySeedData", 
+		key = "SeedData", 
 		user_id = user_id
 	}}
 	local objects = nk.storage_read(object_ids)

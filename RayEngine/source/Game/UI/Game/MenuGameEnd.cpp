@@ -5,21 +5,12 @@
 #include "Engine/UI/Elements/Label.h"
 #include "Engine/UI/Elements/List.h"
 #include "Engine/UI/Transform.h"
-#include "../../Instances/GameInstance.h"
+#include "Instances/GameInstance.h"
 
 void MenuGameEnd::Init()
 {
     // Create the UI instance
-    UI::Builder builder = UI::Builder()
-        .Push(UI::Container(UI::Transform::FromRect(600.0f, -300.0f, 0.5f)))
-            .Push(UI::List(UI::Transform::Fill(10.0f), 10.0f), "List")
-                .Add(UI::Label("End", 0.5f, UI::Transform::Fill(), ResFont("UI/F_GothBallCrap.ttf"), 80.0f));
-
-
-    const int score = static_cast<int>(GameState::Get().elapsedTime);
-    builder.Add(UI::Label("Score: " + std::to_string(score), 0.5f), "Score");
-    builder.Add(UI::Label("Replay", 0.5f), "Replay");
-    builder.Add(UI::Label("Main Menu", 0.5f), "Main Menu");
+    UI::Builder builder = UI::Builder();
     ui = builder.Build();
 
     // Disable player input and show mouse

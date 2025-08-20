@@ -10,6 +10,8 @@
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/SceneResource.h"
 #include "ImGui/imgui.h"
+#include "Instance/Manager.h"
+#include "UI/Menus/MenuPause.h"
 
 void GameInstance::Init()
 {
@@ -53,9 +55,13 @@ void GameInstance::Logic(const double InDelta)
     Instance::Logic(InDelta); 
     
     if (!time.IsPaused())
+    {
         physics.Update();
+        if (Input::Action::Get("Back").Pressed())
+            Menu::Manager::Get().Push<MenuPause>();
+    }
     ecs.Update();
-    editorCamera.Update(); 
+    editorCamera.Update();
 }
 
 void GameInstance::Frame()

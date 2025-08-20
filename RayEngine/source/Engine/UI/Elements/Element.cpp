@@ -3,14 +3,28 @@
 #include "Input/Manager.h"
 #include "Rendering/Manager.h"
 #include "raylib.h"
+#include "Math/Random.hpp"
 
 void UI::Element::Draw(Container& InOwner)
 {
+    CHECK_RETURN(!visible);
+    
     if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
         DrawRect(cachedRect);
 
+    Rect drawRect = cachedRect;
+    drawRect.start += {
+        transform.padding.horizontal.x,
+        transform.padding.vertical.x
+    };
+
+    drawRect.end -= {
+        transform.padding.horizontal.y,
+        transform.padding.vertical.y
+    };
+    
     // Also draw
-    const Rect view = ReferenceToViewport(cachedRect);
+    const Rect view = ReferenceToViewport(drawRect);
     const Vec2F size = view.end - view.start;
     const Vec2F pos = view.start;
     if (background.color.a > 0.001f)
@@ -32,6 +46,15 @@ void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
     cachedRect = CalculateRect(InContainingRect);
     invalidated = false;
+}
+
+Vec2F UI::Element::GetDesiredSize() const
+{
+    Vec2F padding = {
+        transform.padding.horizontal.x + transform.padding.horizontal.y, 
+        transform.padding.vertical.x + transform.padding.vertical.y
+    };
+    return transform.size + padding;
 }
 
 void UI::Element::SetTransform(const Transform& InTransform)
@@ -97,11 +120,8 @@ Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
     // TODO: Fix stretching
     
     const Vec2I resi = Rendering::Manager::Get().mainViewport.GetResolution();
-    const Vec2F res = { static_cast<float>(resi.x), static_cast<float>(resi.y) };
     const Rect ref = GetReferenceRect();
-    return {
-        (InVec / ref.end) * res,
-    };
+    return (InVec / ref.end) * resi.To<float>();
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
@@ -123,7 +143,7 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     
     // Calculate position and size
     Rect absolute;
-    absolute.start = anchor + transform.position + size * transform.pivot;
+    absolute.start = anchor + transform.position - size * transform.pivot;
     absolute.end = anchor + transform.position + size * (Vec2F(1.0f) - transform.pivot);
     
     // And blend to container using alignment
@@ -141,10 +161,45 @@ void UI::Element::DrawRect(const Rect& InRect)
     const Rect view = ReferenceToViewport(InRect);
     const Vec2F size = view.end - view.start;
     const Vec2F pos = view.start;
+    Random rnd = Utility::Hash(InRect);
+
+    constexpr Array<Color, 25> colors
+    {
+        ::LIGHTGRAY,
+        ::GRAY,
+        ::DARKGRAY,
+        ::YELLOW,
+        ::GOLD,
+        ::ORANGE,
+        ::PINK,
+        ::RED,
+        ::MAROON,
+        ::GREEN,
+        ::LIME,
+        ::DARKGREEN,
+        ::SKYBLUE,
+        ::BLUE,
+        ::DARKBLUE,
+        ::PURPLE,
+        ::VIOLET,
+        ::DARKPURPLE,
+        ::BEIGE,
+        ::BROWN,
+        ::DARKBROWN,
+        ::WHITE,
+        ::BLACK,
+        ::BLANK,
+        ::MAGENTA,
+    };
+    
+    const float f = rnd.Factor<float>();
+    const int i = static_cast<int>(std::floor(f * 25));
+    const Color c = colors[i];
+    
     DrawRectangleLines(
         static_cast<int>(pos.x + 0.5f),
         static_cast<int>(pos.y + 0.5f),
         static_cast<int>(size.x + 0.5f),    
         static_cast<int>(size.y + 0.5f),
-        ::RED);
+        c);
 }

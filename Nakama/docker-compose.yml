@@ -1,9 +1,4 @@
-version: '3'
-deploy:
-  resources:
-    limits:
-      cpus: '.5'
-      memory: 400m
+version: "3"
 services:
   cockroachdb:
     image: cockroachdb/cockroach:latest-v23.1
@@ -77,6 +72,6 @@ services:
       prometheus --config.file=./prometheus.yml
       EOF'      
     ports:
-      - '9090:9090'
+      - "9090:9090"
 volumes:
   data:

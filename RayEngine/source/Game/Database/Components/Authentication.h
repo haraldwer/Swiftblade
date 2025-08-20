@@ -11,7 +11,8 @@ namespace DB
         void Authenticate(const AuthData& InData) const;
 
         bool IsAuthenticated() const;
-        
+        String GetUsername();
+
     private:
 
         void OnSuccess() const;

@@ -1,0 +1,16 @@
+{
+	"Entries": [{
+			"Name": "I",
+			"Scene":"Scenes/Rooms/S_Room_1.json"
+		},{
+			"Name": "II",
+			"Scene":"Scenes/Rooms/S_Room_1.json"
+		},{
+			"Name": "III",
+			"Scene":"Scenes/Rooms/S_Room_1.json"
+		},{
+			"Name": "IV",
+			"Scene":"Scenes/Rooms/S_Room_1.json"
+		}
+	]
+}

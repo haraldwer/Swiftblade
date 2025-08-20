@@ -79,6 +79,9 @@ void RoomEditor::Logic(const double InDelta)
 
         // TODO: Reset camera?
     }
+
+    if (Input::Action::Get("Back").Released())
+        Engine::Manager::Get().Pop();
 }
 
 void RoomEditor::Frame()

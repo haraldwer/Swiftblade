@@ -16,8 +16,8 @@ namespace UI
             HORIZONTAL
         };
         
-        List(const Transform& InTransform, const float InSpacing = 0.0f, const float InSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false, const float InAutoSize = 0.0f)
-            : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InSize), elementSpacing(InSpacing), elementAutoSize(InAutoSize) { }
+        List(const Transform& InTransform = Transform::Fill(), const float InSpacing = 0.0f, const float InElementSize = 0.0f, const FlowDirection InDirection = FlowDirection::VERTICAL, const bool InReversed = false, const float InAutoSize = 1.0f)
+            : Container(InTransform), direction(InDirection), reversed(InReversed), elementSize(InElementSize), elementSpacing(InSpacing), elementAutoSize(InAutoSize) { }
 
         void RefreshRect(Container& InOwner, const Rect& InContainer) override;
         Vec2F GetDesiredSize() const override;

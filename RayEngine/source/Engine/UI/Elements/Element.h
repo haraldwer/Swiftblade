@@ -30,18 +30,21 @@ namespace UI
         virtual void Draw(Container& InOwner);
 
         void Invalidate() { invalidated = true; }
-        virtual bool Invalidated() const { return invalidated; }
+        virtual bool Invalidated() const { return invalidated && visible; }
         
         virtual void RefreshRect(Container& InOwner, const Rect& InContainingRect);
         Rect GetRect() const { return cachedRect; }
         
-        virtual Vec2F GetDesiredSize() const { return transform.size; } 
-        
+        virtual Vec2F GetDesiredSize() const;
+
         Transform GetTransform() const { return transform; }
         void SetTransform(const Transform& InTransform);
 
         Background GetBackground() const { return background; }
         void SetBackground(const Background& InBackground) { background = InBackground; }
+
+        bool GetVisible() const { return visible; }
+        void SetVisible(bool InVisible) { visible = InVisible; }
         
         virtual bool IsHovered() const;
         bool IsClicked() const;
@@ -62,5 +65,6 @@ namespace UI
         Background background = Background();
         Rect cachedRect = {};
         bool invalidated = true;
+        bool visible = true;
     };
 }

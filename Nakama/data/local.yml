@@ -1,18 +1,31 @@
 name: SwiftbladeDB
 #data_dir: "/nakama/data"
+
 database:
-  address: "root@cockroachdb:26257"
+  address:
+    - "root@cockroachdb:26257"
   #address: "username:password@address:port/dbname"
+
 socket:
   server_key: "defaultkey"
+
 runtime:
   http_key: "defaulthttpkey"
+
 logger:
   level: DEBUG
+
 session:
   encryption_key: "defaultencryptionkey"
   token_expiry_sec: 7200
   refresh_encryption_key: "defaultrefreshencryptionkey"
   refresh_token_expiry_sec: 3600
+
 metrics:
   prometheus_port: 9100
+  reporting_freq_sec: 5
+
+social:
+  steam:
+  publisher_key: ""
+  app_id: 0

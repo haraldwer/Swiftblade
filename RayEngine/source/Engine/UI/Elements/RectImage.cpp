@@ -4,6 +4,8 @@
 
 void UI::RectImage::Draw(Container& InOwner)
 {
+    CHECK_RETURN(!visible);
+    
     Element::Draw(InOwner);
     
     const Rect rect = GetRect();

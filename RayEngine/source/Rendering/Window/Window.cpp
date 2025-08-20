@@ -74,7 +74,7 @@ void Rendering::Window::CapFPS()
     if (targetFPS > 0)
     {
         targetFPS = Utility::Math::Max(targetFPS, 10);
-        const double desiredFrameTime = (1.0 / targetFPS) - leftoverFrameTime;
+        const double desiredFrameTime = Utility::Math::Max(0.0, (1.0 / targetFPS) - leftoverFrameTime);
         while (frameTimer.Ellapsed() < desiredFrameTime)
         {
         }

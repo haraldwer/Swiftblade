@@ -41,8 +41,6 @@ int main()
         resourceManager.Update();
         
         // Update instances
-        if (IsKeyPressed(KEY_ESCAPE))
-            instanceManager.Pop(); 
         instanceManager.Update();
         
         // Get instance

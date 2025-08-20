@@ -7,13 +7,15 @@
 
 void Input::Manager::Push(const String& InContext)
 {
+    LOG("Pushing context: " + InContext);
     const auto find = current.cachedContexts.find(InContext);
     CHECK_ASSERT(find == current.cachedContexts.end(), "Unknown context");
     contextStack.push_back(InContext);
 }
 
 void Input::Manager::Pop(const String& InContext)
-{ 
+{
+    LOG("Popping context: " + InContext);
     for (int i = static_cast<int>(contextStack.size()) - 1; i >= 0; i--)
     {
         if (contextStack[i] == InContext)

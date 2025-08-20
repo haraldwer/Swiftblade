@@ -1,24 +1,24 @@
-#include "ButtonEditorTab.h"
+#include "TabButton.h"
 
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"
 #include "UI/Elements/Label.h"
 
-UI::ButtonEditorTab::ButtonEditorTab(const String &InOption) : Container()
+void UI::TabButton::Init(Container &InOwner)
 {
-    option = InOption;
-    text = Add(Label(option, {}, {}, ResFont("UI/F_LinLibertine_aSZI.ttf")));
-    const Transform t = {
+    text = Add(Label({}, option, 30, ResFont("UI/F_LinLibertine_aSZI.ttf")));
+    underline = Add(Element({
         .size = { 10, 2 } ,
         .anchor = { 0, 1 }
-    };
-    underline = Add(Element(t, {
+    }, {
         .color = Vec4F::One(),
         .cornerRadius = 2.0f,
     }));
+    
+    Container::Init(InOwner);
 }
 
-void UI::ButtonEditorTab::Update(Container &InOwner)
+void UI::TabButton::Update(Container &InOwner)
 {
     Container::Update(InOwner);
 
@@ -53,7 +53,7 @@ void UI::ButtonEditorTab::Update(Container &InOwner)
     u.SetBackground(b);
 }
 
-void UI::ButtonEditorTab::SetSelected(bool InSelected)
+void UI::TabButton::SetSelected(bool InSelected)
 {
     selected = InSelected;
 }

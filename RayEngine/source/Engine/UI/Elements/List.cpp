@@ -4,15 +4,25 @@ void UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
     PROFILE();
 
-    Container::RefreshRect(InOwner, InContainingRect);
+    Rect prev = GetRect();
+    Element::RefreshRect(InOwner, InContainingRect);
     cachedRefRect = InContainingRect;
     
     Rect rect = GetRect();
+    bool changed = prev != rect;
+
+    if (!changed)
+        for (auto& c : children)
+            if (Get<Element>(c).Invalidated())
+                changed = true;
+    
+    CHECK_RETURN(!changed);
+    
     rect.start.x += transform.margins.horizontal.x;
     rect.end.x -= transform.margins.horizontal.y;
     rect.start.y += transform.margins.vertical.x;
     rect.end.y -= transform.margins.vertical.y;
-
+    
     // Each child gets its own rect
     float totalOffset = 0.0f;
     for (size_t i = 0; i < children.size(); i++)
@@ -34,6 +44,11 @@ Vec2F UI::List::GetDesiredSize() const
 {
     if (elementSize < 0.0001f)
     {
+        Vec2F margin = {
+            transform.margins.horizontal.x + transform.margins.horizontal.y, 
+            transform.margins.vertical.x + transform.margins.vertical.y
+        }; 
+        
         float totalOffset = 0.0f;
         float maxChildSize = 0.0f;
         Rect rect = GetRect();
@@ -52,9 +67,9 @@ Vec2F UI::List::GetDesiredSize() const
                     s.y : s.x);
         }
 
-        return direction == FlowDirection::HORIZONTAL ?
+        return (direction == FlowDirection::HORIZONTAL ?
             Vec2F(totalOffset, maxChildSize) :
-            Vec2F(maxChildSize, totalOffset);
+            Vec2F(maxChildSize, totalOffset)) + margin;
     }
     return Container::GetDesiredSize();
 }
@@ -68,7 +83,12 @@ UI::Rect UI::List::GetChildRect(const Element& InElem, const Rect& InRect, const
     
     float rev = reversed ? -1.0f : 1.0f;
     // Rect is based on desired size
-    Vec2F desiredSize = InElem.GetDesiredSize();
+    Vec2F elemSize = InElem.GetDesiredSize();
+    Vec2F desiredSize = {
+        Utility::Math::Max(elemSize.x, elementSize),
+        Utility::Math::Max(elemSize.y, elementSize),
+    };
+    
     Vec2F dirStart = direction == FlowDirection::HORIZONTAL ?
         Vec2F(InOutTotal, 0) : Vec2F(0, InOutTotal);
     Vec2F autoSizeStart = start + dirStart * rev;
@@ -76,7 +96,6 @@ UI::Rect UI::List::GetChildRect(const Element& InElem, const Rect& InRect, const
     Vec2F dirEnd = direction == FlowDirection::HORIZONTAL ?
                 Vec2F(InOutTotal, 0) : Vec2F(0, InOutTotal);
     Vec2F autoSizeEnd = start + dirEnd * rev;
-
     
     // Calculate the part for each index
     const float totalSpacing = elementSpacing * (InCount - 1.0f);

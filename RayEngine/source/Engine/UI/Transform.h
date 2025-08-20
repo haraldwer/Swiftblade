@@ -67,7 +67,7 @@ namespace UI
         Vec2F pivot = {};
         float rotation = 0.0;
         
-        static Transform Fill(const Margin& InPadding = Margin::Zero(), const struct Margin& InMargin = Margin::Zero())
+        static Transform Fill(const Margin& InPadding = Margin::Zero(), const Margin& InMargin = Margin::Zero())
         {
             return {
                 Vec2F::Zero(),
@@ -81,7 +81,21 @@ namespace UI
             };
         }
 
-        static Transform SimpleAnchor(const Vec2F& InAnchor)
+        static Transform Centered()
+        {
+            return {
+                Vec2F::Zero(),
+                Vec2F::Zero(),
+                Margin::Zero(),
+                Margin::Zero(),
+                Margin::Zero(),
+                0.5,
+                0.5,
+                0.0
+            };
+        }
+
+        static Transform SimpleAnchor(const Vec2F& InAnchor, const Vec2F& InPivot = Vec2F::Zero())
         {
             return {
                 Vec2F::Zero(),
@@ -90,7 +104,7 @@ namespace UI
                 Margin::Zero(),
                 Margin::Zero(),
                 InAnchor,
-                Vec2F::Zero(),
+                InPivot,
                 0.0
             };
         }

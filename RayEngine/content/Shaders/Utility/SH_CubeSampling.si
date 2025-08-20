@@ -63,7 +63,7 @@ vec2 GetCubeAtlasUV(vec2 InFaceTexel, vec4 InRect, vec3 InDir)
     vec3 uv = GetFlatCubeUV(InDir);
 
     vec2 faceUV = InRect.zw * uv.xy;
-    faceUV = clamp(faceUV, InFaceTexel, InRect.zw - InFaceTexel);
+    faceUV = clamp(faceUV, InFaceTexel * 2, InRect.zw - InFaceTexel * 2);
     faceUV += InRect.xy;
     faceUV.x += InRect.z * uv.z; // Add face index
 

@@ -4,19 +4,20 @@
 
 namespace UI
 {
-    class ButtonEditorTab : public Container
+    class TabButton : public Container
     {
-        TYPE_INFO(ButtonEditorTab, Container);
+        TYPE_INFO(TabButton, Container);
         
     public:
-        ButtonEditorTab(const String& InOption);
+        TabButton(const String& InOption) : Container(), option(InOption) { }
+        void Init(Container& InOwner) override;
         void Update(Container &InOwner) override;
         void SetSelected(bool InSelected);
 
     private:
         String option;
-        ElementID text;
-        ElementID underline;
+        ElementID text = -1;
+        ElementID underline = -1;
         bool selected = false;
         float alpha = 0.0f; 
     };

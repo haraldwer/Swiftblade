@@ -33,6 +33,9 @@ namespace UI
         template <class T>
         Builder& Add(const T& InElement, const String& InIdentifier = String());
 
+        template <class T>
+        Builder& Add(const T& InElement, ElementID& OutID, const String& InIdentifier = String());
+
         Builder& Pop()
         {
             CHECK_ASSERT(stack.empty(), "Already at root");
@@ -64,7 +67,10 @@ namespace UI
     };
 
     template <>
-    Builder& Builder::Add(const Builder& InElement, const String& InIdentifier) = delete; 
+    Builder& Builder::Add(const Builder& InElement, const String& InIdentifier) = delete;
+    
+    template <>
+    Builder& Builder::Add(const Builder& InElement, ElementID& OutID, const String& InIdentifier) = delete;
     
     template <class T>
     Builder& Builder::Add(const T& InElement, const String& InIdentifier)
@@ -72,4 +78,12 @@ namespace UI
         GetInstance().Add<T>(InElement, InIdentifier);
         return *this;
     }
+
+    template<class T>
+    Builder& Builder::Add(const T &InElement, ElementID& OutID, const String& InIdentifier)
+    {
+        OutID = GetInstance().Add<T>(InElement, InIdentifier);
+        return *this;
+    }
+
 }

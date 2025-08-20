@@ -1,0 +1,41 @@
+
+#include "MenuPause.h"
+
+#include "UI/Builder.h"
+#include "UI/Elements/Label.h"
+#include "Input/Action.h"
+#include "Instance/Manager.h"
+#include "UI/Elements/List.h"
+
+void MenuPause::Init()
+{
+    UI::Builder builder = UI::Builder()
+        .Push(UI::List(UI::Transform::Centered(), 10))
+            .Add(UI::Label(UI::Transform::Centered(), "PAUSED", 50))
+            .Add(UI::Label(UI::Transform::Centered(), "Resume"), "Resume")
+            .Add(UI::Label(UI::Transform::Centered(), "Quit"), "Quit");
+
+    ui = builder.Build();
+    
+    Utility::Time::Get().SetPause(true);
+    Input::Manager::Get().Push("Default");
+}
+
+void MenuPause::Update()
+{
+    Instance::Update();
+
+    if (Input::Action::Get("Back").Pressed() ||
+        ui["Resume"].IsClicked())
+        Menu::Manager::Get().Pop();
+
+    if (ui["Quit"].IsClicked())
+        Engine::Manager::Get().Pop();
+}
+
+void MenuPause::Deinit()
+{
+    Instance::Deinit();
+    Input::Manager::Get().Pop("Default");
+    Utility::Time::Get().SetPause(false);
+}

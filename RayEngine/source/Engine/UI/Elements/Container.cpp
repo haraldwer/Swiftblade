@@ -12,6 +12,8 @@ void UI::Container::Update()
 
 void UI::Container::Draw()
 {
+    CHECK_RETURN(!visible);
+    
     auto refRect = GetReferenceRect();
     if (refRect != cachedRefRect)
         Invalidate();
@@ -39,6 +41,7 @@ void UI::Container::Update(Container& InOwner)
 
 void UI::Container::Draw(Container& InOwner)
 {
+    CHECK_RETURN(!visible);
     PROFILE();
     Element::Draw(InOwner);
     for (auto& child : children)
@@ -71,16 +74,24 @@ void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
 
 Vec2F UI::Container::GetDesiredSize() const
 {
-    Vec2F max = transform.size;
+    Vec2F margin = {
+        transform.margins.horizontal.x + transform.margins.horizontal.y, 
+        transform.margins.vertical.x + transform.margins.vertical.y
+    }; 
+    Vec2F max = transform.size + margin;
     for (auto& el : elements)
     {
-        Vec2F s = el.second.Get().GetDesiredSize();
+        Vec2F s = el.second.Get().GetDesiredSize() + margin;
         max = {
             Utility::Math::Max(max.x, s.x),
             Utility::Math::Max(max.y, s.y)
         };
     }
-    return max;
+    Vec2F padding = {
+        transform.padding.horizontal.x + transform.padding.horizontal.y, 
+        transform.padding.vertical.x + transform.padding.vertical.y
+    };
+    return max + padding;
 }
 
 bool UI::Container::IsHovered() const

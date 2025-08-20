@@ -10,14 +10,14 @@ public:
     bool Load(const String& InIdentifier);
     bool Unload();
     Utility::Timepoint GetEditTime() const; 
-    Font* Get() const { return ptr; }
+    Font* Get(uint32 InSize);
     
     bool Save(const String& InPath) { return false; };
     bool Edit(const String& InName) { return false; };
 
 private:
-    Font* ptr = nullptr;
     String identifier = {}; 
+    Map<uint32, Font*> sizes;
 };
 
 typedef Resource::Ref<FontResource, true> ResFont;  

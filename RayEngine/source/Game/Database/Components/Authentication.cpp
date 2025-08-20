@@ -51,6 +51,11 @@ bool DB::Authentication::IsAuthenticated() const
     return GetSession().get() != nullptr;
 }
 
+String DB::Authentication::GetUsername()
+{
+    return GetSession()->getUsername();
+}
+
 void DB::Authentication::OnSuccess() const
 {
     const Session& session = GetSession();

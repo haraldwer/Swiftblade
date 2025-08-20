@@ -284,14 +284,27 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 void ECS::SysCubeVolume::SystemFrame()
 {
     Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
+    
+    bool changed = false;
+    for (const auto& id : ComponentMap())
+        changed |= GetInternal(id.first).cacheUpdated;
+
+    CHECK_RETURN(!changed);
+    
+    // First remove all
     for (const auto& id : ComponentMap())
     {
         auto& c = GetInternal(id.first);
-        if (c.cacheUpdated)
-        {
-            c.cacheUpdated = false;
-            meshes.Remove(c.blockMesh.hash, persistentID);
-            meshes.Add(c.blockMesh, c.cachedCubeTransforms, persistentID);
-        }
+        meshes.Remove(c.blockMesh.hash, persistentID);
     }
+
+    // Then add all
+    for (const auto& id : ComponentMap())
+    {
+        auto& c = GetInternal(id.first);
+        meshes.Add(c.blockMesh, c.cachedCubeTransforms, persistentID);
+        c.cacheUpdated = false;
+    }
+
+    // Splitting allows for one persistent ID => faster culling
 }

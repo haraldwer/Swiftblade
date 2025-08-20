@@ -5,17 +5,17 @@
 #include "ECS/GameEnd.h"
 #include "ECS/SectionEnd.h"
 #include "ECS/Systems/Attributes.h"
+#include "ECS/Obstacles/Obstacle.h"
+#include "ECS/Obstacles/Projectile.h"
 #include "Engine/ECS/Systems/CameraComponent.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
 #include "Engine/Menu/Manager.h"
-#include "../../Instances/GameInstance.h"
+#include "Instances/GameInstance.h"
 #include "GameState.h"
-#include "ECS/Obstacles/Obstacle.h"
-#include "ECS/Obstacles/Projectile.h"
-#include "UI/Menus/MenuDeath.h"
-#include "UI/Menus/MenuGameEnd.h"
+#include "UI/Game/MenuDeath.h"
+#include "UI/Game/MenuGameEnd.h"
 
 void ECS::Player::Init()
 {

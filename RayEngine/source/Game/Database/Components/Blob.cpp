@@ -62,7 +62,7 @@ void DB::Blob::OnReadSuccess(const Nakama::NStorageObjects& InObjects)
         ptr->Deserialize(constDoc.GetObj());
     }
 	
-    data.Initialized = true;
+    data.initialized = true;
     DBEvent<OnBlobReadSuccess> success;
     success.Invoke({});
 }
@@ -76,7 +76,7 @@ void DB::Blob::OnReadFailed(const Nakama::NError& InError)
 
 void DB::Blob::Set(const BlobData& InData)
 {
-    if (!data.Initialized)
+    if (!data.initialized)
     {
         data = InData;
         LOG("Blob not yet initialized");

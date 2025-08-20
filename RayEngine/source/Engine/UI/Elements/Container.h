@@ -11,8 +11,7 @@ namespace UI
         TYPE_INFO(Container, Element)
         
     public:
-        Container() = default;
-        Container(const Transform& InTransform) : Element(InTransform) {}
+        Container(const Transform& InTransform = Transform::Fill()) : Element(InTransform) {}
 
         void Init();
         void Update();
@@ -80,7 +79,7 @@ namespace UI
     template <class T>
     ElementID Container::Add(const T& InElement)
     {
-        return Add(InElement, "");
+        return Add(InElement, {});
     }
     
     template <class T>

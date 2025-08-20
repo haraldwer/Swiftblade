@@ -17,7 +17,7 @@ namespace Menu
             CHECK_RETURN(stack.empty());
             for (int i = static_cast<int>(stack.size()) - 1; i >= 0; i--)
             {
-                const auto ptr = stack[i].Get();
+                const auto ptr = stack[i];
                 CHECK_CONTINUE(!ptr);
                 ptr->Update();
                 if (ptr->IsBlocking())
@@ -31,7 +31,7 @@ namespace Menu
             CHECK_RETURN(stack.empty());
             for (int i = static_cast<int>(stack.size()) - 1; i >= 0; i--)
             {
-                const auto ptr = stack[i].Get();
+                const auto ptr = stack[i];
                 CHECK_CONTINUE(!ptr);
                 ptr->Draw();
                 if (ptr->IsBlocking())
@@ -54,10 +54,12 @@ namespace Menu
 
         void Clear()
         {
-            for (auto s : stack)
+            for (auto _ : stack)
                 Pop();
             UpdatePending(); 
         }
+
+        bool Empty() const { return stack.empty() && pending.empty(); }
 
     private:
 
@@ -72,8 +74,11 @@ namespace Menu
                 }
                 else
                 {
-                    if (Instance* ptr = stack.back().Get())
+                    if (Instance* ptr = stack.back())
+                    {
                         ptr->Deinit(); 
+                        delete ptr;
+                    }
                     stack.pop_back(); 
                 }
             }
@@ -81,8 +86,8 @@ namespace Menu
         }
         
         // Menu stack!
-        Vector<ObjectPtr<Instance>> stack = {};
-        Vector<ObjectPtr<Instance>> pending = {};
+        Vector<Instance*> stack = {};
+        Vector<Instance*> pending = {};
         
     };
 }

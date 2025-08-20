@@ -52,6 +52,11 @@ namespace Utility
             {
                 EventManagerT::Get().Unregister(Type::Get<Event>(), this);
             }
+
+            Callback(const Callback& InOther) : Callback()
+            {
+                bindings = InOther.bindings;
+            }
             
             void Bind(const std::function<void(const EventT&)>& InFunc, const CallbackT& InCallbackData = {})
             {
