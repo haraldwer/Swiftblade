@@ -97,6 +97,12 @@ submit_room(room_str)
 submit_level(level_str)
 
 
+# Events
+OnLoggedIn
+OnLevelCreated
+OnRoomCreated
+
+
 # Globals
 rooms_most_played (leaderboard)
 	{ roomID, playcount }
@@ -124,6 +130,7 @@ room_(id)
 	Enemies
 	Status
 	Date
+	Creator
 room_playcount_(id) (metric)
 room_favorites_(id) (metric)
 
