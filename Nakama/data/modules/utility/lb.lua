@@ -18,10 +18,13 @@ local function lb_try_create(id, sort, operator, reset, meta)
 	end
 end
 
-local function lb_write(id, userID, username, score)
-	local record, err = nk.leaderboard_record_write(id, userID, username, score)
+local function lb_write(lbID, entry, score)
+	local subscore = 0
+	local meta = {}
+	local override = 0
+	local record, err = nk.leaderboard_record_write(lbID, entry, "", score, subscore, meta, override)
 	if (not err == nil) then
-		nk.logger_error("Failed to write to lb " + id + " (" + userID + ":" + score + ") | " + str(err))
+		nk.logger_error("Failed to write to lb " .. lbID .. " (" .. entry .. ":" .. score .. ") | " .. err)
 	end
 end
 

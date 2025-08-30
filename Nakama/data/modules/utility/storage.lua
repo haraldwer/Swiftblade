@@ -25,7 +25,7 @@ local function storage_read_many(collection, keys)
 end
 
 local function storage_write(collection, key, value)
-	local obj = {{ collection = collection, key = key, value = value }}
+	local obj = {{ collection = collection, key = key, value = value, permission_read = 0, permission_write = 0 }}
 	local acks, err = nk.storage_write(obj)
 	if (not err == nil) then
 		nk.logger_error("Failed to write storage: " .. collection .. " - " .. key .. " - " .. value .. " (" .. err .. ")")
@@ -35,7 +35,7 @@ end
 local function storage_write_many(collection, pairs)
 	local obj = {}
 	for key, value in ipairs(pairs) do
-		table.insert(obj, { collection = collection, key = key, value = value })
+		table.insert(obj, { collection = collection, key = key, value = value, permission_read = 0, permission_write = 0 })
 	end
 	local acks, err = nk.storage_write(obj)
 	if (not err == nil) then

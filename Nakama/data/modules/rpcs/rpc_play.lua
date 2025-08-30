@@ -1,69 +1,113 @@
 
 nk.logger_info("RPC_Play loaded")
 
-local function update_level_lb(levelID, userID, username, leaderboard, cron, score)
+local function update_level_lb(id, name, leaderboard, cron, score)
 	lb.try_create_lb(leaderboard, "desc", "best", cron, {})
-	lb.try_write(leaderboard, userID, username, score)
+	lb.try_write(leaderboard, id, name, score)
 end
 
 local function rpc_begin_play(context, payload)
 	local c = utility.parse(context)
 	local p = utility.parse(payload)
+	
 	local levelID = p.levelID
-	local level_hash = p.level_hash
 	local userID = context.user_id
 	local username = context.username
 
+	local seed = p.seed
+	local level_hash = p.level_hash
+	local seedID = levelID .. "_" .. seed
+
 	if (not storage.read(levelID, "hash") == level_hash) then
 		nk.logger_error("BeginPlay didnt count because of invalid level hash");
-		return 
+		return nk.json_encode({
+			["payload"] = {},
+			["success"] = false
+		})
 	end
 
 	-- Increase storage stats
-	local room_list = parse(storage.read(levelID, "rooms")) -- Todo: Parse
+	local room_list = utility.parse(storage.read(levelID, "rooms")) -- Todo: Parse
 	for roomID in room_list do
 		storage.change(roomID, "playcount", 1)
 	end
-	local playcount = storage.change(levelID, "playcount", 1)
+	local levelPlaycount = storage.change(levelID, "playcount", 1)
+	local seedPlaycount = storage.change(seedID, "playcount", 1)
 	storage.change(userID, "plays", 1)
+	storage.write(userID, "current", level_hash) -- Update user current level
 
 	-- Update level leaderboards
+
 	if (storage.read(levelID, "status") == "Approved") then
-		update_level_lb(levelID, userID, username, "most_played", playcount);
-		update_level_lb(levelID, userID, username, "most_played_weekly", playcount);
-		update_level_lb(levelID, userID, username, "most_played_monthly", playcount);
+		local levelName = storage.read(levelID, "name")
+		local seedName = levelName .. " (" .. seed .. ")"
+
+		update_level_lb(levelID, levelName, "most_played", "", levelPlaycount);
+		update_level_lb(levelID, levelName, "most_played_weekly", "0 0 * * 1", levelPlaycount);
+		update_level_lb(levelID, levelName, "most_played_monthly", "0 0 1 * *", levelPlaycount);
+
+		update_level_lb(seedID, seedName, "seed_most_played", "", seedPlaycount);
+		update_level_lb(seedID, seedName, "seed_most_played_weekly", "0 0 * * 1", seedPlaycount);
+		update_level_lb(seedID, seedName, "seed_most_played_monthly", "0 0 1 * *", seedPlaycount);
 	end
 
-	-- Update user current level
-	storage.write(userID, "current", level_hash)
-
+	return nk.json_encode({
+		["payload"] = {},
+		["success"] = true
+	})
 end
 
 local function rpc_end_play(context, payload)
 	local c = utility.parse(context)
 	local p = utility.parse(payload)
+	
 	local levelID = p.levelID
-	local level_hash = p.level_hash
 	local userID = context.user_id
+	local username = context.username
+
+	local seed = p.seed
+	local score = p.score
+	local level_hash = p.level_hash
+	local seedID = levelID .. "_" .. seed
 
 	if (not storage.read(levelID, "hash") == level_hash) then
 		nk.logger_error("EndPlay didnt count because of invalid level hash");
-		return 
+		return nk.json_encode({
+			["payload"] = {},
+			["success"] = false
+		})
 	end
 	if (not storage.read(userID, "current") == level_hash) then
 		nk.logger_error("EndPlay didnt count because of invalid user hash");
-		return 
+		return nk.json_encode({
+			["payload"] = {},
+			["success"] = false
+		})
 	end
 
 	storage.change(userID, "kills", 1);
-	storage.change(levelID, "finish_count", 1);
+	storage.change(levelID, "finishcount", 1);
 
-	-- Calculate rank?
+	-- Calculate score
 	if (storage.read(levelID, "status") == "Approved") then
-		-- Set user top ranks
+
+		-- Set top ranks for level
+		update_level_lb(levelID, userID, username, "scores", "", score)
+		update_level_lb(levelID, userID, username, "scores_weekly", "0 0 * * 1", score)
+		update_level_lb(levelID, userID, username, "scores_monthly", "0 0 1 * *", score)
+
+		-- Set top ranks for seed
+		update_level_lb(seedID, userID, username, "scores", "", score)
+		update_level_lb(seedID, userID, username, "scores_weekly", "0 0 * * 1", score)
+		update_level_lb(seedID, userID, username, "scores_monthly", "0 0 1 * *", score)
 	end
 
 	storage.write(userID, "current", "")
+
+	return nk.json_encode({
+		["payload"] = {},
+		["success"] = true
+	})
 end
 
 nk.register_rpc(rpc_begin_play, "rpc_begin_play")

@@ -6,6 +6,84 @@ This means that:
 	- Or the existing resource class can interact with the backend
 
 
+# RPC Impl
+## level_info
+- get_room_info
+	- Get all info about room
+- get_level_info
+	- Get all info about level
+- get_level_leaderboard
+	- Get leaderboard for specific level (and seed)
+	- lb: levelID_seed
+## level_list
+- get_submissions
+	- lb: submissions
+- get_most_played
+	- lb: most_played
+- get_most_favourites
+	- lb: most_favourites
+## play
+- begin_play
+	- Compare hash
+	- storage: roomIDs - playcount
+	- storage: levelID - playcount
+	- storage: userID - plays
+	- storage: userID - current
+	- lb: most_played
+	- lb: most_played_weekly
+	- lb: most_played_monthly
+	- lb: seed_most_played
+	- lb: seed_most_played_weekly
+	- lb: seed_most_played_monthly
+- end_play
+	- Compare hash
+	- Compare current
+	- storage: userID - kills
+	- storage: levelID - finishcount
+	- Check approved
+		- lb: levelID_scores
+		- lb: levelID_scores_weekly
+		- lb: levelID_scores_monthly
+		- lb: seedID_scores
+		- lb: seedID_scores_weekly
+		- lb: seedID_scores_monthly
+## submit
+- submit_room
+	- Write all the information about the room
+	- storage: roomID
+- submit_level
+	- Write all the information about the level
+	- storage: levelID
+## user
+- try_claim_username
+	- can multiple users have the same username?
+- set_favourite
+	- storage: levelID - favourites++
+	- lb: level_favourites - levelID
+	- storage: userID - favourites (map)
+	- Update room favourites
+## user_info
+- get_user_info
+	- Information about the user
+	- name, plays, kills, first_login
+- get_user_top_ranks
+	- lb: userid_top_ranks
+- get_user_most_played
+	- lb: userid_most_played
+- get_user_recent_rooms
+	- lb: userid_recent_rooms
+- get_user_recent_levels
+	- lb: userid_recent_levels
+- get_user_favourites
+	- storage: user - favourites
+- get_user_submissions
+	- storage: user - submissions
+
+
+
+
+
+
 
 # Client getters:
 get_user_info(userID)
