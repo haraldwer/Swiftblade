@@ -7,7 +7,7 @@ namespace UI
     {
         TYPE_INFO(Separator, Element);
     public:
-        Separator::Separator() :
+        Separator() :
             Element({
                 .size = { 0, 3 },
                 .alignment = {

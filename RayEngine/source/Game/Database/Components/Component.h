@@ -11,13 +11,15 @@ namespace DB
         virtual ~Component() = default;
         virtual void Init(Manager* InManager);
         virtual void Deinit();
-        
+
+    protected:
         Manager& GetDB() const;
         Client& GetClient() const;
         RtClient& GetRealtimeClient() const;
         Session& GetSession() const;
         
     private:
+
         Manager* manager = nullptr;
     };
 }

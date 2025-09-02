@@ -8,7 +8,6 @@
 		},
 		"Lumin":{
 			"Enabled":false,
-			"InvalidateFallback":true,
 			"Viewport":{
 				"Height":4096,
 				"Width":4096

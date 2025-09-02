@@ -13,15 +13,8 @@ void DB::Manager::Init()
     CHECK_ASSERT(!client, "Failed to create realtime client");
     
     auth.Init(this);
-    
-    onLoggedIn.Bind([](const OnLoginSuccess& InOnSuccess)
-    {
-        // Delay initialization until authenticated
-        auto& man = Get();
-        man.blob.Init(&man); 
-        man.lb.Init(&man);
-    });
-
+    rpc.Init(this);
+    user.Init(this);
     LOG("DB initialized");
 }
 
@@ -40,8 +33,7 @@ void DB::Manager::Deinit()
         client = nullptr; 
     }
 
-    lb.Deinit();
-    blob.Deinit();
+    rpc.Deinit();
     auth.Deinit();
 }
 

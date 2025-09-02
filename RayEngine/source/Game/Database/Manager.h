@@ -1,14 +1,14 @@
 #pragma once
+#include "Events.h"
+#include "Components/RPC.h"
 #include "Components/Authentication.h"
-#include "Components/Blob.h"
-#include "Components/Leaderboard.h"
 #include "NakamaTypes.h"
-#include "Utility/Events/Event.h"
+#include "Components/User.h"
 #include "Utility/Events/Manager.h"
 
 namespace DB
 {
-    class Manager : public Utility::Singelton<Manager>, public Utility::EventManager
+    class Manager : public Utility::Singelton<Manager>
     {
         friend class Component;
         friend class Authentication;
@@ -18,18 +18,16 @@ namespace DB
         void Update() const;
         void Deinit();
 
+        EventManager events;
         Authentication auth = {};
-        Leaderboard lb = {};
-        Blob blob = {};
+        RPC rpc = {};
+        User user = {};
         
     private:
         Client client = nullptr; 
         RtClient rtClient = nullptr;
         Session session = nullptr;
 
-        Utility::Event<OnLoginSuccess, Manager, int>::Callback onLoggedIn = {};
+        Event<AuthResponse>::Callback onAuthenticated = {};
     };
-
-    template <class EventT, class CallbackT = int>
-    using DBEvent = Utility::Event<EventT, Manager, CallbackT>;
 }

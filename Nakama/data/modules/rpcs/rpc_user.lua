@@ -1,31 +1,91 @@
 
 nk.logger_info("RPC_User loaded")
 
-local function rpc_try_claim_username(context, payload)
-	local c = utility.parse(context)
+local function rpc_login_user(context, payload)
 	local p = utility.parse(payload)
+	local newName = p.Name
+	local user = "user_" .. context.user_id
+	if (not newName == nil) then
+		nk.logger_info("New name: " .. newName)
+	end
 
-	local userID = c.user_id
-	local metadata = {}
-	local username = p.name
-	local display_name = ""
-	local timezone = nil
-	local location = ""
-	local lang_tag = nil
-	local avatar_url = "" -- from steam? 
+	-- Read existing user info
+	local info = storage.read(user, "info")
+	utility.print_table(info)
+	local currName = nil
+	if info ~= nil then
+		currName = info.name
+		nk.logger_info("Curr name: " .. currName)
+	end
 
-	local status, err = pcall(nk.account_update_id, userID, metadata, username, display_name, timezone, location, lang_tag, avatar_url)
-
-	if (not status) then
-		nk.logger_info(("Account update error: %q"):format(err))
+	-- Maybe use current name
+	local shouldUseCurrentName = currName == newName or newName == "" or newName == nil
+	if (shouldUseCurrentName and currName ~= nil and currName ~= "") then
+		nk.logger_info("Using current name: " .. currName)
 		return nk.json_encode({
-			["payload"] = {},
-			["success"] = false
+			["payload"] = { 
+				["Name"] = currName,
+				["LoggedIn"] = true
+			},
+			["success"] = true
 		})
 	end
 
+	-- Maybe no new name was specified
+	if newName == "" or newName == nil then
+		nk.logger_info("No new name")
+		return nk.json_encode({
+			["payload"] = {
+				["Name"] = currName,
+				["LoggedIn"] = false
+			},
+			["success"] = true
+		})
+	end
+
+	-- Is new name already claimed?
+	local nameObj = storage.read("usernames", newName)
+	if nameObj ~= nil then
+		if nameObj.user ~= context.user_id then
+			nk.logger_info("Name claimed: " .. newName )
+			return nk.json_encode({
+				["payload"] = {
+					["Name"] = currName,
+					["LoggedIn"] = false
+				},
+				["success"] = true
+			})
+		end
+	end
+
+	-- Remove traces of previous name
+	if currName ~= "" and currName ~= nil then
+		storage.remove("usernames", currName)
+	end
+
+	-- Write new name
+	storage.write("usernames", newName, {
+		["user"] = context.user_id,
+		["date"] = os.date("%d-%m-%Y")
+	})
+
+	-- Write default user data
+	if info == nil then
+		info = { 
+			["name"] = newName,
+			["first_login"] = os.date("%d-%m-%Y")
+		}
+	else
+		info.name = newName
+		-- TODO: List of previous names
+	end
+	storage.write(user, "info", info)
+
 	return nk.json_encode({
-		["payload"] = {},
+		["payload"] = {
+			["Name"] = newName,
+			["LoggedIn"] = true
+		},
 		["success"] = true
 	})
 end
@@ -45,7 +105,7 @@ local function rpc_set_favourite(context, payload)
 	local set = p.set
 
 	local delta = 1
-	if (not set) then delta = -1 end
+	if not set then delta = -1 end
 
 	-- Update level favourites
 	local favs = storage.change(levelID, "favourites", delta)
@@ -77,5 +137,5 @@ local function rpc_set_favourite(context, payload)
 	})
 end
 
-nk.register_rpc(rpc_try_claim_username, "rpc_try_claim_username")
+nk.register_rpc(rpc_login_user, "rpc_login_user")
 nk.register_rpc(rpc_set_favourite, "rpc_set_favourite")

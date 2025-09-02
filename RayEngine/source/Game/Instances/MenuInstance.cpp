@@ -3,18 +3,14 @@
 #include "../UI/Menus/MenuMain.h"
 #include "Instance/Manager.h"
 #include "Scene/SceneResource.h"
+#include "UI/Menus/MenuLogin.h"
 
 void MenuInstance::Init()
 {
     Instance::Init();
-    menus.Push<MenuMain>();
+    menus.Push<MenuLogin>();
     ecs.Init();
     db.Init();
-
-    DB::AuthData auth;
-    auth.User = "TestUser";
-    auth.create = true;
-    db.auth.Authenticate(auth);
     
     config.LoadConfig();
     if (auto ptr = config.Scene.Get().Get())

@@ -23,6 +23,7 @@ namespace UI
         Vec2F GetDesiredSize() const override;
         
         void SetText(const String& InText);
+        String GetText() const { return text; }
 
     private:
         void CacheSize(); 

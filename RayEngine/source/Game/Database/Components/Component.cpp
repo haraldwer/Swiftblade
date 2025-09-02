@@ -2,7 +2,8 @@
 
 #include "Database/Manager.h"
 
-void DB::Component::Init(DB::Manager* InManager)
+
+void DB::Component::Init(Manager* InManager)
 {
     manager = InManager; 
 }

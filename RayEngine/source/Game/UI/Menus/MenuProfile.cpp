@@ -5,6 +5,7 @@
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"
 #include "UI/Elements/Label.h"
+#include "UI/Elements/List.h"
 
 void MenuProfile::Init()
 {
@@ -21,14 +22,16 @@ void MenuProfile::Init()
                     .anchor = 0.5,
                     .pivot = 0.5,
                 }), "Loading")
-            .Push(UI::Container(UI::Transform::Fill(20)), "Page")
-                .Add(UI::Label({}, "username", 50, ResFont("UI/F_LinLibertine_aSZI.ttf")), "Username");
+            .Push(UI::List(UI::Transform::Fill(20)), "Page")
+                .Add(UI::Label({}, "username", 50, ResFont("UI/F_LinLibertine_aSZI.ttf")), "Username")
+                .Add(UI::Label({}, ""), "Plays")
+                .Add(UI::Label({}, ""), "Kills")
+                .Add(UI::Label({}, ""), "FirstLogin");
     
     ui = builder.Build();
     ui["Page"].SetVisible(false);
-
+    
     RequestUserInfo();
-    ApplyUserInfo();
 }
 
 void MenuProfile::Update()
@@ -43,17 +46,52 @@ void MenuProfile::Update()
 
 void MenuProfile::RequestUserInfo()
 {
-    // Assume self if nothing else specified
-}
-
-void MenuProfile::ApplyUserInfo()
-{
-    auto& auth = DB::Manager::Get().auth; 
-    if (auth.IsAuthenticated())
+    onRecieveInfo.Bind([&](auto InResp)
     {
-        LOG("Received user info, applying!")
+        CHECK_RETURN(!InResp.success)
+        LOG("Received userinfo")
+
+        // Show page
         ui["Page"].SetVisible(true);
         ui["Loading"].SetVisible(false);
-        ui.Get<UI::Label>("Username").SetText(auth.GetUsername());
-    }
+        
+        // Update info
+        ui.Get<UI::Label>("Username").SetText(InResp.data.Username);
+        ui.Get<UI::Label>("Plays").SetText(Utility::ToStr(InResp.data.Plays));
+        ui.Get<UI::Label>("Kills").SetText(Utility::ToStr(InResp.data.Kills));
+        ui.Get<UI::Label>("FirstLogin").SetText(InResp.data.FirstLogin);
+
+        DB::RPCUserLB::Request lbReq;
+        lbReq.User = user;
+        lbReq.LB = 1;
+        DB::Manager::Get().rpc.Request<DB::RPCUserLB>(lbReq);
+        
+        DB::RPCUserFavs::Request favsReq;
+        DB::Manager::Get().rpc.Request<DB::RPCUserFavs>(favsReq);
+        DB::RPCUserSubmission::Request subReq;
+        DB::Manager::Get().rpc.Request<DB::RPCUserSubmission>(subReq);
+    });
+
+    onRecieveLB.Bind([&](auto InResp)
+    {
+        CHECK_RETURN(!InResp.success)
+        LOG("Received lb")
+    });
+    
+    onRecieveFavs.Bind([&](auto InResp)
+    {
+        CHECK_RETURN(!InResp.success)
+        LOG("Received favs")
+    });
+    
+    onRecieveSubmissions.Bind([&](auto InResp)
+    {
+        CHECK_RETURN(!InResp.success)
+        LOG("Received submissions")
+    });
+    
+    DB::RPCUserInfo::Request req;
+    req.User = user;
+    DB::Manager::Get().rpc.Request<DB::RPCUserInfo>(req);
+    
 }

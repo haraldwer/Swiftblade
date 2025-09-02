@@ -7,7 +7,7 @@ local function print_table(table)
 end
 
 local function parse(json)
-	nk.logger_debug("parse : " + json)
+	nk.logger_debug("parse : " .. json)
 	return nk.json_decode(json)
 end
 

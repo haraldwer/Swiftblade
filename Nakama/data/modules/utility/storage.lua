@@ -2,9 +2,18 @@
 nk.logger_info("Storage loaded")
 
 local function storage_read(collection, key)
+	if (collection == "" or collection == nil) then
+		nk.logger_error("Unknown collection")
+		return nil
+	end
 	local object_ids = { { collection = collection, key = key } }
 	local objects = nk.storage_read(object_ids)
+	if (objects == nil or not error == nil) then
+		nk.logger_error("Failed to read storage: " .. collection .. " - " .. key .. " (" .. error .. ")")
+		return nil
+	end
 	for _, r in ipairs(objects) do
+		utility.print_table(r)
 		return r.value
 	end
 	nk.logger_error("Failed to read storage: " .. collection .. " - " .. key)
@@ -12,20 +21,33 @@ local function storage_read(collection, key)
 end
 
 local function storage_read_many(collection, keys)
+	if (collection == "" or collection == nil) then
+		nk.logger_error("Unknown collection")
+		return nil
+	end
 	local obj = {}
 	for _, value in ipairs(keys) do
 		table.insert(obj, { collection = collection, key = value })
 	end
-	local objects = nk.storage_read(obj)
-	if (not objects == nil) then
-		return objects
+	local objects, error = nk.storage_read(obj)
+	if (objects == nil or not error == nil) then
+		nk.logger_error("Failed to read storage: " .. collection .. " (" .. error .. ")")
+		return nil
 	end
-	nk.logger_error("Failed to read storage: " .. collection)
-	return nil
+
+	local result = {}
+	for _, obj in ipairs(objects) do
+		result[obj.key] = obj.value
+	end
+	return result
 end
 
 local function storage_write(collection, key, value)
-	local obj = {{ collection = collection, key = key, value = value, permission_read = 0, permission_write = 0 }}
+	if (collection == "" or collection == nil) then
+		nk.logger_error("Unknown collection")
+		return nil
+	end
+	local obj = {{ collection = collection, key = key, value = value, permission_read = 1, permission_write = 1 }}
 	local acks, err = nk.storage_write(obj)
 	if (not err == nil) then
 		nk.logger_error("Failed to write storage: " .. collection .. " - " .. key .. " - " .. value .. " (" .. err .. ")")
@@ -33,9 +55,13 @@ local function storage_write(collection, key, value)
 end
 
 local function storage_write_many(collection, pairs)
+	if (collection == "" or collection == nil) then
+		nk.logger_error("Unknown collection")
+		return nil
+	end
 	local obj = {}
 	for key, value in ipairs(pairs) do
-		table.insert(obj, { collection = collection, key = key, value = value, permission_read = 0, permission_write = 0 })
+		table.insert(obj, { collection = collection, key = key, value = value, permission_read = 1, permission_write = 1 })
 	end
 	local acks, err = nk.storage_write(obj)
 	if (not err == nil) then
@@ -44,6 +70,10 @@ local function storage_write_many(collection, pairs)
 end
 
 local function storage_change(collection, key, delta)
+	if (collection == "" or collection == nil) then
+		nk.logger_error("Unknown collection")
+		return nil
+	end
 	local val_obj = storage_read(collection, key)
 	local val = 0
 	if (type(val_obj) == "number") then
@@ -52,6 +82,15 @@ local function storage_change(collection, key, delta)
 	val = val + delta
 	storage_write(collection, key, val)
 	return val
+end
+
+local function storage_remove(collection, key)
+	if (collection == "" or collection == nil) then
+		nk.logger_error("Unknown collection")
+		return nil
+	end
+	local object_ids = {{ collection = collection, key = key }}
+	nk.storage_delete(object_ids)
 end
 
 return {

@@ -1,23 +1,27 @@
 #pragma once
 
 #include "Component.h"
-#include "Database/Data/AuthData.h"
+#include "Database/Events.h"
+#include "Database/Data/Auth.h"
 
 namespace DB
 {
     class Authentication : public Component 
     {
     public:
-        void Authenticate(const AuthData& InData) const;
+        void Init(Manager *InManager) override;
+        void Deinit() override;
 
+        void Authenticate();
+        void AuthenticateDevice();
+        void AuthenticateSteam();
+        void LinkSteam() const;
         bool IsAuthenticated() const;
-        String GetUsername();
-
+    
     private:
-
-        void OnSuccess() const;
-        void OnFailed(const Nakama::NError& InError) const;
-        
-        // Load / save auth data
+        Event<AuthResponse>::Callback onAuthenticated;
+        Event<DeviceAuthResponse>::Callback onDevice;
+        Event<SteamAuthResponse>::Callback onSteam;
+        bool authenticated = false;
     };
 }
