@@ -7,7 +7,7 @@ local function list_lb(lbID)
 
 	if (not error == nil) then
 		nk.logger_error("LB list failed for " .. lbID .. " : " .. error)
-		return
+		return nil
 	end
 
 	utility.print_table(records)
@@ -18,24 +18,13 @@ local function list_lb(lbID)
 	})
 end
 
-local function rpc_get_submissions(context, payload)
-	local c = utility.parse(context)
-	local p = utility.parse(payload)
-	return list_lb("submissions")
+local function rpc_level_list(context, payload)
+	local list = payload.List;
+	local result = list_lb(list)
+
+	-- now fetch data for each level before returning
+	
+
 end
 
-local function rpc_get_most_played(context, payload)
-	local c = utility.parse(context)
-	local p = utility.parse(payload)
-	return list_lb("most_played")
-end
-
-local function rpc_get_most_favorites(context, payload)
-	local c = utility.parse(context)
-	local p = utility.parse(payload)
-	return list_lb("most_favourites")
-end
-
-nk.register_rpc(rpc_get_submissions, "rpc_get_submissions")
-nk.register_rpc(rpc_get_most_played, "rpc_get_most_played")
-nk.register_rpc(rpc_get_most_favorites, "rpc_get_most_favorites")
+nk.register_rpc(rpc_level_list, "rpc_level_list")

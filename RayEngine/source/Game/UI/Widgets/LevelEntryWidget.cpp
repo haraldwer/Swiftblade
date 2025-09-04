@@ -21,7 +21,8 @@ void UI::LevelEntryWidget::Init(Container &InOwner)
                         .pivot = { 0, 1 }
                     }, "", 20), "Creator")
             .Pop()
-            .Add(Label({}, "Info"), "Info");
+            .Add(Label({}, "Info"), "Info")
+            .Add(Label({}, "*"), "Star");
     Add(b.Build());
     SetLevel(level);
 }
@@ -36,11 +37,13 @@ void UI::LevelEntryWidget::Update(Container &InOwner)
         background.color.a = Utility::Math::Max(background.color.a, 0.2f);
 }
 
-void UI::LevelEntryWidget::SetLevel(const String &InLevel)
+void UI::LevelEntryWidget::SetLevel(const LevelEntry &InLevel)
 {
-    Get<Label>("Name").SetText(InLevel);
-    Get<Label>("Creator").SetText("by Harald");
-    Get<Label>("Info").SetText("123");
+    level = InLevel;
+    Get<Label>("Name").SetText(InLevel.name);
+    Get<Label>("Creator").SetText(" by " + InLevel.creator);
+    Get<Label>("Info").SetText(Utility::ToStr(InLevel.plays));
+    Get<Label>("Star").SetText(InLevel.fav ? "*" : " ");
 }
 
 bool UI::LevelEntryWidget::IsHovered() const

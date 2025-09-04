@@ -1,6 +1,7 @@
 #include "BrowseCommunityPanel.h"
 
 #include "LevelEntryWidget.h"
+#include "LevelListWidget.h"
 #include "Separator.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
@@ -12,19 +13,11 @@ void UI::BrowseCommunityPanel::Init(Container &InOwner)
     
     auto b = Builder()
         .Push(List(Transform::Fill({ 10 })))
-            .Add(Label({}, "Submissions"))
-            .Add(Separator())
-            .Push(List(Transform::Fill()))
-                .Add(LevelEntryWidget("Entry"), "Entry");
-            //.Add(Label({}, "Challenges"))
-            //.Add(Label({}, "Daily"))
-            //.Add(List(Transform::Fill()))
-            //.Add(Label({}, "Weekly"))
-            //.Add(List(Transform::Fill()))
-            //.Add(Label({}, "Monthly"))
-            //.Push(List(Transform::Fill()))
-
-    entries.push_back("Entry");
+            .Add(LevelListWidget("Submissions"))
+            .Add(LevelListWidget("Daily"))
+            .Add(LevelListWidget("Weekly"))
+            .Add(LevelListWidget("Monthly"));
+    
     root = Add(b.Build());
     
     SetBackground({
@@ -36,8 +29,21 @@ void UI::BrowseCommunityPanel::Update(Container &InOwner)
 {
     BrowsePanel::Update(InOwner);
 
-    auto& r = Get<Container>(root);
-    for (auto& e : entries)
-        if (r.Get<LevelEntryWidget>(e).IsClicked())
-            levelSelectedEvent.Invoke({ e });
+    String level;
+    String listing;
+    for (auto e : children)
+    {
+        if (auto w = TryGet<LevelListWidget>(e))
+        {
+            String s = w->GetSelected();
+            if (!s.empty())
+            {
+                level = s;
+                listing = w->GetListing();
+            }
+        }
+    }
+
+    if (!level.empty())
+        levelSelectedEvent.Invoke({ level, listing });
 }

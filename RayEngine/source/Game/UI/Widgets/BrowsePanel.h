@@ -5,7 +5,8 @@ namespace UI
 {
     struct LevelSelectedEventData
     {
-        String Level;
+        String level;
+        String category;
     };
 
     struct RoomSelectedEventData

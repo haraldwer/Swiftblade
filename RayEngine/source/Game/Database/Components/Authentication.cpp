@@ -14,9 +14,9 @@ void DB::Authentication::Init(Manager *InManager)
         LOG("Authenticated");
         authenticated = true;
 
-        RtClient& rtClient = GetRealtimeClient();
-        CHECK_RETURN_LOG(!rtClient, "Invalid realtime client");
-        rtClient->connect(GetSession(), true);
+        //RtClient& rtClient = GetRealtimeClient();
+        //CHECK_RETURN_LOG(!rtClient, "Invalid realtime client");
+        //rtClient->connect(GetSession(), true);
     });
 
     onSteam.Bind([&](auto InResp)

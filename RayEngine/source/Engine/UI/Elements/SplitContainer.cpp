@@ -26,7 +26,11 @@ void UI::SplitContainer::RefreshRect(Container &InOwner, const Rect &InContainin
     float startRatio = 0.0f;
     for (size_t i = 0; i < children.size(); i++)
     {
-        float childRatio = ratios[i] / totalRatio;
+        float ratio = 0.0f;
+        if (i < ratios.size())
+            ratio = ratios[i];
+        
+        float childRatio = ratio / totalRatio;
         
         Rect childRect = rect;
         float& start = direction == SplitDirection::HORIZONTAL ? childRect.start.x : childRect.start.y; 

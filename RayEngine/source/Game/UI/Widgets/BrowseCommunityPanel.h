@@ -9,8 +9,5 @@ namespace UI
     public:
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
-
-    private:
-        Vector<String> entries; 
     };
 }

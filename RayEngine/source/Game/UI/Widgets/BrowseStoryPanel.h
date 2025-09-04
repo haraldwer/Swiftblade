@@ -16,7 +16,7 @@ struct StoryConfig : BaseConfig<StoryConfig>
 
 namespace UI
 {
-    class BrowseStoryPanel : public UI::BrowsePanel
+    class BrowseStoryPanel : public BrowsePanel
     {
         TYPE_INFO(BrowseStoryPanel, BrowsePanel)
     public:

@@ -32,7 +32,9 @@ namespace UI
         template <class T>
         ElementID Add(const T& InElement, const String& InIdentifier);
         void Remove(ElementID InID);
-
+        
+        void ClearChildren();
+        
         template <class T>
         T& Get(ElementID InID);
 

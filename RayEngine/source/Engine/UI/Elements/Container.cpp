@@ -129,3 +129,12 @@ void UI::Container::Remove(const ElementID InID)
         if (children[i] == InID)
             children.erase(children.begin() + i);
 }
+
+void UI::Container::ClearChildren()
+{
+    CHECK_RETURN(children.empty());
+    children.clear();
+    elements.clear();
+    namedElements.clear();
+    Invalidate();
+}
