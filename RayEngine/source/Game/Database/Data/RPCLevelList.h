@@ -8,8 +8,18 @@ namespace DB
         {
             PROPERTY(String, List);
         };
-		
-		
+
+        struct Entry : PropertyOwner<Entry>
+        {
+            PROPERTY(String, ID);
+            PROPERTY(String, Name);
+            PROPERTY(String, Creator);
+            PROPERTY(int, Plays);
+            PROPERTY(bool, Fav);
+        };
+
+        PROPERTY(Vector<Entry>, Entries);
+        
         static String RPC() { return "rpc_level_list"; }
     };
 }

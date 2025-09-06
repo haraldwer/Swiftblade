@@ -21,7 +21,6 @@ namespace UI
         TYPE_INFO(BrowseStoryPanel, BrowsePanel)
     public:
         void Init(Container &InOwner) override;
-        void Update(Container &InOwner) override;
 
     private:
         StoryConfig conf;

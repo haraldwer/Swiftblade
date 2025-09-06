@@ -2,58 +2,72 @@
 
 #include "LevelEntryWidget.h"
 #include "Separator.h"
+#include "Database/Manager.h"
+#include "Database/Data/RPCLevelList.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 
 void UI::LevelListWidget::Init(Container &InOwner)
 {
-    List::Init(InOwner);
-
-    Builder b = Builder();
     if (!title.empty())
     {
-        b.Add(Label({}, title), "Title");
-        b.Add(Separator());
+        Add(Label({}, title));
+        Add(Separator());
     }
-    b.Add(List(), "List");
-    rootID = Add(b.Build());
-    listID = Get<List>(rootID).GetID("List");
 
     
+    listID = Add(List());
+    
+    List::Init(InOwner);
+
+    //onLevelList.Bind([&](auto& InResp) { ListEntries(InResp);});
+    //SetLoading(true);
+    
+    // Do server rpc
+    DB::RPCLevelList::Request request;
+    request.List = list;
+    DB::Manager::Get().rpc.Request<DB::RPCLevelList>(request);
 }
 
 void UI::LevelListWidget::Update(Container &InOwner)
 {
     List::Update(InOwner);
 
-    selectedID = {};
-    auto& list = GetList();
+    auto& l = Get<List>(listID);
     for (auto& eID : entries)
-        if (list.Get<LevelEntryWidget>(eID.second).IsClicked())
+    {
+        if (l.Get<LevelEntryWidget>(eID.second).IsClicked())
+        {
             selectedID = eID.first;
+            
+        }
+    }
+}
+
+void UI::LevelListWidget::ListEntries(const DB::Response<DB::RPCLevelList>& InData)
+{
+    //SetLoading(false);
+    
+    if (!InData.success)
+    {
+        //SetError(InData.error);
+        return;
+    }
+    
+    Clear();
+    for (const DB::RPCLevelList::Entry& level : InData.data.Entries.Get())
+    {
+        LevelEntryWidget e(level);
+        e.Init(*this);
+        entries[level.ID] = Get<List>(listID).Add(e);
+    }
 }
 
 void UI::LevelListWidget::Clear()
 {
-    GetList().ClearChildren();
+    Get<List>(listID).ClearChildren();
     entries.clear();
     selectedID = {};
-}
-
-void UI::LevelListWidget::SetEntries(const Vector<LevelEntry> &InEntries)
-{
-    Clear();
-    for (auto& level : InEntries)
-    {
-        LevelEntryWidget e(level);
-        e.Init(*this);
-        entries[level.id] = GetList().Add(e);
-    }
-}
-
-UI::List& UI::LevelListWidget::GetList()
-{
-    return Get<List>(rootID).Get<List>(listID); 
 }
 
 void UI::LevelListWidget::Sort(const SortMode InMode)

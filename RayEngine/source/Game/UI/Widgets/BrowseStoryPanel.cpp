@@ -36,17 +36,3 @@ void UI::BrowseStoryPanel::Init(Container &InOwner)
     
     root = Add(b.Build());
 }
-
-void UI::BrowseStoryPanel::Update(Container &InOwner)
-{
-    BrowsePanel::Update(InOwner);
-
-    auto& r = Get<Container>(root);
-    for (auto& e : conf.Entries.Get())
-    {
-        if (r.Get<Element>(e.Name).IsClicked())
-            levelSelectedEvent.Invoke({
-                e.Name, 
-            });
-    }
-}

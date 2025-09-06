@@ -4,26 +4,32 @@ nk.logger_info("RPC_Level_List loaded")
 local function list_lb(lbID)
 	local limit = 50
 	local records, ownerRecords, nextCursor, prevCursor, error = nk.leaderboard_records_list(lbID, {}, limit, "", 0)
-
-	if (not error == nil) then
+	if error ~= nil then
 		nk.logger_error("LB list failed for " .. lbID .. " : " .. error)
 		return nil
 	end
-
-	utility.print_table(records)
-
-	return nk.json_encode({ 
-		["payload"] = records,
-		["success"] = true
-	})
+	return records;
 end
 
 local function rpc_level_list(context, payload)
-	local list = payload.List;
-	local result = list_lb(list)
+	local p = utility.parse(payload)
+	local listName = p.List;
+	local records = list_lb(listName)
+	utility.print_table(records)
 
 	-- now fetch data for each level before returning
-	
+	-- Name
+	-- Creator
+	-- Plays
+	-- Starred
+	-- (depends on what's requested)
+
+	local result = {}
+
+	return nk.json_encode({ 
+		["payload"] = result,
+		["success"] = true
+	})
 
 end
 

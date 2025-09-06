@@ -1,31 +1,26 @@
 #pragma once
+#include "Database/Data/RPCLevelList.h"
 #include "UI/Elements/Container.h"
 
 namespace UI
 {
-    // Fill this with whatever should be displayed
-    struct LevelEntry
+    struct LevelEntrySelected
     {
-        String id = "";
-        String name = "unknown";
-        String creator = "unknown";
-        bool fav = false;
-        int plays;
+        DB::RPCLevelList::Entry entry;
     };
     
     class LevelEntryWidget : public Container
     {
         TYPE_INFO(LevelEntryWidget, Container);
     public:
-        LevelEntryWidget(const LevelEntry& InLevel) : level(InLevel) {}
+        LevelEntryWidget(const DB::RPCLevelList::Entry& InEntry) : entry(InEntry) {}
         
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
-        void SetLevel(const LevelEntry& InLevel);
 
         bool IsHovered() const override;
         
     private:
-        LevelEntry level;
+        DB::RPCLevelList::Entry entry;
     };
 }

@@ -1,5 +1,6 @@
 #pragma once
-#include "LevelEntryWidget.h"
+#include "Database/Events.h"
+#include "Database/Data/RPCLevelList.h"
 #include "UI/Elements/List.h"
 
 namespace UI
@@ -9,15 +10,13 @@ namespace UI
         TYPE_INFO(LevelListWidget, List);
         
     public:
-        LevelListWidget(const String& InListing, const String& InTitle) : listing(InListing), title(InTitle) {}
+        LevelListWidget(const String& InList, const String& InTitle) : list(InList), title(InTitle) {}
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
-        String GetSelected() const { return selectedID; }
         
     private:
+        void ListEntries(const DB::Response<DB::RPCLevelList>& InData);
         void Clear();
-        void SetEntries(const Vector<LevelEntry> &InEntries);
-        List& GetList();
         
         enum class SortMode : uint8
         {
@@ -29,12 +28,12 @@ namespace UI
         
         void Sort(SortMode InMode);
         
-        String listing; // Query for db
+        String list; // Query for db
         String title;
-        ElementID rootID = -1;
         ElementID listID = -1;
         
         Map<String, ElementID> entries;
         String selectedID;
+        DB::Event<DB::RPCLevelList>::Callback onLevelList;
     };
 }    

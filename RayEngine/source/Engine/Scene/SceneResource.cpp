@@ -39,7 +39,7 @@ String SceneInstance::ToStr() const
             
             // Write blueprint name
             if (const auto attr = ecs.GetComponent<ECS::Attributes>(entity))
-                Utility::Serialize(writer, "Blueprint", attr->blueprint.Identifier()); 
+                Utility::Serialize(writer, "Blueprint", attr->blueprint.Identifier().Str()); 
 
             // Write entity data
             writer.Key("Overrides");

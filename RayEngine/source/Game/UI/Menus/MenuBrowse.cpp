@@ -30,16 +30,6 @@ void MenuBrowse::Init()
     
     b.Add(UI::InfoPanel(), "Info");
     ui = b.Build();
-
-    onLevelSelected.Bind([&](auto& InData)
-    {
-        ui.Get<UI::InfoPanel>("Info").SetLevel(InData.Level);
-    });
-
-    onRoomSelected.Bind([&](auto& InData)
-    {
-        ui.Get<UI::InfoPanel>("Info").SetRoom(InData.Room);
-    });
 }
 
 void MenuBrowse::Update()

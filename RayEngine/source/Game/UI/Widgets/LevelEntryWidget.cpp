@@ -24,26 +24,24 @@ void UI::LevelEntryWidget::Init(Container &InOwner)
             .Add(Label({}, "Info"), "Info")
             .Add(Label({}, "*"), "Star");
     Add(b.Build());
-    SetLevel(level);
+
+    Get<Label>("Name").SetText(entry.Name);
+    Get<Label>("Creator").SetText(" by " + entry.Creator.Get());
+    Get<Label>("Info").SetText(Utility::ToStr(entry.Plays));
+    Get<Label>("Star").SetText(entry.Fav ? "*" : " ");
 }
 
 void UI::LevelEntryWidget::Update(Container &InOwner)
 {
     Container::Update(InOwner);
 
-    float opacity = IsClicked() ? 0.5 : 0.0;
+    float opacity = IsPressed() ? 0.5 : 0.0;
     background.color.a = Utility::Math::Lerp(background.color.a, opacity, 0.1f);
     if (IsHovered())
         background.color.a = Utility::Math::Max(background.color.a, 0.2f);
-}
 
-void UI::LevelEntryWidget::SetLevel(const LevelEntry &InLevel)
-{
-    level = InLevel;
-    Get<Label>("Name").SetText(InLevel.name);
-    Get<Label>("Creator").SetText(" by " + InLevel.creator);
-    Get<Label>("Info").SetText(Utility::ToStr(InLevel.plays));
-    Get<Label>("Star").SetText(InLevel.fav ? "*" : " ");
+    if (IsClicked())
+        InstanceEvent<LevelEntrySelected>().Invoke({ entry });
 }
 
 bool UI::LevelEntryWidget::IsHovered() const

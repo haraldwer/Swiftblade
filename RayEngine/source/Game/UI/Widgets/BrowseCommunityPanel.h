@@ -8,6 +8,5 @@ namespace UI
         TYPE_INFO(BrowseCommunityPanel, BrowsePanel)
     public:
         void Init(Container &InOwner) override;
-        void Update(Container &InOwner) override;
     };
 }

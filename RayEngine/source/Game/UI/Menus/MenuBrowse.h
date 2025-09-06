@@ -12,7 +12,4 @@ public:
 
 private:
     Type panelType;
-    UI::LevelSelectCallback onLevelSelected;
-    UI::RoomSelectCallback onRoomSelected;
-    
 };
