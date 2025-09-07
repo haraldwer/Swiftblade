@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 #include "Events.h"
 #include "Components/RPC.h"
 #include "Components/Authentication.h"
@@ -24,6 +25,8 @@ namespace DB
         User user = {};
         
     private:
+        Config config;
+        
         Client client = nullptr; 
         RtClient rtClient = nullptr;
         Session session = nullptr;

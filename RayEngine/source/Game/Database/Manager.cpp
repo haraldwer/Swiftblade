@@ -3,10 +3,14 @@
 
 void DB::Manager::Init()
 {
+    config.LoadConfig();
+    
     Nakama::NClientParameters params;
-    params.serverKey = "defaultkey"; // TODO: 
-    params.host = "127.0.0.1"; // TODO: 
-    params.port = Nakama::DEFAULT_PORT;
+    params.serverKey = config.ServerKey;
+    params.host = config.Address; 
+    params.port = config.Port;
+    params.ssl = config.SSL;
+
     client = createDefaultClient(params);
     CHECK_ASSERT(!client, "Failed to create client");
     rtClient = client->createRtClient();

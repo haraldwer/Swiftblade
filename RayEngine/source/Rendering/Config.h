@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Context/ContextConfig.h"
-#include "Lumin/LuminConfig.h"
 #include "Viewport/ViewportConfig.h"
 #include "Window/WindowConfig.h"
 

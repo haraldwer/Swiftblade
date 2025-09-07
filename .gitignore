@@ -28,6 +28,7 @@ imgui.ini
 .cookie
 .env
 local.yml
+C_Database.json
 
 # Obsidian
 */.obsidian
