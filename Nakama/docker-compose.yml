@@ -13,7 +13,7 @@ services:
       - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
-      interval: 3s
+      interval: 30s
       timeout: 3s
       retries: 5
   nakama:
@@ -35,17 +35,17 @@ services:
     volumes:
       - ./data:/nakama/data
     expose:
-      - "7349"
-      - "7350"
-      - "7351"
+      - "${N_PORT_1}"
+      - "${N_PORT_2}"
+      - "${N_PORT_3}"
       - "9100"
     ports:
-      - "7349:7349"
-      - "7350:7350"
-      - "7351:7351"
+      - "${N_PORT_1}:${N_PORT_1}"
+      - "${N_PORT_2}:${N_PORT_2}"
+      - "${N_PORT_3}:${N_PORT_3}"
     healthcheck:
       test: ["CMD", "/nakama/nakama", "healthcheck"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 5
   prometheus:

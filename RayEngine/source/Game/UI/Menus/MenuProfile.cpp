@@ -46,7 +46,7 @@ void MenuProfile::Update()
 
 void MenuProfile::RequestUserInfo()
 {
-    onRecieveInfo.Bind([&](auto InResp)
+    onRecieveInfo.Bind([&](auto InResp, auto InC)
     {
         CHECK_RETURN(!InResp.success)
         LOG("Received userinfo")
@@ -72,19 +72,19 @@ void MenuProfile::RequestUserInfo()
         DB::Manager::Get().rpc.Request<DB::RPCUserSubmission>(subReq);
     });
 
-    onRecieveLB.Bind([&](auto InResp)
+    onRecieveLB.Bind([&](auto InResp, auto InC)
     {
         CHECK_RETURN(!InResp.success)
         LOG("Received lb")
     });
     
-    onRecieveFavs.Bind([&](auto InResp)
+    onRecieveFavs.Bind([&](auto InResp, auto InC)
     {
         CHECK_RETURN(!InResp.success)
         LOG("Received favs")
     });
     
-    onRecieveSubmissions.Bind([&](auto InResp)
+    onRecieveSubmissions.Bind([&](auto InResp, auto InC)
     {
         CHECK_RETURN(!InResp.success)
         LOG("Received submissions")

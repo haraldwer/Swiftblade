@@ -6,7 +6,7 @@ void DB::User::Init(Manager *InManager)
 {
     Component::Init(InManager);
     
-    onLogin.Bind([&](auto InResp)
+    onLogin.Bind([&](auto& InResp, auto InC)
     {
         CHECK_RETURN_LOG(!InResp.success, InResp.error);
         if (InResp.data.LoggedIn)

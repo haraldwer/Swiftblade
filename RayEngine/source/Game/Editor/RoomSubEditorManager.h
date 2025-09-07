@@ -32,5 +32,5 @@ private:
     Map<Utility::TypeHash, Object<RoomSubEditor>> editors;
     Type currentEditor;
     
-    InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback OnMenuClicked;
+    InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback onMenuClicked;
 };

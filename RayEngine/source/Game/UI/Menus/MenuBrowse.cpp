@@ -31,8 +31,3 @@ void MenuBrowse::Init()
     b.Add(UI::InfoPanel(), "Info");
     ui = b.Build();
 }
-
-void MenuBrowse::Update()
-{
-    Instance::Update();
-}

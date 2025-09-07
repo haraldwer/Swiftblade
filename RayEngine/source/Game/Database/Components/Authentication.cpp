@@ -8,7 +8,7 @@ void DB::Authentication::Init(Manager *InManager)
 {
     Component::Init(InManager);
 
-    onAuthenticated.Bind([&](auto InResp)
+    onAuthenticated.Bind([&](auto InResp, auto InC)
     {
         CHECK_RETURN(!InResp.success);
         LOG("Authenticated");
@@ -19,7 +19,7 @@ void DB::Authentication::Init(Manager *InManager)
         //rtClient->connect(GetSession(), true);
     });
 
-    onSteam.Bind([&](auto InResp)
+    onSteam.Bind([&](auto InResp, auto InC)
     {
         if (!InResp.success)
         {
@@ -30,7 +30,7 @@ void DB::Authentication::Init(Manager *InManager)
         Event<AuthResponse>().Invoke({ InResp.success, InResp.error });
     });
 
-    onDevice.Bind([&](auto InResp)
+    onDevice.Bind([&](auto InResp, auto InC)
     {
         if (!InResp.success)
         {

@@ -26,7 +26,7 @@ void MenuLogin::Init()
 
     ui = b.Build();
 
-    onAuth.Bind([&](auto InResp)
+    onAuth.Bind([&](auto InResp, auto InC)
     {
         loading = false;
         if (InResp.success)
@@ -35,7 +35,7 @@ void MenuLogin::Init()
             SetLoginFailed(InResp.error);
     });
     
-    onLogin.Bind([&](auto InResp)
+    onLogin.Bind([&](auto InResp, auto InC)
     {
         loading = false;
         if (InResp.success)

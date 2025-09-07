@@ -40,7 +40,7 @@ void MenuRoomEditor::Update()
         auto& b = l.Get<UI::TabButton>(o.name);
         b.SetSelected(o.name == selected);
         if (b.IsClicked())
-            OnClicked.Invoke({ o.name });
+            InstanceEvent<OnClickedEvent>::Invoke({ o.name });
         
     }
 }

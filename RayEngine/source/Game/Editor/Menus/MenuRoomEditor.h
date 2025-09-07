@@ -18,7 +18,6 @@ public:
     {
         String InOption;
     };
-    InstanceEvent<OnClickedEvent> OnClicked;
     
 private:
     struct Option

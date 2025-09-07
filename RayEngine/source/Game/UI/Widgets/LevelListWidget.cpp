@@ -4,7 +4,6 @@
 #include "Separator.h"
 #include "Database/Manager.h"
 #include "Database/Data/RPCLevelList.h"
-#include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 
 void UI::LevelListWidget::Init(Container &InOwner)
@@ -19,8 +18,7 @@ void UI::LevelListWidget::Init(Container &InOwner)
     listID = Add(List());
     
     List::Init(InOwner);
-
-    //onLevelList.Bind([&](auto& InResp) { ListEntries(InResp);});
+    
     //SetLoading(true);
     
     // Do server rpc
@@ -39,7 +37,6 @@ void UI::LevelListWidget::Update(Container &InOwner)
         if (l.Get<LevelEntryWidget>(eID.second).IsClicked())
         {
             selectedID = eID.first;
-            
         }
     }
 }
@@ -54,7 +51,7 @@ void UI::LevelListWidget::ListEntries(const DB::Response<DB::RPCLevelList>& InDa
         return;
     }
     
-    Clear();
+    //Clear();
     for (const DB::RPCLevelList::Entry& level : InData.data.Entries.Get())
     {
         LevelEntryWidget e(level);
@@ -70,38 +67,8 @@ void UI::LevelListWidget::Clear()
     selectedID = {};
 }
 
-void UI::LevelListWidget::Sort(const SortMode InMode)
+void UI::LevelListWidget::Register()
 {
-    //auto ids = levels;
-    //switch (InMode)
-    //{
-    //    default:
-    //    case SortMode::NAME:
-    //        std::ranges::sort(ids, [&](const LevelEntry& InA, const LevelEntry& InB)
-    //        {
-    //            return InA.name < InB.name;
-    //        });            
-    //        break;
-    //    case SortMode::CREATOR:
-    //        std::ranges::sort(ids, [&](const LevelEntry& InA, const LevelEntry& InB)
-    //        {
-    //            return InA.creator < InB.creator;
-    //        });
-    //        break;
-    //    case SortMode::PLAYS:
-    //        std::ranges::sort(ids, [&](const LevelEntry& InA, const LevelEntry& InB)
-    //        {
-    //            return InA.plays < InB.plays;
-    //        });
-    //        break;
-    //    case SortMode::FAVOURITE:
-    //        std::ranges::sort(ids, [&](const LevelEntry& InA, const LevelEntry& InB)
-    //        {
-    //            if (InA.fav == InB.fav)
-    //                return InA.name < InB.name;
-    //            return InA.fav; 
-    //        });
-    //        break;
-    //}
-    //SetEntries(ids);
+    onLevelList = {};
+    onLevelList.Bind([&](auto& InResp, auto InContext) { InContext->ListEntries(InResp); });
 }

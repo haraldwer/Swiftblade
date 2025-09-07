@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utility/Math/DefaultInitialization.h"
+#include "Utility/Math/Vector/Vector2.hpp"
 
 namespace Utility
 {

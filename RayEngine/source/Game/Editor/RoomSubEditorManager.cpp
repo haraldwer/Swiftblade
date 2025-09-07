@@ -40,7 +40,7 @@ void RoomSubEditorManager::Init(RoomEditor* InEditor)
         SetCurrent(Type::Get<RoomGenEditor>());
     else SetCurrent(Type::Get<RoomObjectEditor>());
     
-    OnMenuClicked.Bind([&](MenuRoomEditor::OnClickedEvent e)
+    onMenuClicked.Bind([&](auto& e, auto c)
     {
         SetCurrent(e.InOption);
     });

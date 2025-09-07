@@ -110,14 +110,12 @@ namespace Utility
             return *this;
         }
 
-        /*
-        Object(Object&& InOther)
+        Object(Object&& InOther) noexcept
         {
             // Move from another object
             obj = InOther.obj;
             InOther.obj = nullptr;
         }
-        */
 
         ~Object()
         {

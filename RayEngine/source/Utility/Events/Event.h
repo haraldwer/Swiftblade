@@ -21,74 +21,101 @@ void func()
     });
 
     // Invoke the event, pass the data
-    Event<MyEventData> event;
-    event.Invoke({ 1 });
+    Event<MyEventData>::Invoke({ 1 });
 }
 */
 
 namespace Utility
 {
     // Shared base class for callbacks
-    class BaseCallback { };
-
-    template <class EventT, class EventManagerT, class CallbackT>
-    class Event
+    class BaseCallback
     {
     public:
-        virtual ~Event() = default;
+        virtual ~BaseCallback() = default;
+    };
 
-        // Internal callback class
-        class Callback : public BaseCallback
+    template <class EventT, class EventManagerT, class CallbackDataT = int>
+    class Event
+    {
+        // Event specific callback
+        class EventCallback : public BaseCallback
         {
             friend Event;
-            
         public:
-            Callback()
+            ~EventCallback() override = default;
+        private:
+            virtual void Invoke(const EventT& InData) const {}
+        };
+        
+    public:
+        virtual ~Event() = default;
+        
+        // Internal callback class
+        template <class ContextT>
+        class ContextCallback : public EventCallback
+        {
+        public:
+            ContextCallback()
             {
                 EventManagerT::Get().Register(Type::Get<Event>(), this);
             }
+
+            explicit ContextCallback(const ContextT& InContext)
+            {
+                EventManagerT::Get().Register(Type::Get<Event>(), this);
+                context = InContext;
+            }
             
-            ~Callback()
+            ~ContextCallback() override
             {
                 EventManagerT::Get().Unregister(Type::Get<Event>(), this);
             }
 
-            Callback(const Callback& InOther) : Callback()
+            ContextCallback(const ContextCallback& InOther)
             {
+                EventManagerT::Get().Register(Type::Get<Event>(), this);
                 bindings = InOther.bindings;
+                context = InOther.context;
             }
             
-            void Bind(const std::function<void(const EventT&)>& InFunc, const CallbackT& InCallbackData = {})
+            void Bind(const std::function<void(const EventT&, const ContextT& InContext)>& InFunc, const CallbackDataT& InCallbackData = {})
             {
                 bindings.push_back({ InFunc, InCallbackData }); 
             }
 
         private:
+
+            void Invoke(const EventT& InData) const override
+            {
+                for (const auto& binding : bindings)
+                    if (ShouldInvoke(InData, context, binding.callbackData))
+                        binding.function(InData, context);
+            }
+            
+            // Event implementations can override this to limit invoked bindings
+            // For example, an entity event that should only occur on specific entities
+            virtual bool ShouldInvoke(const EventT& InEventData, const ContextT InContext, const CallbackDataT& InCallbackData) const
+            {
+                return true; 
+            }
+            
             struct Binding
             {
-                std::function<void(const EventT&)> function;
-                CallbackT callbackData;
+                std::function<void(const EventT&, const ContextT& InContext)> function;
+                CallbackDataT callbackData;
             };
             
-            Vector<Binding> bindings; 
+            Vector<Binding> bindings;
+            ContextT context;
         };
-        
-        void Invoke(const EventT& InData)
+
+        typedef ContextCallback<int> Callback;
+
+        static void Invoke(const EventT& InData)
         {
             for (auto callback : EventManagerT::Get().GetCallbacks(Type::Get<Event>()))
-            {
-                auto* callbackPtr = reinterpret_cast<Callback*>(callback); 
-                for (const auto& binding : callbackPtr->bindings)
-                    if (ShouldInvoke(InData, binding.callbackData))
-                        binding.function(InData);
-            } 
-        }
-
-        // Event implementations can override this to limit invoked bindings
-        // For example, an entity event that should only occur on specific entities
-        virtual bool ShouldInvoke(const EventT& InEventData, const CallbackT& InCallbackData)
-        {
-            return true; 
+                if (auto* callbackPtr = reinterpret_cast<EventCallback*>(callback))
+                    callbackPtr->Invoke(InData);
         }
     };
 }

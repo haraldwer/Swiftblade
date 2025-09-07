@@ -40,6 +40,24 @@ String Utility::ReadFile(const String& InPath)
     return out.substr(off);
 }
 
+Vector<String> Utility::ListFiles(const String &InPath)
+{
+    if (!std::filesystem::exists(InPath))
+        return {};
+    
+    Vector<String> result;
+    for (auto& e : std::filesystem::directory_iterator(InPath))
+    {
+        if (!e.is_directory())
+        {
+            String path = e.path().relative_path();
+            LOG("Path found: " + path);
+            result.push_back(path);
+        }
+    }
+    return result;
+}
+
 bool Utility::WriteFile(const String& InPath, const String& InContent)
 {
     std::ofstream out(InPath);
