@@ -26,6 +26,8 @@ imgui.ini
 
 # Nakama
 .cookie
+.env
+local.yml
 
 # Obsidian
 */.obsidian

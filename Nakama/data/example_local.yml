@@ -26,6 +26,7 @@ metrics:
 console:
   password: ${PASSWORD}
   username: ${USER}
+  signing_key: ${CONSOLE_KEY}
 
 social:
   steam:
