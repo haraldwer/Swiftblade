@@ -11,20 +11,23 @@ namespace UI
         TYPE_INFO(Container, Element)
         
     public:
-        Container(const Transform& InTransform = Transform::Fill()) : Element(InTransform) {}
+        Container(const Transform& InTransform = Transform::Fill(), const Background& InBG = {}, bool InScissor = false) : Element(InTransform, InBG, InScissor) {}
 
         void Init();
         void Update();
         void Draw();
+        void DebugDraw(int& InC);
 
         void Init(Container& InOwner) override;
         void Update(Container& InOwner) override;
         void Draw(Container& InOwner) override;
+        bool DebugDraw(Container &InOwner, const String &InIdentifier, int& InC) override;
+        
         bool Invalidated() const override;
         void RefreshRect(Container& InInstance, const Rect& InContainer) override;
         Vec2F GetDesiredSize() const override;
         bool IsHovered() const override;
-
+        
         bool Contains(const String& InIdentifier) const { return TryGet<Element>(InIdentifier); }
 
         template <class T>
@@ -94,6 +97,7 @@ namespace UI
         elem.id = idCounter;
         elem.parent = id;
         children.push_back(idCounter);
+        invalidated = true;
         if (!InIdentifier.empty())
         {
             CHECK_ASSERT(Contains(InIdentifier), "Element with this identifier already exists");

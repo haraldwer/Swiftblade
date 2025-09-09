@@ -22,12 +22,16 @@ namespace UI
         
     public:
         Element() = default;
-        Element(const Transform& InTransform, const Background& InBG = {}) : transform(InTransform), background(InBG) {}
+        Element(const Transform& InTransform, const Background& InBG = {}, bool InScissor = false) : transform(InTransform), background(InBG), scissor(InScissor) {}
         virtual ~Element() = default;
         
         virtual void Init(Container& InOwner) {}
         virtual void Update(Container& InOwner) {}
         virtual void Draw(Container& InOwner);
+        virtual bool DebugDraw(Container& InOwner, const String& InIdentifier, int& InC);
+
+        void BeginDraw(Container& InOwner);
+        void EndDraw();
 
         void Invalidate() { invalidated = true; }
         virtual bool Invalidated() const { return invalidated && visible; }
@@ -44,8 +48,8 @@ namespace UI
         void SetBackground(const Background& InBackground) { background = InBackground; }
 
         bool GetVisible() const { return visible; }
-        void SetVisible(bool InVisible) { visible = InVisible; }
-        
+        void SetVisible(bool InVisible);
+
         virtual bool IsHovered() const;
         bool IsClicked() const;
         bool IsPressed() const;
@@ -57,14 +61,18 @@ namespace UI
         static Vec2F ReferenceToViewport(const Vec2F& InVec);
         
         Rect CalculateRect(const Rect& InContainer) const;
-        static void DrawRect(const Rect& InRect);
+        Vec4F GetDrawRect();
 
+        static void DrawRect(const Vec4F& InRect);
+        
         ElementID id = -1;
         ElementID parent = -1;
         Transform transform = Transform::Fill();
         Background background = Background();
         Rect cachedRect = {};
+        Vec4F cachedDrawRect = {};
         bool invalidated = true;
         bool visible = true;
+        bool scissor = false;
     };
 }

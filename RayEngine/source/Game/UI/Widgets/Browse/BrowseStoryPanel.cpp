@@ -2,7 +2,6 @@
 
 #include <ranges>
 
-#include "Instances/GameInstance.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"
@@ -27,11 +26,16 @@ void UI::BrowseStoryPanel::Init(Container &InOwner)
                 .cornerRadius = 5
             }));
         b.Add(Label({
-                .position = { -15, 0 },
+                .position = { 0, 0 },
                 .size = { 100, 80},
                 .anchor = 0.5,
                 .pivot = 0.5,
-            }, e.Name, 80, ResFont("UI/F_LinLibertine_aSZI.ttf")), e.Name);
+            }, {
+                e.Name,
+                80,
+                0.5,
+                ResFont("UI/F_LinLibertine_aSZI.ttf")
+            }), e.Name);
     }
     
     root = Add(b.Build());

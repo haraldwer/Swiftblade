@@ -3,6 +3,7 @@
 
 class MenuRoomEditor : Menu::Instance
 {
+    TYPE_INFO(MenuRoomEditor, Menu::Instance);
 public:
     void Init() override;
     void Update() override;

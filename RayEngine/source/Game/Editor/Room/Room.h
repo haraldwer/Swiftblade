@@ -1,6 +1,7 @@
 #pragma once
 #include "ECS/Volume/CubeVolumeCoord.h"
 #include "ECS/Volume/CubeVolumeData.h"
+#include "Resources/Texture.h"
 
 struct RoomObject : PropertyOwner<RoomObject>
 {
@@ -15,7 +16,9 @@ typedef Map<ECS::VolumeCoordKey, RoomObject> RoomObjectMap;
 // This room will be converted to a scene before being played.
 struct Room : PropertyOwner<Room>
 {
-    PROPERTY_D(ECS::VolumeCoordKey, Connection, 0);
+    PROPERTY(String, Name);
+        
+    PROPERTY_D(ECS::VolumeCoordKey, Connection, 0)
     PROPERTY(Vector<ECS::VolumeCoordKey>, Path);
     PROPERTY(RoomObjectMap, Objects);
     

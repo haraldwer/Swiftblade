@@ -1,0 +1,40 @@
+#pragma once
+#include "../LevelList/LevelEntryWidget.h"
+#include "../RoomEntryWidget.h"
+#include "UI/Elements/Container.h"
+#include "Utility/EventScopes.h"
+
+namespace UI
+{
+    class InfoPanel;
+    typedef InstanceEvent<RoomEntrySelected>::ContextCallback<InfoPanel*> RoomCallback;
+    typedef InstanceEvent<LevelEntrySelected>::ContextCallback<InfoPanel*> LevelCallback;
+
+    class InfoPanel : public Container
+    {
+        TYPE_INFO(InfoPanel, Container);
+    public:
+        InfoPanel()
+        {
+            onRoomSelected.SetContext(this);
+            onLevelSelected.SetContext(this);
+        }
+        
+        InfoPanel(const InfoPanel& InOther) :
+            Container(InOther),
+            onRoomSelected(InOther.onRoomSelected),
+            onLevelSelected(InOther.onLevelSelected)
+        {
+            onRoomSelected.SetContext(this);
+            onLevelSelected.SetContext(this);
+        }
+        
+        void Init(Container& InOwner) override;
+        void SetRoom(const ResRoom& InRoom);
+        void SetLevel(const DB::RPCLevelList::Entry& InLevel);
+
+    private:
+        RoomCallback onRoomSelected;
+        LevelCallback onLevelSelected;
+    };
+}

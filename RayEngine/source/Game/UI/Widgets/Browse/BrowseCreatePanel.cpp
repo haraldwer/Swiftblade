@@ -1,6 +1,9 @@
 #include "BrowseCreatePanel.h"
 
-#include "TabButton.h"
+#include "../LevelList/LevelListWidget.h"
+#include "../RoomEntryWidget.h"
+#include "../Common/ButtonTab.h"
+#include "Editor/Room/RoomResource.h"
 #include "UI/Builder.h"
 #include "UI/Elements/List.h"
 #include "UI/Elements/TabContainer.h"
@@ -11,13 +14,13 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
 
     auto b = Builder()
         .Push(List(Transform::Fill({ 10 })))
-            .Push(List({}, 0, 0, List::FlowDirection::HORIZONTAL))
-                .Add(TabButton("Levels"), "Levels")
-                .Add(TabButton("Rooms"), "Rooms")
+            .Push(List({}, { 10, ListDirection::HORIZONTAL }))
+                .Add(ButtonTab("Levels"), "Levels")
+                .Add(ButtonTab("Rooms"), "Rooms")
             .Pop()
             .Push(TabContainer(), "Tabs")
                 .Add(List(), "RoomList")
-                .Add(List(), "LevelList");
+                .Add(LevelListWidget(), "LevelList");
     
     root = Add(b.Build());
 
@@ -32,34 +35,44 @@ void UI::BrowseCreatePanel::Update(Container &InOwner)
 {
     BrowsePanel::Update(InOwner);
 
-    if (Get<TabButton>("Levels").IsClicked())
+    if (Get<ButtonTab>("Levels").IsClicked())
         SelectLevels();
-    if (Get<TabButton>("Rooms").IsClicked())
+    if (Get<ButtonTab>("Rooms").IsClicked())
         SelectRooms();
 }
 
 void UI::BrowseCreatePanel::SelectLevels()
 {
-    Get<TabButton>("Levels").SetSelected(true);
-    Get<TabButton>("Rooms").SetSelected(false);
+    Get<ButtonTab>("Levels").SetSelected(true);
+    Get<ButtonTab>("Rooms").SetSelected(false);
     Get<TabContainer>("Tabs").Set("LevelList");
 
     Vector<String> files = Utility::ListFiles("User/Levels");
     for (auto& f : files)
         LOG("Found level: " + Utility::ReadFile(f));
 
-    auto& list = Get<List>("LevelList");
+    auto& list = Get<LevelListWidget>("LevelList");
     list.ClearChildren();
 }
 
 void UI::BrowseCreatePanel::SelectRooms()
 {
-    Get<TabButton>("Levels").SetSelected(false);
-    Get<TabButton>("Rooms").SetSelected(true);
+    Get<ButtonTab>("Levels").SetSelected(false);
+    Get<ButtonTab>("Rooms").SetSelected(true);
     Get<TabContainer>("Tabs").Set("RoomList");
-
+    
+    auto& list = Get<List>("RoomList");
+    list.ClearChildren();
+    
     Vector<String> files = Utility::ListFiles("User/Rooms");
     for (auto& f : files)
-        LOG("Found room: " + Utility::ReadFile(f));
-    
+    {
+        auto w = RoomEntryWidget(f);
+        w.Init(list);
+        list.Add(w);
+    }
+
+    auto add = RoomEntryWidget();
+    add.Init(list);
+    list.Add(add);
 }

@@ -6,6 +6,7 @@
 
 class MenuLogin : Menu::Instance
 {
+    TYPE_INFO(MenuLogin, Menu::Instance);
 public:
     void Init() override;
     void Update() override;

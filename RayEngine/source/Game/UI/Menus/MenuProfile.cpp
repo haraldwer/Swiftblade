@@ -6,6 +6,8 @@
 #include "UI/Elements/Image.h"
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"
+#include "UI/Widgets/Common/LabelText.h"
+#include "UI/Widgets/Common/LabelTitle.h"
 
 void MenuProfile::Init()
 {
@@ -23,10 +25,10 @@ void MenuProfile::Init()
                     .pivot = 0.5,
                 }), "Loading")
             .Push(UI::List(UI::Transform::Fill(20)), "Page")
-                .Add(UI::Label({}, "username", 50, ResFont("UI/F_LinLibertine_aSZI.ttf")), "Username")
-                .Add(UI::Label({}, ""), "Plays")
-                .Add(UI::Label({}, ""), "Kills")
-                .Add(UI::Label({}, ""), "FirstLogin");
+                .Add(UI::LabelTitle({}, "username"), "Username")
+                .Add(UI::LabelText(), "Plays")
+                .Add(UI::LabelText(), "Kills")
+                .Add(UI::LabelText(), "FirstLogin");
     
     ui = builder.Build();
     ui["Page"].SetVisible(false);

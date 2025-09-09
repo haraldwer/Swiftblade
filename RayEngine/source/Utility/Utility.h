@@ -1,7 +1,5 @@
 #pragma once
 
-#include "String/StringConversion.h"
-
 #define CONCAT_INTERNAL(A, B) A ## B
 #define CONCAT(A, B) CONCAT_INTERNAL(A, B)
 
@@ -11,7 +9,7 @@ namespace Utility
     String DeviceGUID();
 }
 
-#define LOG_CONSOLE(text) { Utility::ExternalLog(String(String(__FUNCTION__) + String("::") + std::to_string(__LINE__) + String(" | ") + Utility::ToStr(text)).c_str()); }
+#define LOG_CONSOLE(text) { Utility::ExternalLog(String(__FUNCTION__) + "::" + Utility::ToStr(__LINE__) + " | " + Utility::ToStr(text)); }
 #define LOG(text) { LOG_CONSOLE(text); }
 
 #define CHECK_ASSERT(condition, text) \

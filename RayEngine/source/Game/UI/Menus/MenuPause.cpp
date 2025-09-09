@@ -6,14 +6,16 @@
 #include "Input/Action.h"
 #include "Instance/Manager.h"
 #include "UI/Elements/List.h"
+#include "UI/Widgets/Common/LabelHeader.h"
+#include "UI/Widgets/Common/LabelTitle.h"
 
 void MenuPause::Init()
 {
     UI::Builder builder = UI::Builder()
-        .Push(UI::List(UI::Transform::Centered(), 10))
-            .Add(UI::Label(UI::Transform::Centered(), "PAUSED", 50))
-            .Add(UI::Label(UI::Transform::Centered(), "Resume"), "Resume")
-            .Add(UI::Label(UI::Transform::Centered(), "Quit"), "Quit");
+        .Push(UI::List(UI::Transform::Centered(), { 10 }))
+            .Add(UI::LabelTitle(UI::Transform::Centered(), "PAUSED"))
+            .Add(UI::LabelHeader(UI::Transform::Centered(), "Resume"), "Resume")
+            .Add(UI::LabelHeader(UI::Transform::Centered(), "Quit"), "Quit");
 
     ui = builder.Build();
     

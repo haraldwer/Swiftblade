@@ -5,6 +5,7 @@
 
 class MenuProfile : Menu::Instance
 {
+    TYPE_INFO(MenuProfile, Menu::Instance);
 public:
     MenuProfile() = default;
     MenuProfile(const String &InUser) : Instance(), user(InUser) {}

@@ -5,6 +5,8 @@ namespace Menu
 {
     class Instance
     {
+        BASE_TYPE_INFO(Instance);
+        
     public:
         virtual ~Instance() = default;
 
@@ -14,6 +16,8 @@ namespace Menu
         virtual void Draw();
         
         virtual bool IsBlocking() const { return true; }
+
+        void DebugDraw(int& InC);
 
     protected:
         UI::Container ui = {}; 

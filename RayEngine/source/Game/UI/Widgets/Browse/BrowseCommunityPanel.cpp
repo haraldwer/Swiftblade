@@ -1,8 +1,8 @@
 #include "BrowseCommunityPanel.h"
 
-#include "LevelEntryWidget.h"
-#include "LevelListWidget.h"
-#include "Separator.h"
+#include "../LevelList/LevelEntryWidget.h"
+#include "../LevelList/LevelListWidget.h"
+#include "../Common/Separator.h"
 #include "UI/Builder.h"
 #include "UI/Elements/List.h"
 

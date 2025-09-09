@@ -12,17 +12,19 @@ void UI::LevelEntryWidget::Init(Container &InOwner)
     transform.margins = { 5 };
     
     auto b = Builder()
-        .Push(SplitContainer(Transform::Fill(), SplitDirection::HORIZONTAL, 10, { 3, 1 }))
-            .Push(List(Transform::Fill(), 0, 0, List::FlowDirection::HORIZONTAL))
-                .Add(Label({}, ""), "Name")
+        .Push(SplitContainer(Transform::Fill(), { SplitDirection::HORIZONTAL, 10, { 3, 1 }}))
+            .Push(List(Transform::Fill(), { 0, ListDirection::HORIZONTAL }))
+                .Add(Label(), "Name")
                 .Add(Label({
                         .padding = {{ 5, 0}, {}},
                         .anchor = { 0, 0.95, },
                         .pivot = { 0, 1 }
-                    }, "", 20), "Creator")
+                    }, {
+                        .size= static_cast<float>(LabelSize::TEXT)
+                    }), "Creator")
             .Pop()
-            .Add(Label({}, "Info"), "Info")
-            .Add(Label({}, "*"), "Star");
+            .Add(Label({}, { "Info" }), "Info")
+            .Add(Label({}, { "*" }), "Star");
     Add(b.Build());
 
     Get<Label>("Name").SetText(entry.Name);
@@ -41,7 +43,7 @@ void UI::LevelEntryWidget::Update(Container &InOwner)
         background.color.a = Utility::Math::Max(background.color.a, 0.2f);
 
     if (IsClicked())
-        InstanceEvent<LevelEntrySelected>().Invoke({ entry });
+        InstanceEvent<LevelEntrySelected>::Invoke({ entry });
 }
 
 bool UI::LevelEntryWidget::IsHovered() const

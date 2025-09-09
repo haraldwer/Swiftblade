@@ -4,12 +4,12 @@
 
 namespace UI
 {
-    class TabButton : public Container
+    class ButtonTab : public Container
     {
-        TYPE_INFO(TabButton, Container);
+        TYPE_INFO(ButtonTab, Container);
         
     public:
-        TabButton(const String& InOption) : Container(), option(InOption) { }
+        ButtonTab(const String& InOption) : Container(), option(InOption) { }
         void Init(Container& InOwner) override;
         void Update(Container &InOwner) override;
         void SetSelected(bool InSelected);

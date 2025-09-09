@@ -1,36 +1,37 @@
 ﻿#include "Element.h"
 
+#include "Container.h"
 #include "Input/Manager.h"
 #include "Rendering/Manager.h"
 #include "raylib.h"
 #include "Math/Random.hpp"
 
+void UI::Element::BeginDraw(Container &InOwner)
+{
+    if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
+        DrawRect(cachedDrawRect);
+    
+    BeginScissorMode(
+        cachedDrawRect.x,
+        cachedDrawRect.y,
+        cachedDrawRect.z,
+        cachedDrawRect.w);
+}
+
+void UI::Element::EndDraw()
+{
+    EndScissorMode();
+}
+
 void UI::Element::Draw(Container& InOwner)
 {
     CHECK_RETURN(!visible);
     
-    if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
-        DrawRect(cachedRect);
-
-    Rect drawRect = cachedRect;
-    drawRect.start += {
-        transform.padding.horizontal.x,
-        transform.padding.vertical.x
-    };
-
-    drawRect.end -= {
-        transform.padding.horizontal.y,
-        transform.padding.vertical.y
-    };
-    
-    // Also draw
-    const Rect view = ReferenceToViewport(drawRect);
-    const Vec2F size = view.end - view.start;
-    const Vec2F pos = view.start;
     if (background.color.a > 0.001f)
     {
+        const auto r = cachedDrawRect;
         DrawRectangleRounded(
-            { pos.x, pos.y, size.x, size.y },
+            { r.x, r.y, r.z, r.w},
             background.cornerRadius,
             16,
             {
@@ -42,9 +43,29 @@ void UI::Element::Draw(Container& InOwner)
     }
 }
 
+bool UI::Element::DebugDraw(Container &InOwner, const String &InIdentifier, int& InC)
+{
+    InC++;
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+    if (!IsA(Type::Get<Container>()))
+        flags |= ImGuiTreeNodeFlags_Leaf;
+
+    String info;
+    if (!visible)
+        info = "hidden";
+    else if (invalidated)
+        info = "invalidated";
+    if (!info.empty())
+        info = " (" + info + ")";
+    
+    return ImGui::TreeNodeEx(("[" + GetObjName() + "]: " + InIdentifier + info + " ##" + Utility::ToStr(InC)).c_str(), flags);
+}
+
 void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 {
+    CHECK_RETURN(!visible);
     cachedRect = CalculateRect(InContainingRect);
+    cachedDrawRect = GetDrawRect();
     invalidated = false;
 }
 
@@ -63,6 +84,15 @@ void UI::Element::SetTransform(const Transform& InTransform)
     {
         transform = InTransform;
         Invalidate();
+    }
+}
+
+void UI::Element::SetVisible(const bool InVisible)
+{
+    if (visible != InVisible)
+    {
+        visible = InVisible;
+        invalidated = true;
     }
 }
 
@@ -156,13 +186,29 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     return result; 
 }
 
-void UI::Element::DrawRect(const Rect& InRect)
+Vec4F UI::Element::GetDrawRect()
 {
-    const Rect view = ReferenceToViewport(InRect);
+    Rect drawRect = cachedRect;
+    drawRect.start += {
+        transform.padding.horizontal.x,
+        transform.padding.vertical.x
+    };
+
+    drawRect.end -= {
+        transform.padding.horizontal.y,
+        transform.padding.vertical.y
+    };
+    
+    // Also draw
+    const Rect view = ReferenceToViewport(drawRect);
     const Vec2F size = view.end - view.start;
     const Vec2F pos = view.start;
-    Random rnd = Utility::Hash(InRect);
+    return { pos, size };
+}
 
+void UI::Element::DrawRect(const Vec4F& InRect)
+{
+    Random rnd = Utility::Hash(InRect);
     constexpr Array<Color, 25> colors
     {
         ::LIGHTGRAY,
@@ -192,14 +238,10 @@ void UI::Element::DrawRect(const Rect& InRect)
         ::MAGENTA,
     };
     
+    const Vec4I r = InRect.To<int>();
     const float f = rnd.Factor<float>();
     const int i = static_cast<int>(std::floor(f * 25));
     const Color c = colors[i];
-    
-    DrawRectangleLines(
-        static_cast<int>(pos.x + 0.5f),
-        static_cast<int>(pos.y + 0.5f),
-        static_cast<int>(size.x + 0.5f),    
-        static_cast<int>(size.y + 0.5f),
-        c);
+    DrawRectangleLines(r.x, r.y, r.z, r.w, c);
 }
+

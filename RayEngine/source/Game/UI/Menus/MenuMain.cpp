@@ -9,9 +9,11 @@
 #include "Engine/UI/Elements/List.h"
 #include "MenuProfile.h"
 #include "MenuSettings.h"
-#include "UI/Widgets/BrowseCommunityPanel.h"
-#include "UI/Widgets/BrowseCreatePanel.h"
-#include "UI/Widgets/BrowseStoryPanel.h"
+#include "UI/Widgets/Browse/BrowseCommunityPanel.h"
+#include "UI/Widgets/Browse/BrowseCreatePanel.h"
+#include "UI/Widgets/Browse/BrowseStoryPanel.h"
+#include "UI/Widgets/Common/LabelHeader.h"
+#include "UI/Widgets/Common/LabelTitle.h"
 
 void MenuMain::Init()
 {
@@ -23,14 +25,19 @@ void MenuMain::Init()
                     .padding = 30, 
                     .anchor = {1.0, 0},
                     .pivot = 0,
-                }, 10, 0, UI::List::FlowDirection::HORIZONTAL, true))
+                }, { 10, UI::ListDirection::HORIZONTAL, true }))
                 .Add(UI::Image({ .size = 40 }), "Exit")
                 .Add(UI::Image({ .size = 40 }), "Settings")
                 .Add(UI::Image({ .size = 40 }), "Profile")
             .Pop()
-            .Push(UI::List(UI::Transform::Centered(), 0, 0, UI::List::FlowDirection::VERTICAL, false, 1))
-                .Add(UI::Label({}, "Swiftblade", 150, ResFont("UI/F_GothBallCrap.ttf")))
-                .Push(UI::List(UI::Transform::Centered(), 50, 0,  UI::List::FlowDirection::HORIZONTAL, false, 1), "List");
+            .Push(UI::List(UI::Transform::Centered(), { 0, UI::ListDirection::VERTICAL }))
+                .Add(UI::Label({}, {
+                        "Swiftblade",
+                        150,
+                        0,
+                        ResFont("UI/F_GothBallCrap.ttf")
+                    }))
+                .Push(UI::List(UI::Transform::Centered(), { 50, UI::ListDirection::HORIZONTAL }), "List");
     
     const Vector<String> buttons = {
         "Play",
@@ -39,7 +46,7 @@ void MenuMain::Init()
     };
 
     UI::Container buttonWidget = UI::Builder()  
-        .Add(UI::Label({}, "Text", 50, ResFont("UI/F_LinLibertine_aSZI.ttf")), "Text")
+        .Add(UI::LabelTitle({}, "Text"), "Text")
         .Build();
     
     for (const String& button : buttons)

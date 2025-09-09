@@ -1,24 +1,24 @@
-#include "TabButton.h"
+#include "ButtonTab.h"
 
+#include "LabelHeader.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"
-#include "UI/Elements/Label.h"
 
-void UI::TabButton::Init(Container &InOwner)
+void UI::ButtonTab::Init(Container &InOwner)
 {
-    text = Add(Label({}, option, 30, ResFont("UI/F_LinLibertine_aSZI.ttf")));
+    text = Add(LabelHeader({}, option));
     underline = Add(Element({
-        .size = { 10, 2 } ,
-        .anchor = { 0, 1 }
-    }, {
-        .color = Vec4F::One(),
-        .cornerRadius = 2.0f,
-    }));
+            .size = { 10, 2 } ,
+            .anchor = { 0, 1 }
+        }, {
+            .color = Vec4F::One(),
+            .cornerRadius = 2.0f,
+        }));
     
     Container::Init(InOwner);
 }
 
-void UI::TabButton::Update(Container &InOwner)
+void UI::ButtonTab::Update(Container &InOwner)
 {
     Container::Update(InOwner);
 
@@ -53,7 +53,7 @@ void UI::TabButton::Update(Container &InOwner)
     u.SetBackground(b);
 }
 
-void UI::TabButton::SetSelected(bool InSelected)
+void UI::ButtonTab::SetSelected(bool InSelected)
 {
     selected = InSelected;
 }

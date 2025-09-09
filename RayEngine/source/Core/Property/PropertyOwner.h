@@ -92,3 +92,15 @@ private:
     static inline Vector<String> propertyOrder;
     
 };
+
+namespace Utility
+{
+    template <class T>
+    String ToStr(const PropertyOwner<T>& InValue)
+    {
+        rapidjson::StringBuffer s;
+        rapidjson::Writer writer(s);
+        InValue.Serialize(writer);
+        return FormatJson(s.GetString());
+    }
+}

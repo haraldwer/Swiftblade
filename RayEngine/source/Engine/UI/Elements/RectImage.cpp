@@ -9,7 +9,7 @@ void UI::RectImage::Draw(Container& InOwner)
     Element::Draw(InOwner);
     
     const Rect rect = GetRect();
-    if (const auto textureRes = texture.Get())
+    if (const auto textureRes = properties.texture.Get())
     {
         if (const auto tex = textureRes->Get())
         {

@@ -3,6 +3,7 @@
 void UI::SplitContainer::RefreshRect(Container &InOwner, const Rect &InContainingRect)
 {
     PROFILE();
+    CHECK_RETURN(!visible);
     
     Rect prev = GetRect();
     Element::RefreshRect(InOwner, InContainingRect);
@@ -16,34 +17,34 @@ void UI::SplitContainer::RefreshRect(Container &InOwner, const Rect &InContainin
     rect.start.y += transform.margins.vertical.x;
     rect.end.y -= transform.margins.vertical.y;
 
-    Vector<float> ratiosFilled = ratios;
+    Vector<float> ratiosFilled = properties.ratios;
     ratiosFilled.resize(children.size(), 1.0f);
     
     float totalRatio = 0.0f;
-    for (auto r : ratios)
+    for (auto r : properties.ratios)
         totalRatio += r;
     
     float startRatio = 0.0f;
     for (size_t i = 0; i < children.size(); i++)
     {
         float ratio = 0.0f;
-        if (i < ratios.size())
-            ratio = ratios[i];
+        if (i < properties.ratios.size())
+            ratio = properties.ratios[i];
         
         float childRatio = ratio / totalRatio;
         
         Rect childRect = rect;
-        float& start = direction == SplitDirection::HORIZONTAL ? childRect.start.x : childRect.start.y; 
-        float& end = direction == SplitDirection::HORIZONTAL ? childRect.end.x : childRect.end.y;
+        float& start = properties.direction == SplitDirection::HORIZONTAL ? childRect.start.x : childRect.start.y; 
+        float& end = properties.direction == SplitDirection::HORIZONTAL ? childRect.end.x : childRect.end.y;
 
         float diff = end - start;
         start = start + diff * startRatio;
         end = start + diff * childRatio;
 
         if (i != 0)
-            start += spacing / 2;
+            start += properties.spacing / 2;
         if (i != children.size() - 1)
-            end -= spacing / 2;
+            end -= properties.spacing / 2;
         
         auto& elem = Get<Element>(children[i]);
         if (changed || elem.Invalidated())

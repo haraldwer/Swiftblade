@@ -17,8 +17,15 @@ void RoomEditor::Init()
     menu = menus.Push<MenuRoomEditor>();
     ecs.Init();
 
-    if (config.LoadLast)
-        room = config.LastRoom;
+    if (!roomResource.Identifier().IsValid())
+    {
+        LOG("Invalid room resource, loading last room");
+        roomResource = config.LastRoom;
+    }
+    
+    if (auto res = roomResource.Get())
+        workingRoom = res->Get();
+    
     subEditorManager.Init(this);
     if (!config.EditMode.Get().empty())
         subEditorManager.SetCurrent(config.EditMode.Get());
@@ -45,9 +52,10 @@ void RoomEditor::Deinit()
 
     config.CamPos = editorCamera.GetPosition();
     config.CamRot = editorCamera.GetRotation();
-    config.LastRoom = room;
+    config.LastRoom = roomResource;
     config.EditMode = subEditorManager.GetCurrentName();
     config.SaveConfig();
+    
     subEditorManager.Deinit();
     history.Clear();
     ecs.Deinit();
@@ -95,10 +103,15 @@ void RoomEditor::Frame()
     Instance::Frame();
 }
 
-void RoomEditor::OpenRoom(const Room& InRoom)
+void RoomEditor::SetRoom(const ResRoom &InRoom)
+{
+    CHECK_RETURN_LOG(!InRoom.Identifier().IsValid(), "Invalid room: " + InRoom.Identifier().Str())
+    roomResource = InRoom;
+}
+
+void RoomEditor::LoadRoom()
 {
     Deinit();
-    room = InRoom;
     Init();
 }
 
@@ -106,8 +119,21 @@ void RoomEditor::PlayRoom()
 {
     SaveRoom();
     ResScene tempScene = ConvertRoomToScene();
-    if (GameInstance* game = Engine::Manager::Get().Push<GameInstance>())
+    if (auto game = Engine::Manager::Get().Push<GameInstance>())
         game->PlayScene(tempScene, editorCamera.GetPosition());
+}
+
+void RoomEditor::SaveRoom()
+{
+    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Invalid room resource");
+    auto res = roomResource.Get();
+    CHECK_RETURN_LOG(!res, "Failed to load resource");
+    auto& room = res->Get();
+    room = workingRoom;
+    if (res->Save(roomResource.Identifier().Str()))
+        LOG("Room saved!")
+    else
+        LOG("Failed to save room")
 }
 
 ResScene RoomEditor::ConvertRoomToScene()
@@ -121,7 +147,7 @@ ResScene RoomEditor::ConvertRoomToScene()
     // Reuses existing instantiated objects
     scene.entities.insert(conEditor.GetConnection(true));
     scene.entities.insert(volEditor.GetCubeVolumeID());
-    for (auto& obj : room.Objects.Get())
+    for (auto& obj : workingRoom.Objects.Get())
         scene.entities.insert(objEditor.LoadObject(obj.second));
 
     Resource::ID id = Resource::ID("EditorRoom", true);
@@ -130,13 +156,6 @@ ResScene RoomEditor::ConvertRoomToScene()
     CHECK_ASSERT(!sceneResource, "Invalid scene resource");
     sceneResource->FromInstance(scene);
     return resScene;
-}
-
-void RoomEditor::SaveRoom()
-{
-    // What's the path to the current room?
-    // Is the room actually a resource?? I don't know...
-    //room.Save(""); 
 }
 
 void RoomEditor::DrawDebugPanel()

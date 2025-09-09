@@ -1,19 +1,19 @@
 #include "LevelListWidget.h"
 
 #include "LevelEntryWidget.h"
-#include "Separator.h"
 #include "Database/Manager.h"
 #include "Database/Data/RPCLevelList.h"
 #include "UI/Elements/Label.h"
+#include "UI/Widgets/Common/LabelHeader.h"
+#include "UI/Widgets/Common/Separator.h"
 
 void UI::LevelListWidget::Init(Container &InOwner)
 {
     if (!title.empty())
     {
-        Add(Label({}, title));
+        Add(LabelHeader({}, title));
         Add(Separator());
     }
-
     
     listID = Add(List());
     
@@ -22,15 +22,24 @@ void UI::LevelListWidget::Init(Container &InOwner)
     //SetLoading(true);
     
     // Do server rpc
-    DB::RPCLevelList::Request request;
-    request.List = list;
-    DB::Manager::Get().rpc.Request<DB::RPCLevelList>(request);
+    if (!rpcList.empty())
+    {
+        DB::RPCLevelList::Request request;
+        request.List = rpcList;
+        DB::Manager::Get().rpc.Request<DB::RPCLevelList>(request);
+    }
+
+    onLevelList.Bind([&](auto& InResp, auto InContext)
+    {
+        InContext->ListEntries(InResp);
+    });
 }
 
 void UI::LevelListWidget::Update(Container &InOwner)
 {
     List::Update(InOwner);
 
+    return;
     auto& l = Get<List>(listID);
     for (auto& eID : entries)
     {
@@ -50,6 +59,8 @@ void UI::LevelListWidget::ListEntries(const DB::Response<DB::RPCLevelList>& InDa
         //SetError(InData.error);
         return;
     }
+
+    CHECK_RETURN(InData.data.List.Get() != rpcList);
     
     //Clear();
     for (const DB::RPCLevelList::Entry& level : InData.data.Entries.Get())
@@ -65,10 +76,4 @@ void UI::LevelListWidget::Clear()
     Get<List>(listID).ClearChildren();
     entries.clear();
     selectedID = {};
-}
-
-void UI::LevelListWidget::Register()
-{
-    onLevelList = {};
-    onLevelList.Bind([&](auto& InResp, auto InContext) { InContext->ListEntries(InResp); });
 }

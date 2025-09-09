@@ -3,6 +3,7 @@
 
 class MenuPause : public Menu::Instance
 {
+    TYPE_INFO(MenuPause, Menu::Instance);
 public:
     void Init() override;
     void Update() override;

@@ -121,10 +121,13 @@ typedef Utility::Math::Random Random;
 #include "Utility/Time/Timepoint.h"
 #include "Utility/Time/Timer.h"
 #include "Utility/Math/Hash.h"
-#include "Utility/String/StringConversion.h"
+
 #include "Utility/String/StringFunctions.h"
 
 #include "Utility/Serialization/JsonUtility.h"
 #include "Utility/Serialization/Serialize.h"
 #include "Utility/Serialization/Deserialize.h"
 #include "Utility/Serialization/Edit.h"
+
+#include "Utility/String/StringConversionMath.h"
+#include "Utility/String/StringConversion.h"

@@ -13,15 +13,14 @@ void UI::Label::Draw(Container& InOwner)
 {
     CHECK_RETURN(!visible);
 
-    if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
-        DrawRect(cachedRect);
+    Element::Draw(InOwner);
     
     const Rect rect = GetRect();
     const Vec2F startPos = rect.start;
     const Vec2F endPos = rect.end - cachedSize;
     const Vec2F pos {
-        Utility::Math::Lerp(startPos.x, endPos.x, centering.x),
-        Utility::Math::Lerp(startPos.y, endPos.y, centering.y)
+        Utility::Math::Lerp(startPos.x, endPos.x, properties.centering.x),
+        Utility::Math::Lerp(startPos.y, endPos.y, properties.centering.y)
     };
     const Vec2F viewPos = ReferenceToViewport(pos); 
 
@@ -34,23 +33,23 @@ void UI::Label::Draw(Container& InOwner)
     const Vector2 origin = { 0.0f, 0.0f };
     const float rot = 0.0f;
     const Color tint = {
-        static_cast<uint8>(color.r * 255),
-        static_cast<uint8>(color.g * 255),
-        static_cast<uint8>(color.b * 255),
-        static_cast<uint8>(color.a * 255),
+        static_cast<uint8>(properties.color.r * 255),
+        static_cast<uint8>(properties.color.g * 255),
+        static_cast<uint8>(properties.color.b * 255),
+        static_cast<uint8>(properties.color.a * 255),
     };
 
     float screenSize = GetScreenSize();
-    if (const auto fontRsc = font.Get())
+    if (const auto fontRsc = properties.font.Get())
         if (const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize)))
             DrawTextPro(
                 *fontPtr,
-                text.c_str(),
+                properties.text.c_str(),
                 { viewPos.x, viewPos.y},
                 origin,
                 rot,
                 screenSize,
-                spacing * sizeScale,
+                properties.spacing * sizeScale,
                 tint);
 }
 
@@ -67,27 +66,27 @@ Vec2F UI::Label::GetDesiredSize() const
 
 void UI::Label::SetText(const String& InText)
 {
-    text = InText;
+    properties.text = InText;
     CacheSize();
     Invalidate(); 
 }
 
 void UI::Label::CacheSize()
 {
-    if (const auto fontRsc = font.Get())
+    if (const auto fontRsc = properties.font.Get())
     {
         float screenSize = GetScreenSize();
         if (const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize)))
         {
-            Vector2 measure = MeasureTextEx(*fontPtr, text.c_str(), screenSize, spacing); 
-            cachedSize = Vec2F(measure.x, measure.y) * size / screenSize;
+            Vector2 measure = MeasureTextEx(*fontPtr, properties.text.c_str(), screenSize, properties.spacing); 
+            cachedSize = Vec2F(measure.x, measure.y) * properties.size / screenSize;
         }
     }
 }
 
 float UI::Label::GetScreenSize() const
 {
-    Vec2F s = { size };
+    Vec2F s = { properties.size };
     Vec2F view = ReferenceToViewport(s);
     return Utility::Math::Min(view.x, view.y);
 }

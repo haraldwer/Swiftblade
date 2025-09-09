@@ -6,15 +6,12 @@ void UI::Image::Draw(Container& InOwner)
 {
     CHECK_RETURN(!visible);
     Element::Draw(InOwner);
-    const Rect view = ReferenceToViewport(GetRect());
-    if (const auto textureRes = texture.Get())
+    
+    const auto r = cachedDrawRect;
+    if (const auto textureRes = properties.texture.Get())
     {
         if (const auto tex = textureRes->Get())
         {
-            Vec2F destSize = {
-                view.end.x - view.start.x,
-                view.end.y - view.start.y,
-            };
             DrawTexturePro(
                 *tex,
                 {
@@ -23,20 +20,20 @@ void UI::Image::Draw(Container& InOwner)
                     static_cast<float>(tex->width),
                     static_cast<float>(tex->height)
                 }, {
-                    view.start.x + transform.pivot.x * destSize.x,
-                    view.start.y + transform.pivot.y * destSize.y,
-                    destSize.x,
-                    destSize.y
+                    r.x + transform.pivot.x * r.z,
+                    r.y + transform.pivot.y * r.w,
+                    r.z,
+                    r.w
                 }, {
-                    transform.pivot.x * destSize.x,
-                    transform.pivot.y * destSize.y,
+                    transform.pivot.x * r.z,
+                    transform.pivot.y * r.w,
                 },
                 transform.rotation,
                 {
-                    static_cast<uint8>(imageColor.r * 255),
-                    static_cast<uint8>(imageColor.g * 255),
-                    static_cast<uint8>(imageColor.b * 255),
-                    static_cast<uint8>(imageColor.a * 255)
+                    static_cast<uint8>(properties.color.r * 255),
+                    static_cast<uint8>(properties.color.g * 255),
+                    static_cast<uint8>(properties.color.b * 255),
+                    static_cast<uint8>(properties.color.a * 255)
                 });
         }
     }
@@ -46,7 +43,7 @@ Vec2F UI::Image::GetDesiredSize() const
 {
     if (transform.size == Vec2F::Zero())
     {
-        if (const auto textureRes = texture.Get())
+        if (const auto textureRes = properties.texture.Get())
         {
             if (const auto tex = textureRes->Get())
             {

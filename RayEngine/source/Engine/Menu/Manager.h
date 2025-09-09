@@ -5,7 +5,7 @@ namespace Menu
 {
     class Instance;
     
-    class Manager : public Utility::Singelton<Manager>
+    class Manager : public Utility::Singelton<Manager>, public Debug::Panel
     {
     public:
         
@@ -60,6 +60,27 @@ namespace Menu
         }
 
         bool Empty() const { return stack.empty() && pending.empty(); }
+
+        void DrawDebugPanel() override
+        {
+            int c = 0;
+            for (int i = static_cast<int>(stack.size()) - 1; i >= 0; i--)
+            {
+                const auto ptr = stack[i];
+                CHECK_CONTINUE(!ptr);
+                if (ImGui::CollapsingHeader(("[" + Utility::ToStr(i) + "] " + ptr->GetObjName()).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ptr->DebugDraw(c);
+                    if (ptr->IsBlocking())
+                        break;
+                }
+            }
+        }
+
+        String DebugPanelName() const override
+        {
+            return "Menus";
+        }
 
     private:
 

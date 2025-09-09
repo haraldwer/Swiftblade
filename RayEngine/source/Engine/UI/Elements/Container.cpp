@@ -19,8 +19,16 @@ void UI::Container::Draw()
         Invalidate();
     if (Invalidated())
         RefreshRect(*this, refRect);
-    
+
+    BeginDraw(*this);
     Draw(*this);
+    EndDraw();
+}
+
+void UI::Container::DebugDraw(int& InC)
+{
+    if (DebugDraw(*this, "Root", InC))
+        ImGui::TreePop();
 }
 
 void UI::Container::Init(Container& InOwner)
@@ -47,13 +55,39 @@ void UI::Container::Draw(Container& InOwner)
     for (auto& child : children)
     {
         CHECK_ASSERT(!elements.contains(child), "Unknown element id");
-        elements.at(child).Get().Draw(*this);
+        auto& elem = elements.at(child).Get();
+        elem.BeginDraw(*this);
+        elem.Draw(*this);
+        elem.EndDraw();
     }
+}
+
+bool UI::Container::DebugDraw(Container &InOwner, const String &InIdentifier, int& InC)
+{
+    if (Element::DebugDraw(InOwner, InIdentifier, InC))
+    {
+        Map<ElementID, String> nameInv;
+        for (auto e : namedElements)
+            nameInv[e.second] = e.first;
+        for (auto& child : children)
+        {
+            CHECK_ASSERT(!elements.contains(child), "Unknown element id");
+            auto& elem = elements.at(child).Get();
+            String identifier = "";
+            if (auto find = nameInv.find(child); find != nameInv.end())
+                identifier = find->second;
+            if (elem.DebugDraw(InOwner, identifier, InC))
+                ImGui::TreePop();
+        }
+        return true;
+    }
+    return false;
 }
 
 void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
 {
     PROFILE();
+    CHECK_RETURN(!visible);
 
     Rect prev = GetRect();
     Element::RefreshRect(InInstance, InContainer);

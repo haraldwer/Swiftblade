@@ -2,7 +2,7 @@
 
 #include <ranges>
 
-#include "../../UI/Widgets/TabButton.h"
+#include "../../UI/Widgets/Common/ButtonTab.h"
 #include "Instance/Manager.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
@@ -13,19 +13,18 @@ void MenuRoomEditor::Init()
     UI::Builder builder = UI::Builder()
         .Push(UI::List(
             {
-                .position = {-610, 50},
+                .position = { -20, 20 },
                 .anchor = {1, 0},
-                .pivot = {0, 0}
-            },
-            20.0f,
-            0.0f,
-            UI::List::FlowDirection::HORIZONTAL,
-            true,
-            1.0),
+                .pivot = {1, 0},
+            }, {
+                20,
+                UI::ListDirection::HORIZONTAL,
+                true
+            }),
         "List");
     
     for (auto& o : std::ranges::reverse_view(options))
-        builder.Add(UI::TabButton(o.text), o.name);
+        builder.Add(UI::ButtonTab(o.text), o.name);
     
     ui = builder.Build();
 }
@@ -37,7 +36,7 @@ void MenuRoomEditor::Update()
     auto& l = ui.Get<UI::List>("List");
     for (Option& o : options)
     {
-        auto& b = l.Get<UI::TabButton>(o.name);
+        auto& b = l.Get<UI::ButtonTab>(o.name);
         b.SetSelected(o.name == selected);
         if (b.IsClicked())
             InstanceEvent<OnClickedEvent>::Invoke({ o.name });

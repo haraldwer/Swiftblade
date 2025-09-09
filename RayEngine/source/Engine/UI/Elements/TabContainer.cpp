@@ -26,7 +26,7 @@ void UI::TabContainer::Set(ElementID InID)
 {
     if (InID != selected)
     {
-        if (selected != -1)
+        if (selected != static_cast<ElementID>(-1))
         {
             auto& prev = previous.emplace_back();
             prev.id = selected;

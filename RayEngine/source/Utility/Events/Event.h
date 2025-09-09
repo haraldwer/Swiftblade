@@ -60,12 +60,6 @@ namespace Utility
                 EventManagerT::Get().Register(Type::Get<Event>(), this);
             }
 
-            explicit ContextCallback(const ContextT& InContext)
-            {
-                EventManagerT::Get().Register(Type::Get<Event>(), this);
-                context = InContext;
-            }
-            
             ~ContextCallback() override
             {
                 EventManagerT::Get().Unregister(Type::Get<Event>(), this);
@@ -76,6 +70,11 @@ namespace Utility
                 EventManagerT::Get().Register(Type::Get<Event>(), this);
                 bindings = InOther.bindings;
                 context = InOther.context;
+            }
+
+            void SetContext(const ContextT& InC)
+            {
+                context = InC;
             }
             
             void Bind(const std::function<void(const EventT&, const ContextT& InContext)>& InFunc, const CallbackDataT& InCallbackData = {})

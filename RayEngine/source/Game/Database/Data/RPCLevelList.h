@@ -18,6 +18,7 @@ namespace DB
             PROPERTY(bool, Fav);
         };
 
+        PROPERTY(String, List);
         PROPERTY(Vector<Entry>, Entries);
         
         static String RPC() { return "rpc_level_list"; }

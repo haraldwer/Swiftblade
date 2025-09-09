@@ -1,8 +1,0 @@
-﻿
-namespace Utility
-{
-    namespace Math
-    {
-        
-    }
-}

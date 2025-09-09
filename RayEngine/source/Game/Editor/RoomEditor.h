@@ -7,6 +7,7 @@
 #include "RoomSubEditorManager.h"
 #include "History/History.h"
 #include "Room/Room.h"
+#include "Room/RoomResource.h"
 
 class MenuRoomEditor;
 
@@ -14,8 +15,7 @@ class MenuRoomEditor;
 struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 {
     PROPERTY_C(ResRM, Skybox, "Dressing/Skybox/RM_Skybox.json");
-    PROPERTY_C(bool, LoadLast, true)
-    PROPERTY(Room, LastRoom)
+    PROPERTY(ResRoom, LastRoom)
     PROPERTY(String, EditMode)
     PROPERTY(Vec3F, CamPos)
     PROPERTY(Vec3F, CamRot)
@@ -32,8 +32,9 @@ public:
     void Deinit() override;
     void Logic(double InDelta) override;
     void Frame() override;
-    
-    void OpenRoom(const Room& InRoom);
+
+    void SetRoom(const ResRoom& InRoom);
+    void LoadRoom();
     void PlayRoom();
     void SaveRoom();
     
@@ -43,16 +44,16 @@ public:
     bool IsEditor() const override { return true; }
     bool CanEdit() const;
 
-    Room& GetRoom() { return room; }
+    Room& GetRoom() { return workingRoom; }
     RoomSubEditorManager& GetSubEditors() { return subEditorManager; }
     Utility::History& GetHistory() { return history; }
     MenuRoomEditor& GetMenu() { CHECK_ASSERT(!menu, "Invalid menu"); return *menu; }
 
 private:
-
     ResScene ConvertRoomToScene();
     
-    Room room;
+    ResRoom roomResource;
+    Room workingRoom;
     
     // Editor stuff
     MenuRoomEditor* menu = nullptr;
