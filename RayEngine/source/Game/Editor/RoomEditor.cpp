@@ -1,5 +1,7 @@
 ﻿#include "RoomEditor.h"
 
+#include "Database/Manager.h"
+#include "Database/Data/RPCSubmit.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Engine/Instance/Manager.h"
 #include "Instances/GameInstance.h"
@@ -118,7 +120,7 @@ void RoomEditor::LoadRoom()
 void RoomEditor::PlayRoom()
 {
     SaveRoom();
-    ResScene tempScene = ConvertRoomToScene();
+    ResScene tempScene = GetTempScene(ConvertRoomToScene());
     if (auto game = Engine::Manager::Get().Push<GameInstance>())
         game->PlayScene(tempScene, editorCamera.GetPosition());
 }
@@ -136,7 +138,7 @@ void RoomEditor::SaveRoom()
         LOG("Failed to save room")
 }
 
-ResScene RoomEditor::ConvertRoomToScene()
+SceneInstance RoomEditor::ConvertRoomToScene()
 {
     SceneInstance scene;
     auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
@@ -148,13 +150,63 @@ ResScene RoomEditor::ConvertRoomToScene()
     scene.entities.insert(volEditor.GetCubeVolumeID());
     for (auto& obj : workingRoom.Objects.Get())
         scene.entities.insert(objEditor.LoadObject(obj.second));
+    
+    return scene;
+}
 
+ResScene RoomEditor::GetTempScene(const SceneInstance &InScene)
+{
     Resource::ID id = Resource::ID("EditorRoom", true);
     ResScene resScene = ResScene(id);
     SceneResource* sceneResource = resScene.Get();
     CHECK_ASSERT(!sceneResource, "Invalid scene resource");
-    sceneResource->FromInstance(scene);
+    sceneResource->FromInstance(InScene);
     return resScene;
+}
+
+DB::RPCSubmitRoom::Request RoomEditor::CreateSubmitRequest()
+{
+    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot submit room, invalid room resource", {});
+    
+    DB::RPCSubmitRoom::Request request;
+    request.Name = workingRoom.Name;
+    
+    auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
+    auto& vol = volEditor.GetVolume();
+    request.Size = (vol.cachedMaxBounds - vol.cachedMinBounds).To<int>();
+    request.Length = 0;
+    Vec3F prev;
+    for (auto& p : workingRoom.Path.Get())
+    {
+        Vec3F pos = vol.CoordToPos(p);
+        if (prev == Vec3F::Zero())
+        {
+            prev = pos;
+            continue;
+        }
+        request.Length += (pos - prev).Length();
+        prev = pos;
+    }
+    
+    for (auto& o : workingRoom.Objects.Get())
+    {
+        if (o.second.Object.Get() == "Spawner")
+            request.Spawners++;
+        else
+            request.Objects++;
+    }
+    
+    SceneInstance scene = ConvertRoomToScene();
+    request.Scene = scene.ToStr();
+    return request;
+}
+
+bool RoomEditor::SubmitRoom()
+{
+    auto req = CreateSubmitRequest();
+    CHECK_RETURN_LOG(req.Scene.Get().empty(), "Invalid submit request", false);
+    DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(req);
+    return true;
 }
 
 void RoomEditor::DrawDebugPanel()

@@ -16,15 +16,17 @@ namespace Rendering
         bool IsBaked() const { return baked; }
         RenderTarget& Get() { return target; };
         
-    private:
-        
         PROPERTY(ResShader, Shader);
         PROPERTY_D(String, Name, "TexBaked");
         PROPERTY_D(int, Res, 1024);
         
+    private:
+        
         RenderTarget target;
         RenderTexture* tex = nullptr;
         bool baked = false;
+
+        
     };
 }
 

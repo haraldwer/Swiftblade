@@ -5,6 +5,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"
+#include "Database/Data/RPCSubmit.h"
 #include "History/History.h"
 #include "Room/Room.h"
 #include "Room/RoomResource.h"
@@ -38,6 +39,9 @@ public:
     void PlayRoom();
     void SaveRoom();
     
+    DB::RPCSubmitRoom::Request CreateSubmitRequest();
+    bool SubmitRoom();
+    
     void DrawDebugPanel() override;
     String DebugPanelName() const override { return "Room Editor"; }
     
@@ -50,7 +54,9 @@ public:
     MenuRoomEditor& GetMenu() { CHECK_ASSERT(!menu, "Invalid menu"); return *menu; }
 
 private:
-    ResScene ConvertRoomToScene();
+    
+    SceneInstance ConvertRoomToScene();
+    static ResScene GetTempScene(const SceneInstance& InScene);
     
     ResRoom roomResource;
     Room workingRoom;

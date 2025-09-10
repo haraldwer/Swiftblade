@@ -73,6 +73,21 @@ namespace Utility
         return ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
     }
 
+    inline bool Edit(const String& InName, Vec2I& InOutData, const uint32 InOffset = 0)
+    {
+        return ImGui::InputInt2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+    }
+
+    inline bool Edit(const String& InName, Vec3I& InOutData, const uint32 InOffset = 0)
+    {
+        return ImGui::InputInt3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+    }
+
+    inline bool Edit(const String& InName, Vec4I& InOutData, const uint32 InOffset = 0)
+    {
+        return ImGui::InputInt4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+    }
+
     inline bool Edit(const String& InName, QuatF& InOutData, const uint32 InOffset = 0)
     {
         Vec3F euler = InOutData.Euler();

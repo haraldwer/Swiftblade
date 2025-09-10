@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <ranges>
 
 void Utility::SetWorkingDir()
 {
@@ -74,6 +75,24 @@ bool Utility::FileExists(const String& InPath)
     return std::filesystem::exists(InPath);
 }
 
+void Utility::CreateDir(const String &InPath)
+{
+    auto path = std::filesystem::path(InPath);
+    if (path.has_extension())
+        path = path.parent_path();
+    Vector<std::filesystem::path> stack;
+    while (!std::filesystem::exists(path) && !path.empty())
+    {
+        stack.push_back(path);
+        path = path.parent_path();
+    }
+    for (auto p : std::ranges::views::reverse(stack))
+    {
+        LOG("Creating: " + p.string());
+        std::filesystem::create_directory(p);
+    }
+}
+
 Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
 {
     if (InPath.empty())
@@ -83,4 +102,11 @@ Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
         return Timepoint(); 
     const std::filesystem::file_time_type fileTime = std::filesystem::last_write_time(path);
     return Timepoint(fileTime.time_since_epoch());
+}
+
+String Utility::GetCachePath(const String &InPath, String InExt)
+{
+    if (!InExt.contains("."))
+        InExt = "." + InExt;
+    return "Cache/" + ToStr(Hash(InPath)) + InExt; 
 }

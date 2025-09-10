@@ -75,5 +75,6 @@ namespace UI
         bool visible = true;
         bool scissor = false;
         bool debugHovered = false;
+        int debugColor = -1;
     };
 }

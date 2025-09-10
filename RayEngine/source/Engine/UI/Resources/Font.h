@@ -2,6 +2,7 @@
 
 #include "Core/Resource/Resource.h"
 #include "Resources/Shader.h"
+#include "Resources/Texture.h"
 
 struct Font;
 
@@ -14,13 +15,18 @@ public:
     Font* Get(uint32 InSize);
     Shader* GetShader() const;
     
+    bool Edit(const String& InName, uint32 InOffset = 0);
     bool Save(const String& InPath) { return false; }
-    bool Edit(const String& InName);
 
 private:
-    ResShader sdfShader;
-    String identifier = {}; 
-    Map<uint32, Font*> sizes;  
+
+    String GetCachePath(int InSize) const;
+    ResShader sdfShader = ResShader("Shaders/SH_FontSDF.fs");
+    String identifier = {};
+    
+    Map<uint32, Font*> sizes;
+
+    static constexpr uint32 maxSize = 40;
 };
 
 typedef Resource::Ref<FontResource, true> ResFont;  

@@ -57,6 +57,33 @@ void Utility::WriteValue(SerializeObj& InOutObj, const Vec4F& InData)
     InOutObj.EndArray();
 }
 
+void Utility::WriteValue(SerializeObj &InOutObj, const Vec2I &InData)
+{
+    InOutObj.StartArray();
+    InOutObj.Int(InData.x); 
+    InOutObj.Int(InData.y); 
+    InOutObj.EndArray();
+}
+
+void Utility::WriteValue(SerializeObj &InOutObj, const Vec3I &InData)
+{
+    InOutObj.StartArray();
+    InOutObj.Int(InData.x); 
+    InOutObj.Int(InData.y); 
+    InOutObj.Int(InData.z); 
+    InOutObj.EndArray();
+}
+
+void Utility::WriteValue(SerializeObj &InOutObj, const Vec4I &InData)
+{
+    InOutObj.StartArray();
+    InOutObj.Int(InData.x); 
+    InOutObj.Int(InData.y); 
+    InOutObj.Int(InData.z); 
+    InOutObj.Int(InData.w); 
+    InOutObj.EndArray();
+}
+
 void Utility::WriteValue(SerializeObj& InOutObj, const QuatF& InData)
 {
     Vec3F euler = InData.Euler(); 

@@ -26,7 +26,6 @@ public:
     bool IsEditor() const override { return true; }
     
 private:
-    DB::Manager db = {};
     ECS::Manager ecs = {}; 
     SceneInstance scene = {};
     MenuConfig config = {};

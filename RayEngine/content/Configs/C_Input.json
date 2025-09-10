@@ -140,6 +140,9 @@
 				},{
 					"Key":53,
 					"Name":"RoomObjectEditor"
+				},{
+					"Key":54,
+					"Name":"RoomPreviewEditor"
 				}
 			],
 			"Name":"RoomEditor"

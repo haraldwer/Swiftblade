@@ -21,6 +21,9 @@ RayEngine/cmake-build-release
 RayEngine/cmake-build-clang-19---debug
 RayEngine/cmake-build-clang-19---release
 
+# Cache
+RayEngine/content/Cache/*
+
 # Imgui
 imgui.ini
 
@@ -32,3 +35,4 @@ C_Database.json
 
 # Obsidian
 */.obsidian
+

@@ -5,7 +5,6 @@
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"
 #include "UI/Elements/Label.h"
-#include "UI/Elements/SplitContainer.h"
 #include "UI/Widgets/Common/ButtonDefault.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
@@ -56,7 +55,8 @@ void UI::InfoPanelRoom::Update(Container &InOwner)
 }
 
 void UI::InfoPanelRoom::SetRoom(const ResRoom &InRoom)
-{   
+{
+    room = InRoom;
     auto res = InRoom.Get();
     if (!res)
     {

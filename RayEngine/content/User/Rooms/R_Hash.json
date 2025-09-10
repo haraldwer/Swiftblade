@@ -1,3 +1,9 @@
 {
-	"Name":"My first room!"
+	"Path":[
+		8519680,
+		8979199
+	],
+	"Connection":8979199,
+	"Name":"My first room!",
+	"Data":""
 }

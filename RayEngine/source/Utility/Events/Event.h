@@ -72,6 +72,12 @@ namespace Utility
                 context = InOther.context;
             }
 
+            ContextCallback(const std::function<void(const EventT&, const ContextT& InContext)>& InFunc, const CallbackDataT& InCallbackData = {})
+            {
+                EventManagerT::Get().Register(Type::Get<Event>(), this);
+                bindings = { { InFunc, InCallbackData } };
+            }
+
             void SetContext(const ContextT& InC)
             {
                 context = InC;

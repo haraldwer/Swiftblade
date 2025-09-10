@@ -14,6 +14,9 @@ public:
     Utility::Timepoint GetEditTime() const;
     Texture* Get() const { return ptr; }
 
+    bool Edit(const String& InName, uint32 InOffset = 0) const;
+    bool Save(const String& InPath) { return false; }
+    
 private:
     String identifier = {}; 
     Texture* ptr = nullptr;

@@ -10,7 +10,7 @@ namespace UI
         
     public:
         TabContainer() = default;
-        TabContainer(const Transform& InTransform) : Container(InTransform) {}
+        TabContainer(const Transform& InTransform = Transform::Fill(), const Background& InBg = {}) : Container(InTransform, InBg) {}
         void Update(Container& InOwner) override;
 
         void SetIndex(int InIndex);

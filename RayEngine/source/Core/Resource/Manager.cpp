@@ -85,8 +85,9 @@ void Resource::Manager::DrawDebugPanel()
     static bool showOnlyLoaded = true;
     ImGui::Checkbox("Show only loaded", &showOnlyLoaded); 
     
-    if (ImGui::BeginTable("Resources", 3, ImGuiTableFlags_Borders))
+    if (ImGui::BeginTable("Resources", 4, ImGuiTableFlags_Borders))
     {
+        ImGui::TableSetupColumn("Edit", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Count", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Loaded", ImGuiTableColumnFlags_WidthFixed);
@@ -97,6 +98,10 @@ void Resource::Manager::DrawDebugPanel()
             CHECK_CONTINUE(showOnlyLoaded && !res.second->loaded);
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
+            if (res.second->IsEditable())
+                if (ImGui::Button(("Edit##" + Utility::ToStr(res.first)).c_str()))
+                    selected = res.first;
+            ImGui::TableNextColumn();
             ImGui::Text("%s", res.second->id.Str().c_str());
             ImGui::TableNextColumn();
             CHECK_CONTINUE(!res.second); 
@@ -105,6 +110,21 @@ void Resource::Manager::DrawDebugPanel()
             ImGui::Text(res.second->loaded ? "True" : "False");
         }
         ImGui::EndTable(); 
+    }
+
+    if (resources.contains(selected))
+    {
+        auto res = resources.at(selected);
+        if (res)
+        {
+            static bool open;
+            open = true;
+            if (ImGui::Begin(("Inspect: " + res->id.Str()).c_str(), &open))
+                res->Edit(res->id.Str()); 
+            ImGui::End();
+            if (!open)
+                selected = -1;
+        }
     }
 }
 

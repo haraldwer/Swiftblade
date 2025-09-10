@@ -40,6 +40,6 @@ void MenuDeath::Update()
         }
     }
     
-    if (ui["Main Menu"].IsClicked())
-        Engine::Manager::Get().Pop();
+    //if (ui["Main Menu"].IsClicked())
+    //    Engine::Manager::Get().Pop();
 }

@@ -22,11 +22,13 @@ int main()
     Engine::Manager instanceManager;
     Engine::Launcher launcher;
     GlobalEventManager eventManager;
+    DB::Manager db = {};
     
     debugManager.Init();
     renderer.Init();
     audio.Init();
     launcher.Init();
+    db.Init();
 
     // Timekeeping
     double logicTimeCounter = 0.0;
@@ -39,6 +41,7 @@ int main()
     {
         PROFILE();
         resourceManager.Update();
+        db.Update();
         
         // Update instances
         instanceManager.Update();
@@ -78,6 +81,7 @@ int main()
         PROFILE_FRAME();
     }
 
+    db.Deinit();
     launcher.Deinit(); 
     debugManager.Deinit();
     instanceManager.Clear();

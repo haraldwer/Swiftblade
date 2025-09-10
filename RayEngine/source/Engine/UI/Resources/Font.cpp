@@ -2,12 +2,15 @@
 
 #include "Utility/File/File.h"
 #include "raylib.h"
+#include "utils.h"
+#include "../../../../cmake-build-release/_deps/raylib-src/projects/Notepad++/raylib_npp_parser/raylib_to_parse.h"
+#include "external/stb_image_write.h"
+#include "external/stb_rect_pack.h"
 #include "ImGui/rlImGui.h"
 
 bool FontResource::Load(const String& InIdentifier)
 {
     identifier = InIdentifier;
-    
     return true;
 }
 
@@ -30,47 +33,229 @@ Utility::Timepoint FontResource::GetEditTime() const
     return Utility::GetFileWriteTime(identifier);  
 }
 
+// Modified version of GenImageFontAtlas() for only loading glyphs
+// The image is loaded from disk instead.
+void GenFontGlyphs(const GlyphInfo *glyphs, Rectangle **glyphRecs, int glyphCount, int fontSize, int padding, int packMethod)
+{
+    if (glyphs == NULL)
+    {
+        TRACELOG(LOG_WARNING, "FONT: Provided chars info not valid");
+        return;
+    }
+    
+    *glyphRecs = NULL;
+
+    // In case no chars count provided we suppose default of 95
+    glyphCount = (glyphCount > 0)? glyphCount : 95;
+
+    // NOTE: Rectangles memory is loaded here!
+    const auto recs = static_cast<Rectangle*>(RL_MALLOC(glyphCount*sizeof(Rectangle)));
+
+    // Calculate image size based on total glyph width and glyph row count
+    int totalWidth = 0;
+    int maxGlyphWidth = 0;
+
+    for (int i = 0; i < glyphCount; i++)
+    {
+        if (glyphs[i].image.width > maxGlyphWidth) maxGlyphWidth = glyphs[i].image.width;
+        totalWidth += glyphs[i].image.width + 2*padding;
+    }
+
+    int width = 0;
+    int height = 0;
+    
+    //#define SUPPORT_FONT_ATLAS_SIZE_CONSERVATIVE
+#if defined(SUPPORT_FONT_ATLAS_SIZE_CONSERVATIVE)
+    int rowCount = 0;
+    int imageSize = 64;  // Define minimum starting value to avoid unnecessary calculation steps for very small images
+
+    // NOTE: maxGlyphWidth is maximum possible space left at the end of row
+    while (totalWidth > (imageSize - maxGlyphWidth)*rowCount)
+    {
+        imageSize *= 2;                                 // Double the size of image (to keep POT)
+        rowCount = imageSize/(fontSize + 2*padding);    // Calculate new row count for the new image size
+    }
+
+    width = imageSize;   // Atlas bitmap width
+    height = imageSize;  // Atlas bitmap height
+#else
+    int paddedFontSize = fontSize + 2*padding;
+    // No need for a so-conservative atlas generation
+    float totalArea = totalWidth*paddedFontSize*1.2f;
+    float imageMinSize = sqrtf(totalArea);
+    int imageSize = (int)powf(2, ceilf(logf(imageMinSize)/logf(2)));
+
+    if (totalArea < ((imageSize*imageSize)/2))
+    {
+        width = imageSize;    // Atlas bitmap width
+        height = imageSize/2; // Atlas bitmap height
+    }
+    else
+    {
+        width = imageSize;   // Atlas bitmap width
+        height = imageSize;  // Atlas bitmap height
+    }
+#endif
+
+    // DEBUG: We can see padding in the generated image setting a gray background...
+    //for (int i = 0; i < atlas.width*atlas.height; i++) ((unsigned char *)atlas.data)[i] = 100;
+
+    if (packMethod == 0)   // Use basic packing algorithm
+    {
+        int offsetX = padding;
+        int offsetY = padding;
+
+        // NOTE: Using simple packaging, one char after another
+        for (int i = 0; i < glyphCount; i++)
+        {
+            // Check remaining space for glyph
+            if (offsetX >= (width - glyphs[i].image.width - 2*padding))
+            {
+                offsetX = padding;
+
+                // NOTE: Be careful on offsetY for SDF fonts, by default SDF
+                // use an internal padding of 4 pixels, it means char rectangle
+                // height is bigger than fontSize, it could be up to (fontSize + 8)
+                offsetY += (fontSize + 2*padding);
+
+                if (offsetY > (height - fontSize - padding))
+                {
+                    for (int j = i + 1; j < glyphCount; j++)
+                    {
+                        TRACELOG(LOG_WARNING, "FONT: Failed to package character (%i)", j);
+                        // Make sure remaining recs contain valid data
+                        recs[j].x = 0;
+                        recs[j].y = 0;
+                        recs[j].width = 0;
+                        recs[j].height = 0;
+                    }
+                    break;
+                }
+            }
+
+            // Fill chars rectangles in atlas info
+            recs[i].x = (float)offsetX;
+            recs[i].y = (float)offsetY;
+            recs[i].width = (float)glyphs[i].image.width;
+            recs[i].height = (float)glyphs[i].image.height;
+
+            // Move atlas position X for next character drawing
+            offsetX += (glyphs[i].image.width + 2*padding);
+        }
+    }
+    else if (packMethod == 1)  // Use Skyline rect packing algorithm (stb_pack_rect)
+    {
+        stbrp_context *context = static_cast<stbrp_context*>(RL_MALLOC(sizeof(*context)));
+        stbrp_node *nodes = static_cast<stbrp_node*>(RL_MALLOC(glyphCount*sizeof(*nodes)));
+
+        stbrp_init_target(context, width, height, nodes, glyphCount);
+        stbrp_rect *rects = static_cast<stbrp_rect*>(RL_MALLOC(glyphCount*sizeof(stbrp_rect)));
+
+        // Fill rectangles for packaging
+        for (int i = 0; i < glyphCount; i++)
+        {
+            rects[i].id = i;
+            rects[i].w = glyphs[i].image.width + 2*padding;
+            rects[i].h = glyphs[i].image.height + 2*padding;
+        }
+
+        // Package rectangles into atlas
+        stbrp_pack_rects(context, rects, glyphCount);
+
+        for (int i = 0; i < glyphCount; i++)
+        {
+            // It returns char rectangles in atlas
+            recs[i].x = rects[i].x + (float)padding;
+            recs[i].y = rects[i].y + (float)padding;
+            recs[i].width = (float)glyphs[i].image.width;
+            recs[i].height = (float)glyphs[i].image.height;
+
+            if (!rects[i].was_packed)
+                TRACELOG(LOG_WARNING, "FONT: Failed to package character (%i)", i);
+        }
+
+        RL_FREE(rects);
+        RL_FREE(nodes);
+        RL_FREE(context);
+    }
+
+    *glyphRecs = recs;
+}
+
 Font* FontResource::Get(const uint32 InSize)
 {
     CHECK_ASSERT(InSize == 0, "Invalid size");
-    if (sizes.contains(InSize))
-        return sizes.at(InSize);
-    
-    auto& f = sizes[InSize];
+
+    // Clamp size
+    uint32 size = Utility::Math::Min(maxSize, InSize); 
+
+    // Group similar sizes!
+    uint32 roundSize = ((size + 5) / 10) * 10; 
+    if (sizes.contains(roundSize))
+        return sizes.at(roundSize);
+    auto& f = sizes[roundSize];
     
     f = new Font();
-    
-    //*f = LoadFontEx(identifier.c_str(), static_cast<int>(InSize), nullptr, 0);
-    //SetTextureFilter(f->texture, TEXTURE_FILTER_TRILINEAR);
 
-    int fontSize = static_cast<int>(InSize);
     int fileSize = 0;
     unsigned char *fileData = LoadFileData(identifier.c_str(), &fileSize);
-    
+    CHECK_RETURN_LOG(!fileData, "Failed to load font: " + identifier, nullptr);
+        
     // SDF font generation from TTF font
-    f->baseSize = 16;
+    f->baseSize = static_cast<int>(roundSize);
     f->glyphCount = 95;
-    f->glyphPadding = fontSize / 10;
-    
+    f->glyphPadding = 0;
+        
     // Parameters > font size: auto, no glyphs array provided (0), glyphs count: 0 (defaults to 95)
     f->glyphs = LoadFontData(
         fileData,
         fileSize,
-        fontSize,
+        f->baseSize,
         nullptr,
-        0,
+        f->glyphCount,
         FONT_SDF);
     
-    // Parameters > glyphs count: 95, font size: auto, glyphs padding in image: auto, pack method: 1 (Skyline algorythm)
-    Image atlas = GenImageFontAtlas(
-        f->glyphs,
-        &f->recs,
-        f->glyphCount,
-        fontSize,
-        f->glyphPadding,
-        1);
-    f->texture = LoadTextureFromImage(atlas);
-    UnloadImage(atlas);
+    String cachePath = GetCachePath(roundSize);
+    if (Utility::FileExists(cachePath))
+    {
+        GenFontGlyphs(
+            f->glyphs,
+            &f->recs,
+            f->glyphCount,
+            f->baseSize,
+            f->glyphPadding,
+            1);
+
+        f->texture = LoadTexture(cachePath.c_str());
+        SetTextureFilter(f->texture, TEXTURE_FILTER_BILINEAR);
+    }
+    else
+    {
+        // Parameters > glyphs count: 95, font size: auto, glyphs padding in image: auto, pack method: 1 (Skyline algorythm)
+        Image atlas = GenImageFontAtlas(
+            f->glyphs,
+            &f->recs,
+            f->glyphCount,
+            f->baseSize,
+            f->glyphPadding,
+            1);
+
+        f->texture = LoadTextureFromImage(atlas);
+        SetTextureFilter(f->texture, TEXTURE_FILTER_BILINEAR);
+
+        Utility::CreateDir(cachePath);
+        if (ExportImage(atlas, cachePath.c_str()))
+        {
+            LOG("Font cached: " + cachePath);
+        }
+        else
+        {
+            LOG("Failed to cache font: " + cachePath);
+        }
+
+        UnloadImage(atlas);
+        UnloadFileData(fileData);
+    }
     
     return f;
 }
@@ -82,14 +267,14 @@ Shader* FontResource::GetShader() const
     return nullptr;
 }
 
-bool FontResource::Edit(const String &InName)
+bool FontResource::Edit(const String &InName, uint32 InOffset)
 {
-    if (ImGui::CollapsingHeader("Loaded sizes"))
+    ImGui::Text("Loaded sizes: %i", static_cast<int>(sizes.size()));
+    for (auto& s : sizes)
     {
-        for (auto& s : sizes)
+        CHECK_CONTINUE(!s.second)
+        if (ImGui::CollapsingHeader(("Size: " + Utility::ToStr(s.first) + "##" + InName).c_str()))
         {
-            CHECK_CONTINUE(!s.second)
-            ImGui::Text(("Size: " + Utility::ToStr(s.first)).c_str());
             const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
             const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
             const Vec2F size = {vMax.x - vMin.x - 0.1f, vMax.y - vMin.y - 0.1f};
@@ -107,4 +292,9 @@ bool FontResource::Edit(const String &InName)
         }
     }
     return false;
+}
+
+String FontResource::GetCachePath(const int InSize) const
+{
+    return Utility::GetCachePath(identifier + Utility::ToStr(InSize), ".png");
 }

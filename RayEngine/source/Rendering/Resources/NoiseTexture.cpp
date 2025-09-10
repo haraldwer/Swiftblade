@@ -9,8 +9,10 @@
 
 bool NoiseTextureResource::Load(const String& InPath)
 {
-    tex = ResTexture(InPath + ".png");
     identifier = InPath;
+    if (!Utility::FileExists(GetCachePath()))
+        Generate();
+    tex = ResTexture(GetCachePath());
     PropertyOwnerBase::Load(InPath);
     return true;
 }
@@ -123,11 +125,16 @@ void NoiseTextureResource::Generate()
     Generate(data, res);
     
     // Cache file
-    const String filename = tex.Identifier().Str();
+    const String filename = GetCachePath();
+    Utility::CreateDir(filename);
+    
     const int channels = 4;
     const int result = stbi_write_png(filename.c_str(), res, res, channels, data, channels * res);
     if (result == 1)
         LOG("Noise texture saved: " + filename);
+
+    delete[] data;
+    data = nullptr;
 
     // Hot reloading handles the tex
 }
@@ -196,4 +203,9 @@ void NoiseTextureResource::Generate(Color* InData, const int InResolution)
         });
         break;
     }
+}
+
+String NoiseTextureResource::GetCachePath() const
+{
+    return Utility::GetCachePath(identifier, ".png"); 
 }

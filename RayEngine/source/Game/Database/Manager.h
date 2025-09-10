@@ -9,7 +9,7 @@
 
 namespace DB
 {
-    class Manager : public Utility::Singelton<Manager>
+    class Manager : public Utility::Singelton<Manager, true>
     {
         friend class Component;
         friend class Authentication;

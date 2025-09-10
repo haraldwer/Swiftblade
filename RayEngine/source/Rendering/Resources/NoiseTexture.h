@@ -36,6 +36,7 @@ public:
 private:
     void Generate();
     void Generate(Color* InData, int InResolution);
+    String GetCachePath() const;
     
     ResTexture tex = {};
     String identifier = {};

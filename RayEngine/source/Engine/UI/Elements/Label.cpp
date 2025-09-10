@@ -39,9 +39,11 @@ void UI::Label::Draw(Container& InOwner)
     float screenSize = GetScreenSize();
     const auto fontRsc = properties.font.Get();
     CHECK_RETURN(!fontRsc);
-    const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize)))
+    const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize));
     CHECK_RETURN(!fontPtr);
-    const auto shader = fontRsc->GetSDFShader();
+    const auto shader = fontRsc->GetShader();
+    CHECK_RETURN(!shader);
+    
     BeginShaderMode(*shader);
     DrawTextPro(
         *fontPtr,

@@ -10,6 +10,8 @@ namespace Resource
         Base(const ID& InID) : id(InID) {}
         virtual bool Load() = 0;
         virtual bool Unload() = 0;
+        virtual bool Edit(const String& InName, uint32 InOffset = 0) = 0;
+        virtual bool IsEditable() const = 0;
         virtual bool TryHotReload() = 0;
 
         // Editing
@@ -22,7 +24,7 @@ namespace Resource
         bool loaded = false;
     };
 
-    template <class T>
+    template <class T, bool Editable = false>
     struct Impl : Base
     {
         Impl(const ID& InID) : Base(InID) {}
@@ -54,7 +56,24 @@ namespace Resource
             Unload();
             return Load();
         }
-        
+
+        bool Edit(const String& InName, uint32 InOffset = 0) override
+        {
+            if (Editable)
+            {
+                if (data.Edit(InName, InOffset))
+                {
+                    if (!id.Unique())
+                        data.Save(id.Str());
+                    TryHotReload();
+                    return true;
+                }
+            }   
+            return false;
+        }
+
+        bool IsEditable() const override { return Editable; }
+
         T data = {};
     };
 }

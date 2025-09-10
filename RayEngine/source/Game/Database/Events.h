@@ -6,7 +6,7 @@
 
 namespace DB
 {
-    class EventManager : public Utility::Singelton<EventManager>, public Utility::EventManager  {};
+    class EventManager : public Utility::Singelton<EventManager, true>, public Utility::EventManager  {};
     
     template <class EventT, class CallbackT = int>
     using Event = Utility::Event<Response<EventT>, EventManager, CallbackT>;

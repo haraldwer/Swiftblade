@@ -2,7 +2,7 @@
 
 #include <ranges>
 
-#include "../../UI/Widgets/Common/ButtonTab.h"
+#include "UI/Widgets/Common/ButtonTab.h"
 #include "Instance/Manager.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
@@ -40,7 +40,6 @@ void MenuRoomEditor::Update()
         b.SetSelected(o.name == selected);
         if (b.IsClicked())
             InstanceEvent<OnClickedEvent>::Invoke({ o.name });
-        
     }
 }
 

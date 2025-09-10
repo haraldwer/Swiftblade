@@ -55,7 +55,7 @@ namespace Resource
         Ref(const ID& InID)
         {
             CHECK_RETURN(InID.Str().empty());
-            ptr = reinterpret_cast<Impl<T>*>(Register(InID));
+            ptr = reinterpret_cast<Impl<T, Editable>*>(Register(InID));
             Increment(); 
         }
         
@@ -124,17 +124,8 @@ namespace Resource
             }
         
             // Inline editing
-            if (Editable)
-            {
-                 if (T* res = Get())
-                {
-                    if (res->Edit(InName, InOffset))
-                    {
-                        res->Save(currID);
-                        ptr->TryHotReload(); 
-                    }
-                }
-            }
+            if (IsLoaded())
+                ptr->Edit(InName, InOffset);
             
             // TODO: Duplicate resource
             return false; 
@@ -149,12 +140,12 @@ namespace Resource
 
         Base* NewRes(const ID& InID) override
         {
-            return new Impl<T>(InID);
+            return new Impl<T, Editable>(InID);
         }
         
         void Increment() const { if (ptr) ++ptr->count; }
         void Decrement() { if (ptr) --ptr->count; }
         
-        Impl<T>* ptr = nullptr;
+        Impl<T, Editable>* ptr = nullptr;
     };
 }

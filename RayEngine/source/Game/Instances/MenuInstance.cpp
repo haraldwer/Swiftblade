@@ -10,7 +10,6 @@ void MenuInstance::Init()
     Instance::Init();
     menus.Push<MenuLogin>();
     ecs.Init();
-    db.Init();
     
     config.LoadConfig();
     if (auto ptr = config.Scene.Get().Get())
@@ -33,14 +32,12 @@ void MenuInstance::Deinit()
     scene.Destroy();
     ecs.Deinit();
     Instance::Deinit();
-    db.Deinit();
 }
 
 void MenuInstance::Logic(const double InDelta)
 {
     Instance::Logic(InDelta);
     
-    db.Update();
     ecs.Update();
     editorCamera.Update();
     

@@ -196,7 +196,6 @@ Vec4F UI::Element::GetDrawRect() const
 
 void UI::Element::DrawRect(const Vec4F& InRect)
 {
-    Random rnd = Utility::Hash(InRect);
     constexpr Array<Color, 25> colors
     {
         ::LIGHTGRAY,
@@ -225,10 +224,17 @@ void UI::Element::DrawRect(const Vec4F& InRect)
         ::BLANK,
         ::MAGENTA,
     };
+
+
+    if (debugColor < 0 || debugColor >= static_cast<int>(colors.size()))
+    {
+        Random rnd = Utility::Hash(InRect);
+        const float f = rnd.Factor<float>();
+        const int i = static_cast<int>(std::floor(f * 25));
+        debugColor = i;
+    }
     
-    const float f = rnd.Factor<float>();
-    const int i = static_cast<int>(std::floor(f * 25));
-    const Color c = colors[i];
+    const Color c = colors[debugColor];
     float thickness = debugHovered ? 8.0f : 1.2f;
     DrawRectangleLinesEx({ InRect.x, InRect.y, InRect.z, InRect.w}, thickness, c);
 }
