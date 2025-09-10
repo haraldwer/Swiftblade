@@ -12,7 +12,7 @@ void UI::ButtonTab::Init(Container &InOwner)
             .anchor = { 0, 1 }
         }, {
             .color = Vec4F::One(),
-            .cornerRadius = 2.0f,
+            .cornerRadius = 1,
         }));
     
     Container::Init(InOwner);
@@ -49,6 +49,7 @@ void UI::ButtonTab::Update(Container &InOwner)
     
     t.position = Utility::Math::Lerp(t.position, desiredPos, 0.1f);
     b.color.a = Utility::Math::Lerp(b.color.a, desiredAlpha, 0.1f);
+    b.color.rgb = Vec3F::One();
     u.SetTransform(t);
     u.SetBackground(b);
 }

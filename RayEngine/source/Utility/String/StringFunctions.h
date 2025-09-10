@@ -20,4 +20,10 @@ namespace Utility
     {
         return StringReplace(InStr, InSearch, "");        
     }
+
+    inline String ToUpper(String InStr)
+    {
+        std::transform(InStr.begin(), InStr.end(), InStr.begin(),   toupper);
+        return InStr;
+    }
 }

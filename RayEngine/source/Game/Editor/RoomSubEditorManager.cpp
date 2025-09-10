@@ -9,6 +9,7 @@
 #include "SubEditors/RoomPathEditor.h"
 #include "SubEditors/RoomVolumeEditor.h"
 #include "SubEditors/RoomConnectionEditor.h"
+#include "SubEditors/RoomPreviewEditor.h"
 
 #define CREATE_SUBEDITOR(x, name) \
 editors[Type::GetHash<x>()] = x(); \
@@ -25,6 +26,7 @@ void RoomSubEditorManager::Init(RoomEditor* InEditor)
     CREATE_SUBEDITOR(RoomGenEditor, "Generate");
     CREATE_SUBEDITOR(RoomVolumeEditor, "Block");
     CREATE_SUBEDITOR(RoomObjectEditor, "Objects");
+    CREATE_SUBEDITOR(RoomPreviewEditor, "Preview");
     
     for (auto& e : editors)
         e.second.Get().editor = InEditor;

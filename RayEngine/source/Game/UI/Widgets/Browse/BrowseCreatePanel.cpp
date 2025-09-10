@@ -18,7 +18,7 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
                 .Add(ButtonTab("Levels"), "Levels")
                 .Add(ButtonTab("Rooms"), "Rooms")
             .Pop()
-            .Push(TabContainer(), "Tabs")
+            .Push(TabContainer(Transform::Fill({{}, { 5, 0 }})), "Tabs")
                 .Add(List(), "RoomList")
                 .Add(LevelListWidget(), "LevelList");
     

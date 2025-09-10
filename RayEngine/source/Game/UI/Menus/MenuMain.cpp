@@ -34,7 +34,6 @@ void MenuMain::Init()
                 .Add(UI::Label({}, {
                         "Swiftblade",
                         150,
-                        0,
                         ResFont("UI/F_GothBallCrap.ttf")
                     }))
                 .Push(UI::List(UI::Transform::Centered(), { 50, UI::ListDirection::HORIZONTAL }), "List");

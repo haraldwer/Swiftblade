@@ -125,7 +125,7 @@ void RoomEditor::PlayRoom()
 
 void RoomEditor::SaveRoom()
 {
-    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Invalid room resource");
+    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot save room, invalid room resource");
     auto res = roomResource.Get();
     CHECK_RETURN_LOG(!res, "Failed to load resource");
     auto& room = res->Get();
@@ -139,7 +139,6 @@ void RoomEditor::SaveRoom()
 ResScene RoomEditor::ConvertRoomToScene()
 {
     SceneInstance scene;
-
     auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
     auto& objEditor = GetSubEditors().Get<RoomObjectEditor>();
     auto& conEditor = GetSubEditors().Get<RoomConnectionEditor>();

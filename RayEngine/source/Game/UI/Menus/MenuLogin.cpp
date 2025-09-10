@@ -6,24 +6,25 @@
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"
+#include "UI/Widgets/Common/ButtonDefault.h"
+#include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
 
 void MenuLogin::Init()
 {
     UI::Builder b = UI::Builder()
         .Push(UI::List(UI::Transform::Centered()), "Loading")
-            .Add(UI::LabelText({}, "Connecting..."), "Status")
+            .Add(UI::LabelHeader({}, "Connecting..."), "Status")
         .Pop()
         .Push(UI::List(UI::Transform::Centered()), "Fail")
-            .Add(UI::LabelText({}, "Login failed"))
+            .Add(UI::LabelHeader({}, "Login failed"))
             .Add(UI::LabelText({}, "Error: Unknown"), "Error")
-            .Add(UI::LabelText({}, "Retry"), "Retry")
+            .Add(UI::ButtonDefault({}, "Retry"), "Retry")
         .Pop()
         .Push(UI::List(UI::Transform::Centered()), "NameSelect")
-            .Add(UI::LabelText({}, "Select username"))
+            .Add(UI::LabelHeader({}, "Select username"))
             .Add(UI::LabelText({}, "TestUser"), "TbxName")
-            .Add(UI::LabelText({}, "Select"), "Select");
-    
+            .Add(UI::ButtonDefault({}, "Select"), "Select");
 
     ui = b.Build();
 

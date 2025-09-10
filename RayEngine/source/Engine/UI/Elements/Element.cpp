@@ -10,17 +10,19 @@ void UI::Element::BeginDraw(Container &InOwner)
 {
     if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
         DrawRect(cachedDrawRect);
-    
-    BeginScissorMode(
-        cachedDrawRect.x,
-        cachedDrawRect.y,
-        cachedDrawRect.z,
-        cachedDrawRect.w);
+
+    if (scissor)
+        BeginScissorMode(
+            cachedDrawRect.x,
+            cachedDrawRect.y,
+            cachedDrawRect.z,
+            cachedDrawRect.w);
 }
 
 void UI::Element::EndDraw()
 {
-    EndScissorMode();
+    if (scissor)
+        EndScissorMode();
 }
 
 void UI::Element::Draw(Container& InOwner)
@@ -57,8 +59,10 @@ bool UI::Element::DebugDraw(Container &InOwner, const String &InIdentifier, int&
         info = "invalidated";
     if (!info.empty())
         info = " (" + info + ")";
-    
-    return ImGui::TreeNodeEx(("[" + GetObjName() + "]: " + InIdentifier + info + " ##" + Utility::ToStr(InC)).c_str(), flags);
+
+    bool treeNode = ImGui::TreeNodeEx(("[" + GetObjName() + "]: " + InIdentifier + info + " ##" + Utility::ToStr(InC)).c_str(), flags); 
+    debugHovered = ImGui::IsItemHovered();
+    return treeNode;
 }
 
 void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
@@ -71,11 +75,7 @@ void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
 
 Vec2F UI::Element::GetDesiredSize() const
 {
-    Vec2F padding = {
-        transform.padding.horizontal.x + transform.padding.horizontal.y, 
-        transform.padding.vertical.x + transform.padding.vertical.y
-    };
-    return transform.size + padding;
+    return transform.size;
 }
 
 void UI::Element::SetTransform(const Transform& InTransform)
@@ -186,21 +186,9 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     return result; 
 }
 
-Vec4F UI::Element::GetDrawRect()
+Vec4F UI::Element::GetDrawRect() const
 {
-    Rect drawRect = cachedRect;
-    drawRect.start += {
-        transform.padding.horizontal.x,
-        transform.padding.vertical.x
-    };
-
-    drawRect.end -= {
-        transform.padding.horizontal.y,
-        transform.padding.vertical.y
-    };
-    
-    // Also draw
-    const Rect view = ReferenceToViewport(drawRect);
+    const Rect view = ReferenceToViewport(cachedRect);
     const Vec2F size = view.end - view.start;
     const Vec2F pos = view.start;
     return { pos, size };
@@ -238,10 +226,10 @@ void UI::Element::DrawRect(const Vec4F& InRect)
         ::MAGENTA,
     };
     
-    const Vec4I r = InRect.To<int>();
     const float f = rnd.Factor<float>();
     const int i = static_cast<int>(std::floor(f * 25));
     const Color c = colors[i];
-    DrawRectangleLines(r.x, r.y, r.z, r.w, c);
+    float thickness = debugHovered ? 8.0f : 1.2f;
+    DrawRectangleLinesEx({ InRect.x, InRect.y, InRect.z, InRect.w}, thickness, c);
 }
 

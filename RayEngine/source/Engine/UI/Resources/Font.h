@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Core/Resource/Resource.h"
+#include "Resources/Shader.h"
 
 struct Font;
 
@@ -11,13 +12,15 @@ public:
     bool Unload();
     Utility::Timepoint GetEditTime() const; 
     Font* Get(uint32 InSize);
+    Shader* GetShader() const;
     
-    bool Save(const String& InPath) { return false; };
-    bool Edit(const String& InName) { return false; };
+    bool Save(const String& InPath) { return false; }
+    bool Edit(const String& InName);
 
 private:
+    ResShader sdfShader;
     String identifier = {}; 
-    Map<uint32, Font*> sizes;
+    Map<uint32, Font*> sizes;  
 };
 
 typedef Resource::Ref<FontResource, true> ResFont;  

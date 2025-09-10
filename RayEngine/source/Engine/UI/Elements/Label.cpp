@@ -18,10 +18,7 @@ void UI::Label::Draw(Container& InOwner)
     const Rect rect = GetRect();
     const Vec2F startPos = rect.start;
     const Vec2F endPos = rect.end - cachedSize;
-    const Vec2F pos {
-        Utility::Math::Lerp(startPos.x, endPos.x, properties.centering.x),
-        Utility::Math::Lerp(startPos.y, endPos.y, properties.centering.y)
-    };
+    const Vec2F pos = (startPos + endPos) * 0.5f;
     const Vec2F viewPos = ReferenceToViewport(pos); 
 
     // Difference in size between reference and view
@@ -40,28 +37,29 @@ void UI::Label::Draw(Container& InOwner)
     };
 
     float screenSize = GetScreenSize();
-    if (const auto fontRsc = properties.font.Get())
-        if (const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize)))
-            DrawTextPro(
-                *fontPtr,
-                properties.text.c_str(),
-                { viewPos.x, viewPos.y},
-                origin,
-                rot,
-                screenSize,
-                properties.spacing * sizeScale,
-                tint);
+    const auto fontRsc = properties.font.Get();
+    CHECK_RETURN(!fontRsc);
+    const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize)))
+    CHECK_RETURN(!fontPtr);
+    const auto shader = fontRsc->GetSDFShader();
+    BeginShaderMode(*shader);
+    DrawTextPro(
+        *fontPtr,
+        properties.text.c_str(),
+        { viewPos.x, viewPos.y},
+        origin,
+        rot,
+        screenSize,
+        properties.spacing * sizeScale,
+        tint);
+    EndShaderMode();
 }
 
 Vec2F UI::Label::GetDesiredSize() const
 {
-    Vec2F padding = {
-        transform.padding.horizontal.x + transform.padding.horizontal.y, 
-        transform.padding.vertical.x + transform.padding.vertical.y
-    };
     if (transform.size == Vec2F::Zero())
-        return cachedSize + padding;
-    return transform.size + padding;
+        return cachedSize;
+    return transform.size;
 }
 
 void UI::Label::SetText(const String& InText)

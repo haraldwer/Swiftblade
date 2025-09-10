@@ -33,7 +33,6 @@ void UI::BrowseStoryPanel::Init(Container &InOwner)
             }, {
                 e.Name,
                 80,
-                0.5,
                 ResFont("UI/F_LinLibertine_aSZI.ttf")
             }), e.Name);
     }

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Menu.h"
+#include "Debug/Panel.h"
 
 namespace Menu
 {
@@ -54,6 +55,7 @@ namespace Menu
 
         void Clear()
         {
+            UpdatePending();
             for (auto _ : stack)
                 Pop();
             UpdatePending(); 

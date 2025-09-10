@@ -61,9 +61,9 @@ namespace UI
         static Vec2F ReferenceToViewport(const Vec2F& InVec);
         
         Rect CalculateRect(const Rect& InContainer) const;
-        Vec4F GetDrawRect();
+        Vec4F GetDrawRect() const;
 
-        static void DrawRect(const Vec4F& InRect);
+        void DrawRect(const Vec4F& InRect);
         
         ElementID id = -1;
         ElementID parent = -1;
@@ -74,5 +74,6 @@ namespace UI
         bool invalidated = true;
         bool visible = true;
         bool scissor = false;
+        bool debugHovered = false;
     };
 }

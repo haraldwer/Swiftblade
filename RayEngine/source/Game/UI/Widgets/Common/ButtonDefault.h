@@ -1,5 +1,20 @@
 #pragma once
+#include "UI/Elements/Container.h"
 
-class ButtonDefault {
+namespace UI
+{
+    class ButtonDefault : public Container
+    {
+        TYPE_INFO(ButtonDefault, Container);
+    public:
+        ButtonDefault(const Transform& InTrans, const String& InOption) : Container(InTrans), option(InOption), text(InOption) {}
+        ButtonDefault(const Transform& InTrans, const String& InOption, const String& InText) : Container(InTrans), option(InOption), text(InText) {}
+        void Init(Container &InOwner) override;
+        void Update(Container &InOwner) override;
 
-};
+    private:
+        String option;
+        String text;
+        ElementID root = -1;
+    };
+}

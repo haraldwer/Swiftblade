@@ -25,7 +25,7 @@ namespace UI
         TYPE_INFO(List, Container)
         
     public:
-        List(const Transform& InTransform = Transform::Fill(), const ListProperties& InProperties = {}) : Container(InTransform), properties(InProperties) {}
+        List(const Transform& InTransform = Transform::Fill(), const ListProperties& InProperties = {}, const Background& InBg = {}) : Container(InTransform, InBg), properties(InProperties) {}
         void RefreshRect(Container& InOwner, const Rect& InContainer) override;
         Vec2F GetDesiredSize() const override;
 

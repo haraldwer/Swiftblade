@@ -9,15 +9,14 @@ namespace UI
     public:
         Separator() :
             Element({
-                .size = { 0, 3 },
+                .size = { 0, 2 },
                 .alignment = {
                     Vec2F::One(),
                     Vec2F::Zero()
-                },
-                .padding = { 0, 3 }
+                }
             }, {
                 .color = { 1, 1, 1, 1 },
-                .cornerRadius = 2
+                .cornerRadius = 1
             }) { }
     };
 }

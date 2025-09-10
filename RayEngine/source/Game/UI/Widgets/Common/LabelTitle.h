@@ -11,7 +11,6 @@ namespace UI
             Label(InTrans, {
                 InText,
                 static_cast<float>(LabelSize::TITLE),
-                0,
                 ResFont("UI/F_LinLibertine_aSZI.ttf")
             }) { }
     };

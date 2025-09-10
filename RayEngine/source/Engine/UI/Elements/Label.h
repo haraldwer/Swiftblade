@@ -15,8 +15,6 @@ namespace UI
     {
         String text;
         float size = static_cast<float>(LabelSize::TEXT);
-            
-        Vec2F centering = Vec2F::Zero();
         ResFont font = ResFont("UI/F_LinLibertine_RB.ttf");
 
         float spacing = 0.0f;
