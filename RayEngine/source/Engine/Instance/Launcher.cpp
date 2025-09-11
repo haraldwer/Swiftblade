@@ -2,9 +2,9 @@
 
 #include "Manager.h"
 #include "Editor/BlueprintEditor.h"
-#include "Editor/RoomEditor.h"
-#include "Instances/GameInstance.h"
-#include "Instances/MenuInstance.h"
+#include "Game/Editor/RoomEditor.h"
+#include "Game/Instances/MenuInstance.h"
+#include "Game/Instances/GameInstance.h"
 
 void Engine::Launcher::Init()
 {

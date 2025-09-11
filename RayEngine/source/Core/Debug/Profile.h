@@ -14,7 +14,8 @@
 #else
 
 #define PROFILE_FRAME()
-#define PROFILE_SCOPE(name)
+#define PROFILE()
+#define PROFILE_NAMED(x)
 #define PROFILE_TAG(x, y)
 #define PROFILE_LOG(text, size)
 #define PROFILE_VALUE(text, value)

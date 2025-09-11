@@ -1,8 +1,31 @@
 
-#include "raylib.h"
+#ifdef __EMSCRIPTEN__
+    #include <emscripten/emscripten.h>
+#endif
+
+void Init();
+void Deinit();
+void Tick(void);
+bool tick = true;
+
+int main()
+{
+    Init();
+    
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(Tick, 0, 1);
+#else
+    while (tick)
+        Tick();
+#endif
+    
+    Deinit();
+    return 0;
+}
 
 #include "Core/Debug/Manager.h"
 #include "Core/Resource/Manager.h"
+#include "Database/Manager.h"
 #include "Engine/Audio/Manager.h"
 #include "Engine/Instance/Manager.h"
 #include "Instance/Launcher.h"
@@ -10,11 +33,12 @@
 
 #include "Instances/MenuInstance.h"
 
-int main()
-{
-    Utility::SetWorkingDir();
+constexpr double tickRate = 300.0; 
+constexpr double fixedDelta = 1.0 / tickRate;
+constexpr double maxFrameTickTime = 0.5;
 
-    // These things are shared between instances
+struct GameData
+{
     Debug::Manager debugManager;
     Resource::Manager resourceManager;
     Rendering::Manager renderer;
@@ -24,70 +48,81 @@ int main()
     GlobalEventManager eventManager;
     DB::Manager db = {};
     
-    debugManager.Init();
-    renderer.Init();
-    audio.Init();
-    launcher.Init();
-    db.Init();
-
-    // Timekeeping
     double logicTimeCounter = 0.0;
     Utility::Timer frameTimer;
-    constexpr double tickRate = 300.0; 
-    constexpr double fixedDelta = 1.0 / tickRate;
-    constexpr double maxFrameTickTime = 0.5;
+};
+GameData* g = nullptr;
 
-    while (true)
+void Init()
+{
+    g = new GameData();
+    
+    Utility::SetWorkingDir();
+    
+    g->renderer.Init();
+    g->debugManager.Init();
+    g->audio.Init();
+    g->launcher.Init();
+    g->db.Init();
+}
+
+void Deinit()
+{
+    g->db.Deinit();
+    g->launcher.Deinit(); 
+    g->debugManager.Deinit();
+    g->instanceManager.Clear();
+    g->audio.Deinit();
+    g->renderer.Deinit();
+    g->resourceManager.Deinit();
+}
+
+void Tick(void)
+{
+    PROFILE();
+    g->resourceManager.Update();
+    g->db.Update();
+        
+    // Update instances
+    g->instanceManager.Update();
+        
+    // Get instance
+    const auto instance = g->instanceManager.Top();
+    if (!instance)
     {
-        PROFILE();
-        resourceManager.Update();
-        db.Update();
+        tick = false;
+        return;
+    }
         
-        // Update instances
-        instanceManager.Update();
+    // Calculate delta
+    const double frameDelta = g->frameTimer.Ellapsed();
+    g->frameTimer = Utility::Timer();
         
-        // Get instance
-        const auto instance = instanceManager.Top();
-        if (!instance)
-            break;
-        
-        // Calculate delta
-        const double frameDelta = frameTimer.Ellapsed();
-        frameTimer = Utility::Timer();
-        
-        // Update
-        logicTimeCounter = Utility::Math::Min(logicTimeCounter + frameDelta, maxFrameTickTime);
-        while (logicTimeCounter >= 0)
-        {
-            PROFILE_NAMED("Tick");
-            logicTimeCounter -= fixedDelta;
-            instance->Logic(fixedDelta);
-            debugManager.Logic();
-        }
-
-        if (Rendering::Window::ShouldClose())
-            break;
-
-        audio.Update();
-
-        // Render to target texture
-        instance->GetRenderScene().Clear();
-        instance->Frame();
-        
-        // Render to screen
-        renderer.BeginFrame();
-        debugManager.Frame(frameDelta);
-        renderer.EndFrame();
-        PROFILE_FRAME();
+    // Update
+    g->logicTimeCounter = Utility::Math::Min(g->logicTimeCounter + frameDelta, maxFrameTickTime);
+    while (g->logicTimeCounter >= 0)
+    {
+        PROFILE_NAMED("Tick");
+        g->logicTimeCounter -= fixedDelta;
+        instance->Logic(fixedDelta);
+        g->debugManager.Logic();
     }
 
-    db.Deinit();
-    launcher.Deinit(); 
-    debugManager.Deinit();
-    instanceManager.Clear();
-    audio.Deinit();
-    renderer.Deinit();
-    resourceManager.Deinit();
-    
-    return 0;
+    if (Rendering::Window::ShouldClose())
+    {
+        tick = false;
+        return;
+    }
+
+    g->audio.Update();
+
+    // Render to target texture
+    instance->GetRenderScene().Clear();
+    instance->Frame();
+        
+    // Render to screen
+    g->renderer.BeginFrame();
+    g->debugManager.Frame(frameDelta);
+    g->renderer.EndFrame();
+    PROFILE_FRAME();
 }

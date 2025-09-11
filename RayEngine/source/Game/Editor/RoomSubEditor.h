@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ECS/Volume/CubeVolumeCoord.h"
+#include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Engine/ECS/Entity.h"
 
 struct Room;

@@ -1,4 +1,7 @@
 #include "Manager.h"
+
+#ifdef NAKAMA_ENABLE
+
 #include "nakama-cpp/Nakama.h"
 
 void DB::Manager::Init()
@@ -47,3 +50,12 @@ void DB::Manager::Update() const
     if (rtClient)
         rtClient->tick();
 }
+
+
+#else
+
+void DB::Manager::Init() {}
+void DB::Manager::Update() const {}
+void DB::Manager::Deinit() {}
+
+#endif

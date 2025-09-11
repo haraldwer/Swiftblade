@@ -1,7 +1,5 @@
 #include "Material.h"
 
-#include <physx/PxMaterial.h>
-
 #include "Instance/Instance.h"
 #include "Physics/Manager.h"
 #include "Utility/File/File.h"
@@ -27,7 +25,6 @@ bool PhysicsMaterialResource::Load(const String& InPath)
 bool PhysicsMaterialResource::Unload()
 {
     CHECK_RETURN(!ptr, false);
-    ptr->release();
     ptr = nullptr;
     return true;
 }

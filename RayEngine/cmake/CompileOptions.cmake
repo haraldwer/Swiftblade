@@ -9,8 +9,6 @@ set_target_properties(${PROJECT_NAME}
 
 # Shared definitions
 target_compile_definitions(${PROJECT_NAME} PUBLIC 
-  "TRACY_ENABLE"
-  "PX_PHYSX_STATIC_LIB"
   "$<$<CONFIG:Release>:NDEBUG>"
   "$<$<CONFIG:Debug>:_DEBUG>")
 
@@ -70,4 +68,13 @@ elseif (UNIX)
     message("-- Will produce -ftime-trace .json files")
     target_compile_options(${PROJECT_NAME} PUBLIC -ftime-trace) # clang trace
   endif ()
-endif()
+  
+  if (EMSCRIPTEN)
+    target_compile_options(${PROJECT_NAME} PRIVATE 
+      -Wno-inconsistent-missing-override
+      -Wno-nontrivial-memcall
+      -Wno-format-security
+      -Wno-nontrivial-memcall)
+  endif ()
+  
+endif ()

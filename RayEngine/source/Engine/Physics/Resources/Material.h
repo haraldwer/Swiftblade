@@ -2,11 +2,6 @@
 
 #include "Core/Resource/Resource.h"
 
-namespace physx
-{
-    class PxMaterial;
-}
-
 class PhysicsMaterialResource : public PropertyOwner<PhysicsMaterialResource>
 {
 public:
@@ -14,7 +9,7 @@ public:
     bool Load(const String& InPath) override;
     bool Unload() override;
     Utility::Timepoint GetEditTime() const; 
-    physx::PxMaterial* Get() const { return ptr; }
+    void* Get() const { return ptr; }
     
     PROPERTY_D(float, StaticFriction, 1.0f);
     PROPERTY_D(float, DynamicFriction, 1.0f);
@@ -25,7 +20,7 @@ public:
 private:
 
     String identifier = {}; 
-    physx::PxMaterial* ptr = nullptr;
+    void* ptr = nullptr;
     
 };
 

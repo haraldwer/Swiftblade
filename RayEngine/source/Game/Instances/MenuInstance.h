@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Database/Manager.h"
+
 #include "ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
 #include "Scene/SceneResource.h"

@@ -251,7 +251,9 @@ void Rendering::State::Set(const FrameCommand& InCmd)
             rlEnableDepthMask();
         }
 
+#ifndef __EMSCRIPTEN__
         glClear(mask);
+#endif
         
         if (InCmd.clearDepth && InCmd.fboID == frame.fboID) 
         {

@@ -10,5 +10,6 @@ namespace Rendering
         PROPERTY_D(bool, MSAA, false);
         PROPERTY_D(int, Width, 1600);
         PROPERTY_D(int, Height, 900);
+        PROPERTY_D(String, Title, "Swiftblade");
     };
 }

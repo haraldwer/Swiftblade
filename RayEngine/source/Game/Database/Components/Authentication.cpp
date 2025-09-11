@@ -1,7 +1,8 @@
 #include "Authentication.h"
 
-#include <nakama-cpp/NClientInterface.h>
+#ifdef NAKAMA_ENABLE
 
+#include <nakama-cpp/NClientInterface.h>
 #include "Database/Manager.h"
 
 void DB::Authentication::Init(Manager *InManager)
@@ -151,3 +152,16 @@ bool DB::Authentication::IsAuthenticated() const
 {
     return GetSession().get() != nullptr && authenticated;
 }
+
+#else
+
+void DB::Authentication::Init(Manager *InManager) { Component::Init(InManager); }
+void DB::Authentication::Deinit() { Component::Deinit(); }
+void DB::Authentication::Authenticate() {}
+void DB::Authentication::AuthenticateDevice() {}
+void DB::Authentication::AuthenticateSteam() {}
+void DB::Authentication::LinkSteam() const {}
+bool DB::Authentication::IsAuthenticated() const { return false; }
+
+#endif
+

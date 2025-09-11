@@ -6,7 +6,7 @@ namespace Utility
     typename std::vector<T>::iterator SortedInsert( std::vector<T> & InVec, T const& InItem )
     {
         return InVec.insert(
-            std::upper_bound( InVec
+            std::ranges::upper_bound( InVec
                 .begin(),
                 InVec.end(),
                 InItem ),
@@ -17,7 +17,7 @@ namespace Utility
     typename std::vector<T>::iterator SortedInsert( std::vector<T> & InVec, T const& InItem, Pred InPred )
     {
         return InVec.insert(
-           std::upper_bound(
+           std::ranges::upper_bound(
                InVec.begin(),
                InVec.end(),
                InItem,

@@ -25,7 +25,7 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
         InitWindow(
             config.Width,
             config.Height,
-            "RayEngine");
+            config.Title.Get().c_str());
     }
     else
     {
@@ -69,6 +69,7 @@ void Rendering::Window::Draw(const Texture& InTexture)
 
 void Rendering::Window::CapFPS()
 {
+#ifndef __EMSCRIPTEN__    
     PROFILE_GL_NAMED("Cap FPS");
     int targetFPS = config.TargetFPS;
     if (targetFPS > 0)
@@ -81,11 +82,16 @@ void Rendering::Window::CapFPS()
         leftoverFrameTime = frameTimer.Ellapsed() - desiredFrameTime;
         frameTimer = {};
     }
+#endif
 }
 
 bool Rendering::Window::ShouldClose()
 {
+#ifndef __EMSCRIPTEN__
     return WindowShouldClose();
+#else
+    return false;
+#endif
 }
 
 Vec2I Rendering::Window::GetSize()

@@ -1,7 +1,6 @@
 #pragma once
-#include "ECS/Volume/CubeVolumeCoord.h"
-#include "ECS/Volume/CubeVolumeData.h"
-#include "Resources/Texture.h"
+#include "Game/ECS/Volume/CubeVolumeCoord.h"
+#include "Game/ECS/Volume/CubeVolumeData.h"
 
 struct RoomObject : PropertyOwner<RoomObject>
 {

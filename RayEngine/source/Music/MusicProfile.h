@@ -9,7 +9,7 @@
 
 #else
 
-#define PROFILE_GL()
-#define PROFILE_GL_NAMED(x)
+#define PROFILE_AU()
+#define PROFILE_AU_NAMED(x)
 
 #endif

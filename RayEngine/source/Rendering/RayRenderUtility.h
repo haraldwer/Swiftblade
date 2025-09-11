@@ -29,6 +29,7 @@ namespace RaylibRenderUtility
         else
         {
             rlEnableColorBlend();
+#ifndef __EMSCRIPTEN__
             switch (InMode)
             {
             case RL_BLEND_ALPHA: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
@@ -38,6 +39,7 @@ namespace RaylibRenderUtility
             case RL_BLEND_SUBTRACT_COLORS: glBlendFunc(GL_ONE, GL_ONE); glBlendEquation(GL_FUNC_SUBTRACT); break;
             case RL_BLEND_ALPHA_PREMULTIPLY: glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); break;
             }
+#endif
         }
     }
     
