@@ -32,7 +32,7 @@ int Rendering::DeferredRenderer::DrawSkyboxes(const RenderArgs& InArgs, const Re
     {
         MaterialResource* rm = environment.skybox.Get();
         CHECK_CONTINUE(!rm);
-        ShaderResource* shaderResource = rm->SurfaceShader.Get().Get();
+        ShaderResource* shaderResource = rm->data.SurfaceShader.Get().Get();
         CHECK_CONTINUE(!shaderResource);
         const Shader* shader = shaderResource->Get();
         CHECK_CONTINUE(!shader);
@@ -110,7 +110,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
 
             const MaterialResource* resMat = entry.second.material.Get();
             CHECK_CONTINUE(!resMat);
-            ShaderResource* resShader = resMat->SurfaceShader.Get().Get();
+            ShaderResource* resShader = resMat->data.SurfaceShader.Get().Get();
             CHECK_CONTINUE(!resShader);
             Shader* shader = resShader->Get();
             CHECK_CONTINUE(!shader);
@@ -119,7 +119,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
             ShaderCommand shaderCmd;
             shaderCmd.id = shader->id;
             shaderCmd.locs = shader->locs;
-            shaderCmd.backfaceCulling = !resMat->TwoSided;
+            shaderCmd.backfaceCulling = !resMat->data.TwoSided;
             shaderCmd.depthTest = true;
             shaderCmd.depthMask = true;
             rlState::current.Set(shaderCmd);
@@ -184,7 +184,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
     {
         MaterialResource* rm = environment.skybox.Get();
         CHECK_CONTINUE(!rm);
-        passes[0] = rm->DeferredShader;
+        passes[0] = rm->data.DeferredShader;
     }
 
     for (auto& entry : passes)

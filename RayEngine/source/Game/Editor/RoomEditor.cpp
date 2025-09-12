@@ -26,7 +26,7 @@ void RoomEditor::Init()
     }
     
     if (auto res = roomResource.Get())
-        workingRoom = res->Get();
+        workingRoom = res->data;
     
     subEditorManager.Init(this);
     if (!config.EditMode.Get().empty())
@@ -96,7 +96,7 @@ void RoomEditor::Logic(const double InDelta)
 
 void RoomEditor::Frame()
 {
-    EnvironmentInstance env;
+    Rendering::EnvironmentInstance env;
     env.skybox = config.Skybox;
     GetRenderScene().AddEnvironment(env);
     
@@ -130,9 +130,8 @@ void RoomEditor::SaveRoom()
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot save room, invalid room resource");
     auto res = roomResource.Get();
     CHECK_RETURN_LOG(!res, "Failed to load resource");
-    auto& room = res->Get();
-    room = workingRoom;
-    if (res->Save(roomResource.Identifier().Str()))
+    res->data = workingRoom;
+    if (res->Save())
         LOG("Room saved!")
     else
         LOG("Failed to save room")

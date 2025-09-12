@@ -7,36 +7,39 @@
 #include "raylib.h"
 #include "rlgl.h"
 
-ShaderResource::ShaderResource()
+Rendering::ShaderResource::ShaderResource()
 {
     for (auto& l : defaultLocs)
         l = -1;
 }
 
-bool ShaderResource::Load(const String& InIdentifier)
+bool Rendering::ShaderResource::Load()
 {
+    CHECK_RETURN_LOG(!id.IsValid(), "Invalid shader resource", false)
+    CHECK_RETURN_LOG(id.Unique(), "Cannot load unique shaders", false)
+    
     PROFILE_GL();
     
-    identifier = InIdentifier;
+    String path = id.Str();
     ptr = new Shader();
     
     // TODO: Load individual shaders
     // Compile shader variations
     
-    if (InIdentifier.ends_with(".ds") || InIdentifier.ends_with(".ps"))
+    if (path.ends_with(".ds") || path.ends_with(".ps"))
     {
         // Load as deferred shader
-        if (!Utility::FileExists(InIdentifier))
+        if (!Utility::FileExists(path))
             return false; 
         const String vsFile = "Shaders/SH_Fullscreen.vs";
         const String vsCode = LoadShaderFile(vsFile, vsIncludes);
-        const String fsCode = LoadShaderFile(InIdentifier, fsIncludes);
+        const String fsCode = LoadShaderFile(path, fsIncludes);
         *ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
-        CHECK_RETURN_LOG(!IsShaderValid(*ptr), "Compile failed. fs: " +  InIdentifier + " vs: " + vsFile, true);
+        CHECK_RETURN_LOG(!IsShaderValid(*ptr), "Compile failed. fs: " +  path + " vs: " + vsFile, true);
     }
     else
     {
-        String id = InIdentifier;
+        String id = path;
         if (id.ends_with(".fs") || id.ends_with(".vs"))
             id = id.substr(0, id.length() - 3);
         const String vs = id + ".vs";
@@ -58,7 +61,7 @@ bool ShaderResource::Load(const String& InIdentifier)
     return true;
 }
 
-bool ShaderResource::Unload()
+bool Rendering::ShaderResource::Unload()
 {
     if (ptr)
         UnloadShader(*ptr);
@@ -70,9 +73,9 @@ bool ShaderResource::Unload()
     return true;
 }
 
-Utility::Timepoint ShaderResource::GetEditTime() const
+Utility::Timepoint Rendering::ShaderResource::GetEditTime() const
 {
-    if (defines != Rendering::Manager::Get().GetConfig().Context.Get().GlobalDefines.Get())
+    if (defines != Manager::Get().GetConfig().Context.Get().GlobalDefines.Get())
         return std::chrono::high_resolution_clock::now();
     
     Utility::Timepoint max = Utility::Timepoint::min(); 
@@ -83,17 +86,18 @@ Utility::Timepoint ShaderResource::GetEditTime() const
     return  max;
 }
 
-Shader* ShaderResource::Get() const
+Shader* Rendering::ShaderResource::Get() const
 {
     if (ptr && IsShaderValid(*ptr))
         return ptr;
-    if (identifier.ends_with(".ds"))
+    
+    if (id.Str().ends_with(".ds"))
     {
         if (const auto defaultShader = ResShader("Shaders/SH_Default.ds").Get())
             if (defaultShader != this)
                 return defaultShader->Get();
     }
-    else if (identifier.ends_with(".ps"))
+    else if (id.Str().ends_with(".ps"))
     {
         return nullptr;
     }
@@ -106,7 +110,7 @@ Shader* ShaderResource::Get() const
     return nullptr; 
 }
 
-int ShaderResource::GetLocation(const String& InValue)
+int Rendering::ShaderResource::GetLocation(const String& InValue)
 {
     PROFILE_GL();
     const Shader* shaderPtr = Get();
@@ -119,12 +123,12 @@ int ShaderResource::GetLocation(const String& InValue)
     return loc; 
 }
 
-int ShaderResource::GetLocation(const DefaultLoc& InLoc) const
+int Rendering::ShaderResource::GetLocation(const DefaultLoc& InLoc) const
 {
     return defaultLocs[static_cast<size_t>(InLoc)];
 }
 
-void ShaderResource::LoadDefaultLocs()
+void Rendering::ShaderResource::LoadDefaultLocs()
 {
     PROFILE_GL_GPU("Default unform locations");
     defaultLocs[static_cast<size_t>(DefaultLoc::TIME)] = rlGetLocationUniform(ptr->id, "Time");
@@ -140,7 +144,7 @@ void ShaderResource::LoadDefaultLocs()
     defaultLocs[static_cast<size_t>(DefaultLoc::DEFERRED_ID)] = rlGetLocationUniform(ptr->id, "DeferredID");
 }
 
-String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InIncludes)
+String Rendering::ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InIncludes)
 {
     InIncludes.clear();
     String shader = Utility::ReadFile(InPath);
@@ -155,7 +159,7 @@ String ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InInclu
     return shader;
 }
 
-String ShaderResource::ProcessIncludes(const String& InShaderCode, const String& InPath, Set<String>& InIncludes)
+String Rendering::ShaderResource::ProcessIncludes(const String& InShaderCode, const String& InPath, Set<String>& InIncludes)
 {
     InIncludes.insert(InPath);
     
@@ -192,7 +196,7 @@ String ShaderResource::ProcessIncludes(const String& InShaderCode, const String&
     return processedShader;
 }
 
-String ShaderResource::ProcessDefines(const String& InShaderCode)
+String Rendering::ShaderResource::ProcessDefines(const String& InShaderCode)
 {
     std::function search = [&](String& InCode, const String& InSearchStart, const String& InSearchEnd, const std::function<String(const String& InContent)>& InReplaceFunc) -> bool
     {

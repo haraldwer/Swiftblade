@@ -295,7 +295,7 @@ bool Rendering::Renderer::Bake(const BakedTexture& InTex)
 {
     rlState::current.Reset();
     
-    ShaderResource* shaderResource = InTex.Shader.Get().Get();
+    ShaderResource* shaderResource = InTex.data.Shader.Get().Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource", false);
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN_LOG(!shader, "Failed to get shader", false);

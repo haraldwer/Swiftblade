@@ -3,17 +3,16 @@
 #include "Utility/File/File.h"
 #include "raylib.h"
 #include "utils.h"
-#include "external/stb_image_write.h"
 #include "external/stb_rect_pack.h"
 #include "ImGui/rlImGui.h"
 
-bool FontResource::Load(const String& InIdentifier)
+bool UI::FontResource::Load()
 {
-    identifier = InIdentifier;
+    // Maybe preload a certain size? 
     return true;
 }
 
-bool FontResource::Unload()
+bool UI::FontResource::Unload()
 {
     for (auto& ptr : sizes)
     {
@@ -25,11 +24,6 @@ bool FontResource::Unload()
     }
     sizes.clear();
     return true;
-}
-
-Utility::Timepoint FontResource::GetEditTime() const
-{
-    return Utility::GetFileWriteTime(identifier);  
 }
 
 // Modified version of GenImageFontAtlas() for only loading glyphs
@@ -181,7 +175,7 @@ void GenFontGlyphs(const GlyphInfo *glyphs, Rectangle **glyphRecs, int glyphCoun
     *glyphRecs = recs;
 }
 
-Font* FontResource::Get(const uint32 InSize)
+Font* UI::FontResource::Get(const uint32 InSize)
 {
     CHECK_ASSERT(InSize == 0, "Invalid size");
 
@@ -197,8 +191,8 @@ Font* FontResource::Get(const uint32 InSize)
     f = new Font();
 
     int fileSize = 0;
-    unsigned char *fileData = LoadFileData(identifier.c_str(), &fileSize);
-    CHECK_RETURN_LOG(!fileData, "Failed to load font: " + identifier, nullptr);
+    unsigned char *fileData = LoadFileData(id.Str().c_str(), &fileSize);
+    CHECK_RETURN_LOG(!fileData, "Failed to load font: " + id.Str(), nullptr);
         
     // SDF font generation from TTF font
     f->baseSize = static_cast<int>(roundSize);
@@ -259,14 +253,14 @@ Font* FontResource::Get(const uint32 InSize)
     return f;
 }
 
-Shader* FontResource::GetShader() const
+Shader* UI::FontResource::GetShader() const
 {
     if (const auto res = sdfShader.Get())
         return res->Get();
     return nullptr;
 }
 
-bool FontResource::Edit(const String &InName, uint32 InOffset)
+bool UI::FontResource::Edit(const String &InName, uint32 InOffset)
 {
     ImGui::Text("Loaded sizes: %i", static_cast<int>(sizes.size()));
     for (auto& s : sizes)
@@ -293,7 +287,7 @@ bool FontResource::Edit(const String &InName, uint32 InOffset)
     return false;
 }
 
-String FontResource::GetCachePath(const int InSize) const
+String UI::FontResource::GetCachePath(const int InSize) const
 {
-    return Utility::GetCachePath(identifier + Utility::ToStr(InSize), ".png");
+    return Utility::GetCachePath(id.Str() + Utility::ToStr(InSize), ".png");
 }

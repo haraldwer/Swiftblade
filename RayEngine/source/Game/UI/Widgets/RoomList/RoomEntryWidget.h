@@ -12,7 +12,7 @@ namespace UI
     
     class RoomEntryWidget : public Container
     {
-        TYPE_INFO(RoomEntryWidget, Container);
+        CLASS_INFO(RoomEntryWidget, Container);
     public:
         RoomEntryWidget() = default;
         RoomEntryWidget(const ResRoom& InRoom) : Container(), room(InRoom) {}

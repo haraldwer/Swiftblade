@@ -103,7 +103,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     return stats;
 }
 
-Vector<const LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InArgs)
+Vector<const Rendering::LightInstance*> Rendering::Lights::GetLights(const RenderArgs& InArgs)
 {
     PROFILE_GL();
     

@@ -238,7 +238,7 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, VolumeCoord InStart, Volu
 
 void ECS::SysCubeVolume::SystemInit()
 {
-    persistentID = MeshInstance::GenPersistentID();
+    persistentID = Rendering::MeshInstance::GenPersistentID();
 }
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
@@ -252,7 +252,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .material = Engine::Instance::Get().IsEditor() ? InComponent.EditMaterial : InComponent.Material,
         .transform = {},
         .hash = 0,
-        .mask = static_cast<uint8>(MeshMask::ALL)
+        .mask = static_cast<uint8>(Rendering::MeshMask::ALL)
     };
 
     InComponent.editMesh = {
@@ -260,12 +260,12 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .material = InComponent.MarkerMaterial,
         .transform = {},
         .hash = 0,
-        .mask = static_cast<uint8>(MeshMask::DEFAULT)
+        .mask = static_cast<uint8>(Rendering::MeshMask::DEFAULT)
     };
     
     // Generate hash
-    InComponent.blockMesh.hash = MeshInstance::GenHash(InComponent.blockMesh.model, InComponent.blockMesh.material);
-    InComponent.editMesh.hash = MeshInstance::GenHash(InComponent.editMesh.model, InComponent.editMesh.material);
+    InComponent.blockMesh.hash = Rendering::MeshInstance::GenHash(InComponent.blockMesh.model, InComponent.blockMesh.material);
+    InComponent.editMesh.hash = Rendering::MeshInstance::GenHash(InComponent.editMesh.model, InComponent.editMesh.material);
     
     if (Engine::Instance::Get().IsEditor())
         return;

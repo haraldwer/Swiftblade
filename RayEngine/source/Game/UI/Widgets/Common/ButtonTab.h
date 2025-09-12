@@ -6,7 +6,7 @@ namespace UI
 {
     class ButtonTab : public Container
     {
-        TYPE_INFO(ButtonTab, Container);
+        CLASS_INFO(ButtonTab, Container);
         
     public:
         ButtonTab(const String& InOption) : Container(), option(InOption) { }

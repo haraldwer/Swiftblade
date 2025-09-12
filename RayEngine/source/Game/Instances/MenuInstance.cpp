@@ -50,7 +50,7 @@ void MenuInstance::Logic(const double InDelta)
 
 void MenuInstance::Frame()
 {
-    EnvironmentInstance env;
+    Rendering::EnvironmentInstance env;
     env.skybox = config.Skybox;
     GetRenderScene().AddEnvironment(env);
     ecs.Frame(); 

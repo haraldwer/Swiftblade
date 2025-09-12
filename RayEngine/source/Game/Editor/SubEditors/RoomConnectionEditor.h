@@ -18,7 +18,7 @@ struct RoomConnectionEditorConfig : BaseConfig<RoomConnectionEditorConfig>
 
 class RoomConnectionEditor : public RoomSubEditor
 {
-    TYPE_INFO(RoomConnectionEditor, RoomSubEditor);
+    CLASS_INFO(RoomConnectionEditor, RoomSubEditor);
     
 public:
     void Init() override;

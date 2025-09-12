@@ -8,7 +8,7 @@
 
 class GameInstance : public Engine::Instance, public Debug::Panel
 {
-    TYPE_INFO(GameInstance, Engine::Instance);
+    CLASS_INFO(GameInstance, Engine::Instance);
     
 public:
     void Init() override;

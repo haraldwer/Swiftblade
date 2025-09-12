@@ -3,7 +3,7 @@
 
 class MenuBrowse : public Menu::Instance
 {
-    TYPE_INFO(MenuBrowse, Menu::Instance);
+    CLASS_INFO(MenuBrowse, Menu::Instance);
 public:
     void Init() override;
     void SetPanelType(const Type& InType) { panelType = InType; }

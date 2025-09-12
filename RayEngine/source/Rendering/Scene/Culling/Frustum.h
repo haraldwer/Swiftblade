@@ -1,10 +1,9 @@
 #pragma once
-#include "Collections/SplitContainer.h"
-
-struct CameraInstance;
 
 namespace Rendering
 {
+	struct CameraInstance;
+	
 	class Frustum
 	{
 	private:

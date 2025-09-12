@@ -74,7 +74,7 @@ ECS::VolumeCoord RoomSubEditor::CameraTrace(const int32 InDist) const
 
 ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
 {
-    const CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
+    const Rendering::CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
     Vec3F targetPos = cam.position + cam.rotation.ForwardDirection() * InDist;
     return GetVolume().PosToCoord(targetPos);
 }

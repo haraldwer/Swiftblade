@@ -5,23 +5,22 @@
 // Raylib model reference
 struct Model; 
 
-class ModelResource
+namespace Rendering
 {
-public:
-    bool Load(const String& InIdentifier);
-    bool Unload();
-    Utility::Timepoint GetEditTime() const;
-    Model* Get() const;
+    class ModelResource : public Resource::Base
+    {
+        CLASS_INFO(ModelResource, Resource::Base)
+    public:
+        bool Load() override;
+        bool Unload() override;
+        Model* Get() const;
+        uint32 Hash() const;
+        
+    private:
+        uint32 cachedHash = 0;
+        Model* ptr = nullptr; 
+    };
 
-    bool Save(const String& InPath) { return false; };
-    bool Edit(const String& InName, uint32 InOffset = 0) { return false; };
+}
 
-    uint32 Hash() const;
-    
-private:
-    uint32 cachedHash = 0;
-    String identifier = {};
-    Model* ptr = nullptr; 
-};
-
-typedef Resource::Ref<ModelResource> ResModel;  
+typedef Resource::Ref<Rendering::ModelResource> ResModel;  

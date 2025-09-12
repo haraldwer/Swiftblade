@@ -23,7 +23,7 @@ namespace UI
     
     class Label : public Element
     {
-        TYPE_INFO(Label, Element)
+        CLASS_INFO(Label, Element)
 
     public:
         Label(const Transform& InTransform = {}, const LabelProperties& InProperties = {}) : Element(InTransform), properties(InProperties) {}

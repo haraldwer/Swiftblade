@@ -8,7 +8,7 @@ namespace UI
     {
         friend class Builder;
         
-        TYPE_INFO(Container, Element)
+        CLASS_INFO(Container, Element)
         
     public:
         Container(const Transform& InTransform = Transform::Fill(), const Background& InBG = {}, bool InScissor = false) : Element(InTransform, InBG, InScissor) {}

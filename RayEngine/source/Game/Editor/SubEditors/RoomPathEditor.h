@@ -20,7 +20,7 @@ struct RoomPathEditorConfig : BaseConfig<RoomPathEditorConfig>
 
 class RoomPathEditor : public RoomSubEditor
 {
-    TYPE_INFO(RoomPathEditor, RoomSubEditor);
+    CLASS_INFO(RoomPathEditor, RoomSubEditor);
     
 public:
     void Init() override;

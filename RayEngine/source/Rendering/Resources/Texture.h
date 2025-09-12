@@ -5,21 +5,22 @@
 // Raylib model reference
 struct Texture; 
 
-class TextureResource
+namespace Rendering
 {
-    friend class NoiseTextureResource;
-public:
-    bool Load(const String& InIdentifier);
-    bool Unload();
-    Utility::Timepoint GetEditTime() const;
-    Texture* Get() const { return ptr; }
+    class TextureResource : Resource::Base
+    {
+        friend class NoiseTextureResource;
+        CLASS_INFO(TextureResource, Resource::Base)
+    public:
+        bool Load() override;
+        bool Unload() override;
+        bool Edit(const String& InName, uint32 InOffset = 0) override;
+        Utility::Timepoint GetEditTime() const override;
+        Texture* Get() const { return ptr; }
+        
+    private:
+        Texture* ptr = nullptr;
+    };
+}
 
-    bool Edit(const String& InName, uint32 InOffset = 0) const;
-    bool Save(const String& InPath) { return false; }
-    
-private:
-    String identifier = {}; 
-    Texture* ptr = nullptr;
-};
-
-typedef Resource::Ref<TextureResource> ResTexture;
+typedef Resource::Ref<Rendering::TextureResource> ResTexture;

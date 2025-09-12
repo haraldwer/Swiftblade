@@ -71,8 +71,7 @@ void UI::InfoPanelRoom::SetRoom(const ResRoom &InRoom)
     }
     else
     {
-        auto& r = res->Get();
-        SetText("Name", r.Name);
+        SetText("Name", res->data.Name);
     }
 }
 

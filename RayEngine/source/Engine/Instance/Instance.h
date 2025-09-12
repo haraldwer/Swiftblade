@@ -10,7 +10,7 @@ namespace Engine
 {
     class Instance : public Utility::Singelton<Instance>
     {
-        BASE_TYPE_INFO(Instance);
+        BASE_CLASS_INFO(Instance);
         
     public:
         ~Instance() override = default;

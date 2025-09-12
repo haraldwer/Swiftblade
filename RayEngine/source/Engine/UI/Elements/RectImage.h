@@ -5,7 +5,7 @@ namespace UI
 {
     class RectImage : public Image
     {
-        TYPE_INFO(RectImage, Image)
+        CLASS_INFO(RectImage, Image)
 
     public:
         

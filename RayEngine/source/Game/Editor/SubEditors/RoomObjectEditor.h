@@ -63,7 +63,7 @@ private:
 
 class RoomObjectEditor : public RoomSubEditor
 {
-    TYPE_INFO(RoomObjectEditor, RoomSubEditor);
+    CLASS_INFO(RoomObjectEditor, RoomSubEditor);
     
 public:
     void Init() override;

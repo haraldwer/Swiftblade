@@ -6,7 +6,7 @@ namespace UI
 {
     class InfoPanelRoom : public Container
     {
-        TYPE_INFO(InfoPanelRoom, Container);
+        CLASS_INFO(InfoPanelRoom, Container);
     public:
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;

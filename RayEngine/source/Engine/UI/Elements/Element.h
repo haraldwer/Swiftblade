@@ -18,7 +18,7 @@ namespace UI
         friend class Builder; 
         friend class Container;
         
-        BASE_TYPE_INFO(Element)
+        BASE_CLASS_INFO(Element)
         
     public:
         Element() = default;

@@ -5,7 +5,7 @@ namespace UI
 {
     class BrowsePanel : public Container
     {
-        TYPE_INFO(BrowsePanel, Container);
+        CLASS_INFO(BrowsePanel, Container);
         
     public:
         BrowsePanel() : Container(Transform::Fill()) { }

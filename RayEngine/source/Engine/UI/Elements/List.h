@@ -22,7 +22,7 @@ namespace UI
     // A container that contains other UI elements
     class List : public Container
     {
-        TYPE_INFO(List, Container)
+        CLASS_INFO(List, Container)
         
     public:
         List(const Transform& InTransform = Transform::Fill(), const ListProperties& InProperties = {}, const Background& InBg = {}) : Container(InTransform, InBg), properties(InProperties) {}

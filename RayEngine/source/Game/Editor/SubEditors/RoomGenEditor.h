@@ -7,7 +7,7 @@ class RoomGenBase;
 
 class RoomGenEditor : public RoomSubEditor
 {
-    TYPE_INFO(RoomGenEditor, RoomSubEditor);
+    CLASS_INFO(RoomGenEditor, RoomSubEditor);
     
 public: 
     void Init() override;

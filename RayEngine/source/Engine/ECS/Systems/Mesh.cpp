@@ -8,7 +8,7 @@ using namespace ECS;
 
 void SysMesh::SystemInit()
 {
-    persistentID = MeshInstance::GenPersistentID();
+    persistentID = Rendering::MeshInstance::GenPersistentID();
 }
 
 void SysMesh::SystemFrame()
@@ -20,7 +20,7 @@ void SysMesh::SystemFrame()
         Mesh& m = GetInternal(id.first);
         const Transform& t = Get<Transform>(id.second);
         const Mat4F world = t.World();
-        const uint64 hash = MeshInstance::GenHash(m.Model, m.Material);
+        const uint64 hash = Rendering::MeshInstance::GenHash(m.Model, m.Material);
         
         if (world == m.worldCache && hash == m.hashCache)
         {

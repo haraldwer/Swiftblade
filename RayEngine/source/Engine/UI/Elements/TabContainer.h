@@ -6,7 +6,7 @@ namespace UI
 {
     class TabContainer : public Container
     {
-        TYPE_INFO(TabContainer, Container);
+        CLASS_INFO(TabContainer, Container);
         
     public:
         TabContainer() = default;

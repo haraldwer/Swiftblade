@@ -84,7 +84,7 @@ Rendering::MeshCollection::Entry& Rendering::MeshCollection::GetEntry(const Mesh
         {
             entry.deferredID = mat->DeferredHash();
             if (!deferredShaders.contains(entry.deferredID) && entry.deferredID != 0)
-                deferredShaders[entry.deferredID] = mat->DeferredShader.Get();
+                deferredShaders[entry.deferredID] = mat->data.DeferredShader.Get();
         }
     }
     

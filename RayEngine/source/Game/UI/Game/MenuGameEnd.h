@@ -3,7 +3,7 @@
 
 class MenuGameEnd : Menu::Instance
 {
-    TYPE_INFO(MenuGameEnd, Menu::Instance);
+    CLASS_INFO(MenuGameEnd, Menu::Instance);
 public:
     void Init() override;
     void Deinit() override;

@@ -24,7 +24,7 @@ enum class RoomType : uint8
 
 class RoomSubEditor
 {
-    BASE_TYPE_INFO(RoomSubEditor);
+    BASE_CLASS_INFO(RoomSubEditor);
     friend class RoomSubEditorManager;
 public:
     virtual ~RoomSubEditor() = default;

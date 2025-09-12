@@ -13,7 +13,7 @@
 bool ImGuizmo::Edit(Mat4F& InOutMat, int& InOutSpace, int& InOutOperation, bool& InOutUseSnap)
 {
     // Get camera
-    const CameraInstance camInstance = Engine::Instance::Get().GetRenderScene().GetCamera();
+    const Rendering::CameraInstance camInstance = Engine::Instance::Get().GetRenderScene().GetCamera();
     Vec2F size = Rendering::Manager::Get().window.GetSize().To<float>();
     Mat4F proj = Mat4F::Transpose(camInstance.GetProjectionMatrix(size));
     Mat4F view = Mat4F::Transpose(camInstance.GetViewMatrix());

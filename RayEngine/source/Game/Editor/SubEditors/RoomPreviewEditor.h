@@ -12,7 +12,7 @@ struct RoomSubmitEditorConfig : BaseConfig<RoomSubmitEditorConfig>
 
 class RoomPreviewEditor : public RoomSubEditor
 {
-    TYPE_INFO(RoomPreviewEditor, RoomSubEditor)
+    CLASS_INFO(RoomPreviewEditor, RoomSubEditor)
 public:
     void Init() override;
     void Deinit() override;

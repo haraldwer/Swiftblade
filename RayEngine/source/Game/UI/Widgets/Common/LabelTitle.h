@@ -5,7 +5,7 @@ namespace UI
 {
     class LabelTitle : public Label
     {
-        TYPE_INFO(LabelTitle, Label);
+        CLASS_INFO(LabelTitle, Label);
     public:
         LabelTitle(const Transform& InTrans = {}, const String& InText = {}) :
             Label(InTrans, {

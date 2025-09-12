@@ -5,7 +5,7 @@ namespace UI
 {
     class ButtonDefault : public Container
     {
-        TYPE_INFO(ButtonDefault, Container);
+        CLASS_INFO(ButtonDefault, Container);
     public:
         ButtonDefault(const Transform& InTrans, const String& InOption) : Container(InTrans), option(InOption), text(InOption) {}
         ButtonDefault(const Transform& InTrans, const String& InOption, const String& InText) : Container(InTrans), option(InOption), text(InText) {}

@@ -3,16 +3,15 @@
 #include "raylib.h"
 #include "Utility/File/File.h"
 
-bool ModelResource::Load(const String& InIdentifier)
+bool Rendering::ModelResource::Load()
 {
     ptr = new Model(); 
-    *ptr = LoadModel(InIdentifier.c_str());
-    identifier = InIdentifier;
-    cachedHash = Utility::Hash(identifier);
+    *ptr = LoadModel(id.Str().c_str());
+    cachedHash = Utility::Hash(id.Str());
     return true;
 }
 
-bool ModelResource::Unload()
+bool Rendering::ModelResource::Unload()
 {
     if (ptr)
     {
@@ -24,19 +23,14 @@ bool ModelResource::Unload()
     return true; 
 }
 
-Utility::Timepoint ModelResource::GetEditTime() const
-{
-    return Utility::GetFileWriteTime(identifier);
-}
-
-Model* ModelResource::Get() const
+Model*Rendering::ModelResource::Get() const
 {
     if (IsModelValid(*ptr))
         return ptr;
     return nullptr;
 }
 
-uint32 ModelResource::Hash() const
+uint32 Rendering::ModelResource::Hash() const
 {
     return cachedHash;
 }

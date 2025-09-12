@@ -101,32 +101,26 @@ bool SceneResource::FromStr(const String &InStr)
     return doc.IsObject();
 }
 
-bool SceneResource::Load(const String& InIdentifier)
+bool SceneResource::Load()
 {
-    identifier = InIdentifier;
-    if (!Utility::FileExists(InIdentifier))
+    if (!Utility::FileExists(id.Str()))
     {
         doc.Parse("{}");
         LOG("Scene file does not exist");
         return true;
     }
-    const String fileContent = Utility::ReadFile(InIdentifier);
+    const String fileContent = Utility::ReadFile(id.Str());
     if (fileContent.empty())
     {
         doc.Parse("{}");
         LOG("Scene file empty")
         return true;
     }
-    return FromStr(fileContent.c_str());
+    return FromStr(fileContent);
 }
 
 bool SceneResource::Unload()
 {
     doc = rapidjson::Document();
     return true;
-}
-
-Utility::Timepoint SceneResource::GetEditTime() const
-{
-    return Utility::GetFileWriteTime(identifier);
 }

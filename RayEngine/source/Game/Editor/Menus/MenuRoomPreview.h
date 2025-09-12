@@ -3,7 +3,7 @@
 
 class MenuRoomPreview : public Menu::Instance
 {
-    TYPE_INFO(MenuRoomPreview, Menu::Instance);
+    CLASS_INFO(MenuRoomPreview, Menu::Instance);
 public:
     void Init() override;
     void Update() override;

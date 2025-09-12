@@ -1,46 +1,51 @@
 #pragma once
 
-#include "Core/Resource/Resource.h"
+#include "Resource/Resource.h"
+#include "Resource/PropertyFile.h"
 #include "Texture.h"
 
 struct RenderTexture;
 struct Color;
 
-enum class NoiseType : uint8
+namespace Rendering
 {
-    OPEN_SIMPLEX_2,
-    OPEN_SIMPLEX_2S,
-    CELLULAR,
-    PERLIN,
-    VALUE_CUBIC,
-    VALUE,
-    COUNT
-};
+    enum class NoiseType : uint8
+    {
+        OPEN_SIMPLEX_2,
+        OPEN_SIMPLEX_2S,
+        CELLULAR,
+        PERLIN,
+        VALUE_CUBIC,
+        VALUE,
+        COUNT
+    };
 
-class NoiseTextureResource : public PropertyOwner<NoiseTextureResource>
-{
-public:
-    bool Load(const String& InPath) override;
-    bool Unload() override;
-    bool Edit(const String& InName, uint32 InOffset = 0) override;
-    Utility::Timepoint GetEditTime() const;
+    struct NoiseData : PropertyOwner<NoiseData>
+    {
+        PROPERTY_D(int, Resolution, 1024);
+        PROPERTY_D(float, Frequency, 1.0f);
+        PROPERTY_D(int, Type, 0);
+        PROPERTY_D(int, Seed, 0);
+    };
     
-    ResTexture Get() const;
-    
-    // Some noise properties!
-    PROPERTY_D(int, Resolution, 1024);
-    PROPERTY_D(float, Frequency, 1.0f);
-    PROPERTY_D(int, Type, 0);
-    PROPERTY_D(int, Seed, 0);
+    class NoiseTextureResource : public Resource::PropertyFile<NoiseData>
+    {
+        CLASS_INFO(NoiseTextureResource, Resource::PropertyFile<NoiseData>)
+        
+    public:
+        bool Load() override;
+        bool Unload() override;
+        bool Edit(const String& InName, uint32 InOffset = 0) override;
+        ResTexture Get() const;
+        
+    private:
+        void Generate();
+        void Generate(Color* InData, int InResolution);
+        String GetCachePath() const;
+        
+        ResTexture tex = {};
+        bool editorOpen = false;
+    };
+}
 
-private:
-    void Generate();
-    void Generate(Color* InData, int InResolution);
-    String GetCachePath() const;
-    
-    ResTexture tex = {};
-    String identifier = {};
-    bool editorOpen = false;
-};
-
-typedef Resource::Ref<NoiseTextureResource, true> ResNoiseTex;
+typedef Resource::Ref<Rendering::NoiseTextureResource> ResNoiseTex;

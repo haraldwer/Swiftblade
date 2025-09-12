@@ -12,7 +12,7 @@ namespace UI
 
     class InfoPanel : public Container
     {
-        TYPE_INFO(InfoPanel, Container);
+        CLASS_INFO(InfoPanel, Container);
     public:
         InfoPanel()
         {

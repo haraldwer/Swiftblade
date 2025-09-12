@@ -40,9 +40,17 @@ namespace Utility
     private: 
         TypeHash hash = 0; 
     };
+
+    template <class ToT, class FromT>
+    ToT* Cast(FromT* InObj)
+    {
+        const bool cond = FromT::IsA(Type::Get<ToT>());
+        CHECK_ASSERT(!cond, "Cannot cast, invalid type");
+        return reinterpret_cast<ToT*>(InObj);
+    }
 }
 
-#define TYPE_INFO(self, parent) \
+#define STRUCT_INFO(self, parent) \
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
     static Utility::TypeHash GetTypeHash() { return Utility::Type::GetHash<self>(); } \
@@ -50,10 +58,13 @@ public: \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
     Utility::Type GetObjType() const override { return GetType(); } \
-    String GetObjName() const override { return TypeName(); } \
+    String GetObjName() const override { return TypeName(); }
+
+#define CLASS_INFO(self, parent) \
+    STRUCT_INFO(self, parent) \
 private:
 
-#define BASE_TYPE_INFO(self) \
+#define BASE_STRUCT_INFO(self) \
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
     static Utility::TypeHash GetTypeHash() { return Utility::Type::GetHash<self>(); } \
@@ -61,5 +72,8 @@ public: \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
     virtual Utility::Type GetObjType() const { return GetType(); } \
-    virtual String GetObjName() const { return TypeName(); } \
+    virtual String GetObjName() const { return TypeName(); }
+
+#define BASE_CLASS_INFO(self) \
+    BASE_STRUCT_INFO(self) \
 private:

@@ -77,7 +77,7 @@ Vec3F EditorCamera::ScreenToWorld(const Vec2F &InScreen) const
 
 Vec3F EditorCamera::ClipToWorld(Vec2F InClip) const
 {
-    CameraInstance c {
+    Rendering::CameraInstance c {
         currentState.position,
          QuatF::FromEuler(currentState.rotation),
          currentState.fov,

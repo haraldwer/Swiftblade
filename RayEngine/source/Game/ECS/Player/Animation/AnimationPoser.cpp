@@ -27,7 +27,7 @@ void ECS::AnimationPoser::VisualizePoses()
             b = Get<Transform>(c).Local();
     }
 
-    uint64 hash = MeshInstance::GenHash(VisualizationMesh.Get(), VisualizationMat.Get());
+    uint64 hash = Rendering::MeshInstance::GenHash(VisualizationMesh.Get(), VisualizationMat.Get());
     
     auto& rs = Engine::Instance::Get().GetRenderScene();
     if (a != Mat4F() || b != Mat4F())

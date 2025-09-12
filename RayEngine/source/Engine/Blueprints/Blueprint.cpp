@@ -2,16 +2,17 @@
 
 #include "ECS/Manager.h"
 #include "ECS/Systems/Attributes.h"
+#include "Editor/BlueprintEditor.h"
+#include "Instance/Manager.h"
 #include "Utility/File/File.h"
 
-bool BlueprintResource::Load(const String& InIdentifier)
+bool BlueprintResource::Load()
 {
-    identifier = InIdentifier;
-    const String fileContent = Utility::ReadFile(InIdentifier);
-    CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty", false);
+    const String fileContent = Utility::ReadFile(id.Str());
+    CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty: " + id.Str(), false);
     doc = DocumentObj();
     doc.Parse(fileContent.c_str());
-    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid object", false);
+    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid object: " + id.Str(), false);
     return true;
 }
 
@@ -21,33 +22,35 @@ bool BlueprintResource::Unload()
     return true;
 }
 
-Utility::Timepoint BlueprintResource::GetEditTime() const
+bool BlueprintResource::Edit(const String &InName, uint32 InOffset)
 {
-    return Utility::GetFileWriteTime(identifier);
+    if (ImGui::Button("Edit"))
+        if (auto editor = Engine::Manager::Get().Push<BlueprintEditor>())
+            editor->SetBP(ResBlueprint(id));
+    return false;
 }
 
-ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides, ECS::EntityID InID) const
+ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides, const ECS::EntityID InID) const
 {
     CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
 
     // Create entity
     ECS::Manager& man = ECS::Manager::Get();
-    const ECS::EntityID id = InID == ECS::INVALID_ID ?
+    const ECS::EntityID entity = InID == ECS::INVALID_ID ?
         man.CreateEntity() : InID; 
-    CHECK_RETURN_LOG(id == ECS::INVALID_ID, "Invalid ID", ECS::INVALID_ID);
+    CHECK_RETURN_LOG(entity == ECS::INVALID_ID, "Invalid ID", ECS::INVALID_ID);
 
     // Set the blueprint that it's based on
-    if (const auto attr = man.GetComponent<ECS::Attributes>(id))
-        attr->blueprint = identifier;
+    if (const auto attr = man.GetComponent<ECS::Attributes>(entity))
+        attr->blueprint = id.Str();
 
     // Deserialize with overrides
     Vector<DeserializeObj> vec;
-    const auto obj = GetObj();
-    vec.push_back(obj);
+    vec.push_back(GetObj());
     for (const auto& override : InOverrides)
         vec.push_back(override);
-    man.Deserialize(id, InTransform, vec);
-    return id;
+    man.Deserialize(entity, InTransform, vec);
+    return entity;
 }
 
 void BlueprintResource::Save(const ECS::EntityID InID)
@@ -69,7 +72,7 @@ void BlueprintResource::Save(const ECS::EntityID InID)
     doc.Parse(formatted.c_str());
     
     // Write to file!
-    Utility::WriteFile(identifier, formatted);
+    Utility::WriteFile(id.Str(), formatted);
 }
 
 DeserializeObj BlueprintResource::GetObj() const

@@ -3,7 +3,7 @@
 
 class MenuSettings : public Menu::Instance
 {
-    TYPE_INFO(MenuSettings, Menu::Instance);
+    CLASS_INFO(MenuSettings, Menu::Instance);
 public:
     void Init() override;
     void Update() override;

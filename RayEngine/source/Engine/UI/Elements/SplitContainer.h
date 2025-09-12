@@ -18,7 +18,7 @@ namespace UI
     
     class SplitContainer : public Container
     {
-        TYPE_INFO(SplitContainer, Container);
+        CLASS_INFO(SplitContainer, Container);
         
     public:
         

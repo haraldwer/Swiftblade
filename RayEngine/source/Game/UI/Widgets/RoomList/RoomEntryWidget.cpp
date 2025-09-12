@@ -15,16 +15,14 @@ void UI::RoomEntryWidget::Init(Container &InOwner)
     
     if (room.Identifier().IsValid())
     {
-        LOG("Found room: " + Utility::ReadFile(room.Identifier().Str()));
         auto res = room.Get();
-        auto r = res->Get();
         builder
             .Add(Image())
             .Add(LabelHeader({
                 .padding = { 10 },
                 .anchor = { 0, 1 }, 
                 .pivot = { 0, 1 },
-            }, r.Name));
+            }, res->data.Name));
     }
     else
     {

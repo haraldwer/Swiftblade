@@ -19,7 +19,7 @@ void SysCameraComponent::Update(const EntityID InEntity, CameraComponent& InComp
 void SysCameraComponent::Set(const EntityID InEntity, CameraComponent& InComponent)
 {
     const Transform& t = Get<Transform>(InEntity);
-    const CameraInstance c {
+    const Rendering::CameraInstance c {
         t.GetPosition(),
         t.GetRotation(),
         InComponent.FOV,

@@ -11,8 +11,10 @@ namespace UI
     
     class LevelEntryWidget : public Container
     {
-        TYPE_INFO(LevelEntryWidget, Container);
+        CLASS_INFO(LevelEntryWidget, Container);
     public:
+        LevelEntryWidget() = default;
+        LevelEntryWidget(const ResLevel& InLevel) : level(InLevel) {}
         LevelEntryWidget(const DB::RPCLevelList::Entry& InEntry) : entry(InEntry) {}
         
         void Init(Container &InOwner) override;
@@ -21,6 +23,7 @@ namespace UI
         bool IsHovered() const override;
         
     private:
+        ResLevel level;
         DB::RPCLevelList::Entry entry;
     };
 }

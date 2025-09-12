@@ -9,7 +9,7 @@ namespace ECS {
 
 class RoomVolumeEditor : public RoomSubEditor
 {
-    TYPE_INFO(RoomVolumeEditor, RoomSubEditor);
+    CLASS_INFO(RoomVolumeEditor, RoomSubEditor);
     
 public:
 

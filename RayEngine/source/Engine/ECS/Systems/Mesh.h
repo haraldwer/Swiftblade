@@ -12,7 +12,7 @@ namespace ECS
     struct Mesh : Component<Mesh>
     { 
         PROPERTY_D(bool, Visible, true);
-        PROPERTY_D(uint8, Mask, static_cast<uint8>(MeshMask::DEFAULT) | static_cast<uint8>(MeshMask::SHADOWS));
+        PROPERTY_D(uint8, Mask, static_cast<uint8>(Rendering::MeshMask::DEFAULT) | static_cast<uint8>(Rendering::MeshMask::SHADOWS));
         PROPERTY_D(ResModel, Model, "Defaults/M_Cube.obj");
         PROPERTY_D(ResRM, Material, "Defaults/RM_Default.json");
 

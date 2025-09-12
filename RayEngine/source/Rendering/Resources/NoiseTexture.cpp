@@ -7,33 +7,27 @@
 #include "ImGui/rlImGui.h"
 #include "Utility/File/File.h"
 
-bool NoiseTextureResource::Load(const String& InPath)
+bool Rendering::NoiseTextureResource::Load()
 {
-    identifier = InPath;
     if (!Utility::FileExists(GetCachePath()))
         Generate();
     tex = ResTexture(GetCachePath());
-    PropertyOwnerBase::Load(InPath);
+    PropertyFile::Load();
     return true;
 }
 
-bool NoiseTextureResource::Unload()
+bool Rendering::NoiseTextureResource::Unload()
 {
     tex = ResTexture();
-    return PropertyOwnerBase::Unload();
+    return PropertyFile::Unload();
 }
 
-Utility::Timepoint NoiseTextureResource::GetEditTime() const
-{
-    return Utility::GetFileWriteTime(identifier);
-}
-
-ResTexture NoiseTextureResource::Get() const
+ResTexture Rendering::NoiseTextureResource::Get() const
 {
     return tex;
 }
 
-bool NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
+bool Rendering::NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
 {
     ImGui::SameLine();
     if (Utility::Button("Edit##" + InName, InOffset))
@@ -96,12 +90,12 @@ bool NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
         }
         
         ImGui::Separator();
-        result |= PropertyOwnerBase::Edit(InName, InOffset);
+        result |= PropertyFile::Edit(InName, InOffset);
         if (ImGui::Button("Generate"))
             Generate();
         ImGui::SameLine();
         if (ImGui::Button("Save"))
-            PropertyOwnerBase::Save(identifier);
+            PropertyFile::Save();
         ImGui::SameLine();
         if (ImGui::Button("Close"))
         {
@@ -113,28 +107,28 @@ bool NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
     return result;
 }
 
-void NoiseTextureResource::Generate()
+void Rendering::NoiseTextureResource::Generate()
 {
-    const int res = Resolution;
-    Color* data = new Color[res * res];
+    const int res = data.Resolution;
+    Color* arr = new Color[res * res];
 
-    if (Type.Get() >= static_cast<int>(NoiseType::COUNT) ||
-        Type.Get() < 0)
-        Type = 0;
+    if (data.Type.Get() >= static_cast<int>(NoiseType::COUNT) ||
+        data.Type.Get() < 0)
+        data.Type = 0;
 
-    Generate(data, res);
+    Generate(arr, res);
     
     // Cache file
     const String filename = GetCachePath();
     Utility::CreateDir(filename);
     
     const int channels = 4;
-    const int result = stbi_write_png(filename.c_str(), res, res, channels, data, channels * res);
+    const int result = stbi_write_png(filename.c_str(), res, res, channels, arr, channels * res);
     if (result == 1)
         LOG("Noise texture saved: " + filename);
 
-    delete[] data;
-    data = nullptr;
+    delete[] arr;
+    arr = nullptr;
 
     // Hot reloading handles the tex
 }
@@ -149,12 +143,12 @@ static Vec3F TorusMapping(const Vec2F& InPos)
     return { xt, yt, zt };
 }
 
-void NoiseTextureResource::Generate(Color* InData, const int InResolution)
+void Rendering::NoiseTextureResource::Generate(Color* InData, const int InResolution)
 {
     FastNoiseLite noise;
-    noise.SetNoiseType(static_cast<FastNoiseLite::NoiseType>(Type.Get()));
-    noise.SetFrequency(Frequency.Get());
-    noise.SetSeed(Seed.Get());
+    noise.SetNoiseType(static_cast<FastNoiseLite::NoiseType>(data.Type.Get()));
+    noise.SetFrequency(data.Frequency.Get());
+    noise.SetSeed(data.Seed.Get());
 
     const std::function get = [&](const int InX, const int InY)
     {
@@ -176,18 +170,18 @@ void NoiseTextureResource::Generate(Color* InData, const int InResolution)
                 InFunc(x, y);
     };
 
-    switch (static_cast<NoiseType>(Type.Get()))
+    switch (static_cast<NoiseType>(data.Type.Get()))
     {
     default:
         forEvery([&](const int InX, const int InY) {
             const uint8 i = get(InX, InY); 
             InData[InY * InResolution + InX] = Color(i, 0, 0, 255);
         });
-        noise.SetSeed(Seed.Get() + 1);
+        noise.SetSeed(data.Seed.Get() + 1);
         forEvery([&](const int InX, const int InY) {
             InData[InY * InResolution + InX].g = get(InX, InY); 
         });
-        noise.SetSeed(Seed.Get() + 2);
+        noise.SetSeed(data.Seed.Get() + 2);
         forEvery([&](const int InX, const int InY) {
             InData[InY * InResolution + InX].b = get(InX, InY);
         });
@@ -205,7 +199,7 @@ void NoiseTextureResource::Generate(Color* InData, const int InResolution)
     }
 }
 
-String NoiseTextureResource::GetCachePath() const
+String Rendering::NoiseTextureResource::GetCachePath() const
 {
-    return Utility::GetCachePath(identifier, ".png"); 
+    return Utility::GetCachePath(id.Str(), ".png"); 
 }

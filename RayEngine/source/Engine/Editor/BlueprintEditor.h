@@ -13,7 +13,7 @@ struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
 
 class BlueprintEditor : public Engine::Instance, public Debug::Panel
 {
-    TYPE_INFO(BlueprintEditor, Engine::Instance);
+    CLASS_INFO(BlueprintEditor, Engine::Instance);
     
     friend class BlueprintDebugUI;
     

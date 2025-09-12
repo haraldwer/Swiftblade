@@ -3,7 +3,7 @@
 #include "Impl.h"
 #include "ImGui/imgui.h"
 
-Resource::Base* Resource::Manager::GetResource(const ID& InID)
+Resource::ImplBase* Resource::Manager::GetResource(const ID& InID)
 {
     const auto find = resources.find(InID.Hash());
     if (find == resources.end())
@@ -11,7 +11,7 @@ Resource::Base* Resource::Manager::GetResource(const ID& InID)
     return find->second;
 }
 
-void Resource::Manager::Register(Base* InResource, const ID& InID)
+void Resource::Manager::Register(ImplBase* InResource, const ID& InID)
 {
     resources[InID.Hash()] = InResource;
 }
@@ -98,9 +98,8 @@ void Resource::Manager::DrawDebugPanel()
             CHECK_CONTINUE(showOnlyLoaded && !res.second->loaded);
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            if (res.second->IsEditable())
-                if (ImGui::Button(("Edit##" + Utility::ToStr(res.first)).c_str()))
-                    selected = res.first;
+            if (ImGui::Button(("Edit##" + Utility::ToStr(res.first)).c_str()))
+                selected = res.first;
             ImGui::TableNextColumn();
             ImGui::Text("%s", res.second->id.Str().c_str());
             ImGui::TableNextColumn();
@@ -119,8 +118,14 @@ void Resource::Manager::DrawDebugPanel()
         {
             static bool open;
             open = true;
-            if (ImGui::Begin(("Inspect: " + res->id.Str()).c_str(), &open))
+            if (ImGui::Begin("Inspect resource", &open))
+            {
+                ImGui::Text("Resource: %s", res->id.Str().c_str());
+                ImGui::Text("Count: %i", res->count);
+                ImGui::Text("Loaded: %i", static_cast<int>(res->loaded));
+                ImGui::Separator();
                 res->Edit(res->id.Str()); 
+            }
             ImGui::End();
             if (!open)
                 selected = -1;

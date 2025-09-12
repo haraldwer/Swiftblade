@@ -14,10 +14,10 @@ void RoomPathEditor::Init()
     VerifyPath();
     selectedIndex = -1;
 
-    pointID = MeshInstance::GenPersistentID();
-    linkID = MeshInstance::GenPersistentID();
-    pointHash = MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
-    linkHash = MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
+    pointID = Rendering::MeshInstance::GenPersistentID();
+    linkID = Rendering::MeshInstance::GenPersistentID();
+    pointHash = Rendering::MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
+    linkHash = Rendering::MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
 }
 
 void RoomPathEditor::Deinit()
@@ -198,12 +198,12 @@ void RoomPathEditor::Frame()
         prevPos = pos; 
     }
 
-    MeshInstance link {
+    Rendering::MeshInstance link {
         .model = config.PathLink,
         .material = config.PathMaterial,
         .hash = linkHash
     };
-    MeshInstance point {
+    Rendering::MeshInstance point {
         .model = config.PathPoint,
         .material = config.PathMaterial,
         .hash = pointHash

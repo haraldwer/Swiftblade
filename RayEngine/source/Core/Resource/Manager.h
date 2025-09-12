@@ -5,14 +5,14 @@
 
 namespace Resource
 {
-    struct Base;
+    struct ImplBase;
     
     class Manager : public Utility::Singelton<Manager, true>, public Debug::Panel
     {
     public:
 
-        Base* GetResource(const ID& InID);
-        void Register(Base* InResource, const ID& InID);
+        ImplBase* GetResource(const ID& InID);
+        void Register(ImplBase* InResource, const ID& InID);
         
         void Update();
         void Deinit();
@@ -23,7 +23,7 @@ namespace Resource
     private:
         void TryUnload() const;
         
-        Map<uint32, Base*> resources = {};
+        Map<uint32, ImplBase*> resources = {};
         Utility::Timer checkTimer = {};
         Vector<uint32> hotReloadQueue = {};
         uint32 selected = -1;

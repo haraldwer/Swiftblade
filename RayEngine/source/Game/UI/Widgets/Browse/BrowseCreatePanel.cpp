@@ -9,6 +9,7 @@
 #include "UI/Elements/SplitContainer.h"
 #include "UI/Elements/TabContainer.h"
 #include "UI/Widgets/Common/LabelHeader.h"
+#include "UI/Widgets/LevelList/LevelEntryWidget.h"
 #include "UI/Widgets/RoomList/RoomListWidget.h"
 
 void UI::BrowseCreatePanel::Init(Container &InOwner)
@@ -24,10 +25,7 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
             .Pop()
             .Push(TabContainer(Transform::Fill({{}, { 5, 0 }})), "Tabs")
                 .Add(List(), "RoomList")
-                .Add(LevelListWidget(), "LevelList")
-                .Push(SplitContainer({}, { 10, SplitDirection::VERTICAL }), "SubmissionList")
-                    .Add(LevelListWidget("", "Levels"), "SubmissionLevelList")
-                    .Add(RoomListWidget("", "Rooms"), "SubmissionRoomList");    
+                .Add(LevelListWidget(), "LevelList");    
     
     root = Add(b.Build());
 
@@ -46,30 +44,37 @@ void UI::BrowseCreatePanel::Update(Container &InOwner)
         SelectLevels();
     if (Get<ButtonTab>("Rooms").IsClicked())
         SelectRooms();
-    if (Get<ButtonTab>("Submissions").IsClicked())
-        SelectSubmissions();
 }
 
 void UI::BrowseCreatePanel::SelectLevels()
 {
     Get<ButtonTab>("Levels").SetSelected(true);
     Get<ButtonTab>("Rooms").SetSelected(false);
-    Get<ButtonTab>("Submissions").SetSelected(false);
     Get<TabContainer>("Tabs").Set("LevelList");
 
+    auto& list = Get<LevelListWidget>("LevelList");
+    list.ClearChildren();
+    
     Vector<String> files = Utility::ListFiles("User/Levels");
     for (auto& f : files)
         LOG("Found level: " + Utility::ReadFile(f));
 
-    auto& list = Get<LevelListWidget>("LevelList");
-    list.ClearChildren();
+    for (auto& f : files)
+    {
+        auto w = LevelEntryWidget(f);
+        w.Init(list);
+        list.Add(w);
+    }
+
+    auto add = LevelEntryWidget();
+    add.Init(list);
+    list.Add(add);
 }
 
 void UI::BrowseCreatePanel::SelectRooms()
 {
     Get<ButtonTab>("Levels").SetSelected(false);
     Get<ButtonTab>("Rooms").SetSelected(true);
-    Get<ButtonTab>("Submissions").SetSelected(false);
     Get<TabContainer>("Tabs").Set("RoomList");
     
     auto& list = Get<List>("RoomList");
@@ -86,14 +91,4 @@ void UI::BrowseCreatePanel::SelectRooms()
     auto add = RoomEntryWidget();
     add.Init(list);
     list.Add(add);
-}
-
-void UI::BrowseCreatePanel::SelectSubmissions()
-{
-    Get<ButtonTab>("Levels").SetSelected(false);
-    Get<ButtonTab>("Rooms").SetSelected(false);
-    Get<ButtonTab>("Submissions").SetSelected(true);
-    Get<TabContainer>("Tabs").Set("SubmissionList");
-    Get<LevelListWidget>("SubmissionLevelList").Request("user_current");
-    //Get<RoomListWidget>("SubmissionRoomList").Request("user_current");
 }

@@ -33,9 +33,9 @@ namespace ECS
 
         static VolumeCoord TryOffset(VolumeCoord InCoord, Vec3I InOffset);
         static Array<VolumeCoord, 6> GetNeighbors(VolumeCoord InCoord);
-        
-        MeshInstance blockMesh = {}; 
-        MeshInstance editMesh = {};
+
+        Rendering::MeshInstance blockMesh = {};
+        Rendering::MeshInstance editMesh = {};
     };
 
     class SysCubeVolume : public System<CubeVolume>

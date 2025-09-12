@@ -16,7 +16,7 @@ struct MenuConfig : BaseConfig<MenuConfig>
 
 class MenuInstance : public Engine::Instance 
 {
-    TYPE_INFO(MenuInstance, Engine::Instance);
+    CLASS_INFO(MenuInstance, Engine::Instance);
     
 public: 
     void Init() override;

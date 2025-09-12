@@ -5,7 +5,7 @@ namespace UI
 {
     class Separator : public Element
     {
-        TYPE_INFO(Separator, Element);
+        CLASS_INFO(Separator, Element);
     public:
         Separator() :
             Element({

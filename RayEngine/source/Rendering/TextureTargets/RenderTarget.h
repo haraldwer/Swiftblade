@@ -1,11 +1,12 @@
 ﻿#pragma once
 
-class ShaderResource;
 struct RenderTexture;
 struct Texture;
 
 namespace Rendering
 {
+    class ShaderResource;
+    
     class RenderTarget
     {
     public:

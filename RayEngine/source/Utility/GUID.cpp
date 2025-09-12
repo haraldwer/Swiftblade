@@ -117,7 +117,9 @@ std::string getUserName()
 #include <netinet/in.h>      
 #include <netinet/in_systm.h>                 
 #include <netinet/ip.h>      
-#include <netinet/ip_icmp.h> 
+#include <netinet/ip_icmp.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 #include <assert.h>
 
 #ifdef DARWIN                    
@@ -194,7 +196,7 @@ void getMacHash( unsigned short& mac1, unsigned short& mac2 )
    if ( sock < 0 ) return;   
 
    // enumerate all IP addresses of the system         
-   struct ifconf conf;       
+   struct ifconf conf;
    char ifconfbuf[ 128 * sizeof(struct ifreq)  ];      
    memset( ifconfbuf, 0, sizeof( ifconfbuf ));         
    conf.ifc_buf = ifconfbuf; 
@@ -209,8 +211,8 @@ void getMacHash( unsigned short& mac1, unsigned short& mac2 )
    bool foundMac1 = false;   
    struct ifreq* ifr;        
    for ( ifr = conf.ifc_req; (char*)ifr < (char*)conf.ifc_req + conf.ifc_len; ifr++ ) 
-   {       
-      if ( ifr->ifr_addr.sa_data == (ifr+1)->ifr_addr.sa_data )          
+   {
+      if ( &ifr->ifr_addr.sa_data[0] == &(ifr+1)->ifr_addr.sa_data[0] )          
          continue;  // duplicate, skip it     
 
       if ( ioctl( sock, SIOCGIFFLAGS, ifr ))           
@@ -308,7 +310,7 @@ String Utility::DeviceGUID()
    String str;
    str += ToStr(getCpuHash());
    
-   u16 mac1, mac2;
+   uint16 mac1, mac2;
    getMacHash(mac1, mac2);
    str += ToStr(mac1) + ToStr(mac2);
    
@@ -316,5 +318,5 @@ String Utility::DeviceGUID()
    str += getMachineName();
    str += getUserName();
 
-   return xg::Guid(str).str();
+   return ToUpper(xg::Guid(str).str());
 }

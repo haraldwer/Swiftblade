@@ -12,7 +12,7 @@ namespace UI
     
     class Image : public Element
     {
-        TYPE_INFO(Image, Element)
+        CLASS_INFO(Image, Element)
 
     public:
         

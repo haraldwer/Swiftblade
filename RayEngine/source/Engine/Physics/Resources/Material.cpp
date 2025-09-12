@@ -4,20 +4,18 @@
 #include "Physics/Manager.h"
 #include "Utility/File/File.h"
 
-bool PhysicsMaterialResource::Load(const String& InPath)
+bool PhysicsMaterialResource::Load()
 {
-    identifier = InPath;
-    if (!PropertyOwnerBase::Load(InPath))
+    if (!PropertyFile::Load())
         return false;
-
     if (Engine::Instance::Get().IsEditor())
-        return true; 
+        return true;
     
     const auto& man = Physics::Manager::Get();
     ptr = man.CreateMaterial(
-        StaticFriction,
-        DynamicFriction,
-        Restitution);
+        data.StaticFriction,
+        data.DynamicFriction,
+        data.Restitution);
 
     return ptr != nullptr;
 }
@@ -26,10 +24,5 @@ bool PhysicsMaterialResource::Unload()
 {
     CHECK_RETURN(!ptr, false);
     ptr = nullptr;
-    return true;
-}
-
-Utility::Timepoint PhysicsMaterialResource::GetEditTime() const
-{
-    return Utility::GetFileWriteTime(identifier);  
+    return PropertyFile::Unload();
 }

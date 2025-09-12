@@ -5,7 +5,7 @@ namespace UI
 {
     class LoadingSpinner : public Image
     {
-        TYPE_INFO(LoadingSpinner, Image)
+        CLASS_INFO(LoadingSpinner, Image)
     public:
         LoadingSpinner(const Transform& InTrans = {
             .size = 50,

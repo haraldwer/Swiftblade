@@ -9,7 +9,7 @@ namespace UI
     
     class LevelListWidget : public List
     {
-        TYPE_INFO(LevelListWidget, List);
+        CLASS_INFO(LevelListWidget, List);
         
     public:
         LevelListWidget()

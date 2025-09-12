@@ -2,40 +2,39 @@
 
 #include "Utility/File/File.h"
 
-bool MaterialResource::Load(const String& InPath)
+bool Rendering::MaterialResource::Load()
 {
-    identifier = InPath;
-    const bool result = PropertyOwnerBase::Load(InPath);
+    const bool result = PropertyFile::Load();
     cachedHash = 0;
     cachedDeferredHash = 0;
     return result;
 }
 
-Utility::Timepoint MaterialResource::GetEditTime() const
+Utility::Timepoint Rendering::MaterialResource::GetEditTime() const
 {
     Utility::Timepoint maxTime = Utility::Timepoint::min();
-    if (const ShaderResource* rsc = SurfaceShader.Get().Get())
+    if (const ShaderResource* rsc = data.SurfaceShader.Get().Get())
         maxTime = rsc->GetEditTime();
-    if (const ShaderResource* rsc = DeferredShader.Get().Get())
+    if (const ShaderResource* rsc = data.DeferredShader.Get().Get())
         maxTime = Utility::Math::Max(maxTime, rsc->GetEditTime());
-    maxTime = Utility::Math::Max(maxTime, Utility::GetFileWriteTime(identifier));
+    maxTime = Utility::Math::Max(maxTime, PropertyFile::GetEditTime());
     return maxTime;
 }
 
-uint32 MaterialResource::Hash()
+uint32 Rendering::MaterialResource::Hash()
 {
     if (cachedHash == 0)
-        if (SurfaceShader.Get().IsLoaded() && DeferredShader.Get().IsLoaded())
+        if (data.SurfaceShader.Get().IsLoaded() && data.DeferredShader.Get().IsLoaded())
             cachedHash =  
-                Utility::Hash(SurfaceShader.Get().Identifier()) + 
-                Utility::Hash(TwoSided.Get()) +
+                Utility::Hash(data.SurfaceShader.Get().Identifier()) + 
+                Utility::Hash(data.TwoSided.Get()) +
                 DeferredHash();
     return cachedHash;
 }
 
-uint32 MaterialResource::DeferredHash()
+uint32 Rendering::MaterialResource::DeferredHash()
 {
     if (cachedDeferredHash == 0)
-        cachedDeferredHash = Utility::Hash(DeferredShader.Get().Identifier());
+        cachedDeferredHash = Utility::Hash(data.DeferredShader.Get().Identifier());
     return cachedDeferredHash;
 }

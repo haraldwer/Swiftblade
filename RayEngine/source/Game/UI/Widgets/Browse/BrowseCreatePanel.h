@@ -5,7 +5,7 @@ namespace UI
 {
     class BrowseCreatePanel : public BrowsePanel
     {
-        TYPE_INFO(BrowseCreatePanel, BrowsePanel);
+        CLASS_INFO(BrowseCreatePanel, BrowsePanel);
 
     public:
         void Init(Container &InOwner) override;
@@ -16,6 +16,5 @@ namespace UI
     private:
         void SelectLevels();
         void SelectRooms();
-        void SelectSubmissions();
     };
 }

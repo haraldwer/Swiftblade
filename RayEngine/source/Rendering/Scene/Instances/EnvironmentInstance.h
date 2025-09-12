@@ -2,13 +2,16 @@
 #include "Rendering/Resources/Material.h"
 #include "Rendering/Resources/Texture.h"
 
-struct EnvironmentInstance
+namespace Rendering
 {
-    ResRM skybox;
-    ResTexture tonemap;
-    Vec3F shape;
-    Vec3F position;
+    struct EnvironmentInstance
+    {
+        ResRM skybox;
+        ResTexture tonemap;
+        Vec3F shape;
+        Vec3F position;
 
-    // Bounds?
-    // Other FX parameters?? 
-};
+        // Bounds?
+        // Other FX parameters?? 
+    };
+}

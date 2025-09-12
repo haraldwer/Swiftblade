@@ -1,79 +1,75 @@
 #pragma once
 
 #include "Identifier.h"
+#include "Base.h"
 
 namespace Resource
 {
-    struct Base
+    // Editing
+    String Pick(const String& InLabel, const String& InID);
+    bool SaveButton(const String& InID);
+
+    struct ImplBase
     { 
-        virtual ~Base() = default;
-        Base(const ID& InID) : id(InID) {}
-        virtual bool Load() = 0;
-        virtual bool Unload() = 0;
-        virtual bool Edit(const String& InName, uint32 InOffset = 0) = 0;
-        virtual bool IsEditable() const = 0;
-        virtual bool TryHotReload() = 0;
+        virtual ~ImplBase() = default;
+        ImplBase(const ID& InID) : id(InID) {}
 
-        // Editing
-        static String Pick(const String& InLabel, const String& InID);
-        static bool SaveButton(const String& InID);
-
-        ID id = {};
-        Utility::Timepoint editTimestamp = {}; 
-        uint32 count = 0;
-        bool loaded = false;
-    };
-
-    template <class T, bool Editable = false>
-    struct Impl : Base
-    {
-        Impl(const ID& InID) : Base(InID) {}
+        virtual Base& GetData() = 0;
         
-        bool Load() override
+        bool Load()
         {
             if (loaded)
                 return true;
+            auto& data = GetData();
             data.Unload();
-            loaded = data.Load(id.Str());
+            loaded = data.Load();
             if (loaded)
-                editTimestamp = data.GetEditTime();
-                // TODO: Remove this requirement, maybe use template parameter? 
+                time = data.GetEditTime();
             return loaded;
         }
         
-        bool Unload() override
+        bool Unload()
         {
             if (!loaded)
-                return true; 
+                return true;
+            auto& data = GetData();
             loaded = !data.Unload();
             return !loaded;  
         }
         
-        bool TryHotReload() override
+        bool TryHotReload()
         {
-            CHECK_RETURN(data.GetEditTime() == editTimestamp, false);
+            auto& data = GetData();
+            CHECK_RETURN(data.GetEditTime() == time, false);
             LOG("Hot reloading resource: " + id.Str());
             Unload();
             return Load();
         }
 
-        bool Edit(const String& InName, uint32 InOffset = 0) override
+        bool Edit(const String& InName, uint32 InOffset = 0)
         {
-            if (Editable)
+            auto& data = GetData();
+            if (data.Edit(InName, InOffset))
             {
-                if (data.Edit(InName, InOffset))
-                {
-                    if (!id.Unique())
-                        data.Save(id.Str());
-                    TryHotReload();
-                    return true;
-                }
+                if (!id.Unique())
+                    data.Save();
+                TryHotReload();
+                return true;
             }   
             return false;
         }
+        
+        ID id = {};
+        Utility::Timepoint time = {}; 
+        uint32 count = 0;
+        bool loaded = false;
+    };
 
-        bool IsEditable() const override { return Editable; }
-
+    template <class T>
+    struct Impl final : ImplBase
+    {
+        Impl(const ID& InID) : ImplBase(InID) {}
+        Base& GetData() override { return *Utility::Cast<Base, T>(&data); }
         T data = {};
     };
 }

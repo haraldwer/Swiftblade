@@ -4,17 +4,16 @@
 #include "raylib.h"
 #include "ImGui/rlImGui.h"
 
-bool TextureResource::Load(const String& InIdentifier)
+bool Rendering::TextureResource::Load()
 {
-    identifier = InIdentifier;
-    if (identifier.starts_with("Gen_"))
+    if (id.Str().starts_with("Gen_"))
         return true;
     ptr = new Texture();
-    *ptr = LoadTexture(InIdentifier.c_str());
+    *ptr = LoadTexture(id.Str().c_str());
     return ptr->id;
 }
 
-bool TextureResource::Unload()
+bool Rendering::TextureResource::Unload()
 {
     if (ptr)
     {
@@ -26,14 +25,14 @@ bool TextureResource::Unload()
     return false; 
 }
 
-Utility::Timepoint TextureResource::GetEditTime() const
+Utility::Timepoint Rendering::TextureResource::GetEditTime() const
 {
-    if (identifier.starts_with("Gen_"))
+    if (id.Str().starts_with("Gen_"))
         return {};
-    return Utility::GetFileWriteTime(identifier);  
+    return Utility::GetFileWriteTime(id.Str());  
 }
 
-bool TextureResource::Edit(const String &InName, uint32 InOffset) const
+bool Rendering::TextureResource::Edit(const String &InName, uint32 InOffset)
 {
     if (!ptr)
     {

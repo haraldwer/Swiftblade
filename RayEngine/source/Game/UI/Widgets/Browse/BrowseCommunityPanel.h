@@ -5,7 +5,7 @@ namespace UI
 {
     class BrowseCommunityPanel : public BrowsePanel
     {
-        TYPE_INFO(BrowseCommunityPanel, BrowsePanel)
+        CLASS_INFO(BrowseCommunityPanel, BrowsePanel)
     public:
         void Init(Container &InOwner) override;
     };

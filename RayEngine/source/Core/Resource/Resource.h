@@ -9,45 +9,15 @@ namespace Resource
     public:
         virtual ~BaseRef() {}
     protected:
-        Base* Register(const ID& InID);
-        virtual Base* NewRes(const ID& InID) { return nullptr; };
+        ImplBase* Register(const ID& InID);
+        virtual ImplBase* New(const ID& InID) { return nullptr; }
     };
     
-    template <class T, bool Editable = false>
+    template <class T>
     class Ref final : BaseRef
     {
     public:
         
-        bool IsLoaded() const
-        {
-            return ptr && ptr->loaded;    
-        }
-
-        operator bool() const
-        {
-            return IsLoaded(); 
-        }
-        
-        bool Unload()
-        {
-            CHECK_RETURN(!ptr, false);
-            return ptr->Unload();  
-        }
-
-        ID Identifier() const
-        {
-            return ptr ? ptr->id : ID(); 
-        }
-
-        T* Get() const
-        {
-            if (!IsLoaded() && ptr)
-                ptr->Load(); // Try load
-            if (IsLoaded())
-                return &ptr->data;
-            return nullptr;
-        }
-
         // Create resource from identifier
         Ref(const String& InID) : Ref(ID(InID)) { }
 
@@ -55,13 +25,13 @@ namespace Resource
         Ref(const ID& InID)
         {
             CHECK_RETURN(InID.Str().empty());
-            ptr = reinterpret_cast<Impl<T, Editable>*>(Register(InID));
+            ptr = reinterpret_cast<Impl<T>*>(Register(InID));
             Increment(); 
         }
         
         Ref() = default;
-        
-        virtual ~Ref()
+
+        ~Ref() override
         {
             Decrement();
         }
@@ -91,6 +61,29 @@ namespace Resource
             return *this;
         }
 
+        bool IsLoaded() const { return ptr && ptr->loaded; }
+        operator bool() const { return IsLoaded(); }
+        
+        bool Unload()
+        {
+            CHECK_RETURN(!ptr, false);
+            return ptr->Unload();  
+        }
+
+        ID Identifier() const
+        {
+            return ptr ? ptr->id : ID(); 
+        }
+
+        T* Get() const
+        {
+            if (!IsLoaded() && ptr)
+                ptr->Load(); // Try load
+            if (IsLoaded())
+                return &ptr->data;
+            return nullptr;
+        }
+
         void Serialize(SerializeObj& InOutObj) const
         {
             if (!ptr)
@@ -115,8 +108,7 @@ namespace Resource
         {
             // File picker
             const String currID = ptr ? ptr->id.Str() : "";
-            
-            const String newID = Base::Pick(InName, currID);
+            const String newID = Pick(InName, currID);
             if (currID != newID)
             {
                 *this = Ref(newID); 
@@ -138,14 +130,10 @@ namespace Resource
         
     private:
 
-        Base* NewRes(const ID& InID) override
-        {
-            return new Impl<T, Editable>(InID);
-        }
-        
+        ImplBase* New(const ID& InID) override { return new Impl<T>(InID); }
         void Increment() const { if (ptr) ++ptr->count; }
         void Decrement() { if (ptr) --ptr->count; }
         
-        Impl<T, Editable>* ptr = nullptr;
+        Impl<T>* ptr = nullptr;
     };
 }

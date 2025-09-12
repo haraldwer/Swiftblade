@@ -6,27 +6,25 @@
 
 struct Font;
 
-class FontResource
+namespace UI
 {
-public:
-    bool Load(const String& InIdentifier);
-    bool Unload();
-    Utility::Timepoint GetEditTime() const; 
-    Font* Get(uint32 InSize);
-    Shader* GetShader() const;
-    
-    bool Edit(const String& InName, uint32 InOffset = 0);
-    bool Save(const String& InPath) { return false; }
+    class FontResource : public Resource::Base
+    {
+    public:
+        bool Load() override;
+        bool Unload() override; 
+        bool Edit(const String& InName, uint32 InOffset = 0) override;
+        
+        Font* Get(uint32 InSize);
+        Shader* GetShader() const;
 
-private:
+    private:
+        String GetCachePath(int InSize) const;
+        
+        ResShader sdfShader = ResShader("Shaders/SH_FontSDF.fs");
+        Map<uint32, Font*> sizes;
+        static constexpr uint32 maxSize = 40;
+    };
+}
 
-    String GetCachePath(int InSize) const;
-    ResShader sdfShader = ResShader("Shaders/SH_FontSDF.fs");
-    String identifier = {};
-    
-    Map<uint32, Font*> sizes;
-
-    static constexpr uint32 maxSize = 40;
-};
-
-typedef Resource::Ref<FontResource, true> ResFont;  
+typedef Resource::Ref<UI::FontResource> ResFont;  
