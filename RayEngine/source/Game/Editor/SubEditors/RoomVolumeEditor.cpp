@@ -10,7 +10,7 @@
 #include "ImGui/imgui.h"
 #include "Utility/History/History.h"
 
-void RoomVolumeEditor::Init()
+void RoomVolumeEditor::Create()
 {
     // Create / Cache CubeVolume
     const auto& ecs = ECS::Manager::Get(); 
@@ -30,7 +30,13 @@ void RoomVolumeEditor::Init()
     if (cubeVolume != ECS::INVALID_ID)
         if (auto* cubeTrans = ecs.GetComponent<ECS::Transform>(cubeVolume))
             cubeTrans->SetWorld(Mat4F());
+}
 
+void RoomVolumeEditor::Init()
+{
+    const auto& ecs = ECS::Manager::Get(); 
+    auto& sys = ecs.GetSystem<ECS::SysCubeVolume>();
+    
     // Copy volume data to system
     auto& v = sys.Get(cubeVolume); 
     v.data = GetRoom().volumeData;

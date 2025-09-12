@@ -76,7 +76,7 @@ ECS::VolumeCoord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& In
     );
 }
 
-ECS::VolumeCoord ECS::CubeVolume::GetCenter() const
+ECS::VolumeCoord ECS::CubeVolume::GetCenter()
 {
     return VolumeCoord(0, 0, 1 - INT8_MAX);
 }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <algorithm>
 
 namespace Utility
 {
@@ -23,7 +24,7 @@ namespace Utility
 
     inline String ToUpper(String InStr)
     {
-        std::transform(InStr.begin(), InStr.end(), InStr.begin(),   toupper);
+        std::ranges::transform(InStr.begin(), InStr.end(), InStr.begin(), toupper);
         return InStr;
     }
 }

@@ -53,7 +53,7 @@ Vector<String> Utility::ListFiles(const String &InPath)
     {
         if (!e.is_directory())
         {
-            String path = e.path().relative_path();
+            String path = e.path().relative_path().string();
             LOG("Path found: " + path);
             result.push_back(path);
         }

@@ -165,11 +165,11 @@ namespace Utility
 		template <class Type>
 		Vector3<Type> operator - (const Vector3<Type>& InFirst, const Vector3<Type>& InSecond)
 		{
-			return {
+			return Vector3<Type>(
 				InFirst.x - InSecond.x,
 				InFirst.y - InSecond.y,
 				InFirst.z - InSecond.z
-			};
+			);
 		}
 
 		template <class Type>

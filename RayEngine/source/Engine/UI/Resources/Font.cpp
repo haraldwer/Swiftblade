@@ -3,7 +3,6 @@
 #include "Utility/File/File.h"
 #include "raylib.h"
 #include "utils.h"
-#include "../../../../cmake-build-release/_deps/raylib-src/projects/Notepad++/raylib_npp_parser/raylib_to_parse.h"
 #include "external/stb_image_write.h"
 #include "external/stb_rect_pack.h"
 #include "ImGui/rlImGui.h"

@@ -20,6 +20,7 @@ RayEngine/cmake-build-debug
 RayEngine/cmake-build-release
 RayEngine/cmake-build-clang-19---debug
 RayEngine/cmake-build-clang-19---release
+RayEngine/cmake-build-win
 
 # Cache
 RayEngine/content/Cache/*

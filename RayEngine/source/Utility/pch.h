@@ -1,6 +1,7 @@
 #pragma once
 
 // Slim windows
+#define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #define NOGDICAPMASKS    
 #define NOVIRTUALKEYCODES

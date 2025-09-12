@@ -11,7 +11,9 @@ class RoomVolumeEditor : public RoomSubEditor
 {
     TYPE_INFO(RoomVolumeEditor, RoomSubEditor);
     
-public: 
+public:
+
+    void Create();
     void Init() override;
     void Update() override;
     void Frame() override;

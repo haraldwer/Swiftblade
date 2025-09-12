@@ -30,6 +30,8 @@ void RoomSubEditorManager::Init(RoomEditor* InEditor)
     
     for (auto& e : editors)
         e.second.Get().editor = InEditor;
+
+    Get<RoomVolumeEditor>().Create();
     for (auto& e : editors)
         e.second.Get().Init();
 
