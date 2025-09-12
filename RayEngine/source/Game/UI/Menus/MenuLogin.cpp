@@ -2,6 +2,7 @@
 
 #include "MenuMain.h"
 #include "Database/Manager.h"
+#include "Database/Components/Authentication.h"
 #include "Instance/Manager.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
@@ -93,7 +94,7 @@ void MenuLogin::LoginStep()
     {
         loading = true;
         status.SetText("Authenticating...");
-        db.auth.Authenticate();
+        db.auth.AuthenticateSteam();
         return;
     }
 

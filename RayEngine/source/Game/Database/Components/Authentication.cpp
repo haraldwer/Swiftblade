@@ -1,9 +1,9 @@
 #include "Authentication.h"
+#include "Database/Manager.h"
 
 #ifdef NAKAMA_ENABLE
 
 #include <nakama-cpp/NClientInterface.h>
-#include "Database/Manager.h"
 
 void DB::Authentication::Init(Manager *InManager)
 {
@@ -155,13 +155,36 @@ bool DB::Authentication::IsAuthenticated() const
 
 #else
 
-void DB::Authentication::Init(Manager *InManager) { Component::Init(InManager); }
-void DB::Authentication::Deinit() { Component::Deinit(); }
-void DB::Authentication::Authenticate() {}
-void DB::Authentication::AuthenticateDevice() {}
-void DB::Authentication::AuthenticateSteam() {}
-void DB::Authentication::LinkSteam() const {}
-bool DB::Authentication::IsAuthenticated() const { return false; }
+void DB::Authentication::Init(Manager *InManager)
+{
+    Component::Init(InManager);
+}
+void DB::Authentication::Deinit()
+{
+    Component::Deinit();
+}
+void DB::Authentication::Authenticate()
+{
+    LOG("Authenticate")
+    authenticated = true;
+}
+void DB::Authentication::AuthenticateDevice()
+{
+    LOG("AuthDevice")
+}
+void DB::Authentication::AuthenticateSteam()
+{
+    LOG("AuthSteam")
+}
+void DB::Authentication::LinkSteam() const
+{
+    LOG("LinkSteam")
+}
+bool DB::Authentication::IsAuthenticated() const
+{
+    LOG("IsAuthenticated")
+    return authenticated;
+}
 
 #endif
 

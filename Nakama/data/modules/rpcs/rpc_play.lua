@@ -1,8 +1,8 @@
 
 nk.logger_info("RPC_Play loaded")
 
-local function update_level_lb(id, name, leaderboard, cron, score)
-	lb.try_create_lb(leaderboard, "desc", "best", cron, {})
+local function update_lb(id, name, leaderboard, cron, score)
+	lb.try_create(leaderboard, "desc", "best", cron, {})
 	lb.try_write(leaderboard, id, name, score)
 end
 
@@ -11,13 +11,23 @@ local function rpc_begin_play(context, payload)
 	local p = utility.parse(payload)
 	
 	local levelID = p.levelID
-	local userID = context.user_id
+	local userID = c.user_id
 
 	local seed = p.seed
 	local level_hash = p.level_hash
 	local seedID = levelID .. "_" .. seed
 
-	if (not storage.read(levelID, "hash") == level_hash) then
+	-- Increase level ranking for user submissions
+	local levelInfo = storage.read(levelID, "info")
+	if levelInfo == nil then
+		nk.logger_error("Unknown level ID");
+		return nk.json_encode({
+			["payload"] = {},
+			["success"] = false
+		})
+	end
+
+	if levelInfo ~= level_hash then
 		nk.logger_error("BeginPlay didnt count because of invalid level hash");
 		return nk.json_encode({
 			["payload"] = {},
@@ -28,26 +38,35 @@ local function rpc_begin_play(context, payload)
 	-- Increase storage stats
 	local room_list = utility.parse(storage.read(levelID, "rooms")) -- Todo: Parse
 	for roomID in room_list do
-		storage.change(roomID, "playcount", 1)
+		local roomPlaycount = storage.change(roomID, "playcount", 1)
+		
+		-- Increase room ranking for user submissions
+		local roomInfo = storage.read(roomID, "info")
+		if roomInfo ~= nil then
+			local roomCreatorList = "user_rooms_" .. roomInfo.creator
+			lb.try_write(roomCreatorList, roomID, roomInfo.name, roomPlaycount)
+		end
 	end
+
 	local levelPlaycount = storage.change(levelID, "playcount", 1)
 	local seedPlaycount = storage.change(seedID, "playcount", 1)
 	storage.change(userID, "plays", 1)
 	storage.write(userID, "current", level_hash) -- Update user current level
 
+	local levelName = levelInfo.name
+	local levelCreator = levelInfo.creator
+	local levelCreatorList = "user_rooms_" .. levelInfo.creator
+	lb.try_write(levelCreatorList, levelID, levelName, levelPlaycount)
+
 	-- Update level leaderboards
-
 	if (storage.read(levelID, "status") == "Approved") then
-		local levelName = storage.read(levelID, "name")
+		update_lb(levelID, levelName, "most_played", "", levelPlaycount);
+		update_lb(levelID, levelName, "most_played_weekly", "0 0 * * 1", levelPlaycount);
+		update_lb(levelID, levelName, "most_played_monthly", "0 0 1 * *", levelPlaycount);
 		local seedName = levelName .. " (" .. seed .. ")"
-
-		update_level_lb(levelID, levelName, "most_played", "", levelPlaycount);
-		update_level_lb(levelID, levelName, "most_played_weekly", "0 0 * * 1", levelPlaycount);
-		update_level_lb(levelID, levelName, "most_played_monthly", "0 0 1 * *", levelPlaycount);
-
-		update_level_lb(seedID, seedName, "seed_most_played", "", seedPlaycount);
-		update_level_lb(seedID, seedName, "seed_most_played_weekly", "0 0 * * 1", seedPlaycount);
-		update_level_lb(seedID, seedName, "seed_most_played_monthly", "0 0 1 * *", seedPlaycount);
+		update_lb(seedID, seedName, "seed_most_played", "", seedPlaycount);
+		update_lb(seedID, seedName, "seed_most_played_weekly", "0 0 * * 1", seedPlaycount);
+		update_lb(seedID, seedName, "seed_most_played_monthly", "0 0 1 * *", seedPlaycount);
 	end
 
 	return nk.json_encode({
@@ -56,17 +75,12 @@ local function rpc_begin_play(context, payload)
 	})
 end
 
-local function update_user_lb(id, name, leaderboard, cron, score)
-	lb.try_create_lb(leaderboard, "desc", "best", cron, {})
-	lb.try_write(leaderboard, id, name, score)
-end
-
 local function rpc_end_play(context, payload)
 	local c = utility.parse(context)
 	local p = utility.parse(payload)
 	
 	local levelID = p.levelID
-	local userID = context.user_id
+	local userID = c.user_id
 	local user = "user_" .. userID
 
 	-- Get username from user data
@@ -103,14 +117,14 @@ local function rpc_end_play(context, payload)
 	if storage.read(levelID, "status") == "Approved" then
 
 		-- Set top ranks for level
-		update_user_lb(levelID, userID, username, "scores", "", score)
-		update_user_lb(levelID, userID, username, "scores_weekly", "0 0 * * 1", score)
-		update_user_lb(levelID, userID, username, "scores_monthly", "0 0 1 * *", score)
+		update_lb(levelID, userID, username, "scores", "", score)
+		update_lb(levelID, userID, username, "scores_weekly", "0 0 * * 1", score)
+		update_lb(levelID, userID, username, "scores_monthly", "0 0 1 * *", score)
 
 		-- Set top ranks for seed
-		update_user_lb(seedID, userID, username, "scores", "", score)
-		update_user_lb(seedID, userID, username, "scores_weekly", "0 0 * * 1", score)
-		update_user_lb(seedID, userID, username, "scores_monthly", "0 0 1 * *", score)
+		update_lb(seedID, userID, username, "scores", "", score)
+		update_lb(seedID, userID, username, "scores_weekly", "0 0 * * 1", score)
+		update_lb(seedID, userID, username, "scores_monthly", "0 0 1 * *", score)
 	end
 
 	storage.write(userID, "current", "")

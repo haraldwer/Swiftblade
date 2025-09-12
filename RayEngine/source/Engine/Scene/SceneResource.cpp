@@ -14,7 +14,7 @@ void SceneInstance::Destroy()
     entities.clear();
 }
 
-String SceneInstance::ToStr() const
+String SceneInstance::ToStr(const bool InFormat) const
 {
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
@@ -50,7 +50,7 @@ String SceneInstance::ToStr() const
         writer.EndArray();
     }
     writer.EndObject();
-    return Utility::FormatJson(s.GetString());
+    return InFormat ? Utility::FormatJson(s.GetString()) : s.GetString();
 }
 
 SceneInstance SceneResource::Instantiate(const Mat4F& InOffset, bool InIsRoot) const

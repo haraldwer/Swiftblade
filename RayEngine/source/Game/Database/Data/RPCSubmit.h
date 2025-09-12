@@ -14,6 +14,7 @@ namespace DB
             PROPERTY(int, Objects);
         };
 
+        PROPERTY(String, RoomID);
         PROPERTY(String, Error);
         PROPERTY(bool, Success)
 

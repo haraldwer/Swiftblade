@@ -69,12 +69,4 @@ elseif (UNIX)
     target_compile_options(${PROJECT_NAME} PUBLIC -ftime-trace) # clang trace
   endif ()
   
-  if (EMSCRIPTEN)
-    target_compile_options(${PROJECT_NAME} PRIVATE 
-      -Wno-inconsistent-missing-override
-      -Wno-nontrivial-memcall
-      -Wno-format-security
-      -Wno-nontrivial-memcall)
-  endif ()
-  
 endif ()

@@ -12,7 +12,7 @@ void UI::LevelEntryWidget::Init(Container &InOwner)
     transform.margins = { 5 };
     
     auto b = Builder()
-        .Push(SplitContainer(Transform::Fill(), { SplitDirection::HORIZONTAL, 10, { 3, 1 }}))
+        .Push(SplitContainer(Transform::Fill(), { 10, SplitDirection::HORIZONTAL, { 3, 1 }}))
             .Push(List(Transform::Fill(), { 0, ListDirection::HORIZONTAL }))
                 .Add(Label(), "Name")
                 .Add(Label({

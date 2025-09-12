@@ -8,7 +8,7 @@ struct SceneInstance
     Set<ECS::EntityID> entities = {};
     Mat4F offset = {};
 
-    String ToStr() const;
+    String ToStr(bool InFormat) const;
 };
 
 class SceneResource
@@ -19,7 +19,7 @@ public:
     Utility::Timepoint GetEditTime() const;
     
     SceneInstance Instantiate(const Mat4F& InOffset = Mat4F(), bool InIsRoot = true) const;
-    bool FromInstance(const SceneInstance& InInstance) { return FromStr(InInstance.ToStr()); }
+    bool FromInstance(const SceneInstance& InInstance) { return FromStr(InInstance.ToStr(false)); }
     bool FromStr(const String& InStr);
 
     bool Save(const String& InPath) { CHECK_ASSERT(false, "Not implemented!"); return false; }

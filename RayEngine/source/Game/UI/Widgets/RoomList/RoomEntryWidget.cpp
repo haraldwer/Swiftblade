@@ -1,6 +1,6 @@
 #include "RoomEntryWidget.h"
 
-#include "Common/LabelHeader.h"
+#include "../Common/LabelHeader.h"
 #include "Editor/RoomEditor.h"
 #include "Instance/Manager.h"
 #include "UI/Builder.h"

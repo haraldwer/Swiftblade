@@ -9,9 +9,6 @@ include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
 target_link_libraries(${PROJECT_NAME}
     raylib
     ImGui
+    TracyClient
     Utility
 )
-
-if (NOT EMSCRIPTEN)
-    target_link_libraries(${PROJECT_NAME} TracyClient)
-endif ()

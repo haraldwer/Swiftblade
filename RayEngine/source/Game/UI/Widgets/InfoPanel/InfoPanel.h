@@ -1,6 +1,6 @@
 #pragma once
 #include "../LevelList/LevelEntryWidget.h"
-#include "../RoomEntryWidget.h"
+#include "../RoomList/RoomEntryWidget.h"
 #include "UI/Elements/Container.h"
 #include "Utility/EventScopes.h"
 

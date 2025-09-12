@@ -13,7 +13,14 @@ end
 
 local function rpc_level_list(context, payload)
 	local p = utility.parse(payload)
+	local c = utility.parse(context)
 	local listName = p.List;
+
+	if listName == "user_current" then
+		listName = "user_levels_" .. c.user_id
+	end
+
+
 	local records = list_lb(listName)
 	utility.print_table(records)
 

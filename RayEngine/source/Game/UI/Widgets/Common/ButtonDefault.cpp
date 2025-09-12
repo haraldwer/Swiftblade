@@ -25,21 +25,22 @@ void UI::ButtonDefault::Update(Container &InOwner)
     
     Vec2F desiredPos = transform.position;
     float desiredAlpha = 0.5f;
-    
-    if (IsHovered())
-    {
-        desiredPos = Vec2F(0, -1);
-        desiredAlpha = 0.7f;
-    }
+    float lerpSpeed = 0.1f;
     
     if (IsPressed())
     {
         desiredPos = Vec2F(0, 1);
         desiredAlpha = 0.9f;
     }
+    else if (IsHovered())
+    {
+        desiredPos = Vec2F(0, -1);
+        desiredAlpha = 0.7f;
+        lerpSpeed = 0.9f;
+    }
     
-    t.position = Utility::Math::Lerp(t.position, desiredPos, 0.1f);
-    b.color.a = Utility::Math::Lerp(b.color.a, desiredAlpha, 0.1f);
+    t.position = Utility::Math::Lerp(t.position, desiredPos, lerpSpeed);
+    b.color.a = Utility::Math::Lerp(b.color.a, desiredAlpha, lerpSpeed);
     
     r.SetTransform(t);
     r.SetBackground(b);

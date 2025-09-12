@@ -73,8 +73,10 @@ void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) con
     const uint32 depthID = InRenderTexture.depth.id;
     CHECK_ASSERT(depthID == 0, "Invalid depth texture");
     rlFramebufferAttach(frameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
-    
-    CHECK_ASSERT(!rlFramebufferComplete(frameBuffer), "Framebuffer incomplete"); 
+
+#ifndef __EMSCRIPTEN__
+    CHECK_ASSERT(!rlFramebufferComplete(frameBuffer), "Framebuffer incomplete");
+#endif
 }
 
 void Rendering::RenderTarget::Unload()

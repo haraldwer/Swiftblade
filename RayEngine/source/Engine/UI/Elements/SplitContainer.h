@@ -11,8 +11,8 @@ namespace UI
 
     struct SplitProperties
     {
-        SplitDirection direction = SplitDirection::HORIZONTAL;
         float spacing = 0;
+        SplitDirection direction = SplitDirection::HORIZONTAL;
         Vector<float> ratios;
     };
     

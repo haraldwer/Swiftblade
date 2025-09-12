@@ -17,8 +17,8 @@ void MenuBrowse::Init()
                 .anchor = { 0.5, 0 },
                 .pivot = { 0.5, 0 }
             }, {
-                UI::SplitDirection::HORIZONTAL,
                 10,
+                UI::SplitDirection::HORIZONTAL,
                 { 3, 2 }
             }));
     

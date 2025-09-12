@@ -1,4 +1,5 @@
 #pragma once
+#include "Database/Data/RPCLevelList.h"
 #include "Editor/Room/RoomResource.h"
 #include "UI/Elements/Container.h"
 
@@ -15,10 +16,12 @@ namespace UI
     public:
         RoomEntryWidget() = default;
         RoomEntryWidget(const ResRoom& InRoom) : Container(), room(InRoom) {}
+        RoomEntryWidget(const DB::RPCRoomList::Entry& InRoom) : Container(), roomEntry(InRoom) {}
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
 
     private:
         ResRoom room;
+        DB::RPCRoomList::Entry roomEntry;
     };
 }

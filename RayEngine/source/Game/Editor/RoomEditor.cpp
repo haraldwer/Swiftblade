@@ -197,7 +197,7 @@ DB::RPCSubmitRoom::Request RoomEditor::CreateSubmitRequest()
     }
     
     SceneInstance scene = ConvertRoomToScene();
-    request.Scene = scene.ToStr();
+    request.Scene = scene.ToStr(false);
     return request;
 }
 

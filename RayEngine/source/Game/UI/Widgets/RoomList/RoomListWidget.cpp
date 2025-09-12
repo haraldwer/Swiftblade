@@ -1,13 +1,11 @@
-#include "LevelListWidget.h"
+#include "RoomListWidget.h"
 
-#include "LevelEntryWidget.h"
+#include "RoomEntryWidget.h"
 #include "Database/Manager.h"
-#include "Database/Data/RPCLevelList.h"
-#include "UI/Elements/Label.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/Separator.h"
 
-void UI::LevelListWidget::Init(Container &InOwner)
+void UI::RoomListWidget::Init(Container &InOwner)
 {
     if (!title.empty())
     {
@@ -18,7 +16,7 @@ void UI::LevelListWidget::Init(Container &InOwner)
     listID = Add(List());
     
     List::Init(InOwner);
-    
+
     onList.Bind([&](auto& InResp, auto InContext)
     {
         InContext->ListEntries(InResp);
@@ -28,7 +26,7 @@ void UI::LevelListWidget::Init(Container &InOwner)
     Request(rpcList);
 }
 
-void UI::LevelListWidget::Request(const String &InList)
+void UI::RoomListWidget::Request(const String &InList)
 {
     //Clear();
     rpcList = InList;
@@ -36,13 +34,13 @@ void UI::LevelListWidget::Request(const String &InList)
     {
         //SetLoading(true);
         
-        DB::RPCLevelList::Request request;
+        DB::RPCRoomList::Request request;
         request.List = rpcList;
-        DB::Manager::Get().rpc.Request<DB::RPCLevelList>(request);
+        DB::Manager::Get().rpc.Request<DB::RPCRoomList>(request);
     }
 }
 
-void UI::LevelListWidget::ListEntries(const DB::Response<DB::RPCLevelList>& InData)
+void UI::RoomListWidget::ListEntries(const DB::Response<DB::RPCRoomList> &InData)
 {
     //SetLoading(false);
     
@@ -55,15 +53,15 @@ void UI::LevelListWidget::ListEntries(const DB::Response<DB::RPCLevelList>& InDa
     CHECK_RETURN(InData.data.List.Get() != rpcList);
     
     //Clear();
-    for (const DB::RPCLevelList::Entry& level : InData.data.Entries.Get())
+    for (const DB::RPCRoomList::Entry& room : InData.data.Entries.Get())
     {
-        LevelEntryWidget e(level);
+        RoomEntryWidget e(room);
         e.Init(*this);
-        entries[level.ID] = Get<List>(listID).Add(e);
+        entries[room.ID] = Get<List>(listID).Add(e);
     }
 }
 
-void UI::LevelListWidget::Clear()
+void UI::RoomListWidget::Clear()
 {
     CHECK_RETURN(entries.empty())
     Get<List>(listID).ClearChildren();

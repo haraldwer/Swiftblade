@@ -5,30 +5,50 @@ local function rpc_submit_room(context, payload)
 	local c = utility.parse(context)
 	local p = utility.parse(payload)
 
-	local roomID = "room_" .. nk.uuid_v4() -- generate id
-	if (not storage.read(roomID, "name") == nil) then
+	local roomID = "room_" .. c.user_id .. "_" .. p.Name
+	if storage.read(roomID, "info") ~= nil then
 		nk.logger_error("Room submission failed, ID already exists " .. roomID)
 		return nk.json_encode({
-			["payload"] = {},
-			["success"] = false
+			["payload"] = {
+				["Error"] = "Room already submitted",
+				["Success"] = false
+			},
+			["success"] = true
 		})
 	end
 
-	local data = {
-		{ key = "name", value = p.name },
-		{ key = "creator", value = c.user_id },
-		{ key = "data", value = p.data },
-		{ key = "size", value = p.size },
-		{ key = "enemies", value = p.enemies },
-		{ key = "status", value = "Pending" },
-		{ key = "date", value = p.date },
-		{ key = "favourites", value = 0 },
-		{ key = "playcount", value = 0 },
-	}
-	storage.write_many(roomID, data)
+	local success = storage.write(roomID, "info", {
+		["name"] = p.Name,
+		["creator"] = c.user_id,
+		["scene"] = utility.parse(p.Scene),
+		["size"] = p.Size,
+		["length"] = p.Length,
+		["enemies"] = p.Enemies,
+		["status"] = "Pending",
+		["date"] = os.date("%d-%m-%Y"), -- todays date
+		["favourites"] = 0,
+		["playcount"] = 0
+	})
+
+	if not success then
+		return nk.json_encode({
+			["payload"] = { 
+				["Error"] = "Failed to write to storage",
+				["Success"] = false
+			},
+			["success"] = true
+		})
+	end
+
+	-- Create LB for rooms
+	local creatorLB = "user_rooms_" .. c.user_id
+	lb.try_create(creatorLB, "desc", "best", "", {})
 
 	return nk.json_encode({
-		["payload"] = { ["roomID"] = roomID },
+		["payload"] = {
+			["RoomID"] = roomID,
+			["Success"] = true
+		},
 		["success"] = true
 	})
 end
@@ -37,8 +57,8 @@ local function rpc_submit_level(context, payload)
 	local c = utility.parse(context)
 	local p = utility.parse(payload)
 
-	local levelID = "level" .. nk.uuid_v4 -- generate id
-	if (not storage.read(levelID, "name") == nil) then
+	local levelID = "level_" .. c.user_id .. "_" .. p.Name
+	if storage.read(levelID, "name") ~= nil then
 		nk.logger_error("Level submission failed, ID already exists " .. levelID)
 		return nk.json_encode({
 			["payload"] = {},
@@ -46,18 +66,21 @@ local function rpc_submit_level(context, payload)
 		})
 	end
 
-	local data = {
-		{ key = "name", value = p.name },
-		{ key = "hash", value = p.hash },
-		{ key = "rooms", value = p.rooms },
-		{ key = "status", value = "Pending" },
-		{ key = "date", value = p.date },
-		{ key = "creator", value = c.user_id },
-		{ key = "favourites", value = 0 },
-		{ key = "playcount", value = 0 },
-		{ key = "finishcount", value = 0 },
-	}
-	storage.write_many(levelID, data)
+	local success = storage.write(levelID, "info", {
+		["name"] = p.Name,
+		["hash"] = p.Hash,
+		["creator"] = c.user_id,
+		["rooms"] = utility.parse(p.Rooms),
+		["status"] = "Pending",
+		["date"] = os.date("%d-%m-%Y"), -- todays date
+		["favourites"] = 0,
+		["playcount"] = 0,
+		["finishcount"] = 0
+	})
+
+	-- Create LB for levels
+	local creatorLB = "user_levels_" .. c.user_id
+	lb.try_create_lb(creatorLB, "desc", "best", "", {})
 
 	return nk.json_encode({
 		["payload"] = { ["levelID"] = levelID },

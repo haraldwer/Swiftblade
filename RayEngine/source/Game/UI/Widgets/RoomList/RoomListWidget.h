@@ -5,26 +5,24 @@
 
 namespace UI
 {
-    typedef DB::Event<DB::RPCLevelList>::ContextCallback<class LevelListWidget*> RPCLevelListCallback; 
+    typedef DB::Event<DB::RPCRoomList>::ContextCallback<class RoomListWidget*> RPCRoomListCallback; 
     
-    class LevelListWidget : public List
+    class RoomListWidget : public List
     {
-        TYPE_INFO(LevelListWidget, List);
-        
     public:
-        LevelListWidget()
+        RoomListWidget()
         {
             onList.SetContext(this);
         }
-        
-        LevelListWidget(const String& InList, const String& InTitle) :
+
+        RoomListWidget(const String& InList, const String& InTitle) :
             rpcList(InList),
             title(InTitle)
         {
             onList.SetContext(this);
         }
-
-        LevelListWidget(const LevelListWidget& InOther) :
+        
+        RoomListWidget(const RoomListWidget& InOther) :
             List(InOther),
             rpcList(InOther.rpcList),
             title(InOther.title),
@@ -36,12 +34,12 @@ namespace UI
             onList.SetContext(this);
         }
         
-        LevelListWidget(LevelListWidget&&) = delete;
+        RoomListWidget(RoomListWidget&&) = delete;
         void Init(Container &InOwner) override;
-        void Request(const String& InList);
-        
+        void Request(const String& InList);        
+
     private:
-        void ListEntries(const DB::Response<DB::RPCLevelList>& InData);
+        void ListEntries(const DB::Response<DB::RPCRoomList>& InData);
         void Clear();
         
         String rpcList; // Query for db
@@ -51,6 +49,6 @@ namespace UI
         Map<String, ElementID> entries;
         String selectedID;
         
-        RPCLevelListCallback onList;
+        RPCRoomListCallback onList;
     };
-}    
+}

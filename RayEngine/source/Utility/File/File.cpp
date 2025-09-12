@@ -6,15 +6,17 @@
 
 void Utility::SetWorkingDir()
 {
+#ifndef __EMSCRIPTEN__
     std::filesystem::path curr = std::filesystem::current_path();
-    while (!curr.string().ends_with("RayEngine"))
+    while (!curr.string().ends_with("RayEngine") && !curr.empty())
     {
         String file = curr.filename().string();
         curr = curr.parent_path();
     }
     const std::filesystem::path newDir = curr.concat("/content");
     LOG("Setting working directory to \"" + newDir.string() + "\"");
-    std::filesystem::current_path(newDir); 
+    std::filesystem::current_path(newDir);
+#endif
 }
 
 String Utility::ReadFile(const String& InPath)
