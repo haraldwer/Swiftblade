@@ -87,11 +87,12 @@ bool PropertyOwnerBase::Save(const String& InPath) const
 
 bool PropertyOwnerBase::Load(const String& InPath)
 {
+    CHECK_RETURN_LOG(!Utility::FileExists(InPath), "File does not exist: " + InPath, false)
     const String fileContent = Utility::ReadFile(InPath);
-    CHECK_RETURN_LOG(fileContent.empty(), "Property file empty", false);
+    CHECK_RETURN_LOG(fileContent.empty(), "Property file empty: " + InPath, false);
     rapidjson::Document doc;
     doc.Parse(fileContent.c_str());
-    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
+    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format: " + InPath, false);
     // Requires const, dont know why
     const rapidjson::Document& constDoc = doc;
     Deserialize(constDoc.GetObj());

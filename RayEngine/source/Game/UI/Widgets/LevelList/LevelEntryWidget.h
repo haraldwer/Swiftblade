@@ -1,5 +1,6 @@
 #pragma once
 #include "Database/Data/RPCLevelList.h"
+#include "Level/Level.h"
 #include "UI/Elements/Container.h"
 
 namespace UI

@@ -4,7 +4,7 @@
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/SceneResource.h"
-#include "../Levels/LevelManager.h"
+#include "../Level/LevelManager.h"
 
 class GameInstance : public Engine::Instance, public Debug::Panel
 {

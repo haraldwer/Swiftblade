@@ -2,15 +2,18 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
 #endif
+#include "raylib.h"
 
 void Init();
 void Deinit();
-void Tick(void);
+void Tick();
 bool tick = true;
 
 int main()
 {
+    LOG("Initializing!")
     Init();
+    LOG("Finished init!")
     
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(Tick, 0, 1);
@@ -18,8 +21,10 @@ int main()
     while (tick)
         Tick();
 #endif
-    
+
+    LOG("Deinitializing!")
     Deinit();
+    LOG("Exiting main loop")
     return 0;
 }
 
@@ -53,11 +58,19 @@ struct GameData
 };
 GameData* g = nullptr;
 
+Texture tex2;
+
 void Init()
 {
     g = new GameData();
     
     Utility::SetWorkingDir();
+
+    tex2 = LoadTexture("Defaults/T_Missing.png");
+    if (IsTextureValid(tex2))
+        LOG("Loaded Defaults/T_Missing.png");
+        
+    return;
     
     g->renderer.Init();
     g->debugManager.Init();
@@ -68,6 +81,7 @@ void Init()
 
 void Deinit()
 {
+    return;
     g->db.Deinit();
     g->launcher.Deinit(); 
     g->debugManager.Deinit();
@@ -77,8 +91,14 @@ void Deinit()
     g->resourceManager.Deinit();
 }
 
-void Tick(void)
+void Tick()
 {
+    BeginDrawing();
+    DrawTexture(tex2, 20, 20, WHITE);
+    EndDrawing();
+    
+    return;
+    
     PROFILE();
     g->resourceManager.Update();
     g->db.Update();

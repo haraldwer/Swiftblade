@@ -4,7 +4,7 @@
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "GameState.h"
-#include "LevelConfig.h"
+#include "Level.h"
 #include "Utility/Collections/RandomWeightedCollection.h"
 
 void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
@@ -43,7 +43,7 @@ void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
 
 void LevelManager::LoadConfig()
 {
-    LevelConfig config;
+    Level config;
     config.Load("Scenes/Configs/C_Default.json");
 
     // How far has the player come?

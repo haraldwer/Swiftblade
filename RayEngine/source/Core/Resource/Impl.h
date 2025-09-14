@@ -13,7 +13,7 @@ namespace Resource
     { 
         virtual ~ImplBase() = default;
         ImplBase(const ID& InID) : id(InID) {}
-
+        
         virtual Base& GetData() = 0;
         
         bool Load()
@@ -22,6 +22,7 @@ namespace Resource
                 return true;
             auto& data = GetData();
             data.Unload();
+            data.id = id;
             loaded = data.Load();
             if (loaded)
                 time = data.GetEditTime();
@@ -68,7 +69,7 @@ namespace Resource
     template <class T>
     struct Impl final : ImplBase
     {
-        Impl(const ID& InID) : ImplBase(InID) {}
+        Impl(const ID& InID) : ImplBase(InID) { }
         Base& GetData() override { return *Utility::Cast<Base, T>(&data); }
         T data = {};
     };

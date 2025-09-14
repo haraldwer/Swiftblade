@@ -59,12 +59,7 @@ namespace Utility
             {
                 EventManagerT::Get().Register(Type::Get<Event>(), this);
             }
-
-            ~ContextCallback() override
-            {
-                EventManagerT::Get().Unregister(Type::Get<Event>(), this);
-            }
-
+            
             ContextCallback(const ContextCallback& InOther)
             {
                 EventManagerT::Get().Register(Type::Get<Event>(), this);
@@ -72,12 +67,23 @@ namespace Utility
                 context = InOther.context;
             }
 
+            ContextCallback(const ContextT& InContext)
+            {
+                EventManagerT::Get().Register(Type::Get<Event>(), this);
+                context = InContext;
+            }
+            
             ContextCallback(const std::function<void(const EventT&, const ContextT& InContext)>& InFunc, const CallbackDataT& InCallbackData = {})
             {
                 EventManagerT::Get().Register(Type::Get<Event>(), this);
                 bindings = { { InFunc, InCallbackData } };
             }
 
+            ~ContextCallback() override
+            {
+                EventManagerT::Get().Unregister(Type::Get<Event>(), this);
+            }
+            
             void SetContext(const ContextT& InC)
             {
                 context = InC;
@@ -88,7 +94,7 @@ namespace Utility
                 bindings.push_back({ InFunc, InCallbackData }); 
             }
 
-        private:
+        protected:
 
             void Invoke(const EventT& InData) const override
             {
@@ -99,7 +105,7 @@ namespace Utility
             
             // Event implementations can override this to limit invoked bindings
             // For example, an entity event that should only occur on specific entities
-            virtual bool ShouldInvoke(const EventT& InEventData, const ContextT InContext, const CallbackDataT& InCallbackData) const
+            virtual bool ShouldInvoke(const EventT& InEventData, const ContextT& InContext, const CallbackDataT& InCallbackData) const
             {
                 return true; 
             }

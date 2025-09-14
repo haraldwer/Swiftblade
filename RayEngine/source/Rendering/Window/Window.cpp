@@ -17,7 +17,10 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
         flags |= FLAG_VSYNC_HINT;
     if (config.MSAA)
         flags |= FLAG_MSAA_4X_HINT;
+
+#ifndef __EMSCRIPTEN__
     flags |= FLAG_WINDOW_ALWAYS_RUN;
+#endif
     SetWindowState(flags);
 
     if (!IsWindowReady())

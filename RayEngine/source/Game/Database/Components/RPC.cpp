@@ -53,7 +53,7 @@ void DB::RPC::CallRPC(const String &InRPC, const String &InData,
     const std::function<void(const Nakama::NRpc &)> &InSuccess,
     const std::function<void(const Nakama::NError &)> &InError) const {}
 
-String DB::RPC::GetError(const Nakama::NError &InError) {}
-String DB::RPC::GetPayload(const Nakama::NRpc &InRpc) {}
+String DB::RPC::GetError(const Nakama::NError &InError) { return {}; }
+String DB::RPC::GetPayload(const Nakama::NRpc &InRpc) { return {}; }
 
 #endif

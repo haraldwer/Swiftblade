@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneResource.h"
+#include "Database/NetResource.h"
 
-struct LevelConfig : PropertyOwner<LevelConfig>
+struct Level : PropertyOwner<Level>
 {
     PROPERTY(ResScene, SectionStart);
     PROPERTY(ResScene, SectionEnd);
@@ -16,3 +17,6 @@ struct LevelConfig : PropertyOwner<LevelConfig>
     PROPERTY(int, NumArenas);
     PROPERTY(Vector<ResScene>, Arenas);
 };
+
+typedef Resource::PropertyFile<Level> LevelResource;
+typedef Resource::Ref<LevelResource> ResLevel;

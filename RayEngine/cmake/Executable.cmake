@@ -27,22 +27,24 @@ endif()
 if (EMSCRIPTEN)
 
   # Actually link nakama?
+
+  target_link_options(${PROJECT_NAME} PUBLIC --preload-file=${CMAKE_SOURCE_DIR}/content@.)
   
   # Glob all content files
-  #file(GLOB_RECURSE content_files RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/content/*)
-  #foreach (file ${content_files})
-    #set(file_path ${file})
-    #message("File: ${file_path}")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --preload-file ${file_path}")
-    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file ${file_path}")
-    #target_link_options(${PROJECT_NAME} PUBLIC --preload-file ${file_path})
-  #endforeach ()
+#  file(GLOB_RECURSE content_files RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/content/*)
+#  foreach (file ${content_files})
+#    set(file_path ${file})
+#    message("File: ${file_path}")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --preload-file ${file_path}")
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file ${file_path}")
+#    target_link_options(${PROJECT_NAME} PUBLIC --preload-file=${file_path})
+#  endforeach ()
   
   # Copy files to target
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory 
-      ${CMAKE_SOURCE_DIR}/content 
-      $<TARGET_FILE_DIR:${PROJECT_NAME}>/content)
+#  add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_directory 
+#      ${CMAKE_SOURCE_DIR}/content 
+#      $<TARGET_FILE_DIR:${PROJECT_NAME}>/content)
   
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ./run_web.sh $<TARGET_FILE_DIR:${PROJECT_NAME}>

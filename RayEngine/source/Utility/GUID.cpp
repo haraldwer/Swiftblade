@@ -2,6 +2,8 @@
 
 #include <crossguid/guid.hpp>
 
+#ifndef __EMSCRIPTEN__
+
 // Shamelessly stolen from
 // https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way
 // and
@@ -320,3 +322,13 @@ String Utility::DeviceGUID()
 
    return ToUpper(xg::Guid(str).str());
 }
+
+#else
+
+String Utility::DeviceGUID()
+{
+   return "WebDevice";
+}
+
+
+#endif

@@ -2,6 +2,10 @@
 
 #include "Database/Manager.h"
 
+DB::Component::~Component()
+{
+    CHECK_ASSERT(manager, "Forgot to call deinit");
+}
 
 void DB::Component::Init(Manager* InManager)
 {

@@ -8,7 +8,7 @@ namespace DB
     class Component
     {
     public:
-        virtual ~Component() = default;
+        virtual ~Component();
         virtual void Init(Manager* InManager);
         virtual void Deinit();
 

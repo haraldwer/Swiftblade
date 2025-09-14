@@ -64,9 +64,10 @@ elseif (UNIX)
     $<$<CONFIG:Release>:-O3>
     $<$<CONFIG:Release>:-Og>) # Highest level of optimization
   
-  if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    message("-- Will produce -ftime-trace .json files")
-    target_compile_options(${PROJECT_NAME} PUBLIC -ftime-trace) # clang trace
-  endif ()
-  
+  if (NOT EMSCRIPTEN)
+    if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+      message("-- Will produce -ftime-trace .json files")
+      target_compile_options(${PROJECT_NAME} PUBLIC -ftime-trace) # clang trace
+    endif ()
+  endif()
 endif ()

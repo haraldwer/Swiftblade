@@ -63,11 +63,19 @@ namespace Resource
 
         bool IsLoaded() const { return ptr && ptr->loaded; }
         operator bool() const { return IsLoaded(); }
+
+        bool Reload()
+        {
+            if (ptr->loaded)
+                ptr->Unload();
+            return ptr->Load();
+        }
         
         bool Unload()
         {
             CHECK_RETURN(!ptr, false);
-            return ptr->Unload();  
+            if (ptr->loaded)
+                return ptr->Unload();  
         }
 
         ID Identifier() const
@@ -84,6 +92,12 @@ namespace Resource
             return nullptr;
         }
 
+        T* GetData() const
+        {
+            CHECK_RETURN(!ptr, nullptr);
+            return ptr->data;
+        }
+        
         void Serialize(SerializeObj& InOutObj) const
         {
             if (!ptr)

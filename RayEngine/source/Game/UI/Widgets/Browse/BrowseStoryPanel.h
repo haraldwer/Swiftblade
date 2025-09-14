@@ -1,6 +1,6 @@
 #pragma once
 #include "BrowsePanel.h"
-#include "Levels/LevelConfig.h"
+#include "Level/Level.h"
 
 struct StoryEntry : PropertyOwner<StoryEntry>
 {
