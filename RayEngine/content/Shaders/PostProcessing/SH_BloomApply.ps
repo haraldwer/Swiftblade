@@ -1,0 +1,15 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_HSV.si"
+
+in vec2 TexCoord;
+out vec4 Output;
+
+uniform sampler2D TexBloom;
+
+void main()
+{
+    vec4 color = texture(TexBloom, TexCoord).rgba;
+    Output.rgb = color.rgb;
+    Output.a = 1;
+}

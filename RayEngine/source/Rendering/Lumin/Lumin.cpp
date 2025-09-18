@@ -10,7 +10,7 @@
 void Rendering::Lumin::Init(const ContextConfig& InConfig)
 {
     config = InConfig.Lumin;
-    viewport.Init(config.Viewport);
+    viewport.Init(config.Viewport, {});
     context.Init(InConfig);
 
     int maxProbes = config.MaxLayerCount * config.Layers + 1;

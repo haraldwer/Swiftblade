@@ -23,7 +23,7 @@ namespace UI
     public:
         
         SplitContainer(const Transform& InTransform = Transform::Fill(), const SplitProperties& InProperties = {}) : Container(InTransform), properties(InProperties) {}
-        void RefreshRect(Container &InOwner, const Rect &InContainingRect) override;
+        void RefreshRect(Container &InOwner, const Rect &InContainingRect, bool InCacheVisible) override;
 
     private:
         SplitProperties properties;

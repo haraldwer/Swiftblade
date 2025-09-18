@@ -8,11 +8,6 @@ namespace Physics
     class Manager;
 }
 
-namespace physx
-{
-    class PxRigidDynamic;
-}
-
 namespace ECS
 {
     struct Rigidbody : Component<Rigidbody>
@@ -35,7 +30,7 @@ namespace ECS
 
     private:
         friend Physics::Manager;
-        physx::PxRigidDynamic* ptr = nullptr; 
+        void* ptr = nullptr; 
     };
 
     class SysRigidbody : public System<Rigidbody>

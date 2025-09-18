@@ -3,16 +3,20 @@
 
 namespace Rendering
 {
+    struct FXConfig;
+
     struct FrameTargetCollection
     {
-        void Init(const RenderTexture& InTarget);
+        void Init(const RenderTexture& InTarget, const FXConfig& InFX);
         void Deinit();
 
         OrderedMap<String, Vector<RenderTarget::TargetTex>> GetNamed();
 
         SwapTarget sceneTargets = {};
-        SwapTarget pbrTargets = {}; 
-        SwapTarget aoTargets = {};
         SwapTarget frameTargets = {};
+
+        // Extras, depends on fx
+        SwapTarget aoTargets = {};
+        SwapTarget bloomTargets = {};
     };
 }

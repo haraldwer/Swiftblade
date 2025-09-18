@@ -22,7 +22,7 @@ void Rendering::Manager::Init()
     window.Open(currConfig.Window);
     PROFILE_GL_INIT();
     
-    mainViewport.Init(currConfig.Viewport);
+    mainViewport.Init(currConfig.Viewport, currConfig.Context.Get().FX);
     defaultContext.Init(currConfig.Context, true);
 
     rlImGuiSetup(false);
@@ -161,8 +161,8 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
     if (currConfig.Context != prev.Context)
         defaultContext.Init(currConfig.Context, true);
 
-    if (currConfig.Viewport != prev.Viewport)
-        mainViewport.Init(currConfig.Viewport);
+    if (currConfig.Viewport != prev.Viewport || currConfig.Context.Get().FX != prev.Context.Get().FX)
+        mainViewport.Init(currConfig.Viewport, currConfig.Context.Get().FX);
 
     if (currConfig.Window != prev.Window)
         window.Open(currConfig.Window);

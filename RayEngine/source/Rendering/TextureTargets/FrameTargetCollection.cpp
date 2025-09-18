@@ -1,11 +1,12 @@
 #include "FrameTargetCollection.h"
 
 #include "raylib.h"
+#include "Context/FXConfig.h"
 
-void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
+void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const FXConfig &InFX)
 {
     Deinit();
-
+    
     for (auto& t : sceneTargets.All())
     {
         if (t.TryBeginSetup(InTarget))
@@ -16,11 +17,26 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget)
             t.EndSetup(InTarget);
         }
     }
-
-    for (auto& target : aoTargets.All())
-        target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 0.8f);
+    
     for (auto& target : frameTargets.All())
         target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+
+    if (InFX.SSAO)
+    {
+        for (auto& target : aoTargets.All())
+            target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, InFX.SSAOScale);
+    }
+
+    if (InFX.Bloom && InFX.BloomPasses.Get() >= 2)
+    {
+        float bloomScale = 1.0f;
+        bloomTargets = SwapTarget(InFX.BloomPasses);
+        for (auto& target : bloomTargets.All())
+        {
+            target.Setup(InTarget, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R16G16B16, bloomScale);
+            bloomScale *= InFX.BloomDownscale;
+        }
+    }
 }
 
 void Rendering::FrameTargetCollection::Deinit()
@@ -31,6 +47,8 @@ void Rendering::FrameTargetCollection::Deinit()
         t.Unload();
     for (auto& t : frameTargets.All())
         t.Unload();
+    for (auto& t : bloomTargets.All())
+        t.Unload();
 }
 
 OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameTargetCollection::GetNamed()
@@ -39,5 +57,6 @@ OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameT
     result["Scene"] = sceneTargets.Curr().GetTextures();
     result["SSAO"] = aoTargets.Curr().GetTextures();
     result["Frame"] = frameTargets.Curr().GetTextures();
+    result["Bloom"] = bloomTargets.Curr().GetTextures();
     return result;
 }

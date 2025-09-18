@@ -141,7 +141,7 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     debugShaderCmd.depthMask = true;
     rlState::current.Set(debugShaderCmd);
     
-    SetFrameShaderValues(InArgs, *debugShaderResource, InTarget);
+    SetFrameShaderValues(InArgs, *debugShaderResource);
 
     Vec2F texel = Vec2F(1.0f) / t.Size().To<float>();
     SetValue(*debugShaderResource, "LuminTexel", &texel, SHADER_UNIFORM_VEC2);
@@ -179,7 +179,7 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
                     PerspectiveCommand perspCmd;
                     perspCmd.rect = perspective.targetRect;
                     rlState::current.Set(perspCmd);
-                    SetPerspectiveShaderValues(InArgs, perspective, *debugShaderResource);
+                    SetPerspectiveShaderValues(InArgs, perspective, InTarget, *debugShaderResource);
                     DrawInstances(mesh, 1);
                     c++;
                 }

@@ -4,7 +4,11 @@
 
 struct Level : PropertyOwner<Level>
 {
-    PROPERTY(ResScene, SectionStart);
+    PROPERTY(String, Name);
+    PROPERTY(String, Creator);
+    PROPERTY(String, LastEdit);
+    
+    PROPERTY(ResScene, SectionStart)
     PROPERTY(ResScene, SectionEnd);
     PROPERTY(ResScene, GameStart);
     PROPERTY(ResScene, GameEnd);

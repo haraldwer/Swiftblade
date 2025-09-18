@@ -3,6 +3,7 @@
 #include "Collections/SplitContainer.h"
 #include "Rendering/Scene/Instances/CameraInstance.h"
 #include "Rendering/Resources/Shader.h"
+#include "TextureTargets/SwapTarget.h"
 
 struct RenderTexture; 
 struct Matrix;
@@ -42,18 +43,20 @@ namespace Rendering
     {
     public:
         static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
+        static void DrawBloom(const RenderArgs & InArgs, SwapTarget& InBloom, SwapTarget& InFrame);
         static int DrawDebug(const RenderArgs& InArgs);
         static void Blip(const RenderTexture& InTarget, const RenderTarget& InBuffer);
         static bool Bake(const BakedTexture& InTex);
-    
+
+
     protected:
         static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, int InType, int InCount = 1);
         static void SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue);
         static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount = 1);
         static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue);
 
-        static void SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget);
-        static void SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader);
+        static void SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader);
+        static void SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader);
         static void BindNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot);
         
         static void SetCustomShaderValues(ShaderResource& InShader);

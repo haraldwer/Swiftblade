@@ -4,12 +4,14 @@
 
 namespace UI
 {
+    struct LevelEntrySelected;
+    
     class InfoPanelLevel : public Container
     {
         CLASS_INFO(InfoPanelLevel, Container);
     public:
         void Init(Container &InOwner) override;
-        void SetLevel(const DB::RPCLevelList::Entry& InLevel);
-        void Hide(); 
+        void Update(Container &InOwner) override;
+        void SetLevel(const LevelEntrySelected& InLevel);
     };
 }

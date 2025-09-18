@@ -21,7 +21,6 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
             .Push(List({}, { 10, ListDirection::HORIZONTAL }))
                 .Add(ButtonTab("Levels"), "Levels")
                 .Add(ButtonTab("Rooms"), "Rooms")
-                .Add(ButtonTab("Submissions"), "Submissions")
             .Pop()
             .Push(TabContainer(Transform::Fill({{}, { 5, 0 }})), "Tabs")
                 .Add(List(), "RoomList")
@@ -66,7 +65,7 @@ void UI::BrowseCreatePanel::SelectLevels()
         list.Add(w);
     }
 
-    auto add = LevelEntryWidget();
+    auto add = LevelEntryWidget(true);
     add.Init(list);
     list.Add(add);
 }

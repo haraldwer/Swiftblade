@@ -44,7 +44,7 @@ void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderR
     rlSetUniformMatrix(loc, m);
 }
 
-void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader, const RenderTarget& InSceneTarget)
+void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader)
 {
     PROFILE_GL();
 
@@ -52,7 +52,7 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     auto& context = *InArgs.contextPtr;
     const auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
-
+    
     // Time
     const float time = static_cast<float>(context.timer.Ellapsed()); 
     SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, SHADER_UNIFORM_FLOAT);
@@ -62,7 +62,7 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &res, SHADER_UNIFORM_VEC2);
 }
 
-void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, ShaderResource& InShader)
+void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader)
 {
     PROFILE_GL();
     
@@ -70,7 +70,7 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
 
-    const Vec2F res = viewport.GetResolution().To<float>();
+    const Vec2F res = InTarget.Size().To<float>();
     Vec4F refRect = {
         InPerspective.referenceRect.x,
         InPerspective.referenceRect.y,
@@ -136,14 +136,12 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
     }
 }
 
-
 void Rendering::Renderer::DrawQuad()
 {
     rlState::current.ResetMesh();
     PROFILE_GL_GPU("Draw quad");
     rlLoadDrawQuad();
 }
-
 
 int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InCount)
 {
@@ -176,7 +174,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
     shaderCmd.blendMode = InBlend;
     rlState::current.Set(shaderCmd);
     
-    SetFrameShaderValues(InArgs, *shaderResource, InTarget);
+    SetFrameShaderValues(InArgs, *shaderResource);
     
     int texSlot = 0;
     for (auto& b : InBuffers)
@@ -188,9 +186,149 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
         PerspectiveCommand perspCmd;
         perspCmd.rect = persp.targetRect;
         rlState::current.Set(perspCmd);
-        SetPerspectiveShaderValues(InArgs, persp, *shaderResource);
+        SetPerspectiveShaderValues(InArgs, persp, InTarget, *shaderResource);
         DrawQuad();
     }
+}
+
+void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloom, SwapTarget& InFrame)
+{
+    auto& fx = InArgs.contextPtr->config.FX.Get();
+    auto& frame = InFrame.Curr();
+
+    // Draw luminance on original texture
+    InBloom.Reset();
+    auto& bloomArr = InBloom.All();
+    CHECK_RETURN(static_cast<int>(bloomArr.size()) != fx.BloomPasses.Get());
+    DrawFullscreen(InArgs, bloomArr[0], fx.BloomLuminanceShader, { &InFrame.Curr() });
+    
+    ShaderResource* downRes = fx.BloomDownsampleShader.Get().Get();
+    CHECK_RETURN_LOG(!downRes, "Failed to find shader resource");
+    const Shader* downShader = downRes->Get();
+    CHECK_RETURN_LOG(!downShader, "Failed to get shader");
+    
+    // Downsample
+    for (int i = 0; i < static_cast<int>(bloomArr.size()) - 1; i++)
+    {
+        auto& prev = bloomArr[i];
+        auto& target = bloomArr[i + 1];
+        
+        FrameCommand frameCmd;
+        frameCmd.fboID = target.GetFBO();
+        frameCmd.size = target.Size();
+        frameCmd.clearTarget = true;
+        rlState::current.Set(frameCmd);
+        
+        ShaderCommand shaderCmd;
+        shaderCmd.locs = downShader->locs;
+        shaderCmd.id = downShader->id;
+        rlState::current.Set(shaderCmd);
+
+        SetFrameShaderValues(InArgs, *downRes);
+        
+        Vec2F size = Vec2F(1.0f) / target.Size().To<float>();
+        SetValue(*downRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
+        
+        int texSlot = 0;
+        prev.Bind(*downRes, texSlot, RL_TEXTURE_FILTER_LINEAR);
+                
+        for (auto& persp : InArgs.perspectives)
+        {
+            PerspectiveCommand perspCmd;
+            perspCmd.rect = persp.targetRect;
+            rlState::current.Set(perspCmd);
+            SetPerspectiveShaderValues(InArgs, persp, target, *downRes);
+            DrawQuad();
+        }
+    }
+    
+    // Upsample
+    {
+        ShaderResource* upRes = fx.BloomUpsampleShader.Get().Get();
+        CHECK_RETURN_LOG(!upRes, "Failed to find shader resource");
+        const Shader* upShader = upRes->Get();
+        CHECK_RETURN_LOG(!upShader, "Failed to get shader");
+        
+        for (int i = static_cast<int>(bloomArr.size()) - 1; i >= 0; i--)
+        {
+            auto& target = i == 0 ? frame : bloomArr[i - 1];
+            auto& prev = bloomArr[i];
+            
+            FrameCommand upFrameCmd;
+            upFrameCmd.fboID = target.GetFBO();
+            upFrameCmd.size = target.Size();
+            upFrameCmd.clearTarget = false;
+            rlState::current.Set(upFrameCmd);
+
+            ShaderCommand upShaderCmd;
+            upShaderCmd.locs = upShader->locs;
+            upShaderCmd.id = upShader->id;
+            upShaderCmd.blendMode = RL_BLEND_ADDITIVE;
+            rlState::current.Set(upShaderCmd);
+
+            SetFrameShaderValues(InArgs, *upRes);
+            
+            Vec2F size = Vec2F(1.0f) / prev.Size().To<float>();
+            SetValue(*upRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
+
+            float layerStrength = fx.BloomStrength.Get() / (static_cast<int>(bloomArr.size()) - i);
+            SetValue(*upRes, "LayerStrength", &layerStrength, SHADER_UNIFORM_FLOAT);
+                        
+            int texSlot = 0;
+            prev.Bind(*upRes, texSlot, RL_TEXTURE_FILTER_LINEAR);
+            
+            for (auto& persp : InArgs.perspectives)
+            {
+                PerspectiveCommand perspCmd;
+                perspCmd.rect = persp.targetRect;
+                rlState::current.Set(perspCmd);
+                SetPerspectiveShaderValues(InArgs, persp, target, *upRes);
+                DrawQuad();
+            }
+        }
+    }
+
+    // Apply
+    /*
+    {
+        ShaderResource* res = fx.BloomApplyShader.Get().Get();
+        CHECK_RETURN_LOG(!res, "Failed to find shader resource");
+        const Shader* shader = res->Get();
+        CHECK_RETURN_LOG(!shader, "Failed to get shader");
+        
+        FrameCommand frameCmd;
+        frameCmd.fboID = frame.GetFBO();
+        frameCmd.size = frame.Size();
+        frameCmd.clearTarget = false;
+        rlState::current.Set(frameCmd);
+
+        ShaderCommand shaderCmd;
+        shaderCmd.locs = shader->locs;
+        shaderCmd.id = shader->id;
+        shaderCmd.blendMode = RL_BLEND_ALPHA;
+        rlState::current.Set(shaderCmd);
+
+        SetFrameShaderValues(InArgs, *res);
+
+        auto& bloom = bloomArr[0];
+        
+        int texSlot = 0;
+        BindNoiseTextures(InArgs, *res, texSlot);
+        bloom.Bind(*res, texSlot, RL_TEXTURE_FILTER_LINEAR);
+        Vec2F size = Vec2F(1.0f) / bloom.Size().To<float>();
+        SetValue(*res, "PixelSize", &size, SHADER_UNIFORM_VEC2);
+        SetValue(*res, "Strength", &size, SHADER_UNIFORM_VEC2);
+        
+        for (auto& persp : InArgs.perspectives)
+        {
+            PerspectiveCommand perspCmd;
+            perspCmd.rect = persp.targetRect;
+            rlState::current.Set(perspCmd);
+            SetPerspectiveShaderValues(InArgs, persp, frame, *res);
+            DrawQuad();
+        }
+    }
+    */
 }
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)

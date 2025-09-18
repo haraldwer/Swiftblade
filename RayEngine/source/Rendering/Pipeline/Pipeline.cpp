@@ -1,6 +1,7 @@
 ﻿#include "Pipeline.h"
 
 #include "DeferredRenderer.h"
+#include "rlgl.h"
 #include "Lights/LightsRenderer.h"
 #include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
@@ -139,6 +140,19 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
     auto& frameTargets = InArgs.viewportPtr->targets.frameTargets;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
 
+    if (conf.FX.Get().Bloom)
+    {
+        PROFILE_GL_NAMED("Bloom");
+        auto& bloomTargets = InArgs.viewportPtr->targets.bloomTargets;
+        Renderer::DrawBloom(InArgs, bloomTargets, frameTargets);
+    }
+    if (conf.FX.Get().FXAA)
+    {
+        PROFILE_GL_NAMED("FXAA");
+        frameTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().FXAAShader, { &frameTargets.Prev() });
+        stats.fullscreenPasses++;
+    }
     if (conf.FX.Get().Tonemapping)
     {
         PROFILE_GL_NAMED("Tonemapping");
@@ -165,13 +179,6 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
         PROFILE_GL_NAMED("Distort");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().DistortShader, { &frameTargets.Prev() });
-        stats.fullscreenPasses++;
-    }
-    if (conf.FX.Get().FXAA)
-    {
-        PROFILE_GL_NAMED("FXAA");
-        frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().FXAAShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
     return stats;

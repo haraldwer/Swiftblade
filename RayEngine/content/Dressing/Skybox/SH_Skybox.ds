@@ -11,8 +11,8 @@ void main()
     float brightness = (CalcPerlin(pos * 20 * (1 - abs(dot))) + 1) / 2;
     float horizon = Pow2(Pow2(1 - abs(dot)));
     float val = brightness * horizon + horizon * 3;
-    val += 0.05;
-    val += Random(pos) * 0.005;
+    val = min(1, val) * 0.3;
+    val += Random(pos) * 0.01;
     
     Output.rgb = hsv2rgb(vec3(0, 0, val));
     Output.a = 1;

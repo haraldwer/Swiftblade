@@ -1,16 +1,16 @@
 #include "SplitContainer.h"
 
-void UI::SplitContainer::RefreshRect(Container &InOwner, const Rect &InContainingRect)
+void UI::SplitContainer::RefreshRect(Container &InOwner, const Rect &InContainingRect, bool InCacheVisible)
 {
     PROFILE();
-    CHECK_RETURN(!visible);
-    
+
+    bool prevVisible = cacheVisible;
     Rect prev = GetRect();
-    Element::RefreshRect(InOwner, InContainingRect);
+    Element::RefreshRect(InOwner, InContainingRect, InCacheVisible);
     cachedRefRect = InContainingRect;
 
     Rect rect = GetRect();
-    bool changed = prev != rect;
+    bool changed = prev != rect || prevVisible != cacheVisible;
     
     rect.start.x += transform.margins.horizontal.x;
     rect.end.x -= transform.margins.horizontal.y;
@@ -48,7 +48,7 @@ void UI::SplitContainer::RefreshRect(Container &InOwner, const Rect &InContainin
         
         auto& elem = Get<Element>(children[i]);
         if (changed || elem.Invalidated())
-            elem.RefreshRect(*this, childRect);
+            elem.RefreshRect(*this, childRect, cacheVisible);
         
         startRatio = startRatio + childRatio; 
     }

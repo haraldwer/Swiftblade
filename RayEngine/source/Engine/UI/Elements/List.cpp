@@ -1,16 +1,16 @@
 ﻿#include "List.h"
 
-void UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
+void UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect, bool InCacheVisible)
 {
     PROFILE();
-    CHECK_RETURN(!visible);
 
+    bool prevVisible = cacheVisible;
     Rect prev = GetRect();
-    Element::RefreshRect(InOwner, InContainingRect);
+    Element::RefreshRect(InOwner, InContainingRect, InCacheVisible);
     cachedRefRect = InContainingRect;
     
     Rect rect = GetRect();
-    bool changed = prev != rect;
+    bool changed = prev != rect || prevVisible != cacheVisible;
 
     if (!changed)
         for (auto& c : children)
@@ -37,7 +37,8 @@ void UI::List::RefreshRect(Container& InOwner, const Rect& InContainingRect)
             totalOffset);
         elem.RefreshRect(
             *this,
-            childRect);
+            childRect,
+            cacheVisible);
     }
 }
 

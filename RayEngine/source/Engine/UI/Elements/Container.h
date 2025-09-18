@@ -24,7 +24,7 @@ namespace UI
         bool DebugDraw(Container &InOwner, const String &InIdentifier, int& InC) override;
         
         bool Invalidated() const override;
-        void RefreshRect(Container& InInstance, const Rect& InContainer) override;
+        void RefreshRect(Container& InInstance, const Rect& InContainer, bool InCacheVisible) override;
         Vec2F GetDesiredSize() const override;
         bool IsHovered() const override;
         

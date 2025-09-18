@@ -40,6 +40,7 @@ void Default(vec3 InAlbedo, vec3 InSurface)
 
     vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
     vec3 worldNormal = SampleNormal(TexCoord);
+    InSurface.b *= 1 - texture(TexAO, TexCoord).r;
     
     vec3 pbr = PBR(worldPosition, worldNormal, InAlbedo, InSurface);
     Output = vec4(pbr, 1.0);

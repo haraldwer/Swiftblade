@@ -12,14 +12,14 @@ void UI::Container::Update()
 
 void UI::Container::Draw()
 {
-    CHECK_RETURN(!visible);
-    
     auto refRect = GetReferenceRect();
     if (refRect != cachedRefRect)
         Invalidate();
     if (Invalidated())
-        RefreshRect(*this, refRect);
+        RefreshRect(*this, refRect, true);
 
+    CHECK_RETURN(!cacheVisible);
+    
     BeginDraw(*this);
     Draw(*this);
     EndDraw();
@@ -49,13 +49,15 @@ void UI::Container::Update(Container& InOwner)
 
 void UI::Container::Draw(Container& InOwner)
 {
-    CHECK_RETURN(!visible);
+    CHECK_RETURN(!cacheVisible);
+    
     PROFILE();
     Element::Draw(InOwner);
     for (auto& child : children)
     {
         CHECK_ASSERT(!elements.contains(child), "Unknown element id");
         auto& elem = elements.at(child).Get();
+        CHECK_CONTINUE(!elem.cacheVisible);
         elem.BeginDraw(*this);
         elem.Draw(*this);
         elem.EndDraw();
@@ -84,17 +86,17 @@ bool UI::Container::DebugDraw(Container &InOwner, const String &InIdentifier, in
     return false;
 }
 
-void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
+void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer, bool InCacheVisible)
 {
     PROFILE();
-    CHECK_RETURN(!visible);
 
+    bool prevVisible = cacheVisible;
     Rect prev = GetRect();
-    Element::RefreshRect(InInstance, InContainer);
+    Element::RefreshRect(InInstance, InContainer, InCacheVisible);
     cachedRefRect = InContainer;
 
     Rect rect = GetRect();
-    bool changed = prev != rect;
+    bool changed = prev != rect || prevVisible != cacheVisible;
     
     rect.start.x += transform.margins.horizontal.x;
     rect.end.x -= transform.margins.horizontal.y;
@@ -103,7 +105,7 @@ void UI::Container::RefreshRect(Container& InInstance, const Rect& InContainer)
     
     for (auto& elem : elements)
         if (changed || elem.second.Get().Invalidated())
-            elem.second.Get().RefreshRect(*this, rect);
+            elem.second.Get().RefreshRect(*this, rect, cacheVisible);
 }
 
 Vec2F UI::Container::GetDesiredSize() const

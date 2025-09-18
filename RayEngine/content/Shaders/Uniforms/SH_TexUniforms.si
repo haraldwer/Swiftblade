@@ -17,5 +17,5 @@ vec4 SampleWorldPos(vec2 InCoord)
 
 vec3 SampleNormal(vec2 InCoord)
 {
-    return texture(TexNormal, InCoord).xyz;
+    return normalize(texture(TexNormal, InCoord).xyz);
 }

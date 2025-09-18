@@ -4,10 +4,13 @@
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
 
-void Rendering::Viewport::Init(const ViewportConfig& InConfig)
+void Rendering::Viewport::Init(const ViewportConfig &InConfig, const FXConfig &InFX)
 {
-    config = InConfig;
+    if (config == InConfig && fx == InFX && virtualTarget)
+        return;
 
+    fx = InFX;
+    config = InConfig;
     CHECK_ASSERT(config.Width <= 0 || config.Height <= 0, "Invalid viewport size");
     
     const float aspect = static_cast<float>(config.Width) / static_cast<float>(config.Height);
@@ -19,14 +22,15 @@ void Rendering::Viewport::Init(const ViewportConfig& InConfig)
     if (!virtualTarget)
         virtualTarget = new RenderTexture();
     
-    if (virtualTarget->texture.width == virtualWidth &&
-        virtualTarget->texture.height == virtualHeight)
-        return;
-
-    if (IsRenderTextureValid(*virtualTarget))
-        UnloadRenderTexture(*virtualTarget);
-    *virtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
-    targets.Init(*virtualTarget);
+    if (virtualTarget->texture.width != virtualWidth ||
+        virtualTarget->texture.height != virtualHeight)
+    {
+        if (IsRenderTextureValid(*virtualTarget))
+            UnloadRenderTexture(*virtualTarget);
+        *virtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
+    }
+    
+    targets.Init(*virtualTarget, fx);
 }
 
 void Rendering::Viewport::Deinit()
@@ -48,7 +52,7 @@ void Rendering::Viewport::Resize(const Vec2I& InSize)
     config.Width = InSize.x;
     config.Height = InSize.y;
     Deinit();
-    Init(config);
+    Init(config, fx);
 }
 
 void Rendering::Viewport::BeginFrame()

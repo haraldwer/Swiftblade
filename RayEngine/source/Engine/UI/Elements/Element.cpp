@@ -8,6 +8,8 @@
 
 void UI::Element::BeginDraw(Container &InOwner)
 {
+    CHECK_RETURN(!cacheVisible);
+    
     if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
         DrawRect(cachedDrawRect);
 
@@ -21,13 +23,15 @@ void UI::Element::BeginDraw(Container &InOwner)
 
 void UI::Element::EndDraw()
 {
+    CHECK_RETURN(!cacheVisible);
+    
     if (scissor)
         EndScissorMode();
 }
 
 void UI::Element::Draw(Container& InOwner)
 {
-    CHECK_RETURN(!visible);
+    CHECK_RETURN(!cacheVisible);
     
     if (background.color.a > 0.001f)
     {
@@ -53,24 +57,35 @@ bool UI::Element::DebugDraw(Container &InOwner, const String &InIdentifier, int&
         flags |= ImGuiTreeNodeFlags_Leaf;
 
     String info;
+    
     if (!visible)
         info = "hidden";
+    else if (!cacheVisible)
+        info = "cacheHidden";
     else if (invalidated)
         info = "invalidated";
     if (!info.empty())
         info = " (" + info + ")";
+    if (debugRefreshed)
+    {
+        debugRefreshed = false;
+        info += " *";
+    }
 
     bool treeNode = ImGui::TreeNodeEx(("[" + GetObjName() + "]: " + InIdentifier + info + " ##" + Utility::ToStr(InC)).c_str(), flags); 
     debugHovered = ImGui::IsItemHovered();
     return treeNode;
 }
 
-void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect)
+void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect, bool InCacheVisible)
 {
-    CHECK_RETURN(!visible);
+    debugRefreshed = true;
+    invalidated = false;
+    cacheVisible = visible && InCacheVisible;
+    
+    CHECK_RETURN(!cacheVisible);
     cachedRect = CalculateRect(InContainingRect);
     cachedDrawRect = GetDrawRect();
-    invalidated = false;
 }
 
 Vec2F UI::Element::GetDesiredSize() const
@@ -98,6 +113,8 @@ void UI::Element::SetVisible(const bool InVisible)
 
 bool UI::Element::IsHovered() const
 {
+    CHECK_RETURN(!cacheVisible, false);
+    
     const Vector2 mp = GetMousePosition();
 
     auto& view = Rendering::Manager::Get().mainViewport;
@@ -182,6 +199,12 @@ UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const
     result.start.y = Utility::Math::Lerp(absolute.start.y, parentRect.start.y, transform.alignment.vertical.x);
     result.end.x = Utility::Math::Lerp(absolute.end.x, parentRect.end.x, transform.alignment.horizontal.y);
     result.end.y = Utility::Math::Lerp(absolute.end.y, parentRect.end.y, transform.alignment.vertical.y);
+
+    constexpr float precision = 10.0f;
+    result.start.x = round(result.start.x * precision) / precision;
+    result.start.y = round(result.start.y * precision) / precision;
+    result.end.x = round(result.end.x * precision) / precision;
+    result.end.y = round(result.end.y * precision) / precision;
     
     return result; 
 }

@@ -2,16 +2,19 @@
 
 #include "Rendering/TextureTargets/FrameTargetCollection.h"
 #include "ViewportConfig.h"
+#include "Context/FXConfig.h"
 
 namespace Rendering
 {
+    struct FXConfig;
+
     class Viewport
     {
         friend class Pipeline;
         friend class Renderer;
         
     public: 
-        void Init(const ViewportConfig& InConfig);
+        void Init(const ViewportConfig& InConfig, const FXConfig& InFX);
         void Deinit();
         void Resize(const Vec2I& InSize);
         void BeginFrame();
@@ -30,6 +33,7 @@ namespace Rendering
 
     private:
         ViewportConfig config = {};
+        FXConfig fx = {};
         
         Vec2F position = {};
         Mat4F viewProj = {};

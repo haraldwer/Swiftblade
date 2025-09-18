@@ -34,9 +34,9 @@ namespace UI
         void EndDraw();
 
         void Invalidate() { invalidated = true; }
-        virtual bool Invalidated() const { return invalidated && visible; }
+        virtual bool Invalidated() const { return invalidated; }
         
-        virtual void RefreshRect(Container& InOwner, const Rect& InContainingRect);
+        virtual void RefreshRect(Container& InOwner, const Rect& InContainingRect, bool InCacheVisible);
         Rect GetRect() const { return cachedRect; }
         
         virtual Vec2F GetDesiredSize() const;
@@ -71,10 +71,12 @@ namespace UI
         Background background = Background();
         Rect cachedRect = {};
         Vec4F cachedDrawRect = {};
+        bool cacheVisible = true;
         bool invalidated = true;
         bool visible = true;
         bool scissor = false;
         bool debugHovered = false;
+        bool debugRefreshed = false;
         int debugColor = -1;
     };
 }

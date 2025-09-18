@@ -153,8 +153,14 @@ String Rendering::ShaderResource::LoadShaderFile(const String& InPath, Set<Strin
 
     // Fix null terminations
     std::erase(shader, '\0');
+
+#ifdef __EMSCRIPTEN__
+    if (shader.find("#version") == std::string::npos)
+        shader = "#version 100\n" + shader;
+#else
     if (shader.find("#version") == std::string::npos)
         shader = "#version 330\n" + shader;
+#endif
     
     return shader;
 }

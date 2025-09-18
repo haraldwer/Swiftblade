@@ -44,7 +44,7 @@ int Rendering::DeferredRenderer::DrawSkyboxes(const RenderArgs& InArgs, const Re
 
         int id = 0;
         SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-        SetFrameShaderValues(InArgs, *shaderResource, InTarget);
+        SetFrameShaderValues(InArgs, *shaderResource);
         SetValue(*shaderResource, "Bounds", &environment.shape, SHADER_UNIFORM_VEC3);
         SetValue(*shaderResource, "Position", &environment.position, SHADER_UNIFORM_VEC3);
 
@@ -61,7 +61,7 @@ int Rendering::DeferredRenderer::DrawSkyboxes(const RenderArgs& InArgs, const Re
                 PerspectiveCommand perspCmd;
                 perspCmd.rect = perspective.targetRect;
                 rlState::current.Set(perspCmd);
-                SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+                SetPerspectiveShaderValues(InArgs, perspective, InTarget, *shaderResource);
                 c += DrawInstances(mesh, 1);
             }
             rlState::current.ResetMesh();
@@ -126,7 +126,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
 
             const int id = static_cast<int32>(entry.second.deferredID);
             SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-            SetFrameShaderValues(InArgs, *resShader, InSceneTarget);
+            SetFrameShaderValues(InArgs, *resShader);
 
             int texSlot = 0;
             BindNoiseTextures(InArgs, *resShader, texSlot);
@@ -152,7 +152,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
                         PROFILE_GL_NAMED("Perspective");
                         PerspectiveCommand perspCmd;
                         perspCmd.rect = perspective.targetRect;
-                        SetPerspectiveShaderValues(InArgs, perspective, *resShader);
+                        SetPerspectiveShaderValues(InArgs, perspective, InSceneTarget, *resShader);
                         rlState::current.Set(perspCmd);
                         count[entry.first] += DrawInstances(meshes[i], static_cast<int>(data.size()));
                     }
@@ -203,7 +203,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
 
         const int id = static_cast<int32>(entry.first);
         SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-        SetFrameShaderValues(InArgs, *shaderResource, InTarget);
+        SetFrameShaderValues(InArgs, *shaderResource);
         
         int texSlot = 0;
         for (auto& b : InBuffers)
@@ -216,7 +216,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
             PerspectiveCommand perspCmd;
             perspCmd.rect = perspective.targetRect;
             rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, perspective, *shaderResource);
+            SetPerspectiveShaderValues(InArgs, perspective, InTarget, *shaderResource);
             DrawQuad();
         }
     }

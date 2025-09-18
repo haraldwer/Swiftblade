@@ -26,7 +26,7 @@ namespace UI
         CLASS_INFO(Label, Element)
 
     public:
-        Label(const Transform& InTransform = {}, const LabelProperties& InProperties = {}) : Element(InTransform), properties(InProperties) {}
+        Label(const Transform& InTransform = {}, const LabelProperties& InProperties = {}, const Background& InBg = {}) : Element(InTransform, InBg), properties(InProperties) {}
         void Init(Container& InOwner) override;
         void Draw(Container& InOwner) override;
         Vec2F GetDesiredSize() const override;

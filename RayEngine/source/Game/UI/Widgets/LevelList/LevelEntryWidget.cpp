@@ -4,33 +4,36 @@
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"
 #include "UI/Elements/SplitContainer.h"
+#include "UI/Elements/TabContainer.h"
+#include "UI/Widgets/Common/LabelHeader.h"
+#include "UI/Widgets/Common/LabelText.h"
+#include "UI/Widgets/Common/LabelTitle.h"
 
 void UI::LevelEntryWidget::Init(Container &InOwner)
 {
     Container::Init(InOwner);
 
-    transform.margins = { 5 };
+    transform.margins = { 0 };
     
     auto b = Builder()
-        .Push(SplitContainer(Transform::Fill(), { 10, SplitDirection::HORIZONTAL, { 3, 1 }}))
-            .Push(List(Transform::Fill(), { 0, ListDirection::HORIZONTAL }))
-                .Add(Label(), "Name")
-                .Add(Label({
-                        .padding = {{ 5, 0}, {}},
-                        .anchor = { 0, 0.95, },
-                        .pivot = { 0, 1 }
-                    }, {
-                        .size= static_cast<float>(LabelSize::TEXT)
-                    }), "Creator")
+        .Push(TabContainer(Transform::Fill(), {}), "Switch")
+            .Push(SplitContainer(Transform::Fill(5), { 10, SplitDirection::HORIZONTAL, { 3, 1 }}), "Data")
+                .Push(List(Transform::Fill(), { 0, ListDirection::HORIZONTAL }))
+                    .Add(LabelHeader(), "Name")
+                    .Add(LabelText({
+                            .padding = {{ 5, 0}, {}},
+                            .anchor = { 0, 0.95, },
+                            .pivot = { 0, 1 }
+                        }), "Creator")
+                .Pop()
+                .Add(LabelText({}, { "Info" }), "Info")
+                .Add(LabelHeader({}, { "*" }), "Star")
             .Pop()
-            .Add(Label({}, { "Info" }), "Info")
-            .Add(Label({}, { "*" }), "Star");
+            .Add(LabelHeader(Transform::Fill(), { "+" }, {{ 1,1,1,0.5 }}), "Add");
+    
     Add(b.Build());
-
-    Get<Label>("Name").SetText(entry.Name);
-    Get<Label>("Creator").SetText(" by " + entry.Creator.Get());
-    Get<Label>("Info").SetText(Utility::ToStr(entry.Plays));
-    Get<Label>("Star").SetText(entry.Fav ? "*" : " ");
+    
+    RefreshInfo();
 }
 
 void UI::LevelEntryWidget::Update(Container &InOwner)
@@ -43,10 +46,37 @@ void UI::LevelEntryWidget::Update(Container &InOwner)
         background.color.a = Utility::Math::Max(background.color.a, 0.2f);
 
     if (IsClicked())
-        InstanceEvent<LevelEntrySelected>::Invoke({ entry });
+        InstanceEvent<LevelEntrySelected>::Invoke({ listEntry, levelResource, add });
 }
 
 bool UI::LevelEntryWidget::IsHovered() const
 {
     return Element::IsHovered();
+}
+
+void UI::LevelEntryWidget::RefreshInfo()
+{
+    if (add)
+    {
+        Get<TabContainer>("Switch").Set("Add");
+    }
+    else
+    {
+        Get<TabContainer>("Switch").Set("Data");
+        
+        Get<Label>("Name").SetText(listEntry.Name);
+        Get<Label>("Creator").SetText(" by " + listEntry.Creator.Get());
+        Get<Label>("Info").SetText(Utility::ToStr(listEntry.Plays));
+        Get<Label>("Star").SetText(listEntry.Fav ? "*" : " ");
+
+        if (auto res = levelResource.Get())
+        {
+            auto& data = res->data;
+            
+            Get<Label>("Name").SetText(data.Name);
+            Get<Label>("Creator").SetText(" by " + data.Creator.Get());
+            Get<Label>("Info").SetText(data.LastEdit);
+            Get<Label>("Star").SetText("");
+        }
+    }
 }

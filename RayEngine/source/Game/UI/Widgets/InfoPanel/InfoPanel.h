@@ -30,8 +30,8 @@ namespace UI
         }
         
         void Init(Container& InOwner) override;
-        void SetRoom(const ResRoom& InRoom);
-        void SetLevel(const DB::RPCLevelList::Entry& InLevel);
+        void SetRoom(const RoomEntrySelected& InEvent);
+        void SetLevel(const LevelEntrySelected& InEvent);
 
     private:
         RoomCallback onRoomSelected;

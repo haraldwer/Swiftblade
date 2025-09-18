@@ -7,27 +7,12 @@
 in vec2 TexCoord;
 out vec4 Output;
 
-const int ITERATIONS = 4;     
-const float INTENSITY = 1.0f;
-const float RADIUS = 500.0;
-const float SAMPLE_DISTANCE_SCALE = 1.0;
-const float SAMPLE_DISTANCE_BIAS = 0.1;
-const float SAMPLE_NORMAL_BIAS = 0.1;
-const float NEAR_START_FADE = 1.0;
-const float NEAR_END_FADE = 5.0;
-
-const float BLUR_SAMPLES = 32;
-const float BLUR_RADIUS = 0.05;
-
-const float POSITION_THRESHOLD = 2.0;
-const float DEPTH_THRESHOLD = 2.0;
-const float BLUR_LERP_SPEED = 10.0;
-const float ZERO_LERP_SPEED = 1.0;
-const float SSAO_LERP_SPEED = 10.0;
-const float MIN_DELTA = 0.008;
-const float MAX_DELTA = 0.033;
-
-// Kolla in GTAO och SSDO
+const int ITERATIONS = 16;
+const float INTENSITY = 1;
+const float LERP_SPEED = 0.2;
+const float DEPTH_THRESHOLD = 2;
+const float SAMPLE_DIST = 5;
+const float LIKELY_DIR_MUL = 1.3;
 
 vec3 SSAOPosition(vec2 uv)
 {
@@ -39,138 +24,123 @@ vec3 SSAONormal(vec2 uv)
      return SampleNormal(uv);
 }
 
-float SSAODepthSqr(vec3 InPos)
+float SSAOIteration(vec2 InCoord, vec3 InStartPosition, vec3 InStartNormal)
 {
-     vec3 diff = InPos - CameraPosition;
-     return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+     vec3 position = SSAOPosition(InCoord);
+     
+     // Pixel distance
+     vec3 difference = position - InStartPosition;
+     float distance = length(difference);
+     float distanceFade = max(0, 1 - distance / SAMPLE_DIST);
+     
+     // Pixel direction to start compared to normal
+     vec3 surfaceDir = difference / distance;
+     float surfaceDot = max(0, dot(surfaceDir, InStartNormal));
+     
+     // Surface normal compared to start normal
+     // Skipping this because the results werent that good
+     //vec3 normal = SSAONormal(InCoord);
+     float normalDot = 0;// 1 - max(0, dot(normal, InStartNormal));
+     
+     return max(surfaceDot, normalDot) * distanceFade;
 }
 
-float SSAOIteration(vec2 InCoord, vec3 InStartPosition, vec3 InStartNormal, float InStartDepthSqr)
+float FrameSSAO(vec3 InStartPos)
 {
-     vec3 pos = SSAOPosition(InCoord);
-     
-     // Depth test
-     float depthSqr = SSAODepthSqr(pos);
-     if (InStartDepthSqr < depthSqr)
-          return 0.0;
-
-     if (InStartDepthSqr < depthSqr)
-          return 0.0;
-     
-     vec3 diff = pos - InStartPosition;
-
-     // Position
-     float distance = length(diff);
-     float distPart = (1.0 / (1.0 + distance)) * SAMPLE_DISTANCE_SCALE;
-     distPart *= clamp((distance / SAMPLE_DISTANCE_BIAS) - SAMPLE_DISTANCE_BIAS, 0.0, 1.0);
-     
-     // Normal
-     vec3 direction = diff / distance;
-     float normalDot = clamp(dot(InStartNormal, direction) - SAMPLE_NORMAL_BIAS, 0.0, 1.0);
-
-     return clamp(normalDot * distPart, 0.0, 1.0);
-}
-
-float FrameSSAO()
-{
-     vec3 startPosition = SSAOPosition(TexCoord);
      vec3 startNormal = SSAONormal(TexCoord);
-     float startDepthSqr = SSAODepthSqr(startPosition);
-     float startDepth = sqrt(startDepthSqr);
+     vec3 cameraDir = normalize(InStartPos - CameraPosition);
      
-     float inv = 1.0 / ITERATIONS;
-     float rStep = inv * RADIUS / startDepth;
-     vec2 pixelScale = vec2(1.0f) / Resolution;
+     // What direction is the most likely? 
+     vec3 likelyDir = reflect(cameraDir, startNormal);
      
-     float ao = 0.0;
-     float radius = 0.0;
-     for (int j = 0; j < ITERATIONS; ++j)
+     // To coord
+     vec3 refScreenPos = (ViewProj * vec4(InStartPos, 1)).xyz;
+     vec3 screenPos = (ViewProj * vec4(InStartPos + likelyDir * LIKELY_DIR_MUL, 1)).xyz;
+     vec2 likelyCoordDir = (screenPos.xy - refScreenPos.xy) / 2;
+     float likelyDist = length(likelyCoordDir);
+     
+     float ao = 0;
+     for (int i = 0; i < ITERATIONS; i++)
      {
-          radius += rStep;
-          vec2 uv = (Random2(TexCoord + radius + Time) - 0.5) * 2.0;
-          vec2 coord = clamp(TexCoord + uv * radius * pixelScale, 0.0001, 0.9999);
-          ao += SSAOIteration(coord, startPosition, startNormal, startDepthSqr); 
-     }    
-     float finalAO = clamp(ao * inv, 0.0, 1.0);
-     return finalAO;
+          // Randomize dir
+          vec2 randDir = (Random2(Random2(i + Time) + TexCoord) * 2 - vec2(1)) * likelyDist;
+          float randDot = dot(randDir, likelyCoordDir);
+          
+          // Weight towards likelyDir
+          vec2 dir = randDir * randDot;
+          vec2 coord = clamp(TexCoord + dir, 0.0001, 0.9999);
+          ao += SSAOIteration(coord, InStartPos, startNormal);
+     }
+     return ao / ITERATIONS;
 }
 
-float BlurAccumulation(vec4 InPrevPos, vec2 InPrevCoord)
+vec4 BlurAccumulation(vec2 InCoord)
 {
-     float inv = 1.0 / BLUR_SAMPLES;
-     float rStep = inv * BLUR_RADIUS / InPrevPos.w;
      vec2 pixelScale = vec2(1.0f) / Resolution;
+     vec3 offsets[8] = vec3[](
+          vec3( 1, 1, 0.72),
+          vec3(-1, 1, 0.72),
+          vec3( 1,-1, 0.72),
+          vec3(-1,-1, 0.72),
+          
+          vec3( 1, 0, 1.0),
+          vec3( 0, 1, 1.0),
+          vec3(-1, 0, 1.0),
+          vec3( 0,-1, 1.0)
+     );
      
      float acc = 0.0;
      float weight = 0.0;
-     float radius = rStep;
-     for (int j = 0; j < BLUR_SAMPLES; ++j)
+     for (int j = 0; j < 8; ++j)
      {
-          radius += rStep;
-          vec2 uv = (Random2(InPrevCoord + radius + Time) - 0.5) * 2.0;
-          vec2 coord = InPrevCoord + uv * radius * pixelScale;
-          if (coord.x < 1.0 && coord.x > 0.0 &&
-               coord.y < 1.0 && coord.y > 0.0)
-          {
-               acc += texture(TexAO, coord).g;
-               weight += 1.0;
-          }
+          vec3 off = offsets[j];
+          vec2 coord = Saturate(InCoord + off.xy * pixelScale);
+          vec4 ao = texture(TexAO, coord);
+          acc += ao.g * off.z;
+          acc += ao.b * off.z;
+          acc += ao.a * off.z;
+          weight += off.z * 3;
      }
-     return acc / weight; 
+     
+     vec4 prevAO = texture(TexAO, InCoord);
+     acc += (prevAO.g + prevAO.b + prevAO.a) * 2;
+     weight += 2 * 3;
+     
+     return vec4(prevAO.rgb, acc / weight); 
 }
 
 void main()
 {
-     Output = vec4(vec3(0.0), 1.0);
+     Output = vec4(vec3(0.0), 0.0);
 
      if (!CheckID(TexCoord, 0)) // Exclude skybox
           return;
      
-     vec4 currPos = SampleWorldPos(TexCoord);
-     float currDepth = currPos.w;
-     float fade = clamp((currDepth - NEAR_START_FADE) / (NEAR_END_FADE - NEAR_START_FADE), 0.0, 1.0);
-     if (fade < 0.01)
-          return;
-
-     float accumulated = 0.0;
-     float blurredAccumulated = 0.0;
-     float prev = 0.0;
-     float prevPrev = 0.0;
-     vec2 prevCoord = GetPrevCoord(currPos.xyz);
-     if (prevCoord.x < 1.0 && prevCoord.x > 0.0 &&
+     vec4 position = SampleWorldPos(TexCoord);
+     vec3 velocity = texture(TexData, TexCoord).rgb;
+     
+     // 1. Sample current
+     float newSample = FrameSSAO(position.xyz);
+     
+     // 2. Blur and sample previous 
+     vec4 blur = vec4(0); // r = prevValue, gb = prevSamples, a = blurred
+     vec2 prevCoord = TexCoord - velocity.xy / 2;
+     if ( prevCoord.x < 1.0 && prevCoord.x > 0.0 &&
           prevCoord.y < 1.0 && prevCoord.y > 0.0)
      {
           vec4 prevPos = SampleWorldPos(prevCoord);
-          if (prevPos.w - currDepth < DEPTH_THRESHOLD)
-          {
-               float diff = SquaredLength(currPos.xyz - prevPos.xyz);
-               if (diff < POSITION_THRESHOLD * POSITION_THRESHOLD)
-               {
-                    vec4 prevVal = texture(TexAO, prevCoord).rgba;
-                    accumulated = prevVal.g;
-                    prev = prevVal.b;
-                    prevPrev = prevVal.a;
-                    blurredAccumulated = BlurAccumulation(prevPos, prevCoord);
-               }
-          }
+          float depthDiff = abs(position.w - prevPos.w);
+          if (depthDiff < DEPTH_THRESHOLD)
+               blur = BlurAccumulation(prevCoord);
      }
-
-     float ssao = FrameSSAO();
-     float merged = max(max(ssao, prev), prevPrev);
      
-     float clampedDelta = clamp(Delta, MIN_DELTA, MAX_DELTA);
-     accumulated = mix(accumulated, blurredAccumulated, BLUR_LERP_SPEED * clampedDelta);
-     if (merged > accumulated)
-          accumulated = mix(accumulated, merged, SSAO_LERP_SPEED * clampedDelta);
-     else
-          accumulated = max(0.0, accumulated - ZERO_LERP_SPEED * clampedDelta);
+     // 3. Lerp towards blur
+     blur.r = mix(blur.r, blur.a * INTENSITY, LERP_SPEED);
      
-     Output.r = max(0, (blurredAccumulated - 0.1) / 0.9);
-     Output.r *= INTENSITY;
-     Output.r *= fade; // Fade is a post-thing
+     // 4. Output blur
+     Output.r = blur.r;
      
-     // For next frame:
-     Output.g = accumulated; // Store accumulated      
-     Output.b = ssao; // Store as prev
-     Output.a = prev; // Store as prevPrev
+     // 5. Update previous
+     Output.g = newSample;
+     Output.ba = blur.gb; // discard oldest sample
 }

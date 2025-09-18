@@ -8,6 +8,7 @@
 #include "UI/Widgets/Common/ButtonDefault.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
+#include "UI/Widgets/RoomList/RoomEntryWidget.h"
 
 void UI::InfoPanelRoom::Init(Container &InOwner)
 {
@@ -54,10 +55,10 @@ void UI::InfoPanelRoom::Update(Container &InOwner)
             editor->SetRoom(room);
 }
 
-void UI::InfoPanelRoom::SetRoom(const ResRoom &InRoom)
+void UI::InfoPanelRoom::SetRoom(const RoomEntrySelected &InRoom)
 {
-    room = InRoom;
-    auto res = InRoom.Get();
+    room = InRoom.room;
+    auto res = InRoom.room.Get();
     if (!res)
     {
         // Assume new room
@@ -71,7 +72,14 @@ void UI::InfoPanelRoom::SetRoom(const ResRoom &InRoom)
     }
     else
     {
+        // Use submit info?
         SetText("Name", res->data.Name);
+        SetText("Creator", "by you");
+        SetText("Size", "Size: -");
+        SetText("Objects", "Objects: -");
+        SetText("Enemies", "Enemies: -");
+        SetText("Status", "Status: -");
+        SetText("Date", "Date: -");
     }
 }
 

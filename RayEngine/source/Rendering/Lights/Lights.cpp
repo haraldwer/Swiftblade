@@ -11,7 +11,7 @@
 void Rendering::Lights::Init(const LightConfig& InConfig)
 {
     config = InConfig;
-    atlasView.Init(config.Viewport);
+    atlasView.Init(config.Viewport, {});
     atlas.Init(config.MaxLights, true);
     target.Setup(atlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }

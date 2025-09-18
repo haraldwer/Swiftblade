@@ -26,7 +26,7 @@ namespace UI
         
     public:
         List(const Transform& InTransform = Transform::Fill(), const ListProperties& InProperties = {}, const Background& InBg = {}) : Container(InTransform, InBg), properties(InProperties) {}
-        void RefreshRect(Container& InOwner, const Rect& InContainer) override;
+        void RefreshRect(Container& InOwner, const Rect& InContainer, bool InCacheVisible) override;
         Vec2F GetDesiredSize() const override;
 
     private:

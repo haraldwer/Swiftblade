@@ -5,6 +5,7 @@
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/SceneResource.h"
 #include "../Level/LevelManager.h"
+#include "ECS/Manager.h"
 
 class GameInstance : public Engine::Instance, public Debug::Panel
 {

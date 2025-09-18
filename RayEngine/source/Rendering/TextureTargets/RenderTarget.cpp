@@ -7,25 +7,29 @@
 
 bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat, float InResScale)
 {
-    if (TryBeginSetup(InTarget))
+    if (TryBeginSetup(InTarget, InResScale))
     {
-        CreateBuffer(InName, InFormat, InResScale);
+        CreateBuffer(InName, InFormat, 1.0);
         EndSetup(InTarget);
         return true;
     }
     return false;
 }
 
-bool Rendering::RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture)
+bool Rendering::RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture, float InResScale)
 {
-    if (width == InRenderTexture.texture.width &&
-        height == InRenderTexture.texture.height)
+    int targetWidth = Utility::Math::Max(InRenderTexture.texture.width * InResScale, 1.0f);
+    int targetHeight = Utility::Math::Max(InRenderTexture.texture.height * InResScale, 1.0f);
+    if (width == targetWidth &&
+        height == targetHeight)
+        return false;
+    if (targetWidth <= 0 || targetHeight <= 0)
         return false;
 
     Unload(); 
     
-    width = InRenderTexture.texture.width;
-    height = InRenderTexture.texture.height;
+    width = targetWidth;
+    height = targetHeight;
 
     // Create framebuffer
     frameBuffer = rlLoadFramebuffer();
@@ -118,8 +122,9 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
 
 void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InPixelFormat, const float InResScale, const int InMips, const bool InCubemap)
 {
-    const int w = static_cast<int>(static_cast<float>(width) * InResScale);
-    const int h = static_cast<int>(static_cast<float>(height) * InResScale);
+    const int w = width;
+    const int h = height;
+    CHECK_RETURN_LOG(w <= 0 || h <= 0, "Buffer too small");
     
     int mips = InMips;
     if (mips <= 0)

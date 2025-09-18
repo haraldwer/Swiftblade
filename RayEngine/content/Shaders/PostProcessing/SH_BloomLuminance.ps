@@ -1,0 +1,17 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_HSV.si"
+
+in vec2 TexCoord;
+out vec4 Output;
+
+const float LUM_MUL = 0.2;
+
+void main()
+{
+    vec4 color = texture(TexFrame, TexCoord).rgba;
+    vec3 hsv = rgb2hsv(color.rgb);
+    float lum = hsv.z * LUM_MUL;
+    Output.rgb = color.rgb * lum * lum;
+    Output.a = 1;
+} 
