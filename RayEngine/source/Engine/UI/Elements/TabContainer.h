@@ -9,7 +9,6 @@ namespace UI
         CLASS_INFO(TabContainer, Container);
         
     public:
-        TabContainer() = default;
         TabContainer(const Transform& InTransform = Transform::Fill(), const Background& InBg = {}) : Container(InTransform, InBg) {}
         void Update(Container& InOwner) override;
 

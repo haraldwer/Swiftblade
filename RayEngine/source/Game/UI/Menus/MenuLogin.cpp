@@ -8,6 +8,7 @@
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"
 #include "UI/Widgets/Common/ButtonDefault.h"
+#include "UI/Widgets/Common/TextboxDefault.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
 
@@ -18,14 +19,14 @@ void MenuLogin::Init()
             .Add(UI::LabelHeader({}, "Connecting..."), "Status")
         .Pop()
         .Push(UI::List(UI::Transform::Centered()), "Fail")
-            .Add(UI::LabelHeader({}, "Login failed"))
-            .Add(UI::LabelText({}, "Error: Unknown"), "Error")
-            .Add(UI::ButtonDefault({}, "Retry"), "Retry")
+            .Add(UI::LabelHeader(UI::Transform::Centered(), "Login failed"))
+            .Add(UI::LabelText(UI::Transform::Centered(), "Error: Unknown"), "Error")
+            .Add(UI::ButtonDefault(UI::Transform::Centered(), "Retry"), "Retry")
         .Pop()
-        .Push(UI::List(UI::Transform::Centered()), "NameSelect")
-            .Add(UI::LabelHeader({}, "Select username"))
-            .Add(UI::LabelText({}, "TestUser"), "TbxName")
-            .Add(UI::ButtonDefault({}, "Select"), "Select");
+        .Push(UI::List(UI::Transform::Centered(), { 5 }), "NameSelect")
+            .Add(UI::LabelHeader(UI::Transform::Centered(), "Select username"))
+            .Add(UI::TextboxDefault({.size = { 300, 0 }}, { .defaultText= "username" }), "Name")
+            .Add(UI::ButtonDefault(UI::Transform::Centered(), "Select"), "Select");
 
     ui = b.Build();
 
@@ -82,7 +83,7 @@ void MenuLogin::LoginStep()
 
     String name;
     if (ui["NameSelect"].GetVisible())
-        name = ui.Get<UI::Label>("TbxName").GetText();
+        name = ui.Get<UI::Textbox>("Name").GetText();
     auto& status = ui.Get<UI::Label>("Status");
     
     ui["Loading"].SetVisible(true);

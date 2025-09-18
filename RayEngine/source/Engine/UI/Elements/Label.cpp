@@ -66,22 +66,29 @@ Vec2F UI::Label::GetDesiredSize() const
 
 void UI::Label::SetText(const String& InText)
 {
+    CHECK_RETURN(properties.text == InText)
     properties.text = InText;
     CacheSize();
     Invalidate(); 
 }
 
-void UI::Label::CacheSize()
+Vec2F UI::Label::MeasureText(const String &InText) const
 {
     if (const auto fontRsc = properties.font.Get())
     {
         float screenSize = GetScreenSize();
         if (const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize)))
         {
-            Vector2 measure = MeasureTextEx(*fontPtr, properties.text.c_str(), screenSize, properties.spacing); 
-            cachedSize = Vec2F(measure.x, measure.y) * properties.size / screenSize;
+            Vector2 measure = MeasureTextEx(*fontPtr, InText.c_str(), screenSize, properties.spacing); 
+            return Vec2F(measure.x, measure.y) * properties.size / screenSize;
         }
     }
+    return {};
+}
+
+void UI::Label::CacheSize()
+{
+    cachedSize = MeasureText(properties.text);
 }
 
 float UI::Label::GetScreenSize() const

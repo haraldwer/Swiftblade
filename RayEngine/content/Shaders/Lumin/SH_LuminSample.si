@@ -3,6 +3,9 @@
 #include "Shaders/Utility/SH_CubeSampling.si"
 #include "Shaders/Utility/SH_Utility.si"
 
+// Main switch
+const bool LUMIN = false;
+
 const int LAYERS = 1;
 const int LAYER_PROBES = 18 * 18 * 1 - 64 - 1;
 const int PROBE_COUNT = (LAYERS * LAYER_PROBES) + 1;
@@ -33,13 +36,18 @@ uniform vec2 ProbeRects[PROBE_COUNT];
 
 const int PROBE_SAMPLES = 8;
 const int PROBE_DATA_SIZE = PROBE_SAMPLES * LAYERS + 1;
-const float PROBE_FALLBACK_WEIGHT = 0.000000001;
+const float PROBE_FALLBACK_WEIGHT = 0.00001;
 
 struct ProbeData
 {
     int index[PROBE_DATA_SIZE];
     float weight[PROBE_DATA_SIZE];
 };
+
+float ProbeTime(vec4 InProbePos)
+{
+    return Saturate(InProbePos.w * 0.1f);
+}
 
 float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDensity, int InRectIndex)
 {
@@ -55,7 +63,7 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDen
     float maxDist = max(max(denseDist.x, denseDist.y), denseDist.z);
     occluded *= Saturate(1 - maxDist);
     
-    //if (occluded > 0.00001)
+    //if (occluded > 0)
     //{
     //    // Is surface in view of probe?
     //    vec4 rect = vec4(ProbeRects[InRectIndex], ProbeRectSize);
@@ -67,9 +75,6 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDen
     //    float depthDiffScaled = depthDiffBias / PROBE_DEPTH_FADE_DIST;
     //    occluded *= Saturate(1 - depthDiffScaled);
     //}
-
-    float time = InProbePos.w * 0.1f;
-    occluded *= Pow2(Pow2(Saturate(time)));
     
     return occluded;
 }
@@ -79,8 +84,10 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
     // Convert position to grid
     // Find probe, use fallback
     // Possibly sample multiple probes?
+    
     ProbeData data;
-    float totalWeight = 0;
+    if (!LUMIN)
+        return data;
     
     for (int layer = 0; layer < LAYERS; layer++)
     {
@@ -125,9 +132,9 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
                 int testProbeIndex = ProbeIndices[index + startIndex] + 1;
                 vec4 testProbePos = ProbePositions[testProbeIndex];
                 float testWeight = ProbeOcclusion(pixelPos, InNormal, testProbePos, density, testProbeIndex);
+                float timeWeight = ProbeTime(testProbePos);
                 data.index[dataIndex] = testProbeIndex;
-                data.weight[dataIndex] = testWeight; 
-                totalWeight += testWeight;
+                data.weight[dataIndex] = testWeight * timeWeight;
             }
             else
             {
@@ -138,7 +145,7 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
     }
     
     data.index[PROBE_DATA_SIZE - 1] = 0;
-    data.weight[PROBE_DATA_SIZE - 1] = max(0, PROBE_FALLBACK_WEIGHT - totalWeight); // Fallback
+    data.weight[PROBE_DATA_SIZE - 1] = PROBE_FALLBACK_WEIGHT; // Fallback
     
     return data;
 }
@@ -150,6 +157,13 @@ vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
 
 vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 {
+    if (!LUMIN)
+    {
+        vec2 rectPos = ProbeRects[0];
+        vec4 rect = vec4(rectPos, ProbeRectSize);
+        return SampleCubeAtlasMip(InTex, ProbeFaceTexel, rect, InDir, InMip).rgb;
+    }
+    
     vec4 c = vec4(0);
     for (int i = 0; i < PROBE_DATA_SIZE; i++)
     {

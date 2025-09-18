@@ -33,6 +33,7 @@ namespace UI
         
         void SetText(const String& InText);
         String GetText() const { return properties.text; }
+        Vec2F MeasureText(const String& InText) const;
 
     private:
         void CacheSize(); 

@@ -5,9 +5,11 @@
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"
 #include "UI/Elements/List.h"
+#include "UI/Elements/TabContainer.h"
 #include "UI/Widgets/Common/ButtonDefault.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
+#include "UI/Widgets/Common/TextboxDefault.h"
 #include "UI/Widgets/LevelList/LevelEntryWidget.h"
 
 void UI::InfoPanelLevel::Init(Container &InOwner)
@@ -19,15 +21,20 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
                 .margins = 10
             }))
         .Push(List())
-            .Push(Container())
-                //.Add(Image({ .size = { 0, 200 }, .alignment = { 1, 0 }}))
-                .Push(List({}, { .direction = ListDirection::HORIZONTAL }))
-                    .Add(ButtonDefault({ .anchor = 0.5, .pivot = 0.5 }, "EDIT"), "EditName")
+            .Push(TabContainer(), "NameTab")
+                .Push(List({}, { 10, ListDirection::HORIZONTAL}), "NameShow")
+                    .Add(ButtonDefault({ .anchor = 0.5, .pivot = 0.5 }, " "), "EditName")
                     .Push(List({ .anchor = { 0, 0.5 }, .pivot = { 0, 0.5 }}))
                         .Add(LabelHeader(), "Name")
                         .Add(LabelText({.padding = {0, {-5, 0}}}), "Creator")
                     .Pop()
                 .Pop()
+                .Push(TextboxDefault({
+                        .alignment = { 1, 1 }
+                    }, {
+                        .maxChars = 25,
+                        .centering = { 0, 0.5 },
+                    }), "NameEdit")
             .Pop()
             .Add(LabelHeader(), "Rooms")
             .Push(List(Transform::Fill(), {}, {{ 0, 0, 0, 0.5 }}), "RoomList")
@@ -47,12 +54,29 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
             }))
             .Add(ButtonDefault({}, "Play"), "Play");
     Add(b.Build());
+
+    Get<TabContainer>("NameTab").Set("NameShow");
 }
 
 void UI::InfoPanelLevel::Update(Container &InOwner)
 {
     Container::Update(InOwner);
 
+    if (Get<ButtonDefault>("EditName").IsClicked())
+        Get<TabContainer>("NameTab").Set("NameEdit");
+
+    auto& tbx = Get<Textbox>("NameEdit");
+    if (tbx.IsCommitted())
+    {
+        String text = tbx.GetText();
+        if (text.empty())
+            text = "Untitled";
+        
+        // Apply new name!
+        Get<Label>("Name").SetText(text);
+        Get<TabContainer>("NameTab").Set("NameShow");
+    }
+    
     if (Get<ButtonDefault>("Play").IsClicked())
     {
         if (auto game = Engine::Manager::Get().Push<GameInstance>())
@@ -83,4 +107,6 @@ void UI::InfoPanelLevel::SetLevel(const LevelEntrySelected &InLevel)
     {
         
     }
+
+    Get<Textbox>("NameEdit").SetText(Get<Label>("Name").GetText());
 }
