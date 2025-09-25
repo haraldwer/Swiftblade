@@ -39,9 +39,15 @@ void UI::Image::Draw(Container& InOwner)
     }
 }
 
+void UI::Image::SetProperties(const ImageProperties &InProperties)
+{
+    properties = InProperties;
+    Invalidate();
+}
+
 Vec2F UI::Image::GetDesiredSize() const
 {
-    if (transform.size == Vec2F::Zero())
+    if (transform.size == Vec2F::Zero() && transform.alignment == Margin(0))
     {
         if (const auto textureRes = properties.texture.Get())
         {
@@ -52,8 +58,8 @@ Vec2F UI::Image::GetDesiredSize() const
                     transform.padding.vertical.x + transform.padding.vertical.y
                 };
                 Vec2F s = {
-                    static_cast<float>(tex->height),
-                    static_cast<float>(tex->width)
+                    static_cast<float>(tex->width),
+                    static_cast<float>(tex->height)
                 };
                 return s + padding;
             }

@@ -35,7 +35,14 @@ namespace UI
         template <class T>
         ElementID Add(const T& InElement, const String& InIdentifier);
         void Remove(ElementID InID);
+
+        template <class T>
+        ElementID Insert(const T& InElement, int InIndex);
+        template <class T>
+        ElementID Insert(const T& InElement, int InIndex, const String& InIdentifier);
         
+        int Count() const { return static_cast<int>(children.size()); }
+        void RemoveChild(int InIndex);
         void ClearChildren();
         
         template <class T>
@@ -77,6 +84,7 @@ namespace UI
         
         Map<ElementID, Object<Element>> elements = {};
         Map<String, ElementID> namedElements = {};
+        Map<ElementID, String> elementNames = {};
         ElementID idCounter = 0;
     };
 
@@ -90,18 +98,32 @@ namespace UI
     template <class T>
     ElementID Container::Add(const T& InElement, const String& InIdentifier)
     {
+        return Insert(InElement, Count(), InIdentifier);
+    }
+
+    template<class T>
+    ElementID Container::Insert(const T &InElement, int InIndex)
+    {
+        return Insert(InElement, InIndex, {});
+    }
+
+    template<class T>
+    ElementID Container::Insert(const T &InElement, int InIndex, const String &InIdentifier)
+    {
+        CHECK_ASSERT(InIndex < 0 || InIndex > static_cast<int>(children.size()), "Invalid index");
         idCounter++;
         CHECK_ASSERT(elements.contains(idCounter), "ID already exists");
         elements[idCounter] = InElement;
         auto& elem = elements[idCounter].Get<>();
         elem.id = idCounter;
         elem.parent = id;
-        children.push_back(idCounter);
+        children.insert(children.begin() + InIndex, idCounter);
         invalidated = true;
         if (!InIdentifier.empty())
         {
             CHECK_ASSERT(Contains(InIdentifier), "Element with this identifier already exists");
             namedElements[InIdentifier] = idCounter;
+            elementNames[idCounter] = InIdentifier;
         }
         return idCounter;
     }

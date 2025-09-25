@@ -9,7 +9,7 @@ namespace UI
         CLASS_INFO(TabContainer, Container);
         
     public:
-        TabContainer(const Transform& InTransform = Transform::Fill(), const Background& InBg = {}) : Container(InTransform, InBg) {}
+        TabContainer(const Transform& InTransform = Transform::Fill(), const Background& InBg = {}, bool InScissor = false) : Container(InTransform, InBg, InScissor) {}
         void Update(Container& InOwner) override;
 
         void SetIndex(int InIndex);

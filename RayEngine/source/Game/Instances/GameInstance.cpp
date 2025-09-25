@@ -66,7 +66,8 @@ void GameInstance::Logic(const double InDelta)
 
 void GameInstance::Frame()
 {
-    ecs.Frame(); 
+    ecs.Frame();
+    physics.Frame();
     Instance::Frame();
 }
 

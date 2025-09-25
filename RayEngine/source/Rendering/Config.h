@@ -14,6 +14,7 @@ namespace Rendering
         
         PROPERTY_D(bool, UpdateCulling, true);
         PROPERTY_D(bool, DrawElementRects, false);
+        PROPERTY_D(bool, DrawPhysicsWorld, false);
 
         String Name() const override { return "Rendering"; }
     };

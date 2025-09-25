@@ -3,6 +3,7 @@
 #include "CubeVolumeData.h"
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
+#include "Physics/Resources/Material.h"
 #include "Rendering/Scene/Instances/MeshInstance.h"
 
 namespace ECS
@@ -13,6 +14,7 @@ namespace ECS
         PROPERTY_D(ResRM, Material, "Dressing/RM_StoneWall.json");
         PROPERTY_D(ResRM, EditMaterial, "Editor/RM_EditBlock.json");
         PROPERTY_D(ResRM, MarkerMaterial, "Editor/RM_EditMarker.json");
+        PROPERTY_D(ResPM, PhysicsMaterial, "Defaults/PM_Default.json");
 
         // Manually serialized / deserialized
         CubeVolumeData data;

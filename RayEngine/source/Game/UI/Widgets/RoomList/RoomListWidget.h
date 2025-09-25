@@ -10,12 +10,14 @@ namespace UI
     class RoomListWidget : public List
     {
     public:
-        RoomListWidget()
+        RoomListWidget() :
+            List({}, { .scrollable = true }, {}, true)
         {
             onList.SetContext(this);
         }
 
         RoomListWidget(const String& InList, const String& InTitle) :
+            List({}, { .scrollable = true }, {}, true),
             rpcList(InList),
             title(InTitle)
         {

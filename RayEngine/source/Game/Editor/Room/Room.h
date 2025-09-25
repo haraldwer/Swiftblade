@@ -1,4 +1,5 @@
 #pragma once
+#include "Database/Data/RPCSubmit.h"
 #include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Game/ECS/Volume/CubeVolumeData.h"
 
@@ -20,6 +21,9 @@ struct Room : PropertyOwner<Room>
     PROPERTY_D(ECS::VolumeCoordKey, Connection, 0)
     PROPERTY(Vector<ECS::VolumeCoordKey>, Path);
     PROPERTY(RoomObjectMap, Objects);
+
+    // Cache the previous submit request, useful for stats
+    PROPERTY(DB::RPCSubmitRoom::Request, LastRequest);
     
     ECS::CubeVolumeData volumeData;
     

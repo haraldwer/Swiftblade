@@ -19,6 +19,7 @@ namespace UI
         Image(const Transform& InTransform = Transform::Fill(), const ImageProperties& InProperties = ImageProperties()) : Element(InTransform), properties(InProperties) {}
         void Draw(Container& InOwner) override;
 
+        void SetProperties(const ImageProperties& InProperties);
         Vec2F GetDesiredSize() const override;
         
     protected:

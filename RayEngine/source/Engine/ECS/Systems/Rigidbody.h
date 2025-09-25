@@ -3,6 +3,11 @@
 #include "ECS/Component.h"
 #include "ECS/System.h"
 
+namespace reactphysics3d
+{
+    class RigidBody;
+}
+
 namespace Physics
 {
     class Manager;
@@ -30,7 +35,7 @@ namespace ECS
 
     private:
         friend Physics::Manager;
-        void* ptr = nullptr; 
+        reactphysics3d::RigidBody* ptr = nullptr; 
     };
 
     class SysRigidbody : public System<Rigidbody>

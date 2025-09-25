@@ -24,6 +24,7 @@ RayEngine/cmake-build-win
 
 # Cache
 RayEngine/content/Cache/*
+RayEngine/content/User/*
 
 # Imgui
 imgui.ini

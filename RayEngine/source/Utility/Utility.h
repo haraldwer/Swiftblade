@@ -6,7 +6,6 @@
 namespace Utility
 {
     void ExternalLog(const String& InStr);
-    String DeviceGUID();
 }
 
 #define LOG_CONSOLE(text) { Utility::ExternalLog(String(__FUNCTION__) + "::" + Utility::ToStr(__LINE__) + " | " + Utility::ToStr(text)); }

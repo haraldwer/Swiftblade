@@ -10,7 +10,7 @@ bool Rendering::TextureResource::Load()
         return true;
     ptr = new Texture();
     *ptr = LoadTexture(id.Str().c_str());
-    return ptr->id;
+    return true;
 }
 
 bool Rendering::TextureResource::Unload()

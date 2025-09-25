@@ -37,9 +37,10 @@ public:
     void SetRoom(const ResRoom& InRoom);
     void LoadRoom();
     void PlayRoom();
+
     void SaveRoom();
+
     
-    DB::RPCSubmitRoom::Request CreateSubmitRequest();
     bool SubmitRoom();
     
     void DrawDebugPanel() override;
@@ -55,8 +56,10 @@ public:
 
 private:
     
+    void UpdateSubmitRequest();
     SceneInstance ConvertRoomToScene();
     static ResScene GetTempScene(const SceneInstance& InScene);
+    static void SaveThumbnail(const String& InPath);
     
     ResRoom roomResource;
     Room workingRoom;

@@ -20,6 +20,7 @@ namespace Rendering
         void BeginFrame();
 
         RenderTexture& GetVirtualTarget() const;
+        Texture* GetFrameTarget() { return targets.frameTargets.Curr().GetTextures().at(0).tex; }
         FrameTargetCollection& GetTargets() { return targets; }
         
         void ImDraw();

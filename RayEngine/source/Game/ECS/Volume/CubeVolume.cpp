@@ -278,7 +278,7 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 {
     if (Engine::Instance::Get().IsEditor())
         return;
-    Physics::Manager::Get().ClearCubes(InID); 
+    Physics::Manager::Get().Remove(InID); 
 }
 
 void ECS::SysCubeVolume::SystemFrame()

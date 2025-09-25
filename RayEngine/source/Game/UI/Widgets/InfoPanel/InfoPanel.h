@@ -7,8 +7,8 @@
 namespace UI
 {
     class InfoPanel;
-    typedef InstanceEvent<RoomEntrySelected>::ContextCallback<InfoPanel*> RoomCallback;
-    typedef InstanceEvent<LevelEntrySelected>::ContextCallback<InfoPanel*> LevelCallback;
+    typedef InstanceEvent<RoomEntryData>::ContextCallback<InfoPanel*> RoomCallback;
+    typedef InstanceEvent<LevelEntryData>::ContextCallback<InfoPanel*> LevelCallback;
 
     class InfoPanel : public Container
     {
@@ -30,8 +30,8 @@ namespace UI
         }
         
         void Init(Container& InOwner) override;
-        void SetRoom(const RoomEntrySelected& InEvent);
-        void SetLevel(const LevelEntrySelected& InEvent);
+        void SetRoom(const RoomEntryData& InEvent);
+        void SetLevel(const LevelEntryData& InEvent);
 
     private:
         RoomCallback onRoomSelected;

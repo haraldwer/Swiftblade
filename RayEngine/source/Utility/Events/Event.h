@@ -67,6 +67,13 @@ namespace Utility
                 context = InOther.context;
             }
 
+            ContextCallback(const ContextCallback& InOther, const ContextT& InContext)
+            {
+                EventManagerT::Get().Register(Type::Get<Event>(), this);
+                bindings = InOther.bindings;
+                context = InContext;
+            }
+
             ContextCallback(const ContextT& InContext)
             {
                 EventManagerT::Get().Register(Type::Get<Event>(), this);

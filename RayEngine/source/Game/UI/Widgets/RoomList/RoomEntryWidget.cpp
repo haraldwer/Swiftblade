@@ -11,35 +11,38 @@ void UI::RoomEntryWidget::Init(Container &InOwner)
 {
     Container::Init(InOwner);
 
-    Builder builder = Builder();
+    Builder b = Builder();
     
-    if (room.Identifier().IsValid())
+    if (data.add)
     {
-        auto res = room.Get();
-        builder
-            .Add(Image())
-            .Add(LabelHeader({
-                .padding = { 10 },
-                .anchor = { 0, 1 }, 
-                .pivot = { 0, 1 },
-            }, res->data.Name));
+        b.Add(Label(Transform::Centered(), {
+               .text= "+",
+               .size= 100
+           }));
     }
     else
     {
-        builder
-            .Add(Image())
-            .Add(Label(Transform::Centered(), {
-                .text= "+",
-                .size= 100
-            }));
+        b.Add(Image(Transform::Fill()), "Thumb");
+        b.Add(LabelHeader({
+                .padding = { 10 },
+                .anchor = { 0, 1 }, 
+                .pivot = { 0, 1 },
+            }), "Name");
     }
     
-    Add(builder.Build());
+    Add(b.Build());
     SetBackground({ { 1, 1, 1, 0.5 } });
     SetTransform({
         .size = { 0, 200 },
         .alignment = { 1, 1 },
         .padding = { 0, 5 }
+    });
+
+    UpdateInfo(data);
+
+    onChanged.Bind([](const auto& InData, auto InC)
+    {
+        InC->UpdateInfo(InData);
     });
 }
 
@@ -47,5 +50,39 @@ void UI::RoomEntryWidget::Update(Container &InOwner)
 {
     Container::Update(InOwner);
     if (IsClicked())
-        InstanceEvent<RoomEntrySelected>::Invoke({ room });
+        InstanceEvent<RoomEntryData>::Invoke(data);
+}
+
+void UI::RoomEntryWidget::UpdateInfo(const RoomEntryData &InData)
+{
+    CHECK_RETURN(InData.add || data.add);
+
+    if (InData.entry.ID.Get().empty())
+    {
+        CHECK_RETURN(!InData.resource.Identifier().IsValid());
+        CHECK_RETURN(InData.resource != data.resource);
+    }
+    else
+    {
+        CHECK_RETURN(InData.entry.ID != data.entry.ID);
+    }
+
+    data = InData;
+    
+    String name = data.entry.Name;
+    String thumbPath = "";
+    
+    if (auto res = data.resource.Get())
+    {
+        if (!res->data.Name.Get().empty() && name.empty())
+            name = res->data.Name;
+        thumbPath = data.resource.Identifier().Str() + ".png";
+            
+    }
+
+    if (name.empty())
+        name = "Untitled";
+
+    Get<Label>("Name").SetText(name);
+    Get<Image>("Thumb").SetProperties({ thumbPath });
 }

@@ -25,10 +25,10 @@ namespace DB
     {
         struct Request : PropertyOwner<Request>
         {
-            PROPERTY(String, name);
-            PROPERTY(String, hash);
-            PROPERTY(String, date);
-            PROPERTY(String, rooms);
+            PROPERTY(String, Name);
+            PROPERTY(String, Hash);
+            PROPERTY(String, Date);
+            PROPERTY(String, Rooms);
         };
     
     };

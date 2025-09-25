@@ -68,15 +68,12 @@ bool UI::Container::DebugDraw(Container &InOwner, const String &InIdentifier, in
 {
     if (Element::DebugDraw(InOwner, InIdentifier, InC))
     {
-        Map<ElementID, String> nameInv;
-        for (auto e : namedElements)
-            nameInv[e.second] = e.first;
         for (auto& child : children)
         {
             CHECK_ASSERT(!elements.contains(child), "Unknown element id");
             auto& elem = elements.at(child).Get();
             String identifier = "";
-            if (auto find = nameInv.find(child); find != nameInv.end())
+            if (auto find = elementNames.find(child); find != elementNames.end())
                 identifier = find->second;
             if (elem.DebugDraw(InOwner, identifier, InC))
                 ImGui::TreePop();
@@ -160,10 +157,21 @@ UI::ElementID UI::Container::GetID(const String& InName) const
 void UI::Container::Remove(const ElementID InID)
 {
     CHECK_ASSERT(!elements.contains(InID), "Does not contain element")
-    elements.erase(InID);
+    if (elementNames.contains(id))
+    {
+        namedElements.erase(elementNames.at(id));
+        elementNames.erase(id);
+    }
+    elements.erase(id);
     for (int i = static_cast<int>(children.size()) - 1; i >= 0; i--)
         if (children[i] == InID)
             children.erase(children.begin() + i);
+}
+
+void UI::Container::RemoveChild(const int InIndex)
+{
+    CHECK_ASSERT(InIndex < 0 || InIndex >= children.size(), "Invalid index");
+    Remove(children.at(InIndex));
 }
 
 void UI::Container::ClearChildren()
@@ -172,5 +180,6 @@ void UI::Container::ClearChildren()
     children.clear();
     elements.clear();
     namedElements.clear();
+    elementNames.clear();
     Invalidate();
 }

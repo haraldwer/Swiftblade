@@ -17,6 +17,8 @@ void UI::Textbox::Update(Container &InOwner)
 {
     Container::Update(InOwner);
 
+    CHECK_RETURN(!cacheVisible);
+    
     committed = false;
 
     if (IsClicked())

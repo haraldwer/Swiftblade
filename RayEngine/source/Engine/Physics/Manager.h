@@ -13,16 +13,15 @@ namespace ECS
 namespace reactphysics3d
 {
     class Collider;
-    class PhysicsCommon;
+    class CollisionShape;
     class PhysicsWorld;
-    class Vector3;
-    class Quaternion;
-    class Transform;
+    class PhysicsCommon;
     class RigidBody;
 }
 
 namespace Physics
 {
+    class Logger;
     enum class Shape : uint8;
     class Callback;
     
@@ -34,32 +33,35 @@ namespace Physics
 
         void Init();
         void Deinit();
-        void Update() const;
+        void Update();
+        void Frame() const;
 
         void Add(ECS::EntityID InID);
-        void Remove(ECS::EntityID InID);
-        
         void AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, float InScale);
-        void ClearCubes(ECS::EntityID InID);
-
-        static void* CreateMaterial(float InStaticFric, float InDynamicFric, float InRestitution);
+        void Remove(ECS::EntityID InID);
 
     private:
-        void SetRBTransforms() const;
+        void SetRBTransforms();
         void Simulate() const;
         void SetEntityTransforms() const;
 
         static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);
-        void CreateShape(const ECS::Collider& InCollider, const ECS::EntityID& InActorID, const ECS::Transform& InTrans, reactphysics3d::RigidBody& InRB);
-        static void* GetGeometry(const Shape& InShape, const Vec4F& InShapeData, const Vec3F& InScale);
+        reactphysics3d::CollisionShape* CreateShape(const ECS::Collider &InCollider, const ECS::Transform &InTrans) const;
         
-        void TryReleaseShape(ECS::EntityID InID); 
-        void TryReleaseDynamic(ECS::EntityID InID); 
-        void TryReleaseStatic(ECS::EntityID InID);
+        reactphysics3d::PhysicsCommon* common = nullptr;
+        reactphysics3d::PhysicsWorld* world = nullptr;
+        Logger* logger = nullptr;
+        
+        struct Data
+        {
+            Mat4F cache;
+            reactphysics3d::RigidBody* rb = nullptr;
+            Vector<reactphysics3d::Collider*> colliders;
+            Vector<reactphysics3d::CollisionShape*> shapes;
+        };
+        Map<ECS::EntityID, Data> data;
+        Set<ECS::EntityID> dynamic;
 
-        reactphysics3d::PhysicsCommon* common;
-        reactphysics3d::PhysicsWorld* world;
-        Map<ECS::EntityID, reactphysics3d::RigidBody*> rbs;
-        
+        void DestroyData(const Data& InData) const;
     };
 }

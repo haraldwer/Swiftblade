@@ -14,8 +14,8 @@ namespace DB
             PROPERTY(String, ID);
             PROPERTY(String, Name);
             PROPERTY(String, Creator);
-            PROPERTY(int, Plays);
-            PROPERTY(bool, Fav);
+            PROPERTY_D(int, Plays, 0);
+            PROPERTY_D(bool, Fav, false);
         };
 
         PROPERTY(String, List);

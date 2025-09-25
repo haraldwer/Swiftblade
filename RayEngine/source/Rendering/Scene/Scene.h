@@ -9,6 +9,9 @@
 
 namespace Rendering
 {
+    struct RenderArgs;
+    typedef std::function<void()> DebugDrawFunc;
+    
     class Scene
     {
         friend class Renderer;
@@ -22,8 +25,10 @@ namespace Rendering
         MeshCollection& Meshes() { return meshes; }
         void AddEnvironment(const EnvironmentInstance& InEnvironment);
         void AddLight(const LightInstance& InLight);
+        
         void AddDebugShape(const DebugShape& InShape);
         void AddDebugLine(const DebugLine& InLine);
+        void AddDebugFunc(const DebugDrawFunc& InFunc);
 
         void Clear();
         void Build();
@@ -33,8 +38,10 @@ namespace Rendering
         Vector<EnvironmentInstance> environments = {};
         MeshCollection meshes = {};
         Utility::SplitContainer<LightInstance> lights = {};
+        
         Utility::SplitContainer<DebugShape> debugShapes = {};
         Utility::SplitContainer<DebugLine> debugLines = {};
+        Vector<DebugDrawFunc> debugFunctions;
     };
 }
 

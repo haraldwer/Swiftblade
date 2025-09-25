@@ -25,13 +25,13 @@ void UI::InfoPanel::Init(Container &InOwner)
     onRoomSelected.Bind([](auto r, auto c) { c->SetRoom(r); });
 }
 
-void UI::InfoPanel::SetRoom(const RoomEntrySelected& InEvent)
+void UI::InfoPanel::SetRoom(const RoomEntryData& InEvent)
 {
     Get<TabContainer>("Tab").Set("Room");
     Get<InfoPanelRoom>("Room").SetRoom(InEvent);
 }
 
-void UI::InfoPanel::SetLevel(const LevelEntrySelected& InEvent)
+void UI::InfoPanel::SetLevel(const LevelEntryData& InEvent)
 {
     Get<TabContainer>("Tab").Set("Level");
     Get<InfoPanelLevel>("Level").SetLevel(InEvent);

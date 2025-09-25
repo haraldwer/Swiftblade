@@ -1,16 +1,15 @@
 #include "BrowseCreatePanel.h"
 
+#include "GUID.h"
 #include "../LevelList/LevelListWidget.h"
 #include "../RoomList/RoomEntryWidget.h"
 #include "../Common/ButtonTab.h"
 #include "Editor/Room/RoomResource.h"
 #include "UI/Builder.h"
 #include "UI/Elements/List.h"
-#include "UI/Elements/SplitContainer.h"
 #include "UI/Elements/TabContainer.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/LevelList/LevelEntryWidget.h"
-#include "UI/Widgets/RoomList/RoomListWidget.h"
 
 void UI::BrowseCreatePanel::Init(Container &InOwner)
 {
@@ -22,7 +21,7 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
                 .Add(ButtonTab("Levels"), "Levels")
                 .Add(ButtonTab("Rooms"), "Rooms")
             .Pop()
-            .Push(TabContainer(Transform::Fill({{}, { 5, 0 }})), "Tabs")
+            .Push(TabContainer(Transform::Fill({{}, { 5 }}), {}, true), "Tabs")
                 .Add(List(), "RoomList")
                 .Add(LevelListWidget(), "LevelList");    
     
@@ -32,7 +31,17 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
         .color = { 1, 1, 1, 0.5 }
     });
 
-    SelectLevels(); 
+    SelectLevels();
+
+    onAddedLevel.Bind([](const auto& InData, auto InC)
+    {
+        InC->NewLevel(InData);
+    });
+
+    onAddedRoom.Bind([](const auto& InData, auto InC)
+    {
+        InC->NewRoom(InData);
+    });
 }
 
 void UI::BrowseCreatePanel::Update(Container &InOwner)
@@ -43,6 +52,60 @@ void UI::BrowseCreatePanel::Update(Container &InOwner)
         SelectLevels();
     if (Get<ButtonTab>("Rooms").IsClicked())
         SelectRooms();
+}
+
+void UI::BrowseCreatePanel::NewLevel(const LevelEntryData &InData)
+{
+    CHECK_RETURN(!InData.add);
+    
+    // Create new level file
+    String hash = Utility::NewGUID();
+    CHECK_RETURN_LOG(hash.empty(), "Failed to generate hash");
+    String fileName = "L_" + hash + ".json";
+    String path = "User/Levels/" + fileName;
+    CHECK_RETURN_LOG(Utility::FileExists(path), "Failed to create file, it already exists");
+    LOG("Creating level file: " + path);
+    Utility::CreateDir(path);
+    Utility::WriteFile(path, "{}");
+    if (!Utility::FileExists(path))
+        LOG("Failed to create level: " + path);
+
+    LevelEntryData newData;
+    newData.resource = path;
+
+    auto& list = Get<LevelListWidget>("LevelList");
+    LevelEntryWidget w(newData);
+    w.Init(list);
+    list.Insert(w, list.Count() - 1);
+    
+    InstanceEvent<LevelEntryData>::Invoke(newData); // Select the new entry
+}
+
+void UI::BrowseCreatePanel::NewRoom(const RoomEntryData &InData)
+{
+    CHECK_RETURN(!InData.add);
+    
+    // Create new room file
+    String hash = Utility::NewGUID();
+    CHECK_RETURN_LOG(hash.empty(), "Failed to generate hash");
+    String fileName = "R_" + hash + ".json";
+    String path = "User/Rooms/" + fileName;
+    CHECK_RETURN_LOG(Utility::FileExists(path), "Failed to create file, it already exists");
+    LOG("Creating room file: " + path);
+    Utility::CreateDir(path);
+    Utility::WriteFile(path, "{}");
+    if (!Utility::FileExists(path))
+        LOG("Failed to create room: " + path);
+
+    RoomEntryData newData;
+    newData.resource = path;
+
+    auto& list = Get<List>("RoomList");
+    RoomEntryWidget w(newData);
+    w.Init(list);
+    list.Insert(w, list.Count() - 1);
+    
+    InstanceEvent<RoomEntryData>::Invoke(newData);
 }
 
 void UI::BrowseCreatePanel::SelectLevels()
@@ -60,12 +123,16 @@ void UI::BrowseCreatePanel::SelectLevels()
 
     for (auto& f : files)
     {
-        auto w = LevelEntryWidget(f);
+        LevelEntryData data;
+        data.resource = f;
+        auto w = LevelEntryWidget(data);
         w.Init(list);
         list.Add(w);
     }
 
-    auto add = LevelEntryWidget(true);
+    LevelEntryData addData;
+    addData.add = true;
+    auto add = LevelEntryWidget(addData);
     add.Init(list);
     list.Add(add);
 }
@@ -82,12 +149,19 @@ void UI::BrowseCreatePanel::SelectRooms()
     Vector<String> files = Utility::ListFiles("User/Rooms");
     for (auto& f : files)
     {
-        auto w = RoomEntryWidget(f);
-        w.Init(list);
-        list.Add(w);
+        if (f.ends_with(".json"))
+        {
+            RoomEntryData data;
+            data.resource = f;
+            auto w = RoomEntryWidget(data);
+            w.Init(list);
+            list.Add(w);
+        }
     }
 
-    auto add = RoomEntryWidget();
+    RoomEntryData addData;
+    addData.add = true;
+    auto add = RoomEntryWidget(addData);
     add.Init(list);
     list.Add(add);
 }

@@ -1,5 +1,6 @@
 #include "InfoPanelLevel.h"
 
+#include "Database/Data/RPCLevelInfo.h"
 #include "Instance/Manager.h"
 #include "Instances/GameInstance.h"
 #include "UI/Builder.h"
@@ -29,7 +30,7 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
                         .Add(LabelText({.padding = {0, {-5, 0}}}), "Creator")
                     .Pop()
                 .Pop()
-                .Push(TextboxDefault({
+                .Add(TextboxDefault({
                         .alignment = { 1, 1 }
                     }, {
                         .maxChars = 25,
@@ -37,11 +38,11 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
                     }), "NameEdit")
             .Pop()
             .Add(LabelHeader(), "Rooms")
-            .Push(List(Transform::Fill(), {}, {{ 0, 0, 0, 0.5 }}), "RoomList")
+            .Push(List(Transform::Fill(10), {}, {{ 0, 0, 0, 0.5 }}), "RoomList")
                 // Add rooms here    
             .Pop()
             .Add(LabelHeader(), "Arenas")
-            .Push(List(Transform::Fill(), {}, {{ 0, 0, 0, 0.5 }}), "ArenaList")
+            .Push(List(Transform::Fill(10), {}, {{ 0, 0, 0, 0.5 }}), "ArenaList")
                 // Add arenas here
             .Pop()
         .Pop()
@@ -56,6 +57,11 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
     Add(b.Build());
 
     Get<TabContainer>("NameTab").Set("NameShow");
+
+    onInfo.Bind([](const auto& InData, auto InC)
+    {
+        InC->RecieveInfo(InData);
+    });
 }
 
 void UI::InfoPanelLevel::Update(Container &InOwner)
@@ -69,11 +75,24 @@ void UI::InfoPanelLevel::Update(Container &InOwner)
     if (tbx.IsCommitted())
     {
         String text = tbx.GetText();
-        if (text.empty())
-            text = "Untitled";
+        if (text != data.entry.Name.Get())
+        {
+            if (text.empty())
+                text = "Untitled";
+
+            if (auto res = data.resource.Get())
+            {
+                res->data.Name = text;
+                res->Save();
+            }
+
+            data.entry.Name = text;
+            InstanceEvent<LevelEntryData>::Invoke(data);
+            
+            // Apply new name!
+            Get<Label>("Name").SetText(text);
+        }
         
-        // Apply new name!
-        Get<Label>("Name").SetText(text);
         Get<TabContainer>("NameTab").Set("NameShow");
     }
     
@@ -86,27 +105,72 @@ void UI::InfoPanelLevel::Update(Container &InOwner)
     }
 }
 
-void UI::InfoPanelLevel::SetLevel(const LevelEntrySelected &InLevel)
+void UI::InfoPanelLevel::SetLevel(const LevelEntryData &InData)
 {
-    Get<Label>("Name").SetText(InLevel.entry.Name);
-    Get<Label>("Creator").SetText(InLevel.entry.Creator);
-    //Get<List>("RoomList").ClearChildren();
-    //Get<List>("ArenaList").ClearChildren();
+    if (!data.entry.ID.Get().empty() && data.entry.ID == InData.entry.ID)
+        return;
+    if (data.resource.Identifier().IsValid() && data.resource == InData.resource)
+        return;
+    
+    data = InData;
 
-    if (auto res = InLevel.level.Get())
+    String name = data.entry.Name;
+    String creator = data.entry.Creator;
+
+    // Not a local file, check cache
+    if (!data.resource.Identifier().IsValid() && !data.entry.ID.Get().empty())
+        data.resource = Utility::GetCachePath(data.entry.ID, ".json");
+    
+    if (auto res = data.resource.Get())
     {
-        Get<Label>("Name").SetText(res->data.Name);
-        Get<Label>("Creator").SetText(res->data.Creator);
+        name = res->data.Name;
+        creator = res->data.Creator;
+
+        // Show all the resource info!
     }
     else
     {
-        // At this point maybe fetch level from server?
-    }
-    
-    if (InLevel.add)
-    {
-        
+        // Request from server
+        DB::RPCLevelInfo::Request request;
+        request.ID = data.entry.ID;
+        DB::Manager::Get().rpc.Request<DB::RPCLevelInfo>(request);
+
+        // Show loading
     }
 
-    Get<Textbox>("NameEdit").SetText(Get<Label>("Name").GetText());
+    if (name.empty())
+        name = "Untitled";
+    if (creator.empty())
+        creator = "you";
+    Get<Label>("Name").SetText(name);
+    Get<Textbox>("NameEdit").SetText(name);
+    Get<Label>("Creator").SetText("by " + creator);
+}
+
+void UI::InfoPanelLevel::RecieveInfo(const DB::Response<DB::RPCLevelInfo> &InResponse)
+{
+    if (!InResponse.success)
+    {
+        LOG("RPC failed")
+        return;
+    }
+
+    if (InResponse.data.ID != data.entry.ID)
+    {
+        LOG("ID mismatch");
+        return;
+    }
+    
+    LOG("Received info!")
+    
+    // Create cache level
+    String path = Utility::GetCachePath(InResponse.data.ID, ".json");
+    if (!InResponse.data.Level.Get().Save(path))
+    {
+        LOG("Failed to save: " + path)
+        return;
+    }
+
+    // Set the cache path
+    data.resource = path;
 }

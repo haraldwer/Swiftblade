@@ -13,10 +13,10 @@ namespace Utility
         }
 
         template<class T, class F>
-        T LerpDelta(const T& InA, const T& InB, const F InSpeed, const F InDelta)
+        T LerpDelta(const T& InFrom, const T& InTo, const F InSpeed, const F InDelta)
         {
             F lerp = 1 - pow(1 - InSpeed * 3.0f, InDelta * 300);
-            return Lerp(InA, InB, lerp);
+            return Lerp(InFrom, InTo, lerp);
         }
 
         template<class T>

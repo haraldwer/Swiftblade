@@ -55,7 +55,9 @@ void UI::RoomListWidget::ListEntries(const DB::Response<DB::RPCRoomList> &InData
     //Clear();
     for (const DB::RPCRoomList::Entry& room : InData.data.Entries.Get())
     {
-        RoomEntryWidget e(room);
+        RoomEntryData data;
+        data.entry = room;
+        RoomEntryWidget e(data);
         e.Init(*this);
         entries[room.ID] = Get<List>(listID).Add(e);
     }

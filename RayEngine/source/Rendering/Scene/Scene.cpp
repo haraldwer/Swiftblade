@@ -10,6 +10,7 @@ void Scene::Clear()
     lights.Clear();
     debugShapes.Clear();
     debugLines.Clear();
+    debugFunctions.clear();
 }
 
 void Scene::Build()
@@ -54,4 +55,9 @@ void Scene::AddDebugLine(const DebugLine& InLine)
         .position = diff,
         .extent = diff.Length()
     });
+}
+
+void Scene::AddDebugFunc(const DebugDrawFunc& InFunc)
+{
+    debugFunctions.push_back(InFunc);
 }

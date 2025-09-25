@@ -44,7 +44,7 @@ void Rendering::Manager::Deinit()
 void Rendering::Manager::Render(const Scene& InScene)
 {
     PROFILE_GL();
-
+    
     if (currConfig.UpdateCulling)
         cullPoints = InScene.GetCamera().GetFrustumCorners(mainViewport.GetResolution().To<float>());
     
@@ -60,7 +60,7 @@ void Rendering::Manager::Render(const Scene& InScene)
         .cullPoints = cullPoints,
         .cullMask = static_cast<uint8>(MeshMask::DEFAULT)
     };
-    
+        
     mainViewport.BeginFrame();
     
     rlDrawRenderBatchActive();

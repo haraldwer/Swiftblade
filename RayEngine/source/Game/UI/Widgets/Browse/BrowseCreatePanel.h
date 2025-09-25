@@ -1,5 +1,7 @@
 #pragma once
 #include "BrowsePanel.h"
+#include "UI/Widgets/LevelList/LevelEntryWidget.h"
+#include "UI/Widgets/RoomList/RoomEntryWidget.h"
 
 namespace UI
 {
@@ -8,13 +10,27 @@ namespace UI
         CLASS_INFO(BrowseCreatePanel, BrowsePanel);
 
     public:
+        BrowseCreatePanel() :
+            onAddedLevel(this),
+            onAddedRoom(this) {}
+        BrowseCreatePanel(const BrowseCreatePanel& InOther) :
+            BrowsePanel(InOther),
+            onAddedLevel(InOther.onAddedLevel, this),
+            onAddedRoom(InOther.onAddedRoom, this) {}
+        BrowseCreatePanel(LevelEntryWidget&& InOther) = delete;
+        
         void Init(Container &InOwner) override;
-
-
         void Update(Container &InOwner) override;
 
     private:
+
+        void NewLevel(const LevelEntryData& InData);
+        void NewRoom(const RoomEntryData& InData);
+        
         void SelectLevels();
         void SelectRooms();
+
+        InstanceEvent<LevelEntryData>::ContextCallback<BrowseCreatePanel*> onAddedLevel;
+        InstanceEvent<RoomEntryData>::ContextCallback<BrowseCreatePanel*> onAddedRoom;
     };
 }

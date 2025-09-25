@@ -20,7 +20,7 @@ namespace ECS
         // 2 - Sphere: x = radius
         PROPERTY_D(uint8, Shape, 0);
         PROPERTY_D(Vec4F, ShapeData, Vec4F::One()); // Shape data depends on shape type
-        PROPERTY_D(bool, IsTrigger, false); 
+        PROPERTY_D(bool, IsTrigger, false);
     };
 
     class SysCollider : public System<Collider>

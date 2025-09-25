@@ -1,4 +1,4 @@
-#include "Utility.h"
+#include "GUID.h"
 
 #include <crossguid/guid.hpp>
 
@@ -323,6 +323,11 @@ String Utility::DeviceGUID()
    return ToUpper(xg::Guid(str).str());
 }
 
+String Utility::NewGUID()
+{
+   return xg::newGuid().str();
+}
+
 #else
 
 String Utility::DeviceGUID()
@@ -330,5 +335,9 @@ String Utility::DeviceGUID()
    return "WebDevice";
 }
 
+String Utility::NewGUID()
+{
+   return "";
+}
 
 #endif

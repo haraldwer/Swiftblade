@@ -395,6 +395,9 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
                 Utility::Ray::ConvertVec(line.start),
                 Utility::Ray::ConvertVec(line.end),
                 { line.col.r, line.col.g, line.col.b, line.col.a });
+
+        for (auto& func : scene.debugFunctions)
+            func();
         
         EndMode3D();
     }

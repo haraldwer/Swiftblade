@@ -1,5 +1,6 @@
 ﻿#include "RoomEditor.h"
 
+#include "../../../cmake-build-web-debug/_deps/raylib-src/src/raylib.h"
 #include "Database/Manager.h"
 #include "Database/Data/RPCSubmit.h"
 #include "ECS/Volume/CubeVolume.h"
@@ -7,6 +8,7 @@
 #include "Instances/GameInstance.h"
 #include "ImGui/imgui.h"
 #include "Menus/MenuRoomEditor.h"
+#include "Rendering/Manager.h"
 #include "SubEditors/RoomConnectionEditor.h"
 #include "SubEditors/RoomObjectEditor.h"
 #include "SubEditors/RoomVolumeEditor.h"
@@ -130,11 +132,42 @@ void RoomEditor::SaveRoom()
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot save room, invalid room resource");
     auto res = roomResource.Get();
     CHECK_RETURN_LOG(!res, "Failed to load resource");
+    UpdateSubmitRequest();
     res->data = workingRoom;
     if (res->Save())
+    {
         LOG("Room saved!")
+        SaveThumbnail(roomResource.Identifier().Str() + ".png");
+    }
     else
+    {
         LOG("Failed to save room")
+    }
+}
+
+void RoomEditor::SaveThumbnail(const String &InPath)
+{
+    auto& man = Rendering::Manager::Get();
+    auto target = man.mainViewport.GetFrameTarget();
+    CHECK_RETURN(!target);
+    Image img = LoadImageFromTexture(*target);
+
+    // Fixed width
+    constexpr int width = 1024;
+    int h = img.height * (static_cast<float>(width) / img.width);
+    int w = width;
+    
+    ImageResize(&img, w, h);
+    ImageFlipVertical(&img);
+    
+    if (ExportImage(img, InPath.c_str()))
+    {
+        LOG("Thumbnail created successfully");
+    }
+    else
+    {
+        LOG("Failed to export thumbnail");
+    }
 }
 
 SceneInstance RoomEditor::ConvertRoomToScene()
@@ -163,9 +196,9 @@ ResScene RoomEditor::GetTempScene(const SceneInstance &InScene)
     return resScene;
 }
 
-DB::RPCSubmitRoom::Request RoomEditor::CreateSubmitRequest()
+void RoomEditor::UpdateSubmitRequest()
 {
-    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot submit room, invalid room resource", {});
+    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot submit room, invalid room resource");
     
     DB::RPCSubmitRoom::Request request;
     request.Name = workingRoom.Name;
@@ -197,14 +230,14 @@ DB::RPCSubmitRoom::Request RoomEditor::CreateSubmitRequest()
     
     SceneInstance scene = ConvertRoomToScene();
     request.Scene = scene.ToStr(false);
-    return request;
+    workingRoom.LastRequest = request;
 }
 
 bool RoomEditor::SubmitRoom()
 {
-    auto req = CreateSubmitRequest();
-    CHECK_RETURN_LOG(req.Scene.Get().empty(), "Invalid submit request", false);
-    DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(req);
+    UpdateSubmitRequest();
+    CHECK_RETURN_LOG(workingRoom.LastRequest.Get().Scene.Get().empty(), "Invalid submit request", false);
+    DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(workingRoom.LastRequest);
     return true;
 }
 

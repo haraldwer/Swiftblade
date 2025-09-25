@@ -5,32 +5,29 @@
 
 namespace UI
 {
-    struct LevelEntrySelected
+    struct LevelEntryData
     {
         DB::RPCLevelList::Entry entry;
-        ResLevel level;
-        bool add;
+        ResLevel resource;
+        bool add = false;
     };
     
     class LevelEntryWidget : public Container
     {
         CLASS_INFO(LevelEntryWidget, Container);
     public:
-        LevelEntryWidget() = default;
-        LevelEntryWidget(const ResLevel& InLevel) : levelResource(InLevel) {}
-        LevelEntryWidget(const DB::RPCLevelList::Entry& InEntry) : listEntry(InEntry) {}
-        LevelEntryWidget(bool InAdd) : add(InAdd) {}
-        
+        LevelEntryWidget() : onChanged(this) {}
+        LevelEntryWidget(const LevelEntryWidget& InOther) : Container(InOther), data(InOther.data), onChanged(InOther.onChanged, this) {}
+        LevelEntryWidget(LevelEntryWidget&& InOther) = delete;
+        LevelEntryWidget(const LevelEntryData& InData) : data(InData), onChanged(this) {}
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
-
-        bool IsHovered() const override;
+        bool IsHovered() const override { return Element::IsHovered(); }
         
     private:
-        void RefreshInfo();
+        void UpdateInfo(const LevelEntryData& InData);
         
-        ResLevel levelResource;
-        DB::RPCLevelList::Entry listEntry;
-        bool add = false;
+        LevelEntryData data;
+        InstanceEvent<LevelEntryData>::ContextCallback<LevelEntryWidget*> onChanged;
     };
 }

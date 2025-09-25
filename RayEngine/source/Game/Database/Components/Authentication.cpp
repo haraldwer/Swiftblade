@@ -1,5 +1,6 @@
 #include "Authentication.h"
 #include "Database/Manager.h"
+#include "GUID.h"
 
 #ifdef NAKAMA_ENABLE
 

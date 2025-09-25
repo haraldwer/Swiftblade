@@ -12,12 +12,14 @@ namespace UI
         CLASS_INFO(LevelListWidget, List);
         
     public:
-        LevelListWidget()
+        LevelListWidget() : 
+            List(Transform::Fill(), { .scrollable = true }, {}, true)
         {
             onList.SetContext(this);
         }
         
         LevelListWidget(const String& InList, const String& InTitle) :
+            List({}, { .scrollable = true }, {}, true),
             rpcList(InList),
             title(InTitle)
         {

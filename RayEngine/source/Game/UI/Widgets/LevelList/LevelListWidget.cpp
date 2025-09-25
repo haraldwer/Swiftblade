@@ -57,7 +57,9 @@ void UI::LevelListWidget::ListEntries(const DB::Response<DB::RPCLevelList>& InDa
     //Clear();
     for (const DB::RPCLevelList::Entry& level : InData.data.Entries.Get())
     {
-        LevelEntryWidget e(level);
+        LevelEntryData data;
+        data.entry = level;
+        LevelEntryWidget e(data);
         e.Init(*this);
         entries[level.ID] = Get<List>(listID).Add(e);
     }

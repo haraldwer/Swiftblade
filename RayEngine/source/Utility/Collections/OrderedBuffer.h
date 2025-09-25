@@ -12,7 +12,7 @@ namespace Utility
             buffers.resize(InNum);
         }
         
-        T& Curr() { return buffers[current]; }
+        T& Curr() { return buffers[current]; } 
         T& Prev(const int InOffset = 1) { return buffers[(current + buffers.size() - InOffset) % buffers.size()]; }
         void Iterate() { current = (current + 1) % static_cast<int>(buffers.size()); }
         Vector<T>& All() { return buffers; }

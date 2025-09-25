@@ -5,23 +5,29 @@
 
 namespace UI
 {
-    struct RoomEntrySelected
+    struct RoomEntryData
     {
-        ResRoom room;
+        DB::RPCRoomList::Entry entry;
+        ResRoom resource;
+        bool add = false;
     };
-    
+
     class RoomEntryWidget : public Container
     {
         CLASS_INFO(RoomEntryWidget, Container);
     public:
-        RoomEntryWidget() = default;
-        RoomEntryWidget(const ResRoom& InRoom) : Container(), room(InRoom) {}
-        RoomEntryWidget(const DB::RPCRoomList::Entry& InRoom) : Container(), roomEntry(InRoom) {}
+        RoomEntryWidget() : onChanged(this) {}
+        RoomEntryWidget(const RoomEntryWidget& InOther) : Container(InOther), data(InOther.data), onChanged(InOther.onChanged, this) {}
+        RoomEntryWidget(RoomEntryWidget&& InOther) = delete;
+        RoomEntryWidget(const RoomEntryData& InData) : data(InData), onChanged(this) {}
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
+        bool IsHovered() const override { return Element::IsHovered(); }
 
     private:
-        ResRoom room;
-        DB::RPCRoomList::Entry roomEntry;
+        void UpdateInfo(const RoomEntryData& InData);
+        
+        RoomEntryData data;
+        InstanceEvent<RoomEntryData>::ContextCallback<RoomEntryWidget*> onChanged;
     };
 }
