@@ -1,0 +1,30 @@
+
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_DeferredID.si"
+
+#include "Shaders/PBR/SH_PBR.si"
+
+in vec2 TexCoord;
+in vec2 RectCoord;
+out vec4 Output;
+
+void main()
+{
+    vec4 albedo = SampleAlbedo(TexCoord);
+    Output.rgb = albedo.rgb;
+    Output.a = 1;
+    
+    if (albedo.a > 0.99)
+        return;
+    
+    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
+    vec3 worldNormal = SampleNormal(TexCoord);
+    vec3 surface = SampleSurface(TexCoord);
+    vec3 pbr = PBR(worldPosition, worldNormal, albedo.rgb, surface);
+    
+    Output.rgb = mix(pbr, albedo.rgb, albedo.a);
+    Output.a = 1;
+}

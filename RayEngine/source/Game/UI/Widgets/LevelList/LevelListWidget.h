@@ -1,6 +1,6 @@
 #pragma once
 #include "Database/Events.h"
-#include "Database/Data/RPCLevelList.h"
+#include "Database/Data/RPCLevel.h"
 #include "UI/Elements/List.h"
 
 namespace UI

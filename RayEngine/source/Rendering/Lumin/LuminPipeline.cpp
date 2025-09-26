@@ -16,6 +16,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs);
     stats += RenderDeferred(InArgs);
+    stats += RenderSurfaces(InArgs);
     //stats += RenderLights(InArgs);
 
     auto frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();
@@ -39,6 +40,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderFallbackProbe(const R
     if (InUseScene)
         stats += RenderScene(InArgs);
     stats += RenderDeferred(InArgs);
+    stats += RenderSurfaces(InArgs);
 
     auto frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();
     auto scene = InArgs.viewportPtr->GetTargets().sceneTargets.Curr();

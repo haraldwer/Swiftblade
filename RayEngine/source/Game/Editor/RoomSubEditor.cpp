@@ -46,7 +46,7 @@ RoomEditor& RoomSubEditor::GetEditor() const
     return *editor;
 }
 
-Room & RoomSubEditor::GetRoom() const
+EditRoom & RoomSubEditor::GetRoom() const
 {
     return GetEditor().GetRoom();
 }

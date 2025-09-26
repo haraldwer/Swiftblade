@@ -142,7 +142,7 @@ void RoomObjectEditor::TryPickObject()
         CHECK_RETURN_LOG(!config.ObjectTypes.Get().contains(pick), "Unknown object type when picked: " + pick);
         
         // Create new!
-        RoomObject obj;
+        EditRoomObject obj;
         obj.Coord = CameraTrace(8).key;
         obj.Object = pick;
         placeObj= obj;
@@ -181,7 +181,7 @@ void RoomObjectEditor::TryPickObject()
     }
 
     // Reset!
-    placeObj = RoomObject();
+    placeObj = EditRoomObject();
     placeID = ECS::INVALID_ID;
 }
 
@@ -200,12 +200,12 @@ void RoomObjectEditor::PlaceObject()
     auto& objects = GetRoom().Objects.Get();
     const struct RoomObjChange
     {
-        RoomObject prevObj;
-        RoomObject newObj;
+        EditRoomObject prevObj;
+        EditRoomObject newObj;
         ECS::VolumeCoordKey coord;
         ECS::VolumeCoordKey from;
     } change {
-        objects.contains(placeObj.Coord) ? objects.at(placeObj.Coord) : RoomObject(),
+        objects.contains(placeObj.Coord) ? objects.at(placeObj.Coord) : EditRoomObject(),
         placeObj,
         placeObj.Coord,
         movedFrom.key
@@ -273,7 +273,7 @@ void RoomObjectEditor::RemoveObject()
 {
     const struct RoomObjRemove
     {
-        RoomObject obj;
+        EditRoomObject obj;
         ECS::VolumeCoordKey from;
     } change {
         placeObj,
@@ -293,7 +293,7 @@ void RoomObjectEditor::RemoveObject()
             RemoveLoaded(InData.from);
 
             // And set the data
-            RoomObject obj = InData.obj;
+            EditRoomObject obj = InData.obj;
             obj.Coord = InData.from;
             auto& objects = GetRoom().Objects.Get();
             objects[InData.from] = obj;
@@ -304,7 +304,7 @@ void RoomObjectEditor::RemoveObject()
     
     ECS::Manager::Get().DestroyEntity(placeID);
     
-    placeObj = RoomObject();
+    placeObj = EditRoomObject();
     placeID = ECS::INVALID_ID;
     movedFrom = {};
 }
@@ -320,7 +320,7 @@ void RoomObjectEditor::UpdateTransforms()
         UpdateTransform(sys, placeID, placeObj);
 }
 
-void RoomObjectEditor::UpdateTransform(ECS::SysTransform &InSys, ECS::EntityID InID, const RoomObject &InObj)
+void RoomObjectEditor::UpdateTransform(ECS::SysTransform &InSys, ECS::EntityID InID, const EditRoomObject &InObj)
 {
     auto& t = InSys.Get(InID);
     Mat4F current = t.World();
@@ -329,7 +329,7 @@ void RoomObjectEditor::UpdateTransform(ECS::SysTransform &InSys, ECS::EntityID I
     InSys.Get(InID).SetWorld(world);
 }
 
-Mat4F RoomObjectEditor::GetTrans(const RoomObject &InObj) const
+Mat4F RoomObjectEditor::GetTrans(const EditRoomObject &InObj) const
 {
     Vec3F pos = GetVolume().CoordToPos(InObj.Coord.Get());
     float angle = InObj.Rotations.Get() * PI_FLOAT / 4.0f;
@@ -354,7 +354,7 @@ void RoomObjectEditor::Exit()
     hoverMenu.Deinit();
 }
 
-ECS::EntityID RoomObjectEditor::LoadObject(const RoomObject &InObj)
+ECS::EntityID RoomObjectEditor::LoadObject(const EditRoomObject &InObj)
 {
     bool contains = loadedObjects.contains(InObj.Coord);
     auto& obj = loadedObjects[InObj.Coord];
@@ -367,7 +367,7 @@ ECS::EntityID RoomObjectEditor::LoadObject(const RoomObject &InObj)
     return obj;
 }
 
-ECS::EntityID RoomObjectEditor::CreateObject(const RoomObject &InObj) const
+ECS::EntityID RoomObjectEditor::CreateObject(const EditRoomObject &InObj) const
 {
     auto& objType = config.ObjectTypes.Get().at(InObj.Object);
     auto bp = objType.Get();

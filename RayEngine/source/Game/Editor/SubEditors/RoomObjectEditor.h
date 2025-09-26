@@ -6,7 +6,7 @@
 #include "ECS/Manager.h"
 #include "ECS/Systems/Transform.h"
 #include "Editor/EditorCamera.h"
-#include "Editor/Room/Room.h"
+#include "../EditRoom.h"
 
 typedef OrderedMap<String, ResBlueprint> RoomTypeMap;
 
@@ -77,7 +77,7 @@ public:
     
     // Automatically create object if it doesnt exist
     // Move object smoothly to the coord location and rotation, or snap  
-    ECS::EntityID LoadObject(const RoomObject& InObj);
+    ECS::EntityID LoadObject(const EditRoomObject& InObj);
 
 private:
 
@@ -87,17 +87,17 @@ private:
     void RemoveObject();
     
     void UpdateTransforms();
-    void UpdateTransform(ECS::SysTransform& InSys, ECS::EntityID InID, const RoomObject& InObj);
-    Mat4F GetTrans(const RoomObject& InObj) const;
+    void UpdateTransform(ECS::SysTransform& InSys, ECS::EntityID InID, const EditRoomObject& InObj);
+    Mat4F GetTrans(const EditRoomObject& InObj) const;
 
-    ECS::EntityID CreateObject(const RoomObject &InObj) const;
+    ECS::EntityID CreateObject(const EditRoomObject &InObj) const;
     void LoadRoom();
     void DestroyLoaded();
     void RemoveLoaded(ECS::VolumeCoordKey InKey);
 
     Map<ECS::VolumeCoordKey, ECS::EntityID> loadedObjects;
     ECS::EntityID placeID = ECS::INVALID_ID;
-    RoomObject placeObj;
+    EditRoomObject placeObj;
     ECS::VolumeCoord movedFrom;
     
     

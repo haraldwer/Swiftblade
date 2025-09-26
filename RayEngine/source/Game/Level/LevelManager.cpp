@@ -41,49 +41,46 @@ void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
     }
 }
 
-void LevelManager::LoadConfig()
+void LevelManager::LoadLevel(const LevelConfig &InLevel)
 {
-    Level config;
-    config.Load("Scenes/Configs/C_Default.json");
-
     // How far has the player come?
     const auto& state = GameState::Get();
-    Utility::RandomWeightedCollection<ResScene> roomCollection(state.seed);
-    Utility::RandomWeightedCollection<ResScene> arenaCollection(state.seed);
-    for (auto& room : config.Rooms.Get())
+    Utility::RandomWeightedCollection<ResScene> roomCollection(InLevel.Seed);
+    Utility::RandomWeightedCollection<ResScene> arenaCollection(InLevel.Seed);
+    for (auto& room : InLevel.Rooms.Get())
         roomCollection.Add(room);
-    for (auto& arena : config.Arenas.Get())
+    for (auto& arena : InLevel.Arenas.Get())
         arenaCollection.Add(arena); 
 
     // Calculate scene order
     Vector<ResScene> sceneOrder;
-    sceneOrder.push_back(config.GameStart);
-    for (int arenaIndex = 0; arenaIndex <= config.NumArenas; arenaIndex++)
+    sceneOrder.push_back(InLevel.GameStart);
+    for (int arenaIndex = 0; arenaIndex <= InLevel.NumArenas; arenaIndex++)
     {
         // Section start if not first
         if (arenaIndex > 0)
-            sceneOrder.push_back(config.SectionStart);
+            sceneOrder.push_back(InLevel.SectionStart);
 
         // Rooms
-        for (int roomIndex = 0; roomIndex < config.NumRooms; roomIndex++)
+        for (int roomIndex = 0; roomIndex < InLevel.NumRooms; roomIndex++)
             sceneOrder.push_back(roomCollection.Pop());
 
         // Maybe arena
-        if (arenaIndex < config.NumArenas)
+        if (arenaIndex < InLevel.NumArenas)
         {
-            sceneOrder.push_back(config.SectionEnd);
+            sceneOrder.push_back(InLevel.SectionEnd);
             sceneOrder.push_back(arenaCollection.Pop());
         }
     }
-    sceneOrder.push_back(config.GameEnd);
+    sceneOrder.push_back(InLevel.GameEnd);
 
     // Only load a subset of these
     
     // (SectionStart/GameStart + NumRooms + SectionEnd + Arena) * Checkpoint
-    const int startIndex = (1 + config.NumRooms + 1 + 1) * state.checkpoint;
+    const int startIndex = (1 + InLevel.NumRooms + 1 + 1) * state.checkpoint;
     
     // (SectionStart/GameStart + NumRooms + SectionEnd/GameEnd + Arena) * (Checkpoint + 1)
-    const int endIndex = (1 + config.NumRooms + 1 + 1) * (state.checkpoint + 1) - 1; 
+    const int endIndex = (1 + InLevel.NumRooms + 1 + 1) * (state.checkpoint + 1) - 1; 
 
     if (state.arena)
     {

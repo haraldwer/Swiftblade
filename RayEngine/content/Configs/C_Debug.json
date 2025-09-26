@@ -2,7 +2,10 @@
 	"DebugEnabled":false,
 	"OpenWindows":[
 		"Blueprint Editor",
+		"Menus",
 		"Rendering",
-		"Scene Rendering"
+		"Resources",
+		"Scene Rendering",
+		"Viewport"
 	]
 }

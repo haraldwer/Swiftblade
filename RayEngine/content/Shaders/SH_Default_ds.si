@@ -1,6 +1,7 @@
 ﻿
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Uniforms/SH_DeferredOut.si"
 
 #include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_DeferredID.si"
@@ -9,7 +10,6 @@
 
 in vec2 TexCoord;
 in vec2 RectCoord;
-out vec4 Output;
 
 const float DIST_FADE_START = 20.0;
 const float DIST_FADE_END = 50.0;
@@ -33,17 +33,23 @@ float SurfaceFade(vec3 InWorldPos, vec3 InNormal)
     return mix(cameraDistanceFade, cameraDot * cameraDistanceFade, FADE_DOT_PART);
 }
 
+void Unlit(vec3 InColor)
+{
+    OutAlbedo.rgb = InColor;
+    OutAlbedo.a = 1;
+    OutSurface = vec3(0);
+}
+
 void Default(vec3 InAlbedo, vec3 InSurface)
 {
     if (CheckID(TexCoord, DeferredID))
         discard;
 
-    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
-    vec3 worldNormal = SampleNormal(TexCoord);
-    InSurface.b *= 1 - texture(TexAO, TexCoord).r;
+    OutAlbedo.rgb = InAlbedo;
+    OutAlbedo.a = 0;
     
-    vec3 pbr = PBR(worldPosition, worldNormal, InAlbedo, InSurface);
-    Output = vec4(pbr, 1.0);
+    OutSurface = InSurface;
+    OutSurface.b *= SampleAO(TexCoord);
 }
 
 void DefaultMatte(vec3 InAlbedo)

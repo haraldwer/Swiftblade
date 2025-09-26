@@ -14,6 +14,5 @@ void main()
     val = min(1, val);
     val += Random(pos) * 0.01;
     
-    Output.rgb = hsv2rgb(vec3(0, 0, val));
-    Output.a = 1;
+    Unlit(hsv2rgb(vec3(0, 0, val)));
 }

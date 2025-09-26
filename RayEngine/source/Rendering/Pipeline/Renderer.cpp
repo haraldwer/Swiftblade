@@ -230,7 +230,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
         SetValue(*downRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
         
         int texSlot = 0;
-        prev.Bind(*downRes, texSlot, RL_TEXTURE_FILTER_LINEAR);
+        prev.Bind(*downRes, texSlot);
                 
         for (auto& persp : InArgs.perspectives)
         {
@@ -275,7 +275,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
             SetValue(*upRes, "LayerStrength", &layerStrength, SHADER_UNIFORM_FLOAT);
                         
             int texSlot = 0;
-            prev.Bind(*upRes, texSlot, RL_TEXTURE_FILTER_LINEAR);
+            prev.Bind(*upRes, texSlot);
             
             for (auto& persp : InArgs.perspectives)
             {
@@ -287,48 +287,6 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
             }
         }
     }
-
-    // Apply
-    /*
-    {
-        ShaderResource* res = fx.BloomApplyShader.Get().Get();
-        CHECK_RETURN_LOG(!res, "Failed to find shader resource");
-        const Shader* shader = res->Get();
-        CHECK_RETURN_LOG(!shader, "Failed to get shader");
-        
-        FrameCommand frameCmd;
-        frameCmd.fboID = frame.GetFBO();
-        frameCmd.size = frame.Size();
-        frameCmd.clearTarget = false;
-        rlState::current.Set(frameCmd);
-
-        ShaderCommand shaderCmd;
-        shaderCmd.locs = shader->locs;
-        shaderCmd.id = shader->id;
-        shaderCmd.blendMode = RL_BLEND_ALPHA;
-        rlState::current.Set(shaderCmd);
-
-        SetFrameShaderValues(InArgs, *res);
-
-        auto& bloom = bloomArr[0];
-        
-        int texSlot = 0;
-        BindNoiseTextures(InArgs, *res, texSlot);
-        bloom.Bind(*res, texSlot, RL_TEXTURE_FILTER_LINEAR);
-        Vec2F size = Vec2F(1.0f) / bloom.Size().To<float>();
-        SetValue(*res, "PixelSize", &size, SHADER_UNIFORM_VEC2);
-        SetValue(*res, "Strength", &size, SHADER_UNIFORM_VEC2);
-        
-        for (auto& persp : InArgs.perspectives)
-        {
-            PerspectiveCommand perspCmd;
-            perspCmd.rect = persp.targetRect;
-            rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, persp, frame, *res);
-            DrawQuad();
-        }
-    }
-    */
 }
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)

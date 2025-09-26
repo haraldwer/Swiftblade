@@ -73,9 +73,9 @@ namespace Resource
         
         bool Unload()
         {
-            CHECK_RETURN(!ptr, false);
-            if (ptr->loaded)
-                return ptr->Unload();  
+            if (ptr && ptr->loaded)
+                return ptr->Unload();
+            return false;
         }
 
         ID Identifier() const

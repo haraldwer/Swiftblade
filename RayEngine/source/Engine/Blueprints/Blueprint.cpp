@@ -26,7 +26,7 @@ bool BlueprintResource::Edit(const String &InName, uint32 InOffset)
 {
     if (ImGui::Button("Edit"))
         if (auto editor = Engine::Manager::Get().Push<BlueprintEditor>())
-            editor->SetBP(ResBlueprint(id));
+            editor->SetPendingBP(ResBlueprint(id));
     return false;
 }
 
@@ -53,7 +53,7 @@ ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vec
     return entity;
 }
 
-void BlueprintResource::Save(const ECS::EntityID InID)
+void BlueprintResource::SaveEntity(const ECS::EntityID InID)
 {
     CHECK_RETURN_LOG(InID == ECS::INVALID_ID, "Invalid ID");
 

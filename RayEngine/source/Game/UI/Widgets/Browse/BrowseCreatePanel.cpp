@@ -2,9 +2,9 @@
 
 #include "GUID.h"
 #include "../LevelList/LevelListWidget.h"
-#include "../RoomList/RoomEntryWidget.h"
+#include "../EditRoomList/EditRoomEntryWidget.h"
 #include "../Common/ButtonTab.h"
-#include "Editor/Room/RoomResource.h"
+#include "Editor/EditRoom.h"
 #include "UI/Builder.h"
 #include "UI/Elements/List.h"
 #include "UI/Elements/TabContainer.h"
@@ -22,7 +22,7 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
                 .Add(ButtonTab("Rooms"), "Rooms")
             .Pop()
             .Push(TabContainer(Transform::Fill({{}, { 5 }}), {}, true), "Tabs")
-                .Add(List(), "RoomList")
+                .Add(List(Transform::Fill(), { .scrollable = true }), "RoomList")
                 .Add(LevelListWidget(), "LevelList");    
     
     root = Add(b.Build());
@@ -81,7 +81,7 @@ void UI::BrowseCreatePanel::NewLevel(const LevelEntryData &InData)
     InstanceEvent<LevelEntryData>::Invoke(newData); // Select the new entry
 }
 
-void UI::BrowseCreatePanel::NewRoom(const RoomEntryData &InData)
+void UI::BrowseCreatePanel::NewRoom(const EditRoomEntryData& InData)
 {
     CHECK_RETURN(!InData.add);
     
@@ -97,15 +97,15 @@ void UI::BrowseCreatePanel::NewRoom(const RoomEntryData &InData)
     if (!Utility::FileExists(path))
         LOG("Failed to create room: " + path);
 
-    RoomEntryData newData;
+    EditRoomEntryData newData;
     newData.resource = path;
 
     auto& list = Get<List>("RoomList");
-    RoomEntryWidget w(newData);
+    EditRoomEntryWidget w(newData);
     w.Init(list);
     list.Insert(w, list.Count() - 1);
     
-    InstanceEvent<RoomEntryData>::Invoke(newData);
+    InstanceEvent<EditRoomEntryData>::Invoke(newData);
 }
 
 void UI::BrowseCreatePanel::SelectLevels()
@@ -151,17 +151,17 @@ void UI::BrowseCreatePanel::SelectRooms()
     {
         if (f.ends_with(".json"))
         {
-            RoomEntryData data;
+            EditRoomEntryData data;
             data.resource = f;
-            auto w = RoomEntryWidget(data);
+            auto w = EditRoomEntryWidget(data);
             w.Init(list);
             list.Add(w);
         }
     }
 
-    RoomEntryData addData;
+    EditRoomEntryData addData;
     addData.add = true;
-    auto add = RoomEntryWidget(addData);
+    auto add = EditRoomEntryWidget(addData);
     add.Init(list);
     list.Add(add);
 }

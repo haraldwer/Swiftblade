@@ -5,7 +5,7 @@
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"
 #include "Editor/RoomSubEditorManager.h"
-#include "Editor/Room/Room.h"
+#include "../EditRoom.h"
 #include "Input/Action.h"
 #include "UI/Builder.h"
 #include "UI/Elements/RectImage.h"

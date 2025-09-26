@@ -5,11 +5,11 @@
 #include "rlgl.h"
 #include "State/State.h"
 
-bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat, float InResScale)
+bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat, float InResScale, int InDefaultFilter)
 {
     if (TryBeginSetup(InTarget, InResScale))
     {
-        CreateBuffer(InName, InFormat, 1.0);
+        CreateBuffer(InName, InFormat, 1.0, InDefaultFilter);
         EndSetup(InTarget);
         return true;
     }
@@ -115,15 +115,15 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
         TextureCommand cmd;
         cmd.shaderLoc = loc;
         cmd.id = tex.tex->id;
-        cmd.filter = InFilter;
+        cmd.filter = InFilter == -1 ? tex.defaultFilter : InFilter;
         rlState::current.Set(cmd, InOutSlot);
     }
 }
 
-void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InPixelFormat, const float InResScale, const int InMips, const bool InCubemap)
+void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InPixelFormat, const float InResScale, int InDefaultFilter, const int InMips, const bool InCubemap)
 {
-    const int w = width;
-    const int h = height;
+    const int w = static_cast<int>(static_cast<float>(width) * InResScale);
+    const int h = static_cast<int>(static_cast<float>(height) * InResScale);
     CHECK_RETURN_LOG(w <= 0 || h <= 0, "Buffer too small");
     
     int mips = InMips;
@@ -133,6 +133,7 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
     auto& buffer = textures.emplace_back();
     buffer.name = InName;
     buffer.cubemap = InCubemap;
+    buffer.defaultFilter = InDefaultFilter;
     buffer.tex = new Texture(); 
     buffer.tex->id = InCubemap ?
         rlLoadTextureCubemap(nullptr, w, InPixelFormat, mips) : 

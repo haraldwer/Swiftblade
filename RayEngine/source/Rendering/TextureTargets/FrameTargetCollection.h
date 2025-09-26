@@ -13,6 +13,7 @@ namespace Rendering
         OrderedMap<String, Vector<RenderTarget::TargetTex>> GetNamed();
 
         SwapTarget sceneTargets = {};
+        RenderTarget surfaceTarget = {};
         SwapTarget frameTargets = {};
 
         // Extras, depends on fx

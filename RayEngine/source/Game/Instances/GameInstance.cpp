@@ -31,7 +31,7 @@ void GameInstance::Init()
     }
     else
     {
-        rooms.LoadConfig();  
+        rooms.LoadLevel(level);  
     }
 
     if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
@@ -75,6 +75,11 @@ void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
 {
     startScene = InScene;
     startPlayerPos = InPlayerPos;
+}
+
+void GameInstance::PlayLevel(const ::LevelConfig &InLevel)
+{
+    level = InLevel;
 }
 
 void GameInstance::SetState(const GameState& InState)

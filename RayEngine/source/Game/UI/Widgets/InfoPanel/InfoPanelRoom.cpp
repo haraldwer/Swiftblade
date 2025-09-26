@@ -1,7 +1,7 @@
 #include "InfoPanelRoom.h"
 
 #include "Database/Manager.h"
-#include "Database/Data/RPCLevelInfo.h"
+#include "Database/Data/RPCLevel.h"
 #include "Editor/RoomEditor.h"
 #include "Instance/Manager.h"
 #include "UI/Builder.h"
@@ -13,7 +13,7 @@
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
 #include "UI/Widgets/Common/TextboxDefault.h"
-#include "UI/Widgets/RoomList/RoomEntryWidget.h"
+#include "UI/Widgets/EditRoomList/EditRoomEntryWidget.h"
 
 void UI::InfoPanelRoom::Init(Container &InOwner)
 {
@@ -57,6 +57,11 @@ void UI::InfoPanelRoom::Init(Container &InOwner)
     Add(b.Build());
 
     Get<TabContainer>("NameTab").Set("NameShow");
+
+    onInfo.Bind([](const auto& InData, auto InC)
+    {
+        InC->RecieveInfo(InData);
+    });
 }
 
 void UI::InfoPanelRoom::Update(Container &InOwner)
@@ -91,8 +96,9 @@ void UI::InfoPanelRoom::Update(Container &InOwner)
     }
 
     if (Get<ButtonDefault>("Open").IsClicked())
-        if (auto editor = Engine::Manager::Get().Push<RoomEditor>())
-            editor->SetRoom(data.resource);
+    {
+        
+    }
 }
 
 void UI::InfoPanelRoom::SetRoom(const RoomEntryData &InData)
@@ -103,27 +109,14 @@ void UI::InfoPanelRoom::SetRoom(const RoomEntryData &InData)
         return;
     
     data = InData;
+    SetEntryInfo(data.entry);
 
-    String name = InData.entry.Name;
-    String creator = InData.entry.Creator;
-    Vec3I size = Vec3I::Zero();
-    int objects = 0;
-    float length = 0.0f;
-    int spawners = 0;
-    
     if (!data.resource.Identifier().IsValid() && !data.entry.ID.Get().empty())
         data.resource = Utility::GetCachePath(data.entry.ID, ".json");
     
     if (auto res = data.resource.Get())
     {
-        name = res->data.Name.Get();
-
-        // Use data from last request
-        auto& req = res->data.LastRequest.Get();
-        size = req.Size;
-        objects = req.Objects;
-        length = req.Length;
-        spawners = req.Spawners;
+        SetResourceInfo(res->data);
     }
     else
     {
@@ -132,13 +125,52 @@ void UI::InfoPanelRoom::SetRoom(const RoomEntryData &InData)
         request.ID = data.entry.ID;
         DB::Manager::Get().rpc.Request<DB::RPCRoomInfo>(request);
 
-        // Wait for response?
+        // Show loading
     }
+}
+
+void UI::InfoPanelRoom::SetText(const String &InEntry, const String &InText)
+{
+    Get<Label>(InEntry).SetText(InText);
+}
+
+void UI::InfoPanelRoom::SetEntryInfo(const RoomEntry &InEntry)
+{
+    String name = InEntry.Name;
+    String creator = InEntry.Creator;
+    
+    if (name.empty())
+        name = "Untitled";
+    if (creator.empty())
+        creator = "you";
+    
+    SetText("Name", name);
+    Get<Textbox>("NameEdit").SetText(name);
+    SetText("Creator", "by " + creator);
+
+    // Hide these? 
+    SetText("Length", "Length: ");
+    SetText("Size", "Size: ");
+    SetText("Objects", "Objects: ");
+    SetText("Enemies", "Spawners: ");
+    SetText("Status", "Status: ");
+    SetText("Date", "Date: ");
+}
+
+void UI::InfoPanelRoom::SetResourceInfo(const Room &InRoom)
+{
+    String name = InRoom.Name;
+    String creator = InRoom.Creator;
 
     if (name.empty())
         name = "Untitled";
     if (creator.empty())
         creator = "you";
+    
+    Vec3I size = InRoom.Size;
+    int objects = InRoom.Objects;
+    float length = InRoom.Length;
+    int spawners = InRoom.Spawners;
     
     SetText("Name", name);
     Get<Textbox>("NameEdit").SetText(name);
@@ -151,7 +183,34 @@ void UI::InfoPanelRoom::SetRoom(const RoomEntryData &InData)
     SetText("Date", "Date: -");
 }
 
-void UI::InfoPanelRoom::SetText(const String &InEntry, const String &InText)
+void UI::InfoPanelRoom::RecieveInfo(const DB::Response<DB::RPCRoomInfo>& InResponse)
 {
-    Get<Label>(InEntry).SetText(InText);
+    if (!InResponse.success)
+    {
+        LOG("RPC failed")
+        return;
+    }
+
+    if (InResponse.data.ID != data.entry.ID)
+    {
+        LOG("ID mismatch");
+        return;
+    }
+    
+    LOG("Received info!")
+    
+    // Create cache level
+    String path = Utility::GetCachePath(InResponse.data.ID, ".json");
+    if (!InResponse.data.Data.Get().Save(path))
+    {
+        LOG("Failed to save: " + path)
+        return;
+    }
+
+    // Set the cache path
+    data.resource = path;
+
+    // Update info
+    if (auto res = data.resource.Get())
+        SetResourceInfo(res->data);
 }

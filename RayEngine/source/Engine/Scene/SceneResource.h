@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Blueprints/Blueprint.h"
+#include "ECS/Entity.h"
+#include "Resource/Resource.h"
 
 struct SceneInstance
 {

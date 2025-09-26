@@ -6,6 +6,8 @@ namespace Rendering
 {
     struct FXConfig : PropertyOwner<FXConfig>
     {
+        PROPERTY_D(ResShader, SurfaceShader, "Shaders/SH_Surface.ps");
+        
         PROPERTY_D(bool, SSAO, false);
         PROPERTY_D(float, SSAOScale, 0.5f);
         PROPERTY_D(ResShader, SSAOShader, "Shaders/PostProcessing/SH_SSAO.ps");

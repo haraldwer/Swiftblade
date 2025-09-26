@@ -26,6 +26,7 @@ public:
     String DebugPanelName() const override { return "Blueprint Editor"; }
     bool IsEditor() const override { return true; }
     
+    void SetPendingBP(const ResBlueprint& InBP);
     void SetBP(const ResBlueprint& InBP);
 
 private:
@@ -35,6 +36,7 @@ private:
 
     String Text(const String& InString) const;
     
+    ResBlueprint pendingBP; 
     BlueprintEditorConfig config = {};
     ECS::EntityID instanceID = ECS::INVALID_ID; 
     ECS::EntityID selectedID = ECS::INVALID_ID;

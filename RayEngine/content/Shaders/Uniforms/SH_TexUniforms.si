@@ -5,6 +5,9 @@ uniform sampler2D TexPosition; // xyz - Position (camera relative), w - Linear d
 uniform sampler2D TexNormal; // xyz - Normal, a - DeferredID
 uniform sampler2D TexData; // xy - Velocity, z - Height, w - Gameplay
 
+uniform sampler2D TexAlbedo; // rgb - Albedo, w - Emissive factor
+uniform sampler2D TexSurface; // r - Metallic, g - Roughness, b - AO
+
 uniform sampler2D TexAO;
 uniform sampler2D TexFrame;
 
@@ -18,4 +21,59 @@ vec4 SampleWorldPos(vec2 InCoord)
 vec3 SampleNormal(vec2 InCoord)
 {
     return normalize(texture(TexNormal, InCoord).xyz);
+}
+
+float SampleAOPoint(vec2 InCoord)
+{
+    return texture(TexAO, clamp(InCoord, 0.0001, 0.9999)).r;
+}
+
+float SampleAO(vec2 InCoord)
+{
+    return 1 - SampleAOPoint(InCoord);
+    
+    vec2 pixelScale = vec2(2) / Resolution;
+
+    float closeScale = 0.72;
+    float farScale = 1;
+    float middleScale = 1;
+
+    float closeWeight = 0.9;
+    float middleWeight = 0.7;
+    float farWeight = 0.5;
+
+    vec2 edgeOff[4] = vec2[](
+        vec2(1,1),
+        vec2(1,-1),
+        vec2(-1,1),
+        vec2(-1,-1)
+    );
+    vec2 middleOff[4] = vec2[](
+        vec2(1, 0),
+        vec2(-1,0),
+        vec2(0, 1),
+        vec2(0,-1)
+    );
+
+    float result = 0;
+    for (int i = 0; i < 4; i++)
+        result += SampleAOPoint(InCoord + edgeOff[i] * pixelScale * closeScale) * closeWeight;
+    for (int i = 0; i < 4; i++)
+        result += SampleAOPoint(InCoord + middleOff[i] * pixelScale * middleScale) * middleWeight;
+    for (int i = 0; i < 4; i++)
+        result += SampleAOPoint(InCoord + edgeOff[i] * pixelScale * farScale) * farWeight;
+    
+    result += SampleAOPoint(InCoord);
+    result /= 4 * (closeWeight + middleWeight + farWeight) + 1;
+    return 1 - result;
+}
+
+vec4 SampleAlbedo(vec2 InCoord)
+{
+    return texture(TexAlbedo, InCoord);
+}
+
+vec3 SampleSurface(vec2 InCoord)
+{
+    return texture(TexSurface, InCoord).rgb;
 }

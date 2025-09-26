@@ -15,11 +15,12 @@ namespace Rendering
             Texture* tex = {};
             String name = {}; 
             bool cubemap = false;
+            int defaultFilter = -1;
         };
         
-        bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat, float InResScale = 1.0f);
+        bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat, float InResScale = 1.0f, int InDefaultFilter = -1);
         bool TryBeginSetup(const RenderTexture& InRenderTexture, float InResScale = 1.0f);
-        void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InMips = 1, bool InCubemap = false);
+        void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InDefaultFilter = -1, int InMips = 1, bool InCubemap = false);
         void EndSetup(const RenderTexture& InRenderTexture) const;
         void Unload();
         void Bind(ShaderResource& InShader, int& InOutSlot, int InFilter = -1, const String& InPostfix = "") const;

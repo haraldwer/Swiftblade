@@ -13,10 +13,9 @@ void main()
     float gridLines = step(0.95, gridValue);
     float gridFade = mix(0.95, 0.8, gridLines);
     
-    DefaultMatte(vec3(gridFade));
-    
     float dist = length(pos - CameraPosition);
     float fade = DistanceFade(dist) * SurfaceFade(pos, normal);
+    gridFade *= mix(fade, 1.0f, 0.4);
     
-    Output.rgb *= mix(fade, 1.0f, 0.4);
+    DefaultMatte(vec3(gridFade));
 }

@@ -1,4 +1,4 @@
-#include "RoomEntryWidget.h"
+#include "EditRoomEntryWidget.h"
 
 #include "../Common/LabelHeader.h"
 #include "Editor/RoomEditor.h"
@@ -7,7 +7,7 @@
 #include "UI/Elements/Image.h"
 #include "UI/Elements/Label.h"
 
-void UI::RoomEntryWidget::Init(Container &InOwner)
+void UI::EditRoomEntryWidget::Init(Container &InOwner)
 {
     Container::Init(InOwner);
 
@@ -46,39 +46,28 @@ void UI::RoomEntryWidget::Init(Container &InOwner)
     });
 }
 
-void UI::RoomEntryWidget::Update(Container &InOwner)
+void UI::EditRoomEntryWidget::Update(Container &InOwner)
 {
     Container::Update(InOwner);
     if (IsClicked())
-        InstanceEvent<RoomEntryData>::Invoke(data);
+        InstanceEvent<EditRoomEntryData>::Invoke(data);
 }
 
-void UI::RoomEntryWidget::UpdateInfo(const RoomEntryData &InData)
+void UI::EditRoomEntryWidget::UpdateInfo(const EditRoomEntryData &InData)
 {
     CHECK_RETURN(InData.add || data.add);
 
-    if (InData.entry.ID.Get().empty())
-    {
-        CHECK_RETURN(!InData.resource.Identifier().IsValid());
-        CHECK_RETURN(InData.resource != data.resource);
-    }
-    else
-    {
-        CHECK_RETURN(InData.entry.ID != data.entry.ID);
-    }
-
+    CHECK_RETURN(!InData.resource.Identifier().IsValid());
+    CHECK_RETURN(InData.resource != data.resource);
+    
     data = InData;
     
-    String name = data.entry.Name;
-    String thumbPath = "";
+    String name = "";
+    String thumbPath = data.resource.Identifier().Str() + ".png";
     
     if (auto res = data.resource.Get())
-    {
         if (!res->data.Name.Get().empty() && name.empty())
             name = res->data.Name;
-        thumbPath = data.resource.Identifier().Str() + ".png";
-            
-    }
 
     if (name.empty())
         name = "Untitled";

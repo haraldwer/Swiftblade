@@ -170,7 +170,7 @@ void UI::Container::Remove(const ElementID InID)
 
 void UI::Container::RemoveChild(const int InIndex)
 {
-    CHECK_ASSERT(InIndex < 0 || InIndex >= children.size(), "Invalid index");
+    CHECK_ASSERT(InIndex < 0 || InIndex >= static_cast<int>(children.size()), "Invalid index");
     Remove(children.at(InIndex));
 }
 

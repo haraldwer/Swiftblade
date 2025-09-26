@@ -38,6 +38,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += ProcessScene(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
+    stats += RenderSurfaces(InArgs);
     stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
     stats += RenderFX(InArgs);
@@ -105,10 +106,21 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderDeferred(const RenderArgs&
 {
     PROFILE_GL();
     Stats stats;
-    const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
-    auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
-    stats.deferredDrawCount = DeferredRenderer::DrawDeferredScene(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
+    auto& surfaceTarget = InArgs.viewportPtr->targets.surfaceTarget;
+    auto& ssaoTarget = InArgs.viewportPtr->targets.aoTargets.Curr();
+    stats.deferredDrawCount = DeferredRenderer::DrawDeferredScene(InArgs, surfaceTarget, { &sceneTarget, &ssaoTarget });
+    return stats;
+}
+
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderSurfaces(const RenderArgs &InArgs)
+{
+    PROFILE_GL();
+    Stats stats;
+    auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
+    auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
+    auto& surfaceTarget = InArgs.viewportPtr->targets.surfaceTarget;
+    stats.fullscreenPasses += DeferredRenderer::DrawSurfaces(InArgs, frameTarget, { &sceneTarget, &surfaceTarget });
     return stats;
 }
 
@@ -117,9 +129,10 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLights(const RenderArgs& I
     PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
-    const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
+    auto& surfaceTarget = InArgs.viewportPtr->targets.surfaceTarget;
     auto& ssaoTargets = InArgs.viewportPtr->targets.aoTargets;
-    stats.lights += LightsRenderer::DrawLights(InArgs, frameTarget, { &sceneTarget, &ssaoTargets.Curr() });
+    const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
+    stats.lights += LightsRenderer::DrawLights(InArgs, frameTarget, { &sceneTarget, &surfaceTarget, &ssaoTargets.Curr() });
     return stats;
 }
 

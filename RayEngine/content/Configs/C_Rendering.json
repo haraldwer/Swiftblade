@@ -1,15 +1,14 @@
 {
-	"DrawPhysicsWorld":true,
-	"DrawElementRects":true,
 	"Context":{
 		"FX":{
 			"Tonemapping":true,
+			"Distort":true,
 			"SSAO":true,
-			"MotionBlur":true,
-			"Bloom":true
+			"MotionBlur":true
 		},
 		"Lumin":{
 			"Enabled":false,
+			"InvalidateFallback":true,
 			"Viewport":{
 				"Height":4096,
 				"Width":4096
@@ -23,14 +22,14 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"TexSimplex",
-				"Val":"Defaults/T_Noise_Simplex.json"
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
+				"Key":"TexSimplex",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			}
 		]
 	},

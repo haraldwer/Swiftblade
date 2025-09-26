@@ -1,6 +1,15 @@
 {
 	"Components":[{
-			"Name":"Animator",
+			"Name":"Movement",
+			"Data":{}
+		},{
+			"Name":"PlayerInput",
+			"Data":{}
+		},{
+			"Name":"Player",
+			"Data":{}
+		},{
+			"Name":"PlayerCamera",
 			"Data":{}
 		},{
 			"Name":"Attributes",
@@ -8,13 +17,13 @@
 				"Name":"Player"
 			}
 		},{
-			"Name":"Transform",
+			"Name":"Combat",
 			"Data":{}
 		},{
 			"Name":"Environment",
 			"Data":{}
 		},{
-			"Name":"PlayerCamera",
+			"Name":"Transform",
 			"Data":{}
 		},{
 			"Name":"Rigidbody",
@@ -24,22 +33,13 @@
 				"LockRotation":true
 			}
 		},{
-			"Name":"Combat",
+			"Name":"Animator",
 			"Data":{}
 		},{
 			"Name":"AnimationPoser",
 			"Data":{
 				"VisualizationMesh":"Gameplay/Player/M_Hand_Open.obj"
 			}
-		},{
-			"Name":"Player",
-			"Data":{}
-		},{
-			"Name":"PlayerInput",
-			"Data":{}
-		},{
-			"Name":"Movement",
-			"Data":{}
 		}
 	],
 	"Children":[{
@@ -73,18 +73,12 @@
 						}
 					},{
 						"Name":"Transform",
-						"Data":{
-							"Rotation":[
-								0.0,
-								0.0,
-								90.0
-							]
-						}
+						"Data":{}
 					},{
 						"Name":"Collider",
 						"Data":{
-							"Material":"Gameplay/Player/PM_Player.json",
-							"Shape":1
+							"Shape":1,
+							"Material":"Gameplay/Player/PM_Player.json"
 						}
 					}
 				]
@@ -110,23 +104,23 @@
 				"Children":[{
 						"Overrides":{
 							"Components":[{
-									"Name":"Mesh",
-									"Data":{
-										"Mask":1,
-										"Material":"Gameplay/Player/RM_Hands.json",
-										"Model":"Gameplay/Player/M_Hand_Open.obj"
-									}
-								},{
 									"Name":"Attributes",
 									"Data":{
 										"Name":"LeftMesh"
+									}
+								},{
+									"Name":"Mesh",
+									"Data":{
+										"Material":"Gameplay/Player/RM_Hands.json",
+										"Model":"Gameplay/Player/M_Hand_Open.obj",
+										"Mask":1
 									}
 								},{
 									"Name":"Transform",
 									"Data":{
 										"Rotation":[
 											0.0,
-											-90.00019836425781,
+											-90.00022888183594,
 											0.0
 										],
 										"Scale":[
@@ -162,23 +156,23 @@
 				"Children":[{
 						"Overrides":{
 							"Components":[{
-									"Name":"Mesh",
-									"Data":{
-										"Mask":1,
-										"Material":"Gameplay/Player/RM_Hands.json",
-										"Model":"Gameplay/Player/M_Hand_Open.obj"
-									}
-								},{
 									"Name":"Attributes",
 									"Data":{
 										"Name":"RightMesh"
+									}
+								},{
+									"Name":"Mesh",
+									"Data":{
+										"Material":"Gameplay/Player/RM_Hands.json",
+										"Model":"Gameplay/Player/M_Hand_Open.obj",
+										"Mask":1
 									}
 								},{
 									"Name":"Transform",
 									"Data":{
 										"Rotation":[
 											0.0,
-											-90.00012969970703,
+											-90.0001449584961,
 											0.0
 										],
 										"Scale":[
@@ -209,9 +203,9 @@
 								1.2000000476837158
 							],
 							"Rotation":[
-								7.424868106842041,
-								15.106159210205078,
-								-8.367191314697266
+								7.424867630004883,
+								15.106161117553711,
+								-8.367192268371582
 							],
 							"Scale":[
 								1.0000001192092896,

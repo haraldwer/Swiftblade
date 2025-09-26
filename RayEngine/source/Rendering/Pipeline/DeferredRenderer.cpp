@@ -208,7 +208,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
         int texSlot = 0;
         for (auto& b : InBuffers)
             if (b) b->Bind(*shaderResource, texSlot);
-        LuminRenderer::ApplyLumin(InArgs, *shaderResource, texSlot);
+        
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
         
         for (auto& perspective : InArgs.perspectives)
@@ -221,4 +221,44 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
         }
     }
     return static_cast<int>(passes.size());
+}
+
+int Rendering::DeferredRenderer::DrawSurfaces(const RenderArgs &InArgs, const RenderTarget &InTarget, const Vector<RenderTarget *> &InBuffers)
+{
+    PROFILE_GL_NAMED("Deferred pass");
+    
+    ShaderResource* shaderResource = InArgs.contextPtr->config.FX.Get().SurfaceShader.Get().Get();
+    CHECK_RETURN(!shaderResource, 0);
+    const Shader* shader = shaderResource->Get();
+    CHECK_RETURN(!shader, 0);
+
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.size = InTarget.Size();
+    frameCmd.clearTarget = true;
+    rlState::current.Set(frameCmd);
+    
+    ShaderCommand shaderCmd;
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    rlState::current.Set(shaderCmd);
+
+    SetFrameShaderValues(InArgs, *shaderResource);
+    
+    int texSlot = 0;
+    for (auto& b : InBuffers)
+        if (b) b->Bind(*shaderResource, texSlot);
+    
+    LuminRenderer::ApplyLumin(InArgs, *shaderResource, texSlot);
+    
+    for (auto& perspective : InArgs.perspectives)
+    {
+        PerspectiveCommand perspCmd;
+        perspCmd.rect = perspective.targetRect;
+        rlState::current.Set(perspCmd);
+        SetPerspectiveShaderValues(InArgs, perspective, InTarget, *shaderResource);
+        DrawQuad();
+    }
+    
+    return 1;    
 }

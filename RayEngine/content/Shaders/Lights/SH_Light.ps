@@ -8,6 +8,7 @@
 #include "Shaders/PBR/SH_PBR_Light.si"
 
 const int MAX_LIGHTS = 10;
+const bool SCREEN_SPACE_SHADOWS = false;
 
 uniform vec4 Positions[MAX_LIGHTS]; // + ranges
 uniform vec4 Directions[MAX_LIGHTS]; // + cones
@@ -31,11 +32,11 @@ float Godrays(vec4 InWorldPos, vec3 InToLight)
 void main()
 {
     Output = vec4(0);
-    if (!CheckID(TexCoord, 0)) // Exclude skybox
-        return;
     
     vec4 worldPos = SampleWorldPos(TexCoord);
     vec3 normal = SampleNormal(TexCoord);
+    vec4 albedo = SampleAlbedo(TexCoord);
+    vec3 surface = SampleSurface(TexCoord);
     
     for (int i = 0; i < Lights; i++)
     {   
@@ -59,18 +60,18 @@ void main()
         float shadow = Shadow(toLightShadow, TexShadow, TexCoord, FaceTexel, shadowRect, range);
         if (shadow < 0.001f)
             continue;
-        //shadow = min(shadow, ScreenSpaceShadow(worldPos, position));
-        //if (shadow < 0.001f)
-        //    continue;
         
-        float ao = 1.0 - texture(TexAO, TexCoord).x;
-        vec3 albedo = vec3(1);
-        vec3 surface = vec3(1, 1, 0);
+        if (SCREEN_SPACE_SHADOWS)
+        {
+            shadow = min(shadow, ScreenSpaceShadow(worldPos, position));
+            if (shadow < 0.001f)
+                continue;
+        }
+        
         vec3 color = Colors[i].xyz * Colors[i].w * 10;
+        vec3 light = PBRLight(worldPos.xyz, normal, albedo.rgb, surface, position, color, range);
         
-        vec3 light = PBRLight(worldPos.xyz, normal, albedo, surface, position, color, range);
-        
-        Output.rgb += light;
+        Output.rgb += light * (1 - albedo.a);
         Output.a = 1;
     }
 }

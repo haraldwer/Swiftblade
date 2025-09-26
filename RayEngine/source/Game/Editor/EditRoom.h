@@ -1,29 +1,30 @@
 #pragma once
-#include "Database/Data/RPCSubmit.h"
 #include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Game/ECS/Volume/CubeVolumeData.h"
+#include "Resource/PropertyFile.h"
+#include "Resource/Resource.h"
+#include "Level/Room.h"
 
-struct RoomObject : PropertyOwner<RoomObject>
+struct EditRoomObject : PropertyOwner<EditRoomObject>
 {
     PROPERTY(ECS::VolumeCoordKey, Coord);
     PROPERTY(String, Object); // Object type, maps to a blueprint
     PROPERTY(int, Rotations);
 };
 
-typedef Map<ECS::VolumeCoordKey, RoomObject> RoomObjectMap; 
+typedef Map<ECS::VolumeCoordKey, EditRoomObject> EditRoomObjectMap; 
 
 // A room representation for the editor.
 // This room will be converted to a scene before being played.
-struct Room : PropertyOwner<Room>
+struct EditRoom : PropertyOwner<EditRoom>
 {
     PROPERTY(String, Name);
         
     PROPERTY_D(ECS::VolumeCoordKey, Connection, 0)
     PROPERTY(Vector<ECS::VolumeCoordKey>, Path);
-    PROPERTY(RoomObjectMap, Objects);
+    PROPERTY(EditRoomObjectMap, Objects);
 
-    // Cache the previous submit request, useful for stats
-    PROPERTY(DB::RPCSubmitRoom::Request, LastRequest);
+    PROPERTY(Room, RoomCache);
     
     ECS::CubeVolumeData volumeData;
     
@@ -37,3 +38,6 @@ struct Room : PropertyOwner<Room>
         volumeData.Serialize(InOutObj);
     }
 };
+
+typedef Resource::PropertyFile<EditRoom> EditRoomResource;
+typedef Resource::Ref<EditRoomResource> ResEditRoom;

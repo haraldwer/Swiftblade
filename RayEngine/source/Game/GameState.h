@@ -12,7 +12,6 @@ public:
 
     ECS::EntityID GetPlayerID() const { return playerID; }
 
-    int seed = 0;
     int deaths = 0;
     int checkpoint = 0;
     bool arena = false; 

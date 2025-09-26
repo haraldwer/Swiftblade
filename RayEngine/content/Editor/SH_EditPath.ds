@@ -3,17 +3,10 @@
 
 void main()
 {
-    DefaultMatte(vec3(0.1));
-
     vec3 pos = SampleWorldPos(TexCoord).xyz;
     vec3 normal = SampleNormal(TexCoord);
     float dist = length(pos - CameraPosition);
     float fade = DistanceFade(dist) * SurfaceFade(pos, normal);
-
-    Output.rgb *= mix(fade, 1.0f, 0.4);
     
-    //float camDir = normalize(pos - CameraPosition);
-    //vec3 dir = normalize((ViewProjInv * vec4(0, 0, -1, 1)).xyz); 
-    //float fresnel = abs(dot(camDir, dir));
-    //Output.rgb *= fresnel;
+    DefaultMatte(vec3(fade * 0.2));
 }

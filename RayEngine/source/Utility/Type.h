@@ -57,8 +57,8 @@ public: \
     static bool IsA(const Utility::Type& InType) { return InType == GetType() || parent::IsA(InType); } \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
-    Utility::Type GetObjType() const override { return GetType(); } \
-    String GetObjName() const override { return TypeName(); }
+    virtual Utility::Type GetObjType() const override { return self::GetType(); } \
+    virtual String GetObjName() const override { return self::TypeName(); }
 
 #define CLASS_INFO(self, parent) \
     STRUCT_INFO(self, parent) \

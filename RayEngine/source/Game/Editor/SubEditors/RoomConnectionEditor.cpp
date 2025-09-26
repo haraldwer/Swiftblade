@@ -5,7 +5,7 @@
 #include "ECS/Systems/Transform.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"
-#include "Editor/Room/Room.h"
+#include "../EditRoom.h"
 #include "History/History.h"
 #include "Input/Action.h"
 

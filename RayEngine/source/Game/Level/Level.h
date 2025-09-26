@@ -1,17 +1,18 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneResource.h"
-#include "Database/NetResource.h"
+#include "Resource/PropertyFile.h"
+#include "Room.h"
 
-struct Level : PropertyOwner<Level>
+// The actual level being played
+struct LevelConfig : PropertyOwner<LevelConfig>
 {
-    PROPERTY(String, Name);
-    PROPERTY(String, Creator);
-    PROPERTY(String, LastEdit);
+    PROPERTY(int, Seed);
+    PROPERTY(int, ProppingSeed);
     
-    PROPERTY(ResScene, SectionStart)
-    PROPERTY(ResScene, SectionEnd);
-    PROPERTY(ResScene, GameStart);
-    PROPERTY(ResScene, GameEnd);
+    PROPERTY_D(ResScene, SectionStart, "Scenes/S_GameStart.json")
+    PROPERTY_D(ResScene, SectionEnd, "Scenes/S_GameEnd.json");
+    PROPERTY_D(ResScene, GameStart, "Scenes/S_SectionStart.json");
+    PROPERTY_D(ResScene, GameEnd, "Scenes/S_SectionEnd.json");
 
     // Number of rooms per section
     PROPERTY(int, NumRooms);
@@ -20,6 +21,19 @@ struct Level : PropertyOwner<Level>
     // Number of arenas AKA number of sections
     PROPERTY(int, NumArenas);
     PROPERTY(Vector<ResScene>, Arenas);
+};
+
+// The level being passed around in the backend
+struct Level : PropertyOwner<Level>
+{
+    PROPERTY(String, Name);
+    PROPERTY(String, Creator);
+    PROPERTY(String, LastEdit);
+
+    PROPERTY(int, NumRooms);
+    PROPERTY(Vector<RoomEntry>, Rooms);
+    PROPERTY(int, NumArenas);
+    PROPERTY(Vector<RoomEntry>, Arenas);
 };
 
 typedef Resource::PropertyFile<Level> LevelResource;

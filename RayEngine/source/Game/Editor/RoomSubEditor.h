@@ -2,7 +2,7 @@
 #include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Engine/ECS/Entity.h"
 
-struct Room;
+struct EditRoom;
 class RoomEditor;
 
 namespace Utility
@@ -44,7 +44,7 @@ public:
     ECS::CubeVolume& GetVolume() const;
     Utility::History& GetHistory() const;
     RoomEditor& GetEditor() const;
-    Room& GetRoom() const;
+    EditRoom& GetRoom() const;
 
     Type GetCurrent() const;
     bool IsCurrent() const { return GetCurrent() == GetObjType(); }

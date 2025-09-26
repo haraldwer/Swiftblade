@@ -3,7 +3,7 @@
 #include "RoomConnectionEditor.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"
-#include "Editor/Room/Room.h"
+#include "../EditRoom.h"
 #include "Generation/RoomGenPath.h"
 #include "Input/Action.h"
 

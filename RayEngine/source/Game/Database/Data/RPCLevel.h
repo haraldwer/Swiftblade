@@ -1,7 +1,21 @@
 #pragma once
+#include "Level/Level.h"
 
 namespace DB
 {
+    struct RPCLevelInfo : PropertyOwner<RPCLevelInfo>
+    {
+        struct Request : PropertyOwner<Request>
+        {
+            PROPERTY(String, ID);
+        };
+
+        PROPERTY(String, ID);
+        PROPERTY(Level, Data);
+        
+        static String RPC() { return "rpc_level_info"; }
+    };
+
     struct RPCLevelList : PropertyOwner<RPCLevelList>
     {
         struct Request : PropertyOwner<Request>
@@ -24,23 +38,17 @@ namespace DB
         static String RPC() { return "rpc_level_list"; }
     };
 
-    struct RPCRoomList : PropertyOwner<RPCRoomList>
+    struct RPCSubmitLevel : PropertyOwner<RPCSubmitLevel>
     {
         struct Request : PropertyOwner<Request>
         {
-            PROPERTY(String, List);
+            PROPERTY(String, Hash);
+            PROPERTY(Level, Data);
         };
 
-        struct Entry : PropertyOwner<Entry>
-        {
-            PROPERTY(String, ID);
-            PROPERTY(String, Name);
-            PROPERTY(String, Creator);
-        };
+        String ID;
 
-        PROPERTY(String, List);
-        PROPERTY(Vector<Entry>, Entries);
-        
-        static String RPC() { return "rpc_room_list"; }
+        static String RPC() { return "rpc_submit_level"; }
     };
 }
+

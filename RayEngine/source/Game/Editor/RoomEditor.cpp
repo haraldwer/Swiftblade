@@ -1,8 +1,8 @@
 ﻿#include "RoomEditor.h"
 
-#include "../../../cmake-build-web-debug/_deps/raylib-src/src/raylib.h"
+#include "raylib.h"
 #include "Database/Manager.h"
-#include "Database/Data/RPCSubmit.h"
+#include "Database/Data/RPCRoom.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Engine/Instance/Manager.h"
 #include "Instances/GameInstance.h"
@@ -107,7 +107,7 @@ void RoomEditor::Frame()
     Instance::Frame();
 }
 
-void RoomEditor::SetRoom(const ResRoom &InRoom)
+void RoomEditor::SetRoom(const ResEditRoom &InRoom)
 {
     CHECK_RETURN_LOG(!InRoom.Identifier().IsValid(), "Invalid room: " + InRoom.Identifier().Str())
     roomResource = InRoom;
@@ -132,7 +132,7 @@ void RoomEditor::SaveRoom()
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot save room, invalid room resource");
     auto res = roomResource.Get();
     CHECK_RETURN_LOG(!res, "Failed to load resource");
-    UpdateSubmitRequest();
+    UpdateRoomCache();
     res->data = workingRoom;
     if (res->Save())
     {
@@ -196,17 +196,17 @@ ResScene RoomEditor::GetTempScene(const SceneInstance &InScene)
     return resScene;
 }
 
-void RoomEditor::UpdateSubmitRequest()
+void RoomEditor::UpdateRoomCache()
 {
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot submit room, invalid room resource");
     
-    DB::RPCSubmitRoom::Request request;
-    request.Name = workingRoom.Name;
+    Room room;
+    room.Name = workingRoom.Name;
     
     auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
     auto& vol = volEditor.GetVolume();
-    request.Size = (vol.cachedMaxBounds - vol.cachedMinBounds).To<int>();
-    request.Length = 0;
+    room.Size = (vol.cachedMaxBounds - vol.cachedMinBounds).To<int>();
+    room.Length = 0;
     Vec3F prev;
     for (auto& p : workingRoom.Path.Get())
     {
@@ -216,28 +216,31 @@ void RoomEditor::UpdateSubmitRequest()
             prev = pos;
             continue;
         }
-        request.Length += (pos - prev).Length();
+        room.Length += (pos - prev).Length();
         prev = pos;
     }
     
     for (auto& o : workingRoom.Objects.Get())
     {
         if (o.second.Object.Get() == "Spawner")
-            request.Spawners++;
+            room.Spawners++;
         else
-            request.Objects++;
+            room.Objects++;
     }
     
     SceneInstance scene = ConvertRoomToScene();
-    request.Scene = scene.ToStr(false);
-    workingRoom.LastRequest = request;
+    room.Scene = scene.ToStr(false);
+    workingRoom.RoomCache = room;
 }
 
 bool RoomEditor::SubmitRoom()
 {
-    UpdateSubmitRequest();
-    CHECK_RETURN_LOG(workingRoom.LastRequest.Get().Scene.Get().empty(), "Invalid submit request", false);
-    DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(workingRoom.LastRequest);
+    UpdateRoomCache();
+    CHECK_RETURN_LOG(workingRoom.RoomCache.Get().Scene.Get().empty(), "Invalid submit request", false);
+    
+    DB::RPCSubmitRoom::Request req;
+    req.Data = workingRoom.RoomCache;
+    DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(req);
     return true;
 }
 

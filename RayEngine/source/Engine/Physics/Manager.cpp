@@ -75,23 +75,23 @@ void Physics::Manager::Frame() const
 
         if (!draw)
         {
-            for (auto id : dynamic)
+            for (auto id : data)
             {
-                auto& e = data.at(id); 
-                CHECK_ASSERT(!e.rb, "Invalid rb");
-                e.rb->setIsDebugEnabled(false);
+                //auto& e = data.at(id); 
+                CHECK_ASSERT(!id.second.rb, "Invalid rb");
+                id.second.rb->setIsDebugEnabled(false);
             }
         }
     }
 
     CHECK_RETURN(!draw);
 
-    for (auto id : dynamic)
+    for (auto id : data)
     {
-        auto& e = data.at(id); 
-        CHECK_ASSERT(!e.rb, "Invalid rb");
-        if (!e.rb->isDebugEnabled())
-            e.rb->setIsDebugEnabled(true);
+        //auto& e = data.at(id); 
+        CHECK_ASSERT(!id.second.rb, "Invalid rb");
+        if (!id.second.rb->isDebugEnabled())
+            id.second.rb->setIsDebugEnabled(true);
     }
     
     Engine::Instance::Get().GetRenderScene().AddDebugFunc([&]()
@@ -119,6 +119,7 @@ void Physics::Manager::Frame() const
         if (numLines > 0)
         {
             auto* lines = renderer.getLinesArray();
+            //rlEnableWireMode();
             for (int i = 0; i < static_cast<int>(numLines); i++)
             {
                 rlBegin(RL_LINES);
@@ -129,16 +130,17 @@ void Physics::Manager::Frame() const
                 rlVertex3f(line.point2.x, line.point2.y, line.point2.z);
                 rlEnd();
             }
+            //rlDisableWireMode();
         }
 
         uint32 numTris = renderer.getNbTriangles();
         if (numTris > 0)
         {
             auto* triangles = renderer.getTrianglesArray();
-            rlEnableWireMode();
+            //rlEnableWireMode();
             for (int i  = 0; i < static_cast<int>(numTris); i++)
             {
-                rlBegin(RL_TRIANGLES);
+                rlBegin(RL_LINES);
                 auto& tri = triangles[i];
                 setColor(tri.color1);
                 rlVertex3f(tri.point1.x, tri.point1.y, tri.point1.z);
@@ -148,7 +150,7 @@ void Physics::Manager::Frame() const
                 rlVertex3f(tri.point3.x, tri.point3.y, tri.point3.z);
                 rlEnd(); 
             }
-            rlDisableWireMode();
+            //rlDisableWireMode();
         }
     });
 #endif
@@ -191,7 +193,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
         entity.rb->setIsAllowedToSleep(true);
 
         if (rb->LockRotation)
-            entity.rb->setAngularLockAxisFactor({1, 1, 1});
+            entity.rb->setAngularLockAxisFactor({0, 0, 0});
         
         // TODO: Maybe update center of mass to match rb position?
         // physRb->setLocalCenterOfMass();
@@ -206,7 +208,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     entity.shapes.push_back(shape);
     
     // Make collider transform relative to rb
-    Mat4F colliderLocal = colliderWorld * Mat4F::GetInverse(rbWorld);
+    Mat4F colliderLocal = rb ? colliderWorld * Mat4F::GetInverse(rbWorld) : Mat4F();
     auto c = entity.rb->addCollider(shape, GetTrans(colliderLocal));
     CHECK_ASSERT(!c, "Failed to add collider");
     entity.colliders.push_back(c);
@@ -239,7 +241,7 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
     
     if (!entity.rb)
     {
-        entity.rb = world->createRigidBody(GetTrans(t->World()));
+        entity.rb = world->createRigidBody(GetTrans(Mat4F()));
         CHECK_ASSERT(!entity.rb, "Failed to create Rigidbody");
     }
     
@@ -353,12 +355,12 @@ void Physics::Manager::SetRBTransforms()
     {
         auto trans = ecs.GetComponent<ECS::Transform>(d.first);
         CHECK_ASSERT(!trans, "Object has no transform");
-        Mat4F world = trans->World();
-        CHECK_CONTINUE(world == d.second.cache)
+        Mat4F mat = trans->World();
+        CHECK_CONTINUE(mat == d.second.cache)
         CHECK_ASSERT(!d.second.rb, "Invalid rb");
         CHECK_CONTINUE(d.second.rb->getType() == reactphysics3d::BodyType::STATIC);
-        d.second.rb->setTransform(GetTrans(world));
-        d.second.cache = world;
+        d.second.rb->setTransform(GetTrans(mat));
+        d.second.cache = mat;
     }
 
     // TODO: Maybe update rb properties for dynamics?

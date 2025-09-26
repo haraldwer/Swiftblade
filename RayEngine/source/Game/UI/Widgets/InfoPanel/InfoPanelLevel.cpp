@@ -1,6 +1,7 @@
 #include "InfoPanelLevel.h"
 
-#include "Database/Data/RPCLevelInfo.h"
+#include "Database/Manager.h"
+#include "Database/Data/RPCLevel.h"
 #include "Instance/Manager.h"
 #include "Instances/GameInstance.h"
 #include "UI/Builder.h"
@@ -10,8 +11,10 @@
 #include "UI/Widgets/Common/ButtonDefault.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
+#include "UI/Widgets/Common/NumberSelector.h"
 #include "UI/Widgets/Common/TextboxDefault.h"
 #include "UI/Widgets/LevelList/LevelEntryWidget.h"
+#include "UI/Widgets/LevelRoomList/LevelRoomList.h"
 
 void UI::InfoPanelLevel::Init(Container &InOwner)
 {
@@ -37,12 +40,14 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
                         .centering = { 0, 0.5 },
                     }), "NameEdit")
             .Pop()
+            .Add(NumberSelector(Transform::Fill(), { "Number of rooms", 5, 1, 1, {2, 10} }), "NumRooms")
             .Add(LabelHeader(), "Rooms")
-            .Push(List(Transform::Fill(10), {}, {{ 0, 0, 0, 0.5 }}), "RoomList")
+            .Push(LevelRoomList(Transform::Fill(10)), "RoomList")
                 // Add rooms here    
             .Pop()
+            .Add(NumberSelector(Transform::Fill(), { "Number of arenas", 3, 1, 1, {1, 5}}), "NumArenas")
             .Add(LabelHeader(), "Arenas")
-            .Push(List(Transform::Fill(10), {}, {{ 0, 0, 0, 0.5 }}), "ArenaList")
+            .Push(LevelRoomList(Transform::Fill(10)), "ArenaList")
                 // Add arenas here
             .Pop()
         .Pop()
@@ -100,7 +105,8 @@ void UI::InfoPanelLevel::Update(Container &InOwner)
     {
         if (auto game = Engine::Manager::Get().Push<GameInstance>())
         {
-            // Set level!
+            LevelConfig c;
+            game->PlayLevel(c);
         }
     }
 }
@@ -113,20 +119,15 @@ void UI::InfoPanelLevel::SetLevel(const LevelEntryData &InData)
         return;
     
     data = InData;
-
-    String name = data.entry.Name;
-    String creator = data.entry.Creator;
-
+    SetEntryInfo(data.entry);
+    
     // Not a local file, check cache
     if (!data.resource.Identifier().IsValid() && !data.entry.ID.Get().empty())
         data.resource = Utility::GetCachePath(data.entry.ID, ".json");
     
     if (auto res = data.resource.Get())
     {
-        name = res->data.Name;
-        creator = res->data.Creator;
-
-        // Show all the resource info!
+        SetResourceInfo(res->data);
     }
     else
     {
@@ -137,14 +138,6 @@ void UI::InfoPanelLevel::SetLevel(const LevelEntryData &InData)
 
         // Show loading
     }
-
-    if (name.empty())
-        name = "Untitled";
-    if (creator.empty())
-        creator = "you";
-    Get<Label>("Name").SetText(name);
-    Get<Textbox>("NameEdit").SetText(name);
-    Get<Label>("Creator").SetText("by " + creator);
 }
 
 void UI::InfoPanelLevel::RecieveInfo(const DB::Response<DB::RPCLevelInfo> &InResponse)
@@ -165,7 +158,7 @@ void UI::InfoPanelLevel::RecieveInfo(const DB::Response<DB::RPCLevelInfo> &InRes
     
     // Create cache level
     String path = Utility::GetCachePath(InResponse.data.ID, ".json");
-    if (!InResponse.data.Level.Get().Save(path))
+    if (!InResponse.data.Data.Get().Save(path))
     {
         LOG("Failed to save: " + path)
         return;
@@ -173,4 +166,41 @@ void UI::InfoPanelLevel::RecieveInfo(const DB::Response<DB::RPCLevelInfo> &InRes
 
     // Set the cache path
     data.resource = path;
+
+    // Update info
+    if (auto res = data.resource.Get())
+        SetResourceInfo(res->data);
+}
+
+void UI::InfoPanelLevel::SetEntryInfo(DB::RPCLevelList::Entry InEntry)
+{
+    String name = InEntry.Name;
+    String creator = InEntry.Creator;
+
+    if (name.empty())
+        name = "Untitled";
+    if (creator.empty())
+        creator = "you";
+    Get<Label>("Name").SetText(name);
+    Get<Textbox>("NameEdit").SetText(name);
+    Get<Label>("Creator").SetText("by " + creator);
+}
+
+void UI::InfoPanelLevel::SetResourceInfo(const Level& InData)
+{
+    String name = InData.Name;
+    String creator = InData.Creator;
+
+    if (name.empty())
+        name = "Untitled";
+    if (creator.empty())
+        creator = "you";
+    Get<Label>("Name").SetText(name);
+    Get<Textbox>("NameEdit").SetText(name);
+    Get<Label>("Creator").SetText("by " + creator);
+    
+    Get<NumberSelector>("NumRooms").SetValue(InData.NumRooms);
+    Get<LevelRoomList>("RoomList").SetEntries(InData.Rooms);
+    Get<NumberSelector>("NumArenas").SetValue(InData.NumArenas);
+    Get<LevelRoomList>("ArenaList").SetEntries(InData.Arenas);
 }

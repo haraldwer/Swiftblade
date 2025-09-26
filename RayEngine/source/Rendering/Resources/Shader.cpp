@@ -39,11 +39,10 @@ bool Rendering::ShaderResource::Load()
     }
     else
     {
-        String id = path;
-        if (id.ends_with(".fs") || id.ends_with(".vs"))
-            id = id.substr(0, id.length() - 3);
-        const String vs = id + ".vs";
-        const String fs = id + ".fs";
+        if (path.ends_with(".fs") || path.ends_with(".vs"))
+            path = path.substr(0, path.length() - 3);
+        const String vs = path + ".vs";
+        const String fs = path + ".fs";
         const String vsDefault = "Shaders/SH_Default.vs";
         const String fsDefault = "Shaders/SH_Default.fs";
         const String vsFile = Utility::FileExists(vs) ? vs : vsDefault;

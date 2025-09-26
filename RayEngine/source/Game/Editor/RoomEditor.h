@@ -6,9 +6,7 @@
 #include "Engine/Scene/SceneResource.h"
 #include "RoomSubEditorManager.h"
 #include "History/History.h"
-#include "Room/Room.h"
-#include "Room/RoomResource.h"
-#include "Game/Database/Data/RPCSubmit.h"
+#include "EditRoom.h"
 
 class MenuRoomEditor;
 
@@ -16,7 +14,7 @@ class MenuRoomEditor;
 struct RoomEditorConfig : BaseConfig<RoomEditorConfig>
 {
     PROPERTY_C(ResRM, Skybox, "Dressing/Skybox/RM_Skybox.json");
-    PROPERTY(ResRoom, LastRoom)
+    PROPERTY(ResEditRoom, LastRoom)
     PROPERTY(String, EditMode)
     PROPERTY(Vec3F, CamPos)
     PROPERTY(Vec3F, CamRot)
@@ -34,13 +32,11 @@ public:
     void Logic(double InDelta) override;
     void Frame() override;
 
-    void SetRoom(const ResRoom& InRoom);
+    void SetRoom(const ResEditRoom& InRoom);
     void LoadRoom();
     void PlayRoom();
 
     void SaveRoom();
-
-    
     bool SubmitRoom();
     
     void DrawDebugPanel() override;
@@ -49,20 +45,20 @@ public:
     bool IsEditor() const override { return true; }
     bool CanEdit() const;
 
-    Room& GetRoom() { return workingRoom; }
+    EditRoom& GetRoom() { return workingRoom; }
     RoomSubEditorManager& GetSubEditors() { return subEditorManager; }
     Utility::History& GetHistory() { return history; }
     MenuRoomEditor& GetMenu() { CHECK_ASSERT(!menu, "Invalid menu"); return *menu; }
 
 private:
     
-    void UpdateSubmitRequest();
+    void UpdateRoomCache();
     SceneInstance ConvertRoomToScene();
     static ResScene GetTempScene(const SceneInstance& InScene);
     static void SaveThumbnail(const String& InPath);
     
-    ResRoom roomResource;
-    Room workingRoom;
+    ResEditRoom roomResource;
+    EditRoom workingRoom;
     
     // Editor stuff
     MenuRoomEditor* menu = nullptr;

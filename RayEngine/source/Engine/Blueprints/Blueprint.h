@@ -19,7 +19,7 @@ public:
     bool Edit(const String& InName, uint32 InOffset = 0) override;
 
     ECS::EntityID Instantiate(const Mat4F& InTransform = Mat4F(), const Vector<DeserializeObj>& InOverrides = {}, ECS::EntityID InID = ECS::INVALID_ID) const;
-    void Save(ECS::EntityID InID);
+    void SaveEntity(ECS::EntityID InID);
 
 private:
     DeserializeObj GetObj() const;

@@ -17,6 +17,8 @@ void BlueprintEditor::Init()
     ecs.Init();
     editorCamera.Toggle(); 
     config.LoadConfig();
+    if (pendingBP.Identifier().IsValid())
+        config.Blueprint = pendingBP;
     SetBP(config.Blueprint);
 }
 
@@ -25,6 +27,11 @@ void BlueprintEditor::Deinit()
     Instance::Deinit();
     ecs.Deinit();
     config.SaveConfig();
+}
+
+void BlueprintEditor::SetPendingBP(const ResBlueprint &InBP)
+{
+    pendingBP = InBP;
 }
 
 void BlueprintEditor::SetBP(const ResBlueprint& InBP)
@@ -58,7 +65,7 @@ void BlueprintEditor::Logic(const double InDelta)
     {
         if (Input::Action::Get("Save").Pressed())
             if (BlueprintResource* bp = config.Blueprint.Get().Get())
-                bp->Save(instanceID); 
+                bp->SaveEntity(instanceID); 
         
         if (Input::Action::Get("Play").Pressed())
             Engine::Manager::Get().Push<GameInstance>();
@@ -82,7 +89,7 @@ void BlueprintEditor::DrawDebugPanel()
     ImGui::SameLine();
     if (ImGui::Button("Save"))
         if (BlueprintResource* bp = config.Blueprint.Get().Get())
-            bp->Save(instanceID);
+            bp->SaveEntity(instanceID);
 
     EditHierarhcy(selectedID);
     EditComponents(selectedID);

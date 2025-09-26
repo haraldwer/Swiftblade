@@ -16,6 +16,7 @@ Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderA
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs); 
     //stats += RenderDeferred(InArgs);
+    //stats += RenderSurfaces(InArgs);
 
     auto& frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();
     auto& scene = InArgs.viewportPtr->GetTargets().sceneTargets.Curr();

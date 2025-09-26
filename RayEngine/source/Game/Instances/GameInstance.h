@@ -6,6 +6,7 @@
 #include "Engine/Scene/SceneResource.h"
 #include "../Level/LevelManager.h"
 #include "ECS/Manager.h"
+#include "Level/Level.h"
 
 class GameInstance : public Engine::Instance, public Debug::Panel
 {
@@ -21,6 +22,7 @@ public:
     String DebugPanelName() const override { return "Gameplay"; }
     
     void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
+    void PlayLevel(const LevelConfig& InLevel);
     void SetState(const GameState& InState);
 
 private:
@@ -30,7 +32,8 @@ private:
     SceneInstance scene = {};
     LevelManager rooms = {};
     GameState state = {}; 
-    
+
+    LevelConfig level = {};
     ResScene startScene = {};
     Vec3F startPlayerPos = {};
 };

@@ -45,6 +45,7 @@ namespace Rendering
         static Stats RenderScene(const RenderArgs& InArgs);
         static Stats ProcessScene(const RenderArgs& InArgs);
         static Stats RenderDeferred(const RenderArgs& InArgs);
+        static Stats RenderSurfaces(const RenderArgs& InArgs);
         static Stats RenderLights(const RenderArgs& InArgs);
         static Stats RenderLumin(const RenderArgs& InArgs);
         static Stats RenderAO(const RenderArgs& InArgs);

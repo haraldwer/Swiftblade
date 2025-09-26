@@ -2,7 +2,6 @@
 
 #include "LevelEntryWidget.h"
 #include "Database/Manager.h"
-#include "Database/Data/RPCLevelList.h"
 #include "UI/Elements/Label.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/Separator.h"

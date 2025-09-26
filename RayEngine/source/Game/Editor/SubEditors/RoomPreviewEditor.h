@@ -2,7 +2,7 @@
 
 #include "../RoomSubEditor.h"
 #include "Database/Events.h"
-#include "Database/Data/RPCSubmit.h"
+#include "Database/Data/RPCRoom.h"
 #include "Editor/Menus/MenuRoomPreview.h"
 
 struct RoomSubmitEditorConfig : BaseConfig<RoomSubmitEditorConfig>

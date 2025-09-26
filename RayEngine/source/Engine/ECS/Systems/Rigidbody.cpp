@@ -7,14 +7,15 @@
 void ECS::Rigidbody::AddForce(const Vec3F& InForce) const
 {
     CHECK_RETURN(!ptr);
-    float dt = static_cast<float>(Utility::Time::Get().Delta());
-    ptr->applyWorldForceAtCenterOfMass(Physics::GetVec(InForce * dt)); 
+    ptr->applyWorldForceAtCenterOfMass(Physics::GetVec(InForce)); 
 }
 
 void ECS::Rigidbody::AddImpulse(const Vec3F& InForce) const
 {
     CHECK_RETURN(!ptr);
-    ptr->applyWorldForceAtCenterOfMass(Physics::GetVec(InForce));
+    Vec3F vel = Physics::GetVec(ptr->getLinearVelocity());
+    vel += InForce / Mass.Get();
+    ptr->setLinearVelocity(Physics::GetVec(vel));
 }
 
 void ECS::Rigidbody::SetVelocity(const Vec3F& InVelocity) const

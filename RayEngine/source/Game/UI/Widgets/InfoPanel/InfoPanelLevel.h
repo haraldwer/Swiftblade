@@ -1,5 +1,7 @@
 #pragma once
-#include "Database/Data/RPCLevelInfo.h"
+#include "Database/Events.h"
+#include "Database/Data/Response.h"
+#include "Database/Data/RPCLevel.h"
 #include "UI/Elements/Container.h"
 #include "UI/Widgets/LevelList/LevelEntryWidget.h"
 
@@ -17,7 +19,11 @@ namespace UI
         void SetLevel(const LevelEntryData& InData);
 
     private:
+
         void RecieveInfo(const DB::Response<DB::RPCLevelInfo>& InResponse);
+
+        void SetEntryInfo(DB::RPCLevelList::Entry InEntry);
+        void SetResourceInfo(const Level & InData);
         
         LevelEntryData data;
         DB::Event<DB::RPCLevelInfo>::ContextCallback<InfoPanelLevel*> onInfo;

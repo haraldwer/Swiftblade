@@ -1,13 +1,13 @@
 #pragma once
 #include "../LevelList/LevelEntryWidget.h"
-#include "../RoomList/RoomEntryWidget.h"
+#include "../EditRoomList/EditRoomEntryWidget.h"
 #include "UI/Elements/Container.h"
 #include "Utility/EventScopes.h"
 
 namespace UI
 {
     class InfoPanel;
-    typedef InstanceEvent<RoomEntryData>::ContextCallback<InfoPanel*> RoomCallback;
+    typedef InstanceEvent<EditRoomEntryData>::ContextCallback<InfoPanel*> EditRoomCallback;
     typedef InstanceEvent<LevelEntryData>::ContextCallback<InfoPanel*> LevelCallback;
 
     class InfoPanel : public Container
@@ -16,25 +16,25 @@ namespace UI
     public:
         InfoPanel()
         {
-            onRoomSelected.SetContext(this);
+            onEditRoomSelected.SetContext(this);
             onLevelSelected.SetContext(this);
         }
         
         InfoPanel(const InfoPanel& InOther) :
             Container(InOther),
-            onRoomSelected(InOther.onRoomSelected),
+            onEditRoomSelected(InOther.onEditRoomSelected),
             onLevelSelected(InOther.onLevelSelected)
         {
-            onRoomSelected.SetContext(this);
+            onEditRoomSelected.SetContext(this);
             onLevelSelected.SetContext(this);
         }
         
         void Init(Container& InOwner) override;
-        void SetRoom(const RoomEntryData& InEvent);
+        void SetEditRoom(const EditRoomEntryData& InEvent);
         void SetLevel(const LevelEntryData& InEvent);
 
     private:
-        RoomCallback onRoomSelected;
+        EditRoomCallback onEditRoomSelected;
         LevelCallback onLevelSelected;
     };
 }

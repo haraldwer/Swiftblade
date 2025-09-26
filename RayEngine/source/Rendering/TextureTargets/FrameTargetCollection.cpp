@@ -1,6 +1,7 @@
 #include "FrameTargetCollection.h"
 
 #include "raylib.h"
+#include "rlgl.h"
 #include "Context/FXConfig.h"
 
 void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const FXConfig &InFX)
@@ -17,6 +18,13 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
             t.EndSetup(InTarget);
         }
     }
+
+    if (surfaceTarget.TryBeginSetup(InTarget))
+    {
+        surfaceTarget.CreateBuffer("TexAlbedo", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        surfaceTarget.CreateBuffer("TexSurface", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        surfaceTarget.EndSetup(InTarget);
+    }
     
     for (auto& target : frameTargets.All())
         target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
@@ -24,7 +32,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
     if (InFX.SSAO)
     {
         for (auto& target : aoTargets.All())
-            target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, InFX.SSAOScale);
+            target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, InFX.SSAOScale, RL_TEXTURE_FILTER_LINEAR);
     }
 
     if (InFX.Bloom && InFX.BloomPasses.Get() >= 2)
@@ -33,7 +41,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
         bloomTargets = SwapTarget(InFX.BloomPasses);
         for (auto& target : bloomTargets.All())
         {
-            target.Setup(InTarget, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R16G16B16, bloomScale);
+            target.Setup(InTarget, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R16G16B16, bloomScale, RL_TEXTURE_FILTER_LINEAR);
             bloomScale *= InFX.BloomDownscale;
         }
     }
@@ -55,8 +63,9 @@ OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameT
 {
     OrderedMap<String, Vector<RenderTarget::TargetTex>> result; 
     result["Scene"] = sceneTargets.Curr().GetTextures();
-    result["SSAO"] = aoTargets.Curr().GetTextures();
+    result["Surface"] = surfaceTarget.GetTextures();
     result["Frame"] = frameTargets.Curr().GetTextures();
+    result["AO"] = aoTargets.Curr().GetTextures();
     result["Bloom"] = bloomTargets.Curr().GetTextures();
     return result;
 }
