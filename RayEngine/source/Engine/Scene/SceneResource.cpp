@@ -57,8 +57,12 @@ SceneInstance SceneResource::Instantiate(const Mat4F& InOffset, bool InIsRoot) c
 {
     SceneInstance instance;
     if (!InIsRoot)
+    {
+        LOG("Isnt root, loading offset")
         if (doc.HasMember("Data") && doc["Data"].IsObject())
-            Utility::Deserialize(doc["Data"].GetObj(), "Offset", instance.offset);
+            if (Utility::Deserialize(doc["Data"].GetObj(), "Offset", instance.offset))
+                LOG(instance.offset)
+    }
     instance.offset *= InOffset;
     
     CHECK_RETURN(!doc.HasMember("Objects"), {})
@@ -103,18 +107,20 @@ bool SceneResource::FromStr(const String &InStr)
 
 bool SceneResource::Load()
 {
+    if (id.Unique())
+        return true;
     if (!Utility::FileExists(id.Str()))
     {
         doc.Parse("{}");
         LOG("Scene file does not exist");
-        return true;
+        return false;
     }
     const String fileContent = Utility::ReadFile(id.Str());
     if (fileContent.empty())
     {
         doc.Parse("{}");
         LOG("Scene file empty")
-        return true;
+        return false;
     }
     return FromStr(fileContent);
 }

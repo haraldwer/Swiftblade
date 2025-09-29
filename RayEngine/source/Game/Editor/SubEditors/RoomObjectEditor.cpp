@@ -109,7 +109,6 @@ void RoomObjectEditor::Update()
     if (Input::Action::Get("LM").Pressed())
     {
         TryPickObject();
-        
         if (placeObj.Coord != 0 && placeID != ECS::INVALID_ID &&
             Input::Action::Get("Ctrl").Down())
             RemoveObject();

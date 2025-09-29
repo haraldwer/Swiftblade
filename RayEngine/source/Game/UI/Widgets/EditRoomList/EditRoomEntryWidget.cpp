@@ -66,8 +66,8 @@ void UI::EditRoomEntryWidget::UpdateInfo(const EditRoomEntryData &InData)
     String thumbPath = data.resource.Identifier().Str() + ".png";
     
     if (auto res = data.resource.Get())
-        if (!res->data.Name.Get().empty() && name.empty())
-            name = res->data.Name;
+        if (!res->data.Info.Get().Name.Get().empty() && name.empty())
+            name = res->data.Info.Get().Name;
 
     if (name.empty())
         name = "Untitled";

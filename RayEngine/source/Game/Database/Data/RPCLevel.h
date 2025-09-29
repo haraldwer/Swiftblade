@@ -27,9 +27,11 @@ namespace DB
         {
             PROPERTY(String, ID);
             PROPERTY(String, Name);
-            PROPERTY(String, Creator);
-            PROPERTY_D(int, Plays, 0);
-            PROPERTY_D(bool, Fav, false);
+            PROPERTY(String, CreatorID);
+            PROPERTY(String, CreatorName);
+            PROPERTY_D(int, Rank, 0);
+            PROPERTY_D(int, Score, 0);
+            PROPERTY(String, Date);
         };
 
         PROPERTY(String, List);
@@ -46,7 +48,10 @@ namespace DB
             PROPERTY(Level, Data);
         };
 
-        String ID;
+        PROPERTY(String, ID);
+        PROPERTY(String, Error);
+        PROPERTY(bool, Success);
+        
 
         static String RPC() { return "rpc_submit_level"; }
     };

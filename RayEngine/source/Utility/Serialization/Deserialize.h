@@ -151,7 +151,7 @@ namespace Utility
         DESERIALIZE_CHECK_RETURN(arr.Size() != 16, "Invalid array size: " + std::to_string(arr.Size()));
         for (int32 i = 0; i < 16; i++)
         {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
+            DESERIALIZE_CHECK_RETURN(!arr[i].IsNumber(), "Array incorrect type, expected float");
             OutData.data[i] = arr[i].GetFloat();
         }
         return true;

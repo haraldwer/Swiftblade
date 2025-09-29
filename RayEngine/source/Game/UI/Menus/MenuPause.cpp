@@ -29,7 +29,7 @@ void MenuPause::Update()
 
     if (Input::Action::Get("Back").Pressed() ||
         ui["Resume"].IsClicked())
-        Menu::Manager::Get().Pop();
+        Menu::Manager::Get().Close(this);
 
     if (ui["Quit"].IsClicked())
         Engine::Manager::Get().Pop();

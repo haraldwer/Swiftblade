@@ -31,7 +31,7 @@ namespace ECS
         
         Vec3F CoordToPos(VolumeCoord InCoord, const Mat4F& InWorld = Mat4F()) const;
         VolumeCoord PosToCoord(const Vec3F& InPos, const Mat4F& InWorld = Mat4F()) const;
-        static VolumeCoord GetCenter();
+        static VolumeCoord GetVolumeStart();
 
         static VolumeCoord TryOffset(VolumeCoord InCoord, Vec3I InOffset);
         static Array<VolumeCoord, 6> GetNeighbors(VolumeCoord InCoord);

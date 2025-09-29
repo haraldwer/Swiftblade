@@ -45,19 +45,11 @@ String Utility::ReadFile(const String& InPath)
 
 Vector<String> Utility::ListFiles(const String &InPath)
 {
-    if (!std::filesystem::exists(InPath))
-        return {};
-    
+    CHECK_RETURN(!std::filesystem::exists(InPath), {})
     Vector<String> result;
     for (auto& e : std::filesystem::directory_iterator(InPath))
-    {
         if (!e.is_directory())
-        {
-            String path = e.path().relative_path().string();
-            LOG("Path found: " + path);
-            result.push_back(path);
-        }
-    }
+            result.push_back(e.path().relative_path().string());
     return result;
 }
 

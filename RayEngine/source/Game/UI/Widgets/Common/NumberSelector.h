@@ -25,9 +25,12 @@ namespace UI
         void ChangeValue(float InDelta);
         void SetValue(float InValue);
         float GetValue() const;
+        int GetValueInt() const { return static_cast<int>(roundf(value)); }
+        bool IsChanged() const { return changed; }
 
     private:
         NumberSelectorProperties properties;
         float value = 0.0f;
+        bool changed = false;
     };
 }

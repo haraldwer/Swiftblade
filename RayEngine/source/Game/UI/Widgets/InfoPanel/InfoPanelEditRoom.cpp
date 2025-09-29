@@ -74,9 +74,9 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
         String text = tbx.GetText();
         if (auto res = room.Get())
         {
-            if (text != res->data.Name.Get())
+            if (text != res->data.Info.Get().Name.Get())
             {
-                res->data.Name = text;
+                res->data.Info.Get().Name = text;
                 res->Save();
             
                 if (text.empty())
@@ -116,12 +116,12 @@ void UI::InfoPanelEditRoom::SetText(const String &InEntry, const String &InText)
 
 void UI::InfoPanelEditRoom::SetResourceInfo(const EditRoom& InRoom)
 {
-    String name = InRoom.Name;
+    String name = InRoom.Info.Get().Name;
     if (name.empty())
         name = "Untitled";
     String creator = DB::Manager::Get().user.GetUsername();
 
-    auto& req = InRoom.RoomCache.Get();
+    auto& req = InRoom.Info.Get();
     Vec3I size = req.Size;
     int objects = req.Objects;
     float length = req.Length;

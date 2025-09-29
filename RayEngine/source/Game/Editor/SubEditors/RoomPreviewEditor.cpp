@@ -49,7 +49,7 @@ void RoomPreviewEditor::Enter()
 void RoomPreviewEditor::Exit()
 {
     RoomSubEditor::Exit();
-    Menu::Manager::Get().Pop();
+    Menu::Manager::Get().Close(previewMenu);
     previewMenu = nullptr;
 }
 

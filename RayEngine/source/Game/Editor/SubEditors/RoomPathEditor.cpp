@@ -76,7 +76,7 @@ void RoomPathEditor::Update()
         {
             LOG("Generating path!");
             Vector<ECS::VolumeCoordKey> prevPath = path; 
-            ECS::VolumeCoord startCoord = GetVolume().GetCenter();
+            ECS::VolumeCoord startCoord = GetVolume().GetVolumeStart();
             ECS::VolumeCoord endCoord = GetRoom().Connection.Get();
             double time = Utility::Time::Get().Total();
             RoomGenPath pathGenerator = RoomGenPath(startCoord, endCoord, static_cast<int>(time * 100));
@@ -133,9 +133,10 @@ void RoomPathEditor::SmoothPath()
     {
         smoothPath.resize(path.size());
         renderCacheChanged = true;
+        smoothPath[0] = Vec3F::Zero();
     }
     
-    for (int i = 0; i < static_cast<int>(path.size()); ++i)
+    for (int i = 1; i < static_cast<int>(path.size()); ++i)
     {
         Vec3F targetPos = volume.CoordToPos(path[i]);
         Vec3F currPos = smoothPath[i];
@@ -173,6 +174,7 @@ void RoomPathEditor::Frame()
 {
     CHECK_RETURN(!IsCurrent());
     CHECK_RETURN(!renderCacheChanged);
+    renderCacheChanged = false;
         
     auto& meshes = GetEditor().GetRenderScene().Meshes();
     meshes.Remove(pointHash, pointID);
@@ -217,7 +219,7 @@ void RoomPathEditor::VerifyPath() const
     auto& room = GetRoom();
     auto& path = room.Path.Get();
 
-    auto startCoord = GetVolume().GetCenter().key;
+    auto startCoord = GetVolume().GetVolumeStart().key;
     auto endCoord = room.Connection.Get();
 
     if (path.empty() || path.front() != startCoord)

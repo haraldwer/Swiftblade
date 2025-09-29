@@ -42,9 +42,7 @@ void RoomEditor::Init()
     }
     else
     {
-        auto& volume = subEditorManager.Get<RoomConnectionEditor>().GetVolume();
-        ECS::VolumeCoord center = volume.GetCenter();
-        editorCamera.SetTarget(volume.CoordToPos(center));
+        editorCamera.SetTarget(Vec3F::One());
     }
     
     Input::Manager::Get().Push("RoomEditor");
@@ -132,7 +130,7 @@ void RoomEditor::SaveRoom()
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot save room, invalid room resource");
     auto res = roomResource.Get();
     CHECK_RETURN_LOG(!res, "Failed to load resource");
-    UpdateRoomCache();
+    UpdateRoomInfo();
     res->data = workingRoom;
     if (res->Save())
     {
@@ -196,12 +194,12 @@ ResScene RoomEditor::GetTempScene(const SceneInstance &InScene)
     return resScene;
 }
 
-void RoomEditor::UpdateRoomCache()
+void RoomEditor::UpdateRoomInfo()
 {
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot submit room, invalid room resource");
     
-    Room room;
-    room.Name = workingRoom.Name;
+    RoomInfo room;
+    room.Name = workingRoom.Info.Get().Name;
     
     auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
     auto& vol = volEditor.GetVolume();
@@ -228,18 +226,18 @@ void RoomEditor::UpdateRoomCache()
             room.Objects++;
     }
     
-    SceneInstance scene = ConvertRoomToScene();
-    room.Scene = scene.ToStr(false);
-    workingRoom.RoomCache = room;
+    workingRoom.Info = room;
 }
 
 bool RoomEditor::SubmitRoom()
 {
-    UpdateRoomCache();
-    CHECK_RETURN_LOG(workingRoom.RoomCache.Get().Scene.Get().empty(), "Invalid submit request", false);
+    SceneInstance scene = ConvertRoomToScene();
+    String sceneStr = scene.ToStr(false);
+    CHECK_RETURN_LOG(sceneStr.empty(), "Invalid submit request", false);
     
     DB::RPCSubmitRoom::Request req;
-    req.Data = workingRoom.RoomCache;
+    req.Info = workingRoom.Info;
+    req.Scene = sceneStr;
     DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(req);
     return true;
 }

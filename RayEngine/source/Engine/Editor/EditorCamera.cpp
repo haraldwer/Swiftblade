@@ -58,6 +58,7 @@ void EditorCamera::SetTarget(const Vec3F& InPosition, const float InDistance)
     const Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();
     targetState.position = InPosition - dir * InDistance;
     targetState.rotation = QuatF::FromDirection(dir).Euler();
+    targetState.rotation *= Vec3F(1, 1, 0);
     currentState = targetState;
 }
 

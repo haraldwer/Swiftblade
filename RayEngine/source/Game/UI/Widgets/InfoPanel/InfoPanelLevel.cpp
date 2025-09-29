@@ -8,6 +8,8 @@
 #include "UI/Elements/Image.h"
 #include "UI/Elements/List.h"
 #include "UI/Elements/TabContainer.h"
+#include "UI/Menus/MenuLevelPlay.h"
+#include "UI/Menus/MenuLevelSubmit.h"
 #include "UI/Widgets/Common/ButtonDefault.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
@@ -56,8 +58,10 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
                 .anchor = {1, 1},
                 .pivot = {1, 1}
             },  {
-                .direction = ListDirection::HORIZONTAL
+                .spacing = 5,
+                .direction = ListDirection::HORIZONTAL,
             }))
+            .Add(ButtonDefault({}, "Submit"), "Submit")
             .Add(ButtonDefault({}, "Play"), "Play");
     Add(b.Build());
 
@@ -66,6 +70,16 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
     onInfo.Bind([](const auto& InData, auto InC)
     {
         InC->RecieveInfo(InData);
+    });
+
+    onSubmitClick.Bind([](const auto& InData, auto InC)
+    {
+        InC->SubmitClicked(InData);
+    });
+
+    onSubmit.Bind([](const auto& InData, auto InC)
+    {
+        InC->OnSubmitResponse(InData);
     });
 }
 
@@ -76,39 +90,61 @@ void UI::InfoPanelLevel::Update(Container &InOwner)
     if (Get<ButtonDefault>("EditName").IsClicked())
         Get<TabContainer>("NameTab").Set("NameEdit");
 
-    auto& tbx = Get<Textbox>("NameEdit");
-    if (tbx.IsCommitted())
+    if (auto res = data.resource.Get())
     {
-        String text = tbx.GetText();
-        if (text != data.entry.Name.Get())
+        auto& tbx = Get<Textbox>("NameEdit");
+        if (tbx.IsCommitted())
         {
-            if (text.empty())
-                text = "Untitled";
-
-            if (auto res = data.resource.Get())
+            String text = tbx.GetText();
+            if (text != data.entry.Name.Get())
             {
+                if (text.empty())
+                    text = "Untitled";
+                
                 res->data.Name = text;
                 res->Save();
-            }
 
-            data.entry.Name = text;
-            InstanceEvent<LevelEntryData>::Invoke(data);
+                data.entry.Name = text;
+                InstanceEvent<LevelEntryData>::Invoke(data);
             
-            // Apply new name!
-            Get<Label>("Name").SetText(text);
-        }
+                // Apply new name!
+                Get<Label>("Name").SetText(text);
+            }
         
-        Get<TabContainer>("NameTab").Set("NameShow");
+            Get<TabContainer>("NameTab").Set("NameShow");
+        }
+
+        auto& roomList = Get<LevelRoomList>("RoomList");
+        auto& arenaList = Get<LevelRoomList>("ArenaList");
+        auto& numRooms = Get<NumberSelector>("NumRooms"); 
+        auto& numArenas = Get<NumberSelector>("NumArenas"); 
+        if (numRooms.IsChanged() || numArenas.IsChanged() ||
+            roomList.IsChanged() || arenaList.IsChanged())
+        {
+            res->data.NumRooms = numRooms.GetValueInt();
+            res->data.NumArenas = numArenas.GetValueInt();
+            res->data.Rooms = roomList.GetEntries();
+            res->data.Arenas = arenaList.GetEntries();
+            if (!res->Save())
+            {
+                LOG("Failed to save resource: " + data.resource.Identifier().Str())
+            }
+        }
     }
     
     if (Get<ButtonDefault>("Play").IsClicked())
     {
-        if (auto game = Engine::Manager::Get().Push<GameInstance>())
+        if (playMenu == nullptr)
         {
-            LevelConfig c;
-            game->PlayLevel(c);
+            playMenu = Menu::Manager::Get().Push<MenuLevelPlay>();
+            if (playMenu)
+                playMenu->SetLevel(data);
         }
     }
+
+    if (Get<ButtonDefault>("Submit").IsClicked())
+        if (submitMenu == nullptr)
+            submitMenu = Menu::Manager::Get().Push<MenuLevelSubmit>();
 }
 
 void UI::InfoPanelLevel::SetLevel(const LevelEntryData &InData)
@@ -175,7 +211,7 @@ void UI::InfoPanelLevel::RecieveInfo(const DB::Response<DB::RPCLevelInfo> &InRes
 void UI::InfoPanelLevel::SetEntryInfo(DB::RPCLevelList::Entry InEntry)
 {
     String name = InEntry.Name;
-    String creator = InEntry.Creator;
+    String creator = InEntry.CreatorName;
 
     if (name.empty())
         name = "Untitled";
@@ -184,6 +220,11 @@ void UI::InfoPanelLevel::SetEntryInfo(DB::RPCLevelList::Entry InEntry)
     Get<Label>("Name").SetText(name);
     Get<Textbox>("NameEdit").SetText(name);
     Get<Label>("Creator").SetText("by " + creator);
+
+    Get<NumberSelector>("NumRooms").SetValue(0);
+    Get<LevelRoomList>("RoomList").SetEntries({});
+    Get<NumberSelector>("NumArenas").SetValue(0);
+    Get<LevelRoomList>("ArenaList").SetEntries({});
 }
 
 void UI::InfoPanelLevel::SetResourceInfo(const Level& InData)
@@ -204,3 +245,62 @@ void UI::InfoPanelLevel::SetResourceInfo(const Level& InData)
     Get<NumberSelector>("NumArenas").SetValue(InData.NumArenas);
     Get<LevelRoomList>("ArenaList").SetEntries(InData.Arenas);
 }
+
+void UI::InfoPanelLevel::SubmitClicked(const MenuLevelSubmit::OnClickedEvent &InE)
+{
+    if (InE.option == "Submit" && !submitting)
+    {
+        if (SubmitLevel())
+        {
+            submitMenu->BeginLoading();
+            submitting = true;
+        }
+        else
+        {
+            submitMenu->SetSubmitState(false, "Invalid submit request");
+        }
+    }
+    if (InE.option == "Return")
+    {
+        Menu::Manager::Get().Close(submitMenu);
+        submitMenu = nullptr;
+    }
+}
+
+bool UI::InfoPanelLevel::SubmitLevel() const
+{
+    CHECK_RETURN_LOG(!data.entry.ID.Get().empty(), "Level already submitted", false);
+    
+    auto res = data.resource.Get();
+    CHECK_RETURN_LOG(!res, "Invalid resource", false)
+    CHECK_RETURN_LOG(res->data.Rooms.Get().empty(), "No rooms", false);
+    CHECK_RETURN_LOG(res->data.Arenas.Get().empty(), "No arenas", false);
+    CHECK_RETURN_LOG(res->data.Name.Get().empty(), "No name", false);
+
+    DB::RPCSubmitLevel::Request request;
+    request.Data = res->data;
+    uint32 hash = Utility::Hash(res->data.ToStr());
+    request.Hash = Utility::ToStr(hash);
+    DB::Manager::Get().rpc.Request<DB::RPCSubmitLevel>(request);
+    return true;
+}
+
+void UI::InfoPanelLevel::OnSubmitResponse(const DB::Response<DB::RPCSubmitLevel> &InResp)
+{
+    submitting = false;
+    if (!InResp.success)
+    {
+        submitMenu->SetSubmitState(false, InResp.error);
+        return;
+    }
+    
+    if (!InResp.data.Success)
+    {
+        submitMenu->SetSubmitState(false, InResp.data.Error);
+        return;
+    }
+    
+    LOG("Level was submitted successfully!");
+    submitMenu->SetSubmitState(true, "");
+}
+

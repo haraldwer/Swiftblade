@@ -16,6 +16,7 @@ namespace Menu
         virtual void Draw();
         
         virtual bool IsBlocking() const { return true; }
+        virtual bool CanBePopped() const { return true; }
 
         void DebugDraw(int& InC);
 

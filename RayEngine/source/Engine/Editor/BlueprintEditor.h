@@ -30,11 +30,6 @@ public:
     void SetBP(const ResBlueprint& InBP);
 
 private:
-    void EditComponents(ECS::EntityID InID);
-    void EditHierarhcy(ECS::EntityID InID);
-    void HierarchyNode(ECS::EntityID InID);
-
-    String Text(const String& InString) const;
     
     ResBlueprint pendingBP; 
     BlueprintEditorConfig config = {};

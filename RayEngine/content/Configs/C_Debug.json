@@ -2,6 +2,7 @@
 	"DebugEnabled":false,
 	"OpenWindows":[
 		"Blueprint Editor",
+		"Inspector",
 		"Menus",
 		"Rendering",
 		"Resources",

@@ -22,7 +22,7 @@ void RoomConnectionEditor::Init()
     }
 
     auto& v = GetVolume();
-    auto centerCoord = v.GetCenter();
+    auto centerCoord = v.GetVolumeStart();
     if (startEntity == ECS::INVALID_ID)
     {
         if (const auto bp = config.StartBP.Get().Get())
@@ -39,6 +39,9 @@ void RoomConnectionEditor::Init()
     if (endEntity == ECS::INVALID_ID)
         if (const auto bp = config.EndBP.Get().Get())
             endEntity = bp->Instantiate(v.CoordToPos(endCoord) + GetOff(false));
+
+    if (endEntity != ECS::INVALID_ID)
+        sys.Get(endEntity).IsEnd = true;
 }
 
 void RoomConnectionEditor::Deinit()

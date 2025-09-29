@@ -21,23 +21,21 @@ void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
         SceneInstance instance = scene->Instantiate(offset, scenes.empty() && !InApplyRootOffset);
         scenes.push_back(instance);
 
-        bool foundEnd = false; 
         for (const ECS::EntityID entity : instance.entities)
         {
-            const auto roomEnd = ECS::Manager::Get().GetComponent<RoomConnection>(entity);
-            CHECK_CONTINUE(!roomEnd);
-            CHECK_CONTINUE(!roomEnd->IsEnd);
-            const auto roomEndTrans = ECS::Manager::Get().GetComponent<ECS::Transform>(entity);
-            CHECK_CONTINUE(!roomEndTrans);
+            const auto connection = ECS::Manager::Get().GetComponent<RoomConnection>(entity);
+            CHECK_CONTINUE(!connection);
+            CHECK_CONTINUE(!connection->IsEnd);
+            
+            const auto endTrans = ECS::Manager::Get().GetComponent<ECS::Transform>(entity);
+            CHECK_CONTINUE(!endTrans);
 
             // Offset is room end transform
-            offset = roomEndTrans->World();
-            foundEnd = true; 
+            offset = endTrans->World();
+            LOG("Found roomEnd at")
+            LOG(offset);
             break; 
         }
-
-        if (!foundEnd)
-            offset.SetPosition(offset.GetPosition() + Vec3F(0.0f, 0.0f, 50.0f));
     }
 }
 

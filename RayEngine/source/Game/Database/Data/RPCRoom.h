@@ -1,5 +1,5 @@
 #pragma once
-#include "Level/Room.h"
+#include "Level/RoomInfo.h"
 #include "Property/PropertyOwner.h"
 
 namespace DB
@@ -11,10 +11,11 @@ namespace DB
             PROPERTY(String, ID);
         };
 
-        PROPERTY(String, ID);
-        PROPERTY(Room, Data);
+        PROPERTY(RoomData, Data);
+        PROPERTY(RoomInfo, Info);
+        PROPERTY(String, Scene)
         
-        static String RPC() { return "rpc_level_info"; }
+        static String RPC() { return "rpc_room_info"; }
     };
 
     struct RPCRoomList : PropertyOwner<RPCRoomList>
@@ -22,10 +23,11 @@ namespace DB
         struct Request : PropertyOwner<Request>
         {
             PROPERTY(String, List);
+            PROPERTY(Vector<String>, Entries);
         };
 
         PROPERTY(String, List);
-        PROPERTY(Vector<RoomEntry>, Entries);
+        PROPERTY(Vector<RoomInfo>, Entries);
         
         static String RPC() { return "rpc_room_list"; }
     };
@@ -34,10 +36,11 @@ namespace DB
     {
         struct Request : PropertyOwner<Request>
         {
-            PROPERTY(Room, Data);
+            PROPERTY(RoomInfo, Info);
+            PROPERTY(String, Scene);
         };
 
-        PROPERTY(String, RoomID);
+        PROPERTY(String, ID);
         PROPERTY(String, Error);
         PROPERTY(bool, Success);
 

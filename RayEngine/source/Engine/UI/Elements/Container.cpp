@@ -166,12 +166,22 @@ void UI::Container::Remove(const ElementID InID)
     for (int i = static_cast<int>(children.size()) - 1; i >= 0; i--)
         if (children[i] == InID)
             children.erase(children.begin() + i);
+    Invalidate();
 }
 
 void UI::Container::RemoveChild(const int InIndex)
 {
     CHECK_ASSERT(InIndex < 0 || InIndex >= static_cast<int>(children.size()), "Invalid index");
-    Remove(children.at(InIndex));
+    const ElementID id = children.at(InIndex);
+    CHECK_ASSERT(!elements.contains(id), "Does not contain element")
+    if (elementNames.contains(id))
+    {
+        namedElements.erase(elementNames.at(id));
+        elementNames.erase(id);
+    }
+    elements.erase(id);
+    children.erase(children.begin() + InIndex);
+    Invalidate();
 }
 
 void UI::Container::ClearChildren()

@@ -8,8 +8,9 @@ in vec2 TexCoord;
 out vec4 Output;
 
 const int ITERATIONS = 4;
-const float INTENSITY = 0.5;
+const float INTENSITY = 0.3;
 const float LERP_SPEED = 0.4;
+const float SAMPLE_MAX_MIX = 0.2;
 
 const float SCALE = 0.05;
 const float INTERP_DEPTH_THRESHOLD_MUL = 0.1;
@@ -58,6 +59,7 @@ float FrameSSAO(vec3 InStartPos, vec3 InCamDir)
      likelyCoordDir /= likelyDist;
 
      float ao = 0;
+     float aoMax = 0;
      for (int i = 0; i < ITERATIONS; i++)
      {
           // Randomize dir
@@ -65,9 +67,11 @@ float FrameSSAO(vec3 InStartPos, vec3 InCamDir)
           float randDot = dot(randDir, likelyCoordDir);
           vec2 dir = randDir * randDot * SCALE;
           vec2 coord = clamp(TexCoord + dir, 0.0001, 0.9999);
-          ao += SSAOIteration(coord, InStartPos, startNormal);
+          float value = SSAOIteration(coord, InStartPos, startNormal);
+          ao += value;
+          aoMax = max(aoMax, value);
      }
-     return ao / ITERATIONS;
+     return mix(ao / ITERATIONS, aoMax, SAMPLE_MAX_MIX);
 }
 
 // acc + weight

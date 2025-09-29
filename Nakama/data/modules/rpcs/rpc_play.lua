@@ -1,11 +1,6 @@
 
 nk.logger_info("RPC_Play loaded")
 
-local function update_lb(id, name, leaderboard, cron, score)
-	lb.try_create(leaderboard, "desc", "best", cron, {})
-	lb.try_write(leaderboard, id, name, score)
-end
-
 local function rpc_begin_play(context, payload)
 	local c = utility.parse(context)
 	local p = utility.parse(payload)
@@ -37,14 +32,17 @@ local function rpc_begin_play(context, payload)
 
 	-- Increase storage stats
 	local room_list = utility.parse(storage.read(levelID, "rooms")) -- Todo: Parse
-	for roomID in room_list do
+	for roomID in room_list do -- _, value in ipairs(keys)
 		local roomPlaycount = storage.change(roomID, "playcount", 1)
-		
-		-- Increase room ranking for user submissions
 		local roomInfo = storage.read(roomID, "info")
 		if roomInfo ~= nil then
+			-- Increase overall room ranking
+			lb.write("rooms_most_played", roomInfo.uuid, roomInfo.name, roomPlaycount);
+			lb.write("rooms_most_played_weekly", roomInfo.uuid, roomInfo.name, roomPlaycount);
+			lb.write("rooms_most_played_monthly", roomInfo.uuid, roomInfo.name, roomPlaycount);
+			-- Increase room ranking for user submissions
 			local roomCreatorList = "user_rooms_" .. roomInfo.creator
-			lb.try_write(roomCreatorList, roomID, roomInfo.name, roomPlaycount)
+			lb.write(roomCreatorList, roomInfo.uuid, roomInfo.name, roomPlaycount)
 		end
 	end
 
@@ -55,18 +53,21 @@ local function rpc_begin_play(context, payload)
 
 	local levelName = levelInfo.name
 	local levelCreator = levelInfo.creator
-	local levelCreatorList = "user_rooms_" .. levelInfo.creator
-	lb.try_write(levelCreatorList, levelID, levelName, levelPlaycount)
+	local levelUUID = levelInfo.uuid
+	local levelCreatorList = "user_levels_" .. levelInfo.creator
+	lb.write(levelCreatorList, levelUUID, levelName, levelPlaycount)
 
 	-- Update level leaderboards
-	if (storage.read(levelID, "status") == "Approved") then
-		update_lb(levelID, levelName, "most_played", "", levelPlaycount);
-		update_lb(levelID, levelName, "most_played_weekly", "0 0 * * 1", levelPlaycount);
-		update_lb(levelID, levelName, "most_played_monthly", "0 0 1 * *", levelPlaycount);
-		local seedName = levelName .. " (" .. seed .. ")"
-		update_lb(seedID, seedName, "seed_most_played", "", seedPlaycount);
-		update_lb(seedID, seedName, "seed_most_played_weekly", "0 0 * * 1", seedPlaycount);
-		update_lb(seedID, seedName, "seed_most_played_monthly", "0 0 1 * *", seedPlaycount);
+	if (levelInfo.status == "Approved") then
+		lb.write("most_played", levelUUID, levelName, levelPlaycount)
+		lb.write("most_played_weekly", levelUUID, levelName, levelPlaycount)
+		lb.write("most_played_monthly", levelUUID, levelName, levelPlaycount)
+
+		-- Now get the seed UUID?
+		--local seedName = levelName .. " (" .. seed .. ")"
+		--lb.write("seed_most_played", seedID, seedName, seedPlaycount)
+		--lb.write("seed_most_played_weekly", seedID, seedName, seedPlaycount)
+		--lb.write("seed_most_played_monthly", seedID, seedName, seedPlaycount)
 	end
 
 	return nk.json_encode({
@@ -117,14 +118,14 @@ local function rpc_end_play(context, payload)
 	if storage.read(levelID, "status") == "Approved" then
 
 		-- Set top ranks for level
-		update_lb(levelID, userID, username, "scores", "", score)
-		update_lb(levelID, userID, username, "scores_weekly", "0 0 * * 1", score)
-		update_lb(levelID, userID, username, "scores_monthly", "0 0 1 * *", score)
+		lb.write("scores_" .. levelID, userID, username, score)
+		lb.write("scores_weekly_" .. levelID, userID, username, score)
+		lb.write("scores_monthly_" .. levelID, userID, username, score)
 
-		-- Set top ranks for seed
-		update_lb(seedID, userID, username, "scores", "", score)
-		update_lb(seedID, userID, username, "scores_weekly", "0 0 * * 1", score)
-		update_lb(seedID, userID, username, "scores_monthly", "0 0 1 * *", score)
+		-- Set top ranks for seed (create dynamically)
+		lb.create_write("scores_" .. seedID, "desc", "best", "", {}, userID, username, score)
+		lb.create_write("scores_weekly_" .. seedID, "desc", "best", "0 0 * * 1", {}, userID, username, score)
+		lb.create_write("scores_monthly_" .. seedID, "desc", "best", "0 0 1 * *", {}, userID, username, score)
 	end
 
 	storage.write(userID, "current", "")

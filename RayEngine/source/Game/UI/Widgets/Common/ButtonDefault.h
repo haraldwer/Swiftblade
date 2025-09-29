@@ -11,6 +11,7 @@ namespace UI
         ButtonDefault(const Transform& InTrans, const String& InOption, const String& InText) : Container(InTrans), option(InOption), text(InText) {}
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
+        bool IsHovered() const override { return Element::IsHovered(); }
 
     private:
         String option;

@@ -2,6 +2,7 @@
 
 #include "Entity.h"
 #include "System.h"
+#include "Editor/Inspector.h"
 
 namespace ECS
 {
@@ -80,8 +81,9 @@ namespace ECS
         EntityID idCounter = 0;
 
         // Objects that should be destroyed
-        Set<EntityID> pendingDestroy = {}; 
-        
+        Set<EntityID> pendingDestroy = {};
+
+        Inspector inspector;
     };
 }
 

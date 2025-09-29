@@ -46,7 +46,7 @@ void MenuLogin::Init()
         {
             if (InResp.data.LoggedIn)
             {
-                Menu::Manager::Get().Pop();
+                Menu::Manager::Get().Close(this);
                 Menu::Manager::Get().Push<MenuMain>();
             }
             else

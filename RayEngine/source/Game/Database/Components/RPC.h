@@ -12,11 +12,7 @@ namespace DB
         template <class T>
         void Request(const T::Request& InRequest)
         {
-            rapidjson::StringBuffer s;
-            rapidjson::Writer writer(s);
-            InRequest.Serialize(writer);
-            const String json = s.GetString();
-
+            const String json = InRequest.ToStr(false);
             auto success = [&](const Nakama::NRpc& InRpc)
             {
                 String payload = GetPayload(InRpc);

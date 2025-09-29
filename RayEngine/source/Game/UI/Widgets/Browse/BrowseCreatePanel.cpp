@@ -117,11 +117,7 @@ void UI::BrowseCreatePanel::SelectLevels()
     auto& list = Get<LevelListWidget>("LevelList");
     list.ClearChildren();
     
-    Vector<String> files = Utility::ListFiles("User/Levels");
-    for (auto& f : files)
-        LOG("Found level: " + Utility::ReadFile(f));
-
-    for (auto& f : files)
+    for (auto& f : Utility::ListFiles("User/Levels"))
     {
         LevelEntryData data;
         data.resource = f;
@@ -146,8 +142,7 @@ void UI::BrowseCreatePanel::SelectRooms()
     auto& list = Get<List>("RoomList");
     list.ClearChildren();
     
-    Vector<String> files = Utility::ListFiles("User/Rooms");
-    for (auto& f : files)
+    for (auto& f : Utility::ListFiles("User/Rooms"))
     {
         if (f.ends_with(".json"))
         {

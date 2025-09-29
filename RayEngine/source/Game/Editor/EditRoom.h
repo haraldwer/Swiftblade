@@ -3,7 +3,7 @@
 #include "Game/ECS/Volume/CubeVolumeData.h"
 #include "Resource/PropertyFile.h"
 #include "Resource/Resource.h"
-#include "Level/Room.h"
+#include "Level/RoomInfo.h"
 
 struct EditRoomObject : PropertyOwner<EditRoomObject>
 {
@@ -18,13 +18,11 @@ typedef Map<ECS::VolumeCoordKey, EditRoomObject> EditRoomObjectMap;
 // This room will be converted to a scene before being played.
 struct EditRoom : PropertyOwner<EditRoom>
 {
-    PROPERTY(String, Name);
-        
+    PROPERTY(RoomInfo, Info);
+    
     PROPERTY_D(ECS::VolumeCoordKey, Connection, 0)
     PROPERTY(Vector<ECS::VolumeCoordKey>, Path);
     PROPERTY(EditRoomObjectMap, Objects);
-
-    PROPERTY(Room, RoomCache);
     
     ECS::CubeVolumeData volumeData;
     

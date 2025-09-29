@@ -36,6 +36,7 @@ void UI::NumberSelector::Init(Container &InOwner)
 void UI::NumberSelector::Update(Container &InOwner)
 {
     Container::Update(InOwner);
+    changed = false;
 
     if (Get<Element>("Minus").IsClicked())
         ChangeValue(-properties.stepSize);
@@ -49,17 +50,22 @@ void UI::NumberSelector::Update(Container &InOwner)
 
 void UI::NumberSelector::ChangeValue(const float InDelta)
 {
-    SetValue(value + InDelta);;
+    SetValue(value + InDelta);
 }
 
 void UI::NumberSelector::SetValue(const float InValue)
 {
+    float prevValue = value;
     value = InValue;
     if (properties.limits != Vec2F::Zero())
         value = Utility::Math::Clamp(value, properties.limits.x, properties.limits.y);
     if (properties.roundPrecision > 0.000001f)
-        value = round(value * properties.roundPrecision) / properties.roundPrecision;
-    Get<Textbox>("Value").SetText(Utility::ToStr(value));
+        value = roundf(value * properties.roundPrecision) / properties.roundPrecision;
+    if (value != prevValue)
+    {
+        Get<Textbox>("Value").SetText(Utility::ToStr(value));
+        changed = true;
+    }
 }
 
 float UI::NumberSelector::GetValue() const

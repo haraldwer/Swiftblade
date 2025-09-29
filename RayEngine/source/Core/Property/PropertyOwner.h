@@ -16,7 +16,8 @@ public:
     virtual void CustomSerialize(SerializeObj& InOutObj) const {}
     virtual bool CustomDeserialize(const DeserializeObj& InObj) { return true; }
     virtual bool Edit(const String& InName = "", uint32 InOffset = 0);
-    
+
+    String ToStr(bool InFormat = true) const;
     void Serialize(SerializeObj& InOutObj) const;
     bool Deserialize(const DeserializeObj& InObj);
     bool Deserialize(const GenericVal& InVal);
@@ -98,9 +99,6 @@ namespace Utility
     template <class T>
     String ToStr(const PropertyOwner<T>& InValue)
     {
-        rapidjson::StringBuffer s;
-        rapidjson::Writer writer(s);
-        InValue.Serialize(writer);
-        return FormatJson(s.GetString());
+        return InValue.ToStr();
     }
 }

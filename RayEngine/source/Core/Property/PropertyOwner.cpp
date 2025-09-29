@@ -75,14 +75,18 @@ bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
     return edited;
 }
 
-bool PropertyOwnerBase::Save(const String& InPath) const
+String PropertyOwnerBase::ToStr(const bool InFormat) const
 {
-    //  Json writer
     rapidjson::StringBuffer s;
     rapidjson::Writer writer(s);
-    Serialize(writer); 
-    const String result = Utility::FormatJson(s.GetString());
-    return Utility::WriteFile(InPath, result);
+    Serialize(writer);
+    String str = s.GetString();
+    return InFormat ? Utility::FormatJson(str) : str;
+}
+
+bool PropertyOwnerBase::Save(const String& InPath) const
+{
+    return Utility::WriteFile(InPath, ToStr());
 }
 
 bool PropertyOwnerBase::Load(const String& InPath)

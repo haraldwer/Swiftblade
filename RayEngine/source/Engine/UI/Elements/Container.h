@@ -41,7 +41,9 @@ namespace UI
         template <class T>
         ElementID Insert(const T& InElement, int InIndex, const String& InIdentifier);
         
+        Vector<ElementID> GetChildren() const { return children; }
         int Count() const { return static_cast<int>(children.size()); }
+        ElementID GetChild(const int InIndex) const { return children.at(InIndex); }
         void RemoveChild(int InIndex);
         void ClearChildren();
         

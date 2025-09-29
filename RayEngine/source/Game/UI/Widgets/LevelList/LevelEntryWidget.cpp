@@ -74,9 +74,9 @@ void UI::LevelEntryWidget::UpdateInfo(const LevelEntryData& InData)
     data = InData;
 
     String name = data.entry.Name;
-    String creator = data.entry.Creator;
-    String info = Utility::ToStr(data.entry.Plays);
-    bool starred = data.entry.Fav.Get();
+    String creator = data.entry.CreatorName;
+    String info = Utility::ToStr(data.entry.Score);
+    bool starred = false;// data.entry.Fav.Get();
 
     if (auto res = data.resource.Get())
     {

@@ -77,7 +77,7 @@ void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
     startPlayerPos = InPlayerPos;
 }
 
-void GameInstance::PlayLevel(const ::LevelConfig &InLevel)
+void GameInstance::PlayLevel(const LevelConfig& InLevel)
 {
     level = InLevel;
 }

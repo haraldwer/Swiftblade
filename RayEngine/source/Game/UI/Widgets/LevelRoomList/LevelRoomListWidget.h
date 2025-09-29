@@ -1,32 +1,21 @@
 #pragma once
 
-#include "Database/Data/RPCRoom.h"
-#include "Level/Room.h"
+#include "Level/RoomInfo.h"
 #include "UI/Elements/Container.h"
 
 namespace UI
 {
-    struct RoomEntryData
-    {
-        RoomEntry entry;
-        ResRoom resource;
-        bool add;
-    };
-    
     class LevelRoomListWidget : public Container
     {
+        CLASS_INFO(LevelRoomListWidget, Container);
     public:
-        LevelRoomListWidget(const RoomEntryData& InData) : Container({ .alignment = {1, 0} }), data(InData) {}
+        LevelRoomListWidget(const RoomInfo& InData) : Container({ .alignment = {1, 0} }), data(InData) {}
         void Init(Container &InOwner) override;
-        String GetID() const { return data.entry.ID; }
+        String GetID() const { return data.ID.Get(); }
 
-        bool RemoveClicked();
+        bool IsRemoveClicked();
         
-    private:
-        void SetInfo(const Room& InRoom);
-        
-        RoomEntryData data;
+        RoomInfo data;
         ElementID removeButton = -1;
-        ElementID label = -1;
     };
 }

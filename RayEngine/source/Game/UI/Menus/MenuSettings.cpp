@@ -21,5 +21,5 @@ void MenuSettings::Update()
     Instance::Update();
 
     if (ui["Back"].IsClicked())
-        Menu::Manager::Get().Pop();
+        Menu::Manager::Get().Close(this);
 }

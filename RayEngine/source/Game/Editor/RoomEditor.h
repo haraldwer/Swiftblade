@@ -52,7 +52,7 @@ public:
 
 private:
     
-    void UpdateRoomCache();
+    void UpdateRoomInfo();
     SceneInstance ConvertRoomToScene();
     static ResScene GetTempScene(const SceneInstance& InScene);
     static void SaveThumbnail(const String& InPath);

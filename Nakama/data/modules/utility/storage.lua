@@ -18,7 +18,6 @@ local function storage_read(collection, key)
 			return r.value
 		end
 	end
-	nk.logger_error("Failed to read storage: " .. collection .. " - " .. key)
 	return nil
 end
 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Scene/SceneResource.h"
 #include "Resource/PropertyFile.h"
-#include "Room.h"
+#include "RoomInfo.h"
 
 // The actual level being played
 struct LevelConfig : PropertyOwner<LevelConfig>
@@ -31,9 +31,9 @@ struct Level : PropertyOwner<Level>
     PROPERTY(String, LastEdit);
 
     PROPERTY(int, NumRooms);
-    PROPERTY(Vector<RoomEntry>, Rooms);
+    PROPERTY(Vector<RoomInfo>, Rooms);
     PROPERTY(int, NumArenas);
-    PROPERTY(Vector<RoomEntry>, Arenas);
+    PROPERTY(Vector<RoomInfo>, Arenas);
 };
 
 typedef Resource::PropertyFile<Level> LevelResource;
