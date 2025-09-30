@@ -176,13 +176,13 @@ SceneInstance RoomEditor::ConvertRoomToScene()
     auto& conEditor = GetSubEditors().Get<RoomConnectionEditor>();
 
     // Reuses existing instantiated objects
-    scene.entities.insert(conEditor.GetConnection(true));
+    scene.entities.insert(conEditor.GetEnd(true));
+    scene.entities.insert(conEditor.GetStart());
     scene.entities.insert(volEditor.GetCubeVolumeID());
     for (auto& obj : workingRoom.Objects.Get())
         scene.entities.insert(objEditor.LoadObject(obj.second));
-
-    scene.offset = Mat4F(volEditor.GetVolume().CoordToPos(ECS::CubeVolume::GetVolumeStart()));
     
+    scene.offset = conEditor.GetWorldOffset();
     return scene;
 }
 

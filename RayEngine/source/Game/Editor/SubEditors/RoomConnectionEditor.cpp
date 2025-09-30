@@ -117,12 +117,28 @@ void RoomConnectionEditor::Update()
         addChange(selectCoord.key);
 }
 
-ECS::EntityID RoomConnectionEditor::GetConnection(bool InSnap) const
+ECS::EntityID RoomConnectionEditor::GetEnd(bool InSnap) const
 {
     if (InSnap)
         if (auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(endEntity))
             trans->SetPosition(GetVolume().CoordToPos(GetRoom().Connection.Get()) + GetOff(false));
     return endEntity;
+}
+
+ECS::EntityID RoomConnectionEditor::GetStart() const
+{
+    return startEntity;
+}
+
+Mat4F RoomConnectionEditor::GetWorldOffset() const
+{
+    if (auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(startEntity))
+    {
+        Mat4F world = trans->World();
+        world.SetPosition(world.GetPosition() - GetOff(true));
+        return world;
+    }
+    return {};
 }
 
 Vec3F RoomConnectionEditor::GetOff(bool IsStart) const

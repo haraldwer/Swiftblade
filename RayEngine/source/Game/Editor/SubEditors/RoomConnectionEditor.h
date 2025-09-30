@@ -25,7 +25,9 @@ public:
     void Deinit() override;
     void Update() override;
 
-    ECS::EntityID GetConnection(bool InSnap) const;
+    ECS::EntityID GetEnd(bool InSnap) const;
+    ECS::EntityID GetStart() const;
+    Mat4F GetWorldOffset() const;
 
 private:
 
