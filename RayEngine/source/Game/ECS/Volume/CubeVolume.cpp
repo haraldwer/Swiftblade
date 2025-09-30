@@ -79,7 +79,7 @@ ECS::VolumeCoord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& In
 
 ECS::VolumeCoord ECS::CubeVolume::GetVolumeStart()
 {
-    return VolumeCoord(0, 0, INT8_MIN);
+    return VolumeCoord(0, 0, INT8_MIN / 2);
 }
 
 ECS::VolumeCoord ECS::CubeVolume::TryOffset(VolumeCoord InCoord, Vec3I InOffset)

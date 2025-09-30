@@ -180,6 +180,8 @@ SceneInstance RoomEditor::ConvertRoomToScene()
     scene.entities.insert(volEditor.GetCubeVolumeID());
     for (auto& obj : workingRoom.Objects.Get())
         scene.entities.insert(objEditor.LoadObject(obj.second));
+
+    scene.offset = Mat4F(volEditor.GetVolume().CoordToPos(ECS::CubeVolume::GetVolumeStart()));
     
     return scene;
 }
