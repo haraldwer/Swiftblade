@@ -6,7 +6,7 @@
 #include "Engine/Scene/SceneResource.h"
 #include "../Level/LevelManager.h"
 #include "ECS/Manager.h"
-#include "Level/Level.h"
+#include "Game/Level/Level.h"
 
 class GameInstance : public Engine::Instance, public Debug::Panel
 {

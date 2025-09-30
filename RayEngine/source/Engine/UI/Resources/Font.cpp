@@ -177,7 +177,7 @@ void GenFontGlyphs(const GlyphInfo *glyphs, Rectangle **glyphRecs, int glyphCoun
 
 Font* UI::FontResource::Get(const uint32 InSize)
 {
-    CHECK_ASSERT(InSize == 0, "Invalid size");
+    CHECK_RETURN(InSize < minSize, nullptr);
 
     // Clamp size
     uint32 size = Utility::Math::Min(maxSize, InSize); 

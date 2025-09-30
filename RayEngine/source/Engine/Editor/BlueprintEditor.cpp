@@ -4,7 +4,7 @@
 #include "Blueprints/Blueprint.h"
 #include "ECS/Systems/Transform.h"
 #include "Instance/Manager.h"
-#include "Instances/GameInstance.h"
+#include "Game/Instances/GameInstance.h"
 #include "ImGui/imgui.h"
 
 void BlueprintEditor::Init()

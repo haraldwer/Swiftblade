@@ -1,9 +1,9 @@
 #pragma once
 #include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Game/ECS/Volume/CubeVolumeData.h"
+#include "Game/Level/RoomInfo.h"
 #include "Resource/PropertyFile.h"
 #include "Resource/Resource.h"
-#include "Level/RoomInfo.h"
 
 struct EditRoomObject : PropertyOwner<EditRoomObject>
 {

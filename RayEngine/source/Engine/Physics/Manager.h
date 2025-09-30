@@ -3,6 +3,7 @@
 #include "ECS/Entity.h"
 #include "Core/Utility/Singelton.h"
 #include "ECS/Systems/Transform.h"
+#include "Resources/Material.h"
 
 namespace ECS
 {
@@ -37,7 +38,7 @@ namespace Physics
         void Frame() const;
 
         void Add(ECS::EntityID InID);
-        void AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, float InScale);
+        void AddCubes(ECS::EntityID InID, const Vector<Mat4F>& InTransforms, float InScale, const ResPM& InMat);
         void Remove(ECS::EntityID InID);
 
     private:

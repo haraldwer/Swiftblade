@@ -14,7 +14,6 @@
 #include "Logger.h"
 #include "raylib.h"
 #include "rlgl.h"
-#include "ECS/Volume/CubeVolume.h"
 #include "Instance/Instance.h"
 
 void Physics::Manager::Init()
@@ -224,19 +223,19 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     }
 }
 
-void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTransforms, float InScale)
+void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTransforms, float InScale, const ResPM& InMat)
 {
     PROFILE();
     CHECK_ASSERT(InID == ECS::INVALID_ID, "Invalid ID");
     Remove(InID);
     
+    auto mat = InMat.Get();
+    CHECK_RETURN_LOG(!mat, "Invalid cube material");
+
     const auto& ecs = ECS::Manager::Get();
     const auto t = ecs.GetComponent<ECS::Transform>(InID);
     CHECK_RETURN_LOG(!t, "No transform for entity");
-    const auto volume = ecs.GetComponent<ECS::CubeVolume>(InID);
-    CHECK_RETURN_LOG(!volume, "No volume for entity");
-    auto mat = volume->PhysicsMaterial.Get().Get();
-
+    
     auto& entity = data[InID];
     
     if (!entity.rb)
@@ -247,8 +246,89 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
     
     entity.rb->setType(reactphysics3d::BodyType::STATIC);
 
-    auto shape = common->createBoxShape({ InScale, InScale, InScale });
-    CHECK_ASSERT(!shape, "Unknown shape");
+    // Generate a custom mesh for the cube volume
+    Vector<Vec3F> vertices;
+    Vector<int> indices;
+    vertices.reserve(8 * InTransforms.size());
+    indices.reserve(12 * 3 * InTransforms.size());
+    
+    const auto addCube([&](const Mat4F& InWorld) 
+    {
+        Vec3F v[8] = {
+            // Front face (vertices 0-3)
+            { -1.0f,  1.0f,  1.0f },  // 0: Top-left-front
+            {  1.0f,  1.0f,  1.0f },  // 1: Top-right-front
+            {  1.0f, -1.0f,  1.0f },  // 2: Bottom-right-front
+            { -1.0f, -1.0f,  1.0f },  // 3: Bottom-left-front
+
+            // Back face (vertices 4-7)
+            { -1.0f,  1.0f, -1.0f, }, // 4: Top-left-back
+            {  1.0f,  1.0f, -1.0f, }, // 5: Top-right-back
+            {  1.0f, -1.0f, -1.0f, }, // 6: Bottom-right-back
+            { -1.0f, -1.0f, -1.0f  }, // 7: Bottom-left-back
+        };
+
+        int i[12 * 3] = {
+            // Face 1 (Front)
+            0, 1, 2,  // Triangle 1: Top-left, Top-right, Bottom-right
+            0, 2, 3,  // Triangle 2: Top-left, Bottom-right, Bottom-left
+
+            // Face 2 (Back)
+            5, 4, 7,  // Triangle 3: Top-right, Top-left, Bottom-left (Note: Winding order is crucial)
+            5, 7, 6,  // Triangle 4: Top-right, Bottom-left, Bottom-right
+
+            // Face 3 (Top)
+            4, 5, 1,  // Triangle 5
+            4, 1, 0,  // Triangle 6
+
+            // Face 4 (Bottom)
+            3, 2, 6,  // Triangle 7
+            3, 6, 7,  // Triangle 8
+
+            // Face 5 (Right)
+            1, 5, 6,  // Triangle 9
+            1, 6, 2,  // Triangle 10
+
+            // Face 6 (Left)
+            4, 0, 3,  // Triangle 11
+            4, 3, 7   // Triangle 12
+        };
+
+        const int startIndex = static_cast<int>(vertices.size());
+        for (auto& vertex : v)
+        {
+            const Vec4F p = {
+                vertex.x,
+                vertex.y,
+                vertex.z,
+                1
+            };
+            vertices.push_back((InWorld * p).xyz);
+        }
+
+        for (int index : i)
+            indices.push_back(index + startIndex);
+    });
+    
+    for (auto& world : InTransforms)
+        addCube(world);
+    
+    reactphysics3d::TriangleVertexArray arr = reactphysics3d::TriangleVertexArray(
+        static_cast<int>(vertices.size()),
+        vertices.data(),
+        sizeof(Vec3F),
+        static_cast<int>(indices.size()) / 3,
+        indices.data(),
+        sizeof(int),
+        reactphysics3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE,
+        reactphysics3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
+    
+    Vector<reactphysics3d::Message> results;
+    auto mesh = common->createTriangleMesh(arr, results);
+    for (auto& r : results)
+        LOG("PhysMeshError: " + r.text);
+    CHECK_ASSERT(!mesh, "Failed to create triangle mesh");
+    auto shape = common->createConcaveMeshShape(mesh, GetVec(InScale));
     entity.shapes.push_back(shape);
     
     for (auto cube : InTransforms)
@@ -258,13 +338,10 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
         entity.colliders.push_back(c);
 
         // Update collider properties
-        if (mat)
-        {
-            auto m = c->getMaterial();
-            m.setFrictionCoefficient(mat->data.Friction);
-            m.setBounciness(mat->data.Bounciness);
-            m.setMassDensity(mat->data.MassDensity);
-        }
+        auto m = c->getMaterial();
+        m.setFrictionCoefficient(mat->data.Friction);
+        m.setBounciness(mat->data.Bounciness);
+        m.setMassDensity(mat->data.MassDensity);
     }
 }
 

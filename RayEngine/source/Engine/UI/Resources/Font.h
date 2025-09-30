@@ -24,6 +24,7 @@ namespace UI
         ResShader sdfShader = ResShader("Shaders/SH_FontSDF.fs");
         Map<uint32, Font*> sizes;
         static constexpr uint32 maxSize = 40;
+        static constexpr uint32 minSize = 5;
     };
 }
 

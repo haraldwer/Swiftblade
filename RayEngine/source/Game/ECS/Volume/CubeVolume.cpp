@@ -71,9 +71,9 @@ ECS::VolumeCoord ECS::CubeVolume::PosToCoord(const Vec3F& InPos, const Mat4F& In
     const Vec3F localP = (Mat4F(InPos) * Mat4F::GetFastInverse(InWorld)).GetPosition();
     const Vec3F p = localP * (1.0f / (Scale * 2.0f));
     return VolumeCoord(
-        static_cast<VolumeCoordValue>(Utility::Math::Clamp(static_cast<int>(roundf(p.x)) + start.pos.x, INT8_MIN, INT8_MAX)),
-        static_cast<VolumeCoordValue>(Utility::Math::Clamp(static_cast<int>(roundf(p.y)) + start.pos.y, INT8_MIN, INT8_MAX)),
-        static_cast<VolumeCoordValue>(Utility::Math::Clamp(static_cast<int>(roundf(p.z)) + start.pos.z, INT8_MIN, INT8_MAX))
+        static_cast<VolumeCoordValue>(Utility::Math::Clamp(static_cast<int>(roundf(p.x)) + start.pos.x, INT8_MIN, static_cast<int>(INT8_MAX))),
+        static_cast<VolumeCoordValue>(Utility::Math::Clamp(static_cast<int>(roundf(p.y)) + start.pos.y, INT8_MIN, static_cast<int>(INT8_MAX))),
+        static_cast<VolumeCoordValue>(Utility::Math::Clamp(static_cast<int>(roundf(p.z)) + start.pos.z, INT8_MIN, static_cast<int>(INT8_MAX)))
     );
 }
 
@@ -275,7 +275,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         return;
     
     // Add collision cubes
-    Physics::Manager::Get().AddCubes(InID, InComponent.cachedCubeTransforms, InComponent.Scale.Get());
+    Physics::Manager::Get().AddCubes(InID, InComponent.cachedCubeTransforms, InComponent.Scale.Get(), InComponent.PhysicsMaterial);
 }
 
 void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
