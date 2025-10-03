@@ -22,11 +22,11 @@ Utility::Type CombatStateStrike::Update()
     params.end = params.start + world.Forward() * 0.1f;
     params.shape = Physics::Shape::SPHERE;
     params.shapeData.xyz = SweepSize.Get();
-    params.ignoredEntities = { GetPlayerID() };
+    params.ignoredEntities.insert(GetPlayerID());
     params.ignoredEntities.insert(weapon->GetID());
 
-    Engine::DebugSphere(params.start, SweepSize);
-    Engine::DebugSphere(params.end, SweepSize);
+    Debug::Sphere(params.start, SweepSize);
+    Debug::Sphere(params.end, SweepSize);
 
     const auto result = Physics::Query::Sweep(params);
     auto& enemySys = ECS::Manager::Get().GetSystem<SysEnemy>();

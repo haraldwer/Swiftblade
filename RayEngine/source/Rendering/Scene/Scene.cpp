@@ -8,6 +8,10 @@ void Scene::Clear()
     meshes.ClearNonPersistent();
     environments = {};
     lights.Clear();
+}
+
+void Scene::ClearDebug()
+{
     debugShapes.Clear();
     debugLines.Clear();
     debugFunctions.clear();

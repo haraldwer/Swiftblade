@@ -25,21 +25,21 @@ void ECS::SysCollider::Update(const EntityID InID, Collider& InComponent)
     const auto& t = Get<Transform>(InID);
     const auto& data = InComponent.ShapeData.Get();
     switch (static_cast<Physics::Shape>(InComponent.Shape.Get())) {
-    case Physics::Shape::BOX:
-        Engine::DebugBox(
+        case Physics::Shape::BOX:
+        Debug::Box(
             t.GetPosition(),
             t.GetRotation(),
             Vec3F(data.x, data.y, data.z) * 2.0f);
         break;
     case Physics::Shape::CAPSULE:
-        Engine::DebugCapsule(
+        Debug::Capsule(
             t.GetPosition(),
             t.GetRotation(),
             data.x,
             data.y);
         break;
     case Physics::Shape::SPHERE:
-        Engine::DebugSphere(
+        Debug::Sphere(
             t.GetPosition(),
             data.x);
         break;

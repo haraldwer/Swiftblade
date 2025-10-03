@@ -1,7 +1,6 @@
 ﻿#include "Pipeline.h"
 
 #include "DeferredRenderer.h"
-#include "rlgl.h"
 #include "Lights/LightsRenderer.h"
 #include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
@@ -41,10 +40,27 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += RenderSurfaces(InArgs);
     stats += RenderLights(InArgs);
     stats += RenderLumin(InArgs);
-    stats += RenderFX(InArgs);
-    stats += Blip(InArgs);
     stats += RenderDebug(InArgs);
+    stats += RenderSceneFX(InArgs);
+    return stats;
+}
+
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderPost(RenderArgs InArgs)
+{
+    CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
+    CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
+    CHECK_ASSERT(!InArgs.contextPtr, "Invalid context");
     
+    Stats stats;
+    stats += RenderPostFX(InArgs);
+    stats += Blip(InArgs);
+    return stats;
+}
+
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderCustom(RenderArgs InArgs, std::function<void()> InFunc)
+{
+    Stats stats;
+    stats.fullscreenPasses = Renderer::DrawCustom(InArgs, InFunc);
     return stats;
 }
 
@@ -77,12 +93,14 @@ Rendering::Pipeline::Stats Rendering::Pipeline::ProcessScene(const RenderArgs& I
         auto& bumpShader = InArgs.contextPtr->config.FX.Get().BumpShader;
         sceneTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), bumpShader, { &sceneTargets.Prev() });
+        stats.fullscreenPasses++;
     }
     if (InArgs.contextPtr->config.FX.Get().Parallax)
     {
         auto& pomShader = InArgs.contextPtr->config.FX.Get().POMShader;
         sceneTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, sceneTargets.Curr(), pomShader, { &sceneTargets.Prev() });
+        stats.fullscreenPasses++;
     }
     return stats;
 }
@@ -146,25 +164,25 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& In
     return stats;
 }
 
-Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArgs)
+
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderSceneFX(const RenderArgs &InArgs)
 {
     Stats stats;
     auto& conf = InArgs.contextPtr->config;
     auto& frameTargets = InArgs.viewportPtr->targets.frameTargets;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
-
+    if (conf.FX.Get().MotionBlur)
+    {
+        PROFILE_GL_NAMED("MotionBlur");
+        frameTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().MotionBlurShader, { &sceneTarget, &frameTargets.Prev() });
+        stats.fullscreenPasses++;
+    }
     if (conf.FX.Get().Bloom)
     {
         PROFILE_GL_NAMED("Bloom");
         auto& bloomTargets = InArgs.viewportPtr->targets.bloomTargets;
         Renderer::DrawBloom(InArgs, bloomTargets, frameTargets);
-    }
-    if (conf.FX.Get().FXAA)
-    {
-        PROFILE_GL_NAMED("FXAA");
-        frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().FXAAShader, { &frameTargets.Prev() });
-        stats.fullscreenPasses++;
     }
     if (conf.FX.Get().Tonemapping)
     {
@@ -173,6 +191,20 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().TonemappingShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
+    if (conf.FX.Get().Distort)
+    {
+        PROFILE_GL_NAMED("Distort");
+        frameTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().DistortShader, { &frameTargets.Prev() });
+        stats.fullscreenPasses++;
+    }
+    return stats;
+}
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderPostFX(const RenderArgs &InArgs)
+{
+    Stats stats;
+    auto& conf = InArgs.contextPtr->config;
+    auto& frameTargets = InArgs.viewportPtr->targets.frameTargets;
     if (conf.FX.Get().Quantize)
     {
         PROFILE_GL_NAMED("Quantize");
@@ -180,18 +212,11 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderFX(const RenderArgs& InArg
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().QuantizeShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
-    if (conf.FX.Get().MotionBlur)
+    if (conf.FX.Get().FXAA)
     {
-        PROFILE_GL_NAMED("MotionBlur");
+        PROFILE_GL_NAMED("FXAA");
         frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().MotionBlurShader, { &sceneTarget, &frameTargets.Prev() });
-        stats.fullscreenPasses++;
-    }
-    if (conf.FX.Get().Distort)
-    {
-        PROFILE_GL_NAMED("Distort");
-        frameTargets.Iterate();
-        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().DistortShader, { &frameTargets.Prev() });
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().FXAAShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
     return stats;

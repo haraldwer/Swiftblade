@@ -25,12 +25,14 @@ void MenuLevelPlay::Init()
         ReceiveRoom(InResp);
     });
 
-    BeginLoading();
+    loading = false;
 }
 
 void MenuLevelPlay::Update()
 {
     Instance::Update();
+    if (!loading)
+        BeginLoading();
     ui.Update();
 }
 
@@ -43,6 +45,7 @@ void MenuLevelPlay::SetLevel(const UI::LevelEntryData &InData, int InSeed)
 
 void MenuLevelPlay::BeginLoading()
 {
+    loading = true;
     ResLevel res = levelEntry.resource;
     if (!res.Identifier().IsValid())
     {
@@ -185,8 +188,6 @@ void MenuLevelPlay::TryFinishRoomLoading()
     for (auto& arena : arenas)
         config.Arenas.Get().push_back(sceneResources.at(arena));
 
-    // Play!
-    Menu::Manager::Get().Close(this);
     if (auto game = Engine::Manager::Get().Push<GameInstance>())
         game->PlayLevel(config);
 }

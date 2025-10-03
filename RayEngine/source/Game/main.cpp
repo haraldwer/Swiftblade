@@ -2,6 +2,7 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
 #endif
+#include "Physics/Manager.h"
 
 void Init();
 void Deinit();
@@ -44,6 +45,7 @@ struct GameData
     Rendering::Manager renderer;
     Audio::Manager audio;
     Engine::Manager instanceManager;
+    Physics::Persistent physics;
     Engine::Launcher launcher;
     GlobalEventManager eventManager;
     DB::Manager db = {};
@@ -60,6 +62,7 @@ void Init()
     Utility::SetWorkingDir();
     
     g->renderer.Init();
+    g->physics.Init();
     g->debugManager.Init();
     g->audio.Init();
     g->launcher.Init();
@@ -73,6 +76,7 @@ void Deinit()
     g->debugManager.Deinit();
     g->instanceManager.Clear();
     g->audio.Deinit();
+    g->physics.Deinit();
     g->renderer.Deinit();
     g->resourceManager.Deinit();
 }
@@ -103,6 +107,7 @@ void Tick()
     g->logicTimeCounter = Utility::Math::Min(g->logicTimeCounter + frameDelta, maxFrameTickTime);
     while (g->logicTimeCounter >= 0)
     {
+        instance->GetRenderScene().ClearDebug();
         PROFILE_NAMED("Tick");
         g->logicTimeCounter -= fixedDelta;
         instance->Logic(fixedDelta);

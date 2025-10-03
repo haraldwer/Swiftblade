@@ -824,7 +824,7 @@ namespace Utility
 		};
 
 		template<typename Type, int RowOffset, int ColumnOffset>
-		Vector4<Type> operator * (Vector4<Type> InVector, Matrix4x4<Type, RowOffset, ColumnOffset> InMatrix)
+		Vector4<Type> operator * (const Vector4<Type>& InVector, const Matrix4x4<Type, RowOffset, ColumnOffset>& InMatrix)
 		{
 			Vector4<Type> newVector;
 			for (unsigned int column = 0; column < 4; ++column)
@@ -841,7 +841,7 @@ namespace Utility
 		}
 
 		template<typename Type, int RowOffset, int ColumnOffset>
-		Vector4<Type> operator * (Matrix4x4<Type, RowOffset, ColumnOffset> InMatrix, Vector4<Type> InVector)
+		Vector4<Type> operator * (const Matrix4x4<Type, RowOffset, ColumnOffset>& InMatrix, const Vector4<Type>& InVector)
 		{
 			Vector4<Type> newVector;
 			for (unsigned int column = 0; column < 4; ++column)

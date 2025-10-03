@@ -1,5 +1,7 @@
 ﻿#include "RoomGenEditor.h"
 
+#include <filesystem>
+
 #include "ECS/Manager.h"
 #include "ECS/RoomConnection.h"
 #include "ECS/Volume/CubeVolume.h"
@@ -49,14 +51,39 @@ void RoomGenEditor::Update()
 
 void RoomGenEditor::StartGen()
 {
-    auto& v = GetVolume();
-    auto& data = GetRoom().volumeData;
-    auto& path = GetRoom().Path.Get();
-    volumeGenerator = RoomGenVolume(path);
-    generating = true;
-            
-    // Clear current volume
-    data.data.clear(); 
-    v.data.data.clear();
-    v.UpdateCache(Mat4F());
+    struct GenChange
+    {
+        ECS::CubeVolumeData prevData;
+        Vector<ECS::VolumeCoordKey> genPath;
+    };
+
+    GetHistory().AddChange(Utility::Change<GenChange>(
+        [&](const GenChange& InData)
+        {
+            auto& v = GetVolume();
+            auto& data = GetRoom().volumeData;
+            volumeGenerator = RoomGenVolume(InData.genPath);
+            generating = true;
+                            
+            // Clear current volume
+            data.data.clear(); 
+            v.data.data.clear();
+            v.UpdateCache(Mat4F());
+        },
+        [&](const GenChange& InData)
+        {
+            auto& v = GetVolume();
+            auto& data = GetRoom().volumeData;
+            volumeGenerator = RoomGenVolume(InData.genPath);
+            generating = false;
+            data = InData.prevData;
+            v.data = InData.prevData;
+            v.UpdateCache(Mat4F());
+        },
+        {
+            GetVolume().data,
+            GetRoom().Path.Get()
+        }));
+
+
 }

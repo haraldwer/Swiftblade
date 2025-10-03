@@ -7,7 +7,7 @@
 #include "Level.h"
 #include "Utility/Collections/RandomWeightedCollection.h"
 
-void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
+void LevelManager::Load(const Vector<ResScene>& InRooms)
 {
     Unload(); 
     
@@ -18,7 +18,7 @@ void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
         
         const SceneResource* scene = room.Get();
         CHECK_CONTINUE(!scene);
-        SceneInstance instance = scene->Instantiate(offset, scenes.empty() && !InApplyRootOffset);
+        SceneInstance instance = scene->Instantiate(offset, scenes.empty());
         scenes.push_back(instance);
 
         for (const ECS::EntityID entity : instance.entities)
@@ -34,7 +34,7 @@ void LevelManager::Load(const Vector<ResScene>& InRooms, bool InApplyRootOffset)
             offset = endTrans->World();
             LOG("Found roomEnd at")
             LOG(offset);
-            break; 
+            break;
         }
     }
 }
@@ -83,14 +83,14 @@ void LevelManager::LoadLevel(const LevelConfig &InLevel)
     if (state.arena)
     {
         // Only load end index
-        Load({ sceneOrder[endIndex] }, true);
+        Load({ sceneOrder[endIndex] });
     }
     else
     {
         Vector<ResScene> toLoad;
         for (int i = startIndex; i < endIndex; i++)
             toLoad.push_back(sceneOrder[i]);
-        Load(toLoad, true);
+        Load(toLoad);
     }
 }
 

@@ -2,6 +2,7 @@
 #include "Database/Events.h"
 #include "Database/Data/Response.h"
 #include "Database/Data/RPCLevel.h"
+#include "Instance/Events.h"
 #include "UI/Elements/Container.h"
 #include "UI/Menus/MenuLevelSubmit.h"
 #include "UI/Widgets/LevelList/LevelEntryWidget.h"
@@ -14,13 +15,18 @@ namespace UI
     {
         CLASS_INFO(InfoPanelLevel, Container);
     public:
-        InfoPanelLevel() : onInfo(this), onSubmit(this), onSubmitClick(this) {}
+        InfoPanelLevel() :
+            onInfo(this),
+            onSubmit(this),
+            onSubmitClick(this),
+            onInstanceRemoved(this) {}
         InfoPanelLevel(const InfoPanelLevel& InOther) :
             Container(InOther),
             data(InOther.data),
             onInfo(InOther.onInfo, this),
             onSubmit(InOther.onSubmit, this),
-            onSubmitClick(InOther.onSubmitClick, this) {}
+            onSubmitClick(InOther.onSubmitClick, this),
+            onInstanceRemoved(InOther.onInstanceRemoved, this) {}
         
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
@@ -36,6 +42,7 @@ namespace UI
         void SubmitClicked(const MenuLevelSubmit::OnClickedEvent& InE);
         bool SubmitLevel() const;
         void OnSubmitResponse(const DB::Response<DB::RPCSubmitLevel>& InResp);
+        void OnEndPlay();
         
         LevelEntryData data;
         DB::Event<DB::RPCLevelInfo>::ContextCallback<InfoPanelLevel*> onInfo;
@@ -44,5 +51,7 @@ namespace UI
         MenuLevelSubmit* submitMenu = nullptr;
         MenuLevelPlay* playMenu = nullptr;
         bool submitting = false;
+
+        InstanceRemovedCallbackT<InfoPanelLevel*> onInstanceRemoved;
     };
 }

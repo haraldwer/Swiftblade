@@ -22,9 +22,16 @@ namespace Utility
     
     inline bool ReadValue(const GenericVal& InVal, float& OutData)
     {
-        DESERIALIZE_CHECK_RETURN(!InVal.IsFloat(), "Incorrect type, expected float");
-        OutData = InVal.GetFloat();
-        return true; 
+        if (InVal.IsFloat())
+        {
+            OutData = InVal.GetFloat();
+            return true;
+        }
+        
+        // Try int
+        DESERIALIZE_CHECK_RETURN(!InVal.IsInt(), "Incorrect type, expected number")
+        OutData = static_cast<float>(InVal.GetInt());
+        return true;
     }
     
     inline bool ReadValue(const GenericVal& InVal, int32& OutData)
@@ -55,87 +62,43 @@ namespace Utility
         return true;
     }
 
-    inline bool ReadValue(const GenericVal& InVal, Vec2F& OutData)
+    template <typename T>
+    bool ReadValue(const GenericVal& InVal, Math::Vector2<T>& OutData)
     {
         DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
         const auto arr = InVal.GetArray();
         DESERIALIZE_CHECK_RETURN(arr.Size() != 2, "Invalid array size: " + std::to_string(arr.Size()));
         for (int32 i = 0; i < 2; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].GetFloat();
-        }
+            DESERIALIZE_CHECK_RETURN(!ReadValue(arr[i], OutData.data[i]), "Array incorrect type, expected float");
         return true;
     }
 
-    inline bool ReadValue(const GenericVal& InVal, Vec3F& OutData)
+    template <typename T>
+    bool ReadValue(const GenericVal& InVal, Math::Vector3<T>& OutData)
     {
         DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
         const auto arr = InVal.GetArray();
         DESERIALIZE_CHECK_RETURN(arr.Size() != 3, "Invalid array size: " + std::to_string(arr.Size()));
         for (int32 i = 0; i < 3; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].GetFloat();
-        }
+            DESERIALIZE_CHECK_RETURN(!ReadValue(arr[i], OutData.data[i]), "Array incorrect type, expected float");
         return true;
     }
 
-    inline bool ReadValue(const GenericVal& InVal, Vec4F& OutData)
+    template <typename T>
+    bool ReadValue(const GenericVal& InVal, Math::Vector4<T>& OutData)
     {
         DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
         const auto arr = InVal.GetArray();
         DESERIALIZE_CHECK_RETURN(arr.Size() != 4, "Invalid array size: " + std::to_string(arr.Size()));
         for (int32 i = 0; i < 4; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsFloat(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].GetFloat();
-        }
+            DESERIALIZE_CHECK_RETURN(!ReadValue(arr[i], OutData.data[i]), "Array incorrect type, expected float");
         return true;
     }
 
-    inline bool ReadValue(const GenericVal& InVal, Vec2I& OutData)
+    template <typename T>
+    bool ReadValue(const GenericVal& InVal, Math::Quaternion<T>& OutData)
     {
-        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
-        const auto arr = InVal.GetArray();
-        DESERIALIZE_CHECK_RETURN(arr.Size() != 2, "Invalid array size: " + std::to_string(arr.Size()));
-        for (int32 i = 0; i < 2; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsInt(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].IsInt();
-        }
-        return true;
-    }
-
-    inline bool ReadValue(const GenericVal& InVal, Vec3I& OutData)
-    {
-        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
-        const auto arr = InVal.GetArray();
-        DESERIALIZE_CHECK_RETURN(arr.Size() != 3, "Invalid array size: " + std::to_string(arr.Size()));
-        for (int32 i = 0; i < 3; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsInt(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].IsInt();
-        }
-        return true;
-    }
-
-    inline bool ReadValue(const GenericVal& InVal, Vec4I& OutData)
-    {
-        DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
-        const auto arr = InVal.GetArray();
-        DESERIALIZE_CHECK_RETURN(arr.Size() != 4, "Invalid array size: " + std::to_string(arr.Size()));
-        for (int32 i = 0; i < 4; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsInt(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].IsInt();
-        }
-        return true;
-    }
-
-    inline bool ReadValue(const GenericVal& InVal, QuatF& OutData)
-    {
-        Vec3F euler = OutData.Euler(); 
+        Math::Vector3<T> euler = OutData.Euler(); 
         if (ReadValue(InVal, euler))
         {
             OutData = QuatF::FromEuler(euler * Math::DegreesToRadians(1.0f));        
@@ -144,16 +107,14 @@ namespace Utility
         return false; 
     }
 
-    inline bool ReadValue(const GenericVal& InVal, Mat4F& OutData)
+    template <typename T>
+    bool ReadValue(const GenericVal& InVal, Math::Matrix4x4<T>& OutData)
     {
         DESERIALIZE_CHECK_RETURN(!InVal.IsArray(), "Incorrect type, expected Arr");
         const auto arr = InVal.GetArray();
         DESERIALIZE_CHECK_RETURN(arr.Size() != 16, "Invalid array size: " + std::to_string(arr.Size()));
         for (int32 i = 0; i < 16; i++)
-        {
-            DESERIALIZE_CHECK_RETURN(!arr[i].IsNumber(), "Array incorrect type, expected float");
-            OutData.data[i] = arr[i].GetFloat();
-        }
+            DESERIALIZE_CHECK_RETURN(!ReadValue(arr[i], OutData.data[i]), "Array incorrect type, expected float");
         return true;
     }
 

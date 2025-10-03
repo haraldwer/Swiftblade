@@ -27,11 +27,11 @@ void GameInstance::Init()
         roomList.push_back(startScene);
         if (!startScene.Identifier().Unique())
             startScene.Unload(); // Force reload
-        rooms.Load(roomList, false);
+        rooms.Load(roomList);
     }
     else
     {
-        rooms.LoadLevel(level);  
+        rooms.LoadLevel(state.level);  
     }
 
     if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
@@ -79,7 +79,9 @@ void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
 
 void GameInstance::PlayLevel(const LevelConfig& InLevel)
 {
-    level = InLevel;
+    GameState state;
+    state.level = InLevel;
+    SetState(state);
 }
 
 void GameInstance::SetState(const GameState& InState)

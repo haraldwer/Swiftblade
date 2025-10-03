@@ -36,9 +36,10 @@ namespace Rendering
                     meshDrawCount[s.first] += s.second;
             }
         };
-
-
+        
         virtual Stats Render(RenderArgs InArgs);
+        virtual Stats RenderPost(RenderArgs InArgs);
+        virtual Stats RenderCustom(RenderArgs InArgs, std::function<void()> InFunc);
 
     protected:
         static Stats RenderSkybox(const RenderArgs& InArgs);
@@ -49,7 +50,8 @@ namespace Rendering
         static Stats RenderLights(const RenderArgs& InArgs);
         static Stats RenderLumin(const RenderArgs& InArgs);
         static Stats RenderAO(const RenderArgs& InArgs);
-        static Stats RenderFX(const RenderArgs& InArgs);
+        static Stats RenderSceneFX(const RenderArgs& InArgs);
+        static Stats RenderPostFX(const RenderArgs& InArgs);
         static Stats Blip(const RenderArgs& InArgs);
         static Stats RenderDebug(const RenderArgs& InArgs);
     };

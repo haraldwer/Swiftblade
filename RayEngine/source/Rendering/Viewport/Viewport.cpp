@@ -81,7 +81,27 @@ Vec2F Rendering::Viewport::ScreenToViewportAbsolute(const Vec2F &InScreenPos)
     return ScreenToViewport(InScreenPos) / s;
 }
 
-RenderTexture& Rendering::Viewport::GetVirtualTarget() const
+Vec2F Rendering::Viewport::DistortCoord(const Vec2F &InAbsView)
+{
+    const float DISTORT_STRENGTH = 0.2f;
+    const float DISTORT_POW = 4.0f;
+    const float DISTORT_ZOOM = 0.15f;
+    
+    const Vec2F size = GetSize().To<float>();
+    const float aspect = Utility::Math::Min(size.x, size.y) / Utility::Math::Max(size.x, size.y);
+    const Vec2F pos = (InAbsView * 2 - 1) * Vec2F(1, aspect) * 0.75;
+    const float dist = pos.Length() * (1 + DISTORT_ZOOM);
+
+    const float p = std::pow(dist, DISTORT_POW);
+    const float pow = 1 - Utility::Math::Clamp(p, 0.0f, 1.0f);
+    const float zoom = 1 - pow * DISTORT_STRENGTH; // This is how much to zoom!
+
+    const Vec2F newPos = (InAbsView * 2 - 1) * zoom;
+    const Vec2F newCoord = (newPos + 1) / 2;
+    return newCoord;
+}
+
+RenderTexture Rendering::Viewport::GetVirtualTarget() const
 {
     CHECK_ASSERT(!virtualTarget, "Invalid target");
     return *virtualTarget;

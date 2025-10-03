@@ -87,6 +87,12 @@ void Utility::CreateDir(const String &InPath)
     }
 }
 
+bool Utility::DeleteFile(const String &InPath)
+{
+    CHECK_RETURN(!FileExists(InPath), false)
+    return std::filesystem::remove(InPath);
+}
+
 Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
 {
     if (InPath.empty())

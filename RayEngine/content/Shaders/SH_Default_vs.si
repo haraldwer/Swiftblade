@@ -27,9 +27,9 @@ void Default()
     WorldPosition.w = screenPos.z; // Store linear depth
     TexCoord = vertexTexCoord;
 
-    screenPos.xy /= screenPos.z;
-    prevScreenPos.xy /= prevScreenPos.z;
-    screenPos.xy = clamp(screenPos.xy, -1, 1);
-    prevScreenPos.xy = clamp(prevScreenPos.xy, -1, 1);
+    screenPos.xy /= max(screenPos.z, 1);
+    prevScreenPos.xy /= max(prevScreenPos.z, 1);
+    screenPos.xy = clamp(screenPos.xy, -0.9999, 0.9999);
+    prevScreenPos.xy = clamp(prevScreenPos.xy, -0.9999, 0.9999);
     Velocity = vec3(screenPos.xy - prevScreenPos.xy, 0);
 }

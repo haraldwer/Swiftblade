@@ -70,4 +70,6 @@ void RoomPreviewEditor::OnSubmitResponse(const DB::Response<DB::RPCSubmitRoom>& 
     
     LOG("Room was submitted successfully!");
     previewMenu->SetSubmitState(true, "");
+    // Remove local file!
+    GetEditor().FinalizeSubmit();
 }

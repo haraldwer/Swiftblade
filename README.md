@@ -4,14 +4,15 @@ Swiftblade is a first-person movement-focused speedrunning game.
 The game runs in a home-made engine that I call RayEngine, which I've built using Raylib, a C library for making games. 
 Complete list of libraries / tools used:
  - Raylib 5.5
- - ReactPhysics3D 0.10.2
+ - ReactPhysics3D 0.10.2 (custom sweep fork)
  - Nakama 3.26.0 (nakama-cpp 2.8.5)
  - ImGui (docking branch)
  - Tracy 0.12.1
  - rapidjson
  - FastNoiseLite
+ - Inkscape (for ui design)
  - Blender (for modelling)
- - Rider (IDE)
+ - CMake (IDE)
 
 Here are some features of the engine: 
  - Dense, single-threaded ECS

@@ -19,8 +19,8 @@ namespace Rendering
         void Resize(const Vec2I& InSize);
         void BeginFrame();
 
-        RenderTexture& GetVirtualTarget() const;
-        Texture* GetFrameTarget() { return targets.frameTargets.Curr().GetTextures().at(0).tex; }
+        RenderTexture GetVirtualTarget() const;
+        Texture* GetFrameTexture() { return targets.frameTargets.Curr().GetTextures().at(0).tex; }
         FrameTargetCollection& GetTargets() { return targets; }
         
         void ImDraw();
@@ -31,6 +31,7 @@ namespace Rendering
 
         Vec2F ScreenToViewport(const Vec2F& InScreenPos);
         Vec2F ScreenToViewportAbsolute(const Vec2F& InScreenPos); // 0 - 1
+        Vec2F DistortCoord(const Vec2F& InAbsView);
 
     private:
         ViewportConfig config = {};

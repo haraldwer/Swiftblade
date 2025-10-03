@@ -11,40 +11,68 @@
 #include "CollisionShape.h"
 #include <reactphysics3d/reactphysics3d.h>
 
+#include "ContactHandler.h"
 #include "Logger.h"
 #include "raylib.h"
 #include "rlgl.h"
 #include "Instance/Instance.h"
 
+void Physics::Persistent::Init()
+{
+    CHECK_ASSERT(common, "Common already created");
+    CHECK_ASSERT(logger, "Logger already created");
+    common = new reactphysics3d::PhysicsCommon();
+    logger = new Logger();
+    reactphysics3d::PhysicsCommon::setLogger(logger);
+}
+
+void Physics::Persistent::Deinit()
+{
+    CHECK_ASSERT(!common, "Invalid common");
+    CHECK_ASSERT(!logger, "Invalid logger");
+    reactphysics3d::PhysicsCommon::setLogger(nullptr);
+    delete common;
+    common = nullptr;
+    delete logger;
+    logger = nullptr;
+}
+
+reactphysics3d::PhysicsCommon & Physics::Persistent::GetCommon()
+{
+    CHECK_ASSERT(!common, "Invalid common");
+    return *common;
+}
+
 void Physics::Manager::Init()
 {
     PROFILE();
-    common = new reactphysics3d::PhysicsCommon();
-    logger = new Logger();
-    common->setLogger(logger);
     
     reactphysics3d::PhysicsWorld::WorldSettings settings;
-    world = common->createPhysicsWorld(settings);
+    world = Persistent::Get().GetCommon().createPhysicsWorld(settings);
     CHECK_ASSERT(!world, "Failed to create world");
+    contactHandler = new ContactHandler();
+    CHECK_ASSERT(!contactHandler, "Failed to create contact handler");
+    world->setEventListener(contactHandler);
+    
 }
 
 void Physics::Manager::Deinit()
 {
     PROFILE();
-    CHECK_ASSERT(!common, "Invalid common");
     CHECK_ASSERT(!world, "Invalid world");
-
+    CHECK_ASSERT(!contactHandler, "Invalid contact handler");
+    
     for (auto& e : data)
         DestroyData(e.second);
     data.clear();
     dynamic.clear();
     
-    common->destroyPhysicsWorld(world);
+    contactHandler->Clear();
+    delete contactHandler;
+    contactHandler = nullptr;
+
+    Persistent::Get().GetCommon().destroyPhysicsWorld(world);
     world = nullptr;
-    delete common;
-    common = nullptr;
-    delete logger;
-    logger = nullptr;
 }
 
 void Physics::Manager::Update()
@@ -89,7 +117,7 @@ void Physics::Manager::Frame() const
     {
         //auto& e = data.at(id); 
         CHECK_ASSERT(!id.second.rb, "Invalid rb");
-        if (!id.second.rb->isDebugEnabled())
+        if (!id.second.rb->isDebugEnabled() && id.second.rb->getType() != reactphysics3d::BodyType::STATIC)
             id.second.rb->setIsDebugEnabled(true);
     }
     
@@ -159,6 +187,8 @@ void Physics::Manager::Add(const ECS::EntityID InID)
 {
     PROFILE();
     CHECK_ASSERT(InID == ECS::INVALID_ID, "Invalid ID");
+    CHECK_ASSERT(sizeof(void*) < sizeof(ECS::EntityID), "Incompatible user data");
+    
     const auto& ecs = ECS::Manager::Get();
     const auto collider = ecs.GetComponent<ECS::Collider>(InID); 
     CHECK_RETURN_LOG(!collider, "No collider for entity");
@@ -179,6 +209,7 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     {
         entity.rb = world->createRigidBody(GetTrans(rbWorld));
         CHECK_ASSERT(!entity.rb, "Failed to create Rigidbody");
+        entity.rb->setUserData(reinterpret_cast<void*>(id)); // Not safe
     }
     
     if (rb) 
@@ -210,10 +241,13 @@ void Physics::Manager::Add(const ECS::EntityID InID)
     Mat4F colliderLocal = rb ? colliderWorld * Mat4F::GetInverse(rbWorld) : Mat4F();
     auto c = entity.rb->addCollider(shape, GetTrans(colliderLocal));
     CHECK_ASSERT(!c, "Failed to add collider");
+    c->setUserData(reinterpret_cast<void*>(InID));
+    
     entity.colliders.push_back(c);
 
     // Update collider properties
     c->setIsTrigger(collider->IsTrigger);
+    c->setIsWorldQueryCollider(collider->IsQueryVisible);
     if (auto mat = collider->Material.Get().Get())
     {
         auto m = c->getMaterial();
@@ -227,6 +261,7 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
 {
     PROFILE();
     CHECK_ASSERT(InID == ECS::INVALID_ID, "Invalid ID");
+    CHECK_ASSERT(sizeof(void*) < sizeof(ECS::EntityID), "Incompatible user data");
     Remove(InID);
     
     auto mat = InMat.Get();
@@ -242,17 +277,18 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
     {
         entity.rb = world->createRigidBody(GetTrans(Mat4F()));
         CHECK_ASSERT(!entity.rb, "Failed to create Rigidbody");
+        entity.rb->setUserData(reinterpret_cast<void*>(InID)); // Not safe
     }
     
     entity.rb->setType(reactphysics3d::BodyType::STATIC);
 
+    /*
     // Generate a custom mesh for the cube volume
     Vector<Vec3F> vertices;
     Vector<int> indices;
     vertices.reserve(8 * InTransforms.size());
     indices.reserve(12 * 3 * InTransforms.size());
-    
-    const auto addCube([&](const Mat4F& InWorld) 
+    const auto addCube([&](const Mat4F& InCube) 
     {
         Vec3F v[8] = {
             // Front face (vertices 0-3)
@@ -296,22 +332,13 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
 
         const int startIndex = static_cast<int>(vertices.size());
         for (auto& vertex : v)
-        {
-            const Vec4F p = {
-                vertex.x,
-                vertex.y,
-                vertex.z,
-                1
-            };
-            vertices.push_back((InWorld * p).xyz);
-        }
-
+            vertices.push_back(InCube.GetPosition() + vertex);
         for (int index : i)
             indices.push_back(index + startIndex);
     });
     
-    for (auto& world : InTransforms)
-        addCube(world);
+    for (auto& cubeMat : InTransforms)
+        addCube(cubeMat);
     
     reactphysics3d::TriangleVertexArray arr = reactphysics3d::TriangleVertexArray(
         static_cast<int>(vertices.size()),
@@ -319,7 +346,7 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
         sizeof(Vec3F),
         static_cast<int>(indices.size()) / 3,
         indices.data(),
-        sizeof(int),
+        3 * sizeof(int),
         reactphysics3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE,
         reactphysics3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
     
@@ -331,10 +358,28 @@ void Physics::Manager::AddCubes(ECS::EntityID InID, const Vector<Mat4F> &InTrans
     auto shape = common->createConcaveMeshShape(mesh, GetVec(InScale));
     entity.shapes.push_back(shape);
     
+    auto c = entity.rb->addCollider(shape, GetTrans(Mat4F()));
+    CHECK_ASSERT(!c, "Failed to add collider");
+    entity.colliders.push_back(c);
+
+    // Update collider properties
+    auto m = c->getMaterial();
+    m.setFrictionCoefficient(mat->data.Friction);
+    m.setBounciness(mat->data.Bounciness);
+    m.setMassDensity(mat->data.MassDensity);
+    */
+
+    auto shape = Persistent::Get().GetCommon().createBoxShape({ 1, 1, 1 });
+    CHECK_ASSERT(!shape, "Failed to create box shape");
+    entity.shapes.push_back(shape);
+
     for (auto cube : InTransforms)
     {
         auto c = entity.rb->addCollider(shape, GetTrans(cube));
         CHECK_ASSERT(!c, "Failed to add collider");
+        c->setIsTrigger(false);
+        c->setIsWorldQueryCollider(true);
+        c->setUserData(reinterpret_cast<void*>(InID));
         entity.colliders.push_back(c);
 
         // Update collider properties
@@ -367,17 +412,17 @@ reactphysics3d::CollisionShape* Physics::Manager::CreateShape(const ECS::Collide
     {
         case Shape::BOX:
         {
-            return common->createBoxShape(GetVec(shapeData.xyz * scale));
+            return Persistent::Get().GetCommon().createBoxShape(GetVec(shapeData.xyz * scale));
         }
         case Shape::CAPSULE:
         {
             const float rScale = Utility::Math::Max(scale.x, scale.z);
-            return common->createCapsuleShape(shapeData.x * rScale, shapeData.y * scale.y);
+            return Persistent::Get().GetCommon().createCapsuleShape(shapeData.x * rScale, shapeData.y * scale.y);
         }
         case Shape::SPHERE:
         {
             const float rScale = Utility::Math::Max(Utility::Math::Max(scale.x, scale.y), scale.z);
-            return common->createSphereShape(shapeData.x * rScale);
+            return Persistent::Get().GetCommon().createSphereShape(shapeData.x * rScale);
         }
     }
     return nullptr;
@@ -394,13 +439,13 @@ void Physics::Manager::DestroyData(const Data& InData) const
         switch (s->getName())
         {
             case reactphysics3d::CollisionShapeName::SPHERE:
-                common->destroySphereShape(reinterpret_cast<reactphysics3d::SphereShape*>(s));
+                Persistent::Get().GetCommon().destroySphereShape(reinterpret_cast<reactphysics3d::SphereShape*>(s));
                 break;
             case reactphysics3d::CollisionShapeName::CAPSULE:
-                common->destroyCapsuleShape(reinterpret_cast<reactphysics3d::CapsuleShape*>(s));
+                Persistent::Get().GetCommon().destroyCapsuleShape(reinterpret_cast<reactphysics3d::CapsuleShape*>(s));
                 break;
             case reactphysics3d::CollisionShapeName::BOX:
-                common->destroyBoxShape(reinterpret_cast<reactphysics3d::BoxShape*>(s));
+                Persistent::Get().GetCommon().destroyBoxShape(reinterpret_cast<reactphysics3d::BoxShape*>(s));
                 break;
             default:
                 CHECK_ASSERT(false, "Invalid collision shape");
@@ -446,6 +491,7 @@ void Physics::Manager::SetRBTransforms()
 void Physics::Manager::Simulate() const
 {
     PROFILE();
+    contactHandler->Clear();
     const double delta = Utility::Time::Get().Delta();
     world->update(static_cast<reactphysics3d::decimal>(delta));
 }

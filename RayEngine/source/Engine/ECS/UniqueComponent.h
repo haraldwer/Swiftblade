@@ -2,7 +2,6 @@
 
 #include "Component.h"
 #include "Manager.h"
-#include "Physics/Contact.h"
 #include "System.h"
 
 namespace ECS
@@ -18,8 +17,6 @@ namespace ECS
         virtual void Init() {}
         virtual void Deinit() {}
         virtual void Update() {}
-        virtual void OnBeginContact(const Physics::Contact& InContact) {}
-        virtual void OnEndContact(const Physics::Contact& InContact) {}
         virtual int GetPriority() const { return 0; }
         virtual bool ShouldUpdate() const;
 
@@ -85,20 +82,6 @@ namespace ECS
         bool ShouldUpdate() const override
         {
             return T().ShouldUpdate();
-        }
-
-        void OnBeginContact(const Physics::Contact& InContact) override
-        {
-            ComponentID find = SystemBase::Translate(InContact.self);
-            CHECK_RETURN(find == INVALID_ID)
-            System<T>::GetInternal(find).OnBeginContact(InContact);
-        }
-
-        void OnEndContact(const Physics::Contact& InContact) override
-        {
-            ComponentID find = SystemBase::Translate(InContact.target);
-            CHECK_RETURN(find == INVALID_ID)
-            System<T>::GetInternal(find).OnEndContact(InContact);
         }
     };
 }

@@ -14,6 +14,7 @@
 #include "Engine/Menu/Manager.h"
 #include "Instances/GameInstance.h"
 #include "GameState.h"
+#include "Physics/Query.h"
 #include "UI/Game/MenuDeath.h"
 #include "UI/Game/MenuGameEnd.h"
 
@@ -51,6 +52,28 @@ void ECS::Player::Init()
             PickupWeapon(weaponID); 
         }
     }
+
+    for (auto& c : Physics::Query::GetContacts(GetID()))
+    {
+        auto other = c.GetOther(GetID());
+        const auto& t = Get<Transform>(other);
+        const auto parent = t.GetParent(); 
+        if (parent != INVALID_ID)
+        {
+            if (TryGet<Checkpoint>(parent))
+                ActivateCheckpoint();
+            if (TryGet<SectionEnd>(parent))
+                TriggerSectionEnd();
+            if (TryGet<GameEnd>(parent))
+                TriggerGameEnd();
+            if (TryGet<Obstacle>(parent))
+                Die();
+            if (TryGet<Projectile>(parent))
+                Die();
+            if (TryGet<Weapon>(parent))
+                PickupWeapon(parent); 
+        }
+    }
 }
 
 void ECS::Player::Update()
@@ -58,27 +81,6 @@ void ECS::Player::Update()
     const auto& t = Get<Transform>(GetID());
     if (t.GetPosition().y < -30.0f)
         Die();
-}
-
-void ECS::Player::OnBeginContact(const Physics::Contact& InContact)
-{
-    const auto& t = Get<Transform>(InContact.target);
-    const auto parent = t.GetParent(); 
-    if (parent != INVALID_ID)
-    {
-        if (TryGet<Checkpoint>(parent))
-            ActivateCheckpoint();
-        if (TryGet<SectionEnd>(parent))
-            TriggerSectionEnd();
-        if (TryGet<GameEnd>(parent))
-            TriggerGameEnd();
-        if (TryGet<Obstacle>(parent))
-            Die();
-        if (TryGet<Projectile>(parent))
-            Die();
-        if (TryGet<Weapon>(parent))
-            PickupWeapon(parent); 
-    }
 }
 
 void ECS::Player::PickupWeapon(EntityID InWeaponID)

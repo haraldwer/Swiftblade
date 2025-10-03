@@ -135,7 +135,8 @@ Mat4F RoomConnectionEditor::GetWorldOffset() const
     if (auto* trans = ECS::Manager::Get().GetComponent<ECS::Transform>(startEntity))
     {
         Mat4F world = trans->World();
-        //world.SetPosition(world.GetPosition() - GetOff(true));
+        Vec3F off = GetVolume().Scale * Vec3F(2, 2, 0);  
+        world.SetPosition(world.GetPosition() + off);
         return world;
     }
     return {};

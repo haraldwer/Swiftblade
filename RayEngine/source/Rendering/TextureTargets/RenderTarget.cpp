@@ -129,7 +129,7 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
     int mips = InMips;
     if (mips <= 0)
         mips = 1 + static_cast<int>(floor(log(Utility::Math::Max(w, h)) / log(2)));
-    
+
     auto& buffer = textures.emplace_back();
     buffer.name = InName;
     buffer.cubemap = InCubemap;

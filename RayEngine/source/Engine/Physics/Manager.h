@@ -1,14 +1,15 @@
 #pragma once
 
+#include "Contact.h"
 #include "ECS/Entity.h"
 #include "Core/Utility/Singelton.h"
-#include "ECS/Systems/Transform.h"
 #include "Resources/Material.h"
 
 namespace ECS
 {
     struct Rigidbody;
     struct Collider;
+    struct Transform;
 }
 
 namespace reactphysics3d
@@ -25,6 +26,18 @@ namespace Physics
     class Logger;
     enum class Shape : uint8;
     class Callback;
+    class ContactHandler;
+
+    class Persistent : public Utility::Singelton<Persistent, true> 
+    {
+    public:
+        void Init();
+        void Deinit();
+        reactphysics3d::PhysicsCommon& GetCommon();
+    private:
+        reactphysics3d::PhysicsCommon* common = nullptr;
+        Logger* logger = nullptr;
+    };
     
     class Manager : public Utility::Singelton<Manager>
     {
@@ -47,11 +60,11 @@ namespace Physics
         void SetEntityTransforms() const;
 
         static ECS::Rigidbody* FindRigidbody(ECS::EntityID InID);
-        reactphysics3d::CollisionShape* CreateShape(const ECS::Collider &InCollider, const ECS::Transform &InTrans) const;
+        reactphysics3d::CollisionShape* CreateShape(const ECS::Collider &InCollider, const ECS::Transform& InTrans) const;
         
-        reactphysics3d::PhysicsCommon* common = nullptr;
+        
         reactphysics3d::PhysicsWorld* world = nullptr;
-        Logger* logger = nullptr;
+        ContactHandler* contactHandler = nullptr;
         
         struct Data
         {

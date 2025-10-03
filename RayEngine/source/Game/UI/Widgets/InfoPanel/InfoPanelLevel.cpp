@@ -81,6 +81,11 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
     {
         InC->OnSubmitResponse(InData);
     });
+
+    onInstanceRemoved.Bind([](const auto& InData, auto InC)
+    {
+        InC->OnEndPlay();
+    });
 }
 
 void UI::InfoPanelLevel::Update(Container &InOwner)
@@ -218,7 +223,7 @@ void UI::InfoPanelLevel::SetEntryInfo(DB::RPCLevelList::Entry InEntry)
     if (creator.empty())
         creator = "you";
     Get<Label>("Name").SetText(name);
-    Get<Textbox>("NameEdit").SetText(name);
+    Get<Textbox>("NameEdit").SetText(InEntry.Name);
     Get<Label>("Creator").SetText("by " + creator);
 
     Get<NumberSelector>("NumRooms").SetValue(0);
@@ -237,7 +242,7 @@ void UI::InfoPanelLevel::SetResourceInfo(const Level& InData)
     if (creator.empty())
         creator = "you";
     Get<Label>("Name").SetText(name);
-    Get<Textbox>("NameEdit").SetText(name);
+    Get<Textbox>("NameEdit").SetText(InData.Name);
     Get<Label>("Creator").SetText("by " + creator);
     
     Get<NumberSelector>("NumRooms").SetValue(InData.NumRooms);
@@ -302,5 +307,14 @@ void UI::InfoPanelLevel::OnSubmitResponse(const DB::Response<DB::RPCSubmitLevel>
     
     LOG("Level was submitted successfully!");
     submitMenu->SetSubmitState(true, "");
+}
+
+void UI::InfoPanelLevel::OnEndPlay()
+{
+    if (playMenu)
+    {
+        Menu::Manager::Get().Close(playMenu);
+        playMenu = nullptr;
+    }
 }
 

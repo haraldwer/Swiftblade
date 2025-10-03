@@ -289,14 +289,31 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
     }
 }
 
+int Rendering::Renderer::DrawCustom(const RenderArgs &InArgs, const std::function<void()> &InFunc)
+{
+    auto virtualTarget = InArgs.viewportPtr->GetVirtualTarget();
+    auto& frameTarget= InArgs.viewportPtr->targets.frameTargets.Curr();
+    BeginTextureMode(virtualTarget);
+    rlEnableFramebuffer(frameTarget.GetFBO());
+    rlEnableColorBlend();
+    BeginBlendMode(BLEND_ALPHA);
+    InFunc();
+    EndBlendMode();
+    EndTextureMode();
+    return 0;
+}
+
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
     PROFILE_GL();
     
     auto& scene = *InArgs.scenePtr;
+    auto virtualTarget = InArgs.viewportPtr->GetVirtualTarget();
+    auto& frameTarget= InArgs.viewportPtr->targets.frameTargets.Curr();
     rlState::current.Reset();
 
-    BeginTextureMode(InArgs.viewportPtr->GetVirtualTarget());
+    BeginTextureMode(virtualTarget);
+    rlEnableFramebuffer(frameTarget.GetFBO());
 
     for (auto& persp : InArgs.perspectives)
     {

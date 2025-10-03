@@ -60,19 +60,15 @@ void Rendering::Manager::Render(const Scene& InScene)
         .cullPoints = cullPoints,
         .cullMask = static_cast<uint8>(MeshMask::DEFAULT)
     };
+    Pipeline::Stats stats;
         
     mainViewport.BeginFrame();
     
-    rlDrawRenderBatchActive();
     rlState::current.Reset();
-    const Pipeline::Stats stats = defaultPipeline.Render(args);
+    stats += defaultPipeline.Render(args);
+    stats += defaultPipeline.RenderCustom(args, [&] { Menu::Manager::Get().Draw(); });
+    stats += defaultPipeline.RenderPost(args);
     frameViewer.SetStats(stats);
-    rlState::current.Reset();
-
-    BeginTextureMode(mainViewport.GetVirtualTarget());
-    rlEnableColorBlend();
-    Menu::Manager::Get().Draw();
-    EndTextureMode();
 }
 
 void Rendering::Manager::DrawDebugPanel()
@@ -104,6 +100,8 @@ void Rendering::Manager::BeginFrame()
 {
     PROFILE_GL();
     BeginDrawing();
+    rlEnableColorBlend();
+    BeginBlendMode(BLEND_ALPHA);
     
     // Blip if not debug drawing
     const auto& debugMan = Debug::Manager::Get();
@@ -136,6 +134,7 @@ void Rendering::Manager::EndFrame()
     }
     {
         PROFILE_GL_NAMED("EndDrawing (SwapBuffers)");
+        EndBlendMode();
         EndDrawing();
     }
     PROFILE_GL_COLLECT();

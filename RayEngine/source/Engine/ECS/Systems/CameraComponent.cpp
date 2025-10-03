@@ -32,5 +32,5 @@ void SysCameraComponent::Set(const EntityID InEntity, CameraComponent& InCompone
     s.SetCamera(c);
 
     if (i.IsEditor())
-        Engine::DebugSphere(t.GetPosition());
+        Debug::Sphere(t.GetPosition());
 }

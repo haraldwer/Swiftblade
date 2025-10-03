@@ -29,15 +29,19 @@ class RoomEditor : public Engine::Instance, public Debug::Panel
 public:
     void Init() override;
     void Deinit() override;
+
+
     void Logic(double InDelta) override;
     void Frame() override;
 
     void SetRoom(const ResEditRoom& InRoom);
     void LoadRoom();
     void PlayRoom();
+    void ExportScene();
 
     void SaveRoom();
     bool SubmitRoom();
+    void FinalizeSubmit() const;
     
     void DrawDebugPanel() override;
     String DebugPanelName() const override { return "Room Editor"; }

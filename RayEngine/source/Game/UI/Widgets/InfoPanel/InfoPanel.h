@@ -1,6 +1,7 @@
 #pragma once
 #include "../LevelList/LevelEntryWidget.h"
 #include "../EditRoomList/EditRoomEntryWidget.h"
+#include "Instance/Events.h"
 #include "UI/Elements/Container.h"
 #include "Utility/EventScopes.h"
 
@@ -14,27 +15,25 @@ namespace UI
     {
         CLASS_INFO(InfoPanel, Container);
     public:
-        InfoPanel()
-        {
-            onEditRoomSelected.SetContext(this);
-            onLevelSelected.SetContext(this);
-        }
+        InfoPanel() :
+            onEditRoomSelected(this),
+            onLevelSelected(this) {}
         
         InfoPanel(const InfoPanel& InOther) :
             Container(InOther),
-            onEditRoomSelected(InOther.onEditRoomSelected),
-            onLevelSelected(InOther.onLevelSelected)
-        {
-            onEditRoomSelected.SetContext(this);
-            onLevelSelected.SetContext(this);
-        }
+            onEditRoomSelected(InOther.onEditRoomSelected, this),
+            onLevelSelected(InOther.onLevelSelected, this),
+            onInstanceRemoved(InOther.onInstanceRemoved, this) {}
         
         void Init(Container& InOwner) override;
         void SetEditRoom(const EditRoomEntryData& InEvent);
         void SetLevel(const LevelEntryData& InEvent);
+        void Clear();
 
     private:
         EditRoomCallback onEditRoomSelected;
         LevelCallback onLevelSelected;
+        InstanceRemovedEvent::ContextCallback<InfoPanel*> onInstanceRemoved;
+        bool pendingClear = false;
     };
 }

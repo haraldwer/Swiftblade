@@ -12,7 +12,6 @@ namespace ECS
     public:
         void Init() override;
         void Update() override;
-        void OnBeginContact(const Physics::Contact& InContact) override;
         int GetPriority() const override { return 20; }
 
         EntityID GetColliderID() const { return colliderID; }

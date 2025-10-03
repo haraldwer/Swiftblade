@@ -1,5 +1,5 @@
 {
-	"StaticFriction":0.000001,
-	"DynamicFriction":0.000001,
-	"Restitution":0.000001
+	"Friction":0.0,
+	"Bounciness":0.0,
+	"MassDensity":0.0
 }

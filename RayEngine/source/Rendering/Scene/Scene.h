@@ -31,7 +31,9 @@ namespace Rendering
         void AddDebugFunc(const DebugDrawFunc& InFunc);
 
         void Clear();
+        void ClearDebug();
         void Build();
+
 
     private:
         CameraInstance mainCamera = {};

@@ -114,5 +114,6 @@ void Debug::Manager::SetOpen(const String& InWindow, const bool InOpen)
     if (InOpen)
         set.insert(InWindow);
     else
-        set.erase(InWindow); 
+        set.erase(InWindow);
+    current.SaveConfig();
 }

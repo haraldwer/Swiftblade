@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Events.h"
 #include "Instance.h"
 #include "Core/Utility/Singelton.h"
 
@@ -44,6 +45,7 @@ namespace Engine
                     // Add
                     stack.push_back(entry);
                     Utility::SingeltonContext::value = entry.context; 
+                    InstanceAddedEvent::Invoke({});
                     entry.ptr->Init();
                 }
                 else if (!stack.empty())
@@ -63,6 +65,7 @@ namespace Engine
                     {
                         const auto& newTop = stack.back();
                         Utility::SingeltonContext::value = newTop.context;
+                        InstanceRemovedEvent::Invoke({});
                     }
                 }
             }

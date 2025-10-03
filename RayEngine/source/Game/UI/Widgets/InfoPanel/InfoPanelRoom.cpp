@@ -118,7 +118,7 @@ void UI::InfoPanelRoom::SetRoom(const ResRoom &InResource)
     int spawners = info.Spawners;
     
     SetText("Name", name);
-    Get<Textbox>("NameEdit").SetText(name);
+    Get<Textbox>("NameEdit").SetText(info.Name);
     SetText("Creator", "by " + creator);
     SetText("Length", "Length: " + Utility::ToStr(length) + " units");
     SetText("Size", "Size: " + Utility::ToStr(size.x) + "x" + Utility::ToStr(size.y) + "x" + Utility::ToStr(size.z));

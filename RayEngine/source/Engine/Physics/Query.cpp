@@ -1,48 +1,39 @@
 ﻿#include "Query.h"
 
-#include <algorithm>
+#include "ContactHandler.h"
+#include "Manager.h"
+#include "QueryCallback.h"
+#include "Utility.h"
 #include "Editor/Debug/Draw.h"
-
-Physics::QueryResult::Hit Physics::QueryResult::ClosestHit() const
-{
-    Hit result;
-    result.distance = -1.0f; 
-    for (auto& hit : hits)
-        if (hit.distance < result.distance || result.distance < 0.0)
-            result = hit;
-    return result; 
-}
-
-Vector<Physics::QueryResult::Hit> Physics::QueryResult::DistanceSorted() const
-{
-    Vector<Hit> result = hits;
-    std::ranges::sort(result.begin(), result.end(), [](const Hit& InFirst, const Hit& InSecond)
-    {
-        return InFirst.distance < InSecond.distance; 
-    });
-    return result;
-}
+#include "reactphysics3d/engine/PhysicsWorld.h"
 
 Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)
 {
-    Vec3F diff = (InParams.end - InParams.start);
-    Vec3F dir = diff.GetNormalized();
-    float length = diff.Length();
-    
-    QueryResult result;
-
-    Rendering::DebugLine(InParams.start, InParams.end);
-    
-    return result;
+    auto& man = Manager::Get();
+    CHECK_ASSERT(!man.world, "Invalid world");
+    auto ray = reactphysics3d::Ray(GetVec(InParams.start), GetVec(InParams.end), InParams.radius);
+    auto callback = TraceCallback(InParams);
+    man.world->raycast(ray, &callback);
+    return callback.GetResult();
 }
 
 Physics::QueryResult Physics::Query::Sweep(const SweepParams& InParams)
 {
-    const Vec3F diff = (InParams.end - InParams.start);
-    const Vec3F dir = diff.GetNormalized();
-    const float length = diff.Length();
+    auto& man = Manager::Get();
+    CHECK_ASSERT(!man.world, "Invalid world");
     
-    QueryResult result;
-    
-    return result;
+    TraceParams trace;
+    trace.start = InParams.start;
+    trace.end = InParams.end;
+    trace.radius = 1.0f;
+    trace.maxHits = InParams.maxHits;
+    trace.ignoredEntities = InParams.ignoredEntities;
+    return Trace(trace);
+}
+
+Vector<Physics::Contact> Physics::Query::GetContacts(ECS::EntityID InID)
+{
+    auto& man = Manager::Get();
+    CHECK_ASSERT(!man.world, "Invalid contact handler");
+    return man.contactHandler->GetContacts(InID);
 }

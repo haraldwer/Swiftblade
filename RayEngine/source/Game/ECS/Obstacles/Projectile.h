@@ -15,5 +15,4 @@ class SysProjectile : public ECS::System<Projectile>
 public:
     void Init(ECS::EntityID InID, Projectile& InComponent) override;
     void Update(ECS::EntityID InID, Projectile& InComponent) override;
-    void OnBeginContact(const Physics::Contact& InContact) override;
 };

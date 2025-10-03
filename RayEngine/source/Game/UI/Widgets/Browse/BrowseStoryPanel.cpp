@@ -2,6 +2,8 @@
 
 #include <ranges>
 
+#include "Instance/Manager.h"
+#include "Instances/GameInstance.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"
@@ -38,4 +40,16 @@ void UI::BrowseStoryPanel::Init(Container &InOwner)
     }
     
     root = Add(b.Build());
+}
+
+void UI::BrowseStoryPanel::Update(Container &InOwner)
+{
+    BrowsePanel::Update(InOwner);
+    
+    for (auto& e : std::ranges::reverse_view(conf.Entries.Get()))
+        if (Get<Element>(e.Name).IsClicked())
+            if (auto game = Engine::Manager::Get().Push<GameInstance>())
+                game->PlayScene(ResScene("Cache/test.json"), Vec3F());
+
+            
 }

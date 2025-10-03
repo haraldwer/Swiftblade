@@ -19,6 +19,8 @@ public:
     void Toggle();
     
     Vec3F GetMouseDirection() const;
+
+
     Vec3F ScreenToWorld(const Vec2F &InScreen) const;
     Vec3F ClipToWorld(Vec2F InClip) const;
 

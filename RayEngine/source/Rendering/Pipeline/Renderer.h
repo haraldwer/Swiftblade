@@ -44,6 +44,7 @@ namespace Rendering
     public:
         static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
         static void DrawBloom(const RenderArgs & InArgs, SwapTarget& InBloom, SwapTarget& InFrame);
+        static int DrawCustom(const RenderArgs & InArgs, const std::function<void()> & InFunc);
         static int DrawDebug(const RenderArgs& InArgs);
         static void Blip(const RenderTexture& InTarget, const RenderTarget& InBuffer);
         static bool Bake(const BakedTexture& InTex);

@@ -34,25 +34,30 @@ void ECS::Movement::Update()
         return;
     
     GroundSnap();
-
-    if (stateMachine)
-        stateMachine->Update();
-}
-
-void ECS::Movement::OnBeginContact(const Physics::Contact& InContact)
-{
-    CHECK_RETURN(InContact.isTrigger);
-    CHECK_RETURN(onGround);
-    CHECK_RETURN(TimeSinceJump() < GroundJumpDelay);
-    for (auto& point : InContact.points)
+    
+    for (auto& c : Physics::Query::GetContacts(GetID()))
     {
-        if (CheckGroundHit(point.normal))
+        CHECK_CONTINUE(c.type == Physics::Contact::Event::END)
+        CHECK_CONTINUE(c.isTrigger);
+        CHECK_CONTINUE(onGround);
+        CHECK_CONTINUE(TimeSinceJump() < GroundJumpDelay);
+        for (auto& point : c.points)
         {
-            onGround = true;
-            groundTimestamp = GetTime(); 
-            break;
+            Vec3F normal = point.normal;
+            if (c.first == GetID())
+                normal *= -1;
+            if (CheckGroundHit(normal))
+            {
+                LOG("OnGround")
+                onGround = true;
+                groundTimestamp = GetTime(); 
+                break;
+            }
         }
     }
+    
+    if (stateMachine)
+        stateMachine->Update();
 }
 
 void ECS::Movement::Look(const Vec2F& InInput, const LookParams& InParams) const
@@ -198,21 +203,20 @@ void ECS::Movement::GroundSnap()
     
     Physics::SweepParams params;
     params.start = transform.GetPosition();
-    params.end = params.start - Vec3F::Up() * GroundDist.Get();
-    params.ignoredEntities = { GetID() };
+    params.end = params.start - Vec3F::Up() * (collider.ShapeData.Get().y + GroundDist.Get());
     params.shape = static_cast<Physics::Shape>(collider.Shape.Get());
     params.shapeData = collider.ShapeData;
-    params.pose = collTrans.Local(); 
-
+    params.pose = collTrans.Local();
+    params.ignoredEntities = { GetID() };
+    
     if (debugDraw)
     {
-        Engine::DebugCapsule(params.start, params.pose.GetRotation(), params.shapeData.x, params.shapeData.y); 
-        Engine::DebugCapsule(params.end, params.pose.GetRotation(), params.shapeData.x, params.shapeData.y);
+        Debug::Capsule(params.start, params.pose.GetRotation(), params.shapeData.x, params.shapeData.y); 
+        Debug::Capsule(params.end, params.pose.GetRotation(), params.shapeData.x, params.shapeData.y);
     }
 
-    // Sweep
+    // Trace (or maybe sweep)
     const Physics::QueryResult result = Physics::Query::Sweep(params);
-    
     if (result.isHit)
     {
         for (auto hit : result.DistanceSorted())
@@ -222,17 +226,18 @@ void ECS::Movement::GroundSnap()
                 // Set location
                 onGround = true;
                 groundTimestamp = GetTime(); 
-    
-                const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.distance; 
-                transform.SetPosition(newPos);
+
+                //float dist = hit.position.y - transform.GetPosition().y;
+                //const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.distance; 
+                //transform.SetPosition(newPos);
     
                 // Flatten velocity
-                auto& rb = GetRB();
-                Vec3F vel = rb.GetVelocity(); 
-                rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
+                //auto& rb = GetRB();
+                //Vec3F vel = rb.GetVelocity(); 
+                //rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
             
                 if (debugDraw)
-                    Engine::DebugCapsule(
+                    Debug::Capsule(
                         transform.GetPosition(),
                         params.pose.GetRotation(),
                         params.shapeData.x,

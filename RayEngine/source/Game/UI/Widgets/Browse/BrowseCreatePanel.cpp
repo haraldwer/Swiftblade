@@ -31,8 +31,6 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
         .color = { 1, 1, 1, 0.5 }
     });
 
-    SelectLevels();
-
     onAddedLevel.Bind([](const auto& InData, auto InC)
     {
         InC->NewLevel(InData);
@@ -42,10 +40,23 @@ void UI::BrowseCreatePanel::Init(Container &InOwner)
     {
         InC->NewRoom(InData);
     });
+
+    onInstanceRemoved.Bind([](const auto& InData, auto InC)
+    {
+        InC->pendingRefresh = true;
+    });
+
+    pendingRefresh = true;
 }
 
 void UI::BrowseCreatePanel::Update(Container &InOwner)
 {
+    if (pendingRefresh)
+    {
+        pendingRefresh = false;
+        levelsSelected ? SelectLevels() : SelectRooms();
+    }
+    
     BrowsePanel::Update(InOwner);
 
     if (Get<ButtonTab>("Levels").IsClicked())
@@ -110,6 +121,7 @@ void UI::BrowseCreatePanel::NewRoom(const EditRoomEntryData& InData)
 
 void UI::BrowseCreatePanel::SelectLevels()
 {
+    levelsSelected = true;
     Get<ButtonTab>("Levels").SetSelected(true);
     Get<ButtonTab>("Rooms").SetSelected(false);
     Get<TabContainer>("Tabs").Set("LevelList");
@@ -135,6 +147,7 @@ void UI::BrowseCreatePanel::SelectLevels()
 
 void UI::BrowseCreatePanel::SelectRooms()
 {
+    levelsSelected = false;
     Get<ButtonTab>("Levels").SetSelected(false);
     Get<ButtonTab>("Rooms").SetSelected(true);
     Get<TabContainer>("Tabs").Set("RoomList");

@@ -4,6 +4,7 @@
 #include "ECS/Systems/Attributes.h"
 #include "ECS/Systems/Transform.h"
 #include "Physics/Contact.h"
+#include "Physics/Query.h"
 
 void SysProjectile::Init(ECS::EntityID InID, Projectile& InComponent)
 {
@@ -21,10 +22,12 @@ void SysProjectile::Update(ECS::EntityID InID, Projectile& InComponent)
     InComponent.timer -= Utility::Time::Get().Delta();
     if (InComponent.timer < 0.0f)
         ECS::Manager::Get().DestroyEntity(InID);
-}
 
-void SysProjectile::OnBeginContact(const Physics::Contact& InContact)
-{
-    LOG("Projectile collision: " + Get<ECS::Attributes>(InContact.target).Name.Get());
-    ECS::Manager::Get().DestroyEntity(InContact.self);
+    auto contacts = Physics::Query::GetContacts(InID);
+    for (auto& c : contacts)
+    {
+        CHECK_CONTINUE(c.isTrigger);
+        LOG("Projectile collision: " + Get<ECS::Attributes>(c.GetOther(InID)).Name.Get());
+        ECS::Manager::Get().DestroyEntity(InID);
+    }
 }

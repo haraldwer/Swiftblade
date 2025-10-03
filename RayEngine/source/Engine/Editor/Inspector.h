@@ -11,4 +11,5 @@ public:
 
 private:
     ECS::EntityID selected = ECS::INVALID_ID;
+    ECS::EntityID hierarchySelected = ECS::INVALID_ID;
 };

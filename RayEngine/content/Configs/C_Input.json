@@ -74,6 +74,9 @@
 				},{
 					"Key":89,
 					"Name":"Redo"
+				},{
+					"Key":69,
+					"Name":"Export"
 				}
 			],
 			"Name":"Default"

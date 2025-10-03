@@ -4,13 +4,16 @@
 
 void Inspector::DrawDebugPanel()
 {
+    auto prevSceneSelected = selected;
     EditScene(selected);
+    if (selected != prevSceneSelected)
+        hierarchySelected = selected;
 
     if (ImGui::Begin("Entity"))
-        EditHierarchy(selected, selected);
+        EditHierarchy(selected, hierarchySelected);
     ImGui::End();
 
     if (ImGui::Begin("Components"))
-        EditComponents(selected);
+        EditComponents(hierarchySelected);
     ImGui::End();
 }

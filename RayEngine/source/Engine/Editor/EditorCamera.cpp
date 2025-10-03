@@ -70,8 +70,10 @@ Vec3F EditorCamera::GetMouseDirection() const
 
 Vec3F EditorCamera::ScreenToWorld(const Vec2F &InScreen) const
 {
-    auto& view = Rendering::Manager::Get().mainViewport;
-    auto viewPos = view.ScreenToViewportAbsolute(InScreen);
+    auto& man = Rendering::Manager::Get();
+    auto& view = man.mainViewport;
+    auto viewPos = view.DistortCoord(view.ScreenToViewportAbsolute(InScreen));
+    
     Vec2F clipPos = viewPos * 2 - 1;
     return ClipToWorld(clipPos);
 }

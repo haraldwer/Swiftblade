@@ -25,6 +25,8 @@ private:
     void ReceiveRoom(const DB::Response<DB::RPCRoomInfo>& InResponse);
     
     void TryFinishRoomLoading();
+
+    bool loading = false; 
     
     UI::LevelEntryData levelEntry;
     LevelConfig config;

@@ -32,8 +32,7 @@ private:
     SceneInstance scene = {};
     LevelManager rooms = {};
     GameState state = {}; 
-
-    LevelConfig level = {};
+    
     ResScene startScene = {};
     Vec3F startPlayerPos = {};
 };

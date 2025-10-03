@@ -87,6 +87,9 @@ void RoomEditor::Logic(const double InDelta)
         if (Input::Action::Get("Play").Pressed())
             PlayRoom();
 
+        if (Input::Action::Get("Export").Pressed())
+            ExportScene();
+        
         // TODO: Reset camera?
     }
 
@@ -125,6 +128,14 @@ void RoomEditor::PlayRoom()
         game->PlayScene(tempScene, editorCamera.GetPosition());
 }
 
+void RoomEditor::ExportScene()
+{
+    SaveRoom();
+    SceneInstance scene = ConvertRoomToScene();
+    SetClipboardText(scene.ToStr(true).c_str());
+    LOG("Scene copied to clipboard")
+}
+
 void RoomEditor::SaveRoom()
 {
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Cannot save room, invalid room resource");
@@ -146,9 +157,9 @@ void RoomEditor::SaveRoom()
 void RoomEditor::SaveThumbnail(const String &InPath)
 {
     auto& man = Rendering::Manager::Get();
-    auto target = man.mainViewport.GetFrameTarget();
-    CHECK_RETURN(!target);
-    Image img = LoadImageFromTexture(*target);
+    auto tex = man.mainViewport.GetFrameTexture();
+    CHECK_ASSERT(!tex, "Invalid texture");
+    Image img = LoadImageFromTexture(*tex);
 
     // Fixed width
     constexpr int width = 1024;
@@ -183,6 +194,9 @@ SceneInstance RoomEditor::ConvertRoomToScene()
         scene.entities.insert(objEditor.LoadObject(obj.second));
     
     scene.offset = conEditor.GetWorldOffset();
+    LOG("Scene offset (start position):")
+    LOG(scene.offset);
+    
     return scene;
 }
 
@@ -240,8 +254,21 @@ bool RoomEditor::SubmitRoom()
     DB::RPCSubmitRoom::Request req;
     req.Info = workingRoom.Info;
     req.Scene = sceneStr;
+    LOG("Scene: ")
+    LOG(req.Scene.Get());
     DB::Manager::Get().rpc.Request<DB::RPCSubmitRoom>(req);
     return true;
+}
+
+void RoomEditor::FinalizeSubmit() const
+{
+    // Delete the room file
+    CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Invalid room resource");
+    String path = roomResource.Identifier().Str();
+    if (!Utility::DeleteFile(path + ".png"))
+        LOG("Failed to delete room thumbnail")
+    if (!Utility::DeleteFile(path))
+        LOG("Failed to delete room file");
 }
 
 void RoomEditor::DrawDebugPanel()

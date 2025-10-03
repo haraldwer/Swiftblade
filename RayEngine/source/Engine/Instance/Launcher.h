@@ -5,7 +5,7 @@ namespace Engine
 {
     struct LauncherConfig : BaseConfig<LauncherConfig>
     {
-        PROPERTY_D(bool, SaveOnExit, true);
+        PROPERTY_D(bool, SaveOnExit, false);
         PROPERTY(String, Instance)
         String Name() const override { return "Launcher"; }
     };

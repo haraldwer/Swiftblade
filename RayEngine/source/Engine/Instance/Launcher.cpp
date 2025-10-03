@@ -31,10 +31,16 @@ void Engine::Launcher::DrawDebugPanel()
     if (config.SaveOnExit)
         ImGui::BeginDisabled();
     if (ImGui::Button("Set current"))
+    {
         config.Instance = instance->GetObjName();
+        config.SaveConfig();
+    }
     ImGui::SameLine();
     if (ImGui::Button("Reset"))
+    {
         config.Instance = {};
+        config.SaveConfig();
+    }
     if (config.SaveOnExit)
         ImGui::EndDisabled();
 }

@@ -33,8 +33,6 @@ namespace ECS
         virtual void SystemUpdate() = 0;
         virtual void SystemFrame() = 0;
         virtual bool ShouldUpdate() const;
-        virtual void OnBeginContact(const Physics::Contact& InContact) {}
-        virtual void OnEndContact(const Physics::Contact& InContact) {}
         virtual int GetPriority() const { return 0; }
 
         static SystemBase* GetAnonymousSystem(const Utility::Type& InType, bool InIsCompHash);
