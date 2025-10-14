@@ -153,12 +153,27 @@ String Rendering::ShaderResource::LoadShaderFile(const String& InPath, Set<Strin
     // Fix null terminations
     std::erase(shader, '\0');
 
-#ifdef __EMSCRIPTEN__
+#ifdef GRAPHICS_API_OPENGL_43
+
     if (shader.find("#version") == std::string::npos)
-        shader = "#version 100\n" + shader;
-#else
+        shader = "#version 430\n" + shader;
+
+#elifdef GRAPHICS_API_OPENGL_33
+    
     if (shader.find("#version") == std::string::npos)
         shader = "#version 330\n" + shader;
+
+#elifdef GRAPHICS_API_OPENGL_ES3
+
+    String add;
+    if (shader.find("#version") == std::string::npos)
+        add += "#version 300 es\n";
+    add += "
+        precision mediump float;\n
+        precision mediump int;\n
+    ";
+    shader = add + shader;
+
 #endif
     
     return shader;
@@ -203,7 +218,7 @@ String Rendering::ShaderResource::ProcessIncludes(const String& InShaderCode, co
 
 String Rendering::ShaderResource::ProcessDefines(const String& InShaderCode)
 {
-    std::function search = [&](String& InCode, const String& InSearchStart, const String& InSearchEnd, const std::function<String(const String& InContent)>& InReplaceFunc) -> bool
+    auto search = [&](String& InCode, const String& InSearchStart, const String& InSearchEnd, const std::function<String(const String& InContent)>& InReplaceFunc) -> bool
     {
         bool found = false;
         String processedShader;
@@ -227,7 +242,7 @@ String Rendering::ShaderResource::ProcessDefines(const String& InShaderCode)
     };
     
     String result = InShaderCode;
-    auto c = Rendering::Manager::Get().GetConfig();
+    auto c = Manager::Get().GetConfig();
     defines = c.Context.Get().GlobalDefines;
 
     // Offset for #version
@@ -241,7 +256,7 @@ String Rendering::ShaderResource::ProcessDefines(const String& InShaderCode)
     
     // Find defines
     Set<String> defineFinds;
-    std::function foundDefine = [&](const String& InFindStr) -> String
+    auto foundDefine = [&](const String& InFindStr) -> String
     {
         const auto start = InFindStr.find_first_not_of(' ');
         const auto end = InFindStr.find_last_not_of(' ');
@@ -250,7 +265,7 @@ String Rendering::ShaderResource::ProcessDefines(const String& InShaderCode)
     };
 
     // ifdefs
-    std::function foundIfdef = [&](const String& InFindStr) -> String
+    auto foundIfdef = [&](const String& InFindStr) -> String
     {
         String str = InFindStr;
         const bool negated = InFindStr.starts_with("ndef");

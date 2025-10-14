@@ -26,7 +26,7 @@ namespace Physics
     private:
         void onContact(const CallbackData& callbackData) override
         {
-            for (uint p = 0; p < callbackData.getNbContactPairs(); p++)
+            for (uint32 p = 0; p < callbackData.getNbContactPairs(); p++)
             {
                 ContactPair contactPair = callbackData.getContactPair(p);
                 Contact result;
@@ -55,7 +55,7 @@ namespace Physics
                 //ECS::EntityID colliderID1 = reinterpret_cast<ECS::EntityID>(bodyData1);
                 //ECS::EntityID colliderID2 = reinterpret_cast<ECS::EntityID>(bodyData2);
                 
-                for (uint c = 0; c < contactPair.getNbContactPoints(); c++)
+                for (uint32 c = 0; c < contactPair.getNbContactPoints(); c++)
                 {
                     ContactPoint contactPoint = contactPair.getContactPoint(c);
                     reactphysics3d::Vector3 worldPoint1 = contactPair.getCollider1()->getLocalToWorldTransform() * contactPoint.getLocalPointOnCollider1();
@@ -75,7 +75,7 @@ namespace Physics
 
         void onTrigger(const reactphysics3d::OverlapCallback::CallbackData& callbackData) override
         {
-            for (uint p = 0; p < callbackData.getNbOverlappingPairs(); p++)
+            for (uint32 p = 0; p < callbackData.getNbOverlappingPairs(); p++)
             {
                 reactphysics3d::OverlapCallback::OverlapPair pair = callbackData.getOverlappingPair(p);
                 Contact result;
