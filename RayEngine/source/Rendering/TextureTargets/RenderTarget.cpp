@@ -21,13 +21,17 @@ bool Rendering::RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture
     int targetWidth = Utility::Math::Max(InRenderTexture.texture.width * InResScale, 1.0f);
     int targetHeight = Utility::Math::Max(InRenderTexture.texture.height * InResScale, 1.0f);
     if (width == targetWidth &&
-        height == targetHeight)
+        height == targetHeight &&
+        refWidth == InRenderTexture.texture.width &&
+        refHeight == InRenderTexture.texture.height)
         return false;
     if (targetWidth <= 0 || targetHeight <= 0)
         return false;
 
     Unload(); 
     
+    refWidth = InRenderTexture.texture.width;
+    refHeight = InRenderTexture.texture.height;
     width = targetWidth;
     height = targetHeight;
 
@@ -78,9 +82,7 @@ void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) con
     CHECK_ASSERT(depthID == 0, "Invalid depth texture");
     rlFramebufferAttach(frameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
 
-#ifndef __EMSCRIPTEN__
     CHECK_ASSERT(!rlFramebufferComplete(frameBuffer), "Framebuffer incomplete");
-#endif
 }
 
 void Rendering::RenderTarget::Unload()
@@ -117,27 +119,42 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
         cmd.id = tex.tex->id;
         cmd.filter = InFilter == -1 ? tex.defaultFilter : InFilter;
         rlState::current.Set(cmd, InOutSlot);
+
+        const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Size");
+        CHECK_CONTINUE(sizeLoc < 0);
+        Vec2I s = { tex.tex->width, tex.tex->height };
+        rlSetUniform(loc, &s, RL_SHADER_UNIFORM_IVEC2, 1);
     }
 }
 
 void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InPixelFormat, const float InResScale, int InDefaultFilter, const int InMips, const bool InCubemap)
 {
-    const int w = static_cast<int>(static_cast<float>(width) * InResScale);
-    const int h = static_cast<int>(static_cast<float>(height) * InResScale);
+    const float scale = Utility::Math::Max(1.0f, InResScale);
+    const int w = static_cast<int>(static_cast<float>(width) * scale);
+    const int h = static_cast<int>(static_cast<float>(height) * scale);
     CHECK_RETURN_LOG(w <= 0 || h <= 0, "Buffer too small");
     
     int mips = InMips;
     if (mips <= 0)
         mips = 1 + static_cast<int>(floor(log(Utility::Math::Max(w, h)) / log(2)));
 
+#ifdef GRAPHICS_API_OPENGL_ES3
+    // Fake a smaller resolution target
+    const int texWidth = refWidth;
+    const int texHeight = refHeight;
+#else
+    const int texWidth = w;
+    const int texHeight = h;
+#endif
+    
     auto& buffer = textures.emplace_back();
     buffer.name = InName;
     buffer.cubemap = InCubemap;
     buffer.defaultFilter = InDefaultFilter;
     buffer.tex = new Texture(); 
     buffer.tex->id = InCubemap ?
-        rlLoadTextureCubemap(nullptr, w, InPixelFormat, mips) : 
-        rlLoadTexture(nullptr, w, h, InPixelFormat, mips); 
+        rlLoadTextureCubemap(nullptr, texWidth, InPixelFormat, mips) : 
+        rlLoadTexture(nullptr, texWidth, texHeight, InPixelFormat, mips); 
     buffer.tex->width = w;
     buffer.tex->height = InCubemap ? w : h;
     buffer.tex->mipmaps = mips;

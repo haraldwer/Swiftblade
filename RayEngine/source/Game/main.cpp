@@ -2,7 +2,6 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
 #endif
-#include "Physics/Manager.h"
 
 void Init();
 void Deinit();
@@ -31,6 +30,7 @@ int main()
 #include "Engine/Instance/Manager.h"
 #include "Instance/Launcher.h"
 #include "Rendering/Manager.h"
+#include "Physics/Manager.h"
 
 #include "Instances/MenuInstance.h"
 
@@ -125,7 +125,7 @@ void Tick()
     // Render to target texture
     instance->GetRenderScene().Clear();
     instance->Frame();
-
+    
     // Render to screen
     g->renderer.BeginFrame();
     g->debugManager.Frame(frameDelta);

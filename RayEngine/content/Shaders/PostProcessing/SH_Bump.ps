@@ -6,14 +6,14 @@
 
 in vec2 TexCoord;
 in vec2 RectCoord;
-out vec3 Output;
+layout (location = 0) out vec3 Output;
 
-const float BUMP_SCALE = 0.1;
-const float BUMP_MAX_DIST = 1.0;
+const float BUMP_SCALE = 0.1f;
+const float BUMP_MAX_DIST = 1.0f;
 
 vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InCamPos, vec3 InNormal, float InHeight)
 {
-    vec2 texel = vec2(1) / Resolution;
+    vec2 texel = vec2(1.0f) / Resolution;
     vec2 rightCoord = InCoord + texel * InDir;
     vec2 leftCoord = InCoord - texel * InDir;
 
@@ -28,16 +28,16 @@ vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InCamPos, vec3 InNormal,
     
     vec3 rightDiff = orgPos - rightPos;
     vec3 leftDiff = leftPos - orgPos;
-    float rightDist = max(0, 1 - length(rightDiff) / BUMP_MAX_DIST);
-    float leftDist = max(0, 1 - length(leftDiff) / BUMP_MAX_DIST);
+    float rightDist = max(0.0f, 1.0f - length(rightDiff) / BUMP_MAX_DIST);
+    float leftDist = max(0.0f, 1.0f - length(leftDiff) / BUMP_MAX_DIST);
     
-    return normalize((rightDiff * rightDist + leftDiff * leftDist + InNormal * 0.001) / (rightDist + leftDist + 0.001));
+    return normalize((rightDiff * rightDist + leftDiff * leftDist + InNormal * 0.001f) / (rightDist + leftDist + 0.001f));
 }
 
 vec3 BumpNormal(vec2 InCoord, vec4 InCamPos, vec3 InNormal, float InHeight)
 {
-    vec3 right = GetSurfaceDirection(InCoord, vec2(1, 0), InCamPos.xyz, InNormal, InHeight);
-    vec3 up = GetSurfaceDirection(InCoord, vec2(0, 1), InCamPos.xyz, InNormal, InHeight);
+    vec3 right = GetSurfaceDirection(InCoord, vec2(1.0f, 0.0f), InCamPos.xyz, InNormal, InHeight);
+    vec3 up = GetSurfaceDirection(InCoord, vec2(0.0f, 1.0f), InCamPos.xyz, InNormal, InHeight);
     vec3 forward = cross(right, up);
     return normalize(forward);
 }
@@ -49,12 +49,12 @@ void main()
     OutNormal = texture(TexNormal, TexCoord);
     OutData = texture(TexData, TexCoord);
 
-    if (!CheckID(TexCoord, 0)) // Exclude skybox
+    if (!CheckID(TexCoord, 0.0f)) // Exclude skybox
         return;
     
-    if (OutData.z < 0.0001)
+    if (OutData.z < 0.0001f)
         return;
     
     vec3 bump = BumpNormal(TexCoord, OutPosition, OutNormal.xyz, OutData.z); 
-    OutNormal.xyz = normalize(mix(bump, OutNormal.xyz, 0.5));
+    OutNormal.xyz = normalize(mix(bump, OutNormal.xyz, 0.5f));
 }

@@ -2,28 +2,28 @@
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 
 in vec2 TexCoord;
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
 // These also exist in Viewport.h!
 const float DISTORT_STRENGTH = 0.2f;
 const float DISTORT_POW = 4.0f;
 const float DISTORT_ZOOM = 0.15f;
-const float DISTORT_DARKEN = 0.2;
+const float DISTORT_DARKEN = 0.2f;
 
 void main()
 {
     vec2 coord = TexCoord;
 
     float aspect = min(Resolution.x, Resolution.y) / max(Resolution.x, Resolution.y);
-    vec2 pos = (TexCoord * 2 - 1) * vec2(1, aspect) * 0.75;
-    float dist = length(pos) * (1 + DISTORT_ZOOM);
+    vec2 pos = (TexCoord * 2.0f - 1.0f) * vec2(1, aspect) * 0.75f;
+    float dist = length(pos) * (1.0f + DISTORT_ZOOM);
     
-    float pow = 1 - clamp(pow(dist, DISTORT_POW), 0, 1);
-    float zoom = 1 - pow * DISTORT_STRENGTH; // This is how much to zoom!
+    float pow = 1.0f - clamp(pow(dist, DISTORT_POW), 0.0f, 1.0f);
+    float zoom = 1.0f - pow * DISTORT_STRENGTH; // This is how much to zoom!
     
-    vec2 newPos = (TexCoord * 2 - 1) * zoom;
-    vec2 newCoord = (newPos + 1) / 2;
+    vec2 newPos = (TexCoord * 2.0f - 1.0f) * zoom;
+    vec2 newCoord = (newPos + 1.0f) / 2.0f;
     
     Output = texture(TexFrame, newCoord);
-    Output.rgb *= mix(1, pow, DISTORT_DARKEN);
+    Output.rgb *= mix(1.0f, pow, DISTORT_DARKEN);
 }

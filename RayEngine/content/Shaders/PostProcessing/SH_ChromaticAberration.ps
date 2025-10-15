@@ -1,0 +1,24 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+
+in vec2 TexCoord;
+layout (location = 0) out vec4 Output;
+
+const float CA_STRENGTH = 0.3f;
+const float CA_SCALE = 0.001f;
+const float RED_OFFSET = 1.0f;
+const float GREEN_OFFSET = -1.0f;
+const float BLUE_OFFSET = 2.0f;
+
+void main()
+{
+    vec2 direction = TexCoord * 2.0f - vec2(1.0f);
+    vec3 color = texture(TexFrame, TexCoord).rgb; 
+    vec3 offsetColor = vec3(
+        texture(TexFrame, TexCoord + direction * RED_OFFSET * CA_SCALE).r,
+        texture(TexFrame, TexCoord + direction * GREEN_OFFSET * CA_SCALE).g,
+        texture(TexFrame, TexCoord + direction * BLUE_OFFSET * CA_SCALE).b
+    );
+    Output.rgb = mix(color, offsetColor, CA_STRENGTH);
+    Output.a = 1.0f;
+}

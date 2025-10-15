@@ -5,7 +5,7 @@ const int ID_PRECISION = 255;
 
 float DeferredIDToTexID(int InDeferredID)
 {
-    return float(InDeferredID % ID_PRECISION) / ID_PRECISION;
+    return float(InDeferredID % ID_PRECISION) / float(ID_PRECISION);
 }
 
 float GetTexID(vec2 InCoord)
@@ -16,7 +16,7 @@ float GetTexID(vec2 InCoord)
 bool CheckTexID(vec2 InCoord, float InTexID)
 {
     float TexID = GetTexID(InCoord);
-    return abs(TexID - InTexID) > (1.0 / ID_PRECISION) / 2.0;
+    return abs(TexID - InTexID) > ((1.0f / float(ID_PRECISION)) / 2.0f);
 }
 
 bool CheckID(vec2 InCoord, int InDeferredID)

@@ -5,38 +5,51 @@
 
 void Rendering::Window::Open(const WindowConfig& InConfig)
 {
+    auto getFlags = [](const WindowConfig& InConf)
+    {
+        unsigned flags = FLAG_WINDOW_RESIZABLE;
+        if (InConf.Fullscreen)
+            flags |= FLAG_BORDERLESS_WINDOWED_MODE;
+        if (InConf.VSync)
+            flags |= FLAG_VSYNC_HINT;
+        if (InConf.MSAA)
+            flags |= FLAG_MSAA_4X_HINT;
+    
+#ifndef __EMSCRIPTEN__
+        flags |= FLAG_WINDOW_ALWAYS_RUN;
+#endif
+        return flags;
+    };
+    
+    auto prevFlags = getFlags(config);
+    
     config = InConfig;
 
     config.Width = Utility::Math::Max(500, config.Width.Get());
     config.Height = Utility::Math::Max(500, config.Height.Get());
     
-    unsigned flags = 0;
-    if (config.Fullscreen)
-        flags |= FLAG_BORDERLESS_WINDOWED_MODE;
-    if (config.VSync)
-        flags |= FLAG_VSYNC_HINT;
-    if (config.MSAA)
-        flags |= FLAG_MSAA_4X_HINT;
-
-#ifndef __EMSCRIPTEN__
-    flags |= FLAG_WINDOW_ALWAYS_RUN;
-#endif
-    SetWindowState(flags);
-
     if (!IsWindowReady())
     {
         InitWindow(
             config.Width,
             config.Height,
             config.Title.Get().c_str());
+        prevFlags = 0;
     }
-    else
+    else if (config.Width != GetScreenWidth() || config.Height != GetScreenHeight())
+        SetWindowSize( config.Width, config.Height);
+    
+    auto newFlags = getFlags(config);
+    if (prevFlags != newFlags)
     {
-        SetWindowSize(
-            config.Width,
-            config.Height);
+        // Clear only changed flags?
+        
+        ClearWindowState(
+            FLAG_VSYNC_HINT |
+            FLAG_MSAA_4X_HINT);
+        SetWindowState(newFlags);
     }
-
+    
     SetExitKey(KEY_F4);
 }
 

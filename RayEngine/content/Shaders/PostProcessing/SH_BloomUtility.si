@@ -4,25 +4,25 @@ vec3 BloomSampleDown(sampler2D InTex, vec2 InCoord, vec2 InPixelSize)
     vec3 result;
     result = texture(InTex, InCoord).rgb;
 
-    float closeScale = 0.72;
-    float farScale = 1;
-    float middleScale = 1;
+    float closeScale = 0.72f;
+    float farScale = 1.0f;
+    float middleScale = 1.0f;
 
-    float closeWeight = 0.5;
-    float middleWeight = 0.25;
-    float farWeight = 0.125;
+    float closeWeight = 0.5f;
+    float middleWeight = 0.25f;
+    float farWeight = 0.125f;
 
     vec2 edgeOff[4] = vec2[](
-        vec2(1,1),
-        vec2(1,-1),
-        vec2(-1,1),
-        vec2(-1,-1)
+        vec2(1.0f,1.0f),
+        vec2(1.0f,-1.0f),
+        vec2(-1.0f,1.0f),
+        vec2(-1.0f,-1.0f)
     );
     vec2 middleOff[4] = vec2[](
-        vec2(1, 0),
-        vec2(-1,0),
-        vec2(0, 1),
-        vec2(0,-1)
+        vec2(1.0f, 0.0f),
+        vec2(-1.0f,0.0f),
+        vec2(0.0f, 1.0f),
+        vec2(0.0f,-1.0f)
     );
 
     for (int i = 0; i < 4; i++)
@@ -32,7 +32,7 @@ vec3 BloomSampleDown(sampler2D InTex, vec2 InCoord, vec2 InPixelSize)
     for (int i = 0; i < 4; i++)
         result += texture(InTex, InCoord + edgeOff[i] * InPixelSize * farScale).rgb * farWeight;
 
-    float totalWeight = 4 * closeWeight + 4 * middleWeight + 4 * farWeight + 1;
+    float totalWeight = 4.0f * closeWeight + 4.0f * middleWeight + 4.0f * farWeight + 1.0f;
     result /= totalWeight;
     return result;
 }
@@ -42,22 +42,22 @@ vec3 BloomSampleUp(sampler2D InTex, vec2 InCoord, vec2 InPixelSize)
     vec3 result;
     result = texture(InTex, InCoord).rgb;
 
-    float middleScale = 1;
-    float farScale = 1;
-    float middleWeight = 0.25;
-    float farWeight = 0.125;
+    float middleScale = 1.0f;
+    float farScale = 1.0f;
+    float middleWeight = 0.25f;
+    float farWeight = 0.125f;
 
     vec2 edgeOff[4] = vec2[](
-        vec2(1,1),
-        vec2(1,-1),
-        vec2(-1,1),
-        vec2(-1,-1)
+        vec2(1.0f,1.0f),
+        vec2(1.0f,-1.0f),
+        vec2(-1.0f,1.0f),
+        vec2(-1.0f,-1.0f)
     );
     vec2 middleOff[4] = vec2[](
-        vec2(1, 0),
-        vec2(-1,0),
-        vec2(0, 1),
-        vec2(0,-1)
+        vec2(1.0f, 0.0f),
+        vec2(-1.0f,0.0f),
+        vec2(0.0f, 1.0f),
+        vec2(0.0f,-1.0f)
     );
     
     for (int i = 0; i < 4; i++)
@@ -65,7 +65,7 @@ vec3 BloomSampleUp(sampler2D InTex, vec2 InCoord, vec2 InPixelSize)
     for (int i = 0; i < 4; i++)
         result += texture(InTex, InCoord + edgeOff[i] * InPixelSize * farScale).rgb * farWeight;
 
-    float totalWeight = 4 * middleWeight + 4 * farWeight + 1;
+    float totalWeight = 4.0f * middleWeight + 4.0f * farWeight + 1.0f;
     result /= totalWeight;
     return result;
 }

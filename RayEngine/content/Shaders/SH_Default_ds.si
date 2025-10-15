@@ -11,9 +11,9 @@
 in vec2 TexCoord;
 in vec2 RectCoord;
 
-const float DIST_FADE_START = 20.0;
-const float DIST_FADE_END = 50.0;
-const float FADE_DOT_PART = 0.5; 
+const float DIST_FADE_START = 20.0f;
+const float DIST_FADE_END = 50.0f;
+const float FADE_DOT_PART = 0.5f; 
 
 float DistanceFade(float InCameraDistance)
 {
@@ -36,8 +36,9 @@ float SurfaceFade(vec3 InWorldPos, vec3 InNormal)
 void Unlit(vec3 InColor)
 {
     OutAlbedo.rgb = InColor;
-    OutAlbedo.a = 1;
-    OutSurface = vec3(0);
+    OutAlbedo.a = 1.0f;
+    OutSurface.rgb = vec3(0.0f);
+    OutSurface.a = 1.0f;
 }
 
 void Default(vec3 InAlbedo, vec3 InSurface)
@@ -46,23 +47,24 @@ void Default(vec3 InAlbedo, vec3 InSurface)
         discard;
 
     OutAlbedo.rgb = InAlbedo;
-    OutAlbedo.a = 0;
+    OutAlbedo.a = 0.0f;
     
-    OutSurface = InSurface;
+    OutSurface.rgb = InSurface;
+    OutSurface.a = 1.0f;
     OutSurface.b *= SampleAO(TexCoord);
 }
 
 void DefaultMatte(vec3 InAlbedo)
 {
-    Default(InAlbedo, vec3(0, 1, 1));
+    Default(InAlbedo, vec3(0.0f, 1.0f, 1.0f));
 }
 
 void DefaultMetal(vec3 InAlbedo)
 {
-    Default(InAlbedo, vec3(1, 1, 1));
+    Default(InAlbedo, vec3(1.0f, 1.0f, 1.0f));
 }
 
 void DefaultShiny(vec3 InAlbedo)
 {
-    Default(InAlbedo, vec3(0, 0, 1));
+    Default(InAlbedo, vec3(0.0f, 0.0f, 1.0f));
 }

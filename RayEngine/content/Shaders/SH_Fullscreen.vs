@@ -11,6 +11,6 @@ void main()
 {
     RectCoord = VertexTexCoord;
     TexCoord = GetRectUV(VertexTexCoord, Rect);
-    gl_Position = vec4(VertexPosition, 1.0);
-    gl_Position.w = 1.0;
+    gl_Position = vec4(VertexPosition, 1.0f);
+    gl_Position.w = 1.0f;
 }

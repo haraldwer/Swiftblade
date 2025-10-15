@@ -3,7 +3,7 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 in vec2 TexCoord;
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
 const int SAMPLES = 8;
 const float THRESHOLD = 0.001f;
@@ -18,18 +18,18 @@ void main()
     if (length(vel) < THRESHOLD)
         return;
     
-    float maxEdge = max(max(max(TexCoord.x, 1 - TexCoord.x), TexCoord.y), 1 - TexCoord.y);
-    float edgePart = 1 - EDGE_FADE;
-    float edge = 1 - clamp((maxEdge - edgePart) / (1 - edgePart), 0, 1);
+    float maxEdge = max(max(max(TexCoord.x, 1.0f - TexCoord.x), TexCoord.y), 1.0f - TexCoord.y);
+    float edgePart = 1.0f - EDGE_FADE;
+    float edge = 1.0f - clamp((maxEdge - edgePart) / (1.0f - edgePart), 0.0f, 1.0f);
     
-    vec3 part = vel / SAMPLES;
+    vec3 part = vel / float(SAMPLES);
     vec3 result = Output.rgb;
     for (int i = 1; i < SAMPLES; i++)
     {
-        vec2 offset = -part.xy * (i - SAMPLES * 0.5) * edge;
-        vec2 coord = clamp(TexCoord + offset, 0, 1);
+        vec2 offset = -part.xy * (float(i) - float(SAMPLES) * 0.5f) * edge;
+        vec2 coord = clamp(TexCoord + offset, 0.0f, 1.0f);
         result += texture(TexFrame, coord).rgb;
     }
-    Output.rgb = result / SAMPLES;
-    Output.a = 1.0;
+    Output.rgb = result / float(SAMPLES);
+    Output.a = 1.0f;
 }

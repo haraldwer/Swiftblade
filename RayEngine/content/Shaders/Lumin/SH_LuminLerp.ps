@@ -7,8 +7,9 @@ uniform sampler2D TexFrameIrradiance;
 uniform sampler2D TexFramePrefilter;
 
 in vec2 TexCoord;
-out vec4 OutIrradiance;
-out vec3 OutPrefilter;
+
+layout(location = 0) out vec4 OutIrradiance;
+layout(location = 1) out vec4 OutPrefilter;
 
 void main()
 {
@@ -17,8 +18,9 @@ void main()
     vec4 irradiance = texture(TexIrradiance, TexCoord);
     vec3 prefilter = texture(TexPrefilter, TexCoord).rgb;
     
-    OutIrradiance.rgb = mix(irradiance.rgb, irradianceFrame.rgb, 0.1);
+    OutIrradiance.rgb = mix(irradiance.rgb, irradianceFrame.rgb, 0.1f);
     OutIrradiance.a = irradianceFrame.a;
     
-    OutPrefilter = mix(prefilter, prefilterFrame, 0.1);
+    OutPrefilter.rgb = mix(prefilter, prefilterFrame, 0.1f);
+    OutPrefilter.a = 1.0f;
 }

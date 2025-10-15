@@ -3,9 +3,9 @@
 #include "Shaders/Utility/SH_HSV.si"
 
 in vec2 TexCoord;
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
-const float LUM_MUL = 0.2;
+const float LUM_MUL = 0.2f;
 
 void main()
 {
@@ -13,5 +13,5 @@ void main()
     vec3 hsv = rgb2hsv(color.rgb);
     float lum = hsv.z * LUM_MUL;
     Output.rgb = color.rgb * lum * lum;
-    Output.a = 1;
+    Output.a = 1.0f;
 } 

@@ -19,3 +19,9 @@ vec2 GetRectUV(vec2 InUV, vec4 InRect)
 {
     return (InRect.xy + InRect.zw * InUV);
 }
+
+// Scale screen uv to texture
+vec2 GetScaledScreenUV(ivec2 InTexSize, vec2 InUV)
+{
+    return InUV * vec2(float(InTexSize.x), float(InTexSize.y)) / Resolution; 
+}

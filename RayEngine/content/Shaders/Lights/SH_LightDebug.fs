@@ -21,7 +21,7 @@ in vec3 ObjectPosition;
 in vec3 VertexPosition;
 in vec2 TexCoord;
 
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
 void main()
 {

@@ -19,7 +19,7 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
     if (target.TryBeginSetup(viewport.GetVirtualTarget()))
     {
         target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
         target.EndSetup(viewport.GetVirtualTarget());
     }
 
@@ -28,7 +28,7 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
         if (t.TryBeginSetup(viewport.GetVirtualTarget()))
         {
             t.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-            t.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8);
+            t.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
             t.EndSetup(viewport.GetVirtualTarget());
         }
     }

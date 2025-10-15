@@ -17,5 +17,5 @@ void Default()
     OutNormal.xyz = WorldNormal;
     OutNormal.a = DeferredIDToTexID(DeferredID);
     OutData.xy = Velocity.xy;
-    OutData.zw = vec2(0, 1);
+    OutData.zw = vec2(0.0f, 1.0f);
 }

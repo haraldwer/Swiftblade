@@ -3,7 +3,7 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 in vec2 TexCoord;
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
 #define TONEMAP_FUNCTION Tonemap_ACES
 #define TONEMAP_COLOR_FUNCTION Tonemap_Default
@@ -11,7 +11,7 @@ out vec4 Output;
 //#define TONEMAP_FUNCTION Tonemap_None
 //#define TONEMAP_COLOR_FUNCTION Tonemap_AGX
 
-const float GAMMA = 2.2;
+const float GAMMA = 2.2f;
 const float EXPOSURE = 1.0f;
 const float WHITE_POINT = 1.0f;
 
@@ -23,22 +23,22 @@ const float PADDING = 0.5f;
 uniform sampler2D TexLUT;
 
 float Tonemap_Reinhard(float x) {
-    return x / (1.0 + x);
+    return x / (1.0f + x);
 }
 
 float Tonemap_Reinhard2(float x) {
-    float L_white = 4.0;
-    return (x * (1.0 + x / (L_white * L_white))) / (1.0 + x);
+    float L_white = 4.0f;
+    return (x * (1.0f + x / (L_white * L_white))) / (1.0f + x);
 }
 
 float Tonemap_ACES(float x)
 {
     // Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
-    float a = 2.51;
-    float b = 0.03;
-    float c = 2.43;
-    float d = 0.59;
-    float e = 0.14;
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
     return (x * (a * x + b)) / (x * (c * x + d) + e);
 }
 
@@ -47,7 +47,7 @@ float Tonemap_Unreal(float x)
     // Unreal 3, Documentation: "Color Grading"
     // Adapted to be close to Tonemap_ACES, with similar range
     // Gamma 2.2 correction is baked in, don't use with sRGB conversion!
-    return x / (x + 0.155) * 1.019;
+    return x / (x + 0.155f) * 1.019f;
 }
 
 float Tonemap_Uchimura(float x, float P, float a, float m, float l, float c, float b) 
@@ -57,15 +57,15 @@ float Tonemap_Uchimura(float x, float P, float a, float m, float l, float c, flo
     // Source: https://www.slideshare.net/nikuque/hdr-theory-and-practicce-jp
     float l0 = ((P - m) * l) / a;
     float L0 = m - m / a;
-    float L1 = m + (1.0 - m) / a;
+    float L1 = m + (1.0f - m) / a;
     float S0 = m + l0;
     float S1 = m + a * l0;
     float C2 = (a * P) / (P - S1);
     float CP = -C2 / P;
 
-    float w0 = 1.0 - smoothstep(0.0, m, x);
+    float w0 = 1.0f - smoothstep(0.0f, m, x);
     float w2 = step(m + l0, x);
-    float w1 = 1.0 - w0 - w2;
+    float w1 = 1.0f - w0 - w2;
 
     float T = m * pow(x / m, c) + b;
     float S = P - (P - S1) * exp(CP * (x - S0));
@@ -76,23 +76,23 @@ float Tonemap_Uchimura(float x, float P, float a, float m, float l, float c, flo
 
 float Tonemap_Uchimura(float x) 
 {
-    float P = 1.0;  // max display brightness
-    float a = 1.0;  // contrast
-    float m = 0.22; // linear section start
-    float l = 0.4;  // linear section length
-    float c = 1.33; // black
-    float b = 0.0;  // pedestal
+    float P = 1.0f;  // max display brightness
+    float a = 1.0f;  // contrast
+    float m = 0.22f; // linear section start
+    float l = 0.4f;  // linear section length
+    float c = 1.33f; // black
+    float b = 0.0f;  // pedestal
     return Tonemap_Uchimura(x, P, a, m, l, c, b);
 }
 
 float Tonemap_Lottes(float x) 
 {
     // Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
-    float a = 1.6;
-    float d = 0.977;
-    float hdrMax = 8.0;
-    float midIn = 0.18;
-    float midOut = 0.267;
+    float a = 1.6f;
+    float d = 0.977f;
+    float hdrMax = 8.0f;
+    float midIn = 0.18f;
+    float midOut = 0.267f;
 
     // Can be precomputed
     float b =
@@ -107,41 +107,41 @@ float Tonemap_Lottes(float x)
 
 float Tonemap_Uncharted2(float x)
 {
-    float A = 0.15;
-    float B = 0.50;
-    float C = 0.10;
-    float D = 0.20;
-    float E = 0.02;
-    float F = 0.30;
+    float A = 0.15f;
+    float B = 0.50f;
+    float C = 0.10f;
+    float D = 0.20f;
+    float E = 0.02f;
+    float F = 0.30f;
     return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
 const mat3 LINEAR_REC2020_TO_LINEAR_SRGB = mat3(
-    1.6605, -0.1246, -0.0182,
-    -0.5876, 1.1329, -0.1006,
-    -0.0728, -0.0083, 1.1187
+    1.6605f, -0.1246f, -0.0182f,
+    -0.5876f, 1.1329f, -0.1006f,
+    -0.0728f, -0.0083f, 1.1187f
 );
 
 const mat3 LINEAR_SRGB_TO_LINEAR_REC2020 = mat3(
-    0.6274, 0.0691, 0.0164,
-    0.3293, 0.9195, 0.0880,
-    0.0433, 0.0113, 0.8956
+    0.6274f, 0.0691f, 0.0164f,
+    0.3293f, 0.9195f, 0.0880f,
+    0.0433f, 0.0113f, 0.8956f
 );
 
 const mat3 AgXInsetMatrix = mat3(
-    0.856627153315983, 0.137318972929847, 0.11189821299995,
-    0.0951212405381588, 0.761241990602591, 0.0767994186031903,
-    0.0482516061458583, 0.101439036467562, 0.811302368396859
+    0.856627153315983f, 0.137318972929847f, 0.11189821299995f,
+    0.0951212405381588f, 0.761241990602591f, 0.0767994186031903f,
+    0.0482516061458583f, 0.101439036467562f, 0.811302368396859f
 );
 
 const mat3 AgXOutsetMatrix = mat3(
-    1.1271005818144368, -0.1413297634984383, -0.14132976349843826,
-    -0.11060664309660323, 1.157823702216272, -0.11060664309660294,
-    -0.016493938717834573, -0.016493938717834257, 1.2519364065950405
+    1.1271005818144368f, -0.1413297634984383f, -0.14132976349843826f,
+    -0.11060664309660323f, 1.157823702216272f, -0.11060664309660294f,
+    -0.016493938717834573f, -0.016493938717834257f, 1.2519364065950405f
 );
 
-const float AgxMinEv = -12.47393;
-const float AgxMaxEv = 4.026069;
+const float AgxMinEv = -12.47393f;
+const float AgxMaxEv = 4.026069f;
 
 // 0: Default, 1: Golden, 2: Punchy
 #ifndef AGX_LOOK
@@ -149,7 +149,7 @@ const float AgxMaxEv = 4.026069;
 #endif
 
 vec3 agxAscCdl(vec3 color, vec3 slope, vec3 offset, vec3 power, float sat) {
-    const vec3 lw = vec3(0.2126, 0.7152, 0.0722);
+    const vec3 lw = vec3(0.2126f, 0.7152f, 0.0722f);
     float luma = dot(color, lw);
     vec3 c = pow(color * slope + offset, power);
     return luma + sat * (c - luma);
@@ -176,21 +176,21 @@ vec3 Tonemap_AGX(vec3 color)
     // Mean error^2: 3.6705141e-06
     vec3 x2 = color * color;
     vec3 x4 = x2 * x2;
-    color = + 15.5     * x4 * x2
-    - 40.14    * x4 * color
-    + 31.96    * x4
-    - 6.868    * x2 * color
-    + 0.4298   * x2
-    + 0.1191   * color
-    - 0.00232;
+    color = + 15.5f     * x4 * x2
+    - 40.14f    * x4 * color
+    + 31.96f    * x4
+    - 6.868f    * x2 * color
+    + 0.4298f   * x2
+    + 0.1191f   * color
+    - 0.00232f;
 
     // 2. agxLook()
     #if AGX_LOOK == 1
     // Golden
-    color = agxAscCdl(color, vec3(1.0, 0.9, 0.5), vec3(0.0), vec3(0.8), 1.3);
+    color = agxAscCdl(color, vec3(1.0f, 0.9f, 0.5f), vec3(0.0f), vec3(0.8f), 1.3f);
     #elif AGX_LOOK == 2
     // Punchy
-    color = agxAscCdl(color, vec3(1.0), vec3(0.0), vec3(1.35), 1.4);
+    color = agxAscCdl(color, vec3(1.0f), vec3(0.0f), vec3(1.35f), 1.4f);
     #endif
 
     // 3. agxEotf()
@@ -200,11 +200,11 @@ vec3 Tonemap_AGX(vec3 color)
     // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
     // NOTE: We're linearizing the output here. Comment/adjust when
     // *not* using a sRGB render target
-    color = pow(max(vec3(0.0), color), vec3(2.2)); // From filament: max()
+    color = pow(max(vec3(0.0f), color), vec3(2.2f)); // From filament: max()
 
     color = LINEAR_REC2020_TO_LINEAR_SRGB * color; // From three.js
     // Gamut mapping. Simple clamp for now.
-    color = clamp(color, 0.0, 1.0);
+    color = clamp(color, 0.0f, 1.0f);
 
     return color;
 }
@@ -232,16 +232,16 @@ vec3 Tonemap(vec3 color)
 
 vec3 Gamma(vec3 color)
 {
-    color = color / (color + vec3(1.0));
-    return pow(color, vec3(1.0 / GAMMA));
+    color = color / (color + vec3(1.0f));
+    return pow(color, vec3(1.0f / GAMMA));
 }
 
 vec3 SampleZ(vec3 pos)
 {
     float fl = floor(pos.z);
     float cl = ceil(pos.z);
-    float part = clamp(abs(pos.z - fl), 0, 1);
-    float div = 1.0f / COLORS;
+    float part = clamp(abs(pos.z - fl), 0.0f, 1.0f);
+    float div = 1.0f / float(COLORS);
     vec2 flLutPos = vec2(fl * div + pos.x * div * div, pos.y * div);
     vec2 clLutPos = vec2(cl * div + pos.x * div * div, pos.y * div);
     vec3 flc = texture(TexLUT, flLutPos).rgb;
@@ -253,7 +253,7 @@ vec3 SampleY(vec3 pos)
 {
     float fl = floor(pos.y);
     float cl = ceil(pos.y);
-    float part = clamp(abs(pos.y - fl), 0, 1);
+    float part = clamp(abs(pos.y - fl), 0.0f, 1.0f);
     vec3 flc = SampleZ(vec3(pos.x, fl, pos.z));
     vec3 clc = SampleZ(vec3(pos.x, cl, pos.z));
     return mix(flc, clc, part);
@@ -263,7 +263,7 @@ vec3 SampleX(vec3 pos)
 {
     float fl = floor(pos.x);
     float cl = ceil(pos.x);
-    float part = clamp(abs(pos.x - fl), 0, 1);
+    float part = clamp(abs(pos.x - fl), 0.0f, 1.0f);
     vec3 flc = SampleY(vec3(fl, pos.y, pos.z));
     vec3 clc = SampleY(vec3(cl, pos.y, pos.z));
     return mix(flc, clc, part);
@@ -271,9 +271,9 @@ vec3 SampleX(vec3 pos)
 
 vec3 LUT(vec3 color)
 {
-    float xOffset = clamp(color.r, 0, 1) * (COLORS - 1.0f);
-    float yOffset = clamp(color.g, 0, 1) * (COLORS - 1.0f);
-    float zOffset = clamp(color.b, 0, 1) * (COLORS - 1.0f);
+    float xOffset = clamp(color.r, 0.0f, 1.0f) * (COLORS - 1.0f);
+    float yOffset = clamp(color.g, 0.0f, 1.0f) * (COLORS - 1.0f);
+    float zOffset = clamp(color.b, 0.0f, 1.0f) * (COLORS - 1.0f);
     vec3 gradedCol = SampleX(vec3(xOffset, yOffset, zOffset));
     return mix(color, gradedCol, LUT_CONTRIBUTION);
 }
@@ -285,5 +285,5 @@ void main()
     color = Gamma(color);
     //color = LUT(color);
     Output.rgb = color;
-    Output.a = 1.0; // TODO: Blend
+    Output.a = 1.0f; // TODO: Blend
 }

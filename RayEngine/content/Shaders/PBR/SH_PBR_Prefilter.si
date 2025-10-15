@@ -12,13 +12,13 @@ vec3 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float
     vec3 R = N;
     vec3 V = R;
 
-    float totalWeight = 0.0;
-    vec3 prefilteredColor = vec3(0.0);
+    float totalWeight = 0.0f;
+    vec3 prefilteredColor = vec3(0.0f);
     for(uint i = 0u; i < FILTER_SAMPLE_COUNT; ++i)
     {
         vec2 Xi = Hammersley(i, FILTER_SAMPLE_COUNT);
         vec3 H  = ImportanceSampleGGX(Xi, N, InRoughness);
-        vec3 L  = normalize(2.0 * dot(V, H) * H - V);
+        vec3 L  = normalize(2.0f * dot(V, H) * H - V);
         
         // A solution to bright dots (requires mips)
         //float NdotH = dot(N, H);
@@ -30,8 +30,8 @@ vec3 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float
         //float saSample = 1.0 / (float(FILTER_SAMPLE_COUNT) * pdf + 0.0001);
         //float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
-        float NdotL = max(dot(N, L), 0.0);
-        if(NdotL > 0.0)
+        float NdotL = max(dot(N, L), 0.0f);
+        if(NdotL > 0.0f)
         {
             prefilteredColor += SampleCubeAtlas(InEnv, InFaceTexel, InRect, L).rgb * NdotL;
             totalWeight      += NdotL;

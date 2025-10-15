@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef TRACY_ENABLE
+#if defined(TRACY_ENABLE) && !defined(GRAPHICS_API_OPENGL_ES3)
 
 #include <external/glad.h>
 #include "tracy/TracyOpenGL.hpp"

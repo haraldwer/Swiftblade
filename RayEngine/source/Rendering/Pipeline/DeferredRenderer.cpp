@@ -40,6 +40,8 @@ int Rendering::DeferredRenderer::DrawSkyboxes(const RenderArgs& InArgs, const Re
         ShaderCommand shaderCmd;
         shaderCmd.locs = shader->locs;
         shaderCmd.id = shader->id;
+        shaderCmd.backfaceCulling = false;
+        shaderCmd.depthTest = false;
         rlState::current.Set(shaderCmd);
 
         int id = 0;
@@ -210,7 +212,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
             if (b) b->Bind(*shaderResource, texSlot);
         
         BindNoiseTextures(InArgs, *shaderResource, texSlot);
-        
+
         for (auto& perspective : InArgs.perspectives)
         {
             PerspectiveCommand perspCmd;
@@ -250,7 +252,7 @@ int Rendering::DeferredRenderer::DrawSurfaces(const RenderArgs &InArgs, const Re
         if (b) b->Bind(*shaderResource, texSlot);
     
     LuminRenderer::ApplyLumin(InArgs, *shaderResource, texSlot);
-    
+
     for (auto& perspective : InArgs.perspectives)
     {
         PerspectiveCommand perspCmd;

@@ -13,48 +13,48 @@ vec3 GetFlatCubeUV(vec3 InDir)
     vec2 uv;
     float side;
 
-    if (xa > 0.999)
+    if (xa > 0.999f)
     {
         // Right, index 0, rotate left
-        side = 0;
+        side = 0.0f;
         uv = vec2(-ya, za);
     }
-    else if (xa < -0.999)
+    else if (xa < -0.999f)
     {
         // Left, index 1, rotate right
-        side = 1;
+        side = 1.0f;
         uv = vec2(ya, za);
     }
 
-    else if (ya > 0.999)
+    else if (ya > 0.999f)
     {
         // Up, index 2, upside down and flipped
-        side = 2;
+        side = 2.0f;
         uv = vec2(xa, za);
     }
 
-    else if (ya < -0.999)
+    else if (ya < -0.999f)
     {
         // Down, index3, correct
-        side = 3;
+        side = 3.0f;
         uv = vec2(xa, -za);
     }
 
-    else if (za > 0.999)
+    else if (za > 0.999f)
     {
         // Forwards, index4, correct
-        side = 4;
+        side = 4.0f;
         uv = vec2(xa, -ya);
     }
     else
     {
         // Backwards, index4, correct
-        side = 5;
+        side = 5.0f;
         uv = vec2(-xa, -ya);
     }
     
-    uv = (uv + 1) * 0.5;
-    uv = clamp(uv, 0, 1);
+    uv = (uv + 1.0f) * 0.5f;
+    uv = clamp(uv, 0.0f, 1.0f);
     return vec3(uv, side);
 }
 
@@ -63,7 +63,7 @@ vec2 GetCubeAtlasUV(vec2 InFaceTexel, vec4 InRect, vec3 InDir)
     vec3 uv = GetFlatCubeUV(InDir);
 
     vec2 faceUV = InRect.zw * uv.xy;
-    faceUV = clamp(faceUV, InFaceTexel * 2, InRect.zw - InFaceTexel * 2);
+    faceUV = clamp(faceUV, InFaceTexel * 2.0f, InRect.zw - InFaceTexel * 2.0f);
     faceUV += InRect.xy;
     faceUV.x += InRect.z * uv.z; // Add face index
 
@@ -100,7 +100,7 @@ vec3 UVtoOctahedronDir(vec2 InUV)
 
     // "Tuck in" the corners by reflecting the xy position along the line y = 1 - x
     // (in quadrant 1), and its mirrored image in the other quadrants.
-    if(position.y < 0)
+    if(position.y < 0.0f)
     {
         position.xz = sign(position.xz) * vec2(1.0f - absolute.y, 1.0f - absolute.x);
     }
@@ -118,7 +118,7 @@ vec2 OctahedronDirToUV(vec3 InDir)
 
     // "Untuck" the corners using the same reflection across the diagonal as before.
     // (A reflection is its own inverse transformation).
-    if(octahedron.y < 0)
+    if(octahedron.y < 0.0f)
     {
         vec3 absolute = abs(octahedron);
         octahedron.xz = octant.xz * vec2(1.0f - absolute.z, 1.0f - absolute.x);

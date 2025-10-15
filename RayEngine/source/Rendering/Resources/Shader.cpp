@@ -35,6 +35,8 @@ bool Rendering::ShaderResource::Load()
         const String vsCode = LoadShaderFile(vsFile, vsIncludes);
         const String fsCode = LoadShaderFile(path, fsIncludes);
         *ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
+        if (!IsShaderValid(*ptr))
+            printf("\n%s\n", fsCode.c_str());
         CHECK_RETURN_LOG(!IsShaderValid(*ptr), "Compile failed. fs: " +  path + " vs: " + vsFile, true);
     }
     else
@@ -50,6 +52,8 @@ bool Rendering::ShaderResource::Load()
         const String vsCode = LoadShaderFile(vsFile, vsIncludes);
         const String fsCode = LoadShaderFile(fsFile, fsIncludes);
         *ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
+        if (!IsShaderValid(*ptr))
+            printf("\n%s\n", fsCode.c_str());
         CHECK_RETURN_LOG(!IsShaderValid(*ptr), "Compile failed. fs: " +  fsFile + " vs: " + vsFile, true);
         ptr->locs[SHADER_LOC_MATRIX_MVP] = GetShaderLocation(*ptr, "mvp");
         ptr->locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(*ptr, "instanceTransform");
@@ -157,7 +161,7 @@ String Rendering::ShaderResource::LoadShaderFile(const String& InPath, Set<Strin
 
     if (shader.find("#version") == std::string::npos)
         shader = "#version 430\n" + shader;
-
+    
 #elifdef GRAPHICS_API_OPENGL_33
     
     if (shader.find("#version") == std::string::npos)
@@ -168,12 +172,20 @@ String Rendering::ShaderResource::LoadShaderFile(const String& InPath, Set<Strin
     String add;
     if (shader.find("#version") == std::string::npos)
         add += "#version 300 es\n";
-    add += "
-        precision mediump float;\n
-        precision mediump int;\n
-    ";
+    add += "\nprecision highp float;\nprecision highp int;\n";
+
+    // Insert highp for all outs?
+    
     shader = add + shader;
 
+#elifdef GRAPHICS_API_OPENGL_ES2
+    
+    String add;
+    if (shader.find("#version") == std::string::npos)
+        add += "#version 200 es\n";
+    add += "\nprecision mediump float;\nprecision mediump int;\n";
+    shader = add + shader;
+    
 #endif
     
     return shader;

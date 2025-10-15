@@ -6,15 +6,15 @@
 
 in vec2 TexCoord;
 in vec2 RectCoord;
-out vec3 Output;
+layout (location = 0) out vec3 Output;
 
 const int MIN_PARALLAX_SAMPLES = 2;
 const int MAX_PARALLAX_SAMPLES = 16;
-const float PARALLAX_SCALE = 0.001;
+const float PARALLAX_SCALE = 0.001f;
 
 vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InCamPos)
 {
-    vec2 texel = vec2(1) / Resolution;
+    vec2 texel = vec2(1.0f) / Resolution;
     vec2 rightCoord = InCoord + texel * InDir;
     vec2 leftCoord = InCoord - texel * InDir;
 
@@ -22,8 +22,8 @@ vec3 GetSurfaceDirection(vec2 InCoord, vec2 InDir, vec3 InCamPos)
     vec3 leftPos = texture(TexPosition, leftCoord).xyz;
     vec3 rightDiff = InCamPos - rightPos;
     vec3 leftDiff = leftPos - InCamPos;
-    float rightDist = max(0, 1 - length(rightDiff) * 10);
-    float leftDist = max(0, 1 - length(leftDiff) * 10);
+    float rightDist = max(0.0f, 1.0f - length(rightDiff) * 10.0f);
+    float leftDist = max(0.0f, 1.0f - length(leftDiff) * 10.0f);
 
     return normalize(rightDiff * rightDist + leftDiff * leftDist);
 }
@@ -39,28 +39,28 @@ ParallaxOffset ParallaxOcclusion(float InHeight, vec4 InPos, vec3 InNormal)
 {
     // Get surface directions
     vec3 worldPos = InPos.xyz + CameraPosition;
-    vec3 right = GetSurfaceDirection(TexCoord, vec2(1, 0), InPos.xyz);
-    vec3 up = GetSurfaceDirection(TexCoord, vec2(0, 1), InPos.xyz);
+    vec3 right = GetSurfaceDirection(TexCoord, vec2(1.0f, 0.0f), InPos.xyz);
+    vec3 up = GetSurfaceDirection(TexCoord, vec2(0.0f, 1.0f), InPos.xyz);
     vec3 forward = cross(right, up);
     
     // First, get the direction
     float camDist = length(InPos.xyz);
-    float camLerp = clamp((camDist - NearFar.x) / NearFar.y, 0.01, 1);
+    float camLerp = clamp((camDist - NearFar.x) / NearFar.y, 0.01f, 1.0f);
     vec3 camDir = -normalize(InPos.xyz);
     mat3 tanMat = mat3(-up, right, forward);
     vec3 viewDir = camDir * tanMat;
     vec3 viewDirTS = viewDir.yxz;
     vec2 maxOffset = vec2(viewDirTS.x, -viewDirTS.y) * PARALLAX_SCALE / camLerp;
     
-    float surfaceDot = max(0, dot(InNormal, camDir));
-    float sampleLerp = mix(MIN_PARALLAX_SAMPLES, MAX_PARALLAX_SAMPLES, 1 - surfaceDot);
+    float surfaceDot = max(0.0f, dot(InNormal, camDir));
+    float sampleLerp = mix(float(MIN_PARALLAX_SAMPLES), float(MAX_PARALLAX_SAMPLES), 1.0f - surfaceDot);
     int samples = int(sampleLerp); 
     
     vec2 step = maxOffset / samples;
-    float heightStep = 1.0 / samples;
+    float heightStep = 1.0f / samples;
 
     vec2 coord = TexCoord;
-    float surfaceHeight = 0.0;
+    float surfaceHeight = 0.0f;
     float depth = InPos.w;
     vec3 normal = InNormal;
     
@@ -69,7 +69,7 @@ ParallaxOffset ParallaxOcclusion(float InHeight, vec4 InPos, vec3 InNormal)
         vec2 prevCoord = coord;
         float prevDepth = depth;
         
-        coord = clamp(TexCoord + step * i, 0.001, 0.999);
+        coord = clamp(TexCoord + step * i, 0.001f, 0.999f);
         depth = texture(TexPosition, coord).w;
         float depthDiff = prevDepth - depth;
         //if (depthDiff > 0.1)
@@ -82,12 +82,12 @@ ParallaxOffset ParallaxOcclusion(float InHeight, vec4 InPos, vec3 InNormal)
         surfaceHeight = texture(TexData, coord).z;
         normal = texture(TexNormal, coord).xyz;
         
-        float nd = max(0, dot(normal, InNormal));
+        float nd = max(0.0f, dot(normal, InNormal));
         float intersectDiff = surfaceHeight * nd - rayHeight;
-        if (intersectDiff < 0)
+        if (intersectDiff < 0.0f)
         {
-            float prevNd = max(0, dot(prevNormal, InNormal));
-            float prevRayHeight = heightStep * (i - 1);
+            float prevNd = max(0.0f, dot(prevNormal, InNormal));
+            float prevRayHeight = heightStep * (float(i) - 1.0f);
             float prevDiff = prevSurfaceHeight * prevNd - prevRayHeight;
             float lerp = prevDiff / (prevDiff - intersectDiff);
             
@@ -101,7 +101,7 @@ ParallaxOffset ParallaxOcclusion(float InHeight, vec4 InPos, vec3 InNormal)
             ParallaxOffset off;
             off.uv = mix(coord, prevCoord, lerp);
             off.worldPos = mix(intersectPos, prevPos, lerp);
-            off.normal = normalize(mix(normal, surfaceNormal, 0.9));
+            off.normal = normalize(mix(normal, surfaceNormal, 0.9f));
             
             return off;
         }
@@ -123,10 +123,10 @@ void main()
     OutNormal = texture(TexNormal, TexCoord);
     OutData = texture(TexData, TexCoord);
     
-    if (!CheckID(TexCoord, 0)) // Exclude skybox
+    if (!CheckID(TexCoord, 0.0f)) // Exclude skybox
         return;
 
-    if (OutData.z < 0.0001)
+    if (OutData.z < 0.0001f)
         return;
     
     // Parallax occlusion mapping

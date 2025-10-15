@@ -1,9 +1,6 @@
 #include "State.h"
 
 #include "RayRenderUtility.h"
-#include "raylib.h"
-#include "raymath.h"
-#include "rlgl.h"
 
 void Rendering::State::Set(const UniformCommand& InCmd, int InSlot)
 {
@@ -102,16 +99,16 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
                 rlSetVertexAttribute(matLoc + i, 4, RL_FLOAT, false, sizeof(Mat4F), static_cast<int>(i * sizeof(Vec4F)));
                 rlSetVertexAttributeDivisor(matLoc + i, 1);
             }
-        }
+        } 
 
-        // TODO: Remove?
+        // Upload model normal matrix
         if (shader.locs[SHADER_LOC_MATRIX_NORMAL] != -1)
             rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_NORMAL], MatrixIdentity());
         
-        // TODO: Only disable if no vert color
-        const int colorLoc = shader.locs[SHADER_LOC_VERTEX_COLOR];
-        if (colorLoc != -1)
-            rlDisableVertexAttribute(colorLoc);
+        //// TODO: Only disable if no vert color
+        //const int colorLoc = shader.locs[SHADER_LOC_VERTEX_COLOR];
+        //if (colorLoc != -1)
+        //    rlDisableVertexAttribute(colorLoc);
     }
     
     return true;
@@ -185,7 +182,9 @@ void Rendering::State::ResetShader()
     rlDisableDepthTest();
     rlDisableDepthMask();
     rlDisableShader();
+    
     shader = {};
+    shader.blendMode = RL_BLEND_ALPHA;
 }
 
 void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
@@ -238,12 +237,6 @@ void Rendering::State::Set(const FrameCommand& InCmd)
 
     if (InCmd.fboID != static_cast<uint32>(-1) && (InCmd.clearTarget || InCmd.clearDepth))
     {
-        int mask = 0;
-        if (InCmd.clearTarget)
-            mask |= GL_COLOR_BUFFER_BIT;
-        if (InCmd.clearDepth)
-            mask |= GL_DEPTH_BUFFER_BIT;
-        
         if (InCmd.clearDepth)
         {
             // Enable depth before clearing
@@ -251,9 +244,12 @@ void Rendering::State::Set(const FrameCommand& InCmd)
             rlEnableDepthMask();
         }
 
-#ifndef __EMSCRIPTEN__
+        int mask = 0;
+        if (InCmd.clearTarget)
+            mask |= GL_COLOR_BUFFER_BIT;
+        if (InCmd.clearDepth)
+            mask |= GL_DEPTH_BUFFER_BIT;
         glClear(mask);
-#endif
         
         if (InCmd.clearDepth && InCmd.fboID == frame.fboID) 
         {
@@ -288,6 +284,7 @@ void Rendering::State::Reset()
     ResetShader();
     ResetFrame();
     ResetPerspective();
+    Check();
 }
 
 void Rendering::State::ResetUniforms()
@@ -297,5 +294,7 @@ void Rendering::State::ResetUniforms()
 
 void Rendering::State::Check()
 {
+#ifdef _DEBUG
     rlCheckErrors();
+#endif
 }

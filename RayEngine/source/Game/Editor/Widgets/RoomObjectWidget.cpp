@@ -1,0 +1,2 @@
+#include "RoomObjectWidget.h"
+

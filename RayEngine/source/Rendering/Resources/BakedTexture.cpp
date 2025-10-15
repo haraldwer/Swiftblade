@@ -10,7 +10,7 @@ bool Rendering::BakedTexture::Load()
     tex = new RenderTexture();
     *tex = LoadRenderTexture(data.Res, data.Res);
 
-    bool result = target.Setup(*tex, data.Name, PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+    bool result = target.Setup(*tex, data.Name, PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
     CHECK_RETURN_LOG(!result, "Failed to setup baked texture", false);
     return true;
 }

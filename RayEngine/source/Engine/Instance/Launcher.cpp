@@ -52,9 +52,12 @@ void Engine::Launcher::Push(const String& InName)
 {
     // Always push menu as root
     Manager::Get().Push<MenuInstance>();
+
+#ifndef __EMSCRIPTEN__
     LAUNCHER_REG_INSTANCE(GameInstance, InName)
     LAUNCHER_REG_INSTANCE(BlueprintEditor, InName)
     LAUNCHER_REG_INSTANCE(RoomEditor, InName)
+#endif
 }
 
 #undef LAUNCHER_REG_INSTANCE

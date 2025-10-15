@@ -49,11 +49,13 @@ void Resource::Manager::TryUnload() const
             res->Unload();
         }
 #ifdef _DEBUG
+#ifndef __EMSCRIPTEN__
         else
         {
             PROFILE_NAMED("Hot reload");
             res->TryHotReload();
         }
+#endif
 #endif
     }    
 }

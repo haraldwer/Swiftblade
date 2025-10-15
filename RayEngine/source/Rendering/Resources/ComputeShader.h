@@ -20,7 +20,11 @@ namespace Rendering
         void Collect(void* InPtr, int& InSize);
     
     private:
-        GLuint program = 0;
+
+#ifdef GRAPHICS_API_OPENGL_43
+        uint32 program = 0;
+#endif
+        
     };
 
 
@@ -30,19 +34,7 @@ namespace Rendering
         CLASS_INFO(ComputeShaderResource, ComputeShaderResourceBase)
 
     public:
-        void Dispatch(const Vector<T>& InData);
-        void Collect(Vector<T>& OutData);
+        void Dispatch(const Vector<T>& InData) {}
+        void Collect(Vector<T>& OutData) {}
     };
-
-    template <class T>
-    void ComputeShaderResource<T>::Dispatch(const Vector<T>& InData)
-    {
-        InData.
-        Dispatch(InData);
-    }
-
-    template <class T>
-    void ComputeShaderResource<T>::Collect(Vector<T>& OutData)
-    {
-    }
 }

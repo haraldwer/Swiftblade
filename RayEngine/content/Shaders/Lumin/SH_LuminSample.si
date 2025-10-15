@@ -4,7 +4,7 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 // Main switch
-const bool LUMIN = false;
+const bool LUMIN = true;
 
 const int LAYERS = 1;
 const int LAYER_PROBES = 18 * 18 * 1 - 64 - 1;
@@ -61,7 +61,7 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDen
     
     vec3 denseDist = abs(pixelToProbe) * InDensity;
     float maxDist = max(max(denseDist.x, denseDist.y), denseDist.z);
-    occluded *= Saturate(1 - maxDist);
+    occluded *= Saturate(1.0f - maxDist);
     
     //if (occluded > 0)
     //{
@@ -139,7 +139,7 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
             else
             {
                 data.index[dataIndex] = 0;
-                data.weight[dataIndex] = 0;
+                data.weight[dataIndex] = 0.0f;
             }
         }
     }
@@ -152,7 +152,7 @@ ProbeData GetProbe(vec3 InWorldPos, vec3 InNormal)
 
 vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
 {
-    return texture(TexBRDF, vec2(max(dot(InN, InV), 0), InRoughness)).rg;
+    return texture(TexBRDF, vec2(max(dot(InN, InV), 0.0f), InRoughness)).rg;
 }
 
 vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
@@ -164,7 +164,7 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
         return SampleCubeAtlasMip(InTex, ProbeFaceTexel, rect, InDir, InMip).rgb;
     }
     
-    vec4 c = vec4(0);
+    vec4 c = vec4(0.0f);
     for (int i = 0; i < PROBE_DATA_SIZE; i++)
     {
         int index = InProbe.index[i];

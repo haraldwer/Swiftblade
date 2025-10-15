@@ -2,90 +2,12 @@
 
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"
+#include "Editor/Menus/MenuRoomObjects.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Attributes.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Instance.h"
 #include "Utility/History/History.h"
-
-void RoomHoverMenu::Init(RoomObjectEditorConfig &InConfig)
-{
-    for (auto& obj : InConfig.ObjectTypes.Get())
-    {
-        auto& entry = objectTypes.emplace_back();
-        entry.name = obj.first;
-        auto bp = obj.second.Get();
-        CHECK_RETURN_LOG(!bp, "Failed to load " + obj.second.Identifier().Str());
-        entry.id = bp->Instantiate();
-    }
-}
-
-void RoomHoverMenu::Deinit()
-{
-    for (auto& obj : objectTypes)
-        if (obj.id != ECS::INVALID_ID)
-            ECS::Manager::Get().DestroyEntity(obj.id);
-    objectTypes.clear();
-}
-
-void RoomHoverMenu::Update(const EditorCamera& InCamera)
-{
-    wheelRot = Utility::Time::Get().Total() * 0.2;
-    objRot = Utility::Time::Get().Total() * 0.5;
-    
-    auto& ecs = ECS::Manager::Get();
-    for (int i = 0; i < static_cast<int>(objectTypes.size()); i++)
-    {
-        auto& obj = objectTypes[i];
-        CHECK_CONTINUE(obj.id == ECS::INVALID_ID);
-        ECS::Transform *t = ecs.GetComponent<ECS::Transform>(obj.id);
-        CHECK_CONTINUE(!t);
-        t->SetWorld(GetTrans(InCamera, i));
-    }
-}
-
-String RoomHoverMenu::TryPick(const EditorCamera& InCamera, float InDotThreshold)
-{
-    // Else is picking placed objects?
-    auto& ecs = ECS::Manager::Get();
-    Vec3F mouseDir = InCamera.GetMouseDirection();
-    Vec3F camPos = InCamera.GetPosition();
-    
-    float minDot = 0.0f;
-    int index = -1;
-    for (int i = 0; i < static_cast<int>(objectTypes.size()); ++i)
-    {
-        auto& o = objectTypes.at(i);
-        ECS::Transform *t = ecs.GetComponent<ECS::Transform>(o.id);
-        CHECK_CONTINUE(!t);
-        Vec3F pos = t->GetPosition();
-        
-        Vec3F objDir = (pos - camPos).GetNormalized();
-        float dot = Vec3F::Dot(mouseDir, objDir);
-        if (dot > InDotThreshold && dot > minDot)
-        {
-            minDot = dot;
-            index = i;
-        }
-    }
-
-    CHECK_RETURN(index == -1, {});
-    return objectTypes.at(index).name;
-}
-
-Mat4F RoomHoverMenu::GetTrans(const EditorCamera& InCamera, int InIndex)
-{
-    const float angle_step = (PI_FLOAT * 2 / objectTypes.size()); 
-    const float offset = PI_FLOAT / 4;
-    const float angle = angle_step * InIndex + offset + wheelRot;
-    const Vec3F worldDir = InCamera.ClipToWorld(screenPos);
-    const Vec3F world = InCamera.GetPosition() + worldDir * depth;
-    const Vec2F wheelPos = Vec2F(cos(angle), sin(angle)) * wheelScale;
-    const Mat4F camRot = Mat4F::FromEuler(InCamera.GetRotation());
-    const Vec3F objPos = world + wheelPos.x * camRot.Right() + wheelPos.y * camRot.Up();
-    const QuatF rot = QuatF::FromDirection(InCamera.GetRotation()) * QuatF::FromEuler({ 0, objRot, 0 });
-    return Mat4F(objPos, rot, scale);
-}
 
 void RoomObjectEditor::Init()
 {
@@ -100,10 +22,6 @@ void RoomObjectEditor::Deinit()
 void RoomObjectEditor::Update()
 {
     CHECK_RETURN(!IsCurrent());
-
-    auto& cam = GetEditor().GetEditorCamera();
-    hoverMenu.Update(cam);
-    
     CHECK_RETURN(!GetEditor().CanEdit())
     
     if (Input::Action::Get("LM").Pressed())
@@ -127,6 +45,8 @@ void RoomObjectEditor::Update()
 
 void RoomObjectEditor::TryPickObject()
 {
+    CHECK_ASSERT(!menu, "Invalid menu");
+    
     auto& objects = GetRoom().Objects.Get();
     auto& v = GetVolume();
     auto& cam = GetEditor().GetEditorCamera();
@@ -134,7 +54,7 @@ void RoomObjectEditor::TryPickObject()
     Vec3F camPos = cam.GetPosition();
     
     // Is hovering miniature?
-    String pick = hoverMenu.TryPick(cam, config.DotThreshold);
+    String pick = menu->TryPick();
     if (!pick.empty() && pick != "")
     {
         LOG("Pick!");
@@ -344,13 +264,17 @@ void RoomObjectEditor::Frame()
 void RoomObjectEditor::Enter()
 {
     LoadRoom();
-    hoverMenu.Init(config);
+    CHECK_ASSERT(menu, "Menu already set");
+    menu = Menu::Manager::Get().Push<MenuRoomObjects>();
+    menu->SetConfig(config);
 }
 
 void RoomObjectEditor::Exit()
 {
     DestroyLoaded();
-    hoverMenu.Deinit();
+    CHECK_ASSERT(!menu, "Menu was null");
+    Menu::Manager::Get().Close(menu);
+    menu = nullptr;
 }
 
 ECS::EntityID RoomObjectEditor::LoadObject(const EditRoomObject &InObj)

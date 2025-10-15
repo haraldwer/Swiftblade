@@ -6,6 +6,7 @@
 #include "Rendering/Lights/Lights.h"
 #include "Rendering/Lumin/Lumin.h"
 #include "raylib.h"
+#include "rlgl.h"
 
 void Rendering::FrameViewer::DrawTex(const RenderTarget::TargetTex &tex)
 {
@@ -18,6 +19,7 @@ void Rendering::FrameViewer::DrawTex(const RenderTarget::TargetTex &tex)
     const float mul = static_cast<float>(tex.tex->width) / size.width;
 
     // Send to ImGui
+    rlDisableColorBlend();
     SetTextureWrap(*tex.tex, TEXTURE_WRAP_REPEAT);
     rlImGuiImageRect(
         tex.tex,
@@ -28,6 +30,7 @@ void Rendering::FrameViewer::DrawTex(const RenderTarget::TargetTex &tex)
             static_cast<float>(tex.tex->width),
             static_cast<float>(-tex.tex->height)
         });
+    rlEnableColorBlend();
     
     ImGui::TableNextColumn();
 }

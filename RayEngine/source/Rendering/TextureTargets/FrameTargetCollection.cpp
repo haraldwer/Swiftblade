@@ -22,12 +22,12 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
     if (surfaceTarget.TryBeginSetup(InTarget))
     {
         surfaceTarget.CreateBuffer("TexAlbedo", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-        surfaceTarget.CreateBuffer("TexSurface", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        surfaceTarget.CreateBuffer("TexSurface", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
         surfaceTarget.EndSetup(InTarget);
     }
     
     for (auto& target : frameTargets.All())
-        target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16);
+        target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
 
     if (InFX.SSAO)
     {
@@ -41,7 +41,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
         bloomTargets = SwapTarget(InFX.BloomPasses);
         for (auto& target : bloomTargets.All())
         {
-            target.Setup(InTarget, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R16G16B16, bloomScale, RL_TEXTURE_FILTER_LINEAR);
+            target.Setup(InTarget, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, bloomScale, RL_TEXTURE_FILTER_LINEAR);
             bloomScale *= InFX.BloomDownscale;
         }
     }
@@ -66,6 +66,6 @@ OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameT
     result["Surface"] = surfaceTarget.GetTextures();
     result["Frame"] = frameTargets.Curr().GetTextures();
     result["AO"] = aoTargets.Curr().GetTextures();
-    result["Bloom"] = bloomTargets.Curr().GetTextures();
+    result["Bloom"] = bloomTargets.Curr().GetTextures(); 
     return result;
 }

@@ -9,15 +9,15 @@
 
 in vec2 TexCoord;
 in vec2 RectCoord;
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
 void main()
 {
     vec4 albedo = SampleAlbedo(TexCoord);
     Output.rgb = albedo.rgb;
-    Output.a = 1;
+    Output.a = 1.0f;
     
-    if (albedo.a > 0.99)
+    if (albedo.a > 0.99f)
         return;
     
     vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
@@ -26,5 +26,4 @@ void main()
     vec3 pbr = PBR(worldPosition, worldNormal, albedo.rgb, surface);
     
     Output.rgb = mix(pbr, albedo.rgb, albedo.a);
-    Output.a = 1;
 }

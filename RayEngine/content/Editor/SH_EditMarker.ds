@@ -1,14 +1,9 @@
-#include "Shaders/Uniforms/SH_FrameUniforms.si"
-#include "Shaders/Uniforms/SH_TexUniforms.si"
-#include "Shaders/Utility/SH_DeferredID.si"
-
-in vec2 TexCoord;
-out vec4 Output;
+#include "Shaders/SH_Default_ds.si"
 
 void main()
 {
     if (CheckID(TexCoord, DeferredID))
         discard;
     
-    Output = vec4(1, 0, 0, 1);
+    Unlit(vec3(1.0f, 0.0f, 0.0f));
 }

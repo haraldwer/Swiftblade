@@ -20,15 +20,15 @@ float InterleavedGradientNoise(vec2 uv)
 vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
 {
     float GoldenAngle = 2.4f;
-    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
-    float theta = sampleIndex * GoldenAngle + phi;
+    float r = sqrt(float(sampleIndex) + 0.5f) / sqrt(float(samplesCount));
+    float theta = float(sampleIndex) * GoldenAngle + phi;
     return vec2(r * cos(theta), r * sin(theta));
 }
 
 float ShadowTest(float InSampleDepth, float InLightDist)
 {
     float shadowDiff = InSampleDepth - InLightDist;
-    return max(0, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
+    return max(0.0f, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
 }
 
 float Shadow(vec3 InToLight, sampler2D InShadowTex, vec2 InCoord, vec2 InTexel, vec4 InRect, float InRange)
@@ -43,7 +43,7 @@ float Shadow(vec3 InToLight, sampler2D InShadowTex, vec2 InCoord, vec2 InTexel, 
     float interleaved = PI * 2.0f * InterleavedGradientNoise(InCoord * SHADOW_NOISE_SCALE);
     float depth = SampleCubeAtlas(InShadowTex, InTexel, InRect, -toLightDir).a * InRange;
     float shadow = ShadowTest(depth, lightDist);
-    vec2 texel = 1 / Resolution;
+    vec2 texel = 1.0f / Resolution;
     for(int i = 1; i < SHADOW_SAMPLES; i++)
     {
         vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * texel * SHADOW_SAMPLE_SCALE;
@@ -51,7 +51,7 @@ float Shadow(vec3 InToLight, sampler2D InShadowTex, vec2 InCoord, vec2 InTexel, 
         float shadowDepth = SampleCubeAtlas(InShadowTex, InTexel, InRect, -vec).a * InRange;
         shadow += ShadowTest(shadowDepth, lightDist);
     }
-    shadow /= SHADOW_SAMPLES;
+    shadow /= float(SHADOW_SAMPLES);
 
     #else
 
@@ -60,5 +60,5 @@ float Shadow(vec3 InToLight, sampler2D InShadowTex, vec2 InCoord, vec2 InTexel, 
 
     #endif
 
-    return 1.0 - clamp(shadow - 0.5, 0, 1);
+    return 1.0f - Saturate(shadow - 0.5f);
 }

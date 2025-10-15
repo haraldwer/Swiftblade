@@ -5,12 +5,12 @@ const float DISTORT_STRENGTH = 1.0f;
 
 vec2 ScreenPosToCoord(vec4 InScreenPos)
 {
-    return (vec2(1) + InScreenPos.xy / InScreenPos.w) / 2;
+    return (vec2(1.0f) + InScreenPos.xy / InScreenPos.w) / 2.0f;
 }
 
 vec2 CoordToScreenPosXY(vec2 InCoord, vec4 InScreenPos)
 {
-    return (InCoord * 2 - 1) * InScreenPos.w;
+    return (InCoord * 2.0f - 1.0f) * InScreenPos.w;
 }
 
 vec2 DistortCoord(vec2 InCoord)

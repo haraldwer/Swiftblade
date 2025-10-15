@@ -2,7 +2,7 @@
 #include "Shaders/Uniforms/SH_TexUniforms.si"
 
 in vec2 TexCoord;
-out vec4 Output;
+layout (location = 0) out vec4 Output;
 
 #include "Shaders/Utility/SH_Pixelize.si"
 #include "Shaders/Utility/SH_HSV.si"
@@ -10,28 +10,28 @@ out vec4 Output;
 vec3 GetQuantized(vec3 InColor, float InPrec)
 {
     vec3 hsv = rgb2hsv(InColor);
-    return floor(hsv * InPrec + 0.5) / InPrec;
+    return floor(hsv * InPrec + 0.5f) / InPrec;
 }
 
 void main()
 {
     vec4 color = texture(TexFrame, TexCoord).rgba;
     vec3 hsv = rgb2hsv(color.rgb);
-    vec3 quantized = GetQuantized(color.rgb, 10);
-    Output = vec4(hsv2rgb(quantized), 1.0);
+    vec3 quantized = GetQuantized(color.rgb, 10.0f);
+    Output = vec4(hsv2rgb(quantized), 1.0f);
     
     vec3 pixelCoord = PixelizeTexCoord();
     vec3 pixelColor = texture(TexFrame, pixelCoord.xy).rgb;
     vec3 pixelHsv = rgb2hsv(pixelColor);
-    vec3 pixelQuantized = GetQuantized(pixelColor, 10);
+    vec3 pixelQuantized = GetQuantized(pixelColor, 10.0f);
     
-    float threshold = (1.0 / 10.0) * 0.3;
+    float threshold = (1.0f / 10.0f) * 0.3f;
     vec3 dist = abs(quantized - pixelHsv);
     if (dist.z > threshold)
     {
-        if (pixelCoord.z < 0.4)
+        if (pixelCoord.z < 0.4f)
         {
-            Output = vec4(hsv2rgb(pixelHsv), 1.0);
+            Output = vec4(hsv2rgb(pixelHsv), 1.0f);
             return;
         }
     }

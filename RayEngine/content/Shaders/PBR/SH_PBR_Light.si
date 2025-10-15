@@ -5,21 +5,21 @@
 // From LearnOpenGL
 // https://learnopengl.com/PBR/Lighting
 
-const float MAX_REFLECTION_LOD = 4.0;
+const float MAX_REFLECTION_LOD = 4.0f;
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
 vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
 float AttenuationFunction(float InDistance, float InRange)
 {
-    return Pow2(Pow2(1 - InDistance / InRange)); // Realistic attenuation: 1 / Pow2(distance);
+    return Pow2(Pow2(1.0f - InDistance / InRange)); // Realistic attenuation: 1 / Pow2(distance);
 }
 
 // PBR equation for per-light radiance
@@ -32,7 +32,7 @@ vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface, vec
     vec3 N = normalize(InNormal);
     vec3 V = normalize(CameraPosition - InWorldPos);
 
-    vec3 F0 = vec3(0.04);
+    vec3 F0 = vec3(0.04f);
     F0 = mix(F0, InAlbedo, metallic);
 
     // Calculate per-light radiance
@@ -48,15 +48,15 @@ vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface, vec
     float G = GeometrySmith(N, V, L, roughness);
 
     // Calculate fresnel
-    vec3 F = FresnelSchlickRoughness(max(dot(H, V), 0), F0, roughness);
-    vec3 kD = vec3(1) - F; // kS = F
-    kD *= 1 - metallic;
+    vec3 F = FresnelSchlickRoughness(max(dot(H, V), 0.0f), F0, roughness);
+    vec3 kD = vec3(1.0f) - F; // kS = F
+    kD *= 1.0f - metallic;
 
     vec3 numerator = NDF * G * F;
-    float denominator = 4 * max(dot(N, V), 0) * max(dot(N, L), 0) + 0.0001;
+    float denominator = 4.0f * max(dot(N, V), 0.0f) * max(dot(N, L), 0.0f) + 0.0001f;
     vec3 specular = numerator / denominator;
 
     // Add to outgoing radiance Lo
-    float NdotL = max(dot(N, L), 0);
+    float NdotL = max(dot(N, L), 0.0f);
     return (kD * InAlbedo / PI + specular) * radiance * NdotL;
 }

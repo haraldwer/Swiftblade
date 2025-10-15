@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "State/Command.h"
 
 struct RenderTexture;
 struct Texture;
@@ -26,9 +27,10 @@ namespace Rendering
         void Bind(ShaderResource& InShader, int& InOutSlot, int InFilter = -1, const String& InPostfix = "") const;
         
         const Vector<TargetTex>& GetTextures() const { return textures; }
+        int NumTextures() const { return static_cast<int>(textures.size()); }
         Vec2I Size() const { return { width, height }; }
         uint32 GetFBO() const { return frameBuffer; }
-        
+
     private: 
         
         uint32 frameBuffer = 0;
@@ -36,5 +38,7 @@ namespace Rendering
 
         int width = 0;
         int height = 0;
+        int refWidth = 0;
+        int refHeight = 0;
     };
 }

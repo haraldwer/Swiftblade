@@ -42,9 +42,8 @@ void UI::Label::Draw(Container& InOwner)
     const auto fontPtr = fontRsc->Get(static_cast<int>(screenSize));
     CHECK_RETURN(!fontPtr);
     const auto shader = fontRsc->GetShader();
-    CHECK_RETURN(!shader);
-    
-    BeginShaderMode(*shader);
+    if (shader)
+        BeginShaderMode(*shader);
     DrawTextPro(
         *fontPtr,
         properties.text.c_str(),
@@ -54,7 +53,8 @@ void UI::Label::Draw(Container& InOwner)
         screenSize,
         properties.spacing * sizeScale,
         tint);
-    EndShaderMode();
+    if (shader)
+        EndShaderMode();
 }
 
 Vec2F UI::Label::GetDesiredSize() const

@@ -8,7 +8,7 @@ uniform sampler2D texture0;
 uniform vec4 colDiffuse;
 
 // Output fragment color
-out vec4 finalColor;
+layout (location = 0) out vec4 finalColor;
 
 // NOTE: Add your custom variables here
 
@@ -16,7 +16,7 @@ void main()
 {
     // Texel color fetching from texture sampler
     // NOTE: Calculate alpha using signed distance field (SDF)
-    float distanceFromOutline = texture(texture0, TexCoord).a - 0.5;
+    float distanceFromOutline = texture(texture0, TexCoord).a - 0.5f;
     float distanceChangePerFragment = length(vec2(dFdx(distanceFromOutline), dFdy(distanceFromOutline)));
     float alpha = smoothstep(-distanceChangePerFragment, distanceChangePerFragment, distanceFromOutline);
 

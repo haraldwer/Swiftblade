@@ -1,11 +1,10 @@
 #include "Lights.h"
 
+#include "RayRenderUtility.h"
 #include "Context/Context.h"
 #include "Pipeline/Renderer.h"
-#include "RayRenderUtility.h"
 #include "Scene/Scene.h"
 #include "Scene/Culling/Frustum.h"
-#include "State/State.h"
 #include "Utility/Collections/SortedInsert.h"
 
 void Rendering::Lights::Init(const LightConfig& InConfig)

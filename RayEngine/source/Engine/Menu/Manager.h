@@ -63,8 +63,22 @@ namespace Menu
 
         void Close(Instance* InPtr)
         {
-            CHECK_ASSERT(!stackSet.contains(InPtr), "Tried to close menu that wasnt open")
-            pending.push_back(InPtr);
+            if (stackSet.contains(InPtr))
+            {
+                pending.push_back(InPtr);
+                return;
+            }
+ 
+            for (int i = 0; i < static_cast<int>(pending.size()); i++)
+            {
+                if (pending[i] == InPtr)
+                {
+                    pending.erase(pending.begin() + i);
+                    return;
+                }
+            }
+            
+            CHECK_ASSERT(true, "Tried to close menu that wasnt open")
         }
 
         void Clear()

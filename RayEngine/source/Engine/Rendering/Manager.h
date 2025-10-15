@@ -21,6 +21,8 @@ namespace Rendering
         // Draw to viewport
         void Render(const Scene& InScene);
         void BeginFrame();
+
+
         void EndFrame();
         
         void QueueConfig(const Config& InConfig);
@@ -39,6 +41,7 @@ namespace Rendering
         
     private:
         void ApplyConfig(const Config& InConfig);
+        void AutoResize();
         
         Config currConfig = {}; 
         Config queuedConfig = {};

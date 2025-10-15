@@ -3,6 +3,10 @@
 #include "raylib.h"
 #include "rlgl.h"
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
 #include "ImGui/Gizmo/ImGuizmo.h"
 #include "ImGui/imgui_themes.h"
 #include "ImGui/rlImGui.h"
@@ -139,8 +143,10 @@ void Rendering::Manager::EndFrame()
     }
     PROFILE_GL_COLLECT();
     
+    AutoResize();
     if (currConfig != queuedConfig)
         ApplyConfig(queuedConfig);
+    
     window.CapFPS();
 }
 
@@ -168,4 +174,31 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
     
     LOG("Render config applied");
     currConfig.SaveConfig();
+}
+
+void Rendering::Manager::AutoResize()
+{
+    const auto& debugMan = Debug::Manager::Get();
+    if (debugMan.IsOpen(DebugPanelName()) && debugMan.Enabled())
+        return;
+    
+    auto& win = queuedConfig.Window.Get();
+    auto& view = queuedConfig.Viewport.Get();
+
+#ifdef __EMSCRIPTEN__
+
+    // Auto-resize based on browser
+    int fullscreen = 0;
+    emscripten_get_canvas_size(&win.Width.Get(), &win.Height.Get(), &fullscreen);
+
+#else
+
+    win.Fullscreen = IsWindowFullscreen();
+    win.Width = GetScreenWidth();
+    win.Height = GetScreenHeight();
+    
+#endif
+    
+    view.Width = win.Width.Get();
+    view.Height = win.Height.Get();
 }

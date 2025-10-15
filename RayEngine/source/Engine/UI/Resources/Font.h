@@ -2,7 +2,6 @@
 
 #include "Core/Resource/Resource.h"
 #include "Resources/Shader.h"
-#include "Resources/Texture.h"
 
 struct Font;
 
@@ -19,6 +18,9 @@ namespace UI
         Shader* GetShader() const;
 
     private:
+        bool LoadSDFFont(uint32 InSize, Font*& InFontEntry) const;
+        bool LoadFont(uint32 InSize, Font*& InFontEntry);
+        
         String GetCachePath(int InSize) const;
         
         ResShader sdfShader = ResShader("Shaders/SH_FontSDF.fs");

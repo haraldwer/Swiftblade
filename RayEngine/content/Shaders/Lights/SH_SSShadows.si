@@ -1,10 +1,10 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Utility/SH_Utility.si"
 
-const float SSSHADOW_STEPS = 16;
-const float SSSHADOW_SCALE = 0.05;
-const float SSSHADOW_NEAR_RANGE = 0.1;
-const float SSSHADOW_FAR_RANGE = 0.5;
+const int SSSHADOW_STEPS = 16;
+const float SSSHADOW_SCALE = 0.05f;
+const float SSSHADOW_NEAR_RANGE = 0.1f;
+const float SSSHADOW_FAR_RANGE = 0.5f;
 
 float ScreenSpaceShadow(vec4 InPos, vec3 InLightPos)
 {
@@ -13,17 +13,17 @@ float ScreenSpaceShadow(vec4 InPos, vec3 InLightPos)
     vec3 dir = normalize(InLightPos - InPos.xyz);
     for (int i = 0; i < SSSHADOW_STEPS; i++)
     {
-        vec3 sampleWorldPos = InPos.xyz + dir * (i + 1) * SSSHADOW_SCALE;
+        vec3 sampleWorldPos = InPos.xyz + dir * float(i + 1) * SSSHADOW_SCALE;
         vec4 sampleViewPos = WorldToView(sampleWorldPos, ViewProj);
-        vec2 sampleCoord = clamp(ViewToCoord(sampleViewPos), 0, 1);
+        vec2 sampleCoord = Saturate(ViewToCoord(sampleViewPos));
         float depth = SampleWorldPos(sampleCoord).w;
         float depthDiff = sampleViewPos.z - depth;
 
         if (depthDiff > SSSHADOW_NEAR_RANGE && depthDiff < SSSHADOW_FAR_RANGE)
         {
-            float shadowFade = clamp(Pow2(i / SSSHADOW_STEPS), 0, 1);
+            float shadowFade = Saturate(Pow2(float(i) / float(SSSHADOW_STEPS)));
             return shadowFade;
         }
     }
-    return 1.0;
+    return 1.0f;
 }

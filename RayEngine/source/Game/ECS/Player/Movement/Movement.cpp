@@ -33,8 +33,6 @@ void ECS::Movement::Update()
     if (Engine::Instance::Get().IsEditor())
         return;
     
-    GroundSnap();
-    
     for (auto& c : Physics::Query::GetContacts(GetID()))
     {
         CHECK_CONTINUE(c.type == Physics::Contact::Event::END)
@@ -55,6 +53,8 @@ void ECS::Movement::Update()
             }
         }
     }
+    
+    GroundSnap();
     
     if (stateMachine)
         stateMachine->Update();
@@ -226,15 +226,17 @@ void ECS::Movement::GroundSnap()
                 // Set location
                 onGround = true;
                 groundTimestamp = GetTime(); 
-
-                //float dist = hit.position.y - transform.GetPosition().y;
-                //const Vec3F newPos = transform.GetPosition() - Vec3F::Up() * hit.distance; 
-                //transform.SetPosition(newPos);
+                
+                const Vec3F pos = transform.GetPosition();
+                Debug::Sphere(hit.position);
+                float newY = hit.position.y + collider.ShapeData.Get().y + collider.ShapeData.Get().x / 2;
+                Debug::Sphere(Vec3F(pos.x, newY, pos.z));
+                transform.SetPosition(Vec3F(pos.x, newY, pos.z));
     
                 // Flatten velocity
-                //auto& rb = GetRB();
-                //Vec3F vel = rb.GetVelocity(); 
-                //rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
+                auto& rb = GetRB();
+                Vec3F vel = rb.GetVelocity(); 
+                rb.SetVelocity(vel * Vec3F(1.0f, 0.0f, 1.0f));
             
                 if (debugDraw)
                     Debug::Capsule(

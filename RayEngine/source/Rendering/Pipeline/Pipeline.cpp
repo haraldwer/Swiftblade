@@ -1,6 +1,7 @@
 ﻿#include "Pipeline.h"
 
 #include "DeferredRenderer.h"
+#include "../../../cmake-build-web-release/_deps/raylib-src/src/rlgl.h"
 #include "Lights/LightsRenderer.h"
 #include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
@@ -27,13 +28,13 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     if (InArgs.lightsPtr == nullptr)
         InArgs.lightsPtr = InArgs.contextPtr->lightsPtr;
     
-    if (InArgs.luminPtr)
-        stats += InArgs.luminPtr->Update(InArgs);
+    //if (InArgs.luminPtr)
+    //    stats += InArgs.luminPtr->Update(InArgs);
     if (InArgs.lightsPtr)
         stats += InArgs.lightsPtr->Update(InArgs); 
 
     stats += RenderSkybox(InArgs);
-    stats += RenderScene(InArgs);
+    stats += RenderScene(InArgs); 
     stats += ProcessScene(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
@@ -217,6 +218,20 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderPostFX(const RenderArgs &I
         PROFILE_GL_NAMED("FXAA");
         frameTargets.Iterate();
         Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().FXAAShader, { &frameTargets.Prev() });
+        stats.fullscreenPasses++;
+    }
+    if (conf.FX.Get().ChromaticAberration)
+    {
+        PROFILE_GL_NAMED("Chromatic Aberration");
+        frameTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().CAShader, { &frameTargets.Prev() });
+        stats.fullscreenPasses++;
+    }
+    if (conf.FX.Get().Grain)
+    {
+        PROFILE_GL_NAMED("Grain");
+        frameTargets.Iterate();
+        Renderer::DrawFullscreen(InArgs, frameTargets.Curr(), conf.FX.Get().GrainShader, { &frameTargets.Prev() });
         stats.fullscreenPasses++;
     }
     return stats;

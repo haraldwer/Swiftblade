@@ -1,1 +1,2 @@
 rp3d/libreactphysics3d.a
+nakama-sdk/libnakama-sdk.so

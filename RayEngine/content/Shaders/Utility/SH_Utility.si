@@ -6,13 +6,13 @@ const float PI = 3.1415926535f;
 // World position -> View position
 vec4 WorldToView(vec3 InWorldPos, mat4 InMVP)
 {
-    return (InMVP * vec4(InWorldPos, 1));
+    return (InMVP * vec4(InWorldPos, 1.0f));
 }
 
 // View position -> Screen coordinate
 vec2 ViewToCoord(vec4 InViewPos)
 {
-    return (InViewPos.xy / InViewPos.w + 1) / 2;
+    return (InViewPos.xy / InViewPos.w + 1.0f) / 2.0f;
 }
 
 // World position -> Screen coordinate (0-1)
@@ -48,17 +48,17 @@ float Pow2(float InValue)
 
 float Saturate(float InValue)
 {
-    return clamp(InValue, 0, 1);
+    return clamp(InValue, 0.0f, 1.0f);
 }
 
 vec2 Saturate(vec2 InValue)
 {
-    return clamp(InValue, vec2(0), vec2(1));
+    return clamp(InValue, vec2(0.0f), vec2(1.0f));
 }
 
 vec3 Saturate(vec3 InValue)
 {
-    return clamp(InValue, vec3(0), vec3(1));
+    return clamp(InValue, vec3(0.0f), vec3(1.0f));
 }
 
 vec4 WorldPosToTex(vec4 InPos)
@@ -70,5 +70,5 @@ vec3 GetViewDir(vec2 InUV)
 {
     
     
-    return vec3(0); // Cant get this to work...
+    return vec3(0.0f); // Cant get this to work...
 }

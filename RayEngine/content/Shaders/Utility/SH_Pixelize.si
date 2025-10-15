@@ -21,7 +21,7 @@ float CalculatePixelSize(vec4 InWorldPos)
     float depthOffset = CalcSimplex(InWorldPos.xyz * PIXEL_DEPTH_NOISE_SCALE);
     float depth = InWorldPos.w;
     depth += depthOffset * PIXEL_DEPTH_OFFSET_SCALE;
-    depth = max(depth, 0.001);
+    depth = max(depth, 0.001f);
     float stepDepth = ceil(depth / PIXEL_DEPTH_STEP) * PIXEL_DEPTH_STEP;
     return PIXELS * stepDepth;
 }
@@ -49,12 +49,12 @@ vec3 PixelizeTexCoord()
     // Find valid coord 
     int steps = 4;
     vec2 diff = pixelCoord - TexCoord;
-    vec2 stepSize = diff / steps;
+    vec2 stepSize = diff / float(steps);
     vec2 finalPixelCoord = TexCoord;
     finalPixelCoord = TexCoord;
     for (int i = 0; i < steps; i++)
     {
-        vec2 coord = pixelCoord + (stepSize * i);
+        vec2 coord = pixelCoord + (stepSize * float(i));
         vec3 pos = SampleWorldPos(coord).xyz;
         vec3 dist = pos - originalWorldPosition.xyz;
         if (abs(dist.x) < PIXEL_MAX_DIST ||

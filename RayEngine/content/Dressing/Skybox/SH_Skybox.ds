@@ -6,13 +6,14 @@ void main()
 {
     if (CheckID(TexCoord, DeferredID))
         discard;
-    vec3 pos = normalize(SampleWorldPos(TexCoord).xyz - CameraPosition);
-    float dot = dot(pos, vec3(0,1,0));
-    float brightness = (CalcPerlin(pos * 20 * (1 - abs(dot))) + 1) / 2;
-    float horizon = Pow2(Pow2(1 - abs(dot)));
-    float val = brightness * horizon + horizon * 3;
-    val = min(1, val);
-    val += Random(pos) * 0.01;
     
-    Unlit(hsv2rgb(vec3(0, 0, val)));
+    vec3 pos = normalize(SampleWorldPos(TexCoord).xyz - CameraPosition);
+    float dot = dot(pos, vec3(0.0f,1.0f,0.0f));
+    float brightness = (CalcPerlin(pos * 20.0f * (1.0f - abs(dot))) + 1.0f) / 2.0f;
+    float horizon = Pow2(Pow2(1.0f - abs(dot)));
+    float val = brightness * horizon + horizon * 3.0f;
+    val = min(1.0f, val);
+    val += Random(pos) * 0.01f;
+    
+    Unlit(hsv2rgb(vec3(0.0f, 0.0f, val)));
 }

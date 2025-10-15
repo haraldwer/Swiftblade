@@ -8,14 +8,14 @@ void main()
     
     float gridScale = 0.5f;
     vec3 gridPos = pos * gridScale;
-    vec3 grid = abs(round(gridPos) - gridPos) * (1 - abs(normal));
+    vec3 grid = abs(round(gridPos) - gridPos) * (1.0f - abs(normal));
     float gridValue = max(max(grid.x, grid.y), grid.z) / gridScale;
-    float gridLines = step(0.95, gridValue);
-    float gridFade = mix(0.95, 0.8, gridLines);
+    float gridLines = step(0.95f, gridValue);
+    float gridFade = mix(0.95f, 0.8f, gridLines);
     
     float dist = length(pos - CameraPosition);
     float fade = DistanceFade(dist) * SurfaceFade(pos, normal);
-    gridFade *= mix(fade, 1.0f, 0.4);
+    gridFade *= mix(fade, 1.0f, 0.4f);
     
     DefaultMatte(vec3(gridFade));
 }

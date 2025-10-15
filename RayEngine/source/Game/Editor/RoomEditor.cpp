@@ -194,9 +194,6 @@ SceneInstance RoomEditor::ConvertRoomToScene()
         scene.entities.insert(objEditor.LoadObject(obj.second));
     
     scene.offset = conEditor.GetWorldOffset();
-    LOG("Scene offset (start position):")
-    LOG(scene.offset);
-    
     return scene;
 }
 

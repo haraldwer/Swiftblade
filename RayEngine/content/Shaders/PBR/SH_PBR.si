@@ -6,16 +6,16 @@
 // From LearnOpenGL
 // https://learnopengl.com/PBR/Lighting
 
-const float MAX_REFLECTION_LOD = 4.0;
+const float MAX_REFLECTION_LOD = 4.0f;
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
 vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
 vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
@@ -28,13 +28,13 @@ vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
     vec3 V = normalize(CameraPosition - InWorldPos);
     vec3 R = reflect(-V, N);
     
-    vec3 F0 = vec3(0.04);
+    vec3 F0 = vec3(0.04f);
     F0 = mix(F0, InAlbedo, metallic);
     
     // Calculate fresnel from view vector
-    vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0), F0, roughness);
-    vec3 kD = vec3(1) - F; // kS = F
-    kD *= 1 - metallic;
+    vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
+    vec3 kD = vec3(1.0f) - F; // kS = F
+    kD *= 1.0f - metallic;
 
     // Get lumin probe
     ProbeData probe = GetProbe(InWorldPos, InNormal);

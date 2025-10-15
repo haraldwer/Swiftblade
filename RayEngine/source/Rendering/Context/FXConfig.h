@@ -40,5 +40,11 @@ namespace Rendering
 
         PROPERTY_D(bool, Bump, false);
         PROPERTY_D(ResShader, BumpShader, "Shaders/PostProcessing/SH_Bump.ps");
+
+        PROPERTY_D(bool, ChromaticAberration, false);
+        PROPERTY_D(ResShader, CAShader, "Shaders/PostProcessing/SH_ChromaticAberration.ps");
+        
+        PROPERTY_D(bool, Grain, false);
+        PROPERTY_D(ResShader, GrainShader, "Shaders/PostProcessing/SH_Grain.ps");
     };
 }

@@ -37,5 +37,4 @@ void Rendering::Context::Deinit()
     }
 
     rlState::current.Reset();
-    rlState::current.Check();
 }
