@@ -20,10 +20,7 @@ void main()
     float camDist = length(camDiff);
     vec3 camDir = camDiff / camDist;
     
+    OutPrefilter = Prefilter(TexFrame, texel, RefRect, camDir, 1.0f);
     OutIrradiance.rgb = ConvoluteIrradiance(TexFrame, texel, RefRect, camDir);
     OutIrradiance.a = worldPos.w;
-    
-    OutPrefilter = Prefilter(TexFrame, texel, RefRect, camDir, 1.0f);
-    
-    //OutPrefilter.rgb = SampleCubeAtlas(TexFrame, texel, RefRect, camDir).rgb;
 }

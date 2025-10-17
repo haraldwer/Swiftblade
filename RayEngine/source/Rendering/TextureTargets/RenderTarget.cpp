@@ -122,8 +122,9 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
 
         const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Scale");
         CHECK_CONTINUE(sizeLoc < 0);
-        Vec2F size = Vec2I(tex.tex->width, tex.tex->height).To<float>();
-        Vec2F ref = Vec2I(width, height).To<float>();
+        
+        Vec2F size = Vec2I(tex.scaledWidth, tex.scaledHeight).To<float>();
+        Vec2F ref = Vec2I(tex.tex->width, tex.tex->height).To<float>();
         Vec2F scale = size / ref;
         rlSetUniform(sizeLoc, &scale, RL_SHADER_UNIFORM_VEC2, 1);
     }
@@ -141,7 +142,7 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
         mips = 1 + static_cast<int>(floor(log(Utility::Math::Max(w, h)) / log(2)));
 
 #ifdef GRAPHICS_API_OPENGL_ES3
-    // Fake a smaller resolution target
+    // Fake a smaller resolution target (cannot have resolution mismatch)
     const int texWidth = refWidth;
     const int texHeight = refHeight;
 #else
@@ -153,12 +154,15 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
     buffer.name = InName;
     buffer.cubemap = InCubemap;
     buffer.defaultFilter = InDefaultFilter;
+    buffer.scaledWidth = w;
+    buffer.scaledHeight = h;
+    
     buffer.tex = new Texture(); 
     buffer.tex->id = InCubemap ?
         rlLoadTextureCubemap(nullptr, texWidth, InPixelFormat, mips) : 
-        rlLoadTexture(nullptr, texWidth, texHeight, InPixelFormat, mips); 
-    buffer.tex->width = w;
-    buffer.tex->height = InCubemap ? w : h;
+        rlLoadTexture(nullptr, texWidth, texHeight, InPixelFormat, mips);
+    buffer.tex->width = texWidth;
+    buffer.tex->height = InCubemap ? texWidth : texHeight;
     buffer.tex->mipmaps = mips;
     buffer.tex->format = InPixelFormat;
 }

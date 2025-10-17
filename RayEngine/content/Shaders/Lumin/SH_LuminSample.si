@@ -72,7 +72,7 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
     c += fallback * fallbackWeight;
     totalWeight += fallbackWeight;
     
-    return c / max(1, totalWeight);
+    return c / max(1.0f, totalWeight);
     
 #else
     
@@ -85,7 +85,7 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 
 float ProbeDotFade(float InSurfaceToProbeDot)
 {
-    return Saturate(InSurfaceToProbeDot + 0.5); 
+    return Saturate(InSurfaceToProbeDot + 0.5f); 
 }
 
 float ProbeDistanceFade(vec3 InPixelToProbe, vec3 InNormal, vec3 InDensity)
@@ -112,7 +112,7 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDen
     float weight = 1.0f;
     
     vec3 pixelToProbe = InWorldPos - InProbePos.xyz;
-    float pixelToProbeDist = max(0.01, length(pixelToProbe));
+    float pixelToProbeDist = max(0.01f, length(pixelToProbe));
     vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist;
     
     float surfaceDot = -dot(pixelToProbeDir, InNormal);

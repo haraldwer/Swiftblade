@@ -17,6 +17,8 @@ namespace Rendering
             String name = {}; 
             bool cubemap = false;
             int defaultFilter = -1;
+            int scaledWidth = 0;
+            int scaledHeight = 0;
         };
         
         bool Setup(const RenderTexture& InTarget, const String& InName, uint8 InFormat, float InResScale = 1.0f, int InDefaultFilter = -1);

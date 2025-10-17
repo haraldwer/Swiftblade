@@ -149,10 +149,7 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
 
 void Input::Manager::DrawDebugPanel()
 {
-    if (ImGui::Button("Load"))
-        current.LoadConfig();
-    ImGui::SameLine();
-    if (ImGui::Button("Save"))
+    if (current.ConsumeCursor.Edit())
         current.SaveConfig();
     
     static String selectedContext;  
@@ -302,6 +299,12 @@ void Input::Manager::DrawDebugPanel()
             }
         }
     }
+
+    if (ImGui::Button("Load"))
+        current.LoadConfig();
+    ImGui::SameLine();
+    if (ImGui::Button("Save"))
+        current.SaveConfig();
 }
 
 void Input::Manager::UpdateCursorState()

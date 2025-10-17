@@ -13,7 +13,7 @@ int main()
     Init();
     
 #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(Tick, 0, 1);
+    emscripten_set_main_loop(Tick, 0, 1); 
 #else
     while (tick)
         Tick();
