@@ -6,14 +6,14 @@ const float SSSHADOW_SCALE = 0.05f;
 const float SSSHADOW_NEAR_RANGE = 0.1f;
 const float SSSHADOW_FAR_RANGE = 0.5f;
 
-float ScreenSpaceShadow(vec4 InPos, vec3 InLightPos)
+float ScreenSpaceShadow(vec3 InPos, vec3 InLightPos)
 {
     // TODO: Step in screen-space direction instead of world space
 
-    vec3 dir = normalize(InLightPos - InPos.xyz);
+    vec3 dir = normalize(InLightPos - InPos);
     for (int i = 0; i < SSSHADOW_STEPS; i++)
     {
-        vec3 sampleWorldPos = InPos.xyz + dir * float(i + 1) * SSSHADOW_SCALE;
+        vec3 sampleWorldPos = InPos + dir * float(i + 1) * SSSHADOW_SCALE;
         vec4 sampleViewPos = WorldToView(sampleWorldPos, ViewProj);
         vec2 sampleCoord = Saturate(ViewToCoord(sampleViewPos));
         float depth = SampleWorldPos(sampleCoord).w;

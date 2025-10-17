@@ -1,12 +1,16 @@
 #include "AtlasMap.h"
 
-void Rendering::AtlasMap::Init(const int InSlots, const bool InCubemap)
+void Rendering::AtlasMap::Init(const int InSlots, const bool InCubemap, const int InResolution)
 {
     int numSlots = InSlots;
     if (InCubemap)
         numSlots *= 6;
-    axisSlots = Utility::Math::SquareRoot(numSlots);
-    slotSize = 1.0f / axisSlots;
+    axisSlots = Utility::Math::SquareRoot(numSlots) + 1;
+    CHECK_ASSERT(axisSlots * axisSlots < numSlots, "Invalid square root calculation")
+    resolution = InResolution;
+
+    float slotPart = 1.0f / axisSlots; 
+    slotSize = slotPart * InResolution;
     cubemap = InCubemap;
     
     for (int i = 0; i < InSlots; i++)
@@ -19,6 +23,7 @@ void Rendering::AtlasMap::Deinit()
 {
     slots.clear();
     available.clear();
+    persistentSlots.clear();
 }
 
 bool Rendering::AtlasMap::Contains(uint64 InID) const
@@ -26,7 +31,7 @@ bool Rendering::AtlasMap::Contains(uint64 InID) const
     return slots.contains(InID);
 }
 
-Vec4F Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
+Vec4F Rendering::AtlasMap::GetRect(uint64 InID, int InFace, bool InPersistent)
 {
     // Track last access time
     auto& slot = slots[InID];
@@ -42,8 +47,11 @@ Vec4F Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
             {
                 if (s.second.accessTime < lowestTime || lowestTime < 0.0)
                 {
-                    lowestTime = s.second.accessTime;
-                    lowestTimeID = s.first;
+                    if (!persistentSlots.contains(s.first))
+                    {
+                        lowestTime = s.second.accessTime;
+                        lowestTimeID = s.first;
+                    }
                 }
             }
 
@@ -54,6 +62,8 @@ Vec4F Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
 
         slot.index = available.front();
         available.erase(available.begin());
+        if (InPersistent)
+            persistentSlots.insert(InID);
     }
     
     return CalcRect(slot.index + InFace);
@@ -62,6 +72,6 @@ Vec4F Rendering::AtlasMap::GetRect(const uint64 InID, const int InFace)
 Vec4F Rendering::AtlasMap::CalcRect(const int InIndex) const
 {
     int hI = InIndex % axisSlots;
-    int vI = InIndex / axisSlots;
-    return Vec4I({ hI, vI, 1, 1 }).To<float>() * slotSize;
+    int vI = (InIndex / axisSlots) % axisSlots;
+    return (Vec4I({ hI, vI, 1, 1 }) * slotSize).To<float>() / resolution;
 }

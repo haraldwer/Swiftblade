@@ -1,1 +1,13 @@
-{}
+{
+	"ObjectTypes":[{
+			"Key":"Checkpoint",
+			"Val":"Gameplay/BP_Checkpoint.json"
+		},{
+			"Key":"Enemy",
+			"Val":"Gameplay/Enemies/BP_Enemy.json"
+		},{
+			"Key":"Sword",
+			"Val":"Gameplay/Player/BP_Sword.json"
+		}
+	]
+}

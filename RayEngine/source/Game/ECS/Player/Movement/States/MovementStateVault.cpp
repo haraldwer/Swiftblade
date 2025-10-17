@@ -8,6 +8,7 @@
 #include "MovementStateAir.h"
 #include "MovementStateIdle.h"
 #include "MovementStateWall.h"
+#include "Editor/Debug/Draw.h"
 
 Type MovementStateVault::Check()
 {
@@ -92,8 +93,6 @@ Physics::QueryResult MovementStateVault::Sweep() const
     Physics::SweepParams forwardParams = baseParams;
     forwardParams.start = world.GetPosition() + Vec3F::Up() * SweepHeight.Get();
     forwardParams.end = forwardParams.start + sweepDirection * ForwardDist.Get(); 
-    //Rendering::DebugLine(forwardParams.Start, forwardParams.End, GREEN);
-    //Rendering::DebugSphere(forwardParams.End, forwardParams.ShapeData.x, GREEN);
     const Physics::QueryResult forwardResult = Physics::Query::Sweep(forwardParams);
     if (forwardResult.isHit) // Exit if hit
         return {};
@@ -101,12 +100,10 @@ Physics::QueryResult MovementStateVault::Sweep() const
     // Then downwards
     Physics::SweepParams downParams = baseParams;
     downParams.start = forwardParams.end;
-    downParams.end = downParams.start - Vec3F::Up() * SweepHeight.Get() * 2.0f;
-    //Rendering::DebugLine(downParams.Start, downParams.End);
-    //Rendering::DebugSphere(downParams.Start, downParams.ShapeData.x);
+    downParams.end = downParams.start - Vec3F::Up() * SweepHeight.Get();
     auto result = Physics::Query::Sweep(downParams);
-    //if (result.IsHit)
-    //    Rendering::DebugSphere(result.ClosestHit().Position, downParams.ShapeData.x, BLUE);
+    if (result.isHit)
+        Debug::Sphere(result.ClosestHit().position, downParams.shapeData.x, Rendering::Color::Blue());
 
     return result;
 }

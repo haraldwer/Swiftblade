@@ -6,11 +6,12 @@ in vec2 RectCoord;
 layout (location = 0) out vec4 Output;
 
 uniform sampler2D TexBloom;
+uniform vec2 TexBloomScale;
 uniform vec2 SamplePixelSize;
 uniform float LayerStrength;
 
 void main()
 {
-    Output.rgb = BloomSampleUp(TexBloom, TexCoord, SamplePixelSize);
+    Output.rgb = BloomSampleUp(TexBloom, TexCoord * TexBloomScale, SamplePixelSize * TexBloomScale);
     Output.a = LayerStrength;
 }

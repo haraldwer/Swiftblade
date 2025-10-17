@@ -1,5 +1,4 @@
 nakama-sdk/libnakama-sdk.so
-crossguid/libcrossguid.a
 rp3d/libreactphysics3d.a
 uuid
 stdc++

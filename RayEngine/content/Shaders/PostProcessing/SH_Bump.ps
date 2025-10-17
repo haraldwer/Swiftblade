@@ -49,7 +49,7 @@ void main()
     OutNormal = texture(TexNormal, TexCoord);
     OutData = texture(TexData, TexCoord);
 
-    if (!CheckID(TexCoord, 0.0f)) // Exclude skybox
+    if (!CheckID(TexCoord, 0)) // Exclude skybox
         return;
     
     if (OutData.z < 0.0001f)

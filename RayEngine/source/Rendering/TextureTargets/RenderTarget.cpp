@@ -117,13 +117,15 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
         TextureCommand cmd;
         cmd.shaderLoc = loc;
         cmd.id = tex.tex->id;
-        cmd.filter = InFilter == -1 ? tex.defaultFilter : InFilter;
+        cmd.filter = InFilter < 0 ? tex.defaultFilter : InFilter;
         rlState::current.Set(cmd, InOutSlot);
 
-        const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Size");
+        const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Scale");
         CHECK_CONTINUE(sizeLoc < 0);
-        Vec2I s = { tex.tex->width, tex.tex->height };
-        rlSetUniform(loc, &s, RL_SHADER_UNIFORM_IVEC2, 1);
+        Vec2F size = Vec2I(tex.tex->width, tex.tex->height).To<float>();
+        Vec2F ref = Vec2I(width, height).To<float>();
+        Vec2F scale = size / ref;
+        rlSetUniform(sizeLoc, &scale, RL_SHADER_UNIFORM_VEC2, 1);
     }
 }
 

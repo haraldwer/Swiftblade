@@ -29,7 +29,7 @@ void DB::Authentication::Init(Manager *InManager)
             AuthenticateDevice(); // Try to authenticate device instead
             return;
         }
-        Event<AuthResponse>().Invoke({ InResp.success, InResp.error });
+        Event<AuthResponse>::Invoke({ InResp.success, InResp.error });
     });
 
     onDevice.Bind([&](auto InResp, auto InC)
@@ -38,7 +38,7 @@ void DB::Authentication::Init(Manager *InManager)
         {
             LOG("Failed to authenticate device: " + InResp.error);
         }
-        Event<AuthResponse>().Invoke({ InResp.success, InResp.error });
+        Event<AuthResponse>::Invoke({ InResp.success, InResp.error });
     });
 }
 
@@ -103,13 +103,12 @@ void DB::Authentication::AuthenticateSteam()
     
     if (!client)
     {
-        Event<SteamAuthResponse>().Invoke({ false , "Invalid client" });
-        return;
+        Event<SteamAuthResponse>::Invoke({ false , "Invalid client" });
     }
 
     auto fail = [](const Nakama::NError& InError)
     {
-        Event<SteamAuthResponse>().Invoke({ false , toString(InError) });
+        Event<SteamAuthResponse>::Invoke({ false , "" });
     };
 
     auto success = [](const Nakama::NSessionPtr& InSession)
@@ -118,9 +117,9 @@ void DB::Authentication::AuthenticateSteam()
         man.session = InSession;
 
         if (!man.session)
-            Event<SteamAuthResponse>().Invoke({ false, "Invalid session"});
+            Event<SteamAuthResponse>::Invoke({ false, "Invalid session"});
         else
-            Event<SteamAuthResponse>().Invoke({ true, ""});
+            Event<SteamAuthResponse>::Invoke({ true, ""});
     };
 
     String token = "..."; // Use steam token!
@@ -168,14 +167,18 @@ void DB::Authentication::Authenticate()
 {
     LOG("Authenticate")
     authenticated = true;
+    Event<AuthResponse>::Invoke({ true });
+    
 }
 void DB::Authentication::AuthenticateDevice()
 {
     LOG("AuthDevice")
+    Authenticate();
 }
 void DB::Authentication::AuthenticateSteam()
 {
     LOG("AuthSteam")
+    Authenticate();
 }
 void DB::Authentication::LinkSteam() const
 {

@@ -17,7 +17,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
     CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
     CHECK_ASSERT(!InArgs.contextPtr, "Invalid context");
-
+  
     // TODO: Sub-tick camera movement
     // TODO: Depth sorting
     
@@ -28,8 +28,8 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     if (InArgs.lightsPtr == nullptr)
         InArgs.lightsPtr = InArgs.contextPtr->lightsPtr;
     
-    //if (InArgs.luminPtr)
-    //    stats += InArgs.luminPtr->Update(InArgs);
+    if (InArgs.luminPtr)
+        stats += InArgs.luminPtr->Update(InArgs);
     if (InArgs.lightsPtr)
         stats += InArgs.lightsPtr->Update(InArgs); 
 

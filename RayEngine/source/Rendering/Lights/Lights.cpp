@@ -11,7 +11,7 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
 {
     config = InConfig;
     atlasView.Init(config.Viewport, {});
-    atlas.Init(config.MaxLights, true);
+    atlas.Init(config.MaxLights, true, atlasView.GetSize().x);
     target.Setup(atlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
@@ -151,6 +151,6 @@ const Rendering::LightData& Rendering::Lights::GetData(const uint32 InHash)
 
 Vec2F Rendering::Lights::GetFaceTexel() const
 {
-    return Vec2F(1.0f) / (target.Size().To<float>() * atlas.GetSlotSize());
+    return Vec2F(1.0f) / static_cast<float>(atlas.GetSlotSize());
 }
 

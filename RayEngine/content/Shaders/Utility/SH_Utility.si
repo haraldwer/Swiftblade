@@ -63,7 +63,7 @@ vec3 Saturate(vec3 InValue)
 
 vec4 WorldPosToTex(vec4 InPos)
 {
-    return vec4(InPos.xyz - CameraPosition, InPos.w);
+    return vec4(InPos.xyz - CameraPosition, InPos.w / NearFar.y);
 }
 
 vec3 GetViewDir(vec2 InUV)

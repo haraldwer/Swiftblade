@@ -1,4 +1,4 @@
 ﻿
-layout (location = 0) out vec4 OutPosition; // xyz - Position (camera relative), w - Linear depth
+layout (location = 0) out vec4 OutPosition; // xyz - Position (camera relative), w - Linear depth / far
 layout (location = 1) out vec4 OutNormal; // xyz - Normal, a - DeferredID
 layout (location = 2) out vec4 OutData; // xy - Velocity, z - Height, w - Gameplay

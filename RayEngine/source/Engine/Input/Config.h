@@ -18,6 +18,7 @@ namespace Input
     struct Config : BaseConfig<Config>
     {
         PROPERTY(Vector<Context>, Contexts);
+        PROPERTY_D(bool, ConsumeCursor, true);
         
         String Name() const override { return "Input"; }
         bool Edit(const String& InName, uint32 InOffset) override;

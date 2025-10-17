@@ -10,8 +10,6 @@ Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderA
     CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
     CHECK_ASSERT(!InArgs.contextPtr, "Invalid context");
     
-    // TODO: Skip all shading
-    
     Stats stats;
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs); 

@@ -4,16 +4,17 @@
 			"Tonemapping":true,
 			"Distort":true,
 			"SSAO":true,
+			"ChromaticAberration":true,
 			"FXAA":true,
-			"MotionBlur":true
+			"MotionBlur":true,
+			"Bloom":true
 		},
 		"Lumin":{
-			"Enabled":false,
-			"InvalidateFallback":true,
 			"Viewport":{
 				"Height":4096,
 				"Width":4096
 			},
+			"InvalidateCache":true,
 			"Far":50.0
 		},
 		"Lights":{
@@ -23,19 +24,23 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
+				"Key":"TexSimplex",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
-				"Key":"TexSimplex",
-				"Val":"Defaults/T_Noise_Simplex.json"
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			}
 		]
 	},
+	"Viewport":{
+		"Height":1486,
+		"Width":2254
+	},
 	"Window":{
-		"Height":1700,
-		"Width":3000
+		"Height":1486,
+		"Width":2254
 	}
 }

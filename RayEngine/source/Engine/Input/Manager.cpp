@@ -319,9 +319,9 @@ void Input::Manager::UpdateCursorState()
         {
             EnableCursor();
         }
-        else
+        else if (current.ConsumeCursor)
         {
-            //DisableCursor();
+            DisableCursor();
         }
     }
 

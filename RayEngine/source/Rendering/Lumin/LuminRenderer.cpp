@@ -36,7 +36,7 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResour
     {
         double timeFade = 0; // time since rendered
         if (probe->atlasTimestamp > 0) 
-            timeFade = time - probe->atlasTimestamp;
+            timeFade = time - probe->renderTimestamp;
         
         CHECK_CONTINUE(!probe);
         positions.emplace_back(

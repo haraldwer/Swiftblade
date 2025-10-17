@@ -8,11 +8,11 @@ in vec2 TexCoord;
 layout (location = 0) out vec4 Output;
 
 const int ITERATIONS = 4;
-const float INTENSITY = 0.5f;
+const float INTENSITY = 0.35f;
 const float LERP_SPEED = 0.4f;
 const float SAMPLE_MAX_MIX = 0.2f;
 
-const float SCALE = 0.05f;
+const float SCALE = 0.03f;
 const float INTERP_DEPTH_THRESHOLD_MUL = 0.1f;
 const float DIR_RANDOMNESS = 0.25f;
 
@@ -84,7 +84,7 @@ vec2 BlurSamplePoint(sampler2D InTex, vec2 InCoord, float InWeight)
 
 vec2 BlurSample(sampler2D InTex, vec2 InCoord)
 {
-     vec2 pixelScale = vec2(1.0f) / Resolution;
+     vec2 pixelScale = TexAOScale / Resolution;
      
      float middleScale = 1.0f;
      float farScale = 1.0f;
@@ -113,9 +113,10 @@ vec2 BlurSample(sampler2D InTex, vec2 InCoord)
 }
 
 vec4 BlurAccumulation(vec2 InCoord)
-{
-     vec4 prevAO = texture(TexAO, InCoord);
-     vec2 result = BlurSample(TexAO, InCoord);
+{ 
+     vec2 scaledCoord = InCoord * TexAOScale;
+     vec4 prevAO = texture(TexAO, scaledCoord);
+     vec2 result = BlurSample(TexAO, scaledCoord);
      result.x += (prevAO.g + prevAO.b + prevAO.a);
      result.y += 3.0f;
      return vec4(prevAO.rgb, result.x / result.y); 

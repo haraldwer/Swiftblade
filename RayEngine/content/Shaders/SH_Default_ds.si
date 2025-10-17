@@ -17,7 +17,7 @@ const float FADE_DOT_PART = 0.5f;
 
 float DistanceFade(float InCameraDistance)
 {
-    return 1.0f - Saturate((InCameraDistance - DIST_FADE_START) / (DIST_FADE_END - DIST_FADE_START));
+    return 1.0f;// 1.0f - Saturate((InCameraDistance - DIST_FADE_START) / (DIST_FADE_END - DIST_FADE_START));
 }
 
 float SurfaceFade(vec3 InWorldPos, vec3 InNormal)

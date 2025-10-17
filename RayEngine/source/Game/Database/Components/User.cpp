@@ -2,6 +2,8 @@
 
 #include "Database/Manager.h"
 
+#ifdef NAKAMA_ENABLE
+
 void DB::User::Init(Manager *InManager)
 {
     Component::Init(InManager);
@@ -37,3 +39,29 @@ bool DB::User::IsLoggedIn() const
 {
     return GetSession() && loggedIn;
 }
+
+#else
+
+void DB::User::Init(Manager *InManager)
+{
+    Component::Init(InManager);
+    loggedIn = true;
+}
+
+void DB::User::Deinit()
+{
+    Component::Deinit();
+}
+
+void DB::User::TryLogin(const String &InName) const
+{
+    LOG("TryLogin: " + InName);
+}
+
+bool DB::User::IsLoggedIn() const
+{
+    LOG("IsLoggedIn");
+    return true;
+}
+
+#endif

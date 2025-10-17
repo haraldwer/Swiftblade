@@ -33,7 +33,7 @@ void main()
 {
     Output = vec4(0.0f);
     
-    vec4 worldPos = SampleWorldPos(TexCoord);
+    vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     vec3 normal = SampleNormal(TexCoord);
     vec4 albedo = SampleAlbedo(TexCoord);
     vec3 surface = SampleSurface(TexCoord);
@@ -41,7 +41,7 @@ void main()
     for (int i = 0; i < Lights; i++)
     {   
         vec3 position = Positions[i].xyz;
-        vec3 toLight = position - worldPos.xyz;
+        vec3 toLight = position - worldPos;
         float lightDistSqr = SquaredLength(toLight);
         
         float range = Positions[i].w;
@@ -56,8 +56,9 @@ void main()
         
         vec3 shadowPos = ShadowPositions[i].xyz;
         vec4 shadowRect = ShadowRects[i];
-        vec3 toLightShadow = shadowPos - worldPos.xyz;
+        vec3 toLightShadow = shadowPos - worldPos;
         float shadow = Shadow(toLightShadow, TexShadow, TexCoord, FaceTexel, shadowRect, range);
+        shadow *= surface.b; // AO
         if (shadow < 0.001f)
             continue;
         
@@ -69,7 +70,7 @@ void main()
         }
         
         vec3 color = Colors[i].xyz * Colors[i].w * 10.0f;
-        vec3 light = PBRLight(worldPos.xyz, normal, albedo.rgb, surface, position, color, range);
+        vec3 light = PBRLight(worldPos, normal, albedo.rgb, surface, position, color, range);
         
         Output.rgb += light * (1.0f - albedo.a);
         Output.a = 1.0f;

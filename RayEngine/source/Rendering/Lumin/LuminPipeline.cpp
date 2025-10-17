@@ -60,7 +60,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::LerpProbes(const RenderArgs
     
     Stats stats;
     InTarget.Iterate();
-    Renderer::DrawFullscreen(InArgs, InTarget.Curr(), InShader, { &InFrame, &InTarget.Prev() });
+    Renderer::DrawFullscreen(InArgs, InTarget.Curr(), InShader, { &InFrame, &InTarget.Prev() }, -1);
     stats.fullscreenPasses++;
     return stats;
 }

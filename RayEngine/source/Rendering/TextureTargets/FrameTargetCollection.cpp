@@ -29,13 +29,10 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
     for (auto& target : frameTargets.All())
         target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
 
-    if (InFX.SSAO)
-    {
-        for (auto& target : aoTargets.All())
-            target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, InFX.SSAOScale, RL_TEXTURE_FILTER_LINEAR);
-    }
+    for (auto& target : aoTargets.All())
+        target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, InFX.SSAOScale, RL_TEXTURE_FILTER_LINEAR);
 
-    if (InFX.Bloom && InFX.BloomPasses.Get() >= 2)
+    if (InFX.BloomPasses.Get() >= 2)
     {
         float bloomScale = 1.0f;
         bloomTargets = SwapTarget(InFX.BloomPasses);

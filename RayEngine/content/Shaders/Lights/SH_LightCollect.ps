@@ -7,6 +7,7 @@ layout (location = 0) out vec4 Output;
 
 void main()
 {
+    // TODO: Also blur the result so it can be used for RSM
     Output.rgb = texture(TexFrame, TexCoord).rgb;
     vec3 worldPos = SampleWorldPos(TexCoord).xyz;
     float camDist = length(worldPos - CameraPosition);

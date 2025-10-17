@@ -184,7 +184,6 @@ void Rendering::State::ResetShader()
     rlDisableShader();
     
     shader = {};
-    shader.blendMode = RL_BLEND_ALPHA;
 }
 
 void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)

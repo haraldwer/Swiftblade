@@ -9,21 +9,23 @@
 
 in vec2 TexCoord;
 in vec2 RectCoord;
-layout (location = 0) out vec4 Output;
+
+layout (location = 0) out vec4 Output; // rgb - Color, a - Depth
 
 void main()
 {
     vec4 albedo = SampleAlbedo(TexCoord);
+    vec4 worldPosition = SampleWorldPos(TexCoord);
+    
     Output.rgb = albedo.rgb;
-    Output.a = 1.0f;
+    Output.a = worldPosition.w;
     
     if (albedo.a > 0.99f)
         return;
     
-    vec3 worldPosition = SampleWorldPos(TexCoord).xyz;
     vec3 worldNormal = SampleNormal(TexCoord);
     vec3 surface = SampleSurface(TexCoord);
-    vec3 pbr = PBR(worldPosition, worldNormal, albedo.rgb, surface);
+    vec3 pbr = PBR(worldPosition.xyz, worldNormal, albedo.rgb, surface);
     
     Output.rgb = mix(pbr, albedo.rgb, albedo.a);
 }

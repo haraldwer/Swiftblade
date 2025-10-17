@@ -13,13 +13,13 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
     viewport.Init(config.Viewport, {});
     context.Init(InConfig);
 
-    int maxProbes = config.MaxLayerCount * config.Layers + 1;
-    atlas.Init(maxProbes + config.AtlasPadding, true);
+    int maxProbes = config.MaxLayerCount * config.Layers + config.AtlasPadding;
+    atlas.Init(maxProbes, true, viewport.GetSize().x);
 
     if (target.TryBeginSetup(viewport.GetVirtualTarget()))
     {
-        target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
+        target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
         target.EndSetup(viewport.GetVirtualTarget());
     }
 
@@ -27,8 +27,8 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
     {
         if (t.TryBeginSetup(viewport.GetVirtualTarget()))
         {
-            t.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-            t.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+            t.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
+            t.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
             t.EndSetup(viewport.GetVirtualTarget());
         }
     }
@@ -61,11 +61,12 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     
     Pipeline::Stats stats;
     ExpandVolume(InArgs);
-    if (config.Enabled)
-        stats += UpdateProbes(InArgs);
     stats += UpdateFallbackProbe(InArgs);
-    stats += LerpProbes(InArgs);
-    
+    if (config.Enabled)
+    {
+        stats += UpdateProbes(InArgs);
+        stats += LerpProbes(InArgs);
+    }
     return stats;
 }
 
@@ -80,7 +81,7 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
         return data;    
     }
     
-    for (int layerIndex = 0 ; layerIndex < config.Layers; ++layerIndex)
+    for (int layerIndex = 0; layerIndex < config.Layers; ++layerIndex)
     {
         int probeStartIndex = static_cast<int>(data.probes.size());
         auto& layer = data.layers.emplace_back();
@@ -135,7 +136,7 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
                 coord.pos.y - layer.start.y,
                 coord.pos.z - layer.start.z,
             };
-            int index = gridPos.x + gridPos.y * layer.size.x + gridPos.z * layer.size.x * layer.size.y;
+            int index = gridPos.x + gridPos.y * layer.size.x + gridPos.z * layer.size.x * layer.size.y + layer.startIndex;
 
             // Now try to calculate the index like in the shader
             //auto coord = FromPos(frameProbes[probeIndex]->pos, layerIndex);
@@ -147,8 +148,7 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
             //int realIndex = realCoord.x + realCoord.y * layer.size.x + realCoord.z * layer.size.x * layer.size.y;
             //LOG("I: " + Utility::ToStr(index - realIndex))
             
-            index += layer.startIndex;
-            if (index < 0 || index >= static_cast<int>(data.indices.size()))
+            if (index < 0 || index >= layer.endIndex)
                 continue;
             data.indices.at(index) = probeIndex + probeStartIndex;
         }
@@ -162,13 +162,14 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     PROFILE_GL();
 
     Vector<LuminProbe*> frameProbes;
-    for (int layer = 0; layer < config.Layers; ++layer)
+    double time = InArgs.contextPtr->Time();
+    for (int layer = config.Layers - 1; layer >= 0; --layer)
     {
         for (auto& probe : GetProbes(InArgs, layer))
         {
             CHECK_CONTINUE(config.UpdateFrequency < 0.0f && probe->renderTimestamp > 0.001f);
             CHECK_CONTINUE(config.Iterations > 0 && probe->iterations >= config.Iterations);
-            CHECK_CONTINUE(InArgs.contextPtr->Time() - probe->renderTimestamp < config.UpdateFrequency)
+            CHECK_CONTINUE(time - probe->renderTimestamp < config.UpdateFrequency)
             Utility::SortedInsert(frameProbes, probe, [&](const LuminProbe* InFirst, const LuminProbe* InSecond)
             {
                 return InFirst->renderTimestamp < InSecond->renderTimestamp;
@@ -190,7 +191,6 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .cullMask = static_cast<uint8>(MeshMask::LUMIN)
     };
 
-    float time = context.Time();
     for (auto probe : frameProbes)
     {
         if (!atlas.Contains(probe->coord.key))
@@ -205,10 +205,12 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     for (auto probe : frameProbes)
     {
         if (probe->iterations == 0)
-            probe->atlasTimestamp = time; // just got assigned an atlas
+        {
+            probe->atlasTimestamp = time; // Just got assigned an atlas
+            probe->renderTimestamp = time; // Just rendered for the first time
+        }
         
         probe->iterations++;
-        probe->renderTimestamp = time; // Just rendered
         probe->rect = atlas.GetRect(probe->coord.key, 0);
 
         Array<Vec3F, 9> points = GetCullPoints(probe->pos);
@@ -240,7 +242,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
 
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArgs &InArgs)
 {
-    Vec4F rect = atlas.GetRect(0, 0); // Refresh rect
+    Vec4F rect = atlas.GetRect(0, 0, true); // Refresh rect
     
     CHECK_RETURN(fallback.iterations > 0, {});
     CHECK_RETURN(InArgs.scenePtr->environments.empty(), {});
@@ -282,8 +284,10 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
     Array<Vec3F, 9> points = GetCullPoints(fallback.pos);
     args.cullPoints.insert(args.cullPoints.end(), points.begin(), points.end());
     
+    auto& t = config.Enabled ? target : lerpTarget.Curr();
+
     viewport.BeginFrame();
-    return pipeline.RenderFallbackProbe(args, config.CollectShader, target, config.SceneFallback);
+    return pipeline.RenderFallbackProbe(args, config.CollectShader, t, config.SceneFallback);
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs)

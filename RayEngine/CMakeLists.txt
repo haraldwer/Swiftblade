@@ -36,9 +36,10 @@ if (EMSCRIPTEN)
   set(COMPILE_PLATFORM emscripten)
   set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
   set(COMPILE_PLATFORM_PATH ${COMPILE_PLATFORM}_${BUILD_TYPE})
-endif ()
+else()
+  add_compile_definitions(NAKAMA_ENABLE)
+endif()
 
-add_compile_definitions(NAKAMA_ENABLE)
 add_compile_definitions(TRACY_ENABLE)
 
 set(FETCHCONTENT_QUIET OFF)

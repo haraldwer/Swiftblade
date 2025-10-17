@@ -1,6 +1,6 @@
 #include "GUID.h"
 
-#include <crossguid/guid.hpp>
+#include <random>
 
 #ifndef __EMSCRIPTEN__
 
@@ -271,29 +271,18 @@ unsigned short getVolumeHash()
 
 #else // !DARWIN             
 
- static void getCpuid( unsigned int* p, unsigned int ax )       
- {         
-    __asm __volatile         
-    (   "movl %%ebx, %%esi\n\t"               
-        "cpuid\n\t"          
-        "xchgl %%ebx, %%esi" 
-        : "=a" (p[0]), "=S" (p[1]),           
-          "=c" (p[2]), "=d" (p[3])            
-        : "0" (ax)           
-    );     
- }         
+#include <cpuid.h>
 
- unsigned short getCpuHash()            
- {         
-    unsigned int cpuinfo[4] = { 0, 0, 0, 0 };          
-    getCpuid( cpuinfo, 0 );  
-    unsigned short hash = 0;            
-    unsigned int* ptr = (&cpuinfo[0]);                 
-    for ( unsigned int i = 0; i < 4; i++ )             
-       hash += (ptr[i] & 0xFFFF) + ( ptr[i] >> 16 );   
-
-    return hash;             
- }         
+unsigned short getCpuHash()            
+{
+   unsigned int level = 0;
+   unsigned int cpuinfo[4] = { 0, 0, 0, 0 };
+   __get_cpuid(level, &cpuinfo[0], &cpuinfo[1], &cpuinfo[2], &cpuinfo[3]);
+   unsigned short hash = 0;
+   for (unsigned int i : cpuinfo)
+      hash += (i & 0xFFFF) + ( i >> 16 );
+   return hash;
+}
 #endif // !DARWIN     
 
 std::string getUserName()
@@ -306,6 +295,26 @@ std::string getUserName()
 }
 
 #endif
+
+#include <openssl/sha.h>
+
+inline String uuid_v4_FromString(const String &input)
+{
+   unsigned char hash[SHA_DIGEST_LENGTH];
+   SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
+
+   // Set version (4) and variant bits
+   hash[6] = (hash[6] & 0x0F) | 0x40;  // version 4
+   hash[8] = (hash[8] & 0x3F) | 0x80;  // variant
+
+   std::ostringstream oss;
+   for (int i = 0; i < 16; ++i) {
+      oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(hash[i]);
+      if (i == 3 || i == 5 || i == 7 || i == 9)
+         oss << "-";
+   }
+   return oss.str();
+}
 
 String Utility::DeviceGUID()
 {
@@ -320,12 +329,34 @@ String Utility::DeviceGUID()
    str += getMachineName();
    str += getUserName();
 
-   return ToUpper(xg::Guid(str).str());
+   return uuid_v4_FromString(str);
 }
 
 String Utility::NewGUID()
 {
-   return xg::newGuid().str();
+   static std::random_device rd;
+   static std::mt19937 gen(rd());
+   static std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
+
+   uint32_t data[4];
+   for (auto &d : data)
+      d = dist(gen);
+
+   // Set version (UUIDv4)
+   data[1] = (data[1] & 0xFFFF0FFF) | 0x00004000;
+   // Set variant (RFC 4122)
+   data[2] = (data[2] & 0x3FFFFFFF) | 0x80000000;
+
+   std::ostringstream oss;
+   oss << std::hex << std::setfill('0')
+       << std::setw(8) << data[0] << '-'
+       << std::setw(4) << ((data[1] >> 16) & 0xFFFF) << '-'
+       << std::setw(4) << (data[1] & 0xFFFF) << '-'
+       << std::setw(4) << ((data[2] >> 16) & 0xFFFF) << '-'
+       << std::setw(4) << (data[2] & 0xFFFF)
+       << std::setw(8) << data[3];
+
+   return oss.str();
 }
 
 #else

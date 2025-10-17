@@ -8,7 +8,13 @@
 void MenuInstance::Init()
 {
     Instance::Init();
+
+#ifdef NAKAMA_ENABLE
     menus.Push<MenuLogin>();
+#else
+    menus.Push<MenuMain>();
+#endif
+    
     ecs.Init();
     
     config.LoadConfig();

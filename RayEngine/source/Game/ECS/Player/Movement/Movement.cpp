@@ -228,9 +228,9 @@ void ECS::Movement::GroundSnap()
                 groundTimestamp = GetTime(); 
                 
                 const Vec3F pos = transform.GetPosition();
-                Debug::Sphere(hit.position);
+                //Debug::Sphere(hit.position);
                 float newY = hit.position.y + collider.ShapeData.Get().y + collider.ShapeData.Get().x / 2;
-                Debug::Sphere(Vec3F(pos.x, newY, pos.z));
+                //Debug::Sphere(Vec3F(pos.x, newY, pos.z));
                 transform.SetPosition(Vec3F(pos.x, newY, pos.z));
     
                 // Flatten velocity
