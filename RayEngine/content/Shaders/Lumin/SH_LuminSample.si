@@ -4,7 +4,7 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 // Main switch
-#define LUMIN
+//#define LUMIN
 //#define LUMIN_DEPTH_OCCLUSION
 
 const int LAYERS = 2;
@@ -12,7 +12,9 @@ const int LAYER_COUNT = 15 * 15;
 const int PROBE_COUNT = (LAYERS * LAYER_COUNT) + 1;
 const int GRID_COUNT = 1024;
 
-const float LUMIN_STRENGTH = 0.5f;
+const float LUMIN_STRENGTH = 1.0f;
+const float FADE_DELAY = 0.1f;
+const float FADE_DURATION = 2.0f;
 const float PROBE_NORMAL_OFFSET = 0.1f;
 const float PROBE_DEPTH_FADE_DIST = 1.0f;
 const float PROBE_DEPTH_FADE_BIAS = 1.0f;
@@ -61,6 +63,7 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 
         // Blend the probes!
         c += color * weight;
+        //c += vec3(1, 0, 0) * weight;
         totalWeight += weight;
     }
     
@@ -85,7 +88,7 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 
 float ProbeDotFade(float InSurfaceToProbeDot)
 {
-    return Saturate(InSurfaceToProbeDot + 0.5f); 
+    return Pow2(Saturate(InSurfaceToProbeDot + 1.0f)); 
 }
 
 float ProbeDistanceFade(vec3 InPixelToProbe, vec3 InNormal, vec3 InDensity)
@@ -102,9 +105,10 @@ float ProbeDistanceFade(vec3 InPixelToProbe, vec3 InNormal, vec3 InDensity)
     return Saturate(1.0f - dist);
 }
 
-float ProbeTimeFade(float InTime)
+// Manual time fade from c++
+float ProbeTimeFade(float InTimeFade)
 {
-    return Saturate(InTime * 1.0f);
+    return Saturate((InTimeFade - FADE_DELAY) / FADE_DURATION);
 }
 
 float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDensity, int InRectIndex)

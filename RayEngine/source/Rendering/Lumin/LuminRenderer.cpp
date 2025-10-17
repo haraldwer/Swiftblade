@@ -25,25 +25,26 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResour
         probeData.fallback->rect.x,
         probeData.fallback->rect.y,
         probeData.fallback->rect.z,
-        static_cast<float>(time - probeData.fallback->atlasTimestamp)
+        1
     );
     Vec2F rectSize = {
         probeData.fallback->rect.z,
         probeData.fallback->rect.w
     };
-    
-    for (auto& probe : probeData.probes)
+
+    for (int i = 0; i < static_cast<int>(probeData.probes.size()); i++)
     {
-        double timeFade = 0; // time since rendered
-        if (probe->atlasTimestamp > 0) 
-            timeFade = time - probe->renderTimestamp;
+        float timeFade = 0;
+        if (probeData.timestamps[i] > 0)
+            timeFade = time - probeData.timestamps[i];  
         
+        auto& probe = probeData.probes[i];
         CHECK_CONTINUE(!probe);
         positions.emplace_back(
             probe->pos.x,
             probe->pos.y,
             probe->pos.z,
-            timeFade
+            timeFade // Fade in and out
         );
         rects.push_back(probe->rect.xy);
     }

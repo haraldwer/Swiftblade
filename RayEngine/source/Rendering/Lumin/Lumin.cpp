@@ -85,6 +85,8 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
     {
         int probeStartIndex = static_cast<int>(data.probes.size());
         auto& layer = data.layers.emplace_back();
+
+        // Get all probes in frame
         Vector<LuminProbe*> frameProbes = GetProbes(InArgs, layerIndex);
         data.probes.insert(data.probes.end(), frameProbes.begin(), frameProbes.end());
         
@@ -130,29 +132,50 @@ Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &In
 
         for (int probeIndex = 0; probeIndex < static_cast<int>(frameProbes.size()); ++probeIndex)
         {
-            ProbeCoord coord = frameProbes[probeIndex]->coord;
+            auto& probe = frameProbes[probeIndex];
+
+            // Maybe skip probe based on timestamps?
+            CHECK_CONTINUE(probe->atlasTimestamp <= 0); // Not yet on atlas
+            CHECK_CONTINUE(probe->renderTimestamp < probe->atlasTimestamp); // Not yet rendered
+            
+            ProbeCoord coord = probe->coord;
             Vec3I gridPos = {
                 coord.pos.x - layer.start.x,
                 coord.pos.y - layer.start.y,
                 coord.pos.z - layer.start.z,
             };
             int index = gridPos.x + gridPos.y * layer.size.x + gridPos.z * layer.size.x * layer.size.y + layer.startIndex;
-
-            // Now try to calculate the index like in the shader
-            //auto coord = FromPos(frameProbes[probeIndex]->pos, layerIndex);
-            //Vec3I realCoord = {
-            //    coord.x - layer.start.x,
-            //    coord.y - layer.start.y,
-            //    coord.z - layer.start.z,
-            //};
-            //int realIndex = realCoord.x + realCoord.y * layer.size.x + realCoord.z * layer.size.x * layer.size.y;
-            //LOG("I: " + Utility::ToStr(index - realIndex))
-            
             if (index < 0 || index >= layer.endIndex)
                 continue;
             data.indices.at(index) = probeIndex + probeStartIndex;
         }
     }
+
+    // Get timestamp for when probe entered view 
+    auto& persistence = renderPersistence[InArgs.cullMask];
+    persistence.persistence.Begin();
+    for (auto& probe : data.probes)
+    {
+        CHECK_CONTINUE(!probe);
+        persistence.persistence.Touch(probe->coord.key);
+    }
+
+    for (auto remCoord : persistence.persistence.GetRemoved())
+        persistence.times[remCoord] = 0;
+    
+    data.timestamps.resize(data.probes.size());
+    double time = InArgs.contextPtr->Time();
+    for (int i = 0; i < static_cast<int>(data.probes.size()); ++i)
+    {
+        auto coord = data.probes[i]->coord.key;
+        auto& timestamp = persistence.times[coord];
+        if (persistence.persistence.WasAdded(coord) || timestamp <= 0)
+            timestamp = time;
+        data.timestamps[i] = timestamp;
+    }
+    
+    // TODO: Keep old probes around until they've faded
+    
     return data;
 }
 
@@ -323,12 +346,14 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
         return (InFirst->pos - cam.position).LengthSqr() < (InSecond->pos - cam.position).LengthSqr();
     };
 
+    const float halfFar = cam.far / 2.0f; 
     const auto checkFunc = [&](const ProbeCoord& InCoord)
     {
         const Vec3F pos = FromCoord(InCoord);
         const Vec3F maxDist = Vec3F::One() / GetDensity(InLayer);
         const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
-        return frustum.CheckSphere(pos, cullDist);
+        const float cullFar = halfFar - cullDist;
+        return frustum.CheckSphere(pos, cullDist) || (pos - cam.position).LengthSqr() < cullFar * cullFar;
     };
 
     Set<uint64>& layer = layerProbes[InLayer];

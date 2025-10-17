@@ -39,6 +39,7 @@ namespace Rendering
         Vector<Layer> layers = {};
         Vector<int> indices = {}; // Only some slots will be filled
         Vector<LuminProbe*> probes;
+        Vector<float> timestamps;
     };
     
     class Lumin
@@ -81,6 +82,13 @@ namespace Rendering
         SwapTarget lerpTarget = {};
 
         Utility::PersistanceContainer<uint64> probePersistence = {};
+
+        struct RenderPersistence
+        {
+            Utility::PersistanceContainer<uint64> persistence;
+            Map<uint64, float> times;
+        };
+        Map<uint8, RenderPersistence> renderPersistence = {};
     };
 }
 
