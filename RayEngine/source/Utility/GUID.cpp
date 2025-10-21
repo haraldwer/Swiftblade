@@ -296,13 +296,14 @@ std::string getUserName()
 
 #endif
 
-#include <openssl/sha.h>
+#include <picosha2/picosha2.h>
 
 inline String uuid_v4_FromString(const String &input)
 {
-   unsigned char hash[SHA_DIGEST_LENGTH];
-   SHA1(reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), hash);
-
+   std::vector<unsigned char> hash_val(16);
+   picosha2::hash256(input.begin(), input.end(), hash_val.begin(), hash_val.end());
+   std::string hash = picosha2::bytes_to_hex_string(hash_val.begin(), hash_val.end());
+   
    // Set version (4) and variant bits
    hash[6] = (hash[6] & 0x0F) | 0x40;  // version 4
    hash[8] = (hash[8] & 0x3F) | 0x80;  // variant
