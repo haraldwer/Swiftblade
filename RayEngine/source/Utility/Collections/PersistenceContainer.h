@@ -3,7 +3,7 @@
 namespace Utility
 {
     template <class IDType>
-    class PersistanceContainer
+    class PersistenceContainer
     {
     public:
         

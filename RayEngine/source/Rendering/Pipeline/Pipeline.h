@@ -25,18 +25,26 @@ namespace Rendering
             int probes = 0;
             int lights = 0;
             int skyboxes = 0;
+            int particleSims = 0;
+            int particles = 0;
 
             void operator += (const Stats& InStats)
             {
                 renders++;
-                debugDrawCount += InStats.debugDrawCount;
                 deferredDrawCount += InStats.deferredDrawCount;
+                debugDrawCount += InStats.debugDrawCount;
+                renders += InStats.renders;
                 fullscreenPasses += InStats.fullscreenPasses;
+                probes += InStats.probes;
+                lights += InStats.lights;
+                skyboxes += InStats.skyboxes;
+                particleSims += InStats.particleSims;
+                particles += InStats.particles;
                 for (auto& s : InStats.meshDrawCount)
                     meshDrawCount[s.first] += s.second;
             }
         };
-        
+
         virtual Stats Render(RenderArgs InArgs);
         virtual Stats RenderPost(RenderArgs InArgs);
         virtual Stats RenderCustom(RenderArgs InArgs, std::function<void()> InFunc);
@@ -44,6 +52,7 @@ namespace Rendering
     protected:
         static Stats RenderSkybox(const RenderArgs& InArgs);
         static Stats RenderScene(const RenderArgs& InArgs);
+        static Stats RenderParticles(const RenderArgs& InArgs);
         static Stats ProcessScene(const RenderArgs& InArgs);
         static Stats RenderDeferred(const RenderArgs& InArgs);
         static Stats RenderSurfaces(const RenderArgs& InArgs);

@@ -4,6 +4,7 @@
 
 namespace Rendering
 {
+    class Particles;
     class Lights;
     class Lumin;
     struct LuminConfig;
@@ -20,6 +21,7 @@ namespace Rendering
         double Time() const { return timer.Ellapsed(); }
         Lights* GetLights() const { return lightsPtr; }
         Lumin* GetLumin() const { return luminPtr; }
+        Particles* GetParticles() const { return particlesPtr; }
 
     private:
         ContextConfig config = {};
@@ -29,5 +31,6 @@ namespace Rendering
         
         Lights* lightsPtr = nullptr;
         Lumin* luminPtr = nullptr;
+        Particles* particlesPtr = nullptr;
     };
 }

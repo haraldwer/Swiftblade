@@ -2,11 +2,14 @@
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 
-struct EnemySpawner : ECS::Component<EnemySpawner>
+namespace ECS
 {
-};
+    struct EnemySpawner : Component<EnemySpawner>
+    {
+    };
 
-class SysEnemySpawner : public ECS::System<EnemySpawner>
-{
-    void Init(ECS::EntityID InID, EnemySpawner& InComponent) override;
-};
+    class SysEnemySpawner : public System<EnemySpawner>
+    {
+        void Init(EntityID InID, EnemySpawner& InComponent) override;
+    };
+}

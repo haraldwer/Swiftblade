@@ -19,10 +19,11 @@
 #include "ECS/Player/Combat/Weapon/Weapon.h"
 #include "ECS/RoomConnection.h"
 #include "ECS/SectionEnd.h"
+#include "ECS/Systems/Particle.h"
 #include "ECS/Volume/CubeVolume.h"
 
 #include "Engine/ECS/Systems/Attributes.h"
-#include "Engine/ECS/Systems/CameraComponent.h"
+#include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Mesh.h"
 #include "Engine/ECS/Systems/Environment.h"
@@ -55,7 +56,8 @@ systemToName[var] = String(#x); }
     REG_ENTITY_SYSTEM(Mesh);
     REG_ENTITY_SYSTEM(Environment);
     REG_ENTITY_SYSTEM(Light);
-    REG_ENTITY_SYSTEM(CameraComponent);
+    REG_ENTITY_SYSTEM(Particle);
+    REG_ENTITY_SYSTEM(Camera);
     REG_ENTITY_SYSTEM(Collider);
     REG_ENTITY_SYSTEM(Rigidbody);
 

@@ -1,0 +1,27 @@
+#include "Shaders/Particles/SH_Particle_Common.si"
+#include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_Noise.si"
+
+in vec2 TexCoord;
+in vec2 RectCoord;
+
+layout (location = 0) out vec4 OutPosition; // a - unused
+layout (location = 1) out vec4 OutVelocity; // a - unused
+
+uniform sampler2D TexPosition;
+uniform sampler2D TexVelocity;
+uniform sampler2D TexExpr; // Expressions
+
+void main()
+{
+    vec4 position = texture(TexPosition, TexCoord);
+    vec4 velocity = texture(TexVelocity, TexCoord);
+    
+    velocity.xyz += Simplex(TexCoord);
+    position.xyz += velocity.xyz;
+    
+    OutPosition = position;
+    OutPosition.a = 1;
+    OutVelocity = velocity;
+    OutVelocity.a = 1;
+}

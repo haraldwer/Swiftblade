@@ -256,7 +256,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .material = Engine::Instance::Get().IsEditor() ? InComponent.EditMaterial : InComponent.Material,
         .transform = {},
         .hash = 0,
-        .mask = static_cast<uint8>(Rendering::MeshMask::ALL)
+        .mask = static_cast<uint8>(Rendering::VisibilityMask::ALL)
     };
 
     InComponent.editMesh = {
@@ -264,7 +264,7 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .material = InComponent.MarkerMaterial,
         .transform = {},
         .hash = 0,
-        .mask = static_cast<uint8>(Rendering::MeshMask::DEFAULT)
+        .mask = static_cast<uint8>(Rendering::VisibilityMask::DEFAULT)
     };
     
     // Generate hash

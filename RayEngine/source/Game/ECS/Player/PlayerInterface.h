@@ -5,7 +5,7 @@
 namespace ECS
 {
     struct Transform;
-    struct CameraComponent;
+    struct Camera;
     struct Rigidbody;
     struct Collider;
     
@@ -44,7 +44,7 @@ namespace ECS
         Collider& GetCollider() const;
         Rigidbody& GetRB() const;
         PlayerCamera& GetPlayerCamera() const;
-        CameraComponent& GetCamera() const;
+        Camera& GetCamera() const;
         Weapon* GetWeapon() const;
 
         static double GetTime();

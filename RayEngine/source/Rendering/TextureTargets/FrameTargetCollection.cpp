@@ -4,33 +4,42 @@
 #include "rlgl.h"
 #include "Context/FXConfig.h"
 
-void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const FXConfig &InFX)
+void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const FXConfig &InFX)
 {
     Deinit();
+
+    const Vec2I res = {
+            InTarget.texture.width,
+        InTarget.texture.height
+    };
     
     for (auto& t : sceneTargets.All())
     {
-        if (t.TryBeginSetup(InTarget))
+        if (t.TryBeginSetup(res))
         {
             t.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
             t.CreateBuffer("TexNormal", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
             t.CreateBuffer("TexData", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-            t.EndSetup(InTarget);
+            t.EndSetup();
+            t.AttachDepth(InTarget);
         }
     }
 
-    if (surfaceTarget.TryBeginSetup(InTarget))
+    if (surfaceTarget.TryBeginSetup(res))
     {
-        surfaceTarget.CreateBuffer("TexAlbedo", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-        surfaceTarget.CreateBuffer("TexSurface", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-        surfaceTarget.EndSetup(InTarget);
+        surfaceTarget.CreateBuffer("TexAlbedo", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        surfaceTarget.CreateBuffer("TexSurface", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+        surfaceTarget.EndSetup();
     }
     
     for (auto& target : frameTargets.All())
-        target.Setup(InTarget, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        target.Setup(res, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
 
     for (auto& target : aoTargets.All())
-        target.Setup(InTarget, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, InFX.SSAOScale, RL_TEXTURE_FILTER_LINEAR);
+    {
+        Vec2I aoRes = (res.To<float>() * InFX.SSAOScale.Get()).To<int>();
+        target.Setup(aoRes, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
+    }
 
     if (InFX.BloomPasses.Get() >= 2)
     {
@@ -38,7 +47,8 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture &InTarget, const
         bloomTargets = SwapTarget(InFX.BloomPasses);
         for (auto& target : bloomTargets.All())
         {
-            target.Setup(InTarget, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, bloomScale, RL_TEXTURE_FILTER_LINEAR);
+            Vec2I bloomRes = (res.To<float>() * bloomScale).To<int>();
+            target.Setup(bloomRes, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
             bloomScale *= InFX.BloomDownscale;
         }
     }

@@ -1,22 +1,20 @@
-#include "CameraComponent.h"
+#include "Camera.h"
 
 #include "Transform.h"
 #include "Editor/Debug/Draw.h"
 #include "Instance/Instance.h"
 
-using namespace ECS;
-
-void SysCameraComponent::Frame(EntityID InEntity, CameraComponent& InComponent)
+void ECS::SysCamera::Frame(EntityID InEntity, Camera& InComponent)
 {
     //Set(InEntity, InComponent);
 }
 
-void SysCameraComponent::Update(const EntityID InEntity, CameraComponent& InComponent)
+void ECS::SysCamera::Update(const EntityID InEntity, Camera& InComponent)
 {
     Set(InEntity, InComponent);
 }
 
-void SysCameraComponent::Set(const EntityID InEntity, CameraComponent& InComponent)
+void ECS::SysCamera::Set(const EntityID InEntity, Camera& InComponent)
 {
     const Transform& t = Get<Transform>(InEntity);
     const Rendering::CameraInstance c {

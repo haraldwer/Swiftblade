@@ -5,22 +5,22 @@
 
 namespace ECS
 {
-    struct CameraComponent : Component<CameraComponent>
+    struct Camera : Component<Camera>
     {
         PROPERTY_D(float, FOV, 110.0f);
         PROPERTY_D(float, Near, 0.001f);
         PROPERTY_D(float, Far, 50.0f);
     };
 
-    class SysCameraComponent : public System<CameraComponent>
+    class SysCamera : public System<Camera>
     {
     public:
-        void Frame(EntityID InEntity, CameraComponent& InComponent) override;
-        void Update(EntityID InEntity, CameraComponent& InComponent) override;
+        void Frame(EntityID InEntity, Camera& InComponent) override;
+        void Update(EntityID InEntity, Camera& InComponent) override;
         bool ShouldUpdate() const override { return true; }
         int GetPriority() const override { return -99; }
     private:
-        void Set(EntityID InEntity, CameraComponent& InComponent);
+        void Set(EntityID InEntity, Camera& InComponent);
     };
 }
 

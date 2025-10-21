@@ -2,9 +2,24 @@
 
 #include "RayRenderUtility.h"
 
-void Rendering::State::Set(const UniformCommand& InCmd, int InSlot)
+void Rendering::State::Set(const UniformCommand& InCmd)
 {
+    PROFILE_GL_GPU("Set uniform");
     
+    UniformCommand& uniform = uniforms[InCmd.loc];
+    if (InCmd != uniform)
+    {
+        if (InCmd.mat)
+            rlSetUniformMatrix(InCmd.loc, *static_cast<const Matrix*>(InCmd.ptr));
+        else
+            rlSetUniform(InCmd.loc, InCmd.ptr, InCmd.type, InCmd.count);
+        uniform = InCmd;
+    }
+}
+
+void Rendering::State::ResetUniforms()
+{
+    uniforms.clear();
 }
 
 void Rendering::State::Set(const TextureCommand& InCmd, const int InSlot)
@@ -122,7 +137,8 @@ bool Rendering::State::Set(const Vector<Mat4F>& InMatrices)
 
     if (vbo != static_cast<uint32>(-1))
         ResetTransforms();
-    vbo = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
+    if (instances > 0)
+        vbo = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
     
     return true;
 }
@@ -156,6 +172,7 @@ void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)
     if (InCmd.id != shader.id || InForce)
     {
         textures.clear();
+        uniforms.clear();
         InCmd.id != static_cast<uint32>(-1) ?
             rlEnableShader(InCmd.id) : rlDisableShader();
     }
@@ -175,6 +192,8 @@ void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)
 
 void Rendering::State::ResetShader()
 {
+    if (shader.id == -1)
+        return;
     PROFILE_GL_GPU("Reset shader");
     RaylibRenderUtility::SetBlendMode(RL_BLEND_ALPHA);
     rlDisableColorBlend();
@@ -211,6 +230,8 @@ void Rendering::State::Set(const PerspectiveCommand& InCmd, const bool InForce)
 
 void Rendering::State::ResetPerspective()
 {
+    if (perspective.rect == Vec4F())
+        return;
     PROFILE_GL_GPU("Reset perspective");
     rlViewport(0, 0, rlGetFramebufferWidth(), rlGetFramebufferHeight());
     perspective = {};
@@ -268,6 +289,8 @@ void Rendering::State::Set(const FrameCommand& InCmd)
 
 void Rendering::State::ResetFrame()
 {
+    if (frame.fboID == -1)
+        return;
     PROFILE_GL_GPU("Reset frame");
     rlDisableFramebuffer();
     frame = {};
@@ -284,11 +307,6 @@ void Rendering::State::Reset()
     ResetFrame();
     ResetPerspective();
     Check();
-}
-
-void Rendering::State::ResetUniforms()
-{
-    uniforms.clear();
 }
 
 void Rendering::State::Check()

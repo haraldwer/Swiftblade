@@ -12,7 +12,7 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
     config = InConfig;
     atlasView.Init(config.Viewport, {});
     atlas.Init(config.MaxLights, true, atlasView.GetSize().x);
-    target.Setup(atlasView.GetVirtualTarget(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    target.Setup(atlasView.GetSize(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lights::Deinit()
@@ -66,7 +66,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
 
         // TODO: Cache cull results, or unique culling for each light?  
         .cullPoints = InArgs.cullPoints,
-        .cullMask = static_cast<uint8>(MeshMask::SHADOWS)
+        .cullMask = static_cast<uint8>(VisibilityMask::SHADOWS)
     };
     
     int count = 0;

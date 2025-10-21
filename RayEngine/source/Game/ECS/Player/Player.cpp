@@ -7,7 +7,7 @@
 #include "ECS/Systems/Attributes.h"
 #include "ECS/Obstacles/Obstacle.h"
 #include "ECS/Obstacles/Projectile.h"
-#include "Engine/ECS/Systems/CameraComponent.h"
+#include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Instance/Manager.h"
@@ -31,7 +31,7 @@ void ECS::Player::Init()
     {
         if (TryGet<Collider>(child))
             colliderID = child;
-        if (TryGet<CameraComponent>(child))
+        if (TryGet<Camera>(child))
             cameraID = child;
         
         auto& a = Get<Attributes>(child);

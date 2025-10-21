@@ -212,6 +212,8 @@ namespace Utility
 			Vector4(const Type & InX, const Type & InY, const Type & InZ, const Type & InW) : data{ InX, InY, InZ, InW } {}
 			Vector4(const Type & InValue) : data{ InValue, InValue, InValue, InValue } {}
 			Vector4(const Vector2<Type>& InXY, const Vector2<Type>& InZW) : data{ InXY.x, InXY.y, InZW.x, InZW.y } {}
+			explicit Vector4(const Vector3<Type>& InXYZ) : data{ InXYZ.x, InXYZ.y, InXYZ.z, 0 } {}
+			explicit Vector4(const Vector2<Type>& InXY) : data{ InXY.x, InXY.y, 0, 0 } {}
 			Vector4() : data{
 				DefaultInitializationValue<Type>(),
 				DefaultInitializationValue<Type>(),

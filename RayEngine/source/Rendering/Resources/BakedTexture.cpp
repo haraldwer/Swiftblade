@@ -2,23 +2,21 @@
 
 #include "raylib.h"
 #include "Pipeline/Renderer.h"
+#include "State/State.h"
 
 bool Rendering::BakedTexture::Load()
 {
     PropertyFile::Load();
     
     tex = new RenderTexture();
+    CHECK_ASSERT(!tex, "Failed to setup baked texture");
     *tex = LoadRenderTexture(data.Res, data.Res);
-
-    bool result = target.Setup(*tex, data.Name, PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-    CHECK_RETURN_LOG(!result, "Failed to setup baked texture", false);
     return true;
 }
 
 bool Rendering::BakedTexture::Unload()
 {
     baked = false;
-    target.Unload();
     if (tex)
     {
         UnloadRenderTexture(*tex);
@@ -33,6 +31,23 @@ Utility::Timepoint Rendering::BakedTexture::GetEditTime() const
     if (auto s = data.Shader.Get().Get())
         return s->GetEditTime();
     return PropertyFile::GetEditTime();
+}
+
+void Rendering::BakedTexture::Bind(const String& InName, ShaderResource& InShader, int& InOutSlot, int InFilter) const
+{
+    CHECK_RETURN(!baked);
+    
+    CHECK_ASSERT(!tex, "Tex nullptr");
+    
+    const int loc = InShader.GetLocation(InName);
+    CHECK_RETURN(loc < 0);
+
+    InOutSlot++;
+    TextureCommand cmd;
+    cmd.shaderLoc = loc;
+    cmd.id = tex->id;
+    cmd.filter = InFilter;
+    rlState::current.Set(cmd, InOutSlot);
 }
 
 bool Rendering::BakedTexture::Bake()

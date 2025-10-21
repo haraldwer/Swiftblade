@@ -2,10 +2,13 @@
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 
-struct SectionEnd : ECS::Component<SectionEnd>
+namespace ECS
 {
-};
+    struct SectionEnd : Component<SectionEnd>
+    {
+    };
 
-class SysSectionEnd : public ECS::System<SectionEnd>
-{
-};
+    class SysSectionEnd : public System<SectionEnd>
+    {
+    };
+}

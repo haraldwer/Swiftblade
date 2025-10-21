@@ -8,6 +8,7 @@ void Scene::Clear()
     meshes.ClearNonPersistent();
     environments = {};
     lights.Clear();
+    particles.Clear();
 }
 
 void Scene::ClearDebug()
@@ -22,6 +23,7 @@ void Scene::Build()
     PROFILE_GL();
     meshes.Build();
     lights.Build();
+    particles.Build();
     debugShapes.Build();
     debugLines.Build();
 }
@@ -42,6 +44,14 @@ void Scene::AddLight(const LightInstance& InLight)
         .position = InLight.data.position,
         .extent = InLight.data.range
     }); 
+}
+
+void Scene::AddParticle(const ParticleInstance& InParticle)
+{
+    particles.Insert(InParticle, {
+        .position = InParticle.transform.GetPosition(),
+        .extent = InParticle.extent
+    });
 }
 
 void Scene::AddDebugShape(const DebugShape& InShape)

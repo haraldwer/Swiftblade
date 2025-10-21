@@ -2,7 +2,7 @@
 
 #include "LuminConfig.h"
 #include "LuminPipeline.h"
-#include "Collections/PersistanceContainer.h"
+#include "Collections/PersistenceContainer.h"
 #include "Math/Coord.h"
 #include "Rendering/Context/Context.h"
 #include "Rendering/TextureTargets/AtlasMap.h"
@@ -81,11 +81,11 @@ namespace Rendering
         RenderTarget target = {};
         SwapTarget lerpTarget = {};
 
-        Utility::PersistanceContainer<uint64> probePersistence = {};
+        Utility::PersistenceContainer<uint64> probePersistence = {};
 
         struct RenderPersistence
         {
-            Utility::PersistanceContainer<uint64> persistence;
+            Utility::PersistenceContainer<uint64> persistence;
             Map<uint64, float> times;
         };
         Map<uint8, RenderPersistence> renderPersistence = {};

@@ -24,8 +24,12 @@ struct Expression : PropertyOwner<Expression>
     bool CustomDeserialize(const DeserializeObj& InObj) override;
 
 private:
-    PROPERTY(String, Expr);
+    void CacheGraph();
+    void DrawGraph();
     
+    PROPERTY(String, Expr);
+
+    // TODO: Provide a library of default functions
     
     te_parser* parser = nullptr;
 
@@ -36,4 +40,9 @@ private:
     };
     Map<uint8, Var> vars;
     Map<String, te_variant_type> funcs;
+
+    uint8 graphDefault = 0;
+    Vector<float> cachedGraph;
+    static constexpr int graphPrecision = 100;
 };
+

@@ -123,6 +123,7 @@ namespace Utility
 			
 			Vector3(const Type& InX, const Type& InY, const Type& InZ) : data{ InX, InY, InZ } {}
 			Vector3(const Type& InValue) : data{ InValue, InValue, InValue } {}
+			explicit Vector3(const Vector2<Type>& InXY) : data{ InXY.x, InXY.y, 0 } {}
 			Vector3() : data{ DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>(), DefaultInitializationValue<Type>() } {}
 
 			static Vector3 Up()			{ return { 0, 1, 0 }; }

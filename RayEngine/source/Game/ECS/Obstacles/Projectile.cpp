@@ -6,12 +6,12 @@
 #include "Physics/Contact.h"
 #include "Physics/Query.h"
 
-void SysProjectile::Init(ECS::EntityID InID, Projectile& InComponent)
+void ECS::SysProjectile::Init(ECS::EntityID InID, Projectile& InComponent)
 {
     InComponent.timer = InComponent.Lifetime;
 }
 
-void SysProjectile::Update(ECS::EntityID InID, Projectile& InComponent)
+void ECS::SysProjectile::Update(ECS::EntityID InID, Projectile& InComponent)
 {
     auto& t = Get<ECS::Transform>(InID);
     const Vec3F f = t.World().Forward();

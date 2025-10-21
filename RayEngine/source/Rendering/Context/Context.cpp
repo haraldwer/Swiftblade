@@ -2,6 +2,7 @@
 
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
+#include "Particles/Particles.h"
 #include "State/State.h"
 
 void Rendering::Context::Init(const ContextConfig& InConfig, const bool InRoot)
@@ -18,6 +19,10 @@ void Rendering::Context::Init(const ContextConfig& InConfig, const bool InRoot)
             lightsPtr->Deinit();
         else lightsPtr = new Lights();
         lightsPtr->Init(config.Lights);
+        if (particlesPtr)
+            particlesPtr->Deinit();
+        else particlesPtr = new Particles();
+        particlesPtr->Init(config);
     }
 }
 

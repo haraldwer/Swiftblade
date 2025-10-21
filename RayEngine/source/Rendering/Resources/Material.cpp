@@ -1,7 +1,5 @@
 #include "Material.h"
 
-#include "Utility/File/File.h"
-
 bool Rendering::MaterialResource::Load()
 {
     const bool result = PropertyFile::Load();

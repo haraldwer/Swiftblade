@@ -12,7 +12,7 @@ namespace ECS
         PROPERTY_D(float, Intensity, 1.0f);
         PROPERTY_D(bool, Shadows, true);
         PROPERTY_D(bool, Visible, true);
-        uint32 id;
+        uint32 id = 0;
     };
 
     class SysLight : public System<Light>

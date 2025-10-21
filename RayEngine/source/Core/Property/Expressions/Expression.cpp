@@ -70,6 +70,8 @@ void Expression::Declare(const uint8 InKey, const String& InName)
 {
     if (!vars.contains(InKey))
     {
+        if (vars.empty())
+            graphDefault = InKey;
         Var var = {
             .val = new float(0.0f),
             .name = InName
@@ -124,9 +126,11 @@ float Expression::Evaluate() const
 
 bool Expression::Edit(const String& InName, uint32 InOffset)
 {
+    bool comp = false;
     if (Utility::Edit("##" + InName, Expr.Get(), InOffset))
-        return Compile();
-    return false;
+        comp = Compile();
+    DrawGraph();
+    return comp;
 }
 
 bool Expression::CustomDeserialize(const DeserializeObj& InObj)
@@ -136,10 +140,48 @@ bool Expression::CustomDeserialize(const DeserializeObj& InObj)
     return result;
 }
 
+void Expression::CacheGraph()
+{
+    cachedGraph.clear();
+    CHECK_RETURN(!vars.contains(graphDefault));
+
+    const auto& find = vars.at(graphDefault);
+    float prevVal = *find.val;
+    cachedGraph.resize(graphPrecision);
+    for (int i = 0; i < graphPrecision; i++)
+    {
+        float alpha = static_cast<float>(i) / static_cast<float>(graphPrecision);
+        *find.val = alpha;
+        cachedGraph[i] = Evaluate();
+    }
+    *find.val = prevVal;
+}
+
+void Expression::DrawGraph()
+{
+    if (cachedGraph.empty())
+        CacheGraph();
+
+    ImGui::PushItemWidth(-FLT_MIN);
+    constexpr ImVec2 plotSize = ImVec2(0, 50);
+
+    ImGui::PlotLines(("##Freq" + Expr.Get()).c_str(),
+        cachedGraph.data(),
+        static_cast<int>(cachedGraph.size()),
+        0,
+        0,
+        FLT_MAX,
+        FLT_MAX,
+        plotSize);
+
+    ImGui::PopItemWidth();
+}
+
 bool Expression::Compile()
 {
+    cachedGraph.clear();
     CHECK_RETURN(Expr.Get().empty(), false);
-
+    
     if (!parser)
         parser = new te_parser();
 
@@ -148,7 +190,7 @@ bool Expression::Compile()
         variables.insert({ var.second.name, var.second.val });
     for (const auto& func : funcs)
         variables.insert({ func.first, func.second });
-    
+
     parser->set_variables_and_functions(variables);
     parser->compile(Expr.Get());
     if (!parser->success() && !parser->get_last_error_message().empty())

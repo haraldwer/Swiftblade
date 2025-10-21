@@ -4,7 +4,23 @@ namespace Rendering
 {
     struct UniformCommand
     {
-        uint32 valueHash;
+        uint32 valueHash = 0;
+        int loc = -1;
+        const void* ptr = nullptr;
+        int type = 0;
+        int count = 0;
+        bool mat = false;
+
+        bool operator==(const UniformCommand& InOther) const
+        {
+            return
+                InOther.valueHash == valueHash && 
+                InOther.loc == loc && 
+                InOther.ptr == ptr && 
+                InOther.type == type && 
+                InOther.count == count && 
+                InOther.mat == mat; 
+        }
     };
     
     struct TextureCommand

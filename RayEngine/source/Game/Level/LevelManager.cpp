@@ -23,7 +23,7 @@ void LevelManager::Load(const Vector<ResScene>& InRooms)
 
         for (const ECS::EntityID entity : instance.entities)
         {
-            const auto connection = ECS::Manager::Get().GetComponent<RoomConnection>(entity);
+            const auto connection = ECS::Manager::Get().GetComponent<ECS::RoomConnection>(entity);
             CHECK_CONTINUE(!connection);
             CHECK_CONTINUE(!connection->IsEnd);
             

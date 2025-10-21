@@ -15,25 +15,36 @@ void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InNam
 {
     const int loc = InShader.GetLocation(InName);
     CHECK_RETURN(loc < 0);
-    PROFILE_GL_GPU("Set uniform")
-    rlSetUniform(loc, InValue, InType, InCount);
+    UniformCommand cmd;
+    cmd.loc = loc;
+    cmd.ptr = InValue;
+    cmd.type = InType;
+    cmd.count = InCount;
+    rlState::current.Set(cmd);
 }
 
 void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue)
 {
     const int loc = InShader.GetLocation(InName);
     CHECK_RETURN(loc < 0);
-    PROFILE_GL_GPU("Set matrix uniform")
     const Matrix m = Utility::Ray::ConvertMat(InValue);
-    rlSetUniformMatrix(loc, m);
+    UniformCommand cmd;
+    cmd.loc = loc;
+    cmd.ptr = &m;
+    cmd.mat = true;
+    rlState::current.Set(cmd);
 }
 
 void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, const int InType, const int InCount)
 {
     const int loc = InShader.GetLocation(InLoc);
     CHECK_RETURN(loc < 0);
-    PROFILE_GL_GPU("Set uniform")
-    rlSetUniform(loc, InValue, InType, InCount);
+    UniformCommand cmd;
+    cmd.loc = loc;
+    cmd.ptr = InValue;
+    cmd.type = InType;
+    cmd.count = InCount;
+    rlState::current.Set(cmd);
 }
 
 void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue)
@@ -41,7 +52,11 @@ void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderR
     const int loc = InShader.GetLocation(InLoc);
     CHECK_RETURN(loc < 0);
     const Matrix m = Utility::Ray::ConvertMat(InValue);
-    rlSetUniformMatrix(loc, m);
+    UniformCommand cmd;
+    cmd.loc = loc;
+    cmd.ptr = &m;
+    cmd.mat = true;
+    rlState::current.Set(cmd);
 }
 
 void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader)
@@ -387,9 +402,13 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
     PROFILE_GL();
     
     rlState::current.Reset();
+
+    //rlEnableFramebuffer(InTarget.id);
+    //auto s = InBuffer.Size();
+    //rlBlitFramebuffer(0, 0, s.x, s.y, 0, 0, InTarget.texture.height, InTarget.texture.width,  GL_COLOR_BUFFER_BIT);
     
     BeginTextureMode(InTarget);
-
+    
     // Flip and blip
     const Rectangle sourceRec = {
         0.0f, 0.0f,
@@ -417,8 +436,11 @@ bool Rendering::Renderer::Bake(const BakedTexture& InTex)
     CHECK_RETURN_LOG(!shader, "Failed to get shader", false);
 
     FrameCommand frameCmd;
-    frameCmd.fboID = InTex.target.GetFBO();
-    frameCmd.size = InTex.target.Size();
+    frameCmd.fboID = InTex.tex->id;
+    frameCmd.size = {
+        InTex.tex->texture.width,
+        InTex.tex->texture.height
+    };
     rlState::current.Set(frameCmd);
 
     ShaderCommand shaderCmd;

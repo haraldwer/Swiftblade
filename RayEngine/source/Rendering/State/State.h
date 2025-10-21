@@ -7,7 +7,7 @@ namespace Rendering
     {
     public:
         
-        void Set(const UniformCommand& InCmd, int InSlot);
+        void Set(const UniformCommand& InCmd);
         void Set(const TextureCommand& InCmd, int InSlot);
         bool Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatrices);
         bool Set(const Vector<Mat4F>& InMatrices);

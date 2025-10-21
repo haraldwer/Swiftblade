@@ -15,6 +15,7 @@ namespace Rendering
     class RenderTarget;
     class Lumin;
     struct LuminProbe;
+    class Particles;
     class Context;
     class Viewport;
     class Scene;
@@ -34,6 +35,7 @@ namespace Rendering
         Viewport* viewportPtr = nullptr;
         Lumin* luminPtr = nullptr;
         Lights* lightsPtr = nullptr;
+        Particles* particlesPtr = nullptr;
         Vector<Perspective> perspectives = {};
         Vector<Vec3F> cullPoints = {};
         uint8 cullMask = 255;
@@ -42,7 +44,7 @@ namespace Rendering
     class Renderer
     {
     public:
-        static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = true);
+        static void DrawFullscreen(const RenderArgs& InArgs, const RenderTarget& InTarget, const ResShader& InShader, const Vector<RenderTarget*>& InBuffers, int InBlend = -1, bool InClear = false);
         static void DrawBloom(const RenderArgs & InArgs, SwapTarget& InBloom, SwapTarget& InFrame);
         static int DrawCustom(const RenderArgs & InArgs, const std::function<void()> & InFunc);
         static int DrawDebug(const RenderArgs& InArgs);

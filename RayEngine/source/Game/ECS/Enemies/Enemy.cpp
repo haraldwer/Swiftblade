@@ -6,7 +6,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "GameState.h"
 
-void SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
+void ECS::SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
 {
     auto& trans = Get<ECS::Transform>(InID);
     const ECS::EntityID player = GameState::Get().GetPlayerID();
@@ -23,7 +23,7 @@ void SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
     Get<ECS::Rigidbody>(InID).AddForce(dir * InComponent.MovementSpeed.Get());  
 }
 
-void SysEnemy::Spawn(ECS::EntityID InSpawnerID)
+void ECS::SysEnemy::Spawn(ECS::EntityID InSpawnerID)
 {
     const BlueprintResource* bp = ResBlueprint("Gameplay/Enemies/BP_Enemy.json").Get();
     CHECK_RETURN_LOG(!bp, "Invalid blueprint");
@@ -33,7 +33,7 @@ void SysEnemy::Spawn(ECS::EntityID InSpawnerID)
     
 }
 
-void SysEnemy::ApplyDamage(const ECS::EntityID InEnemy, ECS::EntityID InDamageDealer)
+void ECS::SysEnemy::ApplyDamage(const ECS::EntityID InEnemy, ECS::EntityID InDamageDealer)
 {
     LOG("Enemy killed!");
     ECS::Manager::Get().DestroyEntity(InEnemy); 

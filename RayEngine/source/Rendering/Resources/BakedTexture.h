@@ -2,7 +2,8 @@
 
 #include "Resource/PropertyFile.h"
 #include "Resources/Shader.h"
-#include "TextureTargets/RenderTarget.h"
+
+struct RenderTexture;
 
 namespace Rendering
 {
@@ -22,12 +23,12 @@ namespace Rendering
         bool Unload() override;
         Utility::Timepoint GetEditTime() const override;
         
+        void Bind(const String& InName, ShaderResource& InShader, int& InOutSlot, int InFilter) const;
         bool Bake();
         bool IsBaked() const { return baked; }
-        RenderTarget& Get() { return target; }
-    
+        RenderTexture* Get() const { return tex; }
+
     private:
-        RenderTarget target;
         RenderTexture* tex = nullptr;
         bool baked = false;
     };

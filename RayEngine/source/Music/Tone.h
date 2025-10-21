@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Property/Expression.h"
+#include "Property/Expressions/Expression.h"
 #include "ToneTiming.h"
 
 constexpr int TONE_PLOT_ACCURACY = 1024;

@@ -62,7 +62,7 @@ void Rendering::Manager::Render(const Scene& InScene)
             .camera= InScene.GetCamera()
         }},
         .cullPoints = cullPoints,
-        .cullMask = static_cast<uint8>(MeshMask::DEFAULT)
+        .cullMask = static_cast<uint8>(VisibilityMask::DEFAULT)
     };
     Pipeline::Stats stats;
         

@@ -5,6 +5,7 @@
 #include "Instances/DebugShape.h"
 #include "Instances/EnvironmentInstance.h"
 #include "Instances/LightInstance.h"
+#include "Instances/ParticleInstance.h"
 #include "Utility/Collections/SplitContainer.h"
 
 namespace Rendering
@@ -18,6 +19,7 @@ namespace Rendering
         friend class DeferredRenderer;
         friend class Lumin;
         friend class Lights;
+        friend class Particles;
     public:
         void SetCamera(const CameraInstance& InCamera);
         const CameraInstance& GetCamera() const { return mainCamera; }
@@ -25,6 +27,7 @@ namespace Rendering
         MeshCollection& Meshes() { return meshes; }
         void AddEnvironment(const EnvironmentInstance& InEnvironment);
         void AddLight(const LightInstance& InLight);
+        void AddParticle(const ParticleInstance& InParticle);
         
         void AddDebugShape(const DebugShape& InShape);
         void AddDebugLine(const DebugLine& InLine);
@@ -40,6 +43,7 @@ namespace Rendering
         Vector<EnvironmentInstance> environments = {};
         MeshCollection meshes = {};
         Utility::SplitContainer<LightInstance> lights = {};
+        Utility::SplitContainer<ParticleInstance> particles = {};
         
         Utility::SplitContainer<DebugShape> debugShapes = {};
         Utility::SplitContainer<DebugLine> debugLines = {};

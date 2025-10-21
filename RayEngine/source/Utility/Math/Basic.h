@@ -41,5 +41,23 @@ namespace Utility
         {
             return InRad * (static_cast<T>(180) / static_cast<T>(PI));
         }
+
+        template <class T>
+        T NextPow2(T InValue)
+        {
+            return pow(static_cast<T>(2), ceil(log(InValue)/log(static_cast<T>(2))));
+        }
+        
+        inline uint32 NextPow2(uint32 InValue)
+        {
+            InValue--;
+            InValue |= InValue >> 1;
+            InValue |= InValue >> 2;
+            InValue |= InValue >> 4;
+            InValue |= InValue >> 8;
+            InValue |= InValue >> 16;
+            InValue++;
+            return InValue;
+        }
     }
 }

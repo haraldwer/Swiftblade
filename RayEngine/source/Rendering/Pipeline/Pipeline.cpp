@@ -1,12 +1,13 @@
 ﻿#include "Pipeline.h"
 
 #include "DeferredRenderer.h"
-#include "../../../cmake-build-web-release/_deps/raylib-src/src/rlgl.h"
 #include "Lights/LightsRenderer.h"
 #include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
+#include "Particles/Particles.h"
+#include "Particles/ParticlesRenderer.h"
 #include "Scene/Scene.h"
 #include "Viewport/Viewport.h"
 
@@ -22,12 +23,16 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     // TODO: Depth sorting
     
     Stats stats;
-    
+
+    if (InArgs.particlesPtr == nullptr)
+        InArgs.particlesPtr = InArgs.contextPtr->particlesPtr;
     if (InArgs.luminPtr == nullptr)
         InArgs.luminPtr = InArgs.contextPtr->luminPtr;
     if (InArgs.lightsPtr == nullptr)
         InArgs.lightsPtr = InArgs.contextPtr->lightsPtr;
-    
+
+    if (InArgs.particlesPtr)
+        stats += InArgs.particlesPtr->Update(InArgs); 
     if (InArgs.luminPtr)
         stats += InArgs.luminPtr->Update(InArgs);
     if (InArgs.lightsPtr)
@@ -36,6 +41,7 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs); 
     stats += ProcessScene(InArgs);
+    stats += RenderParticles(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
     stats += RenderSurfaces(InArgs);
@@ -80,6 +86,15 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderScene(const RenderArgs& In
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets;
     stats.meshDrawCount = DeferredRenderer::DrawScene(InArgs, sceneTarget.Curr());
+    return stats;
+}
+
+Rendering::Pipeline::Stats Rendering::Pipeline::RenderParticles(const RenderArgs& InArgs)
+{
+    PROFILE_GL();
+    Stats stats;
+    auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets;
+    stats.particles += ParticlesRenderer::DrawParticles(InArgs, sceneTarget.Curr());
     return stats;
 }
 

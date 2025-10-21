@@ -5,7 +5,7 @@
 
 // Main switch
 //#define LUMIN
-#define LUMIN_FALLBACK
+//#define LUMIN_FALLBACK
 //#define LUMIN_DEPTH_OCCLUSION
 
 const int LAYERS = 2;

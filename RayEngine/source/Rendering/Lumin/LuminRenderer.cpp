@@ -99,8 +99,7 @@ void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource
 {
     CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
     if (auto brdf = InArgs.luminPtr->config.TexBRDF.Get().Get())
-        if (brdf->IsBaked())
-            brdf->Get().Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
+        brdf->Bind("TexBRDF", InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
 }
 
 

@@ -1,0 +1,4 @@
+{
+	"SurfaceShader": "Shaders/Particles/SH_Particle",
+	"DeferredShader": "Shaders/Particles/SH_Particle.ds"
+}

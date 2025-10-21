@@ -12,10 +12,10 @@
 void RoomConnectionEditor::Init()
 {
     // Get / create connections
-    auto& sys = ECS::Manager::Get().GetSystem<SysRoomConnection>();
+    auto& sys = ECS::Manager::Get().GetSystem<ECS::SysRoomConnection>();
     for (const ECS::EntityID connection : sys.GetEntities())
     {
-        if (sys.Get<RoomConnection>(connection).IsEnd)
+        if (sys.Get<ECS::RoomConnection>(connection).IsEnd)
             endEntity = connection;
         else
             startEntity = connection;
@@ -29,7 +29,7 @@ void RoomConnectionEditor::Init()
         {
             const Vec3F center = v.CoordToPos(centerCoord) + GetOff(true);
             startEntity = bp->Instantiate(center);
-            sys.Get<RoomConnection>(startEntity).IsEnd = false; 
+            sys.Get<ECS::RoomConnection>(startEntity).IsEnd = false; 
         }
     }
     

@@ -29,7 +29,7 @@ Utility::Type CombatStateStrike::Update()
     Debug::Sphere(params.end, SweepSize);
 
     const auto result = Physics::Query::Sweep(params);
-    auto& enemySys = ECS::Manager::Get().GetSystem<SysEnemy>();
+    auto& enemySys = ECS::Manager::Get().GetSystem<ECS::SysEnemy>();
     for (const auto& hit : result.hits)
         if (enemySys.Contains(hit.entity))
             enemySys.ApplyDamage(hit.entity, weapon->GetID());

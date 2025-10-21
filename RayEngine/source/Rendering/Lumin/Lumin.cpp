@@ -16,20 +16,20 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
     int maxProbes = config.MaxLayerCount * config.Layers + config.AtlasPadding;
     atlas.Init(maxProbes, true, viewport.GetSize().x);
 
-    if (target.TryBeginSetup(viewport.GetVirtualTarget()))
+    if (target.TryBeginSetup(viewport.GetSize()))
     {
         target.CreateBuffer("TexFrameIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
         target.CreateBuffer("TexFramePrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
-        target.EndSetup(viewport.GetVirtualTarget());
+        target.EndSetup();
     }
 
     for (auto& t : lerpTarget.All())
     {
-        if (t.TryBeginSetup(viewport.GetVirtualTarget()))
+        if (t.TryBeginSetup(viewport.GetSize()))
         {
             t.CreateBuffer("TexIrradiance", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
             t.CreateBuffer("TexPrefilter", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_LINEAR);
-            t.EndSetup(viewport.GetVirtualTarget());
+            t.EndSetup();
         }
     }
 }
@@ -211,7 +211,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .lightsPtr = InArgs.lightsPtr,
         .perspectives = {},
         .cullPoints = {},
-        .cullMask = static_cast<uint8>(MeshMask::LUMIN)
+        .cullMask = static_cast<uint8>(VisibilityMask::LUMIN)
     };
 
     for (auto probe : frameProbes)
@@ -278,7 +278,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
         .luminPtr = this,
         .lightsPtr = InArgs.lightsPtr,
         .perspectives = {},
-        .cullMask = static_cast<uint8>(MeshMask::LUMIN)
+        .cullMask = static_cast<uint8>(VisibilityMask::LUMIN)
     };
 
     fallback.renderTimestamp = context.Time();
@@ -379,7 +379,7 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
         CHECK_CONTINUE(persistence.first == 0);
         for (const std::pair<const unsigned long, MeshCollection::Entry> &entry: persistence.second)
         {
-            CHECK_CONTINUE(!(entry.second.mask & static_cast<uint8>(MeshMask::LUMIN)));
+            CHECK_CONTINUE(!(entry.second.mask & static_cast<uint8>(VisibilityMask::LUMIN)));
             changed |= entry.second.justRebuilt; 
             transformCollections.push_back(&entry.second.transforms);
         }

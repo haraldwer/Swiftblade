@@ -5,33 +5,29 @@
 #include "rlgl.h"
 #include "State/State.h"
 
-bool Rendering::RenderTarget::Setup(const RenderTexture& InTarget, const String& InName, const uint8 InFormat, float InResScale, int InDefaultFilter)
+bool Rendering::RenderTarget::Setup(const Vec2I& InRes, const String& InName, uint8 InFormat, int InDefaultFilter)
 {
-    if (TryBeginSetup(InTarget, InResScale))
+    if (TryBeginSetup(InRes))
     {
         CreateBuffer(InName, InFormat, 1.0, InDefaultFilter);
-        EndSetup(InTarget);
+        EndSetup();
         return true;
     }
     return false;
 }
 
-bool Rendering::RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture, float InResScale)
+bool Rendering::RenderTarget::TryBeginSetup(const Vec2I& InRes)
 {
-    int targetWidth = Utility::Math::Max(InRenderTexture.texture.width * InResScale, 1.0f);
-    int targetHeight = Utility::Math::Max(InRenderTexture.texture.height * InResScale, 1.0f);
+    int targetWidth = Utility::Math::Max(InRes.x, 16);
+    int targetHeight = Utility::Math::Max(InRes.y, 16);
     if (width == targetWidth &&
-        height == targetHeight &&
-        refWidth == InRenderTexture.texture.width &&
-        refHeight == InRenderTexture.texture.height)
+        height == targetHeight)
         return false;
     if (targetWidth <= 0 || targetHeight <= 0)
         return false;
 
     Unload(); 
     
-    refWidth = InRenderTexture.texture.width;
-    refHeight = InRenderTexture.texture.height;
     width = targetWidth;
     height = targetHeight;
 
@@ -43,7 +39,7 @@ bool Rendering::RenderTarget::TryBeginSetup(const RenderTexture& InRenderTexture
     return true;
 }
 
-void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) const
+void Rendering::RenderTarget::EndSetup() const
 {
     CHECK_RETURN(!frameBuffer);
     
@@ -78,11 +74,16 @@ void Rendering::RenderTarget::EndSetup(const RenderTexture& InRenderTexture) con
         }
     }
 
-    const uint32 depthID = InRenderTexture.depth.id;
+    
+    CHECK_ASSERT(!rlFramebufferComplete(frameBuffer), "Framebuffer incomplete");
+}
+
+void Rendering::RenderTarget::AttachDepth(const RenderTexture& InTarget) const
+{
+    const uint32 depthID = InTarget.depth.id;
     CHECK_ASSERT(depthID == 0, "Invalid depth texture");
     rlFramebufferAttach(frameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
 
-    CHECK_ASSERT(!rlFramebufferComplete(frameBuffer), "Framebuffer incomplete");
 }
 
 void Rendering::RenderTarget::Unload()
@@ -120,13 +121,21 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
         cmd.filter = InFilter < 0 ? tex.defaultFilter : InFilter;
         rlState::current.Set(cmd, InOutSlot);
 
-        const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Scale");
-        CHECK_CONTINUE(sizeLoc < 0);
+        const int scaleLoc = InShader.GetLocation(tex.name + InPostfix + "Scale");
+        if (scaleLoc >= 0)
+        {
+            Vec2F size = Vec2I(tex.scaledWidth, tex.scaledHeight).To<float>();
+            Vec2F ref = Vec2I(tex.tex->width, tex.tex->height).To<float>();
+            Vec2F scale = size / ref;
+            rlSetUniform(scaleLoc, &scale, RL_SHADER_UNIFORM_VEC2, 1);
+        }
         
-        Vec2F size = Vec2I(tex.scaledWidth, tex.scaledHeight).To<float>();
-        Vec2F ref = Vec2I(tex.tex->width, tex.tex->height).To<float>();
-        Vec2F scale = size / ref;
-        rlSetUniform(sizeLoc, &scale, RL_SHADER_UNIFORM_VEC2, 1);
+        const int texelLoc = InShader.GetLocation(tex.name + InPostfix + "Texel");
+        if (texelLoc >= 0)
+        {
+            Vec2F texel = Vec2F(1.0f) / Vec2I(tex.scaledWidth, tex.scaledHeight).To<float>();
+            rlSetUniform(texelLoc, &texel, RL_SHADER_UNIFORM_VEC2, 1);
+        }
     }
 }
 
@@ -156,7 +165,6 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
     buffer.defaultFilter = InDefaultFilter;
     buffer.scaledWidth = w;
     buffer.scaledHeight = h;
-    
     buffer.tex = new Texture(); 
     buffer.tex->id = InCubemap ?
         rlLoadTextureCubemap(nullptr, texWidth, InPixelFormat, mips) : 
@@ -166,4 +174,3 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
     buffer.tex->mipmaps = mips;
     buffer.tex->format = InPixelFormat;
 }
-
