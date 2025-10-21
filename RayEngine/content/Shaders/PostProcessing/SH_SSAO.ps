@@ -142,7 +142,7 @@ void main()
      
      // 2. Blur and sample previous 
      vec4 blur = vec4(0.0f); // r = prevValue, gb = prevSamples, a = blurred
-     vec2 prevCoord = TexCoord - velocity.xy * 0.5f;
+     vec2 prevCoord = TexCoord - velocity.xy;
      if ( prevCoord.x < 1.0f && prevCoord.x > 0.0f &&
           prevCoord.y < 1.0f && prevCoord.y > 0.0f)
      {

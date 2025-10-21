@@ -65,6 +65,16 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0f - F0) * Pow5(Saturate(1.0f - cosTheta));
+}
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * Pow5(Saturate(1.0f - cosTheta));
+}
+
 // Sampling
 
 float RadicalInverse_VdC(uint bits)
@@ -95,7 +105,7 @@ float VanDerCorput(uint n, uint base)
             denom   = mod(float(n), 2.0f);
             result += denom * invBase;
             invBase = invBase / 2.0f;
-            n       = uint(float(n) / 2.0f);
+            n       = n / 2;
         }
     }
 
@@ -113,8 +123,8 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     float a = Pow2(roughness);
 
     float phi = 2.0f * PI * Xi.x;
-    float cosTheta = sqrt((1.0f - Xi.y) / (1.0f + (a*a - 1.0f) * Xi.y));
-    float sinTheta = sqrt(1.0f - cosTheta*cosTheta);
+    float cosTheta = FastSqrt((1.0f - Xi.y) / (1.0f + (a*a - 1.0f) * Xi.y));
+    float sinTheta = FastSqrt(1.0f - cosTheta*cosTheta);
 
     // from spherical coordinates to cartesian coordinates
     vec3 H;
@@ -124,9 +134,9 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 
     // from tangent-space vector to world-space sample vector
     vec3 up        = abs(N.z) < 0.999f ? vec3(0.0f, 0.0f, 1.0f) : vec3(1.0f, 0.0f, 0.0f);
-    vec3 tangent   = normalize(cross(up, N));
+    vec3 tangent   = Normalize(cross(up, N));
     vec3 bitangent = cross(N, tangent);
 
     vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
-    return normalize(sampleVec);
+    return Normalize(sampleVec);
 }

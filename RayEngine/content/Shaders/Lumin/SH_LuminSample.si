@@ -5,6 +5,7 @@
 
 // Main switch
 //#define LUMIN
+#define LUMIN_FALLBACK
 //#define LUMIN_DEPTH_OCCLUSION
 
 const int LAYERS = 2;
@@ -77,13 +78,17 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
     
     return c / max(1.0f, totalWeight);
     
-#else
+#endif
+    
+#ifdef LUMIN_FALLBACK
     
     vec2 rectPos = ProbeRects[0];
     vec4 rect = vec4(rectPos, ProbeRectSize);
     return SampleCubeAtlasMip(InTex, ProbeFaceTexel, rect, InDir, InMip).rgb;
     
 #endif 
+
+    return vec3(0.5f);
 }
 
 float ProbeDotFade(float InSurfaceToProbeDot)

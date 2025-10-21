@@ -46,9 +46,9 @@ void main()
         
         float range = Positions[i].w;
         if (lightDistSqr > range * range)
-            continue;
+            continue; // TODO: Fix branching?
         
-        float lightDist = sqrt(lightDistSqr);
+        float lightDist = FastSqrt(lightDistSqr);
         vec3 toLightDir = toLight / lightDist;
         float d = dot(toLightDir, normal);
         if (d < -0.1f)

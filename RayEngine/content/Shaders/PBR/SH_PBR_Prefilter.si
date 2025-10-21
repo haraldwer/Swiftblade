@@ -20,7 +20,7 @@ vec4 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float
     {
         vec2 Xi = Hammersley(i, samples);
         vec3 H  = ImportanceSampleGGX(Xi, N, InRoughness);
-        vec3 L  = normalize(2.0f * dot(V, H) * H - V);
+        vec3 L  = Normalize(2.0f * dot(V, H) * H - V);
         
         // A solution to bright dots (requires mips)
         //float NdotH = dot(N, H);

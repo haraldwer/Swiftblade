@@ -17,5 +17,5 @@ void main()
     prevScreenPos.xy /= max(prevScreenPos.z, 1.0f);
     screenPos.xy = clamp(screenPos.xy, -0.9999f, 0.9999f);
     prevScreenPos.xy = clamp(prevScreenPos.xy, -0.9999f, 0.9999f);
-    Velocity = vec3(screenPos.xy - prevScreenPos.xy, 0.0f);
+    Velocity = vec3((screenPos.xy - prevScreenPos.xy) * 0.5f, 0.0f);
 }

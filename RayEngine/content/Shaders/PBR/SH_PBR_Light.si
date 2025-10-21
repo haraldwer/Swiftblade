@@ -7,16 +7,6 @@
 
 const float MAX_REFLECTION_LOD = 4.0f;
 
-vec3 FresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
-}
-
-vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
-{
-    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
-}
-
 float AttenuationFunction(float InDistance, float InRange)
 {
     return Pow2(Pow2(1.0f - InDistance / InRange)); // Realistic attenuation: 1 / Pow2(distance);
@@ -29,17 +19,17 @@ vec3 PBRLight(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface, vec
     float roughness = InSurface.g;
     float ao = InSurface.b;
 
-    vec3 N = normalize(InNormal);
-    vec3 V = normalize(CameraPosition - InWorldPos);
+    vec3 N = Normalize(InNormal);
+    vec3 V = Normalize(CameraPosition - InWorldPos);
 
     vec3 F0 = vec3(0.04f);
     F0 = mix(F0, InAlbedo, metallic);
 
     // Calculate per-light radiance
     vec3 diff = InLightPos - InWorldPos;
-    float distance = length(diff);
+    float distance = FastLength(diff);
     vec3 L = diff / distance;
-    vec3 H = normalize(V + L);
+    vec3 H = Normalize(V + L);
     float attenuation = AttenuationFunction(distance, InLightRange);
     vec3 radiance = InLightColor * attenuation;
 

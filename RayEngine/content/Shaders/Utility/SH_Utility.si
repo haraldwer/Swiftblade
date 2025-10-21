@@ -26,24 +26,59 @@ vec2 GetPrevCoord(vec3 InWorldPosition)
     return WorldToCoord(InWorldPosition, ViewProjPrev);
 }
 
-float SquaredLength(vec2 InDist)
+float SquaredLength(vec2 InVec)
 {
-    return InDist.x * InDist.x + InDist.y * InDist.y;
+    return InVec.x * InVec.x + InVec.y * InVec.y;
 }
 
-float SquaredLength(vec3 InDist)
+float SquaredLength(vec3 InVec)
 {
-    return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z;
+    return InVec.x * InVec.x + InVec.y * InVec.y + InVec.z * InVec.z;
 }
 
-float SquaredLength(vec4 InDist)
+float SquaredLength(vec4 InVec)
 {
-    return InDist.x * InDist.x + InDist.y * InDist.y + InDist.z * InDist.z + InDist.w * InDist.w;
+    return InVec.x * InVec.x + InVec.y * InVec.y + InVec.z * InVec.z + InVec.w * InVec.w;
+}
+
+float FastSqrt(float InValue)
+{
+    return InValue * inversesqrt(InValue);
+}
+
+float SuperFastSqrt(float InValue)
+{
+    return 0.5f * (InValue + 1.0f);
+}
+
+float FastLength(vec2 InVec)
+{
+    return FastSqrt(SquaredLength(InVec));
+}
+
+float FastLength(vec3 InVec)
+{
+    return FastSqrt(SquaredLength(InVec));
+}
+
+float FastLength(vec4 InVec)
+{
+    return FastSqrt(SquaredLength(InVec));
+}
+
+vec3 Normalize(vec3 InValue)
+{
+    return InValue * inversesqrt(dot(InValue, InValue) + 1e-5f);
 }
 
 float Pow2(float InValue)
 {
     return InValue * InValue;
+}
+
+float Pow5(float InValue)
+{
+    return InValue * InValue * InValue * InValue * InValue;
 }
 
 float Saturate(float InValue)
