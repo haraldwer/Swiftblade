@@ -127,17 +127,10 @@ float Expression::Evaluate() const
 bool Expression::Edit(const String& InName, uint32 InOffset)
 {
     bool comp = false;
-    if (Utility::Edit("##" + InName, Expr.Get(), InOffset))
+    if (Utility::Edit(InName, Expr.Get(), InOffset))
         comp = Compile();
     DrawGraph();
     return comp;
-}
-
-bool Expression::CustomDeserialize(const DeserializeObj& InObj)
-{
-    bool result = PropertyOwner::CustomDeserialize(InObj);
-    Compile();
-    return result;
 }
 
 void Expression::CacheGraph()

@@ -30,13 +30,13 @@ namespace Rendering
 
         String DebugPanelName() const override { return "Viewport"; }
         void DrawDebugPanel() override;
+        bool NoDebugPanelPadding() const override { return true; }
 
         bool IsViewportClickable() const;
         
         Window window = {};
         Viewport mainViewport = {};
         Context defaultContext = {};
-        Pipeline defaultPipeline = {};
         FrameViewer frameViewer = {};
         
     private:

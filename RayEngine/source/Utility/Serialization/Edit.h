@@ -9,7 +9,9 @@
 namespace Utility
 {
     String GetEditName(const String& InName, uint32 InOffset);
-
+    bool BeginTable(const String& InName, uint32 InOffset);
+    void EndTable(uint32 InOffset);
+    
     bool MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader);
     bool Button(const String& InName, uint32 InOffset);
     bool BeginSection(const String& InName);
@@ -21,83 +23,157 @@ namespace Utility
 
     inline bool Edit(const String& InName, bool& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::Checkbox(GetEditName(InName, InOffset).c_str(), &InOutData);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::Checkbox(GetEditName(InName, InOffset).c_str(), &InOutData);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, float& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputFloat(GetEditName(InName, InOffset).c_str(), &InOutData);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputFloat(GetEditName(InName, InOffset).c_str(), &InOutData);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, int32& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &InOutData);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &InOutData);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, uint8& InOutData, const uint32 InOffset = 0)
     {
-        int i = InOutData;
-        const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
-        InOutData = static_cast<uint8>(i); 
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            int i = InOutData;
+            result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
+            InOutData = static_cast<uint8>(i);
+            EndTable(InOffset);
+        }
         return result; 
     }
 
     inline bool Edit(const String& InName, uint32& InOutData, const uint32 InOffset = 0)
     {
-        int i = static_cast<int>(InOutData);
-        const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
-        InOutData = static_cast<uint32>(i); 
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            int i = static_cast<int>(InOutData);
+            result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
+            InOutData = static_cast<uint32>(i);
+            EndTable(InOffset);
+        }
         return result; 
     }
 
     inline bool Edit(const String& InName, uint64& InOutData, const uint32 InOffset = 0)
     {
-        int i = static_cast<int>(InOutData);
-        const bool result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
-        InOutData = static_cast<uint32>(i); 
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            int i = static_cast<int>(InOutData);
+            result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
+            InOutData = static_cast<uint32>(i);
+            EndTable(InOffset);
+        }
         return result; 
     }
 
     inline bool Edit(const String& InName, Vec2F& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, Vec3F& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, Vec4F& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, Vec2I& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputInt2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputInt2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, Vec3I& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputInt3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputInt3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, Vec4I& InOutData, const uint32 InOffset = 0)
     {
-        return ImGui::InputInt4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            result = ImGui::InputInt4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, QuatF& InOutData, const uint32 InOffset = 0)
     {
-        Vec3F euler = InOutData.Euler();
-        euler *= Math::RadiansToDegrees(1.0f);
-        if (ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &euler[0]))
+        bool result = false;
+        if (BeginTable(InName, InOffset))
         {
-            InOutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));
-            return true; 
-        } 
-        return false;  
+            Vec3F euler = InOutData.Euler();
+            euler *= Math::RadiansToDegrees(1.0f);
+            if (ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &euler[0]))
+            {
+                InOutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));
+                result = true; 
+            }
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     inline bool Edit(const String& InName, Mat4F& InOutData, uint32 InOffset)
@@ -108,9 +184,15 @@ namespace Utility
 
     inline bool Edit(const String& InName, String& InOutData, const uint32 InOffset)
     {
-        const String copy = InOutData;
-        ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
-        return InOutData != copy;
+        bool result = false;
+        if (BeginTable(InName, InOffset))
+        {
+            const String copy = InOutData;
+            ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
+            result = InOutData != copy;
+            EndTable(InOffset);
+        }
+        return result;
     }
 
     template <class T>

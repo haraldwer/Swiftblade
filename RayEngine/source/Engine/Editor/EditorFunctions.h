@@ -72,13 +72,16 @@ inline void EditComponents(const ECS::EntityID InID)
         const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
         if (ImGui::CollapsingHeader(text(sys.first, InID).c_str(), flags))
         {
+            ImGui::Spacing();
             if (ImGui::BeginSection(false))
             {
                 sys.second->Edit(InID);
-                if (ImGui::Button(text("Remove##" + sys.first, InID).c_str()))
+                if (ImGui::Button(text("Remove##" + sys.first, InID).c_str(), ImVec2(-1, 0)))
                     sys.second->Unregister(InID);
             }
             ImGui::EndSection();
+            ImGui::Spacing();
+            ImGui::Spacing();
         }
     }
     ImGui::Spacing(); 
@@ -94,7 +97,7 @@ inline void EditComponents(const ECS::EntityID InID)
     }
     ImGui::Combo(text("", InID).c_str(), &currItem, newSystems);
     ImGui::SameLine(); 
-    if (ImGui::Button(text("Add", InID).c_str()))
+    if (ImGui::Button(text("Add", InID).c_str(), ImVec2(-1, 0)))
         if (currItem >= 0 && currItem < static_cast<int>(newSystems.size()))
             if (const auto sys = ecs.GetSystem(newSystems[currItem]))
                 sys->Register(InID);

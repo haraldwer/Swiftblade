@@ -32,6 +32,8 @@ private:
     {
         float fov = 100.0f;
         float movementSpeed = 50.0f; 
+        float near = 0.01f; 
+        float far = 100.0f; 
         Vec3F position = Vec3F(254.0f, 254.0f, -20.0f);
         Vec3F rotation = {};
     };

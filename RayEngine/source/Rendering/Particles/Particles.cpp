@@ -69,8 +69,9 @@ bool Rendering::Particles::TryCreate(SwapTarget& InTarget, const ParticleInstanc
     // Calculate resolution
     auto particle = InValue.particle.Get();
     CHECK_RETURN(!particle, false);
-    
-    int res = Utility::Math::NextPow2(Utility::Math::SquareRoot(particle->data.MaxInstances.Get()));
+
+    int sqrt = static_cast<int>(ceilf(sqrtf(static_cast<float>(particle->data.MaxInstances.Get()))));
+    int res = Utility::Math::NextPow2(sqrt);
 
     for (auto& t : InTarget.All())
     {

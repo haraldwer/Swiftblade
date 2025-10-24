@@ -10,6 +10,7 @@ namespace Debug
 
         virtual void DrawDebugPanel() = 0;
         virtual String DebugPanelName() const = 0;
+        virtual bool NoDebugPanelPadding() const { return false; }
         bool IsDebugPanelOpen() const;
     };
 }

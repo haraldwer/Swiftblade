@@ -27,6 +27,9 @@ void UI::Container::Draw()
 
 void UI::Container::DebugDraw(int& InC)
 {
+    ImGui::Unindent();
+    ImGui::Unindent();
+    ImGui::Unindent();
     if (DebugDraw(*this, "Root", InC))
         ImGui::TreePop();
 }

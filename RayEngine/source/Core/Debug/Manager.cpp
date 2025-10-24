@@ -48,11 +48,28 @@ void Debug::Manager::Frame(const double InDeltaTime)
                 const String name = w->DebugPanelName();
                 const bool open = IsOpen(name); 
                 if (ImGui::MenuItem((name + (open ? " X" : "")).c_str()))
-                    SetOpen(name, !open); 
+                    SetOpen(name, !open);
             }
             ImGui::EndMenu();
         }
         
+        ImGui::Spacing();
+        //if (ImGui::MenuItem("About"))
+        //    ImGui::OpenPopup("About");
+        
+        if (ImGui::BeginPopupModal("About", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove))
+        {
+            String text = "Swiftblade " + String(ENGINE_VERSION);
+            auto windowWidth = ImGui::GetWindowSize().x;
+            auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
+            ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+            ImGui::Text(text.c_str());
+            ImGui::Spacing();
+            if (ImGui::Button("Close", {-1, 0}))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
+
         // Calculate ticks per frame
         float lerpSpeed = 2.0f * static_cast<float>(InDeltaTime);
         fps = Utility::Math::Lerp(fps, 1.0 / InDeltaTime, lerpSpeed);
@@ -64,7 +81,8 @@ void Debug::Manager::Frame(const double InDeltaTime)
             static_cast<int>(fps),
             static_cast<int>(tps),
             std::to_string(tpf).substr(0, 3).c_str());
-        
+
+        ImGui::SameLine();
         ImGui::EndMainMenuBar();
     }
 
@@ -76,11 +94,19 @@ void Debug::Manager::Frame(const double InDeltaTime)
     {
         CHECK_CONTINUE(entry.second.empty());
         auto& w = entry.second.back();
-        CHECK_CONTINUE(!w); 
-        if (IsOpen(w->DebugPanelName()))
+        CHECK_CONTINUE(!w);
+        auto name = w->DebugPanelName();
+        if (IsOpen(name))
         {
-            if (ImGui::Begin(w->DebugPanelName().c_str()))
+            bool open = true;
+            if (w->NoDebugPanelPadding())
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+            if (ImGui::Begin((name + " ").c_str(), &open))
                 w->DrawDebugPanel();
+            if (!open)
+                SetOpen(name.c_str(), false);
+            if (w->NoDebugPanelPadding())
+                ImGui::PopStyleVar();
             ImGui::End(); 
         }
     }

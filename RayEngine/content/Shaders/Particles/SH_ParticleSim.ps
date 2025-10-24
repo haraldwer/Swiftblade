@@ -11,17 +11,54 @@ layout (location = 1) out vec4 OutVelocity; // a - unused
 uniform sampler2D TexPosition;
 uniform sampler2D TexVelocity;
 uniform sampler2D TexExpr; // Expressions
+uniform vec2 TexExprTexel; // Expressions
+uniform float Age;
+
+vec4 SampleExpr(int InRow, float InAge)
+{
+    float y = float(InRow) * TexExprTexel.y;
+    vec2 coord = vec2(InAge, y);
+    return texture(TexExpr, coord);
+}
+
+vec3 InitialPosition() { return SampleExpr(0, Age).xyz; }
+vec3 InitialVelocity() { return SampleExpr(1, Age).xyz; }
+vec3 Acceleration() { return SampleExpr(2, Age).xyz; }
+vec3 Friction() { return SampleExpr(3, Age).xyz; }
+vec4 Color() { return SampleExpr(4, Age).xyzw; }
+vec3 Data() { return SampleExpr(5, Age).xyz; } 
 
 void main()
 {
-    vec4 position = texture(TexPosition, TexCoord);
-    vec4 velocity = texture(TexVelocity, TexCoord);
+    // Read input
+    vec4 texPos = texture(TexPosition, RectCoord);
+    vec4 texVel = texture(TexVelocity, RectCoord);
+    vec3 position = texPos.rgb;
+    float lifetime = texPos.a;
+    vec3 velocity = texVel.rgb;
     
-    velocity.xyz += Simplex(TexCoord);
-    position.xyz += velocity.xyz;
+    lifetime -= Delta;
+    if (lifetime <= 0)
+    {
+        // Spawn?
+        vec3 data = Data();
+        float spawnRate = data.y;
+        float rand = Random(RectCoord + Random2(Time));
+        if (true)//(rand < spawnRate)
+        {
+            lifetime = data.z;
+            position = InitialPosition();
+            velocity = InitialVelocity();
+        }
+    }
     
-    OutPosition = position;
-    OutPosition.a = 1;
-    OutVelocity = velocity;
+    velocity += Acceleration() * Delta;
+    velocity *= Friction();
+    position += velocity * Delta;
+    
+    // Write output
+    OutPosition.rgb = position;
+    OutPosition.a = lifetime;
+    OutVelocity.rgb = velocity;
     OutVelocity.a = 1;
 }

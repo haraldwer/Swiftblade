@@ -30,7 +30,7 @@ void Rendering::Manager::Init()
     defaultContext.Init(currConfig.Context, true);
 
     rlImGuiSetup(false);
-    ImGui::Theme1();
+    ImGui::Theme3();
 
     Vec2F windowScale = window.GetSize().To<float>() / Vec2F(1920.0f, 1080.0f);
     float fontScale = Utility::Math::Max(windowScale.x, windowScale.y);
@@ -69,15 +69,20 @@ void Rendering::Manager::Render(const Scene& InScene)
     mainViewport.BeginFrame();
     
     rlState::current.Reset();
-    stats += defaultPipeline.Render(args);
-    stats += defaultPipeline.RenderCustom(args, [&] { Menu::Manager::Get().Draw(); });
-    stats += defaultPipeline.RenderPost(args);
+    stats += Pipeline::Render(args);
+    stats += Pipeline::RenderCustom(args, [&]
+    {
+        if (currConfig.DrawUI)
+            Menu::Manager::Get().Draw();
+    });
+    stats += Pipeline::RenderPost(args);
     frameViewer.SetStats(stats);
 }
 
 void Rendering::Manager::DrawDebugPanel()
 {
     PROFILE_GL();
+
     const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
     const ImVec2 vMax = ImGui::GetWindowContentRegionMax();
     const Vec2I size = {
@@ -87,9 +92,15 @@ void Rendering::Manager::DrawDebugPanel()
     if (size.x > 0 && size.y > 0)
     {
         mainViewport.Resize(size);
-        mainViewport.ImDraw();
+        frameViewer.DrawViewportPanel();
     }
-
+    
+    const ImVec2 windowPos = ImGui::GetWindowPos();
+    mainViewport.SetPosition({
+        vMin.x + windowPos.x,
+        vMin.y + windowPos.y
+    });
+    
     hovered = ImGui::IsWindowHovered();
 }
 

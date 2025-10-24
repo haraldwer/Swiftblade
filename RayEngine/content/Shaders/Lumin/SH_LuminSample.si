@@ -4,16 +4,16 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 // Main switch
-//#define LUMIN
-//#define LUMIN_FALLBACK
-//#define LUMIN_DEPTH_OCCLUSION
+#define LUMIN
+#define LUMIN_FALLBACK
+#define LUMIN_DEPTH_OCCLUSION
 
-const int LAYERS = 2;
+const int LAYERS = 1;
 const int LAYER_COUNT = 15 * 15;
 const int PROBE_COUNT = (LAYERS * LAYER_COUNT) + 1;
 const int GRID_COUNT = 1024;
 
-const float LUMIN_STRENGTH = 1.0f;
+const float LUMIN_STRENGTH = 0.5f;
 const float FADE_DELAY = 0.1f;
 const float FADE_DURATION = 2.0f;
 const float PROBE_NORMAL_OFFSET = 0.1f;

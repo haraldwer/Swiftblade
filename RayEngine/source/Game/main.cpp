@@ -2,6 +2,7 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
 #endif
+#include "Debug/Log.h"
 
 void Init();
 void Deinit();
@@ -41,6 +42,7 @@ constexpr double maxFrameTickTime = 0.5;
 struct GameData
 {
     Debug::Manager debugManager;
+    Debug::Log log;
     Resource::Manager resourceManager;
     Rendering::Manager renderer;
     Audio::Manager audio;
@@ -57,10 +59,11 @@ GameData* g = nullptr;
 
 void Init()
 {
-    g = new GameData();
-    
+    Utility::InitLogging();
     Utility::SetWorkingDir();
     
+    g = new GameData();
+    g->log.Init();
     g->renderer.Init();
     g->physics.Init();
     g->debugManager.Init();

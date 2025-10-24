@@ -15,6 +15,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     Stats stats;
     stats += RenderSkybox(InArgs);
     stats += RenderScene(InArgs);
+    stats += RenderParticles(InArgs);
     stats += RenderDeferred(InArgs);
     stats += RenderSurfaces(InArgs);
     //stats += RenderLights(InArgs);

@@ -1,5 +1,8 @@
 {
 	"Components":[{
+			"Name":"Weapon",
+			"Data":{}
+		},{
 			"Name":"Attributes",
 			"Data":{
 				"Name":"Sword"
@@ -8,41 +11,35 @@
 			"Name":"Transform",
 			"Data":{}
 		},{
-			"Name":"Particle",
-			"Data":{}
-		},{
 			"Name":"AnimationPoser",
 			"Data":{
-				"VisualizationMesh":"Gameplay/Player/M_Sword.obj",
+				"VisualizePoseB":"Pose_Idle",
 				"VisualizePoseA":"Pose_Slide_R",
-				"VisualizePoseB":"Pose_Idle"
+				"VisualizationMesh":"Gameplay/Player/M_Sword.obj"
 			}
-		},{
-			"Name":"Weapon",
-			"Data":{}
 		}
 	],
 	"Children":[{
 			"Overrides":{
 				"Components":[{
-						"Name":"Mesh",
-						"Data":{
-							"Mask":1,
-							"Model":"Gameplay/Player/M_Sword.obj",
-							"Material":"Gameplay/Player/RM_Sword.json"
-						}
-					},{
 						"Name":"Attributes",
 						"Data":{
 							"Name":"Mesh"
 						}
 					},{
+						"Name":"Mesh",
+						"Data":{
+							"Material":"Gameplay/Player/RM_Sword.json",
+							"Model":"Gameplay/Player/M_Sword.obj",
+							"Mask":1
+						}
+					},{
 						"Name":"Transform",
 						"Data":{
 							"Rotation":[
-								4.309745987277243e-17,
-								7.987401246651457e-44,
-								3.9989489210097185e-23
+								4.309746318149488e-17,
+								0.0,
+								3.9989492365540806e-23
 							],
 							"Scale":[
 								1.0000001192092896,
@@ -72,13 +69,13 @@
 					},{
 						"Name":"Collider",
 						"Data":{
+							"IsTrigger":true,
 							"ShapeData":[
 								1.0,
 								2.0,
 								1.0,
 								1.0
-							],
-							"IsTrigger":true
+							]
 						}
 					}
 				]
@@ -99,9 +96,9 @@
 								0.8000002503395081
 							],
 							"Rotation":[
-								-80.02822875976563,
-								-84.95349884033203,
-								-0.0029216075781732798
+								-80.02823638916016,
+								-84.95355224609375,
+								-0.002884041052311659
 							],
 							"Scale":[
 								1.000002145767212,
@@ -128,9 +125,9 @@
 								0.9999998807907104
 							],
 							"Rotation":[
-								-70.09333038330078,
-								-103.40425109863281,
-								9.710535049438477
+								-70.09342956542969,
+								-103.40415954589844,
+								9.710525512695313
 							],
 							"Scale":[
 								1.0000030994415283,
@@ -158,8 +155,8 @@
 							],
 							"Rotation":[
 								-30.000049591064453,
-								-90.00012969970703,
-								-14.99992561340332
+								-90.00013732910156,
+								-14.999916076660156
 							],
 							"Scale":[
 								1.0000004768371582,
@@ -186,9 +183,9 @@
 								-0.41272100806236267
 							],
 							"Rotation":[
-								-126.16429138183594,
-								109.75428771972656,
-								-23.287368774414063
+								-126.16435241699219,
+								109.75411987304688,
+								-23.287437438964844
 							],
 							"Scale":[
 								1.0000110864639282,
@@ -215,9 +212,9 @@
 								0.6171334981918335
 							],
 							"Rotation":[
-								-94.66417694091797,
-								-89.87992858886719,
-								0.1592763066291809
+								-94.66407012939453,
+								-89.87993621826172,
+								0.15920455753803253
 							],
 							"Scale":[
 								1.000001311302185,
@@ -247,12 +244,12 @@
 					},{
 						"Name":"Light",
 						"Data":{
+							"Intensity":2.0,
 							"Color":[
 								0.5,
 								0.5,
 								1.0
-							],
-							"Intensity":2.0
+							]
 						}
 					}
 				]

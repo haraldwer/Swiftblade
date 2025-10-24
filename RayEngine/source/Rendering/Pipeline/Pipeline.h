@@ -45,9 +45,9 @@ namespace Rendering
             }
         };
 
-        virtual Stats Render(RenderArgs InArgs);
-        virtual Stats RenderPost(RenderArgs InArgs);
-        virtual Stats RenderCustom(RenderArgs InArgs, std::function<void()> InFunc);
+        static Stats Render(RenderArgs InArgs);
+        static Stats RenderPost(RenderArgs InArgs);
+        static Stats RenderCustom(RenderArgs InArgs, std::function<void()> InFunc);
 
     protected:
         static Stats RenderSkybox(const RenderArgs& InArgs);

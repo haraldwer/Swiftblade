@@ -136,6 +136,13 @@ void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, con
             Vec2F texel = Vec2F(1.0f) / Vec2I(tex.scaledWidth, tex.scaledHeight).To<float>();
             rlSetUniform(texelLoc, &texel, RL_SHADER_UNIFORM_VEC2, 1);
         }
+
+        const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Size");
+        if (sizeLoc >= 0)
+        {
+            Vec2F size = Vec2I(tex.scaledWidth, tex.scaledHeight).To<float>();
+            rlSetUniform(sizeLoc, &size, RL_SHADER_UNIFORM_VEC2, 1);
+        }
     }
 }
 
@@ -152,8 +159,8 @@ void Rendering::RenderTarget::CreateBuffer(const String& InName, const uint8 InP
 
 #ifdef GRAPHICS_API_OPENGL_ES3
     // Fake a smaller resolution target (cannot have resolution mismatch)
-    const int texWidth = refWidth;
-    const int texHeight = refHeight;
+    const int texWidth = width;
+    const int texHeight = height;
 #else
     const int texWidth = w;
     const int texHeight = h;

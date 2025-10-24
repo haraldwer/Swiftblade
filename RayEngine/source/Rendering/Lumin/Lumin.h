@@ -71,7 +71,6 @@ namespace Rendering
         LuminConfig config = {};
         Context context = {};
         Viewport viewport = {};
-        LuminPipeline pipeline = {};
 
         // Probe data
         LuminProbe fallback;

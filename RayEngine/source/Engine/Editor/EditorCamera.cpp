@@ -84,8 +84,8 @@ Vec3F EditorCamera::ClipToWorld(Vec2F InClip) const
         currentState.position,
          QuatF::FromEuler(currentState.rotation),
          currentState.fov,
-         50.0f,
-         0.01f
+         currentState.far,
+         currentState.near,
     };
     
     auto& view = Rendering::Manager::Get().mainViewport;

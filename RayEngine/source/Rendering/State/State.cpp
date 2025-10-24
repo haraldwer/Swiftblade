@@ -192,7 +192,7 @@ void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)
 
 void Rendering::State::ResetShader()
 {
-    if (shader.id == -1)
+    if (shader.id == static_cast<uint32>(-1))
         return;
     PROFILE_GL_GPU("Reset shader");
     RaylibRenderUtility::SetBlendMode(RL_BLEND_ALPHA);
@@ -289,7 +289,7 @@ void Rendering::State::Set(const FrameCommand& InCmd)
 
 void Rendering::State::ResetFrame()
 {
-    if (frame.fboID == -1)
+    if (frame.fboID == static_cast<uint32>(-1))
         return;
     PROFILE_GL_GPU("Reset frame");
     rlDisableFramebuffer();

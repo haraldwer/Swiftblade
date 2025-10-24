@@ -97,7 +97,7 @@ namespace Menu
             int count = 0;
             for (auto i : std::ranges::reverse_view(stack))
             {
-                if (ImGui::CollapsingHeader(("[" + Utility::ToStr(count) + "] " + i->GetObjName()).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::CollapsingHeader(("[" + Utility::ToStr(count) + "] " + i->GetObjName()).c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen))
                     i->DebugDraw(c);
                 count++;
             }

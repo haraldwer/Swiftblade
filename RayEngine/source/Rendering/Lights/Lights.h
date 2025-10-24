@@ -41,6 +41,5 @@ namespace Rendering
         Viewport atlasView = {};
         AtlasMap atlas = {};
         RenderTarget target = {};
-        LightPipeline pipeline = {};
     };
 }

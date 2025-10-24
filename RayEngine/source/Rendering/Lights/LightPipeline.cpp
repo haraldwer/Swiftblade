@@ -12,7 +12,8 @@ Rendering::Pipeline::Stats Rendering::LightPipeline::RenderShadows(const RenderA
     
     Stats stats;
     stats += RenderSkybox(InArgs);
-    stats += RenderScene(InArgs); 
+    stats += RenderScene(InArgs);
+    stats += RenderParticles(InArgs);
     //stats += RenderDeferred(InArgs);
     //stats += RenderSurfaces(InArgs);
 

@@ -1,15 +1,11 @@
 #pragma once
 
+#include "Logging.h"
+
 #define CONCAT_INTERNAL(A, B) A ## B
 #define CONCAT(A, B) CONCAT_INTERNAL(A, B)
 
-namespace Utility
-{
-    void ExternalLog(const String& InStr);
-}
-
-#define LOG_CONSOLE(text) { Utility::ExternalLog(String(__FUNCTION__) + "::" + Utility::ToStr(__LINE__) + " | " + Utility::ToStr(text)); }
-#define LOG(text) { LOG_CONSOLE(text); }
+#define LOG(text) { Utility::ExternalLog(__FILE__, __FUNCTION__, __LINE__, Utility::ToStr(text)); }
 
 #define CHECK_ASSERT(condition, text) \
 assert(!(condition) && text);

@@ -50,12 +50,11 @@ void Rendering::Particle::Bake()
         [&](const Vec2F& InCoord, const Vec2I& InPixel)
         {
             if (InPixel.x == 0) return Eval(data.InitialPosition.Get(), InCoord.y);
-            if (InPixel.x == 1) return Eval(data.InitialPosition.Get(), InCoord.y);
-            if (InPixel.x == 2) return Eval(data.InitialVelocity.Get(), InCoord.y);
-            if (InPixel.x == 3) return Eval(data.Acceleration.Get(), InCoord.y);
-            if (InPixel.x == 4) return Eval(data.Friction.Get(), InCoord.y);
-            if (InPixel.x == 5) return Eval(data.Color.Get(), InCoord.y);
-            if (InPixel.x == 6) return Eval(data.Scale.Get(), data.SpawnRate.Get(), data.Lifetime.Get(), InCoord.y);
+            if (InPixel.x == 1) return Eval(data.InitialVelocity.Get(), InCoord.y);
+            if (InPixel.x == 2) return Eval(data.Acceleration.Get(), InCoord.y);
+            if (InPixel.x == 3) return Eval(data.Friction.Get(), InCoord.y);
+            if (InPixel.x == 4) return Eval(data.Color.Get(), InCoord.y);
+            if (InPixel.x == 5) return Eval(data.Scale.Get(), data.SpawnRate.Get(), data.Lifetime.Get(), InCoord.y);
             return Vec4F();
         });
 }

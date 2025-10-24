@@ -1,8 +1,6 @@
 #include "Viewport.h"
 
 #include "raylib.h"
-#include "ImGui/imgui.h"
-#include "ImGui/rlImGui.h"
 
 void Rendering::Viewport::Init(const ViewportConfig &InConfig, const FXConfig &InFX)
 {
@@ -105,26 +103,6 @@ RenderTexture Rendering::Viewport::GetVirtualTarget() const
 {
     CHECK_ASSERT(!virtualTarget, "Invalid target");
     return *virtualTarget;
-}
-
-void Rendering::Viewport::ImDraw()
-{
-    rlImGuiImageRect(
-        &virtualTarget->texture,
-        config.Width,
-        config.Height,
-        Rectangle{
-            0, 0,
-            static_cast<float>(virtualTarget->texture.width),
-            -static_cast<float>(virtualTarget->texture.height)
-        });
-
-    const ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-    const ImVec2 windowPos = ImGui::GetWindowPos();
-    position = {
-        vMin.x + windowPos.x,
-        vMin.y + windowPos.y
-    };
 }
 
 Vec2I Rendering::Viewport::GetResolution() const

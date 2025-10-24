@@ -209,6 +209,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         .viewportPtr = &viewport,
         .luminPtr = this,
         .lightsPtr = InArgs.lightsPtr,
+        .particlesPtr = InArgs.particlesPtr,
         .perspectives = {},
         .cullPoints = {},
         .cullMask = static_cast<uint8>(VisibilityMask::LUMIN)
@@ -260,7 +261,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     }
     
     viewport.BeginFrame();
-    return pipeline.RenderProbes(args, config.CollectShader, target);
+    return LuminPipeline::RenderProbes(args, config.CollectShader, target);
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArgs &InArgs)
@@ -277,6 +278,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
         .viewportPtr = &viewport,
         .luminPtr = this,
         .lightsPtr = InArgs.lightsPtr,
+        .particlesPtr = InArgs.particlesPtr,
         .perspectives = {},
         .cullMask = static_cast<uint8>(VisibilityMask::LUMIN)
     };
@@ -310,7 +312,7 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
     auto& t = config.Enabled ? target : lerpTarget.Curr();
 
     viewport.BeginFrame();
-    return pipeline.RenderFallbackProbe(args, config.CollectShader, t, config.SceneFallback);
+    return LuminPipeline::RenderFallbackProbe(args, config.CollectShader, t, config.SceneFallback);
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::LerpProbes(const RenderArgs& InArgs)

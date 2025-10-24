@@ -5,6 +5,8 @@
 template <class T>
 struct ExprVec : PropertyOwner<ExprVec<T>>
 {
+    bool Edit(const String& InName = "", uint32 InOffset = 0) override { return false; }
+    
     virtual void Set(uint8 InKey, float InVal) const {}
     virtual void Declare(uint8 InKey, const String& InName) {}
     virtual void Remove(uint8 InKey) {}
@@ -21,6 +23,15 @@ struct ExprVec2 : ExprVec<Vec2F>
     {
         x = InStr;
         y = InStr;
+    }
+    
+    bool Edit(const String &InName, uint32 InOffset) override
+    {
+        ImGui::Text(InName.c_str());
+        bool edited = false;
+        edited |= x.Edit(InOffset);
+        edited |= y.Edit(InOffset);
+        return edited;
     }
     
     void Set(uint8 InKey, float InVal) const override
@@ -81,6 +92,16 @@ struct ExprVec3 : ExprVec<Vec3F>
         x = InStr;
         y = InStr;
         z = InStr;
+    }
+
+    bool Edit(const String &InName, uint32 InOffset) override
+    {
+        ImGui::Text(InName.c_str());
+        bool edited = false;
+        edited |= x.Edit(InOffset);
+        edited |= y.Edit(InOffset);
+        edited |= z.Edit(InOffset);
+        return edited;
     }
     
     void Set(uint8 InKey, float InVal) const override
@@ -151,6 +172,17 @@ struct ExprVec4 : ExprVec<Vec4F>
         z = InStr;
         w = InStr;
     }
+
+    bool Edit(const String &InName, uint32 InOffset) override
+    {
+        ImGui::Text(InName.c_str());
+        bool edited = false;
+        edited |= x.Edit(InOffset);
+        edited |= y.Edit(InOffset);
+        edited |= z.Edit(InOffset);
+        edited |= w.Edit(InOffset);
+        return edited;
+    }
     
     void Set(uint8 InKey, float InVal) const override
     {
@@ -170,10 +202,10 @@ struct ExprVec4 : ExprVec<Vec4F>
     
     void Remove(uint8 InKey) override
     {
-        x.Get().Remove(InKey);    
-        y.Get().Remove(InKey);    
-        z.Get().Remove(InKey);    
-        w.Get().Remove(InKey);    
+        x.Get().Remove(InKey);
+        y.Get().Remove(InKey);
+        z.Get().Remove(InKey);
+        w.Get().Remove(InKey);
     }
     
     void DeclareFunc(const String& InName, te_variant_type InFunc) override

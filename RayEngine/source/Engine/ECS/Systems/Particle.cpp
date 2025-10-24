@@ -17,6 +17,8 @@ void ECS::SysParticle::Frame(EntityID InID, Particle& InComponent)
     
     const Transform& t = Get<Transform>(InID);
     uint8 mask = static_cast<uint8>(Rendering::VisibilityMask::DEFAULT);
+    if (InComponent.Lumin)
+        mask |= static_cast<uint8>(Rendering::VisibilityMask::LUMIN);
     if (InComponent.Shadows)
         mask |= static_cast<uint8>(Rendering::VisibilityMask::SHADOWS);
         

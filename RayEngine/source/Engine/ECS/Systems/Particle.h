@@ -12,7 +12,8 @@ namespace ECS
         PROPERTY_D(ResParticle, Resource, "Gameplay/Player/PS_Sword.json")
         PROPERTY_D(ResRM, Material, "Defaults/RM_ParticleDefault.json")
         PROPERTY_D(ResModel, Model, "Defaults/M_Cube.obj")
-        PROPERTY_D(bool, Shadows, false);
+        PROPERTY_D(bool, Shadows, true);
+        PROPERTY_D(bool, Lumin, true);
         PROPERTY_D(bool, Visible, true);
         uint32 id;
     };

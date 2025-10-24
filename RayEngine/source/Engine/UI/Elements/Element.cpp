@@ -52,7 +52,7 @@ void UI::Element::Draw(Container& InOwner)
 bool UI::Element::DebugDraw(Container &InOwner, const String &InIdentifier, int& InC)
 {
     InC++;
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth;
     if (!IsA(Type::Get<Container>()))
         flags |= ImGuiTreeNodeFlags_Leaf;
 

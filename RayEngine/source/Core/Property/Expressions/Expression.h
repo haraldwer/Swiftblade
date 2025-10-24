@@ -4,7 +4,7 @@
 
 struct Expression : PropertyOwner<Expression>
 {
-    ~Expression() override;
+    ~Expression();
     Expression();
     Expression(const String& InExpression);
     Expression(const Expression& InOther);
@@ -21,16 +21,14 @@ struct Expression : PropertyOwner<Expression>
     float Evaluate() const;
     
     bool Edit(const String& InName, uint32 InOffset) override;
-    bool CustomDeserialize(const DeserializeObj& InObj) override;
 
 private:
     void CacheGraph();
     void DrawGraph();
     
-    PROPERTY(String, Expr);
-
     // TODO: Provide a library of default functions
     
+    PROPERTY(String, Expr);
     te_parser* parser = nullptr;
 
     struct Var

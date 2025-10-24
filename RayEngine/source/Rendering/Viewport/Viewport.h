@@ -23,9 +23,9 @@ namespace Rendering
         Texture* GetFrameTexture() { return targets.frameTargets.Curr().GetTextures().at(0).tex; }
         FrameTargetCollection& GetTargets() { return targets; }
         
-        void ImDraw();
         Vec2I GetResolution() const;
         Vec2I GetSize() const;
+        void SetPosition(const Vec2F& InPos) { position = InPos;}
         Vec2F GetPosition() const { return position; }
         void ResetPosition();
 

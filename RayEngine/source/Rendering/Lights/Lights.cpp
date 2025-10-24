@@ -62,6 +62,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
         .viewportPtr = &atlasView,
         .luminPtr = InArgs.luminPtr,
         .lightsPtr = this,
+        .particlesPtr = InArgs.particlesPtr,
         .perspectives = {},
 
         // TODO: Cache cull results, or unique culling for each light?  
@@ -98,7 +99,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     }
 
     atlasView.BeginFrame();
-    stats += pipeline.RenderShadows(args, config.CollectShader, target);
+    stats += LightPipeline::RenderShadows(args, config.CollectShader, target);
     return stats;
 }
 

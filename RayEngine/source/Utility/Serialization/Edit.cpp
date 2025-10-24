@@ -2,11 +2,42 @@
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
-#include "ImGui/imgui_stdlib.h"
 
 String Utility::GetEditName(const String &InName, const uint32 InOffset)
 {
-    return InName + "##PropertyEdit_" + std::to_string(InOffset);
+    if (InOffset == 0)
+        return InName + "##PropertyEdit";
+    return "##" + InName + "_" + ToStr(InOffset);
+}
+
+bool Utility::BeginTable(const String &InName, uint32 InOffset)
+{
+    if (InOffset == 0)
+        return true;
+    
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+    if (ImGui::BeginTable((InName + ToStr(InOffset)).c_str(), 2, ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 9);
+        
+        ImGui::Text(InName.c_str());
+        ImGui::TableNextColumn();
+        ImGui::SetNextItemWidth(-1);
+        return true;
+    }
+    return false;
+}
+
+void Utility::EndTable(uint32 InOffset)
+{
+    if (InOffset != 0)
+    {
+        ImGui::PopStyleVar();
+        ImGui::EndTable();
+    }
 }
 
 bool Utility::BeginSection(const String& InName)
@@ -34,7 +65,7 @@ bool Utility::MaybeCollapse(const String& InName, const uint32 InOffset, bool& O
 {
     if (InName.empty() || InOffset == 0)
         return true;
-    OutHeader = ImGui::CollapsingHeader(GetEditName(InName, InOffset).c_str());
+    OutHeader = ImGui::CollapsingHeader((InName + GetEditName(InName, InOffset)).c_str());
     return OutHeader;
 }
 

@@ -28,7 +28,7 @@ bool Rendering::ComputeShaderResourceBase::Load()
     }
 
     // Create program
-    GLuint program = glCreateProgram();
+    program = glCreateProgram();
     glAttachShader(program, shader);
     glLinkProgram(program);
     glDeleteShader(shader);

@@ -60,13 +60,12 @@ bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
     {
         if (header)
             ImGui::Indent();
-        const uint32 offset = static_cast<uint32>(reinterpret_cast<uint64>(this)) + InOffset;
         for (const auto& p : order)
         {
-            auto& pOff = map.at(p);
+            const uint16 pOff = map.at(p);
             PropertyBase* ptr = OffToPtr(pOff);
             CHECK_ASSERT(!ptr, "Invalid property");
-            if (ptr->Edit(offset))
+            if (ptr->Edit(InOffset + static_cast<uint32>(pOff)))
                 edited = true;
         }
         if (header)

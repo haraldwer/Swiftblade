@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Server architecture.md",
+                "file": "Pipelines/Logic.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Server architecture"
+              "title": "Logic"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 338.5
   },
   "right": {
     "id": "78b0926d3271ad6a",
@@ -166,32 +166,34 @@
   },
   "active": "3dbfb17bab616dca",
   "lastOpenFiles": [
-    "Server architecture.md",
-    "Menu design.md",
-    "Documentation.md",
-    "Planning/Timeline.md",
-    "Planning/Testing.md",
-    "Planning/Release.md",
-    "Planning/Conditions.md",
-    "Planning/Game Creation Process.md",
-    "Milestones/Milestone 5 (Dec 27).md",
+    "Pipelines/Tools.md",
     "Pipelines/Logic.md",
-    "Pipelines/Content.md",
     "Pipelines/Administrative.md",
+    "Pipelines/Content.md",
+    "Milestones/Milestone 5 (Dec 27).md",
+    "Milestones/Milestone 4 (Dec 21).md",
+    "Milestones/Milestone 3 (Nov 29).md",
+    "Milestones/Milestone 2 (Nov 15).md",
+    "Documentation/Editor Workflow.md",
+    "Documentation/Documentation.md",
+    "Design/Pitch.md",
+    "Design/Idea.md",
+    "Design/GDD.md",
     "Tasks/0 - Basic Enemy.md",
-    "Tasks/0 - Combat state machine.md",
-    "Tasks/0 - Enemy spawner.md",
-    "Tasks/0 - Collision masks.md",
     "Tasks/0 - Arena editing.md",
     "Tasks/0 - Score.md",
     "Tasks/1 - Fire shader.md",
-    "Tasks/Archive/0 - Default shading.md",
-    "Tasks/0 - Player animator.md",
-    "Tasks/2 - CubeVolume optimized serialization.md",
     "Tasks/1 - Improved editor object mode.md",
-    "Tasks/2 - Optimize scene overrides.md",
-    "Tasks/2 - Static rendering.md",
+    "Tasks/1 - Improved editor UI.md",
+    "Tasks/1 - Inline resource editing.md",
+    "Tasks/2 - CubeVolume optimized serialization.md",
+    "Tasks/2 - Enum properties.md",
     "Tasks/2 - Ledge material.md",
+    "Tasks/2 - Static rendering.md",
+    "Tasks/2 - Optimize scene overrides.md",
+    "Tasks/2 - Child overrides.md",
+    "Documentation",
+    "Untitled",
     "Milestones",
     "Tasks/Archive",
     "Milestone",

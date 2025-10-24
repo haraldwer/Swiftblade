@@ -14,8 +14,8 @@ namespace Rendering
         PROPERTY_D(float, SystemLifetime, 5.0f);
         PROPERTY_D(int, BakeResolution, 128);
 
-        // All of these properties should be based on curves
-        // And could change over time!
+        PROPERTY_D(Expression, SpawnRate, "1");
+        PROPERTY_D(Expression, Lifetime, "1");
         
         PROPERTY(ExprVec3, InitialPosition);
         PROPERTY(ExprVec3, InitialVelocity);
@@ -23,11 +23,6 @@ namespace Rendering
         PROPERTY(ExprVec3, Friction);
         PROPERTY_D(ExprVec4, Color, "1");
         PROPERTY_D(Expression, Scale, "1");
-        PROPERTY_D(Expression, SpawnRate, "1");
-        PROPERTY_D(Expression, Lifetime, "1");
-        
-        // The default system should cover most cases
-        // A system needs an instance, the resource only tells you how the instance should work
     };
     
     class Particle : public Resource::PropertyFile<ParticleData>
@@ -67,6 +62,12 @@ namespace Rendering
         // For easily accessing curves on the GPu
         void Bake();
         BakedFunc BakedExpressions;
+        // 0 - InitialPosition
+        // 1 - InitialVelocity
+        // 2 - Acceleration
+        // 3 - Friction
+        // 4 - Color
+        // 5 - Scale, SpawnRate, Lifetime
     };
 }
 

@@ -7,9 +7,10 @@
 // In
 in vec4 WorldPosition;
 in vec3 WorldNormal;
-in vec3 ObjectPosition;
-in vec3 VertexPosition;
 in vec3 Velocity;
+
+in vec2 TexCoord;
+in vec2 SimCoord;
 
 void main()
 {

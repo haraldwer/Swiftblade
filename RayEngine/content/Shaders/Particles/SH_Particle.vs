@@ -9,10 +9,10 @@ in vec2 vertexTexCoord;
 // Out
 out vec4 WorldPosition;
 out vec3 WorldNormal;
-out vec3 ObjectPosition;
-out vec3 VertexPosition;
 out vec3 Velocity;
+
 out vec2 TexCoord;
+out vec2 SimCoord;
 
 uniform sampler2D TexPosition;
 uniform sampler2D TexVelocity;
@@ -22,27 +22,29 @@ uniform mat4 SystemTransform;
 // Send a lot of stuff directly to fs
 // Using flat keyword
 
+vec2 GetSimCoord()
+{
+    float x = (gl_InstanceID * TexPositionTexel.x);
+    float y = floor(x) * TexPositionTexel.y;
+    return vec2(mod(x, 1.0f), y);
+}
+
 void main()
 {
-    //float x = (0 * TexPositionTexel.x);
-    //float y = floor(x) * TexPositionTexel.y;
-    //vec2 coord = vec2(modf(x, 1.0f), y);
+    vec2 coord = GetSimCoord();
     
     // Use gl_InstanceID
-    vec2 coord = vec2(0);
-    vec4 position = texture(TexPosition, coord) + vec4(sin(Time));
+    vec4 position = texture(TexPosition, coord);
     vec4 velocity = texture(TexVelocity, coord);
     
-    
     WorldNormal = normalize(mat3(SystemTransform) * vertexNormal);
-    VertexPosition = vertexPosition + position.xyz;
-    ObjectPosition = (SystemTransform * vec4(position.xyz, 1.0f)).xyz;
-    WorldPosition = (SystemTransform * vec4(vertexPosition, 1.0f));
+    WorldPosition = (SystemTransform * vec4(vertexPosition * 0.1 + position.xyz, 1.0f));
     vec4 screenPos = ViewProj * WorldPosition;
     vec4 prevScreenPos = ViewProjPrev * WorldPosition;
     gl_Position = screenPos;
     WorldPosition.w = screenPos.z; // Store linear depth
     TexCoord = vertexTexCoord;
+    SimCoord = coord;
 
     screenPos.xy /= max(screenPos.z, 1.0f);
     prevScreenPos.xy /= max(prevScreenPos.z, 1.0f);
