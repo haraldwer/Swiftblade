@@ -5,7 +5,7 @@ void Rendering::AtlasMap::Init(const int InSlots, const bool InCubemap, const in
     int numSlots = InSlots;
     if (InCubemap)
         numSlots *= 6;
-    axisSlots = Utility::Math::SquareRoot(numSlots) + 1;
+    axisSlots = static_cast<int>(sqrtf(static_cast<float>(numSlots))) + 1;
     CHECK_ASSERT(axisSlots * axisSlots < numSlots, "Invalid square root calculation")
     resolution = InResolution;
 

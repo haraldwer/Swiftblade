@@ -1,7 +1,5 @@
 
-
 // Atlas cube sampling
-
 vec3 GetFlatCubeUV(vec3 InDir)
 {
     vec3 absDir = abs(InDir);

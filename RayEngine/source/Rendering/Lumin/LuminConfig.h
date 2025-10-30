@@ -20,7 +20,7 @@ namespace Rendering
         PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.2f));
         PROPERTY_D(Vec3F, Offset, Vec3F(0.5f));
         PROPERTY_D(float, LayerScale, 0.25f);
-        PROPERTY_D(float, Far, 25.0f);
+        PROPERTY_D(float, Far, 50.0f);
         PROPERTY_D(float, Near, 0.01f);
 
         // Has to match SH_LumnSample.si!!

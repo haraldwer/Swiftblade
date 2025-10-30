@@ -428,19 +428,14 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
 
 bool Rendering::Renderer::Bake(const BakedTexture& InTex)
 {
-    rlState::current.Reset();
-    
     ShaderResource* shaderResource = InTex.data.Shader.Get().Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource", false);
     const Shader* shader = shaderResource->Get();
     CHECK_RETURN_LOG(!shader, "Failed to get shader", false);
 
     FrameCommand frameCmd;
-    frameCmd.fboID = InTex.tex->id;
-    frameCmd.size = {
-        InTex.tex->texture.width,
-        InTex.tex->texture.height
-    };
+    frameCmd.fboID = InTex.target.GetFBO();
+    frameCmd.size = InTex.target.Size();
     rlState::current.Set(frameCmd);
 
     ShaderCommand shaderCmd;
@@ -453,8 +448,6 @@ bool Rendering::Renderer::Bake(const BakedTexture& InTex)
     SetValue(*shaderResource, ShaderResource::DefaultLoc::RECT, &rect, SHADER_UNIFORM_VEC4);
     
     DrawQuad();
-
-    rlState::current.Reset();
     
     return true;
 }

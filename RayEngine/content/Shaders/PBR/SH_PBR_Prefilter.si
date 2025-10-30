@@ -4,8 +4,7 @@
 
 // https://learnopengl.com/PBR/IBL/Specular-IBL
 
-const uint MAX_SAMPLE_COUNT = 128u;
-const uint MIN_SAMPLE_COUNT = 32u;
+const uint SAMPLE_COUNT = 128u;
 
 vec4 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float InRoughness)
 {
@@ -15,10 +14,9 @@ vec4 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float
     
     float totalWeight = 0.0f;
     vec4 prefilteredColor = vec4(0.0f);
-    int samples = int(mix(float(MIN_SAMPLE_COUNT), float(MAX_SAMPLE_COUNT), InRoughness));
-    for(uint i = 0u; i < samples; ++i)
+    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
     {
-        vec2 Xi = Hammersley(i, samples);
+        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
         vec3 H  = ImportanceSampleGGX(Xi, N, InRoughness);
         vec3 L  = Normalize(2.0f * dot(V, H) * H - V);
         
@@ -42,4 +40,3 @@ vec4 Prefilter(sampler2D InEnv, vec2 InFaceTexel, vec4 InRect, vec3 InDir, float
     }
     return prefilteredColor / totalWeight;
 }
-

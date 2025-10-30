@@ -18,7 +18,7 @@ Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderAr
     stats += RenderParticles(InArgs);
     stats += RenderDeferred(InArgs);
     stats += RenderSurfaces(InArgs);
-    //stats += RenderLights(InArgs);
+    stats += RenderLights(InArgs);
 
     auto frame = InArgs.viewportPtr->GetTargets().frameTargets.Curr();
     auto scene = InArgs.viewportPtr->GetTargets().sceneTargets.Curr();

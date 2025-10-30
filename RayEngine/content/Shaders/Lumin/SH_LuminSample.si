@@ -4,16 +4,17 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 // Main switch
-#define LUMIN
+//#define LUMIN
 #define LUMIN_FALLBACK
-#define LUMIN_DEPTH_OCCLUSION
+//#define LUMIN_DEPTH_OCCLUSION
 
-const int LAYERS = 1;
+const int LAYERS = 2;
 const int LAYER_COUNT = 15 * 15;
 const int PROBE_COUNT = (LAYERS * LAYER_COUNT) + 1;
 const int GRID_COUNT = 1024;
 
-const float LUMIN_STRENGTH = 0.5f;
+const float LUMIN_STRENGTH = 0.0f;
+const float LUMIN_FALLBACK_STRENGTH = 0.1f;
 const float FADE_DELAY = 0.1f;
 const float FADE_DURATION = 2.0f;
 const float PROBE_NORMAL_OFFSET = 0.1f;
@@ -64,7 +65,6 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 
         // Blend the probes!
         c += color * weight;
-        //c += vec3(1, 0, 0) * weight;
         totalWeight += weight;
     }
     
@@ -72,11 +72,11 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
     vec2 fallbackRectPos = ProbeRects[0];
     vec4 fallbackRect = vec4(fallbackRectPos, ProbeRectSize);
     vec3 fallback = SampleCubeAtlasMip(InTex, ProbeFaceTexel, fallbackRect, InDir, InMip).rgb;
-    float fallbackWeight = max(LUMIN_STRENGTH, 1.0f - totalWeight);
+    float fallbackWeight = max(LUMIN_STRENGTH, LUMIN_FALLBACK_STRENGTH - totalWeight);
     c += fallback * fallbackWeight;
     totalWeight += fallbackWeight;
     
-    return c / max(1.0f, totalWeight);
+    return c / max(totalWeight, 0.001f);
     
 #endif
     
@@ -93,21 +93,14 @@ vec3 ProbeSample(sampler2D InTex, ProbeData InProbe, vec3 InDir, int InMip)
 
 float ProbeDotFade(float InSurfaceToProbeDot)
 {
-    return Pow2(Saturate(InSurfaceToProbeDot + 1.0f)); 
+    return min(1.0f, Pow2(Saturate((InSurfaceToProbeDot + 1.0f) * 0.5f)) + 0.2f); 
 }
 
 float ProbeDistanceFade(vec3 InPixelToProbe, vec3 InNormal, vec3 InDensity)
 {
     vec3 scaled = InPixelToProbe * InDensity;
-    
-    // Somehow use normal to not account for some directions
-    //vec3 normal = abs(InNormal);
-    //scaled.x *= max(normal.y, normal.z);
-    //scaled.y *= max(normal.x, normal.z);
-    //scaled.z *= max(normal.x, normal.y);
-    
     float dist = max(max(abs(scaled.x), abs(scaled.y)), abs(scaled.z));
-    return Saturate(1.0f - dist);
+    return min(1, max(0, 1.0f - dist) + 0.001f);
 }
 
 // Manual time fade from c++
@@ -121,10 +114,10 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDen
     float weight = 1.0f;
     
     vec3 pixelToProbe = InWorldPos - InProbePos.xyz;
-    float pixelToProbeDist = max(0.01f, length(pixelToProbe));
-    vec3 pixelToProbeDir = pixelToProbe / pixelToProbeDist;
-    
+    float pixelToProbeDist = max(0.01f, FastLength(pixelToProbe));
+    vec3 pixelToProbeDir = Normalize(pixelToProbe);
     float surfaceDot = -dot(pixelToProbeDir, InNormal);
+    
     weight *= ProbeDotFade(surfaceDot);
     weight *= ProbeDistanceFade(pixelToProbe, InNormal, InDensity);
     weight *= ProbeTimeFade(InProbePos.w);
@@ -147,6 +140,10 @@ float ProbeOcclusion(vec3 InWorldPos, vec3 InNormal, vec4 InProbePos, vec3 InDen
     }
     
 #endif
+
+    
+    if (weight < 0.2)
+        weight *= Pow2(weight) / Pow2(0.2);
     
     return weight;
 }

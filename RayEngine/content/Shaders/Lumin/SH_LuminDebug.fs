@@ -1,4 +1,5 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_CubeSampling.si"
 
 uniform float Timestamp;
@@ -21,7 +22,7 @@ layout (location = 0) out vec4 Output;
 
 void main()
 {
-    vec3 diff = normalize(ProbePosition - WorldPosition.xyz);
-    Output.rgb = SampleCubeAtlas(TexPrefilter, LuminTexel, ProbeRect, -diff).rgb;
+    vec3 diff = Normalize(ProbePosition - WorldPosition.xyz);
+    Output.rgb = SampleCubeAtlas(TexIrradiance, LuminTexel, ProbeRect, -diff).rgb;
     Output.a = 1.0f;
 }

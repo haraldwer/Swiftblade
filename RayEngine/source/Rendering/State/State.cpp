@@ -5,6 +5,8 @@
 void Rendering::State::Set(const UniformCommand& InCmd)
 {
     PROFILE_GL_GPU("Set uniform");
+
+    // TODO: Set value hash
     
     UniformCommand& uniform = uniforms[InCmd.loc];
     if (InCmd != uniform)

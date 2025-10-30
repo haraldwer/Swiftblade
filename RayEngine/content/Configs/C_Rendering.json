@@ -2,20 +2,14 @@
 	"Context":{
 		"FX":{
 			"Tonemapping":true,
-			"Distort":true,
-			"SSAO":true,
-			"ChromaticAberration":true,
-			"FXAA":true,
-			"MotionBlur":true,
-			"Bloom":true
+			"SSAO":true
 		},
 		"Lumin":{
+			"Enabled":false,
 			"Viewport":{
 				"Height":4096,
 				"Width":4096
-			},
-			"InvalidateCache":true,
-			"Far":50.0
+			}
 		},
 		"Lights":{
 			"Viewport":{
@@ -24,23 +18,17 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
-			},{
-				"Key":"TexPerlin",
-				"Val":"Defaults/T_Noise_Perlin.json"
-			},{
-				"Key":"TexSimplex",
-				"Val":"Defaults/T_Noise_Simplex.json"
+				"Key":"",
+				"Val":""
 			}
 		]
 	},
 	"Viewport":{
-		"Height":1486,
-		"Width":2254
+		"Height":1627,
+		"Width":2449
 	},
 	"Window":{
-		"Height":1486,
-		"Width":2254
+		"Height":1627,
+		"Width":2449
 	}
 }

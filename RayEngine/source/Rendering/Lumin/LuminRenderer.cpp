@@ -91,15 +91,15 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResour
     SetValue(InShader, "ProbeOffset", &lumin.config.Offset.Get(), SHADER_UNIFORM_VEC3);
 
     // Bind textures
-    target.Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
     BindBRDF(InArgs, InShader, InOutSlot);
+    target.Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
 }
 
 void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
 {
     CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
     if (auto brdf = InArgs.luminPtr->config.TexBRDF.Get().Get())
-        brdf->Bind("TexBRDF", InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
+        brdf->Get().Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
 }
 
 

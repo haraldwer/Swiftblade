@@ -1,5 +1,6 @@
 ﻿#include "Shaders/Uniforms/SH_FrameUniforms.si"
 #include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_Utility.si"
 #include "Shaders/Utility/SH_CubeSampling.si"
 
 #include "Shaders/PBR/SH_PBR_ConvoluteIrradiance.si"
@@ -16,11 +17,11 @@ void main()
     vec2 texel = vec2(1.0f) / Resolution;
     
     vec4 worldPos = SampleWorldPos(TexCoord);
-    vec3 camDiff = worldPos.xyz - CameraPosition;
-    float camDist = length(camDiff);
-    vec3 camDir = camDiff / camDist;
+    vec3 camDir = Normalize(worldPos.xyz - CameraPosition);
     
     OutPrefilter = Prefilter(TexFrame, texel, RefRect, camDir, 1.0f);
     OutIrradiance.rgb = ConvoluteIrradiance(TexFrame, texel, RefRect, camDir);
+    
+    // TODO: Blur depth
     OutIrradiance.a = worldPos.w;
 }

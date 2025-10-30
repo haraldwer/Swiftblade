@@ -13,10 +13,11 @@ namespace Rendering
 
         bool operator==(const UniformCommand& InOther) const
         {
+            if (InOther.valueHash == 0 || valueHash == 0)
+                return false;
             return
                 InOther.valueHash == valueHash && 
                 InOther.loc == loc && 
-                InOther.ptr == ptr && 
                 InOther.type == type && 
                 InOther.count == count && 
                 InOther.mat == mat; 

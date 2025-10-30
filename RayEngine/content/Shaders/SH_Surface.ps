@@ -19,6 +19,7 @@ void main()
     
     Output.rgb = albedo.rgb;
     Output.a = worldPosition.w;
+    Output.a = 1.0f;
     
     if (albedo.a > 0.99f)
         return;
@@ -28,4 +29,5 @@ void main()
     vec3 pbr = PBR(worldPosition.xyz, worldNormal, albedo.rgb, surface);
     
     Output.rgb = mix(pbr, albedo.rgb, albedo.a);
+    // TODO: Store depth somewhere? 
 }

@@ -29,7 +29,7 @@ void Rendering::FrameViewer::DrawViewportPanel()
 
     if (debugView < 0)
         debugView = static_cast<int>(views.size()) - 1;
-    if (debugView >= views.size())
+    if (debugView >= static_cast<int>(views.size()))
         debugView = 0;
     
     if (debugView == 0)
