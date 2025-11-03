@@ -1,4 +1,4 @@
-Software - Blender, Paint.NET, Inkscape
+Software - Blender, Inkscape
 File format - obj, png
 Folder structure and naming - Work directly in content folder, each object has its own folder. 
 Prefixes: 

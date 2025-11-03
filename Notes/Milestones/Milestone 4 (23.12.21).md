@@ -1,27 +1,11 @@
-See [[Timeline]] for reference. 
-
+#M4
 The focus of this milestone is: **Core experience**
 User stories: 
 - The player should be able to play through the game from start to finish and receive a score that is displayed on a leaderboard. 
  - The core movement should work as expected, with some abilities. 
  - There should be an arena stage. 
  - There should be a very basic level editor
-
-Done:
-[[0 - Widgets]]
-[[0 - Room order generation & presets]]
-[[0 - Arena level generation]]
-[[0 - Game end]]
-[[0 - Leaderboard UI]]
-[[1 - Improved ground snapping]]
-[[1 - Walljump boost]]
-[[0 - Double jump]]
-[[0 - Ledge vaulting]]
-
-Ongoing: 
-
-Tasks:
-
-Break up milestone
-Future? 
-Transcribe journal 
+## TODO
+![[Milestone 4 - Todo.base]]
+## Done
+![[Milestone 4 - Done.base]]

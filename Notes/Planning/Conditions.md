@@ -1,6 +1,6 @@
 ## Competence
 Technical - I'm a capable developer
-Creative - I've got a good imagination, I am not always good att realizing
+Creative - I've got a good imagination, I am not always good at realizing
 Social - I'm working solo
 ## Time
 Full time until the end of the year, which is ca 7 weeks.

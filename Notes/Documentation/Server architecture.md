@@ -1,3 +1,5 @@
+#outdated
+
 There can be network resources
 These are requested on first use and then fetched and cached.
 These can only be text and are stored as storage

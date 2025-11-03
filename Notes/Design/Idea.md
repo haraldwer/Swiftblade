@@ -6,6 +6,7 @@ Movement and abilities from Ghostrunner
 Level design and pace from Ultrakill
 Enemies from Doom 2016
 Artstyle from Devil Daggers
+Shady Knight has a lot of awesome ideas
 ## Theme
 Contest - Players compete on leaderboards for best score
 Impression - Dark and doomy with hopeful colors shining through the cracks

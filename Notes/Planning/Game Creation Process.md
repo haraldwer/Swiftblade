@@ -3,7 +3,7 @@
 # Conditions
 ![[Conditions]]
 # Design
-![[GDD]]
+![[GDD - Swiftblade]]
 # Planning
 ![[Timeline]]
 Stakeholders - The YT audience

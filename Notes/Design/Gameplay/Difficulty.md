@@ -1,0 +1,1 @@
+The experienced difficulty should be roughly the same throughout the game. The game should not be hard to complete, but it should be hard to do well. The difficulty will increase slightly in later chapters. 

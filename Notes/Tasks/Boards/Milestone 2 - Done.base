@@ -1,0 +1,12 @@
+views:
+  - type: cards
+    name: Table
+    filters:
+      and:
+        - file.folder == "Tasks/Archive"
+        - file.hasTag("M2")
+    order:
+      - file.name
+    sort:
+      - property: file.name
+        direction: DESC

@@ -9,19 +9,19 @@ Nov 15 - Editor and Movement
 - Work has started on an editor
 - The player can move around in a level
 - The cube volume has physics
-[[Milestone 2 (Nov 15)]]
+[[Milestone 2 (23.11.15)]]
 
 Nov 29 - Game loop
 - There is a main menu
 - The game loop is set up
-[[Milestone 3 (Nov 29)]]
+[[Milestone 3 (23.11.29)]]
 
 Dec 21 - Core experience
  - The player should be able to play through the game from start to finish and receive a score that is displayed on a leaderboard. 
  - The core movement should work as expected, with some abilities. 
  - There should be an arena stage. 
  - There should be a very basic level editor
-[[Milestone 4 (Dec 21)]]
+[[Milestone 4 (23.12.21)]]
 
 Dec 27 - Enemies, feedback and stability
  - The editor support arena editing
@@ -29,7 +29,7 @@ Dec 27 - Enemies, feedback and stability
  - The game should be fairly stable
  - The feedback has been addressed
  - The level editor should have some kind of UI
-[[Milestone 5 (Dec 27)]]
+[[Milestone 5 (23.12.27)]]
 
 Jan 3 - Database
 - Scores are submitted to a DB
