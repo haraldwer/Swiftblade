@@ -10,7 +10,8 @@ void ReferenceViewer::DrawDebugPanel()
 {
     ImGui::Text("Total references: %i", static_cast<int>(Utility::BaseRef::refs.size())); 
 
-    if (ImGui::BeginTable("References", 3, ImGuiTableFlags_Borders))
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+    if (ImGui::BeginTable("References", 3, ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_RowBg))
     {
         ImGui::TableSetupColumn("Ref", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Strong", ImGuiTableColumnFlags_WidthFixed);
@@ -30,6 +31,7 @@ void ReferenceViewer::DrawDebugPanel()
             ImGui::TableNextColumn();
             ImGui::Text("%i", res.second->weakCount);
         }
+        ImGui::PopStyleVar();
         ImGui::EndTable(); 
     }
 }

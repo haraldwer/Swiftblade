@@ -58,6 +58,7 @@ set(FETCHCONTENT_QUIET OFF)
 include(FetchContent)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Raylib.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/AES.cmake)
 
 if (NOT RETAIL_MODE)
   include(${CMAKE_SOURCE_DIR}/cmake/Tracy.cmake)

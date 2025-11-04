@@ -2,7 +2,7 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
 #endif
-#include "Debug/Log.h"
+#include "Utility/AssetPacker.h"
 
 void Init();
 void Deinit();
@@ -32,6 +32,8 @@ int main()
 #include "Instance/Launcher.h"
 #include "Rendering/Manager.h"
 #include "Physics/Manager.h"
+#include "Debug/Log.h"
+#include "Editor/AssetBrowser.h"
 
 #include "Instances/MenuInstance.h"
 
@@ -44,6 +46,8 @@ struct GameData
     Debug::Manager debugManager;
     Debug::Log log;
     Resource::Manager resourceManager;
+    AssetBrowser assetBrowser;
+    Utility::AssetPacker assetPacker;
     Rendering::Manager renderer;
     Audio::Manager audio;
     Engine::Manager instanceManager;
@@ -67,6 +71,7 @@ void Init()
     g->renderer.Init();
     g->physics.Init();
     g->debugManager.Init();
+    g->assetBrowser.Init();
     g->audio.Init();
     g->launcher.Init();
     g->db.Init();
@@ -82,6 +87,7 @@ void Deinit()
     g->physics.Deinit();
     g->renderer.Deinit();
     g->resourceManager.Deinit();
+    g->assetBrowser.Deinit();
 }
 
 void Tick()

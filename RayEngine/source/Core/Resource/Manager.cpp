@@ -1,6 +1,7 @@
 ﻿#include "Manager.h"
 
 #include "Impl.h"
+#include "Collections/SortedInsert.h"
 #include "ImGui/imgui.h"
 
 Resource::ImplBase* Resource::Manager::GetResource(const ID& InID)
@@ -87,31 +88,40 @@ void Resource::Manager::DrawDebugPanel()
     ImGui::Text("Loaded resources: %i", c);
 
     static bool showOnlyLoaded = true;
-    ImGui::Checkbox("Show only loaded", &showOnlyLoaded); 
+    ImGui::Checkbox("Show only loaded", &showOnlyLoaded);
     
-    if (ImGui::BeginTable("Resources", 4, ImGuiTableFlags_Borders))
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+    if (ImGui::BeginTable("Resources", 3, ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_RowBg))
     {
-        ImGui::TableSetupColumn("Edit", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Count", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Loaded", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableHeadersRow();
-        
+
+        Vector<uint32> sorted;
         for (const auto& res : resources)
+            Utility::SortedInsert(sorted, res.first, [&](const uint32 InA, const uint32 InB)
+            {
+                return resources.at(InA)->id.Str().compare(resources.at(InB)->id.Str()) < 0;
+            });
+        
+        for (const auto& id : sorted)
         {
-            CHECK_CONTINUE(showOnlyLoaded && !res.second->loaded);
+            auto& res = resources.at(id);
+            CHECK_CONTINUE(showOnlyLoaded && !res->loaded);
+            CHECK_CONTINUE(!res); 
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
-            if (ImGui::Button(("Edit##" + Utility::ToStr(res.first)).c_str()))
-                selected = res.first;
+
+            bool select = selected == id;
+            if (ImGui::Selectable((res->id.Str() +"##" + Utility::ToStr(id)).c_str(), select, ImGuiSelectableFlags_SpanAllColumns))
+                selected = id;
             ImGui::TableNextColumn();
-            ImGui::Text("%s", res.second->id.Str().c_str());
+            ImGui::Text("%i", res->count);
             ImGui::TableNextColumn();
-            CHECK_CONTINUE(!res.second); 
-            ImGui::Text("%i", res.second->count);
-            ImGui::TableNextColumn();
-            ImGui::Text(res.second->loaded ? "True" : "False");
+            ImGui::Text(res->loaded ? "True" : "False");
         }
+        ImGui::PopStyleVar();
         ImGui::EndTable(); 
     }
 

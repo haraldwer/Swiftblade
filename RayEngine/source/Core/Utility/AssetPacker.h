@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "Debug/Panel.h"
+
 #ifndef PACK_PATH
 #define PACK_PATH "C:\\Dev\\content"
 #endif
@@ -58,7 +60,15 @@ namespace Utility
     private:
         static String ReadChunk(uint64 InChunk, uint64 InStart, uint64 InEnd);
         Map<uint32, Asset> assets = {};
-        
+    };
+
+    class AssetPacker : public Debug::Panel
+    {
+    public:
+        String DebugPanelName() const override { return "Asset packer"; }
+        void DrawDebugPanel() override;
+    private:
+        bool packaged = false;
     };
 }
 

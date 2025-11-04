@@ -18,7 +18,7 @@ bool Utility::BeginTable(const String &InName, uint32 InOffset)
         return true;
     
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
-    if (ImGui::BeginTable((InName + ToStr(InOffset)).c_str(), 2, ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable((InName + ToStr(InOffset)).c_str(), 2, ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX))
     {
         ImGui::TableNextRow();
         ImGui::TableNextColumn();

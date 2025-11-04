@@ -28,7 +28,7 @@ if(MSVC)
   target_compile_options(${PROJECT_NAME} PUBLIC
     "$<$<CONFIG:Debug>:/MDd>" # Multithreaded debud DLL
     "$<$<CONFIG:Debug>:/Od>" # Disable optimization
-    "$<$<CONFIG:Debug>:/RTC1->" # Disable runtime checks
+    #"$<$<CONFIG:Debug>:/RTC1->" # Disable runtime checks
     "$<$<CONFIG:Debug>:/Zi>" # Full debug info
   )
           

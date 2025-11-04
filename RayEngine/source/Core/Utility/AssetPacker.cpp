@@ -185,3 +185,20 @@ String Utility::AssetPackReader::ReadChunk(uint64 InChunk, uint64 InStart, uint6
     Decrypt(chunk, InStart, PACK_KEY);
     return chunk;
 }
+
+void Utility::AssetPacker::DrawDebugPanel()
+{
+    ImGui::Text("This tool will package game assets");
+    ImGui::Text("Package can be found at:");
+    ImGui::Text(PACK_PATH);
+    
+    if (ImGui::Button("Package", ImVec2(-1, 0)))
+    {
+        AssetPackGenerator generator;
+        generator.Package();
+        packaged = true;
+    }
+    
+    if (packaged)
+        ImGui::Text("Completed!");
+}
