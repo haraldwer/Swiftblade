@@ -1,4 +1,4 @@
-A global input manager solution
+#archive A global input manager solution
 Supports: 
 - Keybinds
 - Input contexts & blocking

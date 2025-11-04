@@ -16,7 +16,7 @@ namespace ECS
     class Manager;
     class PlayerCamera;
     class Weapon;
-    class Animator;
+    class PlayerAnimator;
     class AnimationPoser;
     
     class PlayerInterface
@@ -37,7 +37,7 @@ namespace ECS
         Transform& GetCameraTransform() const;
         Transform& GetColliderTransform() const;
         Movement& GetMovement() const;
-        Animator& GetAnimator() const;
+        PlayerAnimator& GetAnimator() const;
         AnimationPoser* GetWeaponPoser() const;
         AnimationPoser& GetHandPoser() const;
         PlayerInput& GetInput() const;

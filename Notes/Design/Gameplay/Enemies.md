@@ -58,4 +58,5 @@ Maybe the core animation loops could be made in blender? This would make things 
 **Movement** - Floating slowly, keeps a distance. Will watch out for player. 
 **Attack** - Summon other enemies. Reads from the book during the attack. 
 
-  
+# Tasks
+![[Category - Enemies.base]]

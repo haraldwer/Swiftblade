@@ -1,7 +1,7 @@
 ﻿#include "PlayerInterface.h"
 
 #include "Animation/AnimationPoser.h"
-#include "Animation/Animator.h"
+#include "Animation/PlayerAnimator.h"
 #include "Combat/Weapon/Weapon.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Camera.h"
@@ -70,9 +70,9 @@ ECS::Movement& ECS::PlayerInterface::GetMovement() const
     return *ptr;
 }
 
-ECS::Animator& ECS::PlayerInterface::GetAnimator() const
+ECS::PlayerAnimator& ECS::PlayerInterface::GetAnimator() const
 {
-    auto* ptr = Manager::Get().GetComponent<Animator>(GetPlayerID());
+    auto* ptr = Manager::Get().GetComponent<PlayerAnimator>(GetPlayerID());
     CHECK_ASSERT(!ptr, "Invalid animator");
     return *ptr;
 }

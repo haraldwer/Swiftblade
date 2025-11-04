@@ -1,6 +1,6 @@
 ﻿#include "AnimationStateSlide.h"
 
-#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/PlayerAnimator.h"
 #include "ECS/Player/Animation/States.h"
 
 Type AnimationStateSlide::Update()
@@ -19,7 +19,7 @@ Type AnimationStateSlide::Update()
     right.pose = HandPose::OPEN;
     right.transform = slide;
     right.cameraSpace = 0.3f; 
-    HandState left = ECS::Animator::Flip(right);
+    HandState left = ECS::PlayerAnimator::Flip(right);
 
     a.SetHands(right, left);
     

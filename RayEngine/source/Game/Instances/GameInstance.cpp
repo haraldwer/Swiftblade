@@ -1,6 +1,6 @@
 #include "GameInstance.h"
 
-#include "../ECS/Player/Animation/Animator.h"
+#include "../ECS/Player/Animation/PlayerAnimator.h"
 #include "../ECS/Player/Combat/Combat.h"
 #include "../ECS/Player/Movement/Movement.h"
 #include "Engine/Blueprints/Blueprint.h"
@@ -104,6 +104,6 @@ void GameInstance::DrawDebugPanel()
         if (const auto c = ecs.GetComponent<ECS::Combat>(state.playerID))
             c->EditState();
     if (ImGui::CollapsingHeader("Animation"))
-        if (const auto a = ecs.GetComponent<ECS::Animator>(state.playerID))
+        if (const auto a = ecs.GetComponent<ECS::PlayerAnimator>(state.playerID))
             a->EditState();
 }

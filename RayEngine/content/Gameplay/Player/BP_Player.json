@@ -33,7 +33,7 @@
 				"LockRotation":true
 			}
 		},{
-			"Name":"Animator",
+			"Name":"PlayerAnimator",
 			"Data":{}
 		},{
 			"Name":"AnimationPoser",

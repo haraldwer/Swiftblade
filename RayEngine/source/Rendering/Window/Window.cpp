@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "raylib.h"
+#include "ImGui/imgui_themes.h"
 
 void Rendering::Window::Open(const WindowConfig& InConfig)
 {
@@ -35,6 +36,17 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
             config.Height,
             config.Title.Get().c_str());
         prevFlags = 0;
+
+        PROFILE_GL_INIT();
+        
+        rlImGuiSetup(false);
+
+        ImGui::Theme3();
+        
+        Vec2I screenSize = { GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()) };
+        Vec2F windowScale = screenSize.To<float>() / Vec2F(1920.0f, 1080.0f);
+        float fontScale = Utility::Math::Max(windowScale.x, windowScale.y);
+        ImGui::LoadFont(fontScale);
     }
     else if (config.Width != GetScreenWidth() || config.Height != GetScreenHeight())
         SetWindowSize( config.Width, config.Height);

@@ -3,7 +3,7 @@ views:
     name: Table
     filters:
       and:
-        - file.folder == "Tasks"
+        - file.path.contains("Tasks/Backlog")
     order:
       - file.name
     sort:

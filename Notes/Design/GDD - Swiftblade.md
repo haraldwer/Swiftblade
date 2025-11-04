@@ -31,6 +31,7 @@ There are two types of levels that are clearly separated, both in artstyle and g
 The game features some basic online functionality and social retention mechanics. Competing against friends and against yourself is always a good motivator. 
 ## [[Online]]
 ## [[Progression]]
+## [[Scoring]]
 # [[Artstyle]]
 Low Poly. Medieval, macabre and grotesque. A bleak world with almost no color. There are exceptions, but primarily for gameplay purposes. 
 # [[Enemies]]

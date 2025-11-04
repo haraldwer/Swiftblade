@@ -358,7 +358,8 @@ namespace ImGui
 	inline void LoadFont(float InScale)
 	{
 		const ImGuiIO& io = GetIO();
-		font = io.Fonts->AddFontFromFileTTF("Defaults/F_FiraCode.ttf", 16 * InScale);
+		io.Fonts->Clear();
+		font = io.Fonts->AddFontFromFileTTF("Defaults/F_FiraCode.ttf", 10 * InScale);
 		rlImGuiReloadFonts();
 	}
 

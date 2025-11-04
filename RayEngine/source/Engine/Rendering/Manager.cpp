@@ -24,17 +24,9 @@ void Rendering::Manager::Init()
     queuedConfig = currConfig;
     
     window.Open(currConfig.Window);
-    PROFILE_GL_INIT();
     
     mainViewport.Init(currConfig.Viewport, currConfig.Context.Get().FX);
     defaultContext.Init(currConfig.Context, true);
-
-    rlImGuiSetup(false);
-    ImGui::Theme3();
-
-    Vec2F windowScale = window.GetSize().To<float>() / Vec2F(1920.0f, 1080.0f);
-    float fontScale = Utility::Math::Max(windowScale.x, windowScale.y);
-    ImGui::LoadFont(fontScale);
 }
 
 void Rendering::Manager::Deinit()

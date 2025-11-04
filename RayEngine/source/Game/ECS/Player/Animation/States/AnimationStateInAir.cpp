@@ -1,6 +1,6 @@
 ﻿#include "AnimationStateInAir.h"
 
-#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/PlayerAnimator.h"
 #include "ECS/Player/Animation/States.h"
 #include "ECS/Systems/Rigidbody.h"
 
@@ -18,7 +18,7 @@ Type AnimationStateInAir::Update()
     hands.velocityOffset.y *= 3.0f;
     hands.pose = HandPose::OPEN;
     hands.cameraSpace = 0.5;
-    const HandState flipped = ECS::Animator::Flip(hands);
+    const HandState flipped = ECS::PlayerAnimator::Flip(hands);
     a.SetHands(hands, flipped);
     
     return Type::None(); 

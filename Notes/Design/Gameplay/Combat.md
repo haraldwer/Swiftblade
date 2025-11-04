@@ -19,3 +19,6 @@ There are a number of special attacks that can be unlocked throughout the game:
     
 
 How should these be used by the player? What buttons to activate etc? 
+
+# Tasks
+![[Category - Player.base]]

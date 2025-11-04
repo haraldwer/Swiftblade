@@ -9,7 +9,7 @@
 #include "ECS/Enemies/EnemySpawner.h"
 #include "ECS/GameEnd.h"
 #include "ECS/Obstacles/Obstacle.h"
-#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/PlayerAnimator.h"
 #include "ECS/Player/Animation/AnimationPoser.h"
 #include "ECS/Player/Combat/Combat.h"
 #include "ECS/Player/Movement/Movement.h"
@@ -19,7 +19,6 @@
 #include "ECS/Player/Combat/Weapon/Weapon.h"
 #include "ECS/RoomConnection.h"
 #include "ECS/SectionEnd.h"
-#include "ECS/Systems/Particle.h"
 #include "ECS/Volume/CubeVolume.h"
 
 #include "Engine/ECS/Systems/Attributes.h"
@@ -30,6 +29,8 @@
 #include "Engine/ECS/Systems/Light.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
+#include "Engine/ECS/Systems/Animator.h"
+#include "Engine/ECS/Systems/Particle.h"
 #include "Obstacles/Projectile.h"
 
 using namespace ECS;
@@ -60,6 +61,7 @@ systemToName[var] = String(#x); }
     REG_ENTITY_SYSTEM(Camera);
     REG_ENTITY_SYSTEM(Collider);
     REG_ENTITY_SYSTEM(Rigidbody);
+    REG_ENTITY_SYSTEM(Animator);
 
     // Game systems
     REG_ENTITY_SYSTEM(CubeVolume);
@@ -78,7 +80,7 @@ systemToName[var] = String(#x); }
     REG_UNIQUE_COMPONENT(PlayerCamera);
     REG_UNIQUE_COMPONENT(Weapon);
     REG_UNIQUE_COMPONENT(Combat);
-    REG_UNIQUE_COMPONENT(Animator);
+    REG_UNIQUE_COMPONENT(PlayerAnimator);
     REG_UNIQUE_COMPONENT(AnimationPoser);
     REG_UNIQUE_COMPONENT(Obstacle);
     REG_UNIQUE_COMPONENT(BoostPad);

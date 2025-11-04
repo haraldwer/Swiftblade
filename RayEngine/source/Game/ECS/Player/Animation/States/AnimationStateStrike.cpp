@@ -1,7 +1,7 @@
 #include "AnimationStateStrike.h"
 
 #include "AnimationStateDefault.h"
-#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/PlayerAnimator.h"
 #include "ECS/Player/Animation/States.h"
 
 Utility::Type AnimationStateStrike::Update()

@@ -10,6 +10,7 @@ uniform vec2 NearFar;
 
 // Frame
 uniform float Time;
+uniform int Frame;
 uniform float Delta;
 uniform vec2 Resolution;
 
@@ -24,4 +25,17 @@ vec2 GetRectUV(vec2 InUV, vec4 InRect)
 vec2 GetTextureScale(ivec2 InTexSize)
 {
     return vec2(float(InTexSize.x), float(InTexSize.y)) / Resolution; 
+}
+
+float InterleavedGradientNoise(vec2 InCoord, int InOffset, int InSteps)
+{
+    vec2 pixel = InCoord * Resolution;
+    int frame = Frame * InSteps + InOffset; // need to periodically reset frame to avoid numerical issues
+    vec2 off = pixel + vec2(5.588238f * float(frame));
+    return fract(52.9829189 * fract(dot(off, vec2(0.06711056, 0.00583715))));
+}
+
+float InterleavedGradientNoise(vec2 InCoord)
+{
+    return InterleavedGradientNoise(InCoord, 0, 1);
 }

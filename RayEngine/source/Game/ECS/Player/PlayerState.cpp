@@ -1,6 +1,6 @@
 #include "PlayerState.h"
 
-#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/PlayerAnimator.h"
 
 void PlayerStateBase::ApplyAnimationState() const
 {

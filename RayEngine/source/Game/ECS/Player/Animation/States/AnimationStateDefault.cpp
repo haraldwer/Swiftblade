@@ -1,6 +1,6 @@
 #include "AnimationStateDefault.h"
 
-#include "ECS/Player/Animation/Animator.h"
+#include "ECS/Player/Animation/PlayerAnimator.h"
 #include "ECS/Player/Animation/States.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
@@ -9,7 +9,7 @@ Type AnimationStateDefault::Update()
 {
     constexpr float frequency = 12.0f;
     
-    ECS::Animator& a = GetAnimator();
+    ECS::PlayerAnimator& a = GetAnimator();
     HeadState head = a.GetHead();
     Vec2F headBob = a.HeadBob(0.02f, frequency);
     head.tilt = headBob.x;

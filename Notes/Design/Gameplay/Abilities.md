@@ -21,3 +21,6 @@ Abilities are bound to the magic of the sword, and can only be used once the swo
 - Crystals - The player can strike this object to get a speed boost. Currently the speed boost is directed away from the crystal, but this might be flipped to be towards instead. On hit, the crystal breaks. 
 
 Abilities will be unlocked one at a time throughout the game. This keeps the game interesting and lets the player progress and become more powerful. 
+
+# Tasks
+![[Category - Abilities.base]]
