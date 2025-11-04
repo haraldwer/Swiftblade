@@ -8,7 +8,7 @@ void UI::LevelRoomList::Init(Container &InOwner)
 {
     List::Init(InOwner);
     
-    ButtonDefault b({}, "+");
+    ButtonDefault b({}, { "+" });
     b.Init(*this);
     addButton = Add(b);
 

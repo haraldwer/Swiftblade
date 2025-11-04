@@ -49,15 +49,22 @@ void MenuRoomObjects::Update()
     }
 }
 
-void MenuRoomObjects::SetConfig(const RoomObjectEditorConfig& InConfig)
+void MenuRoomObjects::SetConfig(const RoomObjectEditorConfig &InConfig, const RoomInfo &InInfo)
 {
     ui.ClearChildren();
     objects.clear();
-    for (auto& e : InConfig.ObjectTypes.Get())
+
+    int type = InInfo.Type.Get();
+    auto& data = InConfig.Types.Get();
+    if (!data.contains(type))
+        return;
+    
+    auto& roomTypeData = data.at(type);
+    for (auto& e : roomTypeData)
     {
         auto& entry = objects.emplace_back();
         entry.name = e.first;
-        auto w = UI::RoomObjectWidget(e.first);
+        auto w = UI::RoomObjectWidget(e.first, e.second.Icon);
         w.Init(ui);
         entry.id = ui.Add(w);
     }

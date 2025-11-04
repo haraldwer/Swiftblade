@@ -1,6 +1,9 @@
 ﻿#include "Impl.h"
 
+#ifdef IMGUI_ENABLE
+
 #include "ImGui/FileBrowser/imgui_filebrowser.h"
+
 #include "ImGui/imgui.h"
 
 String Resource::Pick(const String& InLabel, const String& InID)
@@ -17,7 +20,7 @@ String Resource::Pick(const String& InLabel, const String& InID)
     String result; 
     if (ImGui::FetchFileBrowserResult(InID, result))
         return result;
-    return InID; 
+    return InID;
 }
 
 bool Resource::SaveButton(const String& InID)
@@ -25,3 +28,9 @@ bool Resource::SaveButton(const String& InID)
     return ImGui::Button(("Save##" + InID).c_str());
 }
 
+#else
+
+String Resource::Pick(const String& InLabel, const String& InID) { return ""; }
+bool Resource::SaveButton(const String& InID) { return false; }
+
+#endif

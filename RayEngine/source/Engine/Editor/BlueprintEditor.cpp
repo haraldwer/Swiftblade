@@ -1,11 +1,14 @@
 #include "BlueprintEditor.h"
 
+#ifdef IMGUI_ENABLE
 #include "EditorFunctions.h"
+#include "ImGui/imgui.h"
+#endif
+
 #include "Blueprints/Blueprint.h"
 #include "ECS/Systems/Transform.h"
 #include "Instance/Manager.h"
 #include "Game/Instances/GameInstance.h"
-#include "ImGui/imgui.h"
 
 void BlueprintEditor::Init()
 {
@@ -74,6 +77,8 @@ void BlueprintEditor::Frame()
     Instance::Frame();
 }
 
+#ifdef IMGUI_ENABLE
+
 void BlueprintEditor::DrawDebugPanel()
 {
     if (config.Blueprint.Edit())
@@ -91,3 +96,7 @@ void BlueprintEditor::DrawDebugPanel()
     EditHierarchy(instanceID, selectedID);
     EditComponents(selectedID);
 }
+
+#else
+void BlueprintEditor::DrawDebugPanel() {  }
+#endif

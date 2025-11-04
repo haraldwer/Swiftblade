@@ -59,7 +59,7 @@ bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
     if (order.size() <= 1 || Utility::MaybeCollapse(InName, InOffset, header))
     {
         if (header)
-            ImGui::Indent();
+            Utility::Indent();
         for (const auto& p : order)
         {
             const uint16 pOff = map.at(p);
@@ -69,7 +69,7 @@ bool PropertyOwnerBase::Edit(const String& InName, const uint32 InOffset)
                 edited = true;
         }
         if (header)
-            ImGui::Unindent();
+            Utility::Unindent();
     }
     return edited;
 }

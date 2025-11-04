@@ -51,6 +51,8 @@ void UI::Element::Draw(Container& InOwner)
 
 bool UI::Element::DebugDraw(Container &InOwner, const String &InIdentifier, int& InC)
 {
+#ifdef IMGUI_ENABLE
+    
     InC++;
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth;
     if (!IsA(Type::Get<Container>()))
@@ -75,6 +77,10 @@ bool UI::Element::DebugDraw(Container &InOwner, const String &InIdentifier, int&
     bool treeNode = ImGui::TreeNodeEx(("[" + GetObjName() + "]: " + InIdentifier + info + " ##" + Utility::ToStr(InC)).c_str(), flags); 
     debugHovered = ImGui::IsItemHovered();
     return treeNode;
+    
+#endif
+    
+    return false;
 }
 
 void UI::Element::RefreshRect(Container& InOwner, const Rect& InContainingRect, bool InCacheVisible)

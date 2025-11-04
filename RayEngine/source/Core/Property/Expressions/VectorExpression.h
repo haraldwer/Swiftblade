@@ -1,5 +1,6 @@
 #pragma once
 #include "Expression.h"
+#include "Serialization/Edit.h"
 
 // Abstraction
 template <class T>
@@ -27,7 +28,7 @@ struct ExprVec2 : ExprVec<Vec2F>
     
     bool Edit(const String &InName, uint32 InOffset) override
     {
-        ImGui::Text(InName.c_str());
+        Utility::EditText(InName);
         bool edited = false;
         edited |= x.Edit(InOffset);
         edited |= y.Edit(InOffset);
@@ -96,7 +97,7 @@ struct ExprVec3 : ExprVec<Vec3F>
 
     bool Edit(const String &InName, uint32 InOffset) override
     {
-        ImGui::Text(InName.c_str());
+        Utility::EditText(InName);
         bool edited = false;
         edited |= x.Edit(InOffset);
         edited |= y.Edit(InOffset);
@@ -175,7 +176,7 @@ struct ExprVec4 : ExprVec<Vec4F>
 
     bool Edit(const String &InName, uint32 InOffset) override
     {
-        ImGui::Text(InName.c_str());
+        Utility::EditText(InName);
         bool edited = false;
         edited |= x.Edit(InOffset);
         edited |= y.Edit(InOffset);

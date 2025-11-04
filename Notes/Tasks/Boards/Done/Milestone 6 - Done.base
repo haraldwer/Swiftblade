@@ -4,9 +4,9 @@ views:
     filters:
       and:
         - file.folder == "Tasks/Archive"
-        - file.hasTag("M5")
+        - file.hasTag("M6")
     order:
       - file.name
     sort:
-      - property: file.name
+      - property: file.mtime
         direction: DESC

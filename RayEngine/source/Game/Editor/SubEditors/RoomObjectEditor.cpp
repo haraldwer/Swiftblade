@@ -58,7 +58,9 @@ void RoomObjectEditor::TryPickObject()
     if (!pick.empty() && pick != "")
     {
         LOG("Pick!");
-        CHECK_RETURN_LOG(!config.ObjectTypes.Get().contains(pick), "Unknown object type when picked: " + pick);
+        
+        auto& roomData = config.Types.Get().at(GetRoom().Info.Get().Type.Get());
+        CHECK_RETURN_LOG(!roomData.contains(pick), "Unknown object type when picked: " + pick);
         
         // Create new!
         EditRoomObject obj;
@@ -241,6 +243,7 @@ void RoomObjectEditor::UpdateTransforms()
 
 void RoomObjectEditor::UpdateTransform(ECS::SysTransform &InSys, ECS::EntityID InID, const EditRoomObject &InObj)
 {
+    CHECK_RETURN(InID == ECS::INVALID_ID);
     auto& t = InSys.Get(InID);
     Mat4F current = t.World();
     Mat4F target = GetTrans(InObj);
@@ -266,7 +269,7 @@ void RoomObjectEditor::Enter()
     LoadRoom();
     CHECK_ASSERT(menu, "Menu already set");
     menu = Menu::Manager::Get().Push<MenuRoomObjects>();
-    menu->SetConfig(config);
+    menu->SetConfig(config, GetRoom().Info.Get());
 }
 
 void RoomObjectEditor::Exit()
@@ -282,9 +285,7 @@ ECS::EntityID RoomObjectEditor::LoadObject(const EditRoomObject &InObj)
     bool contains = loadedObjects.contains(InObj.Coord);
     auto& obj = loadedObjects[InObj.Coord];
     if (!contains)
-    {
         obj = CreateObject(InObj);
-    }
     else if (auto trans = ECS::Manager::Get().GetComponent<ECS::Transform>(obj))
         trans->SetWorld(GetTrans(InObj));
     return obj;
@@ -292,8 +293,13 @@ ECS::EntityID RoomObjectEditor::LoadObject(const EditRoomObject &InObj)
 
 ECS::EntityID RoomObjectEditor::CreateObject(const EditRoomObject &InObj) const
 {
-    auto& objType = config.ObjectTypes.Get().at(InObj.Object);
-    auto bp = objType.Get();
+    int type = GetRoom().Info.Get().Type.Get();
+    auto& data = config.Types.Get();
+    if (!data.contains(type))
+        return -1;
+    auto& roomData = data.at(type);
+    auto& objType = roomData.at(InObj.Object);
+    auto bp = objType.BP.Get().Get();
     CHECK_RETURN_LOG(!bp, "Unknown object type: " + InObj.Object.Get(), ECS::INVALID_ID);
     return bp->Instantiate(GetTrans(InObj));
 }
@@ -312,7 +318,8 @@ void RoomObjectEditor::LoadRoom()
 void RoomObjectEditor::DestroyLoaded()
 {
     for (auto& o : loadedObjects)
-        ECS::Manager::Get().DestroyEntity(o.second);
+        if (o.second != ECS::INVALID_ID) 
+            ECS::Manager::Get().DestroyEntity(o.second);
     loadedObjects.clear();
 }
 
@@ -321,7 +328,8 @@ void RoomObjectEditor::RemoveLoaded(ECS::VolumeCoordKey InKey)
     if (loadedObjects.contains(InKey))
     {
         const ECS::EntityID id = loadedObjects.at(InKey);
-        ECS::Manager::Get().DestroyEntity(id);
+        if (id != ECS::INVALID_ID)
+            ECS::Manager::Get().DestroyEntity(id);
         loadedObjects.erase(InKey);
     }
 }

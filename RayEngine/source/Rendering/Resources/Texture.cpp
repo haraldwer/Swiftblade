@@ -32,6 +32,8 @@ Utility::Timepoint Rendering::TextureResource::GetEditTime() const
     return Utility::GetFileWriteTime(id.Str());  
 }
 
+#ifdef IMGUI_ENABLE
+
 bool Rendering::TextureResource::Edit(const String &InName, uint32 InOffset)
 {
     if (!ptr)
@@ -58,3 +60,9 @@ bool Rendering::TextureResource::Edit(const String &InName, uint32 InOffset)
         });
     return false;
 }
+
+#else
+
+bool Rendering::TextureResource::Edit(const String &InName, uint32 InOffset) { return false; }
+
+#endif

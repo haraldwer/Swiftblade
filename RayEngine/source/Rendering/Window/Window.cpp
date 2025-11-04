@@ -2,7 +2,10 @@
 
 #include "Config.h"
 #include "raylib.h"
+
+#ifdef IMGUI_ENABLE
 #include "ImGui/imgui_themes.h"
+#endif
 
 void Rendering::Window::Open(const WindowConfig& InConfig)
 {
@@ -38,18 +41,26 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
         prevFlags = 0;
 
         PROFILE_GL_INIT();
-        
-        rlImGuiSetup(false);
 
+#ifdef IMGUI_ENABLE
+        rlImGuiSetup(false);
         ImGui::Theme3();
-        
-        Vec2I screenSize = { GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()) };
-        Vec2F windowScale = screenSize.To<float>() / Vec2F(1920.0f, 1080.0f);
-        float fontScale = Utility::Math::Max(windowScale.x, windowScale.y);
-        ImGui::LoadFont(fontScale);
+#endif
     }
     else if (config.Width != GetScreenWidth() || config.Height != GetScreenHeight())
         SetWindowSize( config.Width, config.Height);
+
+    // Imgui font scaling
+#ifdef IMGUI_ENABLE
+#ifdef __EMSCRIPTEN__
+    ImGui::LoadFont(1.0f);
+#else
+    Vec2I screenSize = { config.Width, config.Height };
+    Vec2F windowScale = screenSize.To<float>() / Vec2F(1920.0f, 1080.0f);
+    float fontScale = Utility::Math::Lerp(Utility::Math::Max(windowScale.x, windowScale.y), 1.0f, 0.5f);
+    ImGui::LoadFont(fontScale);
+#endif
+#endif
     
     auto newFlags = getFlags(config);
     if (prevFlags != newFlags)
@@ -67,6 +78,10 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
 
 void Rendering::Window::Close()
 {
+#ifdef IMGUI_ENABLE
+    rlImGuiShutdown();
+#endif
+    
     if (IsWindowReady())
         CloseWindow();
 }

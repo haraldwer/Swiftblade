@@ -21,12 +21,12 @@ void MenuLogin::Init()
         .Push(UI::List(UI::Transform::Centered()), "Fail")
             .Add(UI::LabelHeader(UI::Transform::Centered(), "Login failed"))
             .Add(UI::LabelText(UI::Transform::Centered(), "Error: Unknown"), "Error")
-            .Add(UI::ButtonDefault(UI::Transform::Centered(), "Retry"), "Retry")
+            .Add(UI::ButtonDefault(UI::Transform::Centered(), { "Retry" }), "Retry")
         .Pop()
         .Push(UI::List(UI::Transform::Centered(), { 5 }), "NameSelect")
             .Add(UI::LabelHeader(UI::Transform::Centered(), "Select username"))
             .Add(UI::TextboxDefault({.size = { 300, 0 }}, { .defaultText= "username" }), "Name")
-            .Add(UI::ButtonDefault(UI::Transform::Centered(), "Select"), "Select");
+            .Add(UI::ButtonDefault(UI::Transform::Centered(), { "Select" }), "Select");
 
     ui = b.Build();
 

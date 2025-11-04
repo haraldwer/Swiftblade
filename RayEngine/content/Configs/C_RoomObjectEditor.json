@@ -1,13 +1,81 @@
 {
-	"ObjectTypes":[{
-			"Key":"Checkpoint",
-			"Val":"Gameplay/BP_Checkpoint.json"
-		},{
-			"Key":"Enemy",
-			"Val":"Gameplay/Enemies/BP_Enemy.json"
-		},{
-			"Key":"Sword",
-			"Val":"Gameplay/Player/BP_Sword.json"
+	"Types": [
+		{
+			"Key": "ROOM",
+			"Val": {
+				"HasStart": true,
+				"HasEnd": true,
+				"Objects": [
+					{
+						"Key": "Checkpoint",
+						"Val": {
+							"BP":"Gameplay/BP_Checkpoint.json",
+							"Icon":"Defaults/T_Missing.png"
+						}
+					},
+					{
+						"Key": "Enemy",
+						"Val": {
+							"BP":"Gameplay/Enemies/BP_Enemy.json",
+							"Icon":"Defaults/T_Missing.png"
+						}
+					}
+				] 
+			}
+		},
+
+
+		{
+			"Key": "ARENA",
+			"Val": {
+				"HasStart": true,
+				"HasEnd": true,
+				"Objects": [
+					{
+						"Key": "Enemy",
+						"Val": { 
+							"BP":"Gameplay/Enemies/BP_Enemy.json",
+							"Icon":"Defaults/T_Missing.png"
+						}
+					}
+				]
+			}
+		},
+
+
+		{
+			"Key": "START",
+			"Val": {
+				"HasStart": true,
+				"HasEnd": true,
+				"Objects": [
+					{
+						"Key": "Sword",
+						"Val": {
+							"BP":"Gameplay/Player/BP_Sword.json",
+							"Icon":"Defaults/T_Missing.png"
+						}
+					}
+				]
+			}
+		},
+
+
+		{
+			"Key": "END",
+			"Val": {
+				"HasStart": true,
+				"HasEnd": true,
+				"Objects": [
+					{
+						"Key": "Checkpoint",
+						"Val": {
+							"BP":"Gameplay/BP_Checkpoint.json",
+							"Icon":"Defaults/T_Missing.png"
+						}
+					}
+				]
+			}
 		}
 	]
 }

@@ -27,11 +27,16 @@ void UI::Container::Draw()
 
 void UI::Container::DebugDraw(int& InC)
 {
+#ifdef IMGUI_ENABLE
     ImGui::Unindent();
     ImGui::Unindent();
     ImGui::Unindent();
     if (DebugDraw(*this, "Root", InC))
         ImGui::TreePop();
+    ImGui::Indent();
+    ImGui::Indent();
+    ImGui::Indent();
+#endif;
 }
 
 void UI::Container::Init(Container& InOwner)
@@ -69,6 +74,7 @@ void UI::Container::Draw(Container& InOwner)
 
 bool UI::Container::DebugDraw(Container &InOwner, const String &InIdentifier, int& InC)
 {
+#ifdef IMGUI_ENABLE
     if (Element::DebugDraw(InOwner, InIdentifier, InC))
     {
         for (auto& child : children)
@@ -83,6 +89,7 @@ bool UI::Container::DebugDraw(Container &InOwner, const String &InIdentifier, in
         }
         return true;
     }
+#endif
     return false;
 }
 

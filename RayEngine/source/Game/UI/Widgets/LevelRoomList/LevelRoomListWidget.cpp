@@ -19,7 +19,7 @@ void UI::LevelRoomListWidget::Init(Container &InOwner)
             .size = 20,
             .anchor = { 1, 0.5 },
             .pivot = { 1, 0.5 } },
-        "-");
+        { "-" });
     b.Init(*this);
     removeButton = Add(b);
 }

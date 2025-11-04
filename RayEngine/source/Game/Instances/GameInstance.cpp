@@ -88,6 +88,8 @@ void GameInstance::SetState(const GameState& InState)
     state.playerID = playerID; 
 }
 
+#ifdef IMGUI_ENABLE
+
 void GameInstance::DrawDebugPanel()
 {
     CHECK_RETURN(state.playerID == ECS::INVALID_ID);
@@ -107,3 +109,7 @@ void GameInstance::DrawDebugPanel()
         if (const auto a = ecs.GetComponent<ECS::PlayerAnimator>(state.playerID))
             a->EditState();
 }
+
+#else
+void GameInstance::DrawDebugPanel() {  }
+#endif

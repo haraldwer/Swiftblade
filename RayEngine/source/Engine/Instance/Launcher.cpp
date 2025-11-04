@@ -6,6 +6,8 @@
 #include "Game/Instances/MenuInstance.h"
 #include "Game/Instances/GameInstance.h"
 
+#ifdef IMGUI_ENABLE
+
 void Engine::Launcher::Init()
 {
     config.LoadConfig();
@@ -61,3 +63,16 @@ void Engine::Launcher::Push(const String& InName)
 }
 
 #undef LAUNCHER_REG_INSTANCE
+
+#else
+
+void Engine::Launcher::Init()
+{
+    Manager::Get().Push<MenuInstance>();
+}
+
+void Engine::Launcher::Deinit() {}
+void Engine::Launcher::DrawDebugPanel() {}
+void Engine::Launcher::Push(const String& InName) {}
+
+#endif

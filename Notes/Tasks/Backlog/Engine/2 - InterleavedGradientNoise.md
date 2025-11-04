@@ -1,0 +1,1 @@
+Use this in more cases, like SSAO

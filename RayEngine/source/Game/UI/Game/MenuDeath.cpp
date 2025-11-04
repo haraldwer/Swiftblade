@@ -17,8 +17,8 @@ void MenuDeath::Init()
         .Push(UI::List(UI::Transform::Centered(), { 5 }))
             .Add(UI::LabelTitle(UI::Transform::Centered(), "Death"))
             .Add(UI::Separator())
-            .Add(UI::ButtonDefault(UI::Transform::Centered(), "Respawn"), "Respawn")
-            .Add(UI::ButtonDefault(UI::Transform::Centered(), "Main Menu"), "Main Menu");
+            .Add(UI::ButtonDefault(UI::Transform::Centered(), { "Respawn" }), "Respawn")
+            .Add(UI::ButtonDefault(UI::Transform::Centered(), { "Main Menu" }), "Main Menu");
     
     ui = builder.Build();
     

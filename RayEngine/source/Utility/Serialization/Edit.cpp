@@ -1,4 +1,6 @@
-﻿#include "Edit.h"
+﻿#ifdef IMGUI_ENABLE
+
+#include "Edit.h"
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
@@ -61,6 +63,21 @@ void Utility::Separator()
     ImGui::Separator();
 }
 
+void Utility::Indent()
+{
+    ImGui::Indent();
+}
+
+void Utility::Unindent()
+{
+    ImGui::Unindent();
+}
+
+void Utility::EditText(const String &InStr)
+{
+    ImGui::Text(InStr.c_str());
+}
+
 bool Utility::MaybeCollapse(const String& InName, const uint32 InOffset, bool& OutHeader)
 {
     if (InName.empty() || InOffset == 0)
@@ -73,3 +90,5 @@ bool Utility::Button(const String& InName, const uint32 InOffset)
 {
     return ImGui::Button(GetEditName(InName, InOffset).c_str());
 }
+
+#endif

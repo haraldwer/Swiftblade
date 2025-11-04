@@ -32,6 +32,8 @@ void ECS::PlayerAnimator::TryOverrideState(const Type& InAnimState) const
         stateMachine->TryOverrideState(InAnimState);
 }
 
+#ifdef IMGUI_ENABLE
+
 bool ECS::PlayerAnimator::EditState() const
 {
     if (!stateMachine)
@@ -40,6 +42,10 @@ bool ECS::PlayerAnimator::EditState() const
         stateMachine->SaveConfig();
     return stateMachine->Edit();
 }
+
+#else
+bool ECS::PlayerAnimator::EditState() const {  }
+#endif
 
 Mat4F ECS::PlayerAnimator::GetPose(const String& InName) const
 {

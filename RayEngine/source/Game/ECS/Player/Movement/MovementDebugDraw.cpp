@@ -3,6 +3,8 @@
 #include "Movement.h"
 #include "MovementStateMachine.h"
 
+#ifdef IMGUI_ENABLE
+
 bool ECS::Movement::EditState() const
 {
     const Rigidbody& rb = GetRB();
@@ -23,3 +25,9 @@ bool ECS::Movement::EditState() const
     return stateMachine->Edit();
     
 }
+
+#else
+
+bool ECS::Movement::EditState() const { return false; }
+
+#endif

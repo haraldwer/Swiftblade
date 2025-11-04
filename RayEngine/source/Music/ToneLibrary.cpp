@@ -1,5 +1,7 @@
 #include "ToneLibrary.h"
 
+#ifdef IMGUI_ENABLE
+
 bool ToneLibrary::Edit(const String &InName, uint32 InOffset)
 {
     bool edited = false;
@@ -70,6 +72,12 @@ bool ToneLibrary::Edit(const String &InName, uint32 InOffset)
     
     return edited;
 }
+
+#else
+
+bool ToneLibrary::Edit(const String &InName, uint32 InOffset) { return false; }
+
+#endif
 
 bool ToneLibrary::Contains(const String &InName)
 {

@@ -13,6 +13,7 @@
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelText.h"
 #include "UI/Widgets/Common/TextboxDefault.h"
+#include "UI/Widgets/Common/ToggleSelector.h"
 
 void UI::InfoPanelEditRoom::Init(Container &InOwner)
 {
@@ -27,7 +28,7 @@ void UI::InfoPanelEditRoom::Init(Container &InOwner)
                 .Add(Image(), "Thumbnail")
                 .Push(TabContainer({ .margins = 10, .anchor = {0, 1}, .pivot = {0, 1} }), "NameTab")
                     .Push(List({}, { 10, ListDirection::HORIZONTAL}), "NameShow")
-                        .Add(ButtonDefault({ .anchor = 0.5, .pivot = 0.5 }, " "), "EditName")
+                        .Add(ButtonDefault({ .anchor = 0.5, .pivot = 0.5 }, { " " }), "EditName")
                         .Push(List({ .anchor = { 0, 0.5 }, .pivot = { 0, 0.5 }}))
                             .Add(LabelHeader(), "Name")
                             .Add(LabelText({.padding = {0, {-5, 0}}}), "Creator")
@@ -41,6 +42,7 @@ void UI::InfoPanelEditRoom::Init(Container &InOwner)
                         }), "NameEdit")
                     .Pop()
                 .Pop()
+            .Add(ToggleSelector({}, {{"Room"}, {"Arena"}, {"Start"}, {"End"}}), "RoomType")
             .Add(LabelText(), "Length")
             .Add(LabelText(), "Size")
             .Add(LabelText(), "Objects")
@@ -55,7 +57,7 @@ void UI::InfoPanelEditRoom::Init(Container &InOwner)
             },  {
                 .direction = ListDirection::HORIZONTAL
             }))
-            .Add(ButtonDefault({}, "Open"), "Open");
+            .Add(ButtonDefault({}, { "Open" }), "Open");
     Add(b.Build());
 
     Get<TabContainer>("NameTab").Set("NameShow");
@@ -89,6 +91,15 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
             }
         }
         Get<TabContainer>("NameTab").Set("NameShow");
+    }
+
+    // Set room type
+    auto& toggle = Get<ToggleSelector>("RoomType");
+    if (toggle.IsClicked())
+    {
+        InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
+        if (auto res = room.Get())
+            res->data.Info.Get().Type.Get() = static_cast<int>(FromStr(toggle.GetSelected()));
     }
 
     if (Get<ButtonDefault>("Open").IsClicked())

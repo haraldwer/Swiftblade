@@ -4,7 +4,7 @@ views:
     filters:
       and:
         - file.path.contains("Tasks/Backlog")
-        - file.hasTag("M5")
+        - file.hasTag("M6")
     order:
       - file.name
     sort:

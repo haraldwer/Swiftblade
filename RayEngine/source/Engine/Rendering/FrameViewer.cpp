@@ -1,5 +1,7 @@
 #include "FrameViewer.h"
 
+#ifdef IMGUI_ENABLE
+
 #include "ImGui/imgui.h"
 #include "ImGui/rlImGui.h"
 #include "Manager.h"
@@ -139,3 +141,11 @@ void Rendering::FrameViewer::DrawDebugPanel()
     if (c.Edit())
         man.QueueConfig(c);
 }
+
+#else
+
+void Rendering::FrameViewer::DrawViewportPanel() {}
+void Rendering::FrameViewer::DrawTex(const Texture& tex) {}
+void Rendering::FrameViewer::DrawViewTex(const Texture &tex) {}
+void Rendering::FrameViewer::DrawDebugPanel() {}
+#endif

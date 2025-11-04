@@ -211,6 +211,7 @@ bool UI::FontResource::LoadSDFFont(uint32 InSize, Font*& InFontEntry) const
             1);
 
         InFontEntry->texture = LoadTexture(cachePath.c_str());
+        InFontEntry->texture.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE;
         SetTextureFilter(InFontEntry->texture, TEXTURE_FILTER_BILINEAR);
     }
     else
@@ -225,6 +226,7 @@ bool UI::FontResource::LoadSDFFont(uint32 InSize, Font*& InFontEntry) const
             1);
 
         InFontEntry->texture = LoadTextureFromImage(atlas);
+        InFontEntry->texture.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE;
         SetTextureFilter(InFontEntry->texture, TEXTURE_FILTER_BILINEAR);
 
         Utility::CreateDir(cachePath);
@@ -286,6 +288,8 @@ Shader* UI::FontResource::GetShader() const
     return nullptr;
 }
 
+#ifdef IMGUI_ENABLE
+
 bool UI::FontResource::Edit(const String &InName, uint32 InOffset)
 {
     ImGui::Text("Loaded sizes: %i", static_cast<int>(sizes.size()));
@@ -312,6 +316,12 @@ bool UI::FontResource::Edit(const String &InName, uint32 InOffset)
     }
     return false;
 }
+
+#else
+
+bool UI::FontResource::Edit(const String &InName, uint32 InOffset) { return false; }
+
+#endif
 
 String UI::FontResource::GetCachePath(const int InSize) const
 {

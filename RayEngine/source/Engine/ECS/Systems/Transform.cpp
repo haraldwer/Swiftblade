@@ -1,11 +1,14 @@
 #include "Transform.h"
 
 #include "Collider.h"
-#include "raylib.h"
 #include "ECS/Manager.h"
+#include "Instance/Instance.h"
+
+#ifdef IMGUI_ENABLE
+#include "raylib.h"
 #include "Editor/ImGuizmo_Wrapper.h"
 #include "ImGui/Gizmo/ImGuizmo.h"
-#include "Instance/Instance.h"
+#endif
 
 using namespace ECS;
 
@@ -228,6 +231,8 @@ bool SysTransform::EditValues(const EntityID InID)
     return edited; 
 }
 
+#ifdef IMGUI_ENABLE
+
 bool SysTransform::EditGizmo(EntityID InID)
 {
     // Gizmo edit
@@ -251,6 +256,11 @@ bool SysTransform::EditGizmo(EntityID InID)
     t.SetWorld(trans); 
     return finishEdit; 
 }
+
+#else
+bool SysTransform::EditGizmo(EntityID InID) {  }
+#endif
+
 
 void SysTransform::SetupHierarchy(const EntityID InParent, const EntityID InChild, Transform::Space InSpace, bool InApplyCollider)
 {

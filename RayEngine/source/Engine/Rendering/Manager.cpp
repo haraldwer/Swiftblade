@@ -7,9 +7,11 @@
 #include "emscripten.h"
 #endif
 
+#ifdef IMGUI_ENABLE
 #include "ImGui/Gizmo/ImGuizmo.h"
 #include "ImGui/imgui_themes.h"
 #include "ImGui/rlImGui.h"
+#endif
 
 #include "Core/Debug/Manager.h"
 #include "Menu/Manager.h"
@@ -31,7 +33,7 @@ void Rendering::Manager::Init()
 
 void Rendering::Manager::Deinit()
 {
-    rlImGuiShutdown();
+    
     defaultContext.Deinit();
     mainViewport.Deinit();
     window.Close();
@@ -71,6 +73,8 @@ void Rendering::Manager::Render(const Scene& InScene)
     frameViewer.SetStats(stats);
 }
 
+#ifdef IMGUI_ENABLE
+
 void Rendering::Manager::DrawDebugPanel()
 {
     PROFILE_GL();
@@ -103,6 +107,13 @@ bool Rendering::Manager::IsViewportClickable() const
     return !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 }
 
+#else
+
+void Rendering::Manager::DrawDebugPanel() {  }
+bool Rendering::Manager::IsViewportClickable() const { return true; }
+
+#endif
+
 void Rendering::Manager::BeginFrame()
 {
     PROFILE_GL();
@@ -126,27 +137,34 @@ void Rendering::Manager::BeginFrame()
             DrawFPS(10, 10);
     }
 
+#ifdef IMGUI_ENABLE
     rlImGuiBegin();
     ImGui::PushDefaultFont();
     ImGuizmo::BeginFrame();
+#endif
 }
 
 void Rendering::Manager::EndFrame()
 {
     PROFILE_GL();
+
+#ifdef IMGUI_ENABLE
     ImGui::PopDefaultFont();
     {
         PROFILE_GL_NAMED("rlImGuiEnd");
         rlImGuiEnd();
     }
+#endif
+    
     {
         PROFILE_GL_NAMED("EndDrawing (SwapBuffers)");
         EndBlendMode();
         EndDrawing();
     }
     PROFILE_GL_COLLECT();
-    
-    AutoResize();
+
+    if (currConfig == queuedConfig)
+        AutoResize();
     if (currConfig != queuedConfig)
         ApplyConfig(queuedConfig);
     
@@ -182,11 +200,8 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
 void Rendering::Manager::AutoResize()
 {
     const auto& debugMan = Debug::Manager::Get();
-    if (debugMan.IsOpen(DebugPanelName()) && debugMan.Enabled())
-        return;
     
     auto& win = queuedConfig.Window.Get();
-    auto& view = queuedConfig.Viewport.Get();
 
 #ifdef __EMSCRIPTEN__
 
@@ -202,6 +217,10 @@ void Rendering::Manager::AutoResize()
     
 #endif
     
+    if (debugMan.IsOpen(DebugPanelName()) && debugMan.Enabled())
+        return;
+
+    auto& view = queuedConfig.Viewport.Get();
     view.Width = win.Width.Get();
     view.Height = win.Height.Get();
 }

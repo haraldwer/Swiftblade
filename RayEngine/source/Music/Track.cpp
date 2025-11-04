@@ -10,6 +10,8 @@ void Track::Fill(uint64 InFrame, float* InSamples, uint32 InFrames, uint32 InSam
     Effects.Get().Fill(InFrame, InSamples, InFrames, InSampleRate);
 }
 
+#ifdef IMGUI_ENABLE
+
 bool Track::Edit(const String &InName, uint32 InOffset)
 {
     String off = "##" + InName + std::to_string(InOffset);
@@ -49,3 +51,9 @@ bool Track::Edit(const String &InName, uint32 InOffset)
     }
     return false;
 }
+
+#else
+
+bool Track::Edit(const String &InName, uint32 InOffset) { return false; }
+
+#endif

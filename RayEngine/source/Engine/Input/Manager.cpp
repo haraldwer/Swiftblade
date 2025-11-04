@@ -1,9 +1,13 @@
 ﻿#include "Manager.h"
 #include "Rendering/Manager.h"
 
+#include "raylib.h"
+
+#ifdef IMGUI_ENABLE
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_themes.h"
+#endif
 
 void Input::Manager::Push(const String& InContext)
 {
@@ -146,6 +150,8 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
         InAction.current = down ?
             State::PRESSED : State::RELEASED;
 }
+
+#ifdef IMGUI_ENABLE
 
 void Input::Manager::DrawDebugPanel()
 {
@@ -307,6 +313,10 @@ void Input::Manager::DrawDebugPanel()
         current.SaveConfig();
 }
 
+#else
+void Input::Manager::DrawDebugPanel() {  }
+#endif
+
 void Input::Manager::UpdateCursorState()
 {
     CHECK_RETURN(contextStack.empty());
@@ -328,8 +338,10 @@ void Input::Manager::UpdateCursorState()
         }
     }
 
+#ifdef IMGUI_ENABLE
     if (!context.CursorVisible)
         ImGui::ClearActiveID();
+#endif
 }
 
 const Input::Context& Input::Manager::GetContext(const String& InName) const

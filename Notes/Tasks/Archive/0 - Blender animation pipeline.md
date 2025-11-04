@@ -1,4 +1,4 @@
-#engine
+#engine #M6 
 Make animation keyframes in blender
 Export this to the engine
 Can be freely sampled at any timepoint

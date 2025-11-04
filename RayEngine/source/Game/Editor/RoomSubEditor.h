@@ -16,12 +16,6 @@ namespace ECS
     struct Transform;
 }
 
-enum class RoomType : uint8
-{
-    ROOM,
-    ARENA
-};
-
 class RoomSubEditor
 {
     BASE_CLASS_INFO(RoomSubEditor);

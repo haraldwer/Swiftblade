@@ -74,6 +74,8 @@ void Resource::Manager::Deinit()
     resources.clear();
 }
 
+#ifdef IMGUI_ENABLE
+
 void Resource::Manager::DrawDebugPanel()
 {
     ImGui::Text("Total resources: %i", static_cast<int>(resources.size()));
@@ -135,3 +137,8 @@ void Resource::Manager::DrawDebugPanel()
     }
 }
 
+#else
+
+void Resource::Manager::DrawDebugPanel() {}
+
+#endif

@@ -3,6 +3,7 @@
 #include "../EditRoom.h"
 #include "../RoomSubEditor.h"
 #include "Engine/Blueprints/Blueprint.h"
+#include "Resources/Texture.h"
 
 namespace ECS
 {
@@ -10,12 +11,28 @@ namespace ECS
 }
 
 class MenuRoomObjects;
-typedef OrderedMap<String, ResBlueprint> RoomTypeMap;
+
+struct RoomObject : PropertyOwner<RoomObject>
+{
+    PROPERTY(ResBlueprint, BP);
+    PROPERTY(ResTexture, Icon);
+};
+
+typedef Map<String, RoomObject> RoomTypeMap;
+
+struct RoomTypeData : PropertyOwner<RoomTypeData>
+{
+    PROPERTY(RoomTypeMap, Objects)
+    PROPERTY_D(bool, HasStart, true);
+    PROPERTY_D(bool, HasEnd, true);
+};
+
+typedef Map<int, RoomTypeMap> RoomTypes;
 
 struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 {
     PROPERTY(String, CurrentObj);
-    PROPERTY(RoomTypeMap, ObjectTypes);
+    PROPERTY(RoomTypes, Types);
     
     PROPERTY_C(float, DotThreshold, 0.8f);
     PROPERTY_C(float, LerpSpeed, 0.1f);

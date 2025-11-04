@@ -3,6 +3,8 @@
 #include "raylib.h"
 #include "ImGui/imgui.h"
 
+#ifdef IMGUI_ENABLE
+
 void Debug::Manager::Init()
 {
     current.LoadConfig();
@@ -143,3 +145,16 @@ void Debug::Manager::SetOpen(const String& InWindow, const bool InOpen)
         set.erase(InWindow);
     current.SaveConfig();
 }
+
+#else
+
+void Debug::Manager::Init() {}
+void Debug::Manager::Deinit() const {}
+void Debug::Manager::Logic() {}
+void Debug::Manager::Frame(const double InDeltaTime) {}
+void Debug::Manager::Register(Panel* InWindow) {}
+void Debug::Manager::Unregister(const Panel* InWindow) {}
+bool Debug::Manager::IsOpen(const String& InWindow) const { return false; }
+void Debug::Manager::SetOpen(const String& InWindow, const bool InOpen) { }
+
+#endif

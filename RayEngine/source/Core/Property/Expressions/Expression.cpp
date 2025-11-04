@@ -150,6 +150,8 @@ void Expression::CacheGraph()
     *find.val = prevVal;
 }
 
+#ifdef IMGUI_ENABLE
+
 void Expression::DrawGraph()
 {
     if (cachedGraph.empty())
@@ -169,6 +171,12 @@ void Expression::DrawGraph()
 
     ImGui::PopItemWidth();
 }
+
+#else
+
+void Expression::DrawGraph() {}
+
+#endif
 
 bool Expression::Compile()
 {

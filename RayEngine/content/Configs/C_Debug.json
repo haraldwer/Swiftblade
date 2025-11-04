@@ -1,6 +1,6 @@
 {
-	"DebugEnabled":false,
 	"OpenWindows":[
+		"Console",
 		"Rendering",
 		"Viewport"
 	]

@@ -1,7 +1,10 @@
 #include "PlayerStateMachine.h"
 
+#ifdef IMGUI_ENABLE
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_custom.h"
+#endif
+
 #include "Core/StateMachine/StateBase.h"
 
 void PlayerStateMachine::Init()
@@ -9,6 +12,8 @@ void PlayerStateMachine::Init()
     LoadConfig();
     StateMachine::Init();
 }
+
+#ifdef IMGUI_ENABLE
 
 bool PlayerStateMachine::Edit(const String& InName, const uint32 InOffset)
 {
@@ -34,6 +39,10 @@ bool PlayerStateMachine::Edit(const String& InName, const uint32 InOffset)
     edited = edited || PropertyOwner::Edit(InName, InOffset);
     return edited;
 }
+
+#else
+bool PlayerStateMachine::Edit(const String &InName, uint32 InOffset) {  }
+#endif
 
 void PlayerStateMachine::CustomSerialize(SerializeObj& InOutObj) const
 {

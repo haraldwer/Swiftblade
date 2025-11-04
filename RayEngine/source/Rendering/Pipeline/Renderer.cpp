@@ -153,8 +153,8 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
 
 void Rendering::Renderer::DrawQuad()
 {
-    rlState::current.ResetMesh();
     PROFILE_GL_GPU("Draw quad");
+    rlState::current.ResetMesh();
     rlLoadDrawQuad();
 }
 
@@ -208,6 +208,8 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
 
 void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloom, SwapTarget& InFrame)
 {
+    PROFILE_GL();
+    
     auto& fx = InArgs.contextPtr->config.FX.Get();
     auto& frame = InFrame.Curr();
 
@@ -306,26 +308,34 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
 
 int Rendering::Renderer::DrawCustom(const RenderArgs &InArgs, const std::function<void()> &InFunc)
 {
+    PROFILE_GL();
+    rlState::current.Reset();
+    
     auto virtualTarget = InArgs.viewportPtr->GetVirtualTarget();
     auto& frameTarget= InArgs.viewportPtr->targets.frameTargets.Curr();
-    BeginTextureMode(virtualTarget);
-    rlEnableFramebuffer(frameTarget.GetFBO());
+
     rlEnableColorBlend();
     BeginBlendMode(BLEND_ALPHA);
+
+    BeginTextureMode(virtualTarget);
+    rlEnableFramebuffer(frameTarget.GetFBO());
     InFunc();
-    EndBlendMode();
     EndTextureMode();
+    
+    EndBlendMode();
+    rlDisableColorBlend();
+
     return 0;
 }
 
 int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
 {
     PROFILE_GL();
+    rlState::current.Reset();
     
     auto& scene = *InArgs.scenePtr;
     auto virtualTarget = InArgs.viewportPtr->GetVirtualTarget();
     auto& frameTarget= InArgs.viewportPtr->targets.frameTargets.Curr();
-    rlState::current.Reset();
 
     BeginTextureMode(virtualTarget);
     rlEnableFramebuffer(frameTarget.GetFBO());
@@ -403,10 +413,7 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
     
     rlState::current.Reset();
 
-    //rlEnableFramebuffer(InTarget.id);
-    //auto s = InBuffer.Size();
-    //rlBlitFramebuffer(0, 0, s.x, s.y, 0, 0, InTarget.texture.height, InTarget.texture.width,  GL_COLOR_BUFFER_BIT);
-    
+    rlDisableColorBlend();
     BeginTextureMode(InTarget);
     
     // Flip and blip
@@ -422,7 +429,7 @@ void Rendering::Renderer::Blip(const RenderTexture2D& InTarget, const RenderTarg
         sourceRec,
         { 0, 0 }, 
         ::WHITE);
-
+    
     EndTextureMode();
 }
 

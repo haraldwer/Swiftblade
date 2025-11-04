@@ -1,15 +1,19 @@
 #pragma once
+#include "Resources/Texture.h"
 #include "UI/Elements/Container.h"
-#include "UI/Elements/Label.h"
 
 namespace UI
 {
-    class RoomObjectWidget : public Label
+    class RoomObjectWidget : public Container
     {
-        CLASS_INFO(RoomObjectWidget, Label);
+        CLASS_INFO(RoomObjectWidget, Container);
     public:
-        RoomObjectWidget(const String& InEntry) : Label({}, { .text = InEntry }) {}
-        // TODO: Also show some kind of icon?
+        RoomObjectWidget(const String& InEntry, const ResTexture& InIcon) : Container({.size = 200}, {}), Entry(InEntry), Icon(InIcon) {}
+        void Init(Container &InOwner) override;
+
+    private:
+        String Entry;
+        ResTexture Icon;
     };
     
 }

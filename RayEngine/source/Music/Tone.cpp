@@ -1,6 +1,8 @@
 #include "Tone.h"
 
+#ifdef IMGUI_ENABLE
 #include "ImGui/imgui_custom.h"
+#endif
 
 #define TONE_DECLARE(func, var) func.Declare(static_cast<uint8>(TimingVars::var), #var);
 #define TONE_SET(func, var, val) func.Set(static_cast<uint8>(TimingVars::var), val);
@@ -22,6 +24,8 @@ bool Tone::Edit(const String &InName, uint32 InOffset)
 {
     return PropertyOwner::Edit(InName, InOffset);
 }
+
+#ifdef IMGUI_ENABLE
 
 bool Tone::Edit()
 {
@@ -75,6 +79,13 @@ void Tone::Plot(const String& InOverlay)
     constexpr ImVec2 plotSize = ImVec2(0, 50);
     ImGui::PlotLines("##Tone", tonePreview.data(), static_cast<int>(tonePreview.size()), 0, InOverlay.c_str(), FLT_MAX, FLT_MAX, plotSize);
 }
+
+#else
+
+bool Tone::Edit() { return false; }
+void Tone::Plot(const String &InOverlay) {  }
+
+#endif
 
 void Tone::UpdateTonePreview(const ToneTiming &InTiming)
 {

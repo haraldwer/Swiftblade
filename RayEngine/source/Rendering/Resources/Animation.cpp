@@ -64,13 +64,11 @@ bool Rendering::AnimationResource::Load()
     {
         for (const auto& markerEntry : doc["markers"].GetArray())
         {
-            AnimationData::Action action;
-            Utility::Deserialize(markerEntry.GetObject(), "name", action.name);
-            Utility::Deserialize(markerEntry.GetObject(), "frame", action.frame);
-            Utility::SortedInsert(data.actions, action, [](const AnimationData::Action& a, const AnimationData::Action& b)
-            {
-                return a.frame < b.frame;
-            });
+            String name;
+            int frame;
+            Utility::Deserialize(markerEntry.GetObject(), "name", name);
+            Utility::Deserialize(markerEntry.GetObject(), "frame", frame);
+            data.actions[name].insert(frame);
         }
     }
 
@@ -104,7 +102,21 @@ float Rendering::AnimationResource::GetCurve(const String& InObject, const Strin
     return ReadFloat(find->second, InKey, InIndex, InTime);
 }
 
-Vec3F Rendering::AnimationResource::ReadVec3(AnimationData::Object &InObject, const String &InKey, const float InSample)
+bool Rendering::AnimationResource::GetAction(const String &InAction, float InPrevTime, float InCurrentTime)
+{
+    // Find any events between the specified timestamps
+    float prevFrame = GetFrame(InPrevTime);
+    float currFrame = GetFrame(InCurrentTime);
+    CHECK_RETURN(prevFrame >= currFrame, false)
+    auto find = data.actions.find(InAction);
+    CHECK_RETURN(find == data.actions.end(), false)
+    for (int i = prevFrame + 1; i <= currFrame; i++)
+        if (find->second.contains(i))
+            return true;
+    return false;
+}
+
+Vec3F Rendering::AnimationResource::ReadVec3(AnimationData::Object &InObject, const String &InKey, const float InSample) const
 {
     auto find = InObject.find(InKey);
     CHECK_RETURN(find == InObject.end(), {})
@@ -115,7 +127,7 @@ Vec3F Rendering::AnimationResource::ReadVec3(AnimationData::Object &InObject, co
     };
 }
 
-float Rendering::AnimationResource::ReadFloat(AnimationData::Object &InObject, const String &InKey, const int InIndex, const float InTime)
+float Rendering::AnimationResource::ReadFloat(AnimationData::Object &InObject, const String &InKey, const int InIndex, const float InTime) const
 {
     auto find = InObject.find(InKey);
     CHECK_RETURN(find == InObject.end(), 0.0f)
@@ -162,10 +174,8 @@ float Rendering::AnimationResource::Read(AnimationData::Curves& InCurves, const 
 Rendering::AnimationData::Sample Rendering::AnimationResource::GetSampleData(AnimationData::Curve& InCurve, const float InTime, float& OutFrame) const
 {
     PROFILE();
-    
-    float loopTime = fmodf(InTime, data.duration_seconds); 
-    float frame = loopTime * data.fps;
-    OutFrame = Utility::Math::Clamp(frame, data.frameRange.r, data.frameRange.g);
+
+    OutFrame = GetFrame(InTime);
     int floorFrame = static_cast<int>(OutFrame); // The actual frame we're at
 
     // Use cache and skip all calculations
@@ -213,4 +223,11 @@ Rendering::AnimationData::Sample Rendering::AnimationResource::GetSampleData(Ani
         static_cast<int>(InCurve.keyframes.size()) - 1,
         static_cast<int>(InCurve.keyframes.size()) - 1
     };
+}
+
+float Rendering::AnimationResource::GetFrame(const float InTime) const
+{
+    const float loopTime = fmodf(InTime, data.duration_seconds); 
+    const float frame = loopTime * data.fps;
+    return Utility::Math::Clamp(frame, data.frameRange.r, data.frameRange.g);
 }

@@ -27,9 +27,9 @@ void UI::NumberSelector::Init(Container &InOwner)
                 .direction = ListDirection::HORIZONTAL,
                 .reversed = true
             }))
-            .Add(ButtonDefault(Transform::SimpleAnchor(0.5, 0.5), "+"), "Plus")
+            .Add(ButtonDefault(Transform::SimpleAnchor(0.5, 0.5), { "+" }), "Plus")
             .Add(TextboxDefault(Transform::SimpleAnchor(0.5, 0.5), { .defaultText = Utility::ToStr(value)}), "Value")
-            .Add(ButtonDefault(Transform::SimpleAnchor(0.5, 0.5), "-"), "Minus");
+            .Add(ButtonDefault(Transform::SimpleAnchor(0.5, 0.5), { "-" }), "Minus");
     Add(b.Build());
 }
 

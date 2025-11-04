@@ -104,12 +104,18 @@ void RoomVolumeEditor::Frame()
     sys.DrawEditVolume(GetVolumeID(), ECS::VolumeCoord(editStart), editEnd);
 }
 
+#ifdef IMGUI_ENABLE
+
 void RoomVolumeEditor::DebugDraw()
 {
     ImGui::Text("Volume editing mode"); 
     const auto size = GetVolume().data.data.size();
     ImGui::Text("Blocks: %i", static_cast<int>(size));
 }
+
+#else
+void RoomVolumeEditor::DebugDraw() {  }
+#endif
 
 void RoomVolumeEditor::Enter()
 {

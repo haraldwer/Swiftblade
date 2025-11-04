@@ -21,8 +21,8 @@ void MenuRoomSelect::Init()
             .Add(UI::Separator())
             .Add(UI::RoomListWidget("rooms_most_played", ""), "RoomList")
             .Push(UI::List(UI::Transform::Centered(),{ 5, UI::ListDirection::HORIZONTAL }))
-                .Add(UI::ButtonDefault(UI::Transform::Centered(), "Select"), "Select")
-                .Add(UI::ButtonDefault(UI::Transform::Centered(), "Cancel"), "Cancel");
+                .Add(UI::ButtonDefault(UI::Transform::Centered(), { "Select" }), "Select")
+                .Add(UI::ButtonDefault(UI::Transform::Centered(), { "Cancel" }), "Cancel");
     ui = builder.Build();
 }
 

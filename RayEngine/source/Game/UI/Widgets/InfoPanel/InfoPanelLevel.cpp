@@ -29,7 +29,7 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
         .Push(List())
             .Push(TabContainer(), "NameTab")
                 .Push(List({}, { 10, ListDirection::HORIZONTAL}), "NameShow")
-                    .Add(ButtonDefault({ .anchor = 0.5, .pivot = 0.5 }, " "), "EditName")
+                    .Add(ButtonDefault({ .anchor = 0.5, .pivot = 0.5 }, { " " }), "EditName")
                     .Push(List({ .anchor = { 0, 0.5 }, .pivot = { 0, 0.5 }}))
                         .Add(LabelHeader(), "Name")
                         .Add(LabelText({.padding = {0, {-5, 0}}}), "Creator")
@@ -61,8 +61,8 @@ void UI::InfoPanelLevel::Init(Container &InOwner)
                 .spacing = 5,
                 .direction = ListDirection::HORIZONTAL,
             }))
-            .Add(ButtonDefault({}, "Submit"), "Submit")
-            .Add(ButtonDefault({}, "Play"), "Play");
+            .Add(ButtonDefault({}, { "Submit" }), "Submit")
+            .Add(ButtonDefault({}, { "Play" }), "Play");
     Add(b.Build());
 
     Get<TabContainer>("NameTab").Set("NameShow");

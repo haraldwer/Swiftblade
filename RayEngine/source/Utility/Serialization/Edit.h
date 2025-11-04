@@ -1,7 +1,7 @@
 ﻿#ifndef EDIT_H
 #define EDIT_H
 
-//#pragma once
+#ifdef IMGUI_ENABLE
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
@@ -20,6 +20,9 @@ namespace Utility
     bool AddButton(uint32 InOffset);
     bool RemoveButton(uint32 InOffset);
     void Separator();
+    void Indent();
+    void Unindent();
+    void EditText(const String& InStr);
 
     inline bool Edit(const String& InName, bool& InOutData, const uint32 InOffset = 0)
     {
@@ -447,5 +450,31 @@ namespace Utility
         return edited;
     }
 }
+
+#else
+
+namespace Utility
+{
+    inline String GetEditName(const String& InName, uint32 InOffset) { return ""; }
+    inline bool BeginTable(const String& InName, uint32 InOffset) { return false;}
+    inline void EndTable(uint32 InOffset) {}
+    
+    inline bool MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader) { return false;}
+    inline bool Button(const String& InName, uint32 InOffset) { return false;}
+    inline bool BeginSection(const String& InName) { return false;}
+    inline void EndSection() {}
+    inline void SameLine() {}
+    inline bool AddButton(uint32 InOffset) { return false;}
+    inline bool RemoveButton(uint32 InOffset) { return false;}
+    inline void Separator() {}
+    inline void Indent() {}
+    inline void Unindent() {}
+    inline void EditText(const String& InStr) {}
+
+    template <class T>
+    bool Edit(const String& InName, T& InOutData, const uint32 InOffset = 0) { return false; }
+}
+
+#endif
 
 #endif

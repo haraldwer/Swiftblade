@@ -1,9 +1,10 @@
 ﻿#include "ReferenceViewer.h"
 
-#include <string>
+#ifdef IMGUI_ENABLE
 
 #include "ImGui/imgui.h"
 #include "Utility/Memory/Pointers.h"
+
 
 void ReferenceViewer::DrawDebugPanel()
 {
@@ -32,3 +33,9 @@ void ReferenceViewer::DrawDebugPanel()
         ImGui::EndTable(); 
     }
 }
+
+#else
+
+void ReferenceViewer::DrawDebugPanel() {  }
+
+#endif

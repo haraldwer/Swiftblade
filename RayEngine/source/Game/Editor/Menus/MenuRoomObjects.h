@@ -14,7 +14,7 @@ public:
     bool IsBlocking() const override { return false; }
     bool CanBePopped() const override { return false; }
     
-    void SetConfig(const RoomObjectEditorConfig& InConfig);
+    void SetConfig(const RoomObjectEditorConfig& InConfig, const RoomInfo& InInfo);
     String TryPick();
 
 private:

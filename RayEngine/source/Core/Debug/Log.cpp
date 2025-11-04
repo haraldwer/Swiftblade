@@ -1,5 +1,7 @@
 #include "Log.h"
 
+#ifdef IMGUI_ENABLE
+
 void Debug::Log::Init()
 {
     Utility::AddLogCallback([&](const String& InMessage) { Add(InMessage); });
@@ -143,3 +145,15 @@ bool Debug::Log::CheckFilter(const String &InLog) const
             return false;
     return true;
 }
+
+#else
+
+void Debug::Log::Init() {}
+void Debug::Log::DrawDebugPanel() {}
+void Debug::Log::Add(const String &InLog) {}
+void Debug::Log::Clear() {}
+void Debug::Log::ClearFilter() {}
+void Debug::Log::UpdateFilter() {}
+bool Debug::Log::CheckFilter(const String &InLog) const { return false; }
+
+#endif

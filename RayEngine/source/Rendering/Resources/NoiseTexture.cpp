@@ -27,6 +27,8 @@ ResTexture Rendering::NoiseTextureResource::Get() const
     return tex;
 }
 
+#ifdef IMGUI_ENABLE
+
 bool Rendering::NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)
 {
     ImGui::SameLine();
@@ -106,6 +108,12 @@ bool Rendering::NoiseTextureResource::Edit(const String& InName, const uint32 In
     }
     return result;
 }
+
+#else
+
+bool Rendering::NoiseTextureResource::Edit(const String& InName, const uint32 InOffset) { return false; }
+
+#endif
 
 void Rendering::NoiseTextureResource::Generate()
 {

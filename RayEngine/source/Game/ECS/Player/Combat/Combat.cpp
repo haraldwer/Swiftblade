@@ -19,6 +19,8 @@ void ECS::Combat::Update()
         stateMachine->Update();
 }
 
+#ifdef IMGUI_ENABLE
+
 bool ECS::Combat::EditState() const
 {
     if (!stateMachine)
@@ -27,3 +29,7 @@ bool ECS::Combat::EditState() const
         stateMachine->SaveConfig();
     return stateMachine->Edit();
 }
+
+#else
+bool ECS::Combat::EditState() const {  }
+#endif

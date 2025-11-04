@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 project(RayEngine)
 
+option(RETAIL_MODE "Retail mode, for distribution" OFF)
+if (RETAIL_MODE)
+  message("Compiling for retail")
+endif ()
+
 message("Platform: ${PLATFORM}")
 
 if (UNIX)
@@ -36,20 +41,30 @@ if (EMSCRIPTEN)
   set(COMPILE_PLATFORM emscripten)
   set(BUILD_TYPE ${CMAKE_BUILD_TYPE})
   set(COMPILE_PLATFORM_PATH ${COMPILE_PLATFORM}_${BUILD_TYPE})
-else()
+else ()
   add_compile_definitions(NAKAMA_ENABLE)
-endif()
+endif ()
 
-add_compile_definitions(TRACY_ENABLE)
+if (RETAIL_MODE)
+  add_compile_definitions(RETAIL_MODE)
+  add_compile_definitions(IMGUI_DISABLE)
+  add_compile_definitions(TRACY_DISABLE)
+else ()
+  add_compile_definitions(IMGUI_ENABLE)
+  add_compile_definitions(TRACY_ENABLE)
+endif ()
 
 set(FETCHCONTENT_QUIET OFF)
 include(FetchContent)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Raylib.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/Tracy.cmake)
+
+if (NOT RETAIL_MODE)
+  include(${CMAKE_SOURCE_DIR}/cmake/Tracy.cmake)
+  add_subdirectory(source/ImGui)
+endif ()
 
 # Projects
-add_subdirectory(source/ImGui)
 add_subdirectory(source/Utility)
 add_subdirectory(source/Core)
 add_subdirectory(source/Rendering)

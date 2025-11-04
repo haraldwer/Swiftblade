@@ -9,4 +9,4 @@ views:
       - file.name
     sort:
       - property: file.name
-        direction: DESC
+        direction: ASC

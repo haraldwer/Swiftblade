@@ -8,7 +8,12 @@ include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
 # Link projects
 target_link_libraries(${PROJECT_NAME}
     raylib
-    ImGui
-    TracyClient
     Utility
 )
+
+if (NOT RETAIL_MODE)
+    target_link_libraries(${PROJECT_NAME}
+        ImGui
+        TracyClient
+    )
+endif ()

@@ -1,4 +1,6 @@
 
+if (NOT RETAIL_MODE)
+
 set(TRACY_ENABLE ON CACHE BOOL "" FORCE)
 set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
 set(TRACY_STATIC ON CACHE BOOL "" FORCE)
@@ -11,3 +13,5 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(tracy)
+    
+endif ()

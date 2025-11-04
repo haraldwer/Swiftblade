@@ -11,9 +11,10 @@ void Composition::Fill(uint64 InFrame, float* InSamples, uint32 InFrames, uint32
     Effects.Get().Fill(InFrame, InSamples, InFrames, InSampleRate);
 }
 
+
 bool Composition::Edit(const String &InName, uint32 InOffset)
 {
-    //ImGui::ShowDemoWindow();
+#ifdef IMGUI_ENABLE
 
     bool result = false;
     if (ImGui::BeginTable("Comp", 2, ImGuiTableFlags_BordersInner))
@@ -47,6 +48,10 @@ bool Composition::Edit(const String &InName, uint32 InOffset)
         ImGui::EndTable();
     }
         
-    return result;    
+    return result;
+    
+#else
+    return false;
+#endif
 }
 

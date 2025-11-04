@@ -1,6 +1,8 @@
 #include "Manager.h"
 
+#ifdef IMGUI_ENABLE
 #include "ImGui/Knobs/imgui-knobs.h"
+#endif
 
 void Audio::Manager::Init()
 {
@@ -16,6 +18,9 @@ void Audio::Manager::Deinit()
 void Audio::Manager::Update()
 {
 }
+
+
+#ifdef IMGUI_ENABLE
 
 void Audio::Manager::DrawDebugPanel()
 {
@@ -40,3 +45,9 @@ void Audio::Manager::DrawDebugPanel()
     ImGui::SetNextItemWidth(-FLT_MIN);
     ImGui::PlotLines("##AudioOut", audioData.Data.data(), static_cast<int>(audioData.Data.size()), 0, 0, FLT_MAX, FLT_MAX, plotSize);
 }
+
+#else
+
+void Audio::Manager::DrawDebugPanel() { }
+
+#endif

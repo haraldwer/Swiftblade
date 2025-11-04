@@ -74,6 +74,8 @@ void RoomSubEditorManager::Frame()
         e.second.Get().Frame();
 }
 
+#ifdef IMGUI_ENABLE
+
 void RoomSubEditorManager::DebugDraw()
 {
     String editorName = editors.at(GetCurrent().GetHash()).Get<>().GetObjName();
@@ -81,6 +83,8 @@ void RoomSubEditorManager::DebugDraw()
     for (auto& e : editors)
         e.second.Get().Frame();
 }
+
+#endif
 
 void RoomSubEditorManager::SetCurrent(const Type &InType)
 {

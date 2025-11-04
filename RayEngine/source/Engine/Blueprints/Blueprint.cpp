@@ -22,6 +22,8 @@ bool BlueprintResource::Unload()
     return true;
 }
 
+#ifdef IMGUI_ENABLE
+
 bool BlueprintResource::Edit(const String &InName, uint32 InOffset)
 {
     if (ImGui::Button("Edit"))
@@ -29,6 +31,12 @@ bool BlueprintResource::Edit(const String &InName, uint32 InOffset)
             editor->SetPendingBP(ResBlueprint(id));
     return false;
 }
+
+#else
+
+bool BlueprintResource::Edit(const String &InName, uint32 InOffset) { return false; }
+
+#endif
 
 ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides, const ECS::EntityID InID) const
 {

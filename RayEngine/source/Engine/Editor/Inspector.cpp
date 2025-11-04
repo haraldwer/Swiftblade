@@ -1,5 +1,7 @@
 #include "Inspector.h"
 
+#ifdef IMGUI_ENABLE
+
 #include "EditorFunctions.h"
 
 void Inspector::DrawDebugPanel()
@@ -17,3 +19,9 @@ void Inspector::DrawDebugPanel()
         EditComponents(hierarchySelected);
     ImGui::End();
 }
+
+#else
+
+void Inspector::DrawDebugPanel() {  }
+
+#endif

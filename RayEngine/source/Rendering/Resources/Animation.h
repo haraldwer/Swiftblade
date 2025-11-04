@@ -37,12 +37,6 @@ namespace Rendering
         
         typedef Map<int, Curve> Curves;
         typedef Map<String, Curves> Object;
-
-        struct Action
-        {
-            String name;
-            int frame;
-        };
         
         String name;
         Vec2F frameRange;
@@ -50,7 +44,7 @@ namespace Rendering
         float duration_seconds = 0.0f;
         float fps = 24.0f;
         Map<String, Object> objects;
-        Vector<Action> actions;
+        Map<String, Set<int>> actions;
     };
     
     class AnimationResource : Resource::Base
@@ -65,12 +59,14 @@ namespace Rendering
         Mat4F Get(const String& InObject, float InTime);
         float GetCurve(const String& InObject, const String& InKey, float InTime, int InIndex = 0);
         float GetDuration() const { return data.duration_seconds; }
+        bool GetAction(const String& InAction, float InPrevTime, float InCurrentTime);
         
     private:
-        Vec3F ReadVec3(AnimationData::Object& InObject, const String& InKey, float InTime);
-        float ReadFloat(AnimationData::Object& InObject, const String& InKey, int InIndex, float InTime);
+        Vec3F ReadVec3(AnimationData::Object& InObject, const String& InKey, float InTime) const;
+        float ReadFloat(AnimationData::Object& InObject, const String& InKey, int InIndex, float InTime) const;
         float Read(AnimationData::Curves& InCurves, int InIndex, float InTime) const;
         AnimationData::Sample GetSampleData(AnimationData::Curve& InCurve, float InTime, float& OutFrame) const;
+        float GetFrame(float InTime) const;
 
         AnimationData data;
     };

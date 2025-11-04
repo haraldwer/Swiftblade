@@ -268,6 +268,8 @@ void RoomEditor::FinalizeSubmit() const
         LOG("Failed to delete room file");
 }
 
+#ifdef IMGUI_ENABLE
+
 void RoomEditor::DrawDebugPanel()
 {
     if (IsFreecam())
@@ -277,13 +279,19 @@ void RoomEditor::DrawDebugPanel()
     subEditorManager.DebugDraw();
 }
 
+#else
+void RoomEditor::DrawDebugPanel() {  }
+#endif
+
 bool RoomEditor::CanEdit() const
 {
     if (IsFreecam())
         return false;
     if (menu->GetUI().IsHovered())
         return false;
+#ifdef IMGUI_ENABLE
     if (ImGui::IsAnyItemActive())
         return false;
+#endif
     return true; 
 }
