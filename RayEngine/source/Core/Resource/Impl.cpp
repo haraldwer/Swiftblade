@@ -6,17 +6,18 @@
 
 #include "ImGui/imgui.h"
 
-String Resource::Pick(const String& InLabel, const String& InID)
+String Resource::Pick(const String& InLabel, const String& InID, uint32 InOffset)
 {
-    const auto find = InLabel.find_first_of("##");
-    const String substr = find == String::npos ? InLabel : InLabel.substr(0, find);
-    if (!substr.empty())
+    if (Utility::BeginTable(InLabel, InOffset))
     {
-        ImGui::Text("%s: ", substr.c_str());
-        ImGui::SameLine(); 
+        if (ImGui::Button((InID + "##" + InLabel).c_str(), ImVec2(-1, 0)))
+            ImGui::OpenFileBrowser(InID);
+        else
+            ImGui::SetItemTooltip(InID.c_str());
+            
+        Utility::EndTable(InOffset);
     }
-    if (ImGui::Button((InID + "##" + InLabel).c_str()))
-        ImGui::OpenFileBrowser(InID);
+    
     String result; 
     if (ImGui::FetchFileBrowserResult(InID, result))
         return result;

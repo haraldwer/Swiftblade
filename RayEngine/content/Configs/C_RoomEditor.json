@@ -1,14 +1,14 @@
 {
 	"CamPos":[
-		7.097088813781738,
-		5.370060920715332,
-		19.996509552001953
+		-21.383678436279297,
+		6.196066856384277,
+		5.319238662719727
 	],
-	"EditMode":"RoomVolumeEditor",
-	"LastRoom":"User/Rooms/R_0598592c-a8fd-4ec4-b357-117a98efce4b.json",
+	"EditMode":"RoomPreviewEditor",
+	"LastRoom":"User/Rooms/R_01db6b30-01e7-4cf9-b827-0ea4c75c2fcd.json",
 	"CamRot":[
-		0.4342038631439209,
-		48.77789306640625,
+		0.16420483589172363,
+		51.591800689697266,
 		0.0
 	]
 }

@@ -5,7 +5,7 @@
 #include "Debug/Panel.h"
 
 #ifndef PACK_PATH
-#define PACK_PATH "C:\\Dev\\content"
+#define PACK_DIR "/package/"
 #endif
 
 #ifndef PACK_CHUNK_SIZE
@@ -69,6 +69,7 @@ namespace Utility
         void DrawDebugPanel() override;
     private:
         bool packaged = false;
+        bool result = false;
     };
 }
 

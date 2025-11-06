@@ -19,6 +19,12 @@ void RoomObjectEditor::Deinit()
     config.SaveConfig(); 
 }
 
+void RoomObjectEditor::DebugDraw()
+{
+    if (config.Edit())
+        config.SaveConfig();
+}
+
 void RoomObjectEditor::Update()
 {
     CHECK_RETURN(!IsCurrent());
@@ -60,7 +66,7 @@ void RoomObjectEditor::TryPickObject()
         LOG("Pick!");
         
         auto& roomData = config.Types.Get().at(GetRoom().Info.Get().Type.Get());
-        CHECK_RETURN_LOG(!roomData.contains(pick), "Unknown object type when picked: " + pick);
+        CHECK_RETURN_LOG(!roomData.Objects.Get().contains(pick), "Unknown object type when picked: " + pick);
         
         // Create new!
         EditRoomObject obj;
@@ -295,10 +301,10 @@ ECS::EntityID RoomObjectEditor::CreateObject(const EditRoomObject &InObj) const
 {
     int type = GetRoom().Info.Get().Type.Get();
     auto& data = config.Types.Get();
-    if (!data.contains(type))
-        return -1;
+    CHECK_RETURN(!data.contains(type), ECS::INVALID_ID)
     auto& roomData = data.at(type);
-    auto& objType = roomData.at(InObj.Object);
+    CHECK_RETURN(!roomData.Objects.Get().contains(InObj.Object), ECS::INVALID_ID)
+    auto& objType = roomData.Objects.Get().at(InObj.Object);
     auto bp = objType.BP.Get().Get();
     CHECK_RETURN_LOG(!bp, "Unknown object type: " + InObj.Object.Get(), ECS::INVALID_ID);
     return bp->Instantiate(GetTrans(InObj));

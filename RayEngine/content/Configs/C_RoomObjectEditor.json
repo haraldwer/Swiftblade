@@ -1,77 +1,54 @@
 {
-	"Types": [
-		{
-			"Key": "ROOM",
-			"Val": {
-				"HasStart": true,
-				"HasEnd": true,
-				"Objects": [
-					{
-						"Key": "Checkpoint",
-						"Val": {
-							"BP":"Gameplay/BP_Checkpoint.json",
-							"Icon":"Defaults/T_Missing.png"
+	"Types":[{
+			"Key":0,
+			"Val":{
+				"Objects":[{
+						"Key":"Checkpoint",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Checkpoint.png",
+							"BP":"Gameplay/BP_Checkpoint.json"
 						}
-					},
-					{
-						"Key": "Enemy",
-						"Val": {
-							"BP":"Gameplay/Enemies/BP_Enemy.json",
-							"Icon":"Defaults/T_Missing.png"
-						}
-					}
-				] 
-			}
-		},
-
-
-		{
-			"Key": "ARENA",
-			"Val": {
-				"HasStart": true,
-				"HasEnd": true,
-				"Objects": [
-					{
-						"Key": "Enemy",
-						"Val": { 
-							"BP":"Gameplay/Enemies/BP_Enemy.json",
-							"Icon":"Defaults/T_Missing.png"
+					},{
+						"Key":"Enemy",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Enemy.png",
+							"BP":"Gameplay/Enemies/BP_Enemy.json"
 						}
 					}
 				]
 			}
-		},
-
-
-		{
-			"Key": "START",
-			"Val": {
-				"HasStart": true,
-				"HasEnd": true,
-				"Objects": [
-					{
-						"Key": "Sword",
-						"Val": {
-							"BP":"Gameplay/Player/BP_Sword.json",
-							"Icon":"Defaults/T_Missing.png"
+		},{
+			"Key":1,
+			"Val":{
+				"Objects":[{
+						"Key":"Enemy",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Enemy.png",
+							"BP":"Gameplay/Enemies/BP_Enemy.json"
 						}
 					}
 				]
 			}
-		},
-
-
-		{
-			"Key": "END",
-			"Val": {
-				"HasStart": true,
-				"HasEnd": true,
-				"Objects": [
-					{
-						"Key": "Checkpoint",
-						"Val": {
-							"BP":"Gameplay/BP_Checkpoint.json",
-							"Icon":"Defaults/T_Missing.png"
+		},{
+			"Key":2,
+			"Val":{
+				"Objects":[{
+						"Key":"Sword",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Sword.png",
+							"BP":"Gameplay/Player/BP_Sword.json"
+						}
+					}
+				]
+			}
+		},{
+			"Key":3,
+			"Val":{
+				"Objects":[{
+						"Key":"Checkpoint",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Checkpoint.png",
+							"BP":"Gameplay/BP_Checkpoint.json"
 						}
 					}
 				]

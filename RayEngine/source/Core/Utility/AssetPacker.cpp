@@ -21,7 +21,7 @@ bool Utility::AssetPackGenerator::Package()
     rapidjson::Writer writer(s);
     assets.Serialize(writer);
     const String hash = std::to_string(Hash(String("reg")));
-    const String path = String(PACK_PATH)  + "_" + hash;
+    const String path = String(PACK_DIR)  + "_" + hash;
     String content = FormatJson(s.GetString());
     Encrypt(content, 0, PACK_KEY);
     if (!WriteFile(path, content))
@@ -32,7 +32,11 @@ bool Utility::AssetPackGenerator::Package()
 
 bool Utility::AssetPackGenerator::BeginChunk()
 {
-    const String path = String(PACK_PATH) + "_" + std::to_string(Hash(chunkCount));
+    std::filesystem::path curr = std::filesystem::current_path();
+    curr.concat(PACK_DIR);
+    CreateDir(curr.string());
+    curr.concat(std::to_string(Hash(chunkCount)));
+    const String path = curr.string();
     LOG("Opening chunk: " + path);
     currentChunk.open(path, std::ios::out);
     return currentChunk.is_open();
@@ -66,9 +70,6 @@ bool Utility::AssetPackGenerator::ProcessDir(const String& InPath)
 
 bool Utility::AssetPackGenerator::ProcessFile(const std::filesystem::directory_entry& InEntry)
 {
-    if (InEntry.path() == String(PACK_PATH))
-        return true;
-
     if (!currentChunk.is_open())
         if (!BeginChunk())
             return false;
@@ -135,8 +136,7 @@ Utility::AssetPackReader::AssetPackReader()
     AssetRegistry registry;
 
     const String hash = std::to_string(Hash(String("reg")));
-    const String path = String(PACK_PATH)  + "_" + hash;
-    String fileContent = ReadFile(path);
+    String fileContent = ReadFile(hash);
     CHECK_RETURN_LOG(fileContent.empty(), "Pack file empty");
     Decrypt(fileContent, 0, PACK_KEY);
     rapidjson::Document doc;
@@ -171,7 +171,7 @@ String Utility::AssetPackReader::Read(const String& InFile) const
 
 String Utility::AssetPackReader::ReadChunk(uint64 InChunk, uint64 InStart, uint64 InEnd)
 {
-    String path = String(PACK_PATH) + "_" + std::to_string(Hash(InChunk));
+    String path = String(PACK_DIR) + "_" + std::to_string(Hash(InChunk));
     std::ifstream stream;
     stream.open(path, std::ios::in);
     if (!stream.is_open())
@@ -186,19 +186,33 @@ String Utility::AssetPackReader::ReadChunk(uint64 InChunk, uint64 InStart, uint6
     return chunk;
 }
 
+#ifdef IMGUI_ENABLE
+
 void Utility::AssetPacker::DrawDebugPanel()
 {
     ImGui::Text("This tool will package game assets");
     ImGui::Text("Package can be found at:");
-    ImGui::Text(PACK_PATH);
+    std::filesystem::path path = PACK_DIR;
+    ImGui::Text(path.string().c_str());
     
     if (ImGui::Button("Package", ImVec2(-1, 0)))
     {
         AssetPackGenerator generator;
-        generator.Package();
+        result = generator.Package();
         packaged = true;
     }
     
     if (packaged)
-        ImGui::Text("Completed!");
+    {
+        if (result)
+            ImGui::Text("Completed!");
+        else
+            ImGui::Text("Failed...");
+    }
 }
+
+#else
+
+void Utility::AssetPacker::DrawDebugPanel() {  }
+
+#endif

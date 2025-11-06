@@ -13,19 +13,6 @@ void RoomSubEditor::Deinit()
     editor = nullptr;
 }
 
-#ifdef IMGUI_ENABLE
-
-void RoomSubEditor::DebugDraw()
-{
-    if (IsCurrent())
-        ImGui::Text("Current room: %s", this->GetObjName().c_str());
-}
-
-#else
-void RoomSubEditor::DebugDraw() {  }
-#endif
-
-
 ECS::EntityID RoomSubEditor::GetVolumeID() const
 {
     CHECK_ASSERT(!editor, "Invalid editor")

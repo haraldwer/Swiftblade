@@ -23,6 +23,7 @@ void MenuRoomObjects::Update()
 
     // Targetoffset grows
     // We need to mod
+    float size = static_cast<float>(objects.size());
 
     
 
@@ -30,7 +31,10 @@ void MenuRoomObjects::Update()
     for (int i = 0; i < static_cast<int>(objects.size()); i++)
     {
         auto& object = objects[i];
-        float offset = (scrollOffset + i) * spacing;
+        float halfsize = size / 2;
+        float index = scrollOffset + i - size * 100.0f;
+        float modi = fmodf(index - halfsize, size) + halfsize;
+        float offset = modi * spacing;
 
         // TODO: Make index wrap around?
         // TODO: Rotational offset
@@ -60,7 +64,7 @@ void MenuRoomObjects::SetConfig(const RoomObjectEditorConfig &InConfig, const Ro
         return;
     
     auto& roomTypeData = data.at(type);
-    for (auto& e : roomTypeData)
+    for (auto& e : roomTypeData.Objects.Get())
     {
         auto& entry = objects.emplace_back();
         entry.name = e.first;

@@ -18,16 +18,16 @@ struct RoomObject : PropertyOwner<RoomObject>
     PROPERTY(ResTexture, Icon);
 };
 
-typedef Map<String, RoomObject> RoomTypeMap;
+typedef Map<String, RoomObject> RoomObjectMap;
 
 struct RoomTypeData : PropertyOwner<RoomTypeData>
 {
-    PROPERTY(RoomTypeMap, Objects)
+    PROPERTY(RoomObjectMap, Objects)
     PROPERTY_D(bool, HasStart, true);
     PROPERTY_D(bool, HasEnd, true);
 };
 
-typedef Map<int, RoomTypeMap> RoomTypes;
+typedef Map<int, RoomTypeData> RoomTypes;
 
 struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 {
@@ -47,6 +47,7 @@ class RoomObjectEditor : public RoomSubEditor
 public:
     void Init() override;
     void Deinit() override;
+    void DebugDraw() override;
     
     void Update() override;
     void Frame() override;

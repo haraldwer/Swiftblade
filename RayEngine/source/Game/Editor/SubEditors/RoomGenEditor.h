@@ -14,6 +14,7 @@ public:
     void Deinit() override;
     void Update() override;
     void Enter() override;
+    bool IsEnabled(RoomType InRoomType) override;
 
     void StartGen();
 

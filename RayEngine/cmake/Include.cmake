@@ -5,4 +5,5 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/source
     ${PROJECT_INCLUDES}
+    ${tiny_aes_c_SOURCE_DIR}
 )

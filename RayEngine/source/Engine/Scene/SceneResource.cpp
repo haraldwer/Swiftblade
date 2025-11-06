@@ -35,6 +35,7 @@ String SceneInstance::ToStr(const bool InFormat) const
         auto& ecs = ECS::Manager::Get();
         for (const ECS::EntityID entity : entities)
         {
+            CHECK_CONTINUE_LOG(entity == ECS::INVALID_ID, "Tried to serialize invalid entity");
             writer.StartObject();
             
             // Write blueprint name

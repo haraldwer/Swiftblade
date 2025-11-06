@@ -28,6 +28,11 @@ void RoomPathEditor::Deinit()
     config.SaveConfig();
 }
 
+bool RoomPathEditor::IsEnabled(RoomType InRoomType)
+{
+    return InRoomType == RoomType::ROOM;
+}
+
 void RoomPathEditor::Update()
 {
     CHECK_RETURN(GetCurrent() == Type::Get<RoomConnectionEditor>());

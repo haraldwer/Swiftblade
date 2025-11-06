@@ -122,7 +122,7 @@ namespace Resource
         {
             // File picker
             const String currID = ptr ? ptr->id.Str() : "";
-            const String newID = Pick(InName, currID);
+            const String newID = Pick(InName, currID, InOffset);
             if (currID != newID)
             {
                 *this = Ref(newID); 

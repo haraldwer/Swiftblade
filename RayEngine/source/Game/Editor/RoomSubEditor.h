@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Engine/ECS/Entity.h"
+#include "Level/RoomInfo.h"
 
 struct EditRoom;
 class RoomEditor;
@@ -28,11 +29,12 @@ public:
 
     virtual void Update() {}
     virtual void Frame() {}
-    virtual void DebugDraw();
+    virtual void DebugDraw() {}
 
     virtual void Enter() {}
     virtual void Exit() {}
     virtual bool IgnoreSave(ECS::EntityID InID) { return false; }
+    virtual bool IsEnabled(RoomType InRoomType) { return true; }
     
     ECS::EntityID GetVolumeID() const;
     ECS::CubeVolume& GetVolume() const;
@@ -49,6 +51,6 @@ public:
     Vec3F DragMoveDelta(const Vec3F &InRef) const;
     
 private:
+    String option;
     RoomEditor* editor = nullptr;
-    
 };

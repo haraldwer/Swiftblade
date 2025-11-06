@@ -15,11 +15,21 @@ namespace UI
         CLASS_INFO(ToggleSelector, List);
 
     public:
-        ToggleSelector(const Transform& InTransform = Transform::Fill(), const Vector<ToggleSelectorEntry>& InToggles = {}, const ListProperties& InProperties = { 10, ListDirection::HORIZONTAL }) : List(InTransform, InProperties), toggles(InToggles) {}
+        ToggleSelector(
+            const Transform& InTransform = Transform::Fill(),
+            const Vector<ToggleSelectorEntry>& InToggles = {},
+            const ListProperties& InProperties = {
+                .spacing=10,
+                .direction=ListDirection::HORIZONTAL
+            }) :
+            List(InTransform, InProperties), toggles(InToggles) {}
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
 
         String GetSelected() const;
+        int GetSelectedIndex() const;
+        void SetSelectedIndex(int InIndex);
+        void SetSelected(String InValue);
 
     private:
         Vector<ToggleSelectorEntry> toggles;

@@ -7,6 +7,8 @@
 #include "Collections/SortedInsert.h"
 #include "ImGui/imgui.h"
 
+#ifdef IMGUI_ENABLE
+
 void AssetBrowser::Init()
 {
     expanded.insert(std::filesystem::current_path());
@@ -115,7 +117,8 @@ void AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node& InNode
     InNode.name = Utility::StringRemove(InPath.filename().string(), InPath.extension().string());
     InNode.ext = InPath.extension().string();
     InNode.dir = is_directory(InPath);
-    InNode.size = static_cast<int>(file_size(InPath));
+    if (!InNode.dir)
+        InNode.size = static_cast<int>(file_size(InPath));
     InNode.date = std::chrono::clock_cast<std::chrono::system_clock>(last_write_time(InPath));
 
     if (!InNode.dir)
@@ -163,7 +166,8 @@ void AssetBrowser::DrawNode(Node& InNode)
     ImGui::Text(InNode.ext.c_str());
 
     ImGui::TableNextColumn();
-    ImGui::Text(Utility::ToStr(InNode.size).c_str());
+    if (InNode.size > 0)
+        ImGui::Text(Utility::ToStr(InNode.size).c_str());
     ImGui::TableNextColumn();
 
     ImGui::Text(Utility::ToStr(InNode.date).c_str());
@@ -207,3 +211,11 @@ void AssetBrowser::Search(const String& InStr)
     };
     func(root);
 }
+
+#else
+
+void AssetBrowser::Init() {}
+void AssetBrowser::Deinit() {}
+void AssetBrowser::DrawDebugPanel() {}
+
+#endif

@@ -13,6 +13,8 @@ public:
 
 private:
 
+#ifdef IMGUI_ENABLE
+    
     struct Node
     {
         std::filesystem::path path;
@@ -49,4 +51,6 @@ private:
     String search;
     Vector<String> searchSplit;
     Set<std::filesystem::path> searchResult;
+
+#endif
 };

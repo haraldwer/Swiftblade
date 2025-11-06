@@ -19,6 +19,12 @@ void UI::InfoPanelEditRoom::Init(Container &InOwner)
 {
     Container::Init(InOwner);
 
+    Vector<ToggleSelectorEntry> roomTypes = {{"ROOM"}, {"ARENA"}};
+#ifndef RETAIL_MODE
+    roomTypes.push_back({"START"});
+    roomTypes.push_back({"END"});
+#endif
+    
     Builder b = Builder(Container({
                 .alignment = 1,
                 .margins = 10
@@ -42,7 +48,7 @@ void UI::InfoPanelEditRoom::Init(Container &InOwner)
                         }), "NameEdit")
                     .Pop()
                 .Pop()
-            .Add(ToggleSelector({}, {{"Room"}, {"Arena"}, {"Start"}, {"End"}}), "RoomType")
+            .Add(ToggleSelector({}, roomTypes), "RoomType")
             .Add(LabelText(), "Length")
             .Add(LabelText(), "Size")
             .Add(LabelText(), "Objects")
@@ -97,9 +103,12 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
     auto& toggle = Get<ToggleSelector>("RoomType");
     if (toggle.IsClicked())
     {
-        InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
         if (auto res = room.Get())
-            res->data.Info.Get().Type.Get() = static_cast<int>(FromStr(toggle.GetSelected()));
+        {
+            res->data.Info.Get().Type = toggle.GetSelectedIndex();
+            res->Save();
+        }
+        InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
     }
 
     if (Get<ButtonDefault>("Open").IsClicked())
@@ -140,6 +149,8 @@ void UI::InfoPanelEditRoom::SetResourceInfo(const EditRoom& InRoom)
     
     SetText("Name", name);
     Get<Textbox>("NameEdit").SetText(name);
+    Get<ToggleSelector>("RoomType").SetSelectedIndex(InRoom.Info.Get().Type.Get());
+        
     SetText("Creator", "by " + creator);
     SetText("Length", "Length: " + Utility::ToStr(length) + " units");
     SetText("Size", "Size: " + Utility::ToStr(size.x) + "x" + Utility::ToStr(size.y) + "x" + Utility::ToStr(size.z));

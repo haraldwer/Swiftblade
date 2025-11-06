@@ -12,14 +12,15 @@
 #include "SubEditors/RoomPreviewEditor.h"
 
 #define CREATE_SUBEDITOR(x, name) \
-editors[Type::GetHash<x>()] = x(); \
-menu.AddOption(#x, name)
+auto CONCAT(hash,x) = Type::GetHash<x>(); \
+editors[CONCAT(hash,x)] = x(); \
+auto& CONCAT(obj,x) = editors.at(CONCAT(hash,x)).Get(); \
+CONCAT(obj,x).editor = InEditor; \
+CONCAT(obj,x).option = name;
 
 void RoomSubEditorManager::Init(RoomEditor* InEditor)
 {
     CHECK_ASSERT(!InEditor, "Invalid editor")
-
-    auto& menu = InEditor->GetMenu();
     
     CREATE_SUBEDITOR(RoomConnectionEditor, "Connection");
     CREATE_SUBEDITOR(RoomPathEditor, "Path");
@@ -27,10 +28,16 @@ void RoomSubEditorManager::Init(RoomEditor* InEditor)
     CREATE_SUBEDITOR(RoomVolumeEditor, "Block");
     CREATE_SUBEDITOR(RoomObjectEditor, "Objects");
     CREATE_SUBEDITOR(RoomPreviewEditor, "Preview");
-    
-    for (auto& e : editors)
-        e.second.Get().editor = InEditor;
 
+    roomType = static_cast<RoomType>(InEditor->GetRoom().Info.Get().Type.Get());
+    auto& menu = InEditor->GetMenu();
+    for (auto& editor : editors)
+    {
+        auto& e = editor.second.Get(); 
+        if (e.IsEnabled(roomType))
+            menu.AddOption(e.GetObjName(), e.option);
+    }
+        
     Get<RoomVolumeEditor>().Create();
     for (auto& e : editors)
         e.second.Get().Init();
@@ -61,8 +68,9 @@ void RoomSubEditorManager::Deinit()
 void RoomSubEditorManager::Update()
 {
     for (auto& e : editors)
-        if (Input::Action::Get(e.second.Get().GetObjName(), "RoomEditor").Pressed())
-            SetCurrent(Type(e.first));
+        if (e.second.Get().IsEnabled(roomType))
+            if (Input::Action::Get(e.second.Get().GetObjName(), "RoomEditor").Pressed())
+                SetCurrent(Type(e.first));
     
     for (auto& e : editors)
         e.second.Get().Update();
@@ -78,10 +86,12 @@ void RoomSubEditorManager::Frame()
 
 void RoomSubEditorManager::DebugDraw()
 {
-    String editorName = editors.at(GetCurrent().GetHash()).Get<>().GetObjName();
+    auto hash = GetCurrent().GetHash();
+    CHECK_RETURN(!editors.contains(hash))
+    String editorName = editors.at(hash).Get<>().GetObjName();
     ImGui::Text("Current room: %s", editorName.c_str());
     for (auto& e : editors)
-        e.second.Get().Frame();
+        e.second.Get().DebugDraw();
 }
 
 #endif
@@ -89,10 +99,11 @@ void RoomSubEditorManager::DebugDraw()
 void RoomSubEditorManager::SetCurrent(const Type &InType)
 {
     CHECK_RETURN(currentEditor == InType);
+    auto& c = editors.at(InType.GetHash()).Get();
+    CHECK_RETURN(!c.IsEnabled(roomType));
     if (editors.contains(currentEditor.GetHash()))
         editors.at(currentEditor.GetHash()).Get().Exit();
-    currentEditor = InType;
-    auto& c = editors.at(currentEditor.GetHash()).Get(); 
+    currentEditor = InType; 
     c.Enter();
     c.GetEditor().GetMenu().SetSelected(GetCurrentName());
 }
@@ -100,8 +111,9 @@ void RoomSubEditorManager::SetCurrent(const Type &InType)
 void RoomSubEditorManager::SetCurrent(const String &InName)
 {
     for (auto& editor : editors)
-        if (editor.second.Get().GetObjName() == InName)
-            SetCurrent(Type(editor.first));
+        if (editor.second.Get().IsEnabled(roomType))
+            if (editor.second.Get().GetObjName() == InName)
+                SetCurrent(Type(editor.first));
 }
 
 String RoomSubEditorManager::GetCurrentName() const

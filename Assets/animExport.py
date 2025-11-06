@@ -7,7 +7,7 @@ import os
 # =============================
 
 # Folder where JSON files will be exported.
-EXPORT_DIR = bpy.path.abspath("//animation_exports")
+EXPORT_DIR = bpy.path.abspath("//")
 
 os.makedirs(EXPORT_DIR, exist_ok=True)
 

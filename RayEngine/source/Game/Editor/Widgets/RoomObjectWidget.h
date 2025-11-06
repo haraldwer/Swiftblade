@@ -8,8 +8,9 @@ namespace UI
     {
         CLASS_INFO(RoomObjectWidget, Container);
     public:
-        RoomObjectWidget(const String& InEntry, const ResTexture& InIcon) : Container({.size = 200}, {}), Entry(InEntry), Icon(InIcon) {}
+        RoomObjectWidget(const String& InEntry, const ResTexture& InIcon) : Container({}, {}), Entry(InEntry), Icon(InIcon) {}
         void Init(Container &InOwner) override;
+        void Update(Container &InOwner) override;
 
     private:
         String Entry;

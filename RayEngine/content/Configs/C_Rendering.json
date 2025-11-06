@@ -1,4 +1,5 @@
 {
+	"DrawElementRects":true,
 	"Context":{
 		"FX":{
 			"Tonemapping":true,
@@ -24,11 +25,11 @@
 		]
 	},
 	"Viewport":{
-		"Height":1518,
-		"Width":2634
+		"Height":1508,
+		"Width":2077
 	},
 	"Window":{
-		"Height":1518,
-		"Width":2634
+		"Height":1508,
+		"Width":2077
 	}
 }

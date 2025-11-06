@@ -27,6 +27,11 @@ void RoomGenEditor::Enter()
         StartGen();
 }
 
+bool RoomGenEditor::IsEnabled(RoomType InRoomType)
+{
+    return InRoomType == RoomType::ROOM;
+}
+
 void RoomGenEditor::Update()
 {
     CHECK_RETURN(!IsCurrent())

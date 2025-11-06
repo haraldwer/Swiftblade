@@ -8,9 +8,6 @@ FetchContent_Declare(
 FetchContent_GetProperties(tiny_aes_c)
 if(NOT tiny_aes_c_POPULATED)
     FetchContent_MakeAvailable(tiny_aes_c)
-    add_library(tiny_aes STATIC ${tiny_aes_c_SOURCE_DIR}/aes.c )
-    target_include_directories(tiny_aes PUBLIC ${tiny_aes_c_SOURCE_DIR})
-
-    # TODO: Fix include path 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${tiny_aes_c_SOURCE_DIR})
+    add_library(tiny_aes_c STATIC ${tiny_aes_c_SOURCE_DIR}/aes.c )
+    target_include_directories(tiny_aes_c PUBLIC ${tiny_aes_c_SOURCE_DIR})
 endif()

@@ -30,3 +30,42 @@ String UI::ToggleSelector::GetSelected() const
         return "";
     return Get<Toggle>(selected).GetOption();
 }
+
+int UI::ToggleSelector::GetSelectedIndex() const
+{
+    auto children = GetChildren();
+    for (int i = 0; i < children.size(); i++)
+        if (children[i] == selected)
+            return i;
+    return 0;
+}
+
+void UI::ToggleSelector::SetSelectedIndex(int InIndex)
+{
+    auto children = GetChildren();
+    for (int i = 0; i < children.size(); i++)
+    {
+        auto id = children[i];
+        Get<Toggle>(id).SetToggled(i == InIndex);
+        if (i == InIndex)
+            selected = id;
+    }
+}
+
+
+void UI::ToggleSelector::SetSelected(String InValue)
+{
+    for (auto e : children)
+    {
+        auto& t = Get<Toggle>(e);
+        if (t.GetOption() == InValue)
+        {
+            t.SetToggled(true);
+            selected = e;
+        }
+        else
+        {
+            t.SetToggled(false);
+        }
+    }
+}

@@ -6,7 +6,6 @@
 #ifdef IMGUI_ENABLE
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_internal.h"
-#include "ImGui/imgui_themes.h"
 #endif
 
 void Input::Manager::Push(const String& InContext)
@@ -46,6 +45,7 @@ const Input::Action& Input::Manager::GetAction(const String& InAction, const Str
 const Input::Action& Input::Manager::GetActionInternal(const String& InAction, const String& InContext) const
 {
     CHECK_ASSERT(contextStack.empty(), "Stack empty")
+    CHECK_RETURN(!Rendering::Manager::Get().IsViewportClickable(), Action::Invalid());
     for (int i = static_cast<int>(contextStack.size()) - 1; i >= 0; i--)
     {
         auto& context = GetContext(contextStack[i]);

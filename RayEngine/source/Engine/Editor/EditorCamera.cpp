@@ -18,7 +18,7 @@ void EditorCamera::Update()
     }
 
     const bool previousEnableInput = bInputEnabled;
-    const Input::Action& rm = Input::Action::Get("RM"); 
+    const Input::Action& rm = Input::Action::Get("RM");
     bInputEnabled = bUseEditCamera && (!bRequireHold || rm.Down());  
     if (bInputEnabled != previousEnableInput)
     {
