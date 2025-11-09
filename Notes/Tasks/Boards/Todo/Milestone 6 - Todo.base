@@ -10,3 +10,4 @@ views:
     sort:
       - property: file.name
         direction: DESC
+    cardSize: 300

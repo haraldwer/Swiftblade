@@ -30,7 +30,7 @@ namespace Resource
             return false;
         }
         
-        bool Edit(const String &InName, uint32 InOffset) override
+        bool Edit(const String &InName, uint32 InOffset = 0) override
         {
             return data.Edit(InName, InOffset);
         }

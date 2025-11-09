@@ -27,6 +27,11 @@ ResTexture Rendering::NoiseTextureResource::Get() const
     return tex;
 }
 
+bool Rendering::NoiseTextureResource::EditAccept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("T_");
+}
+
 #ifdef IMGUI_ENABLE
 
 bool Rendering::NoiseTextureResource::Edit(const String& InName, const uint32 InOffset)

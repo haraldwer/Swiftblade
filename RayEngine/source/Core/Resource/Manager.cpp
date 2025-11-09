@@ -113,9 +113,10 @@ void Resource::Manager::DrawDebugPanel()
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 
-            bool select = selected == id;
-            if (ImGui::Selectable((res->id.Str() +"##" + Utility::ToStr(id)).c_str(), select, ImGuiSelectableFlags_SpanAllColumns))
-                selected = id;
+            if (ImGui::Selectable((res->id.Str() +"##" + Utility::ToStr(id)).c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
+            {
+                // TODO: Select in asset browser                
+            }
             ImGui::TableNextColumn();
             ImGui::Text("%i", res->count);
             ImGui::TableNextColumn();
@@ -123,27 +124,6 @@ void Resource::Manager::DrawDebugPanel()
         }
         ImGui::PopStyleVar();
         ImGui::EndTable(); 
-    }
-
-    if (resources.contains(selected))
-    {
-        auto res = resources.at(selected);
-        if (res)
-        {
-            static bool open;
-            open = true;
-            if (ImGui::Begin("Inspect resource", &open))
-            {
-                ImGui::Text("Resource: %s", res->id.Str().c_str());
-                ImGui::Text("Count: %i", res->count);
-                ImGui::Text("Loaded: %i", static_cast<int>(res->loaded));
-                ImGui::Separator();
-                res->Edit(res->id.Str()); 
-            }
-            ImGui::End();
-            if (!open)
-                selected = -1;
-        }
     }
 }
 

@@ -17,6 +17,11 @@ namespace UI
         Font* Get(uint32 InSize);
         Shader* GetShader() const;
 
+        static bool EditAccept(const String& InPath)
+        {
+            return InPath.ends_with(".ttf");          
+        }
+
     private:
         bool LoadSDFFont(uint32 InSize, Font*& InFontEntry) const;
         bool LoadFont(uint32 InSize, Font*& InFontEntry);

@@ -110,3 +110,13 @@ String Utility::GetCachePath(const String &InPath, String InExt)
         InExt = "." + InExt;
     return "Cache/" + ToStr(Hash(InPath)) + InExt; 
 }
+
+String Utility::Filename(const String &InPath)
+{
+    auto back = InPath.find_last_of("\\");
+    auto forw = InPath.find_last_of("/");
+    auto slash = Math::Max(
+        back == std::string::npos ? 0 : back,
+        forw == std::string::npos ? 0 : forw);
+    return InPath.substr(slash + 1);
+}

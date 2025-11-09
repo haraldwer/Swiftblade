@@ -104,7 +104,9 @@ bool Rendering::Manager::IsViewportClickable() const
 {
     if (hovered)
         return true;
-    return !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+    if (ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+        return false;
+    return true;
 }
 
 #else

@@ -20,12 +20,15 @@ namespace Rendering
     public:
         bool Load() override;
         bool Unload() override;
+        bool Edit(const String &InName = "", uint32 InOffset = 0) override;
         Utility::Timepoint GetEditTime() const override;
         
         bool Bake();
         bool IsBaked() const { return baked; }
         RenderTarget& Get() { return target; }
-    
+
+        static bool EditAccept(const String& InPath);
+        
     private:
         RenderTarget target;
         bool baked = false;

@@ -26,7 +26,6 @@ namespace Resource
         Map<uint32, ImplBase*> resources = {};
         Utility::Timer checkTimer = {};
         Vector<uint32> hotReloadQueue = {};
-        uint32 selected = -1;
         
         static constexpr float CHECK_INTERVAL = 0.05f; 
         static constexpr int CHECK_NUM = 1; 

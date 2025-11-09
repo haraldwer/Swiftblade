@@ -89,3 +89,8 @@ DeserializeObj BlueprintResource::GetObj() const
     const auto obj = docObj.GetObj();
     return obj; 
 }
+
+bool BlueprintResource::EditAccept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("BP_");
+}

@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 
+#include "AssetDetails.h"
 #include "Debug/Panel.h"
 
 class AssetBrowser : public Debug::Panel
@@ -11,7 +12,11 @@ public:
     String DebugPanelName() const override { return "Assets"; }
     void DrawDebugPanel() override;
 
+    void SelectAsset(const String& InPath);
+    
 private:
+    
+    AssetDetails details;
 
 #ifdef IMGUI_ENABLE
     
@@ -43,10 +48,15 @@ private:
     void UpdateCache(const std::filesystem::path& InPath, Node& InNode);
     std::function<bool(const Node &, const Node &)> GetSortFunc() const;
     void SelectNode(const Node& InNode);
+    void ClearSelection();
+    void NodeDragDrop(const Node & InNode);
+    void NodeContext(const Node & InNode);
+
     void DrawNode(Node& InNode);
     void Search(const String& InStr);
 
     Set<std::filesystem::path> expanded;
+    Set<std::filesystem::path> selected;
 
     String search;
     Vector<String> searchSplit;

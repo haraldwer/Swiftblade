@@ -25,6 +25,11 @@ bool Rendering::Particle::Edit(const String& InName, uint32 InOffset)
     return false;
 }
 
+bool Rendering::Particle::EditAccept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("PS_");
+}
+
 void Rendering::Particle::Bake()
 {
     data.InitialPosition.Get().Declare(0, "ALPHA");

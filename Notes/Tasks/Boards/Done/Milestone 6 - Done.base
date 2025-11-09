@@ -10,3 +10,4 @@ views:
     sort:
       - property: file.mtime
         direction: DESC
+    cardSize: 330

@@ -37,6 +37,8 @@ namespace Rendering
         bool Unload() override;
         bool Edit(const String& InName, uint32 InOffset = 0) override;
         ResTexture Get() const;
+
+        static bool EditAccept(const String& InPath);
         
     private:
         void Generate();

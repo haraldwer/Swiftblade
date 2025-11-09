@@ -33,7 +33,7 @@ int main()
 #include "Rendering/Manager.h"
 #include "Physics/Manager.h"
 #include "Debug/Log.h"
-#include "Editor/AssetBrowser.h"
+#include "../Engine/Editor/Assets/AssetBrowser.h"
 
 #include "Instances/MenuInstance.h"
 

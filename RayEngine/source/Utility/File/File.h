@@ -11,5 +11,6 @@ namespace Utility
     bool DeleteFile(const String& InPath);
     Timepoint GetFileWriteTime(const String& InPath);
     String GetCachePath(const String& InPath, String InExt);
+    String Filename(const String& InPath);
 
 }

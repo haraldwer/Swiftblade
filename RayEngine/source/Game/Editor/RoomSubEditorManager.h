@@ -29,7 +29,7 @@ public:
 
 
 private: 
-    Map<Utility::TypeHash, Object<RoomSubEditor>> editors;
+    OrderedMap<Utility::TypeHash, Object<RoomSubEditor>> editors;
     Type currentEditor;
     RoomType roomType;
     

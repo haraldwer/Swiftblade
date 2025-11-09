@@ -1,30 +1,12 @@
 {
 	"Types":[{
-			"Key":0,
+			"Key":3,
 			"Val":{
 				"Objects":[{
 						"Key":"Checkpoint",
 						"Val":{
 							"Icon":"Editor/Objects/T_Icon_Checkpoint.png",
 							"BP":"Gameplay/BP_Checkpoint.json"
-						}
-					},{
-						"Key":"Enemy",
-						"Val":{
-							"Icon":"Editor/Objects/T_Icon_Enemy.png",
-							"BP":"Gameplay/Enemies/BP_Enemy.json"
-						}
-					}
-				]
-			}
-		},{
-			"Key":1,
-			"Val":{
-				"Objects":[{
-						"Key":"Enemy",
-						"Val":{
-							"Icon":"Editor/Objects/T_Icon_Enemy.png",
-							"BP":"Gameplay/Enemies/BP_Enemy.json"
 						}
 					}
 				]
@@ -42,9 +24,27 @@
 				]
 			}
 		},{
-			"Key":3,
+			"Key":1,
 			"Val":{
 				"Objects":[{
+						"Key":"Enemy",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Enemy.png",
+							"BP":"Gameplay/Enemies/BP_Enemy.json"
+						}
+					}
+				]
+			}
+		},{
+			"Key":0,
+			"Val":{
+				"Objects":[{
+						"Key":"Enemy",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Enemy.png",
+							"BP":"Gameplay/Enemies/BP_Enemy.json"
+						}
+					},{
 						"Key":"Checkpoint",
 						"Val":{
 							"Icon":"Editor/Objects/T_Icon_Checkpoint.png",

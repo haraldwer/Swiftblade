@@ -35,8 +35,9 @@ namespace Rendering
 
         bool Load() override;
         bool Unload() override;
-        bool Edit(const String& InName, uint32 InOffset) override;
-        
+        bool Edit(const String& InName = "", uint32 InOffset = 0) override;
+        static bool EditAccept(const String& InPath);
+
     private:
         
         template <class T>

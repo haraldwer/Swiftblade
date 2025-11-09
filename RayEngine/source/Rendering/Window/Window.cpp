@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "raylib.h"
+#include "ImGui/ImPlot3D/implot3d.h"
 
 #ifdef IMGUI_ENABLE
 #include "ImGui/imgui_themes.h"
@@ -44,6 +45,7 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
 
 #ifdef IMGUI_ENABLE
         rlImGuiSetup(false);
+        ImPlot3D::CreateContext();
         ImGui::Theme3();
 #endif
     }
@@ -79,6 +81,7 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
 void Rendering::Window::Close()
 {
 #ifdef IMGUI_ENABLE
+    ImPlot3D::DestroyContext();
     rlImGuiShutdown();
 #endif
     

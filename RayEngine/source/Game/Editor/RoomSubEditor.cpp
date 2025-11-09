@@ -59,11 +59,11 @@ ECS::VolumeCoord RoomSubEditor::CameraTrace(const int32 InDist) const
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
     ECS::VolumeCoord hit = false;
     return sys.Trace(
-            GetVolumeID(),
-            camPos,
-            mouseDir,
-            InDist,
-            hit);
+        GetVolumeID(),
+        camPos,
+        mouseDir,
+        InDist,
+        hit);
 }
 
 ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
@@ -82,11 +82,11 @@ Vec3F RoomSubEditor::DragMove(Vec3F InRef) const
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysCubeVolume>();
     ECS::VolumeCoord hit = false;
     ECS::VolumeCoord trace = sys.Trace(
-            GetVolumeID(),
-            camPos,
-            mouseDir,
-            8,
-            hit);
+        GetVolumeID(),
+        camPos,
+        mouseDir,
+        8,
+        hit);
     if (hit.key != 0) return GetVolume().CoordToPos(trace);
 
     // Otherwise just drag on object plane!

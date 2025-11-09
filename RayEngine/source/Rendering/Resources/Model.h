@@ -15,12 +15,19 @@ namespace Rendering
         bool Unload() override;
         Model* Get() const;
         uint32 Hash() const;
+        bool Edit(const String &InName, uint32 InOffset = 0) override;
+
+        static bool EditAccept(const String& InPath)
+        {
+            return InPath.ends_with(".obj");          
+        }
         
     private:
         uint32 cachedHash = 0;
-        Model* ptr = nullptr; 
-    };
+        Model* ptr = nullptr;
 
+        Map<uint32, Vector<uint32>> editIndices;
+    };
 }
 
 typedef Resource::Ref<Rendering::ModelResource> ResModel;  

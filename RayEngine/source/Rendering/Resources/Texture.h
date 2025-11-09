@@ -17,7 +17,9 @@ namespace Rendering
         bool Edit(const String& InName, uint32 InOffset = 0) override;
         Utility::Timepoint GetEditTime() const override;
         Texture* Get() const { return ptr; }
-        
+
+        static bool EditAccept(const String& InPath);
+
     private:
         Texture* ptr = nullptr;
     };

@@ -21,7 +21,7 @@ namespace Input
         PROPERTY_D(bool, ConsumeCursor, true);
         
         String Name() const override { return "Input"; }
-        bool Edit(const String& InName, uint32 InOffset) override;
+        bool Edit(const String& InName = "", uint32 InOffset = 0) override;
         void UpdateCache();
         Map<String, int32> cachedContexts {};
     };
