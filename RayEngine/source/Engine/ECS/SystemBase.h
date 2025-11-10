@@ -38,6 +38,8 @@ namespace ECS
         static SystemBase* GetAnonymousSystem(const Utility::Type& InType, bool InIsCompHash);
         bool Contains(EntityID InID) const;
         Vector<EntityID> GetEntities() const;
+        bool Count() const { return entityToComponent.size(); }
+        bool Empty() const { return entityToComponent.empty(); }
 
     protected:
 

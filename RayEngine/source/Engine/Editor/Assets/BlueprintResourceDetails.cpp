@@ -38,3 +38,8 @@ void BlueprintResourceDetails::Draw()
             Utility::Cast<BlueprintEditor>(top)->SetBP(resource);
     }
 }
+
+bool BlueprintResourceDetails::Accept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("BP_");
+}

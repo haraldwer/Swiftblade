@@ -35,7 +35,10 @@ void Debug::Manager::Frame(const double InDeltaTime)
     if (IsKeyPressed(KEY_F2))
         current.DebugEnabled = !current.DebugEnabled;
 
-    CHECK_RETURN(!current.DebugEnabled); 
+    CHECK_RETURN(!current.DebugEnabled);
+
+    // Dockspace
+    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
     
     // Menu bar
     if (ImGui::BeginMainMenuBar())
@@ -87,9 +90,6 @@ void Debug::Manager::Frame(const double InDeltaTime)
         ImGui::SameLine();
         ImGui::EndMainMenuBar();
     }
-
-    // Dockspace
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
     // Windows
     for (const auto& entry : windows)

@@ -16,6 +16,7 @@ public:
     void Draw() override;
     
     bool AllowRawEdit() const override { return false; }
+    static bool Accept(const String& InPath);
 
 private:
     ResBlueprint resource;

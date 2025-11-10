@@ -157,7 +157,6 @@ namespace ImGui
 		style.GrabRounding = 20.0f;
 		style.TabRounding = 8.0f;
 		style.TabBorderSize = 0.0f;
-		style.TabMinWidthForCloseButton = 0.0f;
 		style.ColorButtonPosition = ImGuiDir_Right;
 		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 		style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
@@ -197,7 +196,6 @@ namespace ImGui
 		style.GrabRounding = 20.0f;
 		style.TabRounding = 4.0f;
 		style.TabBorderSize = 1.0f;
-		style.TabMinWidthForCloseButton = 0.0f;
 		style.ColorButtonPosition = ImGuiDir_Right;
 		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 		style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
@@ -289,7 +287,6 @@ namespace ImGui
 		style.TabRounding = 2.0f;
 		style.TabBorderSize = 0.0f;
 		style.TabBarBorderSize = 2.0f;
-		style.TabMinWidthForCloseButton = 5.0f;
 		style.ColorButtonPosition = ImGuiDir_Right;
 		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 		style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
@@ -364,7 +361,6 @@ namespace ImGui
 		ImGuiIO& io = GetIO();
 		io.Fonts->Clear();
 		font = io.Fonts->AddFontFromFileTTF("Defaults/F_FiraCode.ttf", stepSize);
-		rlImGuiReloadFonts();
 	}
 
 	inline void PushDefaultFont()
@@ -379,5 +375,8 @@ namespace ImGui
 			PopFont();
 	}
 
-	
+	inline void SetDefaultFlags()
+	{
+		GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	}
 }

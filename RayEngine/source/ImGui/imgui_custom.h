@@ -20,7 +20,9 @@ namespace ImGui
         // Draw content above the rectangle
         GetWindowDrawList()->ChannelsSetCurrent(1);
 
-        auto padding = GetStyle().WindowPadding * 0.5f;
+        auto padding = GetStyle().WindowPadding;
+        padding.x *= 0.5f;
+        padding.y *= 0.5f;
         PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
 
         auto *window = GetCurrentWindow();

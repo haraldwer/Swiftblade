@@ -6,6 +6,7 @@
 #endif
 
 #include "Blueprints/Blueprint.h"
+#include "ECS/Systems/Environment.h"
 #include "ECS/Systems/Transform.h"
 #include "Instance/Manager.h"
 #include "Game/Instances/GameInstance.h"
@@ -76,7 +77,15 @@ void BlueprintEditor::Logic(const double InDelta)
 
 void BlueprintEditor::Frame()
 {
-    ecs.Frame(); 
+    ecs.Frame();
+    
+    if (ecs.GetSystem<ECS::SysEnvironment>().Empty())
+    {
+        Rendering::EnvironmentInstance i;
+        i.skybox = config.DefaultSkybox;
+        GetRenderScene().AddEnvironment(i);
+    }
+    
     Instance::Frame();
 }
 

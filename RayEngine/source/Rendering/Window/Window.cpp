@@ -47,6 +47,7 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
         rlImGuiSetup(false);
         ImPlot3D::CreateContext();
         ImGui::Theme3();
+        ImGui::SetDefaultFlags();
 #endif
     }
     else if (config.Width != GetScreenWidth() || config.Height != GetScreenHeight())

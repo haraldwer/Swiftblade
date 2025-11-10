@@ -15,7 +15,8 @@ namespace ImGuizmo
         auto& viewport = Rendering::Manager::Get().mainViewport;
         Vec2F pos = viewport.GetPosition();
         Vec2F size = viewport.GetResolution().To<float>();
-        SetRect(pos.x, pos.y, size.x, size.y);
+        ImVec2 offset = ImGui::GetMainViewport()->Pos;
+        SetRect(pos.x - offset.x, pos.y - offset.y, size.x, size.y);
         
         // Get camera
         const Rendering::CameraInstance camInstance = Engine::Instance::Get().GetRenderScene().GetCamera();
