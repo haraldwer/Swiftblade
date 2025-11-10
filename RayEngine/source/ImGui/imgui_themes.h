@@ -288,10 +288,12 @@ namespace ImGui
 		style.GrabRounding = 1.0f;
 		style.TabRounding = 2.0f;
 		style.TabBorderSize = 0.0f;
+		style.TabBarBorderSize = 2.0f;
 		style.TabMinWidthForCloseButton = 5.0f;
 		style.ColorButtonPosition = ImGuiDir_Right;
 		style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 		style.SelectableTextAlign = ImVec2(0.0f, 0.0f);
+		style.CellPadding = ImVec2(6.0f, 2.0f);
 		
 		style.Colors[ImGuiCol_Text] = ImVec4(0.98039216f, 0.98039216f, 0.98039216f, 1.0f);
 		style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.49803922f, 0.49803922f, 0.49803922f, 1.0f);

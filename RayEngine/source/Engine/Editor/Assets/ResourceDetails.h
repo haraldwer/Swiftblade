@@ -1,8 +1,7 @@
 #pragma once
 #include "AssetDetailPanel.h"
-#include "Resources/Texture.h"
 
-template <class T>
+template <class T, bool RawEdit>
 class ResourceDetails : public AssetDetailPanel
 {
     CLASS_INFO(ResourceDetails, AssetDetailPanel);
@@ -12,7 +11,7 @@ public:
 
     void Draw() override
     {
-        ImGui::Text("Resource: %s", Utility::Filename(path).c_str());
+        DrawFileInfo();
     
         auto res = resource.Get();
         if (!res)
@@ -25,6 +24,8 @@ public:
         res->Edit("Details##" + path);
     }
     
+    bool AllowRawEdit() const override { return RawEdit; }
+    
     static bool Accept(const String& InPath)
     {
         return T::EditAccept(InPath);
@@ -33,3 +34,9 @@ public:
 private:
     Resource::Ref<T> resource;
 };
+
+template <class T>
+using TextResourceDetails = ResourceDetails<T, true>;
+
+template <class T>
+using FileResourceDetails = ResourceDetails<T, false>;

@@ -69,6 +69,9 @@ void BlueprintEditor::Logic(const double InDelta)
         if (Input::Action::Get("Play").Pressed())
             Engine::Manager::Get().Push<GameInstance>();
     }
+
+    if (Input::Action::Get("Back").Pressed())
+        Engine::Manager::Get().Pop();
 }
 
 void BlueprintEditor::Frame()
@@ -92,8 +95,13 @@ void BlueprintEditor::DrawDebugPanel()
         if (BlueprintResource* bp = config.Blueprint.Get().Get())
             bp->SaveEntity(instanceID);
 
+    ImGui::SameLine();
+    if (ImGui::Button("Close"))
+        Engine::Manager::Get().Pop();
+
     ImGui::SeparatorText("Hierarchy");
     EditHierarchy(instanceID, selectedID);
+    ImGui::SeparatorText("Components");
     EditComponents(selectedID);
 }
 

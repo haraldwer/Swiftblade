@@ -16,9 +16,12 @@ public:
     
     void Draw() override
     {
+        DrawFileInfo();
         if (config.Edit())
             config.Save(path);
     }
+
+    bool AllowRawEdit() const override { return true; }
     
     static bool Accept(const String& InPath)
     {

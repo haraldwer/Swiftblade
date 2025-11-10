@@ -69,8 +69,7 @@ inline void EditComponents(const ECS::EntityID InID)
     {
         CHECK_ASSERT(!sys.second, "System nullptr");
         CHECK_CONTINUE(!sys.second->Contains(InID));
-        const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-        if (ImGui::CollapsingHeader(text(sys.first, InID).c_str(), flags))
+        if (ImGui::CollapsingHeader(text(sys.first, InID).c_str()))
         {
             ImGui::Spacing();
             if (ImGui::BeginSection(false))

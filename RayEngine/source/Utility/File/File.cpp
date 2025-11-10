@@ -89,8 +89,35 @@ void Utility::CreateDir(const String &InPath)
 
 bool Utility::DeleteFile(const String &InPath)
 {
+    LOG("Deleting " + InPath)
     CHECK_RETURN(!FileExists(InPath), false)
     return std::filesystem::remove(InPath);
+}
+
+bool Utility::CopyFile(const String &InFrom, const String &InTo, bool InRename)
+{
+    String newPath = InTo;
+    if (FileExists(newPath) && InRename)
+    {
+        auto s = std::filesystem::path(InTo);
+        String pathStart = s.parent_path();
+        String fullName = Filename(s.string());
+        auto extLoc = fullName.find_last_of('.');
+        String ext = extLoc == std::string::npos ? "" : fullName.substr(extLoc);
+        String name = fullName.substr(0, extLoc);
+
+        int postfix = 0;
+        do
+        {
+            postfix++;
+            newPath = pathStart + "/" + name + "_" + ToStr(postfix) + ext;
+        }
+        while (FileExists(newPath));
+    }
+    
+    LOG("Copying " + InFrom + " to " + newPath);
+    std::filesystem::copy(InFrom, newPath, std::filesystem::copy_options::overwrite_existing);
+    return FileExists(newPath);
 }
 
 Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
@@ -109,6 +136,17 @@ String Utility::GetCachePath(const String &InPath, String InExt)
     if (!InExt.contains("."))
         InExt = "." + InExt;
     return "Cache/" + ToStr(Hash(InPath)) + InExt; 
+}
+
+String Utility::RelativePath(const String &InPath)
+{
+    auto current = std::filesystem::current_path();
+    auto currStr = current.string();
+    auto find = InPath.find_first_of(currStr);
+    if (find == String::npos)
+        return InPath; // Already relative
+    auto result = InPath.substr(find + currStr.length() + 1);
+    return result;
 }
 
 String Utility::Filename(const String &InPath)

@@ -25,7 +25,7 @@ bool Rendering::ModelResource::Unload()
     return true; 
 }
 
-Model*Rendering::ModelResource::Get() const
+Model* Rendering::ModelResource::Get() const
 {
     if (IsModelValid(*ptr))
         return ptr;
@@ -44,60 +44,72 @@ bool Rendering::ModelResource::Edit(const String &InName, uint32 InOffset)
         ImGui::Text("Failed to load model");
         return false;
     }
-
-    ImGui::Text("Meshes: %i", ptr->meshCount);
-    ImGui::Text("Materials: %i", ptr->materialCount);
-    ImGui::Text("Bones: %i", ptr->boneCount);
-
-    for (int i = 0; i < ptr->meshCount; i++)
-    {
-        auto& mesh = ptr->meshes[i];
-        ImGui::SeparatorText(("Mesh " + Utility::ToStr(i)).c_str());
-        ImGui::Text("Vertices: %i", mesh.vertexCount);
-        ImGui::Text("Triangles: %i", mesh.triangleCount);
-        
-        if (mesh.indices) ImGui::Text("Contains indices");
-        if (mesh.texcoords) ImGui::Text("Contains texcoord");
-        if (mesh.normals) ImGui::Text("Contains normals");
-        if (mesh.tangents) ImGui::Text("Contains tangents");
-        if (mesh.colors) ImGui::Text("Contains colors");
-    }
     
-    if (ImPlot3D::BeginPlot(Utility::GetEditName(InName, InOffset).c_str(), ImVec2(-1, -1), ImPlot3DFlags_NoLegend | ImPlot3DFlags_Equal | ImPlot3DFlags_NoClip | ImPlot3DFlags_NoTitle))
+    if (ImGui::CollapsingHeader(("Stats##" + Utility::ToStr(InOffset)).c_str()))
     {
+        ImGui::Text("Meshes: %i", ptr->meshCount);
+        ImGui::Text("Materials: %i", ptr->materialCount);
+        ImGui::Text("Bones: %i", ptr->boneCount);
+
         for (int i = 0; i < ptr->meshCount; i++)
         {
-            // Choose line color
-            ImVec4 line_color = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
-            ImVec4 fill_color = ImVec4(0.8f, 0.8f, 1.0f, 1.0f);
-            ImVec4 marker_color = ImVec4(0.2f, 0.2f, 1.0f, 1.0f);
-            
-            // Set fill style
-            ImPlot3D::SetNextFillStyle(fill_color);
-            ImPlot3D::SetNextLineStyle(line_color);
-            ImPlot3D::SetNextMarkerStyle(ImPlot3DMarker_Circle, 3, marker_color, IMPLOT3D_AUTO, marker_color);
-            
             auto& mesh = ptr->meshes[i];
-            auto& indices = editIndices[i];
-            if (indices.empty())
-            {
-                if (mesh.indices)
-                    for (int index = 0; index < mesh.triangleCount * 3; index++)
-                        indices.push_back(mesh.indices[index]);
-                else
-                    for (int index = 0; index < mesh.triangleCount * 3; index++)
-                        indices.push_back(index);
-            }
+            ImGui::SeparatorText(("Mesh " + Utility::ToStr(i)).c_str());
+            ImGui::Text("Vertices: %i", mesh.vertexCount);
+            ImGui::Text("Triangles: %i", mesh.triangleCount);
             
-            ImPlot3D::PlotMesh(
-                Utility::GetEditName(InName, InOffset + i).c_str(),
-                reinterpret_cast<const ImPlot3DPoint*>(mesh.vertices),
-                indices.data(),
-                mesh.vertexCount,
-                indices.size(),
-                ImPlot3DMeshFlags_None);
+            if (mesh.indices) ImGui::Text("Contains indices");
+            if (mesh.texcoords) ImGui::Text("Contains texcoord");
+            if (mesh.normals) ImGui::Text("Contains normals");
+            if (mesh.tangents) ImGui::Text("Contains tangents");
+            if (mesh.colors) ImGui::Text("Contains colors");
         }
-        ImPlot3D::EndPlot();
     }
+    
+    ImGuiTreeNodeFlags flags = 0;
+    if (InOffset == 0)
+        flags |= ImGuiTreeNodeFlags_DefaultOpen;
+    
+    if (ImGui::CollapsingHeader(("Preview##" + Utility::ToStr(InOffset)).c_str(), flags))
+    {
+        float width = ImGui::GetWindowWidth();
+        if (ImPlot3D::BeginPlot(Utility::GetEditName(InName, InOffset).c_str(), ImVec2(width, width), ImPlot3DFlags_NoLegend | ImPlot3DFlags_Equal | ImPlot3DFlags_NoClip | ImPlot3DFlags_NoTitle))
+        {
+            for (int i = 0; i < ptr->meshCount; i++)
+            {
+                // Choose line color
+                ImVec4 line_color = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
+                ImVec4 fill_color = ImVec4(0.8f, 0.8f, 1.0f, 1.0f);
+                ImVec4 marker_color = ImVec4(0.2f, 0.2f, 1.0f, 1.0f);
+                
+                // Set fill style
+                ImPlot3D::SetNextFillStyle(fill_color);
+                ImPlot3D::SetNextLineStyle(line_color);
+                ImPlot3D::SetNextMarkerStyle(ImPlot3DMarker_Circle, 3, marker_color, IMPLOT3D_AUTO, marker_color);
+                
+                auto& mesh = ptr->meshes[i];
+                auto& indices = editIndices[i];
+                if (indices.empty())
+                {
+                    if (mesh.indices)
+                        for (int index = 0; index < mesh.triangleCount * 3; index++)
+                            indices.push_back(mesh.indices[index]);
+                    else
+                        for (int index = 0; index < mesh.triangleCount * 3; index++)
+                            indices.push_back(index);
+                }
+                
+                ImPlot3D::PlotMesh(
+                    Utility::GetEditName(InName, InOffset + i).c_str(),
+                    reinterpret_cast<const ImPlot3DPoint*>(mesh.vertices),
+                    indices.data(),
+                    mesh.vertexCount,
+                    indices.size(),
+                    ImPlot3DMeshFlags_None);
+            }
+            ImPlot3D::EndPlot();
+        }
+    }
+    
     return false;
 }

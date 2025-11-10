@@ -12,86 +12,137 @@
 void AssetBrowser::Init()
 {
     expanded.insert(std::filesystem::current_path());
-    running = true;
-    thread = std::thread([&]()
-    {
-        while (running)
-        {
-            Node newRoot;
-            UpdateCache(std::filesystem::current_path(), newRoot);
-            rootLock.lock();
-            if (root != newRoot)
-            {
-                root = newRoot;
-                Search(search);
-            }
-            rootLock.unlock();
-            std::this_thread::sleep_for(std::chrono::seconds(3));
-        }
-    });
+    TryStartThread();
 }
 
 void AssetBrowser::Deinit()
 {
-    running = false;
-    thread.join();
+    TryStopThread();
+}
+
+void AssetBrowser::TryStartThread()
+{
+    if (!running)
+    {
+        running = true;
+        thread = std::thread([&]
+        {
+            while (running)
+            {
+                Node newRoot;
+                UpdateCache(std::filesystem::current_path(), newRoot);
+                rootLock.lock();
+                if (root != newRoot)
+                {
+                    root = newRoot;
+                    Search(search);
+                }
+                rootLock.unlock();
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+        });
+    }
+}
+
+void AssetBrowser::TryStopThread()
+{
+    if (running)
+    {
+        running = false;
+        thread.join();
+    }
+}
+
+void AssetBrowser::ForceUpdateCache()
+{
+    if (!editLocked)
+        rootLock.lock();
+    Node newRoot;
+    UpdateCache(std::filesystem::current_path(), newRoot);
+    root = newRoot;
+    if (!editLocked)
+        rootLock.unlock();
+}
+
+void AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node& InNode)
+{
+    InNode.path = InPath;
+    InNode.name = Utility::StringRemove(InPath.filename().string(), InPath.extension().string());
+    InNode.ext = InPath.extension().string();
+    InNode.dir = is_directory(InPath);
+    if (!InNode.dir)
+        InNode.size = static_cast<int>(file_size(InPath));
+    InNode.date = std::chrono::clock_cast<std::chrono::system_clock>(last_write_time(InPath));
+
+    if (!InNode.dir)
+        return;
+
+    std::function<bool(const Node&, const Node&)> sortFunc = GetSortFunc();
+    for (auto& path : std::filesystem::directory_iterator(InPath))
+    {
+        Node childNode;
+        UpdateCache(path, childNode);
+        Utility::SortedInsert(InNode.children, childNode, sortFunc);
+    }
+
+    if (sortRev)
+    {
+        auto rev = std::ranges::views::reverse(InNode.children);
+        InNode.children = { rev.begin(), rev.end() };
+    }
 }
 
 void AssetBrowser::DrawDebugPanel()
 {
     ImGui::SetNextItemWidth(-1);
     String newSearch = search;
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Search: ");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(-1);
     ImGui::InputText("##AssetSearch", &newSearch, ImGuiInputTextFlags_AutoSelectAll);
     if (newSearch != search)
         Search(newSearch);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(7, 7));
-    if (ImGui::BeginChild("AssetPanel", ImVec2(-1, -1), ImGuiChildFlags_AlwaysUseWindowPadding))
+    
+    if (ImGui::BeginTable("Assets", 3, ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersOuter))
     {
-        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(7, 0));
-        if (ImGui::BeginTable("Assets", 3, ImGuiTableFlags_ScrollY))
+        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Date", ImGuiTableColumnFlags_WidthFixed);
+
+        auto header = [&](String InName, Sort InMode)
         {
-            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
-            ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn("Date", ImGuiTableColumnFlags_WidthFixed);
-
-            auto header = [&](String InName, Sort InMode)
+            ImGui::TableHeader(InName.c_str());
+            if (ImGui::IsItemClicked())
             {
-                ImGui::TableHeader(InName.c_str());
-                if (ImGui::IsItemClicked())
+                if (sort == InMode)
+                    sortRev = !sortRev;
+                else
                 {
-                    if (sort == InMode)
-                        sortRev = !sortRev;
-                    else
-                    {
-                        sort = InMode;
-                        sortRev = false;
-                    }
-                    rootLock.lock();
-                    Node newRoot;
-                    UpdateCache(std::filesystem::current_path(), newRoot);
-                    root = newRoot;
-                    rootLock.unlock();
+                    sort = InMode;
+                    sortRev = false;
                 }
-            };
+                ForceUpdateCache();
+            }
+        };
 
-            ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
-            ImGui::TableSetColumnIndex(0);
-            header("Name", Sort::NAME);
-            ImGui::TableSetColumnIndex(1);
-            header("Size", Sort::SIZE);
-            ImGui::TableSetColumnIndex(2);
-            header("Date", Sort::DATE);
+        ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+        ImGui::TableSetColumnIndex(0);
+        header("Name", Sort::NAME);
+        ImGui::TableSetColumnIndex(1);
+        header("Size", Sort::SIZE);
+        ImGui::TableSetColumnIndex(2);
+        header("Date", Sort::DATE);
 
-            rootLock.lock();
-            DrawNode(root);
-            rootLock.unlock();
-            ImGui::EndTable();
-        }
-        ImGui::PopStyleVar();
-        ImGui::EndChild();
+        rootLock.lock();
+        editLocked = true;
+        DrawNode(root);
+        rootLock.unlock();
+        editLocked = false;
+        ImGui::EndTable();
     }
-    ImGui::PopStyleVar();
+
+    DrawAddMenu();
 }
 
 void AssetBrowser::SelectAsset(const String &InPath)
@@ -135,35 +186,28 @@ std::function<bool(const AssetBrowser::Node&, const AssetBrowser::Node&)> AssetB
 void AssetBrowser::SelectNode(const Node& InNode)
 {
     bool singleSelect = !ImGui::IsKeyDown(ImGuiKey_LeftShift);
-    
-    if (InNode.dir && singleSelect)
-    {
-        if (expanded.contains(InNode.path))
-            expanded.erase(InNode.path);
-        else
-            expanded.insert(InNode.path);
-        return;
-    }
+    bool alreadySelected = selected.contains(InNode.path);
+    bool openDirectly = selected.empty();
     
     if (singleSelect)
-        ClearSelection();
+        selected.clear();
+    selected.insert(InNode.path);
 
-    if (selected.contains(InNode.path))
+    if (InNode.dir)
     {
-        selected.erase(InNode.path);
-        details.Deselect(InNode.path);
+        if (singleSelect)
+        {
+            if (!expanded.contains(InNode.path) || !alreadySelected)
+                expanded.insert(InNode.path);
+            else expanded.erase(InNode.path);
+        }
     }
-    else
+    else if (alreadySelected || openDirectly)
     {
-        selected.insert(InNode.path);
-        details.Select({ InNode.path.string() });
+        if (singleSelect)
+            details.Clear();
+        details.Select({ Utility::RelativePath(InNode.path.string()) });
     }
-}
-
-void AssetBrowser::ClearSelection()
-{
-    selected.clear();
-    details.Clear();
 }
 
 void AssetBrowser::NodeDragDrop(const Node &InNode)
@@ -184,61 +228,128 @@ void AssetBrowser::NodeDragDrop(const Node &InNode)
 
 void AssetBrowser::NodeContext(const Node &InNode)
 {
-    // Context menu
-    if (ImGui::BeginPopupContextItem(InNode.name.c_str()))
+    if (ImGui::BeginPopupContextItem(InNode.path.c_str()))
     {
-        ImGui::SeparatorText(InNode.name.c_str());        
-        if (ImGui::Selectable("Select##Popup"))
+        if (!selected.contains(InNode.path))
             SelectNode(InNode);
+        
+        if (selected.size() <= 1) ImGui::SeparatorText(InNode.name.c_str());
+        else ImGui::SeparatorText((Utility::ToStr(selected.size()) + " assets").c_str());
 
-        if (InNode.dir)
+        if (ImGui::Selectable("Open##Popup"))
         {
-            const bool exp = expanded.contains(InNode.path);
-            if (ImGui::Selectable(exp ? "Collapse##Popup" : "Expand##Popup"))
-                if (exp) expanded.erase(InNode.path);
-                else expanded.insert(InNode.path);
+            details.Clear();
+            for (auto& s : selected)
+                if (!is_directory(s))
+                    details.Select({ Utility::RelativePath(s.string()) });
         }
 
-        ImGui::Separator();
-
-        if (ImGui::Selectable("Cut##Popup")) {}
-        if (ImGui::Selectable("Copy##Popup")) {}
-        if (ImGui::Selectable("Duplicate##Popup")) {}
-        if (ImGui::Selectable("Delete##Popup")) {}
+        if (ImGui::Selectable("Add##Popup"))
+        {
+            if (InNode.dir)
+            {
+                addPath = InNode.path;
+                addName = "";
+            }
+            else
+            {
+                addPath = InNode.path.parent_path();
+                addName = InNode.name + InNode.ext;
+            }
+            
+            openAdd = true;
+        }
         
         ImGui::Separator();
-
+        
+        if (ImGui::Selectable("Cut##Popup")) BeginCut();
+        if (ImGui::Selectable("Copy##Popup")) BeginCopy();
+        if (ImGui::Selectable("Paste##Popup")) Paste();
+        if (ImGui::Selectable("Duplicate##Popup")) Duplicate();
+        if (ImGui::Selectable("Delete##Popup")) Delete();
 
         ImGui::EndPopup();
     }
 }
 
-void AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node& InNode)
+void AssetBrowser::KeyboardShortcuts()
 {
-    InNode.path = InPath;
-    InNode.name = Utility::StringRemove(InPath.filename().string(), InPath.extension().string());
-    InNode.ext = InPath.extension().string();
-    InNode.dir = is_directory(InPath);
-    if (!InNode.dir)
-        InNode.size = static_cast<int>(file_size(InPath));
-    InNode.date = std::chrono::clock_cast<std::chrono::system_clock>(last_write_time(InPath));
-
-    if (!InNode.dir)
-        return;
-
-    std::function<bool(const Node&, const Node&)> sortFunc = GetSortFunc();
-    for (auto& path : std::filesystem::directory_iterator(InPath))
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
     {
-        Node childNode;
-        UpdateCache(path, childNode);
-        Utility::SortedInsert(InNode.children, childNode, sortFunc);
+        if (ImGui::IsKeyPressed(ImGuiKey_C)) BeginCopy();
+        if (ImGui::IsKeyPressed(ImGuiKey_X)) BeginCut();
+        if (ImGui::IsKeyPressed(ImGuiKey_V)) Paste();
+        if (ImGui::IsKeyPressed(ImGuiKey_D)) Duplicate();
+        if (ImGui::IsKeyPressed(ImGuiKey_Delete)) Delete();
     }
+    
+    if (ImGui::IsKeyPressed(ImGuiKey_Enter))
+        for (auto& s : selected)
+            if (!is_directory(s))
+                details.Select({ Utility::RelativePath(s) });
+}
 
-    if (sortRev)
+void AssetBrowser::BeginCut()
+{
+    LOG("Begin cut");
+    String cutCmd = "CUT:";
+    for (auto& s : selected)
+        cutCmd += s.string() + ";";
+    ImGui::SetClipboardText(cutCmd.c_str());
+}
+
+void AssetBrowser::BeginCopy()
+{
+    LOG("Begin copy");
+    String copyCmd = "CPY:";
+    for (auto& s : selected)
+        copyCmd += s.string() + ";";
+    ImGui::SetClipboardText(copyCmd.c_str());
+}
+
+void AssetBrowser::Paste()
+{
+    String clip = ImGui::GetClipboardText();
+    if (clip.starts_with("CUT:") || clip.starts_with("CPY:"))
     {
-        auto rev = std::ranges::views::reverse(InNode.children);
-        InNode.children = { rev.begin(), rev.end() };
+        Set<std::filesystem::path> targetDirs;
+        if (selected.empty())
+            return;
+        for (auto& s : selected)
+            if (is_directory(s)) targetDirs.insert(s);
+            else targetDirs.insert(s.parent_path());
+        
+        String content = clip.substr(4);
+        Utility::StringSplit(content, ";", [&](const String& sourcePath)
+        {
+            String name = Utility::Filename(sourcePath);
+            for (auto& t : targetDirs)
+            {
+                String targetPath = t.string() + "/" + name;
+                Utility::CopyFile(sourcePath, targetPath, true);
+            }
+
+            if (clip.starts_with("CUT:"))
+                Utility::DeleteFile(sourcePath);
+        });
+
+        ForceUpdateCache();
+        ImGui::SetClipboardText("");
     }
+}
+
+void AssetBrowser::Duplicate()
+{
+    for (auto& s : selected)
+        Utility::CopyFile(s, s, true);
+    ForceUpdateCache();
+}
+
+void AssetBrowser::Delete()
+{
+    for (auto& s : selected)
+        Utility::DeleteFile(s);
+    ForceUpdateCache();
 }
 
 void AssetBrowser::DrawNode(Node& InNode)
@@ -252,8 +363,11 @@ void AssetBrowser::DrawNode(Node& InNode)
 
     bool select = selected.contains(InNode.path);
     float height = ImGui::CalcTextSize("T").y + 2;
-    if (ImGui::Selectable(InNode.name.c_str(), select, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, height)))
+    String itemName = InNode.name + "##" + InNode.path.string();
+    if (ImGui::Selectable(itemName.c_str(), select, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, height)))
         SelectNode(InNode);
+    if (ImGui::IsItemHovered())
+        KeyboardShortcuts();
     NodeContext(InNode);
     NodeDragDrop(InNode);
     
@@ -307,6 +421,54 @@ void AssetBrowser::Search(const String& InStr)
         return result;
     };
     func(root);
+}
+
+void AssetBrowser::DrawAddMenu()
+{
+    if (openAdd)
+    {
+        ImGui::OpenPopup("Create asset");
+        openAdd = false;
+    }
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    if (ImGui::BeginPopupModal("Create asset", nullptr))
+    {
+        ImGui::Text("Filename");
+        ImGui::SetNextItemWidth(-1);
+        ImGui::InputText("##Filename", &addName);
+
+        String path = addPath + "/" + addName;
+        ImGui::Text("Path: %s", Utility::RelativePath(path).c_str());
+        
+        if (addName.empty())
+        {
+            ImGui::Text("Error: No name specified");
+        }
+        else if (Utility::FileExists(path))
+        {
+            ImGui::Text("Error: File already exists");
+        }
+        else if (ImGui::Button("Create##Asset", ImVec2(-1, 0)))
+        {
+            Utility::WriteFile(path, "");
+            addName = "";
+            addPath = "";
+            ImGui::CloseCurrentPopup();
+            ForceUpdateCache();
+            SelectAsset(path);
+        }
+
+        if (ImGui::Button("Cancel##Asset", ImVec2(-1, 0)))
+        {
+            ImGui::CloseCurrentPopup();
+            addName = "";
+            addPath = "";
+        }
+        
+        ImGui::EndPopup();
+    }
 }
 
 #else

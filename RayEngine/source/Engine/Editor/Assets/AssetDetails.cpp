@@ -1,5 +1,6 @@
 #include "AssetDetails.h"
 
+#include "BlueprintResourceDetails.h"
 #include "Config.h"
 #include "TextDetails.h"
 #include "ResourceDetails.h"
@@ -24,6 +25,8 @@ void AssetDetails::DrawDebugPanel()
         bool open = true;
         
         String name = "Details: " + Utility::Filename(details[i].Get().path);
+        if (counter != 0)
+            ImGui::SetNextWindowSizeConstraints(ImVec2(400, 400), ImVec2(10000, 10000));
         if (counter == 0 || ImGui::Begin(name.c_str(), &open))
             detail.Get().Draw();
         if (counter != 0)
@@ -70,13 +73,14 @@ void AssetDetails::OpenPanel(const String& InPath)
 #define ASSET_TRY_OPEN(T) if (T::Accept(InPath)) ASSET_OPEN(T)
 #define ASSET_TRY_OPEN_FUNC(T, acceptFunc, acceptParam) if (acceptFunc(acceptParam, InPath)) ASSET_OPEN(T)
 
-    ASSET_TRY_OPEN(ResourceDetails<Rendering::TextureResource>);
-    ASSET_TRY_OPEN(ResourceDetails<Rendering::NoiseTextureResource>);
-    ASSET_TRY_OPEN(ResourceDetails<Rendering::ModelResource>);
-    ASSET_TRY_OPEN(ResourceDetails<Rendering::BakedTexture>);
-    ASSET_TRY_OPEN(ResourceDetails<Rendering::Particle>);
-    ASSET_TRY_OPEN(ResourceDetails<UI::FontResource>);
-    ASSET_TRY_OPEN(ResourceDetails<BlueprintResource>);
+    ASSET_TRY_OPEN(FileResourceDetails<Rendering::TextureResource>);
+    ASSET_TRY_OPEN(FileResourceDetails<Rendering::ModelResource>);
+    ASSET_TRY_OPEN(FileResourceDetails<UI::FontResource>);
+    
+    ASSET_TRY_OPEN(TextResourceDetails<Rendering::NoiseTextureResource>);
+    ASSET_TRY_OPEN(TextResourceDetails<Rendering::BakedTexture>);
+    ASSET_TRY_OPEN(TextResourceDetails<Rendering::Particle>);
+    ASSET_TRY_OPEN(BlueprintResourceDetails);
     
     ASSET_TRY_OPEN(ConfigDetails<Rendering::Config>);
     ASSET_TRY_OPEN(ConfigDetails<Input::Config>);
@@ -88,8 +92,8 @@ void AssetDetails::OpenPanel(const String& InPath)
         return Utility::Filename(InPath).starts_with(InPrefix) && InPath.ends_with(".json");
     };
     
-    ASSET_TRY_OPEN_FUNC(ResourceDetails<PhysicsMaterialResource>, jsonPrefixFunc, "PM_");
-    ASSET_TRY_OPEN_FUNC(ResourceDetails<Rendering::MaterialResource>, jsonPrefixFunc, "RM_");
+    ASSET_TRY_OPEN_FUNC(TextResourceDetails<PhysicsMaterialResource>, jsonPrefixFunc, "PM_");
+    ASSET_TRY_OPEN_FUNC(TextResourceDetails<Rendering::MaterialResource>, jsonPrefixFunc, "RM_");
     
     ASSET_TRY_OPEN(TextDetails);
     ASSET_TRY_OPEN(AssetDetailPanel);

@@ -10,7 +10,7 @@ public:
     void Deinit();
 
     void SetState(const Vec3F &InPos, const Vec3F &InRot);
-    void SetTarget(const Vec3F& InPosition, float InDistance = 10.0f);
+    void SetTarget(const Vec3F& InPosition, float InDistance = 7.0f);
     Vec3F GetPosition() const { return currentState.position; }
     Vec3F GetRotation() const { return currentState.rotation; };
     

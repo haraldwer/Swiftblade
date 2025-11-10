@@ -241,7 +241,8 @@ bool SysTransform::EditGizmo(EntityID InID)
     static int gizmoOperation = 0;
     static bool useSnap = true;
 
-    if (!Engine::Instance::Get().GetEditorCamera().IsControlling())
+    if (Rendering::Manager::Get().IsViewportClickable() &&
+        !Engine::Instance::Get().GetEditorCamera().IsControlling())
     {
         if (IsKeyPressed(KEY_W))
             gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;

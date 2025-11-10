@@ -1,8 +1,6 @@
 #include "TextDetails.h"
 
 #include "File/File.h"
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_stdlib.h"
 
 void TextDetails::Init()
 {
@@ -11,13 +9,8 @@ void TextDetails::Init()
 
 void TextDetails::Draw()
 {
-    ImGui::Text("Asset: %s", path.c_str());
-    if (ImGui::Button("Save"))
-        Utility::WriteFile(path, content);
-    ImGui::SameLine();
-    if (ImGui::Button("Reload"))
-        content = Utility::ReadFile(path);
-    ImGui::InputTextMultiline(("##" + path).c_str(), &content, ImVec2(-1, -1));
+    DrawFileInfo();
+    RawTextEdit();
 }
 
 bool TextDetails::Accept(const String &InPath)
