@@ -9,7 +9,7 @@
 
 bool Rendering::NoiseTextureResource::Load()
 {
-    if (!Utility::FileExists(GetCachePath()))
+    if (!Utility::File::Exists(GetCachePath()))
         Generate();
     tex = ResTexture(GetCachePath());
     PropertyFile::Load();
@@ -29,7 +29,7 @@ ResTexture Rendering::NoiseTextureResource::Get() const
 
 bool Rendering::NoiseTextureResource::EditAccept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("T_");
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("T_");
 }
 
 #ifdef IMGUI_ENABLE
@@ -133,7 +133,7 @@ void Rendering::NoiseTextureResource::Generate()
     
     // Cache file
     const String filename = GetCachePath();
-    Utility::CreateDir(filename);
+    Utility::File::CreateDir(filename);
     
     const int channels = 4;
     const int result = stbi_write_png(filename.c_str(), res, res, channels, arr, channels * res);
@@ -214,5 +214,5 @@ void Rendering::NoiseTextureResource::Generate(Color* InData, const int InResolu
 
 String Rendering::NoiseTextureResource::GetCachePath() const
 {
-    return Utility::GetCachePath(id.Str(), ".png"); 
+    return Utility::File::GetCachePath(id.Str(), ".png"); 
 }

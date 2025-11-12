@@ -20,7 +20,7 @@ namespace Resource
         virtual Utility::Timepoint GetEditTime() const
         {
             if (id.IsValid() && !id.Unique())
-                return Utility::GetFileWriteTime(id.Str());
+                return Utility::File::GetWriteTime(id.Str());
             return Utility::Timepoint();
         }
         

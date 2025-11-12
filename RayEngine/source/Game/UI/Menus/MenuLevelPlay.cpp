@@ -55,7 +55,7 @@ void MenuLevelPlay::BeginLoading()
             LOG("Invalid id")
             return;
         }
-        res = Utility::GetCachePath(levelEntry.entry.ID, ".json");
+        res = Utility::File::GetCachePath(levelEntry.entry.ID, ".json");
     }
         
     if (auto level = res.Get())
@@ -80,7 +80,7 @@ void MenuLevelPlay::ReceiveLevel(const DB::Response<DB::RPCLevelInfo>& InRespons
     }
 
     // Create cache level
-    String path = Utility::GetCachePath(InResponse.data.ID, ".json");
+    String path = Utility::File::GetCachePath(InResponse.data.ID, ".json");
     if (!InResponse.data.Data.Get().Save(path))
     {
         LOG("Failed to save: " + path)
@@ -123,7 +123,7 @@ void MenuLevelPlay::RequestRoom(const String& InRoom)
     if (pendingRoomRequests.contains(InRoom))
         return;
 
-    ResScene res = Utility::GetCachePath("scene_" + InRoom, ".json");
+    ResScene res = Utility::File::GetCachePath("scene_" + InRoom, ".json");
     if (res.Get())
     {
         sceneResources[InRoom] = res;
@@ -149,7 +149,7 @@ void MenuLevelPlay::ReceiveRoom(const DB::Response<DB::RPCRoomInfo> &InResponse)
     }
 
     // Create cache room
-    String roomPath = Utility::GetCachePath(id, ".json");
+    String roomPath = Utility::File::GetCachePath(id, ".json");
     if (!InResponse.data.Info.Get().Save(roomPath))
     {
         // TODO: Show error
@@ -158,8 +158,8 @@ void MenuLevelPlay::ReceiveRoom(const DB::Response<DB::RPCRoomInfo> &InResponse)
     }
 
     // Create cache scene
-    String scenePath = Utility::GetCachePath("scene_" + id, ".json");
-    if (!Utility::WriteFile(scenePath, InResponse.data.Scene.Get()))
+    String scenePath = Utility::File::GetCachePath("scene_" + id, ".json");
+    if (!Utility::File::Write(scenePath, InResponse.data.Scene.Get()))
     {
         // TODO: Show error
         LOG("Failed to save: " + scenePath)

@@ -8,6 +8,7 @@ namespace Resource
     // Editing
     String Pick(const String& InLabel, const String& InID, uint32 InOffset);
     bool SaveButton(const String& InID);
+    void ShowInvalid(const String& InID);
 
     struct ImplBase
     { 

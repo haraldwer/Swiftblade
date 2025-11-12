@@ -38,7 +38,7 @@ void Debug::Log::DrawDebugPanel()
             else if (log.contains("WARN |"))
                 color = ImVec4(1, 1, 0.5, 1);
             else if (log.contains("INFO |"))
-                color = ImVec4(0.7, 0.7, 0.7, 1);
+                color = ImVec4(0.5, 0.5, 0.5, 1);
             if (color != ImVec4(1, 1, 1, 1))
                 ImGui::PushStyleColor(ImGuiCol_Text, color);
             ImGui::TextUnformatted(log.c_str());

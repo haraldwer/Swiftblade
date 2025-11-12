@@ -74,11 +74,11 @@ void UI::BrowseCreatePanel::NewLevel(const LevelEntryData &InData)
     CHECK_RETURN_LOG(hash.empty(), "Failed to generate hash");
     String fileName = "L_" + hash + ".json";
     String path = "User/Levels/" + fileName;
-    CHECK_RETURN_LOG(Utility::FileExists(path), "Failed to create file, it already exists");
+    CHECK_RETURN_LOG(Utility::File::Exists(path), "Failed to create file, it already exists");
     LOG("Creating level file: " + path);
-    Utility::CreateDir(path);
-    Utility::WriteFile(path, "{}");
-    if (!Utility::FileExists(path))
+    Utility::File::CreateDir(path);
+    Utility::File::Write(path, "{}");
+    if (!Utility::File::Exists(path))
         LOG("Failed to create level: " + path);
 
     LevelEntryData newData;
@@ -101,11 +101,11 @@ void UI::BrowseCreatePanel::NewRoom(const EditRoomEntryData& InData)
     CHECK_RETURN_LOG(hash.empty(), "Failed to generate hash");
     String fileName = "R_" + hash + ".json";
     String path = "User/Rooms/" + fileName;
-    CHECK_RETURN_LOG(Utility::FileExists(path), "Failed to create file, it already exists");
+    CHECK_RETURN_LOG(Utility::File::Exists(path), "Failed to create file, it already exists");
     LOG("Creating room file: " + path);
-    Utility::CreateDir(path);
-    Utility::WriteFile(path, "{}");
-    if (!Utility::FileExists(path))
+    Utility::File::CreateDir(path);
+    Utility::File::Write(path, "{}");
+    if (!Utility::File::Exists(path))
         LOG("Failed to create room: " + path);
 
     EditRoomEntryData newData;
@@ -129,7 +129,7 @@ void UI::BrowseCreatePanel::SelectLevels()
     auto& list = Get<LevelListWidget>("LevelList");
     list.ClearChildren();
     
-    for (auto& f : Utility::ListFiles("User/Levels"))
+    for (auto& f : Utility::File::List("User/Levels"))
     {
         LevelEntryData data;
         data.resource = f;
@@ -155,7 +155,7 @@ void UI::BrowseCreatePanel::SelectRooms()
     auto& list = Get<List>("RoomList");
     list.ClearChildren();
     
-    for (auto& f : Utility::ListFiles("User/Rooms"))
+    for (auto& f : Utility::File::List("User/Rooms"))
     {
         if (f.ends_with(".json"))
         {

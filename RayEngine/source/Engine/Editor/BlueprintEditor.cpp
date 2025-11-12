@@ -5,7 +5,9 @@
 #include "ImGui/imgui.h"
 #endif
 
+#include "raylib.h"
 #include "Blueprints/Blueprint.h"
+#include "ECS/Systems/Attributes.h"
 #include "ECS/Systems/Environment.h"
 #include "ECS/Systems/Transform.h"
 #include "Instance/Manager.h"
@@ -36,6 +38,8 @@ void BlueprintEditor::SetPendingBP(const ResBlueprint &InBP)
 
 void BlueprintEditor::SetBP(const ResBlueprint& InBP)
 {
+    LOG("Editing BP: " + InBP.Identifier().Str())
+    
     if (instanceID != ECS::INVALID_ID)
         ECS::Manager::Get().DestroyEntity(instanceID);
     
@@ -43,9 +47,24 @@ void BlueprintEditor::SetBP(const ResBlueprint& InBP)
     config.SaveConfig();
     if (const BlueprintResource* bp = config.Blueprint.Get().Get())
         instanceID = bp->Instantiate();
-
+    if (instanceID == ECS::INVALID_ID)
+        instanceID = ecs.CreateEntity();
+    
     selectedID = instanceID;
 
+    if (const auto attr = ecs.GetComponent<ECS::Attributes>(instanceID))
+    {
+        if (attr->Name.Get().empty() || attr->Name.Get().starts_with("Unnamed"))
+        {
+            String name = Utility::File::Name(InBP.Identifier().Str());
+            if (name.starts_with("BP_"))
+                name = name.substr(3);
+            if (name.ends_with(".json"))
+                name = name.substr(0, name.size() - 5);
+            attr->Name = name;
+        }
+    }
+    
     if (const auto t = ecs.GetComponent<ECS::Transform>(instanceID))
         editorCamera.SetTarget(t->GetPosition());
 }
@@ -72,7 +91,10 @@ void BlueprintEditor::Logic(const double InDelta)
     }
 
     if (Input::Action::Get("Back").Pressed())
+    {
+        LOG("Leaving editor");
         Engine::Manager::Get().Pop();
+    }
 }
 
 void BlueprintEditor::Frame()
@@ -85,6 +107,11 @@ void BlueprintEditor::Frame()
         i.skybox = config.DefaultSkybox;
         GetRenderScene().AddEnvironment(i);
     }
+
+    GetRenderScene().AddDebugFunc([&]
+    {
+        DrawGrid(25, 1);
+    });
     
     Instance::Frame();
 }
@@ -93,25 +120,33 @@ void BlueprintEditor::Frame()
 
 void BlueprintEditor::DrawDebugPanel()
 {
-    if (config.Blueprint.Edit())
-        SetBP(config.Blueprint);
-
     if (instanceID == ECS::INVALID_ID)
         return; 
+
+    bool save = false;
+    if (ImGui::Button("Save"))
+        save = true;
     
     ImGui::SameLine();
-    if (ImGui::Button("Save"))
-        if (BlueprintResource* bp = config.Blueprint.Get().Get())
-            bp->SaveEntity(instanceID);
-
-    ImGui::SameLine();
-    if (ImGui::Button("Close"))
+    ImGui::Checkbox("Autosave", &config.Autosave.Get());
+    
+    if (ImGui::Button("Close", ImVec2(-1, 0)))
+    {
+        LOG("Leaving editor");
         Engine::Manager::Get().Pop();
+    }
 
     ImGui::SeparatorText("Hierarchy");
-    EditHierarchy(instanceID, selectedID);
+    if (EditHierarchy(instanceID, selectedID))
+        save |= config.Autosave.Get();
+        
     ImGui::SeparatorText("Components");
-    EditComponents(selectedID);
+    if (EditComponents(selectedID))
+        save |= config.Autosave.Get();
+    
+    if (save)
+        if (BlueprintResource* bp = config.Blueprint.Get().Get())
+            bp->SaveEntity(instanceID);
 }
 
 #else

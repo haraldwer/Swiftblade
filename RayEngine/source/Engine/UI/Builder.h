@@ -25,7 +25,7 @@ namespace UI
         template <class T>
         Builder& Push(const T& InContainer, const String& InIdentifier = String())
         {
-            CHECK_ASSERT(!T::IsA(Type::Get<Container>()), "Can only push containers");
+            CHECK_ASSERT(!T::IsType(Type::Get<Container>()), "Can only push containers");
             stack.push_back(GetInstance().Add<T>(InContainer, InIdentifier));
             return *this; 
         }

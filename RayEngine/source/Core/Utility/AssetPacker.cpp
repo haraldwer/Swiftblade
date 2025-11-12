@@ -24,7 +24,7 @@ bool Utility::AssetPackGenerator::Package()
     const String path = String(PACK_DIR)  + "_" + hash;
     String content = FormatJson(s.GetString());
     Encrypt(content, 0, PACK_KEY);
-    if (!WriteFile(path, content))
+    if (!File::Write(path, content))
         result = false;
 
     return result;
@@ -34,7 +34,7 @@ bool Utility::AssetPackGenerator::BeginChunk()
 {
     std::filesystem::path curr = std::filesystem::current_path();
     curr.concat(PACK_DIR);
-    CreateDir(curr.string());
+    File::CreateDir(curr.string());
     curr.concat(std::to_string(Hash(chunkCount)));
     const String path = curr.string();
     LOG("Opening chunk: " + path);
@@ -136,7 +136,7 @@ Utility::AssetPackReader::AssetPackReader()
     AssetRegistry registry;
 
     const String hash = std::to_string(Hash(String("reg")));
-    String fileContent = ReadFile(hash);
+    String fileContent = File::Read(hash);
     CHECK_RETURN_LOG(fileContent.empty(), "Pack file empty");
     Decrypt(fileContent, 0, PACK_KEY);
     rapidjson::Document doc;

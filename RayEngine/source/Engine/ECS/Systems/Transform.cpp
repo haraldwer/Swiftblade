@@ -3,10 +3,11 @@
 #include "Collider.h"
 #include "ECS/Manager.h"
 #include "Instance/Instance.h"
+#include "Rendering/Manager.h"
 
 #ifdef IMGUI_ENABLE
 #include "raylib.h"
-#include "Editor/ImGuizmo_Wrapper.h"
+#include "Editor/TransformGizmo.h"
 #include "ImGui/Gizmo/ImGuizmo.h"
 #endif
 
@@ -216,9 +217,9 @@ bool SysTransform::EditValues(const EntityID InID)
     Vec3F p = t.localMat.GetPosition();
     QuatF r = t.localMat.GetRotation();
     Vec3F s = t.localMat.GetScale();
-    if (Utility::Edit("P", p) ||
-        Utility::Edit("R", r) ||
-        Utility::Edit("S", s))
+    if (Utility::Edit("Position", p) ||
+        Utility::Edit("Rotation", r) ||
+        Utility::Edit("Scale", s))
     {
         t.SetLocal(Mat4F(p, r, s));
         edited = true; 

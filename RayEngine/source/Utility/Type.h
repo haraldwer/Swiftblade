@@ -44,7 +44,7 @@ namespace Utility
     template <class ToT, class FromT>
     ToT* Cast(FromT* InObj)
     {
-        const bool cond = FromT::IsA(Type::Get<ToT>());
+        const bool cond = InObj->IsA(Type::Get<ToT>());
         CHECK_ASSERT(!cond, "Cannot cast, invalid type");
         return reinterpret_cast<ToT*>(InObj);
     }
@@ -54,11 +54,12 @@ namespace Utility
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
     static Utility::TypeHash GetTypeHash() { return Utility::Type::GetHash<self>(); } \
-    static bool IsA(const Utility::Type& InType) { return InType == GetType() || parent::IsA(InType); } \
+    static bool IsType(const Utility::Type& InType) { return InType == GetType() || parent::IsType(InType); } \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
     virtual Utility::Type GetObjType() const override { return self::GetType(); } \
-    virtual String GetObjName() const override { return self::TypeName(); }
+    virtual String GetObjName() const override { return self::TypeName(); } \
+    virtual bool IsA(const Utility::Type& InType) const override { return self::GetType() == InType || parent::IsA(InType); }
 
 #define CLASS_INFO(self, parent) \
     STRUCT_INFO(self, parent) \
@@ -68,11 +69,13 @@ private:
 public: \
     static Utility::Type GetType() { return Utility::Type::Get<self>(); } \
     static Utility::TypeHash GetTypeHash() { return Utility::Type::GetHash<self>(); } \
-    static bool IsA(const Utility::Type& InType) { return InType == GetType(); } \
+    static bool IsType(const Utility::Type& InType) { return InType == GetType(); } \
     static String TypeName() { return String(#self); } \
     static size_t TypeSize() { return sizeof(self); } \
     virtual Utility::Type GetObjType() const { return GetType(); } \
-    virtual String GetObjName() const { return TypeName(); }
+    virtual String GetObjName() const { return TypeName(); } \
+    virtual bool IsA(const Utility::Type& InType) const { return self::IsType(InType); };  
+    
 
 #define BASE_CLASS_INFO(self) \
     BASE_STRUCT_INFO(self) \

@@ -1,13 +1,17 @@
 {
 	"Components":[{
-			"Name":"Mesh",
-			"Data": {
-				"Mask": 1
-			}
+			"Name":"Enemy",
+			"Data":{}
 		},{
 			"Name":"Attributes",
 			"Data":{
 				"Name":"Enemy"
+			}
+		},{
+			"Name":"Mesh",
+			"Data":{
+				"Model":"Gameplay/Enemies/Skull/M_Enemy_Skull_0.obj",
+				"Mask":1
 			}
 		},{
 			"Name":"Transform",
@@ -23,15 +27,14 @@
 			}
 		},{
 			"Name":"Collider",
-			"Data":{}
+			"Data":{
+				"Shape":2
+			}
 		},{
 			"Name":"Rigidbody",
 			"Data":{
 				"GravityScale":0.0
 			}
-		},{
-			"Name":"Enemy",
-			"Data":{}
 		}
 	]
 }

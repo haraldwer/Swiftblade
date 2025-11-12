@@ -70,7 +70,7 @@ namespace Utility
         }
 
         Type GetType() override { return T::GetType(); }
-        bool IsA(Type InType) override { return T::IsA(InType); }
+        bool IsA(Type InType) override { return T::IsType(InType); }
     };
 
     // This scoped object can own an abstract type

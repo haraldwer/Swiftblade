@@ -85,13 +85,13 @@ String PropertyOwnerBase::ToStr(const bool InFormat) const
 
 bool PropertyOwnerBase::Save(const String& InPath) const
 {
-    return Utility::WriteFile(InPath, ToStr());
+    return Utility::File::Write(InPath, ToStr());
 }
 
 bool PropertyOwnerBase::Load(const String& InPath)
 {
-    CHECK_RETURN_LOG(!Utility::FileExists(InPath), "File does not exist: " + InPath, false)
-    const String fileContent = Utility::ReadFile(InPath);
+    CHECK_RETURN_LOG(!Utility::File::Exists(InPath), "File does not exist: " + InPath, false)
+    const String fileContent = Utility::File::Read(InPath);
     CHECK_RETURN_LOG(fileContent.empty(), "Property file empty: " + InPath, false);
     rapidjson::Document doc;
     doc.Parse(fileContent.c_str());

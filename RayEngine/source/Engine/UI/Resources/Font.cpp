@@ -200,7 +200,7 @@ bool UI::FontResource::LoadSDFFont(uint32 InSize, Font*& InFontEntry) const
         FONT_SDF);
     
     String cachePath = GetCachePath(InSize);
-    if (Utility::FileExists(cachePath))
+    if (Utility::File::Exists(cachePath))
     {
         GenFontGlyphs(
             InFontEntry->glyphs,
@@ -229,7 +229,7 @@ bool UI::FontResource::LoadSDFFont(uint32 InSize, Font*& InFontEntry) const
         InFontEntry->texture.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE;
         SetTextureFilter(InFontEntry->texture, TEXTURE_FILTER_BILINEAR);
 
-        Utility::CreateDir(cachePath);
+        Utility::File::CreateDir(cachePath);
         if (ExportImage(atlas, cachePath.c_str()))
         {
             LOG("Font cached: " + cachePath);
@@ -325,5 +325,5 @@ bool UI::FontResource::Edit(const String &InName, uint32 InOffset) { return fals
 
 String UI::FontResource::GetCachePath(const int InSize) const
 {
-    return Utility::GetCachePath(id.Str() + Utility::ToStr(InSize), ".png");
+    return Utility::File::GetCachePath(id.Str() + Utility::ToStr(InSize), ".png");
 }

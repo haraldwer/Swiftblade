@@ -7,8 +7,8 @@ bool Rendering::AnimationResource::Load()
     PROFILE();
     
     Unload();
-    CHECK_RETURN_LOG(!Utility::FileExists(id.Str()), "File does not exist: " + id.Str(), false)
-    const String fileContent = Utility::ReadFile(id.Str());
+    CHECK_RETURN_LOG(!Utility::File::Exists(id.Str()), "File does not exist: " + id.Str(), false)
+    const String fileContent = Utility::File::Read(id.Str());
     CHECK_RETURN_LOG(fileContent.empty(), "Property file empty: " + id.Str(), false);
     rapidjson::Document doc;
     doc.Parse(fileContent.c_str());

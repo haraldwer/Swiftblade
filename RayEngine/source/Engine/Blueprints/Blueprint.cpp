@@ -8,8 +8,8 @@
 
 bool BlueprintResource::Load()
 {
-    const String fileContent = Utility::ReadFile(id.Str());
-    CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty: " + id.Str(), false);
+    const String fileContent = Utility::File::Read(id.Str());
+    CHECK_RETURN_LOG(fileContent.empty(), "Blueprint file empty: " + id.Str(), true);
     doc = DocumentObj();
     doc.Parse(fileContent.c_str());
     CHECK_RETURN_LOG(!doc.IsObject(), "Invalid object: " + id.Str(), false);
@@ -22,25 +22,9 @@ bool BlueprintResource::Unload()
     return true;
 }
 
-#ifdef IMGUI_ENABLE
-
-bool BlueprintResource::Edit(const String &InName, uint32 InOffset)
-{
-    if (ImGui::Button("Edit"))
-        if (auto editor = Engine::Manager::Get().Push<BlueprintEditor>())
-            editor->SetPendingBP(ResBlueprint(id));
-    return false;
-}
-
-#else
-
-bool BlueprintResource::Edit(const String &InName, uint32 InOffset) { return false; }
-
-#endif
-
 ECS::EntityID BlueprintResource::Instantiate(const Mat4F& InTransform, const Vector<DeserializeObj>& InOverrides, const ECS::EntityID InID) const
 {
-    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", false);
+    CHECK_RETURN_LOG(!doc.IsObject(), "Invalid format", ECS::INVALID_ID);
 
     // Create entity
     ECS::Manager& man = ECS::Manager::Get();
@@ -80,7 +64,9 @@ void BlueprintResource::SaveEntity(const ECS::EntityID InID)
     doc.Parse(formatted.c_str());
     
     // Write to file!
-    Utility::WriteFile(id.Str(), formatted);
+    if (Utility::File::Write(id.Str(), formatted))
+        LOG(Utility::File::Name(id.Str()) + " saved")
+    else LOG("Failed to save " + id.Str())
 }
 
 DeserializeObj BlueprintResource::GetObj() const
@@ -92,5 +78,5 @@ DeserializeObj BlueprintResource::GetObj() const
 
 bool BlueprintResource::EditAccept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("BP_");
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("BP_");
 }

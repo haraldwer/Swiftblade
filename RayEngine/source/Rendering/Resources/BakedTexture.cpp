@@ -65,5 +65,5 @@ bool Rendering::BakedTexture::Bake()
 
 bool Rendering::BakedTexture::EditAccept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("BT_");
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("BT_");
 }

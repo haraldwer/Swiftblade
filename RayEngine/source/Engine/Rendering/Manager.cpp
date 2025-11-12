@@ -119,13 +119,14 @@ bool Rendering::Manager::IsViewportClickable() const { return true; }
 void Rendering::Manager::BeginFrame()
 {
     PROFILE_GL();
+    
     BeginDrawing();
     rlEnableColorBlend();
     BeginBlendMode(BLEND_ALPHA);
     
     // Blip if not debug drawing
     const auto& debugMan = Debug::Manager::Get();
-    if (debugMan.IsOpen(DebugPanelName()) && debugMan.Enabled())
+    if (debugMan.IsOpen(DebugPanelName()))
     {
         rlClearScreenBuffers();
     }
@@ -140,9 +141,12 @@ void Rendering::Manager::BeginFrame()
     }
 
 #ifdef IMGUI_ENABLE
-    rlImGuiBegin();
-    ImGui::PushDefaultFont();
-    ImGuizmo::BeginFrame();
+    {
+        PROFILE_GL_NAMED("ImGui");
+        rlImGuiBegin();
+        ImGui::PushDefaultFont();
+        ImGuizmo::BeginFrame();
+    }
 #endif
 }
 
@@ -153,7 +157,7 @@ void Rendering::Manager::EndFrame()
 #ifdef IMGUI_ENABLE
     ImGui::PopDefaultFont();
     {
-        PROFILE_GL_NAMED("rlImGuiEnd");
+        PROFILE_GL_NAMED("ImGui End");
         rlImGuiEnd();
     }
 #endif
@@ -201,8 +205,9 @@ void Rendering::Manager::ApplyConfig(const Config& InConfig)
 
 void Rendering::Manager::AutoResize()
 {
-    const auto& debugMan = Debug::Manager::Get();
+    PROFILE_GL();
     
+    const auto& debugMan = Debug::Manager::Get();
     auto& win = queuedConfig.Window.Get();
 
 #ifdef __EMSCRIPTEN__
@@ -219,7 +224,7 @@ void Rendering::Manager::AutoResize()
     
 #endif
     
-    if (debugMan.IsOpen(DebugPanelName()) && debugMan.Enabled())
+    if (debugMan.IsOpen(DebugPanelName()))
         return;
 
     auto& view = queuedConfig.Viewport.Get();

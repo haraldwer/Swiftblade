@@ -1,5 +1,4 @@
 {
-	"DrawElementRects":true,
 	"Context":{
 		"FX":{
 			"Tonemapping":true,
@@ -19,9 +18,20 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"",
-				"Val":""
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
+			},{
+				"Key":"TexPerlin",
+				"Val":"Defaults/T_Noise_Perlin.json"
+			},{
+				"Key":"TexSimplex",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			}
+		],
+		"GlobalDefines":[
+			"",
+			"",
+			""
 		]
 	},
 	"Viewport":{
@@ -30,6 +40,6 @@
 	},
 	"Window":{
 		"Height":1827,
-		"Width":2927
+		"Width":2941
 	}
 }

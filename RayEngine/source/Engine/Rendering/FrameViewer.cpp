@@ -6,7 +6,7 @@
 #include "ImGui/rlImGui.h"
 #include "Manager.h"
 #include "raylib.h"
-#include "rlgl.h"
+#include "ImGui/Gizmo/ImGuizmo.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
 
@@ -45,7 +45,9 @@ void Rendering::FrameViewer::DrawViewportPanel()
         ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin() + ImVec2( 10, 10 ));
         ImGui::Text(views[debugView].name.c_str());
     }
-
+    
+    ImGuizmo::SetDrawlist();
+    
     auto c = man.GetConfig();
     if (c.ShowLights)
     {

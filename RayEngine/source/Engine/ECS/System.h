@@ -85,7 +85,7 @@ namespace ECS
             return *reinterpret_cast<SystemType*>(base);
         }
         
-        ComponentID Register(const EntityID InID, bool const InDeferredInit) override
+        ComponentID Register(const EntityID InID, bool const InDeferredInit = false) override
         {
             // Already registered? 
             const ComponentID existingID = Translate(InID);

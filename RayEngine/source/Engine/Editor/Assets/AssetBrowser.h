@@ -4,7 +4,16 @@
 #include "AssetDetails.h"
 #include "Debug/Panel.h"
 
-class AssetBrowser : public Debug::Panel
+struct BrowserConfig : BaseConfig<BrowserConfig>
+{
+    PROPERTY(Set<String>, Expanded);
+    PROPERTY(Set<String>, Selected);
+    PROPERTY(String, Search);
+
+    String Name() const override { return "AssetBrowser"; }
+};
+
+class AssetBrowser : public Utility::Singelton<AssetBrowser, true>, public Debug::Panel 
 {
 public:
     void Init();
@@ -14,7 +23,8 @@ public:
     void DrawDebugPanel() override;
     
     void SelectAsset(const String& InPath);
-    
+    Set<String> GetSelected();
+
 private:
     
     AssetDetails details;
@@ -26,6 +36,7 @@ private:
         std::filesystem::path path;
         String name;
         String ext;
+        String type;
         std::chrono::system_clock::time_point date;
         int size = 0;
         bool dir = false;
@@ -42,6 +53,7 @@ private:
     enum class Sort
     {
         NAME = 0,
+        TYPE,
         DATE,
         SIZE
     } sort = Sort::NAME;
@@ -52,6 +64,8 @@ private:
     
     void ForceUpdateCache();
     void UpdateCache(const std::filesystem::path& InPath, Node& InNode);
+
+    static String GetNodeType(const Node &InNode);
     std::function<bool(const Node &, const Node &)> GetSortFunc() const;
     void SelectNode(const Node& InNode);
 
@@ -69,10 +83,8 @@ private:
     void Search(const String& InStr);
     void DrawAddMenu();
 
-    Set<std::filesystem::path> expanded;
-    Set<std::filesystem::path> selected;
+    BrowserConfig config;
 
-    String search;
     Vector<String> searchSplit;
     Set<std::filesystem::path> searchResult;
 

@@ -29,7 +29,7 @@ Utility::Timepoint Rendering::TextureResource::GetEditTime() const
 {
     if (id.Str().starts_with("Gen_"))
         return {};
-    return Utility::GetFileWriteTime(id.Str());  
+    return Utility::File::GetWriteTime(id.Str());  
 }
 
 bool Rendering::TextureResource::EditAccept(const String &InPath)

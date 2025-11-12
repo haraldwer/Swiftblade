@@ -4,7 +4,7 @@
 
 void TextDetails::Init()
 {
-    content = Utility::ReadFile(path);
+    content = Utility::File::Read(path);
 }
 
 void TextDetails::Draw()
@@ -19,7 +19,7 @@ bool TextDetails::Accept(const String &InPath)
         InPath.ends_with(".json") ||
         InPath.ends_with(".ini"))
         return true;
-    if (Utility::Filename(InPath).starts_with("SH_") &&
+    if (Utility::File::Name(InPath).starts_with("SH_") &&
             (InPath.ends_with(".fs") ||
             InPath.ends_with(".ds") ||
             InPath.ends_with(".vs") ||

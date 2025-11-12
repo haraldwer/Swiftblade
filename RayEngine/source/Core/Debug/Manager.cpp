@@ -51,9 +51,18 @@ void Debug::Manager::Frame(const double InDeltaTime)
                 auto& w = entry.second.back();
                 CHECK_CONTINUE(!w);
                 const String name = w->DebugPanelName();
-                const bool open = IsOpen(name); 
-                if (ImGui::MenuItem((name + (open ? " X" : "")).c_str()))
+                const bool open = IsOpen(name);
+                
+                if (ImGui::MenuItem(name.c_str()))
                     SetOpen(name, !open);
+
+                if (open)
+                {
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5);
+                    ImGui::Bullet();
+                    ImGui::NewLine();
+                }
             }
             ImGui::EndMenu();
         }
@@ -133,7 +142,7 @@ void Debug::Manager::Unregister(const Panel* InWindow)
 
 bool Debug::Manager::IsOpen(const String& InWindow) const
 {
-    return current.OpenWindows.Get().contains(InWindow);
+    return Enabled() && current.OpenWindows.Get().contains(InWindow);
 }
 
 void Debug::Manager::SetOpen(const String& InWindow, const bool InOpen)

@@ -64,7 +64,7 @@ GameData* g = nullptr;
 void Init()
 {
     Utility::InitLogging();
-    Utility::SetWorkingDir();
+    Utility::File::SetWorkingDir();
     
     g = new GameData();
     g->log.Init();

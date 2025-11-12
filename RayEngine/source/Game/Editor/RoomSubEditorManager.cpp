@@ -89,9 +89,10 @@ void RoomSubEditorManager::DebugDraw()
     auto hash = GetCurrent().GetHash();
     CHECK_RETURN(!editors.contains(hash))
     String editorName = editors.at(hash).Get<>().GetObjName();
-    ImGui::Text("Current room: %s", editorName.c_str());
+    ImGui::SeparatorText(editorName.c_str());
     for (auto& e : editors)
-        e.second.Get().DebugDraw();
+        if (e.first == hash)
+            e.second.Get().DebugDraw();
 }
 
 #endif

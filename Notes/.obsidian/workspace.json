@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Milestones/Milestone 6 (25.11.10).md",
+                "file": "Tasks/Backlog/Editor/0 - Arena room type.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Milestone 6 (25.11.10)"
+              "title": "0 - Arena room type"
             }
           }
         ]
@@ -166,10 +166,18 @@
   },
   "active": "0936951435052654",
   "lastOpenFiles": [
-    "Tasks/Backlog/Engine/2 - Asset Details.md",
-    "Backlog.md",
-    "Milestones/Milestone 6 (25.11.10).md",
     "Tasks/Backlog/Editor/0 - Course room type.md",
+    "Milestones/Milestone 6 (25.11.12).md",
+    "Tasks/Archive/0 - Selecting room type.md",
+    "Tasks/Backlog/Engine/1 - Improved file picking.md",
+    "Tasks/Archive/1 - Asset drag and drop.md",
+    "Tasks/Backlog/Engine/0 - Smart matrix interpolation.md",
+    "Tasks/Archive/2 - Asset Details.md",
+    "Tasks/Archive/2 - Engine asset creation.md",
+    "Tasks/Backlog/Engine/0 - Retail mode.md",
+    "Tasks/Backlog/Engine/2 - Child overrides.md",
+    "Tasks/Backlog/Engine/1 - Inline resource editing.md",
+    "Backlog.md",
     "Tasks/Backlog/Editor/0 - Connection room type.md",
     "Tasks/Backlog/Editor/0 - Object icons in editor.md",
     "Tasks/Backlog/Editor/0 - Object placement limits.md",
@@ -181,23 +189,15 @@
     "Milestones/Milestone 2 (23.11.15).md",
     "Milestones/Milestone 3 (23.11.29).md",
     "Tasks/Backlog/Editor/0 - Backend support for room types.md",
-    "Tasks/Backlog/Editor/0 - Selecting room type.md",
     "Tasks/Backlog/Editor/2 - Object icon juice.md",
     "Tasks/Backlog/Editor/1 - Selected object highlight.md",
     "Tasks/Backlog/UI/0 - Browse menu.md",
-    "Tasks/Archive/0 - Object icon system.md",
-    "Tasks/Backlog/UI/1 - Fix SDF font blending.md",
-    "Tasks/Backlog/Engine/0 - Retail mode.md",
-    "Milestones/Milestone 5 (23.12.27).md",
-    "Tasks/Backlog/0 - Revise outdated documents.md",
     "Tasks/Boards/Done/Milestone 5 - Done.base",
     "Tasks/Boards/Done/Milestone 4 - Done.base",
     "Tasks/Boards/Done/Milestone 6 - Done.base",
     "Tasks/Boards/Backlog - Polish.base",
     "Tasks/Boards/Backlog - Issues.base",
     "Tasks/Boards/Backlog - All.base",
-    "Tasks/Archive/0 - Toggle widget.md",
-    "Tasks/Archive/0 - Multi-toggle widget.md",
     "Tasks/Backlog/UI/Widgets",
     "Tasks/Boards/Todo/Milestone 5 - Todo.base",
     "Tasks/Boards/Todo/Milestone 6 - Todo.base",

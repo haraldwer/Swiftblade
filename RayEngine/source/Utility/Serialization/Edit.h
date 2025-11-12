@@ -5,6 +5,7 @@
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
+#include "String/StringConversion.h"
 
 namespace Utility
 {
@@ -300,7 +301,7 @@ namespace Utility
     bool Edit(const String& InName, Map<Key, Val>& InOutData, uint32 InOffset = 0)
     {
         bool edited = false; 
-        if (BeginSection(InName))
+        if (BeginSection(InName + "##" + ToStr(InOffset)))
         {
             Map<Key, Key> remappings;
             Vector<Key> removed;
@@ -318,16 +319,26 @@ namespace Utility
                 }
                 
                 const uint32 id = idMap[data.first];
-                const String idStr = std::to_string(id);
+                const String idStr = InName + ToStr(id) + ToStr(InOffset);
 
-                if (Button("-##" + idStr, InOffset))
-                    removed.push_back(data.first);
-                SameLine();
-                Key k = data.first;
-                if (Edit("##Key_" + InName + idStr, k, InOffset))
-                    remappings[data.first] = k;
-                if (Edit("##Val_" + InName + idStr, data.second, InOffset))
+                auto startPos = ImGui::GetCursorPos();
+                float width = ImGui::GetWindowWidth() / 2;
+                ImGui::SetCursorPosX(startPos.x + width);
+                if (Edit("##Val_" + idStr, data.second, InOffset + id))
                     edited = true;
+                auto endPos = ImGui::GetCursorPos();
+
+                ImGui::SetCursorPos(startPos);
+                if (ImGui::Button(("-##Rem_" + idStr).c_str()))
+                    removed.push_back(data.first);
+
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(width - ImGui::GetCursorPosX());
+                Key k = data.first;
+                if (Edit("##Key_" + idStr, k, 0))
+                    remappings[data.first] = k;
+                
+                ImGui::SetCursorPos(endPos);
             }
 
             for (auto& rem : removed)
@@ -358,16 +369,14 @@ namespace Utility
                     InOutData[Key()] = Val();
                     edited = true;
                 }
-                
             }
             SameLine();
-            if (Button("Clear##" + InName, InOffset))
+            if (ImGui::Button(("Clear##" + InName + ToStr(InOffset)).c_str(), ImVec2(-1, 0)))
             {
                 InOutData.clear();
                 idMap.clear();
                 edited = true;
             }
-            
             EndSection();
         }
         return edited;
@@ -395,15 +404,16 @@ namespace Utility
                 }
                 
                 const uint32 id = idMap[data.first];
-                const String idStr = std::to_string(id);
+                const String idStr = ToStr(id);
 
-                if (Button("-##" + idStr, InOffset))
-                    removed.push_back(data.first);
-                SameLine();
                 Key k = data.first;
                 if (Edit("##Key_" + InName + idStr, k, InOffset))
                     remappings[data.first] = k;
-                if (Edit("##Val_" + InName + idStr, data.second, InOffset))
+
+                if (ImGui::Button(("-##" + idStr + ToStr(InOffset)).c_str()))
+                    removed.push_back(data.first);
+                
+                if (Edit("##Val_" + idStr, data.second, InOffset))
                     edited = true;
             }
 

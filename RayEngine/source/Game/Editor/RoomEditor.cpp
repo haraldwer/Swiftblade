@@ -262,9 +262,9 @@ void RoomEditor::FinalizeSubmit() const
     // Delete the room file
     CHECK_RETURN_LOG(!roomResource.Identifier().IsValid(), "Invalid room resource");
     String path = roomResource.Identifier().Str();
-    if (!Utility::DeleteFile(path + ".png"))
+    if (!Utility::File::Delete(path + ".png"))
         LOG("Failed to delete room thumbnail")
-    if (!Utility::DeleteFile(path))
+    if (!Utility::File::Delete(path))
         LOG("Failed to delete room file");
 }
 

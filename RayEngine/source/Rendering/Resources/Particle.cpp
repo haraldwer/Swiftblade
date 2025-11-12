@@ -27,7 +27,7 @@ bool Rendering::Particle::Edit(const String& InName, uint32 InOffset)
 
 bool Rendering::Particle::EditAccept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("PS_");
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("PS_");
 }
 
 void Rendering::Particle::Bake()

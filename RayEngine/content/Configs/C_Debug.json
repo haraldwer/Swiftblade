@@ -3,7 +3,8 @@
 		"Assets",
 		"Blueprint Editor",
 		"Console",
-		"Details",
+		"Inspector",
+		"Room Editor",
 		"Viewport"
 	]
 }

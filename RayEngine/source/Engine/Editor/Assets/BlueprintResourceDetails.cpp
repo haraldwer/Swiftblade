@@ -7,7 +7,7 @@
 void BlueprintResourceDetails::Init()
 {
     resource = path;
-    content = Utility::ReadFile(path);
+    content = Utility::File::Read(path);
 
     auto top = Engine::Manager::Get().Top();
     if (top->IsA(Type::Get<BlueprintEditor>()))
@@ -41,5 +41,5 @@ void BlueprintResourceDetails::Draw()
 
 bool BlueprintResourceDetails::Accept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::Filename(InPath).starts_with("BP_");
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("BP_");
 }

@@ -9,6 +9,7 @@ struct BlueprintEditorConfig : BaseConfig<BlueprintEditorConfig>
 {
     PROPERTY_D(ResBlueprint, Blueprint, "Blueprints/untitled.json");
     PROPERTY_D(ResRM, DefaultSkybox, "Dressing/Skybox/RM_Skybox.json");
+    PROPERTY_D(bool, Autosave, true);
     String Name() const override { return "BlueprintEditor"; }
 };
 

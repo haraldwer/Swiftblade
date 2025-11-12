@@ -29,7 +29,7 @@ bool Rendering::ShaderResource::Load()
     if (path.ends_with(".ds") || path.ends_with(".ps"))
     {
         // Load as deferred shader
-        if (!Utility::FileExists(path))
+        if (!Utility::File::Exists(path))
             return false; 
         const String vsFile = "Shaders/SH_Fullscreen.vs";
         const String vsCode = LoadShaderFile(vsFile, vsIncludes);
@@ -47,8 +47,8 @@ bool Rendering::ShaderResource::Load()
         const String fs = path + ".fs";
         const String vsDefault = "Shaders/SH_Default.vs";
         const String fsDefault = "Shaders/SH_Default.fs";
-        const String vsFile = Utility::FileExists(vs) ? vs : vsDefault;
-        const String fsFile = Utility::FileExists(fs) ? fs : fsDefault;
+        const String vsFile = Utility::File::Exists(vs) ? vs : vsDefault;
+        const String fsFile = Utility::File::Exists(fs) ? fs : fsDefault;
         const String vsCode = LoadShaderFile(vsFile, vsIncludes);
         const String fsCode = LoadShaderFile(fsFile, fsIncludes);
         *ptr = LoadShaderFromMemory(vsCode.c_str(), fsCode.c_str());
@@ -83,9 +83,9 @@ Utility::Timepoint Rendering::ShaderResource::GetEditTime() const
     
     Utility::Timepoint max = Utility::Timepoint::min(); 
     for (String path : fsIncludes)
-        max = Utility::Math::Max(max, Utility::GetFileWriteTime(path));
+        max = Utility::Math::Max(max, Utility::File::GetWriteTime(path));
     for (String path : vsIncludes)
-        max = Utility::Math::Max(max, Utility::GetFileWriteTime(path));
+        max = Utility::Math::Max(max, Utility::File::GetWriteTime(path));
     return  max;
 }
 
@@ -150,7 +150,7 @@ void Rendering::ShaderResource::LoadDefaultLocs()
 String Rendering::ShaderResource::LoadShaderFile(const String& InPath, Set<String>& InIncludes)
 {
     InIncludes.clear();
-    String shader = Utility::ReadFile(InPath);
+    String shader = Utility::File::Read(InPath);
     shader = ProcessDefines(shader);
     shader = ProcessIncludes(shader, InPath, InIncludes);
 
@@ -209,11 +209,11 @@ String Rendering::ShaderResource::ProcessIncludes(const String& InShaderCode, co
         const size_t includeStart = findOffset + searchPattern.length();
         const String includePath = InShaderCode.substr(includeStart, includeEnd - includeStart);
 
-        if (Utility::FileExists(includePath))
+        if (Utility::File::Exists(includePath))
         {
             if (!InIncludes.contains(includePath))
             {
-                const String includeContent = Utility::ReadFile(includePath);
+                const String includeContent = Utility::File::Read(includePath);
                 const String processedInclude = ProcessIncludes(includeContent, includePath, InIncludes);
                 processedShader += processedInclude; 
             }

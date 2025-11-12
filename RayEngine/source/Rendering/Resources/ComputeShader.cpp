@@ -7,7 +7,7 @@
 bool Rendering::ComputeShaderResourceBase::Load()
 {
     // Load shader source
-    String code = Utility::ReadFile(id.Str());
+    String code = Utility::File::Read(id.Str());
     CHECK_RETURN_LOG(code.empty(), "Failed to load compute shader file: " + id.Str(), false)
     
     // Compile shader

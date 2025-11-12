@@ -164,7 +164,7 @@ void UI::InfoPanelLevel::SetLevel(const LevelEntryData &InData)
     
     // Not a local file, check cache
     if (!data.resource.Identifier().IsValid() && !data.entry.ID.Get().empty())
-        data.resource = Utility::GetCachePath(data.entry.ID, ".json");
+        data.resource = Utility::File::GetCachePath(data.entry.ID, ".json");
     
     if (auto res = data.resource.Get())
     {
@@ -198,7 +198,7 @@ void UI::InfoPanelLevel::RecieveInfo(const DB::Response<DB::RPCLevelInfo> &InRes
     LOG("Received info!")
     
     // Create cache level
-    String path = Utility::GetCachePath(InResponse.data.ID, ".json");
+    String path = Utility::File::GetCachePath(InResponse.data.ID, ".json");
     if (!InResponse.data.Data.Get().Save(path))
     {
         LOG("Failed to save: " + path)

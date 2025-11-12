@@ -11,6 +11,8 @@
 #include "Resources/NoiseTexture.h"
 #include "UI/Resources/Font.h"
 #include "ConfigDetails.h"
+#include "Debug/Config.h"
+#include "Editor/BlueprintEditor.h"
 #include "Input/Config.h"
 #include "Instance/Launcher.h"
 #include "Resources/Particle.h"
@@ -24,7 +26,7 @@ void AssetDetails::DrawDebugPanel()
         auto& detail = details[i];
         bool open = true;
         
-        String name = "Details: " + Utility::Filename(details[i].Get().path);
+        String name = "Details: " + Utility::File::Name(details[i].Get().path);
         if (counter != 0)
             ImGui::SetNextWindowSizeConstraints(ImVec2(400, 400), ImVec2(10000, 10000));
         if (counter == 0 || ImGui::Begin(name.c_str(), &open))
@@ -69,6 +71,8 @@ void AssetDetails::Deselect(const String& InPath)
 
 void AssetDetails::OpenPanel(const String& InPath)
 {
+    LOG("Details: " + InPath);
+    
 #define ASSET_OPEN(T) { details.push_back(T(InPath)); details.at(details.size() - 1).Get().Init(); return; }
 #define ASSET_TRY_OPEN(T) if (T::Accept(InPath)) ASSET_OPEN(T)
 #define ASSET_TRY_OPEN_FUNC(T, acceptFunc, acceptParam) if (acceptFunc(acceptParam, InPath)) ASSET_OPEN(T)
@@ -85,11 +89,12 @@ void AssetDetails::OpenPanel(const String& InPath)
     ASSET_TRY_OPEN(ConfigDetails<Rendering::Config>);
     ASSET_TRY_OPEN(ConfigDetails<Input::Config>);
     ASSET_TRY_OPEN(ConfigDetails<Engine::LauncherConfig>);
-    ASSET_TRY_OPEN(ConfigDetails<StoryConfig>);
+    ASSET_TRY_OPEN(ConfigDetails<BlueprintEditorConfig>);
+    ASSET_TRY_OPEN(ConfigDetails<Debug::Config>);
 
     auto jsonPrefixFunc = [](const String& InPrefix, const String& InPath)
     {
-        return Utility::Filename(InPath).starts_with(InPrefix) && InPath.ends_with(".json");
+        return Utility::File::Name(InPath).starts_with(InPrefix) && InPath.ends_with(".json");
     };
     
     ASSET_TRY_OPEN_FUNC(TextResourceDetails<PhysicsMaterialResource>, jsonPrefixFunc, "PM_");

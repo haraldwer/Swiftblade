@@ -1,16 +1,10 @@
 ﻿#include "RoomGenEditor.h"
 
-#include <filesystem>
-
-#include "ECS/Manager.h"
-#include "ECS/RoomConnection.h"
+#include "../EditRoom.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"
 #include "Editor/RoomSubEditorManager.h"
-#include "../EditRoom.h"
 #include "Input/Action.h"
-#include "UI/Builder.h"
-#include "UI/Elements/RectImage.h"
 
 void RoomGenEditor::Init()
 {

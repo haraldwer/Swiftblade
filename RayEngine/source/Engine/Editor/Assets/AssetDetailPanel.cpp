@@ -1,7 +1,6 @@
 #include "AssetDetailPanel.h"
 
 #include "Utility/String/StringConversionTime.h"
-#include <filesystem>
 
 #include "ImGui/imgui_custom.h"
 
@@ -18,9 +17,8 @@ void AssetDetailPanel::DrawFileInfo()
         // More info here!
         if (!infoSet)
         {
-            std::filesystem::path p(path);
-            size = std::filesystem::file_size(p);
-            lastWriteTime = std::chrono::clock_cast<std::chrono::system_clock>(std::filesystem::last_write_time(path));
+            size = Utility::File::GetSize(path);
+            lastWriteTime = Utility::File::GetWriteTime(path);
             infoSet = true;
         }
 
@@ -43,7 +41,7 @@ void AssetDetailPanel::DrawFileInfo()
             {
                 rawEditing = !rawEditing;
                 if (rawEditing)
-                    content = Utility::ReadFile(path);
+                    content = Utility::File::Read(path);
             }
         }
     }
@@ -60,14 +58,14 @@ bool AssetDetailPanel::RawTextEdit(bool InSubwindow)
         {
             if (ImGui::MenuItem(("Save##" + path).c_str()))
             {
-                Utility::WriteFile(path, content);
+                Utility::File::Write(path, content);
                 saved = true;   
             }
             ImGui::SameLine();
             ImGui::Spacing();
             ImGui::SameLine();
             if (ImGui::MenuItem(("Reload##" + path).c_str()))
-                content = Utility::ReadFile(path);
+                content = Utility::File::Read(path);
             ImGui::EndMenuBar();
         }
     }
@@ -75,19 +73,19 @@ bool AssetDetailPanel::RawTextEdit(bool InSubwindow)
     {
         if (ImGui::Button(("Save##" + path).c_str()))
         {
-            Utility::WriteFile(path, content);
+            Utility::File::Write(path, content);
             saved = true;
         }
         ImGui::SameLine();
         if (ImGui::Button(("Reload##" + path).c_str()))
-            content = Utility::ReadFile(path);
+            content = Utility::File::Read(path);
     }
     
     ImGui::InputTextMultiline(("##" + path).c_str(), &content, ImVec2(-1, -1));
 
     if (ImGui::IsItemFocused() && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
     {
-        Utility::WriteFile(path, content);
+        Utility::File::Write(path, content);
         saved = true;
     }
     

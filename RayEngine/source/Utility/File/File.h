@@ -2,17 +2,25 @@
 
 namespace Utility
 {
-    void SetWorkingDir();
-    String ReadFile(const String& InPath);
-    Vector<String> ListFiles(const String& InPath);
-    bool WriteFile(const String& InPath, const String& InContent);
-    bool FileExists(const String& InPath);
-    void CreateDir(const String& InPath);
-    bool DeleteFile(const String& InPath);
-    bool CopyFile(const String& InFrom, const String& InTo, bool InRename = false);
-    Timepoint GetFileWriteTime(const String& InPath);
-    String GetCachePath(const String& InPath, String InExt);
-    String RelativePath(const String& InPath);
-    String Filename(const String& InPath);
+    namespace File
+    {
+        // File info
+        bool Exists(const String& InPath);
+        Vector<String> List(const String& InPath);
+        Timepoint GetWriteTime(const String& InPath);
+        uint32 GetSize(const String& InPath);
 
+        // File manipulation
+        void CreateDir(const String& InPath);
+        String Read(const String& InPath);
+        bool Write(const String& InPath, const String& InContent);
+        bool Delete(const String& InPath);
+        bool Copy(const String& InFrom, const String& InTo, bool InRename = false);
+
+        // Paths
+        String GetCachePath(const String& InPath, String InExt);
+        String Relative(const String& InPath);
+        String Name(const String& InPath);
+        void SetWorkingDir();
+    }
 }

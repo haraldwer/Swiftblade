@@ -4,7 +4,7 @@
 #include <fstream>
 #include <ranges>
 
-void Utility::SetWorkingDir()
+void Utility::File::SetWorkingDir()
 {
 #ifndef __EMSCRIPTEN__
     std::filesystem::path curr = std::filesystem::current_path();
@@ -19,7 +19,7 @@ void Utility::SetWorkingDir()
 #endif
 }
 
-String Utility::ReadFile(const String& InPath)
+String Utility::File::Read(const String& InPath)
 {
     constexpr std::size_t readSize = 4096;
     auto stream = std::ifstream(InPath.c_str());
@@ -43,7 +43,7 @@ String Utility::ReadFile(const String& InPath)
     return out.substr(off);
 }
 
-Vector<String> Utility::ListFiles(const String &InPath)
+Vector<String> Utility::File::List(const String &InPath)
 {
     CHECK_RETURN(!std::filesystem::exists(InPath), {})
     Vector<String> result;
@@ -53,7 +53,7 @@ Vector<String> Utility::ListFiles(const String &InPath)
     return result;
 }
 
-bool Utility::WriteFile(const String& InPath, const String& InContent)
+bool Utility::File::Write(const String& InPath, const String& InContent)
 {
     std::ofstream out(InPath);
     if (!out.is_open())
@@ -64,12 +64,12 @@ bool Utility::WriteFile(const String& InPath, const String& InContent)
     return true;
 }
 
-bool Utility::FileExists(const String& InPath)
+bool Utility::File::Exists(const String& InPath)
 {
     return std::filesystem::exists(InPath);
 }
 
-void Utility::CreateDir(const String &InPath)
+void Utility::File::CreateDir(const String &InPath)
 {
     auto path = std::filesystem::path(InPath);
     if (path.has_extension())
@@ -87,21 +87,27 @@ void Utility::CreateDir(const String &InPath)
     }
 }
 
-bool Utility::DeleteFile(const String &InPath)
+bool Utility::File::Delete(const String &InPath)
 {
     LOG("Deleting " + InPath)
-    CHECK_RETURN(!FileExists(InPath), false)
+    CHECK_RETURN(!Exists(InPath), false)
     return std::filesystem::remove(InPath);
 }
 
-bool Utility::CopyFile(const String &InFrom, const String &InTo, bool InRename)
+bool Utility::File::Copy(const String &InFrom, const String &InTo, bool InRename)
 {
+    if (!Exists(InFrom))
+    {
+        LOG("Copy source " + InFrom + " does not exist");
+        return false;
+    }
+    
     String newPath = InTo;
-    if (FileExists(newPath) && InRename)
+    if (Exists(newPath) && InRename)
     {
         auto s = std::filesystem::path(InTo);
         String pathStart = s.parent_path();
-        String fullName = Filename(s.string());
+        String fullName = Name(s.string());
         auto extLoc = fullName.find_last_of('.');
         String ext = extLoc == std::string::npos ? "" : fullName.substr(extLoc);
         String name = fullName.substr(0, extLoc);
@@ -112,15 +118,15 @@ bool Utility::CopyFile(const String &InFrom, const String &InTo, bool InRename)
             postfix++;
             newPath = pathStart + "/" + name + "_" + ToStr(postfix) + ext;
         }
-        while (FileExists(newPath));
+        while (Exists(newPath));
     }
     
     LOG("Copying " + InFrom + " to " + newPath);
     std::filesystem::copy(InFrom, newPath, std::filesystem::copy_options::overwrite_existing);
-    return FileExists(newPath);
+    return Exists(newPath);
 }
 
-Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
+Utility::Timepoint Utility::File::GetWriteTime(const String& InPath)
 {
     if (InPath.empty())
         return Timepoint();
@@ -131,14 +137,19 @@ Utility::Timepoint Utility::GetFileWriteTime(const String& InPath)
     return Timepoint(fileTime.time_since_epoch());
 }
 
-String Utility::GetCachePath(const String &InPath, String InExt)
+uint32 Utility::File::GetSize(const String &InPath)
+{
+    return static_cast<uint32>(std::filesystem::file_size(InPath));
+}
+
+String Utility::File::GetCachePath(const String &InPath, String InExt)
 {
     if (!InExt.contains("."))
         InExt = "." + InExt;
     return "Cache/" + ToStr(Hash(InPath)) + InExt; 
 }
 
-String Utility::RelativePath(const String &InPath)
+String Utility::File::Relative(const String &InPath)
 {
     auto current = std::filesystem::current_path();
     auto currStr = current.string();
@@ -149,10 +160,12 @@ String Utility::RelativePath(const String &InPath)
     return result;
 }
 
-String Utility::Filename(const String &InPath)
+String Utility::File::Name(const String &InPath)
 {
     auto back = InPath.find_last_of("\\");
     auto forw = InPath.find_last_of("/");
+    if (back == std::string::npos && forw == std::string::npos)
+        return InPath; // At root
     auto slash = Math::Max(
         back == std::string::npos ? 0 : back,
         forw == std::string::npos ? 0 : forw);

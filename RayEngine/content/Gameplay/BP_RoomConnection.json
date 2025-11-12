@@ -15,14 +15,14 @@
 	"Children":[{
 			"Overrides":{
 				"Components":[{
-						"Name":"Mesh",
-						"Data":{
-							"Material":"Editor/RM_EditMarker.json"
-						}
-					},{
 						"Name":"Attributes",
 						"Data":{
 							"Name":"Mesh"
+						}
+					},{
+						"Name":"Mesh",
+						"Data":{
+							"Material":"Editor/RM_EditMarker.json"
 						}
 					},{
 						"Name":"Transform",
@@ -43,6 +43,19 @@
 								1.0
 							]
 						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"EditorMesh"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{}
 					}
 				]
 			}

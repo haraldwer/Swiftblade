@@ -110,13 +110,13 @@ bool SceneResource::Load()
 {
     if (id.Unique())
         return true;
-    if (!Utility::FileExists(id.Str()))
+    if (!Utility::File::Exists(id.Str()))
     {
         doc.Parse("{}");
         LOG("Scene file does not exist");
         return false;
     }
-    const String fileContent = Utility::ReadFile(id.Str());
+    const String fileContent = Utility::File::Read(id.Str());
     if (fileContent.empty())
     {
         doc.Parse("{}");

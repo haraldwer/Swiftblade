@@ -38,7 +38,7 @@ namespace Resource
         Utility::Timepoint GetEditTime() const override
         {
             if (id.IsValid() && !id.Unique())
-                return Utility::GetFileWriteTime(id.Str());
+                return Utility::File::GetWriteTime(id.Str());
             return {};
         }
 
