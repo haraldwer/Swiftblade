@@ -286,10 +286,14 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateFallbackProbe(const RenderArg
     fallback.renderTimestamp = context.Time();
     fallback.iterations++;
     fallback.rect = rect;
-    
-    for (auto& probe : probes)
-        fallback.pos += probe.second.pos;
-    fallback.pos /= static_cast<float>(probes.size());
+
+    fallback.pos = {};
+    if (!probes.empty())
+    {
+        for (auto& probe : probes)
+            fallback.pos += probe.second.pos;
+        fallback.pos /= static_cast<float>(probes.size());
+    }
     
     for (int i = 0; i < 6; i++)
     {
@@ -371,7 +375,7 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
 void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
 {
     PROFILE_GL();
-    
+    CHECK_RETURN(!config.Enabled);
     CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
 
     bool changed = probes.empty();

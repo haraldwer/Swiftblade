@@ -6,6 +6,8 @@
 namespace Resource
 {
     // Editing
+    inline static std::function<void(const String&)> pickCallback;
+    inline static std::function<void(String&)> dragDropCallback;
     String Pick(const String& InLabel, const String& InID, uint32 InOffset);
     bool SaveButton(const String& InID);
     void ShowInvalid(const String& InID);

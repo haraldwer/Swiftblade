@@ -106,7 +106,7 @@ bool Utility::File::Copy(const String &InFrom, const String &InTo, bool InRename
     if (Exists(newPath) && InRename)
     {
         auto s = std::filesystem::path(InTo);
-        String pathStart = s.parent_path();
+        String pathStart = s.parent_path().string();
         String fullName = Name(s.string());
         auto extLoc = fullName.find_last_of('.');
         String ext = extLoc == std::string::npos ? "" : fullName.substr(extLoc);
@@ -156,7 +156,7 @@ String Utility::File::Relative(const String &InPath)
     if (InPath.size() < currStr.size())
         return InPath;
     if (InPath == currStr)
-        return "";
+        return {};
     auto find = InPath.find_first_of(currStr);
     if (find == String::npos)
         return InPath; // Already relative
@@ -166,8 +166,8 @@ String Utility::File::Relative(const String &InPath)
 
 String Utility::File::Name(const String &InPath)
 {
-    auto back = InPath.find_last_of("\\");
-    auto forw = InPath.find_last_of("/");
+    auto back = InPath.find_last_of('\\');
+    auto forw = InPath.find_last_of('/');
     if (back == std::string::npos && forw == std::string::npos)
         return InPath; // At root
     auto slash = Math::Max(

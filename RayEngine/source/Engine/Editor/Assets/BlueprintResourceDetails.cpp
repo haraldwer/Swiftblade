@@ -2,7 +2,6 @@
 
 #include "Editor/BlueprintEditor.h"
 #include "Instance/Manager.h"
-#include "Instances/GameInstance.h"
 
 void BlueprintResourceDetails::Init()
 {

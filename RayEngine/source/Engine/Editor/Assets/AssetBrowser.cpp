@@ -6,20 +6,40 @@
 #include "Utility/String/StringConversionTime.h"
 #include "Collections/SortedInsert.h"
 #include "ImGui/imgui.h"
+#include "Resource/Impl.h"
 
 #ifdef IMGUI_ENABLE
 
 void AssetBrowser::Init()
 {
     config.LoadConfig();
-    config.Expanded.Get().insert(std::filesystem::current_path());
+    config.Expanded.Get().insert(std::filesystem::current_path().string());
     TryStartThread();
+
+    Resource::pickCallback = [](const String& InID)
+    {
+        Get().SelectAsset(InID);
+    };
+
+    Resource::dragDropCallback = [](String& OutResult)
+    {
+        if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("assets"))
+        {
+            for (auto& s : Get().GetSelected())
+            {
+                OutResult = Utility::File::Relative(s);
+                break;
+            }
+        }
+    };
 }
 
 void AssetBrowser::Deinit()
 {
     config.SaveConfig();
     TryStopThread();
+    Resource::pickCallback = {};
+    Resource::dragDropCallback = {};
 }
 
 void AssetBrowser::TryStartThread()
@@ -168,7 +188,7 @@ void AssetBrowser::SelectAsset(const String &InPath)
     String relative = Utility::File::Relative(InPath);
     std::function<bool(const Node&)> select = [&](const Node& InNode)
     {
-        if (Utility::File::Relative(InNode.path) == relative)
+        if (Utility::File::Relative(InNode.path.string()) == relative)
         {
             SelectNode(InNode);
             return true;
@@ -241,21 +261,21 @@ void AssetBrowser::SelectNode(const Node& InNode)
     PROFILE();
     
     bool singleSelect = !ImGui::IsKeyDown(ImGuiKey_LeftShift);
-    bool alreadySelected = config.Selected.Get().contains(InNode.path);
+    bool alreadySelected = config.Selected.Get().contains(InNode.path.string());
     bool openDirectly = config.Selected.Get().empty();
     
     if (singleSelect)
         config.Selected.Get().clear();
-    config.Selected.Get().insert(InNode.path);
+    config.Selected.Get().insert(InNode.path.string());
     LOG("Selection: " + InNode.name);
 
     if (InNode.dir)
     {
         if (singleSelect)
         {
-            if (!config.Expanded.Get().contains(InNode.path) || !alreadySelected)
-                config.Expanded.Get().insert(InNode.path);
-            else config.Expanded.Get().erase(InNode.path);
+            if (!config.Expanded.Get().contains(InNode.path.string()) || !alreadySelected)
+                config.Expanded.Get().insert(InNode.path.string());
+            else config.Expanded.Get().erase(InNode.path.string());
         }
     }
     else if (alreadySelected || openDirectly)
@@ -272,7 +292,7 @@ void AssetBrowser::NodeDragDrop(const Node &InNode)
     if (ImGui::BeginDragDropSource())
     {
         auto& selected = config.Selected.Get();
-        if (!selected.contains(InNode.path))
+        if (!selected.contains(InNode.path.string()))
             SelectNode(InNode);
         
         if (ImGui::GetDragDropPayload() == NULL)
@@ -309,7 +329,7 @@ void AssetBrowser::NodeDragDrop(const Node &InNode)
                     String filename = Utility::File::Name(s);
                     std::filesystem::path target = dir.string() + "/" + filename;
                     if (Utility::File::Copy(source.string(), target.string(), true))
-                        Utility::File::Delete(source);
+                        Utility::File::Delete(source.string());
                 }
                 ForceUpdateCache();
             }
@@ -323,9 +343,9 @@ void AssetBrowser::NodeContext(const Node &InNode)
 {
     PROFILE();
     
-    if (ImGui::BeginPopupContextItem(InNode.path.c_str()))
+    if (ImGui::BeginPopupContextItem(InNode.path.string().c_str()))
     {
-        if (!config.Selected.Get().contains(InNode.path))
+        if (!config.Selected.Get().contains(InNode.path.string()))
             SelectNode(InNode);
         
         if (config.Selected.Get().size() <= 1) ImGui::Text(InNode.name.c_str());
@@ -343,12 +363,12 @@ void AssetBrowser::NodeContext(const Node &InNode)
         {
             if (InNode.dir)
             {
-                addPath = InNode.path;
+                addPath = InNode.path.string();
                 addName = "";
             }
             else
             {
-                addPath = InNode.path.parent_path();
+                addPath = InNode.path.parent_path().string();
                 addName = InNode.name + InNode.ext;
             }
             
@@ -456,7 +476,7 @@ void AssetBrowser::DrawNode(Node& InNode)
     if (!found)
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(128, 128, 128 ,255));
 
-    bool select = config.Selected.Get().contains(InNode.path);
+    bool select = config.Selected.Get().contains(InNode.path.string());
     float height = ImGui::CalcTextSize("T").y + 2;
     String itemName = InNode.name + "##" + InNode.path.string();
     if (ImGui::Selectable(itemName.c_str(), select, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, height)))
@@ -478,7 +498,7 @@ void AssetBrowser::DrawNode(Node& InNode)
     ImGui::Text(Utility::ToStr(InNode.date).c_str());
     ImGui::PopStyleColor();
 
-    if (InNode.dir && config.Expanded.Get().contains(InNode.path))
+    if (InNode.dir && config.Expanded.Get().contains(InNode.path.string()))
     {
         ImGui::Indent();
         for (auto& child : InNode.children)
@@ -511,7 +531,7 @@ void AssetBrowser::Search(const String& InStr)
             for (auto& child : InNode.children)
                 result |= func(child);
         if (result)
-            config.Expanded.Get().insert(InNode.path);
+            config.Expanded.Get().insert(InNode.path.string());
         return result;
     };
     func(root);

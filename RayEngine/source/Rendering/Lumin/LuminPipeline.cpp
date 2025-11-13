@@ -2,7 +2,6 @@
 
 #include "TextureTargets/SwapTarget.h"
 #include "Viewport/Viewport.h"
-#include "rlgl.h"
 
 Rendering::Pipeline::Stats Rendering::LuminPipeline::RenderProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget)
 {

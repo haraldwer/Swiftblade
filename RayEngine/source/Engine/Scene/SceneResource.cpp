@@ -123,8 +123,6 @@ bool SceneResource::Load()
         LOG("Scene file empty")
         return false;
     }
-    LOG("Scene: ")
-    LOG(fileContent);
     return FromStr(fileContent);
 }
 

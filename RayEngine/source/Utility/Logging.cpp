@@ -1,5 +1,7 @@
 #include "Logging.h"
 
+#include <iostream>
+
 #include "raylib.h"
 
 #ifdef __EMSCRIPTEN__
@@ -31,12 +33,12 @@ void Log(const String& InMessage)
     tm *tm_info = localtime(&now);
     strftime(timeStr, sizeof(timeStr), "%H:%M:%S", tm_info);
     const String t = std::format("[{}] ", timeStr);
-    const String m = t + InMessage + "\n"; 
+    const String m = t + InMessage; 
     
 #ifdef __EMSCRIPTEN__
     emscripten_console_log(m.c_str());
 #else
-    printf(m.c_str());
+    std::cout << m << std::endl; // Flush
 #endif
     
     for (auto& callback : logCallbacks)
@@ -79,8 +81,8 @@ void Utility::InitLogging()
 
 void Utility::ExternalLog(const String &InFile, const String &InFunc, const int InLine, const String &InText)
 {
-    auto filenameEnd = InFile.find_last_of(".");
-    auto filenameStart = InFile.find_last_of("/") + 1;
+    auto filenameEnd = InFile.find_last_of('.');
+    auto filenameStart = Math::Min(InFile.find_last_of('/'), InFile.find_last_of('\\')) + 1;
     String filename = InFile.substr(filenameStart, filenameEnd - filenameStart); 
     Log(filename + "::" + InFunc + "::" + ToStr(InLine) + " | " + InText);
 }

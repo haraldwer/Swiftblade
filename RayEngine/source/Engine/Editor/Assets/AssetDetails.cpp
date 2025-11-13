@@ -4,7 +4,6 @@
 #include "Config.h"
 #include "TextDetails.h"
 #include "ResourceDetails.h"
-#include "Blueprints/Blueprint.h"
 #include "Physics/Resources/Material.h"
 #include "Resources/Material.h"
 #include "Resources/Model.h"
@@ -17,7 +16,6 @@
 #include "Input/Config.h"
 #include "Instance/Launcher.h"
 #include "Resources/Particle.h"
-#include "UI/Widgets/Browse/BrowseStoryPanel.h"
 
 void AssetDetails::DrawPanel()
 {

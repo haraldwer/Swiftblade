@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Game/ECS/Volume/CubeVolumeCoord.h"
 #include "Engine/ECS/Entity.h"
-#include "Level/RoomInfo.h"
 
 struct EditRoom;
 class RoomEditor;

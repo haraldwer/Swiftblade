@@ -120,7 +120,7 @@ void Rendering::Manager::DrawPanel()
 
 bool Rendering::Manager::IsViewportClickable() const
 {
-    return hovered && IsWindowFocused();
+    return (!IsPanelOpen() || hovered) && IsWindowFocused();
 }
 
 #else

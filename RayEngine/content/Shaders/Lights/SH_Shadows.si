@@ -11,12 +11,6 @@ const float SHADOW_NOISE_SCALE = 2.0f;
 const float SHADOW_DIST_BIAS = 0.05f;
 const float SHADOW_DIST_BIAS_MULTIPLIER = 3.0f;
 
-float InterleavedGradientNoise(vec2 uv)
-{
-    vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
-    return fract(magic.z * fract(dot(uv, magic.xy)));
-}
-
 vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
 {
     float GoldenAngle = 2.4f;

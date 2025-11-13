@@ -47,7 +47,7 @@ namespace Rendering
         
         Config currConfig = {}; 
         Config queuedConfig = {};
-        bool hovered = false;
+        bool hovered = true;
 
         Vector<Vec3F> cullPoints;
     };

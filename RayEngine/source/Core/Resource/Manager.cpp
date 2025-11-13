@@ -2,7 +2,6 @@
 
 #include "Impl.h"
 #include "Collections/SortedInsert.h"
-#include "Editor/Assets/AssetBrowser.h"
 #include "ImGui/imgui.h"
 
 Resource::ImplBase* Resource::Manager::GetResource(const ID& InID)
@@ -114,7 +113,7 @@ void Resource::Manager::DrawPanel()
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             if (ImGui::Selectable((res->id.Str() +"##" + Utility::ToStr(id)).c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
-                AssetBrowser::Get().SelectAsset(res->id.Str());
+                pickCallback(res->id.Str());
             ImGui::TableNextColumn();
             ImGui::Text("%i", res->count);
             ImGui::TableNextColumn();

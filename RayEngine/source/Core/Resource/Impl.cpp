@@ -2,7 +2,6 @@
 
 #ifdef IMGUI_ENABLE
 
-#include "Editor/Assets/AssetBrowser.h"
 #include "ImGui/FileBrowser/imgui_filebrowser.h"
 
 #include "ImGui/imgui.h"
@@ -41,18 +40,7 @@ String Resource::Pick(const String& InLabel, const String& InID, const uint32 In
         
             if (ImGui::BeginDragDropTarget())
             {
-                if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("assets"))
-                {
-                    AssetBrowser* ptr = *static_cast<AssetBrowser**>(p->Data);
-                
-                    // TODO: Accept?
-                    for (auto& s : ptr->GetSelected())
-                    {
-                        result = Utility::File::Relative(s);
-                        break;
-                    }
-                }
-            
+                dragDropCallback(result);
                 ImGui::EndDragDropTarget();
             }
             
@@ -60,8 +48,8 @@ String Resource::Pick(const String& InLabel, const String& InID, const uint32 In
 
             if (!InID.empty())
                 if (ImGui::ArrowButton((InID + Utility::ToStr(InOffset)).c_str(), ImGuiDir_Right))
-                    AssetBrowser::Get().SelectAsset(InID);
-
+                    pickCallback(InID);
+            
             ImGui::EndTable();
         }
         

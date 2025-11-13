@@ -1,5 +1,6 @@
 #include "AssetDetailPanel.h"
 
+#include "Utility/String/StringConversionPath.h"
 #include "Utility/String/StringConversionTime.h"
 
 #include "ImGui/imgui_custom.h"
