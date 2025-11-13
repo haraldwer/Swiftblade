@@ -17,8 +17,8 @@ namespace Engine
         void Deinit();
 
     private:
-        void DrawDebugPanel() override;
-        String DebugPanelName() const override { return "Launcher"; }
+        void DrawPanel() override;
+        String PanelName() const override { return "Launcher"; }
 
         void Push(const String& InHash);
         

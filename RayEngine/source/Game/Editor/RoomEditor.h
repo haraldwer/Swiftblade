@@ -43,8 +43,8 @@ public:
     bool SubmitRoom();
     void FinalizeSubmit() const;
     
-    void DrawDebugPanel() override;
-    String DebugPanelName() const override { return "Room Editor"; }
+    void DrawPanel() override;
+    String PanelName() const override { return "Room Editor"; }
     
     bool IsEditor() const override { return true; }
     bool CanEdit() const;

@@ -2,9 +2,15 @@
 #include "Engine/ECS/Entity.h"
 #include "Level/Level.h"
 
+namespace ECS
+{
+    class PlayerSpawner;
+}
+
 class GameState : public Utility::Singelton<GameState>
 {
 friend class GameInstance; 
+friend class ECS::PlayerSpawner; 
 
 public: 
     // Deaths

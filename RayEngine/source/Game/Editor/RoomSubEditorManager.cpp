@@ -16,7 +16,8 @@ auto CONCAT(hash,x) = Type::GetHash<x>(); \
 editors[CONCAT(hash,x)] = x(); \
 auto& CONCAT(obj,x) = editors.at(CONCAT(hash,x)).Get(); \
 CONCAT(obj,x).editor = InEditor; \
-CONCAT(obj,x).option = name;
+CONCAT(obj,x).option = name; \
+editorOrder.push_back(CONCAT(hash,x));
 
 void RoomSubEditorManager::Init(RoomEditor* InEditor)
 {
@@ -29,11 +30,11 @@ void RoomSubEditorManager::Init(RoomEditor* InEditor)
     CREATE_SUBEDITOR(RoomObjectEditor, "Objects");
     CREATE_SUBEDITOR(RoomPreviewEditor, "Preview");
 
-    roomType = static_cast<RoomType>(InEditor->GetRoom().Info.Get().Type.Get());
+    roomType = InEditor->GetRoom().Info.Get().Type.Get();
     auto& menu = InEditor->GetMenu();
-    for (auto& editor : editors)
+    for (auto& hash : editorOrder)
     {
-        auto& e = editor.second.Get(); 
+        auto& e = editors.at(hash).Get(); 
         if (e.IsEnabled(roomType))
             menu.AddOption(e.GetObjName(), e.option);
     }
@@ -67,10 +68,17 @@ void RoomSubEditorManager::Deinit()
 
 void RoomSubEditorManager::Update()
 {
-    for (auto& e : editors)
-        if (e.second.Get().IsEnabled(roomType))
-            if (Input::Action::Get(e.second.Get().GetObjName(), "RoomEditor").Pressed())
-                SetCurrent(Type(e.first));
+    int count = 0;
+    for (auto& hash : editorOrder)
+    {
+        auto& e = editors.at(hash).Get();
+        if (e.IsEnabled(roomType))
+        {
+            if (Input::Action::Get("Editor_" + Utility::ToStr(count), "RoomEditor").Pressed())
+                SetCurrent(Type(hash));
+            count++;
+        }
+    }
     
     for (auto& e : editors)
         e.second.Get().Update();

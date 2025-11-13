@@ -1,9 +1,9 @@
 #include "Player.h"
 
 #include "Combat/Weapon/Weapon.h"
-#include "ECS/Checkpoint.h"
-#include "ECS/GameEnd.h"
-#include "ECS/SectionEnd.h"
+#include "ECS/Flow/Checkpoint.h"
+#include "ECS/Flow/SectionEnd.h"
+#include "ECS/Flow/GameEnd.h"
 #include "ECS/Systems/Attributes.h"
 #include "ECS/Obstacles/Obstacle.h"
 #include "ECS/Obstacles/Projectile.h"

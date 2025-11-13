@@ -19,8 +19,8 @@ public:
     void Init();
     void Deinit();
     
-    String DebugPanelName() const override { return "Assets"; }
-    void DrawDebugPanel() override;
+    String PanelName() const override { return "Assets"; }
+    void DrawPanel() override;
     
     void SelectAsset(const String& InPath);
     Set<String> GetSelected();

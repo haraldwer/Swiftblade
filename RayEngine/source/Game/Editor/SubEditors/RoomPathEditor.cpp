@@ -28,9 +28,9 @@ void RoomPathEditor::Deinit()
     config.SaveConfig();
 }
 
-bool RoomPathEditor::IsEnabled(RoomType InRoomType)
+bool RoomPathEditor::IsEnabled(const String& InRoomType)
 {
-    return InRoomType == RoomType::ROOM;
+    return InRoomType == "ROOM";
 }
 
 void RoomPathEditor::Update()

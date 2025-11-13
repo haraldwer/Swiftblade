@@ -27,10 +27,15 @@ String Resource::Pick(const String& InLabel, const String& InID, const uint32 In
 
             String id = InID.empty() ? "Invalid" : InID;
             if (ImGui::Button((id + "##" + InLabel).c_str(), ImVec2(-1, 0)))
+            {
+                if (!valid)
+                    ImGui::PopStyleColor();
+                
                 ImGui::OpenFileBrowser(InID);
-        
-            if (!valid)
+            }
+            else if (!valid)
                 ImGui::PopStyleColor();
+        
         
             ImGui::SetItemTooltip(InID.c_str());
         
@@ -60,7 +65,7 @@ String Resource::Pick(const String& InLabel, const String& InID, const uint32 In
             ImGui::EndTable();
         }
         
-        Utility::EndTable(InOffset);
+        Utility::EndTable(InLabel, InOffset);
     }
     
     String pickResult; 

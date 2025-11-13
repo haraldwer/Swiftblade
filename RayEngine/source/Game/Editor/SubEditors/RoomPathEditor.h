@@ -25,7 +25,7 @@ class RoomPathEditor : public RoomSubEditor
 public:
     void Init() override;
     void Deinit() override;
-    bool IsEnabled(RoomType InRoomType) override;
+    bool IsEnabled(const String& InRoomType) override;
 
     void Update() override;
     void SmoothPath();

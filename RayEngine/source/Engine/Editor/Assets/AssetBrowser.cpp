@@ -103,7 +103,7 @@ void AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node& InNode
     }
 }
 
-void AssetBrowser::DrawDebugPanel()
+void AssetBrowser::DrawPanel()
 {
     PROFILE();
     
@@ -165,9 +165,10 @@ void AssetBrowser::DrawDebugPanel()
 
 void AssetBrowser::SelectAsset(const String &InPath)
 {
+    String relative = Utility::File::Relative(InPath);
     std::function<bool(const Node&)> select = [&](const Node& InNode)
     {
-        if (InNode.path == InPath)
+        if (Utility::File::Relative(InNode.path) == relative)
         {
             SelectNode(InNode);
             return true;

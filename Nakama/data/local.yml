@@ -3,6 +3,7 @@ name: SwiftbladeDB
 database:
   address:
     - "root@cockroachdb:26257"
+  #address: "username:password@address:port/dbname"
 
 socket:
   server_key: ${SERVER_KEY}

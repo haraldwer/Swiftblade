@@ -153,10 +153,14 @@ String Utility::File::Relative(const String &InPath)
 {
     auto current = std::filesystem::current_path();
     auto currStr = current.string();
+    if (InPath.size() < currStr.size())
+        return InPath;
+    if (InPath == currStr)
+        return "";
     auto find = InPath.find_first_of(currStr);
     if (find == String::npos)
         return InPath; // Already relative
-    auto result = InPath.substr(find + currStr.length() + 1);
+    auto result = InPath.substr( find + currStr.length() + 1);
     return result;
 }
 

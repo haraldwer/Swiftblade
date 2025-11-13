@@ -32,7 +32,6 @@ imgui.ini
 # Nakama
 .cookie
 .env
-local.yml
 C_Database.json
 
 # Obsidian

@@ -1,9 +1,16 @@
 #include "EnemySpawner.h"
 
 #include "Enemy.h"
+#include "ECS/Manager.h"
+#include "Instance/Instance.h"
 
-void ECS::SysEnemySpawner::Init(ECS::EntityID InID, EnemySpawner& InComponent)
+void ECS::SysEnemySpawner::Init(EntityID InID, EnemySpawner& InComponent)
 {
     System::Init(InID, InComponent);
-    GetSystem<SysEnemy>().Spawn(InID);
+
+    if (!Engine::Instance::Get().IsEditor())
+    {
+        GetSystem<SysEnemy>().Spawn(InID);
+        Manager::Get().DestroyEntity(InID);
+    }
 }

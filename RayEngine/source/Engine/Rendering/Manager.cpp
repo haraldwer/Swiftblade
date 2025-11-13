@@ -75,7 +75,22 @@ void Rendering::Manager::Render(const Scene& InScene)
 
 #ifdef IMGUI_ENABLE
 
-void Rendering::Manager::DrawDebugPanel()
+bool Rendering::Manager::PanelBegin(bool &InOutOpen)
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoCollapse;
+    //if (hovered)
+    //    flags |= ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove;
+    return ImGui::Begin((PanelName() + "##Panel").c_str(), &InOutOpen, flags);
+}
+
+void Rendering::Manager::PanelEnd()
+{
+    ImGui::End();
+    ImGui::PopStyleVar();
+}
+
+void Rendering::Manager::DrawPanel()
 {
     PROFILE_GL();
 
@@ -96,23 +111,22 @@ void Rendering::Manager::DrawDebugPanel()
         vMin.x + windowPos.x,
         vMin.y + windowPos.y
     });
-    
-    hovered = ImGui::IsWindowHovered();
+
+    hovered = ImGui::IsMouseHoveringRect(vMin + windowPos, vMax + windowPos) && !ImGuizmo::IsOver();
+    //ImGui::IsAnyItemHovered()
+    //ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)
+    //ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopup)
 }
 
 bool Rendering::Manager::IsViewportClickable() const
 {
-    if (hovered)
-        return true;
-    if (ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopup))
-        return false;
-    return true;
+    return hovered && IsWindowFocused();
 }
 
 #else
 
 void Rendering::Manager::DrawDebugPanel() {  }
-bool Rendering::Manager::IsViewportClickable() const { return true; }
+bool Rendering::Manager::IsViewportClickable() const { return IsWindowFocused(); }
 
 #endif
 
@@ -126,7 +140,7 @@ void Rendering::Manager::BeginFrame()
     
     // Blip if not debug drawing
     const auto& debugMan = Debug::Manager::Get();
-    if (debugMan.IsOpen(DebugPanelName()))
+    if (debugMan.IsOpen(PanelName()))
     {
         rlClearScreenBuffers();
     }
@@ -224,7 +238,7 @@ void Rendering::Manager::AutoResize()
     
 #endif
     
-    if (debugMan.IsOpen(DebugPanelName()))
+    if (debugMan.IsOpen(PanelName()))
         return;
 
     auto& view = queuedConfig.Viewport.Get();

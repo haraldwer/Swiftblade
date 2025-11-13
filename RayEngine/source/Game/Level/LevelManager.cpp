@@ -1,6 +1,6 @@
 ﻿#include "LevelManager.h"
 
-#include "ECS/RoomConnection.h"
+#include "../ECS/Flow/RoomConnection.h"
 #include "Engine/ECS/Manager.h"
 #include "Engine/ECS/Systems/Transform.h"
 #include "GameState.h"

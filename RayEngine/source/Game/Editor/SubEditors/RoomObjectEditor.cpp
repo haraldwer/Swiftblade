@@ -299,7 +299,7 @@ ECS::EntityID RoomObjectEditor::LoadObject(const EditRoomObject &InObj)
 
 ECS::EntityID RoomObjectEditor::CreateObject(const EditRoomObject &InObj) const
 {
-    int type = GetRoom().Info.Get().Type.Get();
+    const String& type = GetRoom().Info.Get().Type.Get();
     auto& data = config.Types.Get();
     CHECK_RETURN(!data.contains(type), ECS::INVALID_ID)
     auto& roomData = data.at(type);
@@ -312,7 +312,12 @@ ECS::EntityID RoomObjectEditor::CreateObject(const EditRoomObject &InObj) const
 
 void RoomObjectEditor::LoadRoom()
 {
-    // TODO: Diff
+    auto& info = GetRoom().Info.Get();
+    auto& types = config.Types.Get();
+    auto& roomType = info.Type.Get();
+    if (!types.contains(roomType))
+        roomType = "ROOM";
+    
     DestroyLoaded();
     for (auto& o : GetRoom().Objects.Get())
     {

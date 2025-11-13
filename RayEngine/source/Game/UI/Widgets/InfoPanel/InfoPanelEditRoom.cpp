@@ -105,7 +105,7 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
     {
         if (auto res = room.Get())
         {
-            res->data.Info.Get().Type = toggle.GetSelectedIndex();
+            res->data.Info.Get().Type = toggle.GetSelected();
             res->Save();
         }
         InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
@@ -146,10 +146,11 @@ void UI::InfoPanelEditRoom::SetResourceInfo(const EditRoom& InRoom)
     int objects = req.Objects;
     float length = req.Length;
     int spawners = req.Spawners;
+    String type = req.Type;
     
     SetText("Name", name);
     Get<Textbox>("NameEdit").SetText(name);
-    Get<ToggleSelector>("RoomType").SetSelectedIndex(InRoom.Info.Get().Type.Get());
+    Get<ToggleSelector>("RoomType").SetSelected(type);
         
     SetText("Creator", "by " + creator);
     SetText("Length", "Length: " + Utility::ToStr(length) + " units");

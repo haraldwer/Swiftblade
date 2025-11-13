@@ -11,8 +11,8 @@ namespace Audio
         void Deinit();
         void Update();
         
-        String DebugPanelName() const override { return "Audio"; }
-        void DrawDebugPanel() override;
+        String PanelName() const override { return "Audio"; }
+        void DrawPanel() override;
 
     private:
         Generator generator;

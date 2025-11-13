@@ -1,7 +1,7 @@
 #include "RoomConnectionEditor.h"
 
 #include "ECS/Manager.h"
-#include "ECS/RoomConnection.h"
+#include "../../ECS/Flow/RoomConnection.h"
 #include "ECS/Systems/Transform.h"
 #include "ECS/Volume/CubeVolume.h"
 #include "Editor/RoomEditor.h"

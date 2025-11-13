@@ -8,8 +8,8 @@ namespace Rendering
     class FrameViewer : public Debug::Panel
     {
     public:
-        void DrawDebugPanel() override;
-        String DebugPanelName() const override { return "Rendering"; }
+        void DrawPanel() override;
+        String PanelName() const override { return "Rendering"; }
         void SetStats(const Pipeline::Stats& InStats) { stats = InStats; }
         void DrawViewportPanel();
 

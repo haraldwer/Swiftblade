@@ -6,6 +6,8 @@ namespace ECS
 {
     struct EnemySpawner : Component<EnemySpawner>
     {
+        // Parameters for enemy config
+        //
     };
 
     class SysEnemySpawner : public System<EnemySpawner>

@@ -4,6 +4,6 @@
 
 class ReferenceViewer : public Debug::Panel
 {
-    String DebugPanelName() const override { return "References"; }
-    void DrawDebugPanel() override;
+    String PanelName() const override { return "References"; }
+    void DrawPanel() override;
 };

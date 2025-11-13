@@ -8,10 +8,12 @@ namespace Debug
         Panel();
         virtual ~Panel();
 
-        virtual void DrawDebugPanel() = 0;
-        virtual String DebugPanelName() const = 0;
-        virtual bool NoDebugPanelPadding() const { return false; }
-        bool IsDebugPanelOpen() const;
+        virtual bool PanelBegin(bool& InOutOpen);
+        virtual void DrawPanel() = 0;
+        virtual void PanelEnd();
+        virtual String PanelName() const = 0;
+        virtual int PanelPriority() const { return 0; };
+        bool IsPanelOpen() const;
     };
 }
 

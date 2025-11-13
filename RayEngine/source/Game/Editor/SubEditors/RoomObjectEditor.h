@@ -27,7 +27,7 @@ struct RoomTypeData : PropertyOwner<RoomTypeData>
     PROPERTY_D(bool, HasEnd, true);
 };
 
-typedef Map<int, RoomTypeData> RoomTypes;
+typedef Map<String, RoomTypeData> RoomTypes;
 
 struct RoomObjectEditorConfig : BaseConfig<RoomObjectEditorConfig>
 {

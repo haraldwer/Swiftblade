@@ -85,7 +85,7 @@ void Input::Manager::Frame()
     UpdateCursorState();
 }
 
-void Input::Manager::UpdateAction(Input::Action& InAction) const
+void Input::Manager::UpdateAction(Action& InAction) const
 {
     CHECK_RETURN(InAction.Key < 0);
     
@@ -108,7 +108,7 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
     const int key = InAction.Key.Get();
     bool down = false;
     float value = 0.0f;
-    if (IsWindowFocused())
+    if (Rendering::Manager::Get().IsViewportClickable())
     {
         switch (static_cast<KeyType>(InAction.KeyType.Get()))
         {
@@ -142,6 +142,21 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
             }
             break;
         }
+
+#ifdef IMGUI_ENABLE
+
+        if (static_cast<KeyType>(InAction.KeyType.Get()) == KeyType::MOUSE_BUTTON)
+        {
+            switch (key)
+            {
+                case MOUSE_BUTTON_LEFT: down |= ImGui::IsMouseDown(ImGuiMouseButton_Left); break;
+                case MOUSE_BUTTON_RIGHT: down |= ImGui::IsMouseDown(ImGuiMouseButton_Right); break;
+                case MOUSE_BUTTON_MIDDLE: down |= ImGui::IsMouseDown(ImGuiMouseButton_Middle); break;
+            }
+        }
+        
+#endif
+        
     }
     if (!down)
         down = abs(value) > InAction.Deadzone;
@@ -153,7 +168,7 @@ void Input::Manager::UpdateAction(Input::Action& InAction) const
 
 #ifdef IMGUI_ENABLE
 
-void Input::Manager::DrawDebugPanel()
+void Input::Manager::DrawPanel()
 {
     if (current.ConsumeCursor.Edit())
         current.SaveConfig();

@@ -270,7 +270,7 @@ void RoomEditor::FinalizeSubmit() const
 
 #ifdef IMGUI_ENABLE
 
-void RoomEditor::DrawDebugPanel()
+void RoomEditor::DrawPanel()
 {
     if (IsFreecam())
         ImGui::SetWindowFocus(nullptr); 

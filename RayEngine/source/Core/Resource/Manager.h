@@ -17,8 +17,8 @@ namespace Resource
         void Update();
         void Deinit();
 
-        void DrawDebugPanel() override;
-        String DebugPanelName() const override { return "Resources"; }
+        void DrawPanel() override;
+        String PanelName() const override { return "Resources"; }
         
     private:
         void TryUnload() const;

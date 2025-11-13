@@ -2,6 +2,7 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
 #endif
+#include "Debug/ImGui/DebugPanel.h"
 #include "Utility/AssetPacker.h"
 
 void Init();
@@ -45,6 +46,7 @@ struct GameData
 {
     Debug::Manager debugManager;
     Debug::Log log;
+    ImGui::DebugPanel imguiPanel;
     Resource::Manager resourceManager;
     AssetBrowser assetBrowser;
     Utility::AssetPacker assetPacker;

@@ -19,11 +19,15 @@ services:
   nakama:
     image: registry.heroiclabs.com/heroiclabs/nakama:3.26.0
     entrypoint:
-      - "/bin/sh"
-      - "-ecx"
-      - >
+      - /bin/sh
+      - -ecx
+      - |
+          eval "cat <<EOF
+          $$(cat /nakama/data/local.yml)
+          EOF
+          " > /nakama/data/temp_local.yml &&
           /nakama/nakama migrate up --database.address root@cockroachdb:26257 &&
-          exec /nakama/nakama --config /nakama/data/local.yml
+          exec /nakama/nakama --config /nakama/data/temp_local.yml
     restart: "no"
     links:
       - "cockroachdb:db"

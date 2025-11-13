@@ -28,9 +28,11 @@ namespace Rendering
         void QueueConfig(const Config& InConfig);
         Config GetConfig() const { return currConfig; }
 
-        String DebugPanelName() const override { return "Viewport"; }
-        void DrawDebugPanel() override;
-        bool NoDebugPanelPadding() const override { return true; }
+        String PanelName() const override { return "Viewport"; }
+        int PanelPriority() const override { return -100; }
+        bool PanelBegin(bool &InOutOpen) override;
+        void DrawPanel() override;
+        void PanelEnd() override;
 
         bool IsViewportClickable() const;
         

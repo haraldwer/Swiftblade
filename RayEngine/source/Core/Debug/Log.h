@@ -7,8 +7,8 @@ namespace Debug
     {
     public:
         void Init();
-        void DrawDebugPanel() override;
-        String DebugPanelName() const override { return "Console"; }
+        void DrawPanel() override;
+        String PanelName() const override { return "Console"; }
         
     private:
 

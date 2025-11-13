@@ -11,7 +11,17 @@ Debug::Panel::~Panel()
     Manager::Get().Unregister(this); 
 }
 
-bool Debug::Panel::IsDebugPanelOpen() const
+bool Debug::Panel::PanelBegin(bool &InOutOpen)
 {
-    return Manager::Get().IsOpen(DebugPanelName()); 
+    return ImGui::Begin((PanelName() + "##Panel").c_str(), &InOutOpen);
+}
+
+void Debug::Panel::PanelEnd()
+{
+    ImGui::End();
+}
+
+bool Debug::Panel::IsPanelOpen() const
+{
+    return Manager::Get().IsOpen(PanelName()); 
 }

@@ -27,11 +27,12 @@ public:
 
     bool IgnoreSave(ECS::EntityID InID);
 
-
 private: 
-    OrderedMap<Utility::TypeHash, Object<RoomSubEditor>> editors;
+    Map<Utility::TypeHash, Object<RoomSubEditor>> editors;
+    Vector<Utility::TypeHash> editorOrder;
+    
     Type currentEditor;
-    RoomType roomType;
+    String roomType;
     
     InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback onMenuClicked;
 };

@@ -1,31 +1,26 @@
 {
 	"Types":[{
-			"Key":0,
+			"Key":"END",
 			"Val":{
 				"Objects":[{
-						"Key":"Enemy",
+						"Key":"SectionEnd",
 						"Val":{
-							"BP":"Gameplay/Enemies/BP_EnemySpawner.json"
+							"Icon":"Editor/Objects/T_Icon_Connection.png",
+							"BP":"Gameplay/BP_SectionEnd.json"
 						}
 					}
 				]
 			}
 		},{
-			"Key":1,
+			"Key":"START",
 			"Val":{
 				"Objects":[{
-						"Key":"Enemy",
+						"Key":"Player",
 						"Val":{
-							"Icon":"Editor/Objects/T_Icon_Enemy.png",
-							"BP":"Gameplay/Enemies/BP_Enemy.json"
+							"Icon":"Editor/Objects/T_Icon_Sword.png",
+							"BP":"Gameplay/Player/BP_PlayerSpawner.json"
 						}
-					}
-				]
-			}
-		},{
-			"Key":2,
-			"Val":{
-				"Objects":[{
+					},{
 						"Key":"Sword",
 						"Val":{
 							"Icon":"Editor/Objects/T_Icon_Sword.png",
@@ -35,11 +30,38 @@
 				]
 			}
 		},{
-			"Key":3,
+			"Key":"ARENA",
 			"Val":{
 				"Objects":[{
-						"Key":"",
-						"Val":{}
+						"Key":"Checkpoint",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Checkpoint.png",
+							"BP":"Gameplay/Checkpoint/BP_Checkpoint.json"
+						}
+					},{
+						"Key":"Enemy",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Enemy.png",
+							"BP":"Gameplay/Enemies/BP_EnemySpawner.json"
+						}
+					},{
+						"Key":"Player",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Sword.png",
+							"BP":"Gameplay/Player/BP_PlayerSpawner.json"
+						}
+					}
+				]
+			}
+		},{
+			"Key":"ROOM",
+			"Val":{
+				"Objects":[{
+						"Key":"Enemy",
+						"Val":{
+							"Icon":"Editor/Objects/T_Icon_Enemy.png",
+							"BP":"Gameplay/Enemies/BP_EnemySpawner.json"
+						}
 					}
 				]
 			}

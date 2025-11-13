@@ -4,7 +4,7 @@
 
 #include "EditorFunctions.h"
 
-void Inspector::DrawDebugPanel()
+void Inspector::DrawPanel()
 {
     auto prevSceneSelected = selected;
     EditScene(selected);

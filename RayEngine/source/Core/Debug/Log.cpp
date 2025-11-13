@@ -8,7 +8,7 @@ void Debug::Log::Init()
     Clear();
 }
 
-void Debug::Log::DrawDebugPanel()
+void Debug::Log::DrawPanel()
 {
     if (ImGui::ArrowButton("Bottom", ImGuiDir_Down))
         scrollToBottom = true;

@@ -65,8 +65,8 @@ namespace Utility
     class AssetPacker : public Debug::Panel
     {
     public:
-        String DebugPanelName() const override { return "Asset packer"; }
-        void DrawDebugPanel() override;
+        String PanelName() const override { return "Asset packer"; }
+        void DrawPanel() override;
     private:
         bool packaged = false;
         bool result = false;

@@ -12,13 +12,20 @@ String Utility::GetEditName(const String &InName, const uint32 InOffset)
     return "##" + InName + "_" + ToStr(InOffset);
 }
 
-bool Utility::BeginTable(const String &InName, uint32 InOffset)
+bool Utility::BeginTable(const String &InName, const uint32 InOffset)
 {
     if (InOffset == 0)
         return true;
 
-    float width = ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x;
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+    
+    if (InName.find_first_of("##") == 0)
+    {
+        ImGui::SetNextItemWidth(-1);
+        return true;
+    }
+
+    float width = ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - ImGui::GetStyle().WindowPadding.x;
     if (ImGui::BeginTable((InName + ToStr(InOffset)).c_str(), 2, ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_SizingStretchSame, ImVec2(width, 0), width))
     {
         ImGui::TableNextRow();
@@ -34,13 +41,14 @@ bool Utility::BeginTable(const String &InName, uint32 InOffset)
     return false;
 }
 
-void Utility::EndTable(uint32 InOffset)
+void Utility::EndTable(const String& InName, const uint32 InOffset)
 {
-    if (InOffset != 0)
-    {
-        ImGui::PopStyleVar();
-        ImGui::EndTable();
-    }
+    if (InOffset == 0)
+        return;
+    ImGui::PopStyleVar();
+    if (InName.find_first_of("##") == 0)
+        return;
+    ImGui::EndTable();
 }
 
 bool Utility::BeginSection(const String& InName)

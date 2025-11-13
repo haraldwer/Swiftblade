@@ -6,12 +6,12 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "GameState.h"
 
-void ECS::SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
+void ECS::SysEnemy::Update(EntityID InID, Enemy& InComponent)
 {
-    auto& trans = Get<ECS::Transform>(InID);
-    const ECS::EntityID player = GameState::Get().GetPlayerID();
+    auto& trans = Get<Transform>(InID);
+    const EntityID player = GameState::Get().GetPlayerID();
     CHECK_RETURN(player == ECS::INVALID_ID);
-    const auto& playerTrans = Get<ECS::Transform>(player);
+    const auto& playerTrans = Get<Transform>(player);
 
     // Rotate towards player
     // Add force forward
@@ -20,21 +20,21 @@ void ECS::SysEnemy::Update(ECS::EntityID InID, Enemy& InComponent)
     const QuatF rot = QuatF::FromDirection(dir);
     trans.SetRotation(rot);
     
-    Get<ECS::Rigidbody>(InID).AddForce(dir * InComponent.MovementSpeed.Get());  
+    Get<Rigidbody>(InID).AddForce(dir * InComponent.MovementSpeed.Get());  
 }
 
-void ECS::SysEnemy::Spawn(ECS::EntityID InSpawnerID)
+void ECS::SysEnemy::Spawn(EntityID InSpawnerID)
 {
     const BlueprintResource* bp = ResBlueprint("Gameplay/Enemies/BP_Enemy.json").Get();
     CHECK_RETURN_LOG(!bp, "Invalid blueprint");
-    const ECS::Transform& spawnTrans = Get<ECS::Transform>(InSpawnerID);
-    const ECS::EntityID enemy = bp->Instantiate(spawnTrans.World()); 
+    const Transform* spawnTrans = TryGet<Transform>(InSpawnerID);
+    CHECK_RETURN_LOG(!spawnTrans, "Spawner missing transform");
+    const EntityID enemy = bp->Instantiate(spawnTrans->World()); 
     CHECK_RETURN_LOG(enemy == ECS::INVALID_ID, "Failed to instantiate enemy");
-    
 }
 
-void ECS::SysEnemy::ApplyDamage(const ECS::EntityID InEnemy, ECS::EntityID InDamageDealer)
+void ECS::SysEnemy::ApplyDamage(const EntityID InEnemy, EntityID InDamageDealer)
 {
     LOG("Enemy killed!");
-    ECS::Manager::Get().DestroyEntity(InEnemy); 
+    Manager::Get().DestroyEntity(InEnemy); 
 }

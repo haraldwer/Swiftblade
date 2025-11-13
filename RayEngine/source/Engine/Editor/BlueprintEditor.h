@@ -24,8 +24,8 @@ public:
     void Deinit() override;
     void Logic(double InDelta) override;
     void Frame() override;
-    void DrawDebugPanel() override;
-    String DebugPanelName() const override { return "Blueprint Editor"; }
+    void DrawPanel() override;
+    String PanelName() const override { return "Blueprint Editor"; }
     bool IsEditor() const override { return true; }
     
     void SetPendingBP(const ResBlueprint& InBP);

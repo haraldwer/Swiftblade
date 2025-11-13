@@ -18,8 +18,8 @@ public:
     void Logic(double InDelta) override;
     void Frame() override; 
 
-    void DrawDebugPanel() override;
-    String DebugPanelName() const override { return "Gameplay"; }
+    void DrawPanel() override;
+    String PanelName() const override { return "Gameplay"; }
     
     void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
     void PlayLevel(const LevelConfig& InLevel);

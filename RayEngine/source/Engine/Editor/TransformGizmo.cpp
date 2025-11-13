@@ -62,7 +62,7 @@ bool ImGuizmo::Edit(Mat4F &InOutMat, int &InOutSpace, int &InOutOperation, bool 
     const Rendering::CameraInstance camInstance = Engine::Instance::Get().GetRenderScene().GetCamera();
     Mat4F proj = camInstance.GetProjectionMatrix(size);
     Mat4F view = Mat4F::GetInverse(camInstance.GetViewMatrix());
-        
+    
     const bool result = Manipulate(
         view.data,
         proj.data,

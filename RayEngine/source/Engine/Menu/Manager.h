@@ -92,7 +92,7 @@ namespace Menu
         bool Empty() const { return stack.empty() && pending.empty(); }
 
 #ifdef IMGUI_ENABLE
-        void DrawDebugPanel() override
+        void DrawPanel() override
         {
             int c = 0;
             int count = 0;
@@ -108,7 +108,7 @@ namespace Menu
         void DrawDebugPanel() override {}
 #endif
         
-        String DebugPanelName() const override
+        String PanelName() const override
         {
             return "Menus";
         }

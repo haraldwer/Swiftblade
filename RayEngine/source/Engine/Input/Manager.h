@@ -18,8 +18,8 @@ namespace Input
 
         const Action& GetAction(const String& InAction, const String& InContext = "") const;
 
-        String DebugPanelName() const override { return "Input"; }
-        void DrawDebugPanel() override;
+        String PanelName() const override { return "Input"; }
+        void DrawPanel() override;
 
     private:
         const Action& GetActionInternal(const String& InAction, const String& InContext) const;

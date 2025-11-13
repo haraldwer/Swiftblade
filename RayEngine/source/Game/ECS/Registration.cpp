@@ -4,11 +4,10 @@
 
 #include "ECS/Abilities/BoostPad.h"
 #include "ECS/Abilities/GrapplePoint.h"
-#include "ECS/Checkpoint.h"
 #include "ECS/Enemies/Enemy.h"
 #include "ECS/Enemies/EnemySpawner.h"
-#include "ECS/GameEnd.h"
 #include "ECS/Obstacles/Obstacle.h"
+#include "ECS/Obstacles/Projectile.h"
 #include "ECS/Player/Animation/PlayerAnimator.h"
 #include "ECS/Player/Animation/AnimationPoser.h"
 #include "ECS/Player/Combat/Combat.h"
@@ -17,8 +16,10 @@
 #include "ECS/Player/PlayerCamera.h"
 #include "ECS/Player/PlayerInput.h"
 #include "ECS/Player/Combat/Weapon/Weapon.h"
-#include "ECS/RoomConnection.h"
-#include "ECS/SectionEnd.h"
+#include "ECS/Flow/RoomConnection.h"
+#include "ECS/Flow/SectionEnd.h"
+#include "ECS/Flow/GameEnd.h"
+#include "ECS/Flow/Checkpoint.h"
 #include "ECS/Volume/CubeVolume.h"
 
 #include "Engine/ECS/Systems/Attributes.h"
@@ -31,7 +32,6 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/ECS/Systems/Animator.h"
 #include "Engine/ECS/Systems/Particle.h"
-#include "Obstacles/Projectile.h"
 
 using namespace ECS;
 

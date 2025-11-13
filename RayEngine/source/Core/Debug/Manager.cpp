@@ -26,9 +26,11 @@ void Debug::Manager::Frame(const double InDeltaTime)
     
     for (auto w : pendingRegister)
     {
-        const String name = w->DebugPanelName();
-        windows[name].push_back(w);
-        windowToName[w] = name; 
+        const String name = w->PanelName();
+        const int priority = w->PanelPriority();
+        panels[priority][name].push_back(w);
+        panelToName[w] = name;
+        panelToPriority[w] = priority;
     }
     pendingRegister.clear();
 
@@ -45,23 +47,23 @@ void Debug::Manager::Frame(const double InDeltaTime)
     {
         if (ImGui::BeginMenu("View"))
         {
-            for (const auto& entry : windows)
+            for (const auto& priority : panels)
             {
-                CHECK_CONTINUE(entry.second.empty());
-                auto& w = entry.second.back();
-                CHECK_CONTINUE(!w);
-                const String name = w->DebugPanelName();
-                const bool open = IsOpen(name);
-                
-                if (ImGui::MenuItem(name.c_str()))
-                    SetOpen(name, !open);
-
-                if (open)
+                for (const auto& entry : priority.second)
                 {
-                    ImGui::SameLine();
-                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5);
-                    ImGui::Bullet();
-                    ImGui::NewLine();
+                    CHECK_CONTINUE(entry.second.empty());
+                    const bool open = IsOpen(entry.first);
+                    
+                    if (ImGui::MenuItem(entry.first.c_str()))
+                        SetOpen(entry.first, !open);
+
+                    if (open)
+                    {
+                        ImGui::SameLine();
+                        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5);
+                        ImGui::Bullet();
+                        ImGui::NewLine();
+                    }
                 }
             }
             ImGui::EndMenu();
@@ -100,25 +102,22 @@ void Debug::Manager::Frame(const double InDeltaTime)
         ImGui::EndMainMenuBar();
     }
 
-    // Windows
-    for (const auto& entry : windows)
+    // Draw the panels
+    for (auto& p : panels)
     {
-        CHECK_CONTINUE(entry.second.empty());
-        auto& w = entry.second.back();
-        CHECK_CONTINUE(!w);
-        auto name = w->DebugPanelName();
-        if (IsOpen(name))
+        for (auto& name : p.second)
         {
-            bool open = true;
-            if (w->NoDebugPanelPadding())
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
-            if (ImGui::Begin((name + " ").c_str(), &open))
-                w->DrawDebugPanel();
-            if (!open)
-                SetOpen(name.c_str(), false);
-            if (w->NoDebugPanelPadding())
-                ImGui::PopStyleVar();
-            ImGui::End(); 
+            CHECK_CONTINUE(name.second.empty());
+            auto& panel = name.second.back();
+            CHECK_CONTINUE(!panel);
+            if (IsOpen(name.first))
+            {
+                bool open = true;
+                panel->PanelBegin(open);
+                panel->DrawPanel();
+                panel->PanelEnd();
+                if (!open) SetOpen(name.first, false);
+            }
         }
     }
 }
@@ -130,14 +129,16 @@ void Debug::Manager::Register(Panel* InWindow)
 
 void Debug::Manager::Unregister(const Panel* InWindow)
 {
-    const String name = windowToName[InWindow]; 
-    windowToName.erase(InWindow); 
-    auto& vec = windows[name];
-    for (int i = static_cast<int>(vec.size()) - 1; i >= 0; i--)
-        if (vec[static_cast<size_t>(i)] == InWindow || !vec[static_cast<size_t>(i)])
+    const String name = panelToName.at(InWindow);
+    const int priority = panelToPriority.at(InWindow);
+
+    auto& vec = panels.at(priority).at(name);
+    for (int i = vec.size() - 1; i >= 0; i--)
+        if (vec.at(i) == InWindow)
             vec.erase(vec.begin() + i);
-    if (windows[name].empty())
-        windows.erase(name);
+    
+    panelToName.erase(InWindow);
+    panelToPriority.erase(InWindow);
 }
 
 bool Debug::Manager::IsOpen(const String& InWindow) const

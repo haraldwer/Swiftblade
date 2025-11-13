@@ -119,7 +119,7 @@ void Rendering::FrameViewer::DrawViewTex(const Texture &tex)
         });
 }
 
-void Rendering::FrameViewer::DrawDebugPanel()
+void Rendering::FrameViewer::DrawPanel()
 {
     if (ImGui::CollapsingHeader("Stats"))
     {

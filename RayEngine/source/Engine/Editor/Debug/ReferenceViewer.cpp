@@ -6,7 +6,7 @@
 #include "Utility/Memory/Pointers.h"
 
 
-void ReferenceViewer::DrawDebugPanel()
+void ReferenceViewer::DrawPanel()
 {
     ImGui::Text("Total references: %i", static_cast<int>(Utility::BaseRef::refs.size())); 
 

@@ -130,22 +130,22 @@
 					"Name":"Generate"
 				},{
 					"Key":49,
-					"Name":"RoomConnectionEditor"
+					"Name":"Editor_0"
 				},{
 					"Key":50,
-					"Name":"RoomPathEditor"
+					"Name":"Editor_1"
 				},{
 					"Key":51,
-					"Name":"RoomGenEditor"
+					"Name":"Editor_2"
 				},{
 					"Key":52,
-					"Name":"RoomVolumeEditor"
+					"Name":"Editor_3"
 				},{
 					"Key":53,
-					"Name":"RoomObjectEditor"
+					"Name":"Editor_4"
 				},{
 					"Key":54,
-					"Name":"RoomPreviewEditor"
+					"Name":"Editor_5"
 				}
 			],
 			"Name":"RoomEditor"

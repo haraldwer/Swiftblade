@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/Backlog/Editor/0 - Arena room type.md",
+                "file": "Tasks/Backlog/Editor/0 - Connection room type.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0 - Arena room type"
+              "title": "0 - Connection room type"
             }
           }
         ]
@@ -166,8 +166,10 @@
   },
   "active": "0936951435052654",
   "lastOpenFiles": [
-    "Tasks/Backlog/Editor/0 - Course room type.md",
     "Milestones/Milestone 6 (25.11.12).md",
+    "Tasks/Backlog/Editor/0 - Connection room type.md",
+    "Tasks/Archive/0 - Course room type.md",
+    "Tasks/Archive/0 - Arena room type.md",
     "Tasks/Archive/0 - Selecting room type.md",
     "Tasks/Backlog/Engine/1 - Improved file picking.md",
     "Tasks/Archive/1 - Asset drag and drop.md",
@@ -178,14 +180,12 @@
     "Tasks/Backlog/Engine/2 - Child overrides.md",
     "Tasks/Backlog/Engine/1 - Inline resource editing.md",
     "Backlog.md",
-    "Tasks/Backlog/Editor/0 - Connection room type.md",
     "Tasks/Backlog/Editor/0 - Object icons in editor.md",
     "Tasks/Backlog/Editor/0 - Object placement limits.md",
     "Tasks/Backlog/Editor/0 - Room bounds.md",
     "Tasks/Backlog/Editor/1 - Fix block placing logic.md",
     "Tasks/Backlog/UI/0 - Story menu.md",
     "Tasks/Backlog/UI/0 - Level leaderboard.md",
-    "Tasks/Backlog/Editor/0 - Arena room type.md",
     "Milestones/Milestone 2 (23.11.15).md",
     "Milestones/Milestone 3 (23.11.29).md",
     "Tasks/Backlog/Editor/0 - Backend support for room types.md",

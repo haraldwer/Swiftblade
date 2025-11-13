@@ -5,8 +5,8 @@
 class AssetDetails : Debug::Panel
 {
 public:
-    String DebugPanelName() const override { return "Details"; }
-    void DrawDebugPanel() override;
+    String PanelName() const override { return "Details"; }
+    void DrawPanel() override;
     void Clear();
     void Select(const Vector<String>& InPaths);
     void Deselect(const String& InPaths);

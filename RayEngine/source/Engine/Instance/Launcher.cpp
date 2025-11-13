@@ -22,7 +22,7 @@ void Engine::Launcher::Deinit()
     config.SaveConfig();
 }
 
-void Engine::Launcher::DrawDebugPanel()
+void Engine::Launcher::DrawPanel()
 {
     auto instance = Manager::Get().Top();
     CHECK_ASSERT(!instance, "No instance");

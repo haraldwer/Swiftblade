@@ -16,6 +16,8 @@ void GameInstance::Init()
     ecs.Init();
     physics.Init();
 
+    CHECK_ASSERT(state.playerID != ECS::INVALID_ID, "No player should exist at this point");
+    
     if (startScene.Identifier().IsValid())
     {
         Vector<ResScene> roomList;
@@ -31,10 +33,14 @@ void GameInstance::Init()
         rooms.LoadLevel(state.level);  
     }
 
-    if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
-    { 
-        state.playerID = ecs.CreateEntity(); 
-        bp->Instantiate(startPlayerPos + Vec3F::Up() * 2.0f, {}, state.playerID);
+    if (state.playerID == ECS::INVALID_ID)
+    {
+        LOG("No player spawned, creating default player")
+        if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
+        { 
+            state.playerID = ecs.CreateEntity(); 
+            bp->Instantiate(startPlayerPos + Vec3F::Up() * 2.0f, {}, state.playerID);
+        }
     }
 }
 
@@ -90,7 +96,7 @@ void GameInstance::SetState(const GameState& InState)
 
 #ifdef IMGUI_ENABLE
 
-void GameInstance::DrawDebugPanel()
+void GameInstance::DrawPanel()
 {
     CHECK_RETURN(state.playerID == ECS::INVALID_ID);
 

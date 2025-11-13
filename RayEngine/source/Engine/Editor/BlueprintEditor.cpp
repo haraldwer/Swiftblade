@@ -118,7 +118,7 @@ void BlueprintEditor::Frame()
 
 #ifdef IMGUI_ENABLE
 
-void BlueprintEditor::DrawDebugPanel()
+void BlueprintEditor::DrawPanel()
 {
     if (instanceID == ECS::INVALID_ID)
         return; 

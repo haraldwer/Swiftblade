@@ -13,12 +13,13 @@
 #include "ConfigDetails.h"
 #include "Debug/Config.h"
 #include "Editor/BlueprintEditor.h"
+#include "ImGui/imgui_internal.h"
 #include "Input/Config.h"
 #include "Instance/Launcher.h"
 #include "Resources/Particle.h"
 #include "UI/Widgets/Browse/BrowseStoryPanel.h"
 
-void AssetDetails::DrawDebugPanel()
+void AssetDetails::DrawPanel()
 {
     int counter = 0;
     for (int i = 0; i < (int)details.size(); i++)
@@ -41,6 +42,14 @@ void AssetDetails::DrawDebugPanel()
             details.erase(details.begin() + i);
             i--;
         }
+    }
+
+    if (counter == 0)
+    {
+        auto size = ImGui::CalcTextSize("No asset selected");
+        auto win = ImGui::GetWindowSize();
+        ImGui::SetCursorPos((win - size) / 2);
+        ImGui::Text("No asset selected");
     }
 }
 

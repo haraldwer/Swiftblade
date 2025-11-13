@@ -21,9 +21,9 @@ void RoomGenEditor::Enter()
         StartGen();
 }
 
-bool RoomGenEditor::IsEnabled(RoomType InRoomType)
+bool RoomGenEditor::IsEnabled(const String& InRoomType)
 {
-    return InRoomType == RoomType::ROOM;
+    return InRoomType == "ROOM";
 }
 
 void RoomGenEditor::Update()

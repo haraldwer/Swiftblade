@@ -58,7 +58,7 @@ void MenuRoomObjects::SetConfig(const RoomObjectEditorConfig &InConfig, const Ro
     ui.ClearChildren();
     objects.clear();
 
-    int type = InInfo.Type.Get();
+    const String& type = InInfo.Type.Get();
     auto& data = InConfig.Types.Get();
     if (!data.contains(type))
         return;

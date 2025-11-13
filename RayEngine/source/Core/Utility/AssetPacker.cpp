@@ -188,7 +188,7 @@ String Utility::AssetPackReader::ReadChunk(uint64 InChunk, uint64 InStart, uint6
 
 #ifdef IMGUI_ENABLE
 
-void Utility::AssetPacker::DrawDebugPanel()
+void Utility::AssetPacker::DrawPanel()
 {
     ImGui::Text("This tool will package game assets");
     ImGui::Text("Package can be found at:");

@@ -1,0 +1,20 @@
+{
+	"Components":[{
+			"Name":"EnemySpawner",
+			"Data":{}
+		},{
+			"Name":"Attributes",
+			"Data":{
+				"Name":"EnemySpawner"
+			}
+		},{
+			"Name":"Mesh",
+			"Data":{
+				"Model":"Gameplay/Enemies/Skull/M_Enemy_Skull_Fire.obj"
+			}
+		},{
+			"Name":"Transform",
+			"Data":{}
+		}
+	]
+}

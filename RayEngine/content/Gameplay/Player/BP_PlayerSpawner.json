@@ -1,0 +1,15 @@
+{
+	"Components":[{
+			"Name":"Attributes",
+			"Data":{
+				"Name":"PlayerSpawner"
+			}
+		},{
+			"Name":"Mesh",
+			"Data":{}
+		},{
+			"Name":"Transform",
+			"Data":{}
+		}
+	]
+}

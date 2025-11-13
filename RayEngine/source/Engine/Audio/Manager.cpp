@@ -22,7 +22,7 @@ void Audio::Manager::Update()
 
 #ifdef IMGUI_ENABLE
 
-void Audio::Manager::DrawDebugPanel()
+void Audio::Manager::DrawPanel()
 {
     PROFILE();
     

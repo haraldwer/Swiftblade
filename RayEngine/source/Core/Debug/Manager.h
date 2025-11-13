@@ -24,9 +24,13 @@ namespace Debug
 
     private:
         Set<Panel*> pendingRegister = {};
-        Map<String, Vector<Panel*>> windows = {};
-        Map<const Panel*, String> windowToName = {};
+        
+        OrderedMap<int, OrderedMap<String, Vector<Panel*>>> panels;
+        Map<const Panel*, String> panelToName;
+        Map<const Panel*, int> panelToPriority;
+        
         Config current = {};
+
 
         // Logic tick counter
         int logicCounter = 0;

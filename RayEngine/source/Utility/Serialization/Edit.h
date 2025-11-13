@@ -11,7 +11,7 @@ namespace Utility
 {
     String GetEditName(const String& InName, uint32 InOffset);
     bool BeginTable(const String& InName, uint32 InOffset);
-    void EndTable(uint32 InOffset);
+    void EndTable(const String& InName, uint32 InOffset);
     
     bool MaybeCollapse(const String& InName, uint32 InOffset, bool& OutHeader);
     bool Button(const String& InName, uint32 InOffset);
@@ -31,7 +31,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::Checkbox(GetEditName(InName, InOffset).c_str(), &InOutData);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -42,7 +42,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputFloat(GetEditName(InName, InOffset).c_str(), &InOutData);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -53,7 +53,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &InOutData);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -66,7 +66,7 @@ namespace Utility
             int i = InOutData;
             result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
             InOutData = static_cast<uint8>(i);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result; 
     }
@@ -79,7 +79,7 @@ namespace Utility
             int i = static_cast<int>(InOutData);
             result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
             InOutData = static_cast<uint32>(i);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result; 
     }
@@ -92,7 +92,7 @@ namespace Utility
             int i = static_cast<int>(InOutData);
             result = ImGui::InputInt(GetEditName(InName, InOffset).c_str(), &i);
             InOutData = static_cast<uint32>(i);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result; 
     }
@@ -103,7 +103,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputFloat2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -114,7 +114,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputFloat3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -125,7 +125,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputFloat4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -136,7 +136,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputInt2(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -147,7 +147,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputInt3(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -158,7 +158,7 @@ namespace Utility
         if (BeginTable(InName, InOffset))
         {
             result = ImGui::InputInt4(GetEditName(InName, InOffset).c_str(), &InOutData.data[0]);
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -175,7 +175,7 @@ namespace Utility
                 InOutData = QuatF::FromEuler(euler *= Math::DegreesToRadians(1.0f));
                 result = true; 
             }
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -194,7 +194,7 @@ namespace Utility
             const String copy = InOutData;
             ImGui::InputText(GetEditName(InName, InOffset).c_str(), &InOutData);
             result = InOutData != copy;
-            EndTable(InOffset);
+            EndTable(InName, InOffset);
         }
         return result;
     }
@@ -218,11 +218,11 @@ namespace Utility
             bool wasEmpty = InOutData.empty();
             for (auto& data : InOutData)
             {
-                if (Button("^", InOffset + 1234 * off))
-                    moveUp = off;
-                SameLine();
                 if (Button("-", InOffset + 1234 * off))
                     remove = off;
+                SameLine();
+                if (Button("^", InOffset + 1234 * off))
+                    moveUp = off;
                 SameLine();
                 String offStr = std::to_string(off + 1);
                 String name = offStr + "##" + InName + offStr; 
@@ -262,8 +262,8 @@ namespace Utility
                 edited = true;
             }
             
-            EndSection();
         }
+        EndSection();
         return edited; 
     }
     
@@ -292,8 +292,8 @@ namespace Utility
             for (auto& data : InOutData)
                 if (Edit(("##" + InName).c_str(), data, InOffset))
                     edited = true;
-            EndSection();
         }
+        EndSection();
         return edited; 
     }
 
@@ -370,94 +370,31 @@ namespace Utility
                     edited = true;
                 }
             }
-            SameLine();
-            if (ImGui::Button(("Clear##" + InName + ToStr(InOffset)).c_str(), ImVec2(-1, 0)))
+
+            if (!InOutData.empty())
             {
-                InOutData.clear();
-                idMap.clear();
-                edited = true;
+                SameLine();
+                if (ImGui::Button(("Clear##" + InName + ToStr(InOffset)).c_str(), ImVec2(-1, 0)))
+                {
+                    InOutData.clear();
+                    idMap.clear();
+                    edited = true;
+                }
             }
-            EndSection();
         }
+        EndSection();
         return edited;
     }
 
     template <class Key, class Val>
     bool Edit(const String& InName, OrderedMap<Key, Val>& InOutData, uint32 InOffset = 0)
     {
-        bool edited = false; 
-        if (BeginSection(InName))
+        Map<Key, Val> map = Map<Key, Val>(InOutData.begin(), InOutData.end());
+        if (Edit(InName, map, InOffset))
         {
-            Map<Key, Key> remappings;
-            Vector<Key> removed;
-            static Map<String, Map<Key, uint32>> persistance; // Name -> id -> key
-            auto& idMap = persistance[InName];
-            static uint32 idC = 0;
-            
-            for (auto& data : InOutData)
-            {
-                // Add id
-                if (!idMap.contains(data.first))
-                {
-                    idMap[data.first] = idC;
-                    idC++;
-                }
-                
-                const uint32 id = idMap[data.first];
-                const String idStr = ToStr(id);
-
-                Key k = data.first;
-                if (Edit("##Key_" + InName + idStr, k, InOffset))
-                    remappings[data.first] = k;
-
-                if (ImGui::Button(("-##" + idStr + ToStr(InOffset)).c_str()))
-                    removed.push_back(data.first);
-                
-                if (Edit("##Val_" + idStr, data.second, InOffset))
-                    edited = true;
-            }
-
-            for (auto& rem : removed)
-            {
-                CHECK_CONTINUE(!InOutData.contains(rem));
-                InOutData.erase(rem);
-                idMap.erase(rem);
-                edited = true;
-            }
-                
-            // Remap edited entries
-            for (auto& remap : remappings)
-            {
-                CHECK_CONTINUE(remap.second == Key());
-                CHECK_CONTINUE(InOutData.contains(remap.second));
-                CHECK_CONTINUE(!InOutData.contains(remap.first));
-                InOutData[remap.second] = InOutData[remap.first];
-                InOutData.erase(remap.first);
-                idMap[remap.second] = idMap[remap.first];
-                idMap.erase(remap.first);
-                edited = true;
-            }
-            
-            if (Button("+##" + InName, InOffset))
-            {
-                if (!InOutData.contains(Key()))
-                {
-                    InOutData[Key()] = Val();
-                    edited = true;
-                }
-                
-            }
-            SameLine();
-            if (Button("Clear##" + InName, InOffset))
-            {
-                InOutData.clear();
-                idMap.clear();
-                edited = true;
-            }
-            
-            EndSection();
+            InOutData = OrderedMap<Key, Val>(map.begin(), map.end());
+            return true;
         }
-        return edited;
     }
 }
 

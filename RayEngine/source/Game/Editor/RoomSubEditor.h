@@ -34,7 +34,7 @@ public:
     virtual void Enter() {}
     virtual void Exit() {}
     virtual bool IgnoreSave(ECS::EntityID InID) { return false; }
-    virtual bool IsEnabled(RoomType InRoomType) { return true; }
+    virtual bool IsEnabled(const String& InRoomType) { return true; }
     
     ECS::EntityID GetVolumeID() const;
     ECS::CubeVolume& GetVolume() const;
