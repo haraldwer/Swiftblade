@@ -1,4 +1,5 @@
 {
+	"DebugEnabled":false,
 	"OpenWindows":[
 		"Assets",
 		"Blueprint Editor",
