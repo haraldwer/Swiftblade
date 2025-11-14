@@ -118,7 +118,7 @@ namespace Resource
             return true; 
         }
 
-        bool Edit(const String& InName, uint32 InOffset = 0)
+        bool Edit(const String& InName = "", uint32 InOffset = 0)
         {
             // File picker
             const String currID = ptr ? ptr->id.Str() : "";

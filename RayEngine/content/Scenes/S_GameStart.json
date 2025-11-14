@@ -1,172 +1,144 @@
 {
-	"Data":{
-		"Offset":[
-			1.0,
-			0.0,
-			0.0,
-			0.0,
-			0.0,
-			1.0,
-			0.0,
-			0.0,
-			0.0,
-			0.0,
-			1.0,
-			0.0,
-			-8.0,
-			-1.0,
-			-1.999999761581421,
-			1.0
-		]
-	},
-	"Objects":[{
-			"Blueprint":"Gameplay/Enemies/BP_Enemy.json",
-			"Overrides":{
-				"Components":[{
-						"Name":"Mesh",
-						"Data":{}
-					},{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"Enemy"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{
-							"Position":[
-								3.999999761581421,
-								7.999999523162842,
-								10.000000953674316
-							]
-						}
-					},{
-						"Name":"Collider",
-						"Data":{}
-					},{
-						"Name":"Enemy",
-						"Data":{}
-					}
-				]
-			}
-		},{
-			"Blueprint":"Blueprints/BP_CubeVolume.json",
-			"Overrides":{
-				"Components":[{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"Unnamed5"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{}
-					},{
-						"Name":"CubeVolume",
-						"Data":{
-							"Data":"1:131072,196608,589829,262144,524293,327680,393216,458752,655365,131074,524288,327685,65537,131073,196609,262145,589828,327681,524292,393217,458753,655364,524289,327684,589825,262148,131075,2,65538,196610,262146,327682,393218,458754,524290,589826,655362,3,65539,196611,262147,327683,393219,458755,524291,589827,655363,4,65540,131076,196612,393220,458756,5,65541,131077,196613,262149,393221,458757,6,65542,131078,196614,262150,327686,393222,458758,524294,262404,589830,655366,65543,131079,196615,262151,327687,393223,458759,524295,589831,131080,196616,262152,327688,393224,458760,524296,;"
-						}
-					}
-				]
-			}
-		},{
-			"Blueprint":"Gameplay/BP_RoomConnection.json",
-			"Overrides":{
-				"Components":[{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"RoomConnection"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{
-							"Position":[
-								8.200000762939453,
-								1.0,
-								21.0
-							]
-						}
-					},{
-						"Name":"RoomConnection",
-						"Data":{}
-					}
-				]
-			}
-		},{
-			"Blueprint":"Gameplay/BP_RoomConnection.json",
-			"Overrides":{
-				"Components":[{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"RoomConnection"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{
-							"Position":[
-								8.0,
-								1.0,
-								1.999999761581421
-							]
-						}
-					},{
-						"Name":"RoomConnection",
-						"Data":{
-							"IsEnd":false
-						}
-					}
-				]
-			}
-		},{
-			"Blueprint":"Gameplay/Player/BP_Sword.json",
-			"Overrides":{
-				"Components":[{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"Sword"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{
-							"Position":[
-								8.0,
-								4.0,
-								8.0
-							]
-						}
-					},{
-						"Name":"Weapon",
-						"Data":{}
-					}
-				]
-			}
-		},{
-			"Blueprint":"Gameplay/Enemies/BP_Enemy.json",
-			"Overrides":{
-				"Components":[{
-						"Name":"Mesh",
-						"Data":{}
-					},{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"Enemy"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{
-							"Position":[
-								14.0,
-								4.0,
-								18.0
-							]
-						}
-					},{
-						"Name":"Collider",
-						"Data":{}
-					},{
-						"Name":"Enemy",
-						"Data":{}
-					}
-				]
-			}
-		}
-	]
+"Data":{
+"Offset":[
+1.0,
+0.0,
+0.0,
+0.0,
+0.0,
+1.0,
+0.0,
+0.0,
+0.0,
+0.0,
+1.0,
+0.0,
+1.0,
+1.0,
+-1.0,
+1.0
+]
+},
+"Objects":[{
+"Blueprint":"Blueprints/BP_CubeVolume.json",
+"Overrides":{
+"Components":[{
+"Name":"Attributes",
+"Data":{
+"Name":"CubeVolume"
+}
+},{
+"Name":"Transform",
+"Data":{}
+},{
+"Name":"CubeVolume",
+"Data":{
+"Data":"1:13238019,13238018,13172486,13106947,13172733,13041411,13107197,12975875,13041661,12779267,12845053,12713731,12779517,12713981,12648445,13106950,13172482,13238268,12713734,12779266,12845052,12713730,12779516,12713980,12648444,13303553,13303552,13172483,13238269,13106949,13172735,13238267,13172481,12648443,12648193,12713979,12648447,13172484,13238016,13238270,12779515,12713729,12713983,12713733,12845051,12779265,12779519,12648446,12648192,12713982,12713728,12713732,12779518,12779264,12779268,12845054,12844800,13172485,13238017,13238271,12844804,12910590,12910336,12910340,12976126,12975872,12975876,13041662,13041408,13041412,13107198,13106944,13106948,13172734,13172480,12779269,12844801,12845055,12910587,12844805,12910591,12910337,12976123,12910341,12976127,12975873,13041659,12975877,13041663,13041409,13107195,13041413,13107199,13106945,13172731,12779270,12844802,12910588,12844806,12910338,12976124,12910342,12975874,13041660,12975878,13041410,13107196,13041414,13106946,13172732,12844803,12910589,12910339,12976125,;"
+}
+}
+]
+}
+},{
+"Blueprint":"Gameplay/BP_RoomConnection.json",
+"Overrides":{
+"Components":[{
+"Name":"Attributes",
+"Data":{
+"Name":"RoomConnection"
+}
+},{
+"Name":"Transform",
+"Data":{
+"Position":[
+-1.0,
+-1.0,
+-1.0
+]
+}
+},{
+"Name":"RoomConnection",
+"Data":{
+"IsEnd":false
+}
+}
+]
+}
+},{
+"Blueprint":"Gameplay/BP_RoomConnection.json",
+"Overrides":{
+"Components":[{
+"Name":"Attributes",
+"Data":{
+"Name":"RoomConnection"
+}
+},{
+"Name":"Transform",
+"Data":{
+"Position":[
+-1.0,
+-1.0,
+19.0
+]
+}
+},{
+"Name":"RoomConnection",
+"Data":{}
+}
+]
+}
+},{
+"Blueprint":"Gameplay/Player/BP_PlayerSpawner.json",
+"Overrides":{
+"Components":[{
+"Name":"Attributes",
+"Data":{
+"Name":"PlayerSpawner"
+}
+},{
+"Name":"Mesh",
+"Data":{}
+},{
+"Name":"Transform",
+"Data":{
+"Position":[
+4.0,
+0.0,
+14.0
+]
+}
+}
+]
+}
+},{
+"Blueprint":"Gameplay/Player/BP_Sword.json",
+"Overrides":{
+"Components":[{
+"Name":"Weapon",
+"Data":{}
+},{
+"Name":"Attributes",
+"Data":{
+"Name":"Sword"
+}
+},{
+"Name":"Transform",
+"Data":{
+"Position":[
+2.0,
+0.0,
+8.0
+]
+}
+},{
+"Name":"AnimationPoser",
+"Data":{
+"VisualizePoseB":"Pose_Idle",
+"VisualizePoseA":"Pose_Slide_R",
+"VisualizationMesh":"Gameplay/Player/M_Sword.obj"
+}
+}
+]
+}
+}
+]
 }

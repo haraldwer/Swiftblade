@@ -1,13 +1,5 @@
 {
-	"Selected":[
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Checkpoint/BP_Checkpoint.json"
-	],
 	"Expanded":[
-		"/home/harald/Dev/Swiftblade/RayEngine/content",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Editor/Objects/T_Icon_Checkpoint.png",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Checkpoint",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Checkpoint/BP_Checkpoint.json",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Enemies/Skull"
+		"/home/harald/Dev/Swiftblade/RayEngine/content"
 	]
 }

@@ -6,6 +6,12 @@
 
 #include "ImGui/imgui.h"
 
+namespace Resource
+{
+    std::function<void(const String&)> pickCallback = {};
+    std::function<void(String&)> dragDropCallback = {};
+}
+
 String Resource::Pick(const String& InLabel, const String& InID, const uint32 InOffset)
 {
     String result = InID;

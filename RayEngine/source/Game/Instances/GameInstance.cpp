@@ -18,14 +18,13 @@ void GameInstance::Init()
 
     CHECK_ASSERT(state.playerID != ECS::INVALID_ID, "No player should exist at this point");
     
-    if (startScene.Identifier().IsValid())
+    if (startScene.scene.Identifier().IsValid() && startScene.repeats > 0)
     {
         Vector<ResScene> roomList;
-        roomList.push_back(startScene);
-        roomList.push_back(startScene);
-        roomList.push_back(startScene);
-        if (!startScene.Identifier().Unique())
-            startScene.Unload(); // Force reload
+        for (int i = 0; i < startScene.repeats; i++)
+            roomList.push_back(startScene.scene);
+        if (!startScene.scene.Identifier().Unique())
+            startScene.scene.Unload(); // Force reload
         rooms.Load(roomList);
     }
     else
@@ -39,7 +38,7 @@ void GameInstance::Init()
         if (const BlueprintResource* bp = ResBlueprint("Gameplay/Player/BP_Player.json").Get())
         { 
             state.playerID = ecs.CreateEntity(); 
-            bp->Instantiate(startPlayerPos + Vec3F::Up() * 2.0f, {}, state.playerID);
+            bp->Instantiate(startScene.playerPos + Vec3F::Up() * 2.0f, {}, state.playerID);
         }
     }
 }
@@ -74,10 +73,9 @@ void GameInstance::Frame()
     Instance::Frame();
 }
 
-void GameInstance::PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos)
+void GameInstance::PlayScene(const StartSceneParams& InParams)
 {
-    startScene = InScene;
-    startPlayerPos = InPlayerPos;
+    startScene = InParams;
 }
 
 void GameInstance::PlayLevel(const LevelConfig& InLevel)

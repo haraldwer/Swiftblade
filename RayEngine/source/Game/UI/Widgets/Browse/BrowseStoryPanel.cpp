@@ -45,11 +45,10 @@ void UI::BrowseStoryPanel::Init(Container &InOwner)
 void UI::BrowseStoryPanel::Update(Container &InOwner)
 {
     BrowsePanel::Update(InOwner);
-    
+ 
     for (auto& e : std::ranges::reverse_view(conf.Entries.Get()))
         if (Get<Element>(e.Name).IsClicked())
             if (auto game = Engine::Manager::Get().Push<GameInstance>())
-                game->PlayScene(ResScene("Cache/test.json"), Vec3F());
-
+                game->PlayScene({ ResScene("Cache/test.json") });
             
 }

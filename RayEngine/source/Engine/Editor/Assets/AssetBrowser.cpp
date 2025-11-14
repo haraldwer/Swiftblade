@@ -14,7 +14,6 @@ void AssetBrowser::Init()
 {
     config.LoadConfig();
     config.Expanded.Get().insert(std::filesystem::current_path().string());
-    TryStartThread();
 
     Resource::pickCallback = [](const String& InID)
     {
@@ -23,7 +22,7 @@ void AssetBrowser::Init()
 
     Resource::dragDropCallback = [](String& OutResult)
     {
-        if (const ImGuiPayload* p = ImGui::AcceptDragDropPayload("assets"))
+        if (ImGui::AcceptDragDropPayload("assets"))
         {
             for (auto& s : Get().GetSelected())
             {
@@ -32,6 +31,8 @@ void AssetBrowser::Init()
             }
         }
     };
+
+    TryStartThread();
 }
 
 void AssetBrowser::Deinit()

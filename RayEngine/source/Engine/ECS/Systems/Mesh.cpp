@@ -13,14 +13,13 @@ void SysMesh::SystemInit()
 
 void SysMesh::SystemFrame()
 {
-    diff.Begin();
-
     for (const auto& id : ComponentMap())
     {
         Mesh& m = GetInternal(id.first);
         const Transform& t = Get<Transform>(id.second);
         const Mat4F world = t.World();
         const uint64 hash = Rendering::MeshInstance::GenHash(m.Model, m.Material);
+        CHECK_CONTINUE(hash == 0);
         
         if (world == m.worldCache && hash == m.hashCache)
         {
@@ -44,13 +43,13 @@ void SysMesh::SystemFrame()
         hashToComponent.erase(hash);
     }
     
-    // For every modified hash
+    // For every modified hash (including where entities were removed)
     for (uint64 hash : diff.GetModified())
     {
         rs.Meshes().Remove(hash, persistentID);
         
         // For every entity now using that hash
-        for (EntityID id : hashToComponent.at(hash))
+        for (ComponentID id : hashToComponent.at(hash))
         {
             Mesh& m = GetInternal(id);
             rs.Meshes().Add({
@@ -62,4 +61,20 @@ void SysMesh::SystemFrame()
             }, persistentID);
         }
     }
+
+    // Begin diff for next frame
+    diff.Begin();
+}
+
+void SysMesh::Deinit(EntityID InID, Mesh &InComponent)
+{
+    // Include in diff
+    if (InComponent.hashCache != 0)
+    {
+        diff.Modify(InComponent.hashCache);
+        ComponentID id = Translate(InID);
+        hashToComponent.at(InComponent.hashCache).erase(id);
+    }
+    
+    System::Deinit(InID, InComponent);
 }

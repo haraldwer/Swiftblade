@@ -1,10 +1,6 @@
 {
 	"DebugEnabled":false,
 	"OpenWindows":[
-		"Assets",
-		"Blueprint Editor",
-		"Console",
-		"Details",
 		"Viewport"
 	]
 }

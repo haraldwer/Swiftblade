@@ -28,7 +28,12 @@ void RoomEditor::Init()
     }
     
     if (auto res = roomResource.Get())
+    {
         workingRoom = res->data;
+        auto& type = workingRoom.Info.Get().Type.Get(); 
+        if (type.empty())
+            type = "ROOM";
+    }
     
     subEditorManager.Init(this);
     if (!config.EditMode.Get().empty())
@@ -124,8 +129,9 @@ void RoomEditor::PlayRoom()
 {
     SaveRoom();
     ResScene tempScene = GetTempScene(ConvertRoomToScene());
+    int repeats = workingRoom.Info.Get().Type.Get() == "ROOM" ? 3 : 1;
     if (auto game = Engine::Manager::Get().Push<GameInstance>())
-        game->PlayScene(tempScene, editorCamera.GetPosition());
+        game->PlayScene({ tempScene, repeats, editorCamera.GetPosition() });
 }
 
 void RoomEditor::ExportScene()
@@ -213,6 +219,9 @@ void RoomEditor::UpdateRoomInfo()
     
     RoomInfo room;
     room.Name = workingRoom.Info.Get().Name;
+    room.Type = workingRoom.Info.Get().Type;
+    if (room.Type.Get().empty())
+        room.Type = "ROOM";
     
     auto& volEditor = GetSubEditors().Get<RoomVolumeEditor>();
     auto& vol = volEditor.GetVolume();
@@ -276,6 +285,10 @@ void RoomEditor::DrawPanel()
         ImGui::SetWindowFocus(nullptr); 
     ImGui::Text("Entities: %i", static_cast<int>(ecs.GetAllEntities().size()));
     ImGui::Text("History: %i", history.Count());
+
+    if (ImGui::CollapsingHeader("Room"))
+        workingRoom.Edit("Room");
+    
     subEditorManager.DebugDraw();
 }
 

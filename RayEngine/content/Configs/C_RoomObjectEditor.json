@@ -6,7 +6,7 @@
 						"Key":"SectionEnd",
 						"Val":{
 							"Icon":"Editor/Objects/T_Icon_Connection.png",
-							"BP":"Gameplay/BP_SectionEnd.json"
+							"BP":"Gameplay/Connection/BP_SectionEnd.json"
 						}
 					}
 				]

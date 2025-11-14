@@ -28,6 +28,6 @@ namespace Debug
         bool scrollToBottom = true;
         
         static constexpr int filterStep = 100;
-        static constexpr int maxDisplayCount = 1000;
+        static constexpr int maxDisplayCount = 300;
     };
 }

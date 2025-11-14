@@ -3,15 +3,19 @@
 #include "Editor/RoomSubEditor.h"
 #include "Engine/Blueprints/Blueprint.h"
 
+typedef Map<String, ResBlueprint> RoomConnectionEndMap;
+
 struct RoomConnectionEditorConfig : BaseConfig<RoomConnectionEditorConfig>
 {
-    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/BP_RoomConnection.json")
-    PROPERTY_C(ResBlueprint, EndBP, "Gameplay/BP_RoomConnection.json");
+    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/Connection/BP_RoomConnection.json")
+    PROPERTY(RoomConnectionEndMap, EndBP);
+    
     PROPERTY_C(Vec3F, Offset, Vec3F(-1));
     PROPERTY_C(float, LerpSpeed, 0.1f);
 
-    PROPERTY_C(ResBlueprint, ArenaStartBP, "Gameplay/BP_RoomConnection.json");
-    PROPERTY_C(ResBlueprint, CheckpointBP, "Gameplay/BP_Checkpoint.json");
+    // Different connection type based on room type
+    // Same as for object editor
+    
 
     String Name() const override { return "RoomConnectionEditor"; }
 };
@@ -24,6 +28,7 @@ public:
     void Init() override;
     void Deinit() override;
     void Update() override;
+    void DebugDraw() override;
 
     ECS::EntityID GetEnd(bool InSnap) const;
     ECS::EntityID GetStart() const;

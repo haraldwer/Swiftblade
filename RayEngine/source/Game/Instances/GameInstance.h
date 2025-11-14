@@ -20,8 +20,15 @@ public:
 
     void DrawPanel() override;
     String PanelName() const override { return "Gameplay"; }
+
+    struct StartSceneParams
+    {
+        ResScene scene = {};
+        int repeats = 1;
+        Vec3F playerPos = {};
+    };
     
-    void PlayScene(const ResScene& InScene, const Vec3F& InPlayerPos);
+    void PlayScene(const StartSceneParams& InParams);
     void PlayLevel(const LevelConfig& InLevel);
     void SetState(const GameState& InState);
 
@@ -32,7 +39,5 @@ private:
     SceneInstance scene = {};
     LevelManager rooms = {};
     GameState state = {}; 
-    
-    ResScene startScene = {};
-    Vec3F startPlayerPos = {};
+    StartSceneParams startScene = {};
 };

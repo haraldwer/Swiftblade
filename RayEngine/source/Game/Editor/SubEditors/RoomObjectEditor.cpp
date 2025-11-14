@@ -64,8 +64,11 @@ void RoomObjectEditor::TryPickObject()
     if (!pick.empty() && pick != "")
     {
         LOG("Pick!");
-        
-        auto& roomData = config.Types.Get().at(GetRoom().Info.Get().Type.Get());
+
+        const auto& type = GetRoom().Info.Get().Type.Get();
+        const auto& types = config.Types.Get();
+        CHECK_RETURN_LOG(!types.contains(type), "Unknown room type: " + type);
+        auto& roomData = types.at(type);
         CHECK_RETURN_LOG(!roomData.Objects.Get().contains(pick), "Unknown object type when picked: " + pick);
         
         // Create new!
@@ -315,8 +318,7 @@ void RoomObjectEditor::LoadRoom()
     auto& info = GetRoom().Info.Get();
     auto& types = config.Types.Get();
     auto& roomType = info.Type.Get();
-    if (!types.contains(roomType))
-        roomType = "ROOM";
+    CHECK_RETURN(!types.contains(roomType))
     
     DestroyLoaded();
     for (auto& o : GetRoom().Objects.Get())

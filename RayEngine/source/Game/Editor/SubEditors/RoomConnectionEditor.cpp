@@ -11,6 +11,8 @@
 
 void RoomConnectionEditor::Init()
 {
+    config.LoadConfig();
+    
     // Get / create connections
     auto& sys = ECS::Manager::Get().GetSystem<ECS::SysRoomConnection>();
     for (const ECS::EntityID connection : sys.GetEntities())
@@ -37,8 +39,14 @@ void RoomConnectionEditor::Init()
     if (endCoord.key == 0)
         endCoord = centerCoord;
     if (endEntity == ECS::INVALID_ID)
-        if (const auto bp = config.EndBP.Get().Get())
-            endEntity = bp->Instantiate(v.CoordToPos(endCoord) + GetOff(false));
+    {
+        auto type = GetRoom().Info.Get().Type.Get();
+        auto& ends = config.EndBP.Get();
+        auto endFind = ends.find(type);
+        if (endFind != ends.end())
+            if (const auto bp = endFind->second.Get())
+                endEntity = bp->Instantiate(v.CoordToPos(endCoord) + GetOff(false));
+    }
 
     if (endEntity != ECS::INVALID_ID)
         sys.Get(endEntity).IsEnd = true;
@@ -46,10 +54,14 @@ void RoomConnectionEditor::Init()
 
 void RoomConnectionEditor::Deinit()
 {
-    ECS::Manager::Get().DestroyEntity(endEntity);
-    ECS::Manager::Get().DestroyEntity(startEntity);
+    if (endEntity != ECS::INVALID_ID)
+        ECS::Manager::Get().DestroyEntity(endEntity);
+    if (startEntity != ECS::INVALID_ID)
+        ECS::Manager::Get().DestroyEntity(startEntity);
     startEntity = ECS::INVALID_ID;
     endEntity = ECS::INVALID_ID;
+
+    config.SaveConfig();
 }
 
 void RoomConnectionEditor::Update()
@@ -115,6 +127,12 @@ void RoomConnectionEditor::Update()
         
     if (Input::Action::Get("LM").Released() && selectCoord.key != 0)
         addChange(selectCoord.key);
+}
+
+void RoomConnectionEditor::DebugDraw()
+{
+    if (config.Edit())
+        config.SaveConfig();
 }
 
 ECS::EntityID RoomConnectionEditor::GetEnd(bool InSnap) const

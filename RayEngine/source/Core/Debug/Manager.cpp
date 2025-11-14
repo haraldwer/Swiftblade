@@ -124,11 +124,13 @@ void Debug::Manager::Frame(const double InDeltaTime)
 
 void Debug::Manager::Register(Panel* InWindow)
 {
+    CHECK_ASSERT(!InWindow, "Invalid window ptr");
     pendingRegister.insert(InWindow);
 }
 
 void Debug::Manager::Unregister(const Panel* InWindow)
 {
+    CHECK_ASSERT(!InWindow, "Invalid window ptr");
     const String name = panelToName.at(InWindow);
     const int priority = panelToPriority.at(InWindow);
 

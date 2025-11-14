@@ -122,10 +122,21 @@ local function rpc_submit_room(context, payload)
 	end
 
 	if info.Name == nil then
-		nk.logger_error("Failed to parse scene")
+		nk.logger_error("Failed to parse room name")
 		return nk.json_encode({
 			["payload"] = {
 				["Error"] = "Room does not have a valid name",
+				["Success"] = false
+			},
+			["success"] = true
+		})
+	end
+
+	if info.Type == nil then
+		nk.logger_error("Failed to parse room type")
+		return nk.json_encode({
+			["payload"] = {
+				["Error"] = "Room does not have a valid type",
 				["Success"] = false
 			},
 			["success"] = true
@@ -207,9 +218,14 @@ local function rpc_submit_room(context, payload)
 	lb.create_write(creatorLB, "desc", "best", "", {}, roomUUID, roomID, info, 0)
 
 	-- Room lbs
-	lb.create_write("rooms_most_played", "desc", "best", "", {}, roomUUID, roomID, info, 0)
-	lb.create_write("rooms_most_played_weekly", "desc", "best", "0 0 * * 1", {}, roomUUID, roomID, info, 0)
-	lb.create_write("rooms_most_played_monthly", "desc", "best", "0 0 1 * *", {}, roomUUID, roomID, info, 0)
+	local lbID = "rooms_most_played"
+	if info.Type ~= "ROOM" then
+		lbID = lbID .. "_" .. info.Type
+	end
+
+	lb.create_write(lbID, "desc", "best", "", {}, roomUUID, roomID, info, 0)
+	lb.create_write(lbID .. "_weekly", "desc", "best", "0 0 * * 1", {}, roomUUID, roomID, info, 0)
+	lb.create_write(lbID .. "_monthly", "desc", "best", "0 0 1 * *", {}, roomUUID, roomID, info, 0)
 
 	return nk.json_encode({
 		["payload"] = {
