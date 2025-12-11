@@ -30,6 +30,7 @@ namespace UI
         
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
+        bool DebugDraw(Container &InOwner, const String &InIdentifier, int &InC) override;
         void SetLevel(const LevelEntryData& InData);
 
     private:

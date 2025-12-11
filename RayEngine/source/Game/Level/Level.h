@@ -34,6 +34,11 @@ struct Level : PropertyOwner<Level>
     PROPERTY(Vector<RoomInfo>, Rooms);
     PROPERTY(int, NumArenas);
     PROPERTY(Vector<RoomInfo>, Arenas);
+
+    static bool Accept(const String& InPath)
+    {
+        return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("L_");
+    }
 };
 
 typedef Resource::PropertyFile<Level> LevelResource;

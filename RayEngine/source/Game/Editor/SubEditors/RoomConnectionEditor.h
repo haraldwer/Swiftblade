@@ -3,12 +3,12 @@
 #include "Editor/RoomSubEditor.h"
 #include "Engine/Blueprints/Blueprint.h"
 
-typedef Map<String, ResBlueprint> RoomConnectionEndMap;
+typedef Map<String, ResBlueprint> RoomConnectionMap;
 
 struct RoomConnectionEditorConfig : BaseConfig<RoomConnectionEditorConfig>
 {
-    PROPERTY_C(ResBlueprint, StartBP, "Gameplay/Connection/BP_RoomConnection.json")
-    PROPERTY(RoomConnectionEndMap, EndBP);
+    PROPERTY(RoomConnectionMap, StartBP)
+    PROPERTY(RoomConnectionMap, EndBP);
     
     PROPERTY_C(Vec3F, Offset, Vec3F(-1));
     PROPERTY_C(float, LerpSpeed, 0.1f);

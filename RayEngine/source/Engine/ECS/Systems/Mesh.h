@@ -11,7 +11,8 @@ namespace ECS
 {
     struct Mesh : Component<Mesh>
     { 
-        PROPERTY_D(bool, Visible, true);
+        PROPERTY_D(bool, GameVisible, true);
+        PROPERTY_D(bool, EditorVisible, true);
         PROPERTY_D(uint8, Mask, static_cast<uint8>(Rendering::VisibilityMask::DEFAULT) | static_cast<uint8>(Rendering::VisibilityMask::SHADOWS));
         PROPERTY_D(ResModel, Model, "Defaults/M_Cube.obj");
         PROPERTY_D(ResRM, Material, "Defaults/RM_Default.json");

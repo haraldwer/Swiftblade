@@ -2,7 +2,11 @@
 	"Context":{
 		"FX":{
 			"Tonemapping":true,
-			"SSAO":true
+			"SSAO":true,
+			"ChromaticAberration":true,
+			"FXAA":true,
+			"MotionBlur":true,
+			"Bloom":true
 		},
 		"Lumin":{
 			"Enabled":false,
@@ -27,17 +31,14 @@
 				"Key":"TexCellular",
 				"Val":"Defaults/T_Noise_Cellular.json"
 			}
-		],
-		"GlobalDefines":[
-			""
 		]
 	},
 	"Viewport":{
-		"Height":1819,
-		"Width":2889
+		"Height":1758,
+		"Width":2575
 	},
 	"Window":{
-		"Height":1819,
-		"Width":2889
+		"Height":1758,
+		"Width":2892
 	}
 }

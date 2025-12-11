@@ -40,5 +40,5 @@ void BlueprintResourceDetails::Draw()
 
 bool BlueprintResourceDetails::Accept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("BP_");
+    return BlueprintResource::Accept(InPath);
 }

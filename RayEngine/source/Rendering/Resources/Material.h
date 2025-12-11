@@ -25,6 +25,8 @@ namespace Rendering
         uint32 Hash();
         uint32 DeferredHash();
 
+        static bool Accept(const String& InPath);
+
     private:
         uint32 cachedHash = 0;
         uint32 cachedDeferredHash = 0;

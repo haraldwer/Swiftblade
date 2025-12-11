@@ -121,7 +121,7 @@ namespace DB
                 return false;
             }
 
-            String file = Utility::ReadFile(res.Identifier().Str());
+            String file = Utility::File::Read(res.Identifier().Str());
             DocumentObj doc;
             doc.Parse(file.c_str());
             const DocumentObj& docObj = doc;
@@ -159,7 +159,7 @@ namespace DB
             }
             
             if (AllowCache) // Write to cache
-                if (!Utility::WriteFile(res.Identifier().Str(), InResp.data))
+                if (!Utility::File::Write(res.Identifier().Str(), InResp.data))
                     Error("Failed to write to cache");
 
             auto resource = res.GetData();
@@ -177,7 +177,7 @@ namespace DB
             data.Deserialize(obj); // NetRes -> PropertyFile -> PropertyOwner
             resource->cached = true;
             resource->refresh = true;
-            Event::Invoke({ *this, true, "" });
+            Event::Invoke({ *this, true, {} });
         }
 
         void Error(const String& InMessage)
@@ -187,7 +187,7 @@ namespace DB
         
         static Resource::ID GetNetID(const String &InStr)
         {
-            return { Utility::GetCachePath(InStr, ".json"), false };
+            return { Utility::File::GetCachePath(InStr, ".json"), false };
         }
         
         Resource::Ref<NetRes<Resource::PropertyFile<T>>> res;

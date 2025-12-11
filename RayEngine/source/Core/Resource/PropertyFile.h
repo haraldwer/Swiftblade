@@ -42,6 +42,11 @@ namespace Resource
             return {};
         }
 
+        static bool Accept(const String& InPath)
+        {
+            return T::Accept(InPath);
+        }
+
         T data;
     };
 }

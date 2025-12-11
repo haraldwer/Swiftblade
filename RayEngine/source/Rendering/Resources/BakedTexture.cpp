@@ -63,7 +63,7 @@ bool Rendering::BakedTexture::Bake()
     return baked;
 }
 
-bool Rendering::BakedTexture::EditAccept(const String &InPath)
+bool Rendering::BakedTexture::Accept(const String &InPath)
 {
     return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("BT_");
 }

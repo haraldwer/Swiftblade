@@ -83,7 +83,6 @@ void Rendering::RenderTarget::AttachDepth(const RenderTexture& InTarget) const
     const uint32 depthID = InTarget.depth.id;
     CHECK_ASSERT(depthID == 0, "Invalid depth texture");
     rlFramebufferAttach(frameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
-
 }
 
 void Rendering::RenderTarget::Unload()

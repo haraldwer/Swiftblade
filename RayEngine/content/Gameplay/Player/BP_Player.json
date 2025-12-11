@@ -24,7 +24,18 @@
 			"Data":{}
 		},{
 			"Name":"Transform",
-			"Data":{}
+			"Data":{
+				"Rotation":[
+					0.0,
+					0.0,
+					-8.537741109648778e-7
+				],
+				"Scale":[
+					1.0000005960464478,
+					1.0000005960464478,
+					1.0
+				]
+			}
 		},{
 			"Name":"Rigidbody",
 			"Data":{
@@ -73,7 +84,18 @@
 						}
 					},{
 						"Name":"Transform",
-						"Data":{}
+						"Data":{
+							"Rotation":[
+								0.0,
+								0.0,
+								0.0
+							],
+							"Scale":[
+								1.0000028610229492,
+								1.0000028610229492,
+								1.0
+							]
+						}
 					},{
 						"Name":"Collider",
 						"Data":{
@@ -100,39 +122,6 @@
 							]
 						}
 					}
-				],
-				"Children":[{
-						"Overrides":{
-							"Components":[{
-									"Name":"Attributes",
-									"Data":{
-										"Name":"LeftMesh"
-									}
-								},{
-									"Name":"Mesh",
-									"Data":{
-										"Material":"Gameplay/Player/RM_Hands.json",
-										"Model":"Gameplay/Player/M_Hand_Open.obj",
-										"Mask":1
-									}
-								},{
-									"Name":"Transform",
-									"Data":{
-										"Rotation":[
-											0.0,
-											-90.00022888183594,
-											0.0
-										],
-										"Scale":[
-											1.0000004768371582,
-											1.0,
-											1.0000004768371582
-										]
-									}
-								}
-							]
-						}
-					}
 				]
 			}
 		},{
@@ -149,39 +138,6 @@
 								-0.699999988079071,
 								0.0,
 								1.0
-							]
-						}
-					}
-				],
-				"Children":[{
-						"Overrides":{
-							"Components":[{
-									"Name":"Attributes",
-									"Data":{
-										"Name":"RightMesh"
-									}
-								},{
-									"Name":"Mesh",
-									"Data":{
-										"Material":"Gameplay/Player/RM_Hands.json",
-										"Model":"Gameplay/Player/M_Hand_Open.obj",
-										"Mask":1
-									}
-								},{
-									"Name":"Transform",
-									"Data":{
-										"Rotation":[
-											0.0,
-											-90.0001449584961,
-											0.0
-										],
-										"Scale":[
-											1.0000003576278687,
-											1.0,
-											1.0000003576278687
-										]
-									}
-								}
 							]
 						}
 					}
@@ -203,9 +159,9 @@
 								1.2000000476837158
 							],
 							"Rotation":[
-								7.424867630004883,
-								15.106161117553711,
-								-8.367192268371582
+								7.424866676330566,
+								15.106165885925293,
+								-8.367199897766113
 							],
 							"Scale":[
 								1.0000001192092896,

@@ -10,6 +10,7 @@ namespace UI
     public:
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
+        bool DebugDraw(Container &InOwner, const String &InIdentifier, int &InC) override;
         void SetRoom(const ResEditRoom& InRoom);
 
     private:

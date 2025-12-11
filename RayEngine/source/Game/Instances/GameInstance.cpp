@@ -80,9 +80,9 @@ void GameInstance::PlayScene(const StartSceneParams& InParams)
 
 void GameInstance::PlayLevel(const LevelConfig& InLevel)
 {
-    GameState state;
-    state.level = InLevel;
-    SetState(state);
+    GameState newState;
+    newState.level = InLevel;
+    SetState(newState);
 }
 
 void GameInstance::SetState(const GameState& InState)

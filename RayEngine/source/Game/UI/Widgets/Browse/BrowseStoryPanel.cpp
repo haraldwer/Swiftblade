@@ -12,12 +12,12 @@ void UI::BrowseStoryPanel::Init(Container &InOwner)
 {
     BrowsePanel::Init(InOwner);
     
-    conf.LoadConfig();
+    config.LoadConfig();
     
     auto b = Builder()
         .Push(List());
     
-    for (auto& e : std::ranges::reverse_view(conf.Entries.Get()))
+    for (auto& e : std::ranges::reverse_view(config.Entries.Get()))
     {
         b.Add(Element({
                 .size = { 5, 50},
@@ -46,9 +46,22 @@ void UI::BrowseStoryPanel::Update(Container &InOwner)
 {
     BrowsePanel::Update(InOwner);
  
-    for (auto& e : std::ranges::reverse_view(conf.Entries.Get()))
+    for (auto& e : std::ranges::reverse_view(config.Entries.Get()))
         if (Get<Element>(e.Name).IsClicked())
             if (auto game = Engine::Manager::Get().Push<GameInstance>())
                 game->PlayScene({ ResScene("Cache/test.json") });
             
+}
+
+bool UI::BrowseStoryPanel::DebugDraw(Container &InOwner, const String &InIdentifier, int &InC)
+{
+    if (GetVisible())
+    {
+        if (ImGui::Begin(("Story##" + Utility::ToStr(InC)).c_str()))
+            if (config.Edit())
+                config.SaveConfig();
+        ImGui::End();
+    }
+    
+    return BrowsePanel::DebugDraw(InOwner, InIdentifier, InC);
 }

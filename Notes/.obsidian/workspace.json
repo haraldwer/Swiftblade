@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/Backlog/Editor/0 - Connection room type.md",
+                "file": "Tasks/Backlog/Engine/2 - Scrolling isnt using input system.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0 - Connection room type"
+              "title": "2 - Scrolling isnt using input system"
             }
           }
         ]
@@ -166,8 +166,9 @@
   },
   "active": "0936951435052654",
   "lastOpenFiles": [
-    "Milestones/Milestone 6 (25.11.12).md",
     "Tasks/Backlog/Editor/0 - Connection room type.md",
+    "Tasks/Backlog/Engine/2 - Scrolling isnt using input system.md",
+    "Milestones/Milestone 6 (25.11.12).md",
     "Tasks/Archive/0 - Course room type.md",
     "Tasks/Archive/0 - Arena room type.md",
     "Tasks/Archive/0 - Selecting room type.md",
@@ -191,7 +192,6 @@
     "Tasks/Backlog/Editor/0 - Backend support for room types.md",
     "Tasks/Backlog/Editor/2 - Object icon juice.md",
     "Tasks/Backlog/Editor/1 - Selected object highlight.md",
-    "Tasks/Backlog/UI/0 - Browse menu.md",
     "Tasks/Boards/Done/Milestone 5 - Done.base",
     "Tasks/Boards/Done/Milestone 4 - Done.base",
     "Tasks/Boards/Done/Milestone 6 - Done.base",

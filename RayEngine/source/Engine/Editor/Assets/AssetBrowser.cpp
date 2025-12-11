@@ -567,7 +567,8 @@ void AssetBrowser::DrawAddMenu()
         }
         else if (ImGui::Button("Create##Asset", ImVec2(-1, 0)))
         {
-            Utility::File::Write(path, "");
+            String content = path.ends_with(".json") ? "{}" : "";
+            Utility::File::Write(path, content);
             addName = "";
             addPath = "";
             ImGui::CloseCurrentPopup();

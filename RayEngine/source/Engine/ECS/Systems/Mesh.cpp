@@ -13,11 +13,18 @@ void SysMesh::SystemInit()
 
 void SysMesh::SystemFrame()
 {
+    bool isEditor = Engine::Instance::Get().IsEditor();
+    
     for (const auto& id : ComponentMap())
     {
         Mesh& m = GetInternal(id.first);
-        const Transform& t = Get<Transform>(id.second);
-        const Mat4F world = t.World();
+        CHECK_CONTINUE(isEditor && !m.EditorVisible);
+        CHECK_CONTINUE(!isEditor && !m.GameVisible);
+        
+        const Transform* t = TryGet<Transform>(id.second);
+        CHECK_CONTINUE(!t);
+        
+        const Mat4F world = t->World();
         const uint64 hash = Rendering::MeshInstance::GenHash(m.Model, m.Material);
         CHECK_CONTINUE(hash == 0);
         

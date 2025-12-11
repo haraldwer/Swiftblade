@@ -25,6 +25,7 @@ namespace Resource
         Ref(const ID& InID)
         {
             CHECK_RETURN(InID.Str().empty());
+            CHECK_RETURN(!InID.Unique() && !T::Accept(InID.Str()))
             ptr = reinterpret_cast<Impl<T>*>(Register(InID));
             Increment(); 
         }
@@ -114,6 +115,7 @@ namespace Resource
             if (!Utility::ReadValue(InObj, identifier))
                 return false;
             CHECK_RETURN(identifier.empty(), false)
+            CHECK_RETURN(!T::Accept(identifier), false);
             *this = Ref(identifier);
             return true; 
         }
@@ -123,7 +125,7 @@ namespace Resource
             // File picker
             const String currID = ptr ? ptr->id.Str() : "";
             const String newID = Pick(InName, currID, InOffset);
-            if (currID != newID)
+            if (currID != newID && T::Accept(newID))
             {
                 *this = Ref(newID); 
                 return true; 

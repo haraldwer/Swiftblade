@@ -1,5 +1,10 @@
 {
+	"Selected":[
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Connection"
+	],
 	"Expanded":[
-		"/home/harald/Dev/Swiftblade/RayEngine/content"
+		"/home/harald/Dev/Swiftblade/RayEngine/content",
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay",
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Player"
 	]
 }

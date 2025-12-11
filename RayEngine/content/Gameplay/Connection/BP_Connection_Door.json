@@ -41,12 +41,12 @@
 				"Components":[{
 						"Name":"Attributes",
 						"Data":{
-							"Name":"EditorMesh"
+							"Name":"DoorFrame"
 						}
 					},{
 						"Name":"Mesh",
 						"Data":{
-							"Material":"Editor/RM_EditMarker.json"
+							"Model":"Gameplay/Connection/M_Door_Frame.obj"
 						}
 					},{
 						"Name":"Transform",
@@ -59,16 +59,33 @@
 				"Components":[{
 						"Name":"Attributes",
 						"Data":{
-							"Name":"DoorFrame"
+							"Name":"Arrow"
 						}
 					},{
 						"Name":"Mesh",
 						"Data":{
-							"Model":"Gameplay/Connection/M_Door_Frame.obj"
+							"Model":"Defaults/M_Pointer.obj",
+							"GameVisible":false
 						}
 					},{
 						"Name":"Transform",
-						"Data":{}
+						"Data":{
+							"Position":[
+								0.0,
+								3.0,
+								2.5999999046325684
+							],
+							"Rotation":[
+								90.00004577636719,
+								0.0,
+								0.0
+							],
+							"Scale":[
+								1.0,
+								1.0000005960464478,
+								1.0000005960464478
+							]
+						}
 					}
 				]
 			}

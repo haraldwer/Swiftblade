@@ -1,5 +1,4 @@
 {
 	"TwoSided":true,
-	"DeferredShader":"Editor/SH_EditMarker.ds",
-	"SurfaceShader":"Defaults/RM_Default.json"
+	"DeferredShader":"Editor/SH_EditMarker.ds"
 }

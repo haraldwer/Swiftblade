@@ -85,28 +85,22 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
     rlState::current.Set(frameCmd);
     
     Map<uint64, int> count;
-    for (auto& persistence : InArgs.scenePtr->meshes.GetEntries())
+    for (const auto& persistence : InArgs.scenePtr->meshes.GetEntries())
     {
-        for (auto& entry : persistence.second)
+        for (const auto& entry : persistence.second)
         {
             PROFILE_GL_NAMED("Mesh entry");
             
             CHECK_CONTINUE(entry.second.transforms.Empty());
             CHECK_CONTINUE(!(entry.second.mask & InArgs.cullMask));
-            
-            const ::Mesh* meshes = nullptr;
-            int32 meshCount = 0;
-            if (const auto resModel = entry.second.model.Get())
-            {
-                if (const auto rlModel = resModel->Get())
-                {
-                    if (rlModel->meshCount > 0)
-                    {
-                        meshes = rlModel->meshes;
-                        meshCount = rlModel->meshCount;
-                    }
-                }
-            }
+
+            const ModelResource* resModel = entry.second.model.Get();
+            CHECK_CONTINUE(!resModel);
+            const Model *rlModel = resModel->Get();
+            CHECK_CONTINUE(!rlModel);
+            CHECK_CONTINUE(rlModel->meshCount <= 0);
+            const Mesh* meshes = rlModel->meshes;
+            int32 meshCount = rlModel->meshCount;
             CHECK_CONTINUE(!meshes);
             CHECK_CONTINUE(meshCount == 0);
 
@@ -144,7 +138,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
                 cmd.vaoID = meshes[i].vaoId;
 
                 // Culling
-                const Vector<Mat4F>& data = entry.second.transforms.GetCulled(InArgs.cullPoints);
+                Vector<Mat4F> data = entry.second.transforms.GetCulled(InArgs.cullPoints);
 
                 // Copy to GPU
                 if (rlState::current.Set(cmd, data))
@@ -227,7 +221,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
 
 int Rendering::DeferredRenderer::DrawSurfaces(const RenderArgs &InArgs, const RenderTarget &InTarget, const Vector<RenderTarget *> &InBuffers)
 {
-    PROFILE_GL_NAMED("Deferred pass");
+    PROFILE_GL();
     
     ShaderResource* shaderResource = InArgs.contextPtr->config.FX.Get().SurfaceShader.Get().Get();
     CHECK_RETURN(!shaderResource, 0);

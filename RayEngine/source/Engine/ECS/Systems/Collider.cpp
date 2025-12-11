@@ -31,10 +31,10 @@ void ECS::SysCollider::Update(const EntityID InID, Collider& InComponent)
             t.GetRotation(),
             Vec3F(data.x, data.y, data.z) * 2.0f);
         break;
-    case Physics::Shape::CAPSULE:
+        case Physics::Shape::CAPSULE:
         Debug::Capsule(
             t.GetPosition(),
-            t.GetRotation(),
+            QuatF::FromEuler({0, 0, PI / 2.0f}) * t.GetRotation(),
             data.x,
             data.y);
         break;

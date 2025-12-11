@@ -80,6 +80,8 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
 void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader)
 {
     PROFILE_GL();
+
+    CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
     
     auto& viewport = *InArgs.viewportPtr;
     auto ptr = InShader.Get();
@@ -336,13 +338,14 @@ int Rendering::Renderer::DrawDebug(const RenderArgs& InArgs)
     auto& scene = *InArgs.scenePtr;
     auto virtualTarget = InArgs.viewportPtr->GetVirtualTarget();
     auto& frameTarget= InArgs.viewportPtr->targets.frameTargets.Curr();
-
+    
     BeginTextureMode(virtualTarget);
     rlEnableFramebuffer(frameTarget.GetFBO());
 
     for (auto& persp : InArgs.perspectives)
     {
         BeginMode3D(Utility::Ray::ConvertCamera(persp.camera));
+        rlSetClipPlanes(persp.camera.near, persp.camera.far);
 
         const Vec2F res = InArgs.viewportPtr->GetResolution().To<float>();
         float w = persp.targetRect.z > 0 ?

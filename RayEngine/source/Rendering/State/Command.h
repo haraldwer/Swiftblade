@@ -13,6 +13,7 @@ namespace Rendering
 
         bool operator==(const UniformCommand& InOther) const
         {
+            return false;
             if (InOther.valueHash == 0 || valueHash == 0)
                 return false;
             return

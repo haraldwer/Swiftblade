@@ -152,6 +152,30 @@ void UI::InfoPanelLevel::Update(Container &InOwner)
             submitMenu = Menu::Manager::Get().Push<MenuLevelSubmit>();
 }
 
+bool UI::InfoPanelLevel::DebugDraw(Container &InOwner, const String &InIdentifier, int &InC)
+{
+    if (GetVisible())
+    {
+        if (ImGui::Begin(("Room info##" + Utility::ToStr(InC)).c_str()))
+        {
+            if (data.entry.Edit("Entry", InC))
+                SetEntryInfo(data.entry);
+            
+            if (data.resource.Edit("Resource", InC))
+            {
+                if (auto res = data.resource.Get())
+                {
+                    SetResourceInfo(res->data);
+                    res->Save();
+                }
+            }
+        }
+        ImGui::End();
+    }
+    
+    return Container::DebugDraw(InOwner, InIdentifier, InC);
+}
+
 void UI::InfoPanelLevel::SetLevel(const LevelEntryData &InData)
 {
     if (!data.entry.ID.Get().empty() && data.entry.ID == InData.entry.ID)

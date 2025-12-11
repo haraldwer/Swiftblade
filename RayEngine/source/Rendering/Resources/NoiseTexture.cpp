@@ -27,7 +27,7 @@ ResTexture Rendering::NoiseTextureResource::Get() const
     return tex;
 }
 
-bool Rendering::NoiseTextureResource::EditAccept(const String &InPath)
+bool Rendering::NoiseTextureResource::Accept(const String &InPath)
 {
     return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("T_");
 }

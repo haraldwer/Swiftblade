@@ -25,7 +25,7 @@ bool Rendering::Particle::Edit(const String& InName, uint32 InOffset)
     return false;
 }
 
-bool Rendering::Particle::EditAccept(const String &InPath)
+bool Rendering::Particle::Accept(const String &InPath)
 {
     return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("PS_");
 }

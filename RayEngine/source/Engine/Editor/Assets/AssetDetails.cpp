@@ -82,7 +82,6 @@ void AssetDetails::OpenPanel(const String& InPath)
     
 #define ASSET_OPEN(T) { details.push_back(T(InPath)); details.at(details.size() - 1).Get().Init(); return; }
 #define ASSET_TRY_OPEN(T) if (T::Accept(InPath)) ASSET_OPEN(T)
-#define ASSET_TRY_OPEN_FUNC(T, acceptFunc, acceptParam) if (acceptFunc(acceptParam, InPath)) ASSET_OPEN(T)
 
     ASSET_TRY_OPEN(FileResourceDetails<Rendering::TextureResource>);
     ASSET_TRY_OPEN(FileResourceDetails<Rendering::ModelResource>);
@@ -91,6 +90,8 @@ void AssetDetails::OpenPanel(const String& InPath)
     ASSET_TRY_OPEN(TextResourceDetails<Rendering::NoiseTextureResource>);
     ASSET_TRY_OPEN(TextResourceDetails<Rendering::BakedTexture>);
     ASSET_TRY_OPEN(TextResourceDetails<Rendering::Particle>);
+    ASSET_TRY_OPEN(TextResourceDetails<PhysicsMaterialResource>);
+    ASSET_TRY_OPEN(TextResourceDetails<Rendering::MaterialResource>);
     ASSET_TRY_OPEN(BlueprintResourceDetails);
     
     ASSET_TRY_OPEN(ConfigDetails<Rendering::Config>);
@@ -98,19 +99,10 @@ void AssetDetails::OpenPanel(const String& InPath)
     ASSET_TRY_OPEN(ConfigDetails<Engine::LauncherConfig>);
     ASSET_TRY_OPEN(ConfigDetails<BlueprintEditorConfig>);
     ASSET_TRY_OPEN(ConfigDetails<Debug::Config>);
-
-    auto jsonPrefixFunc = [](const String& InPrefix, const String& InPath)
-    {
-        return Utility::File::Name(InPath).starts_with(InPrefix) && InPath.ends_with(".json");
-    };
-    
-    ASSET_TRY_OPEN_FUNC(TextResourceDetails<PhysicsMaterialResource>, jsonPrefixFunc, "PM_");
-    ASSET_TRY_OPEN_FUNC(TextResourceDetails<Rendering::MaterialResource>, jsonPrefixFunc, "RM_");
     
     ASSET_TRY_OPEN(TextDetails);
     ASSET_TRY_OPEN(AssetDetailPanel);
 
 #undef ASSET_OPEN
 #undef ASSET_TRY_OPEN
-#undef ASSET_TRY_OPEN_FUNC
 }

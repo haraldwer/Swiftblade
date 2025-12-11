@@ -48,6 +48,7 @@ void Physics::Manager::Init()
     PROFILE();
     
     reactphysics3d::PhysicsWorld::WorldSettings settings;
+    settings.gravity = { 0, 0, 0 };
     world = Persistent::Get().GetCommon().createPhysicsWorld(settings);
     CHECK_ASSERT(!world, "Failed to create world");
     contactHandler = new ContactHandler();

@@ -20,7 +20,7 @@ public:
     ECS::EntityID Instantiate(const Mat4F& InTransform = Mat4F(), const Vector<DeserializeObj>& InOverrides = {}, ECS::EntityID InID = ECS::INVALID_ID) const;
     void SaveEntity(ECS::EntityID InID);
 
-    static bool EditAccept(const String& InPath);
+    static bool Accept(const String& InPath);
     
 private:
     DeserializeObj GetObj() const;

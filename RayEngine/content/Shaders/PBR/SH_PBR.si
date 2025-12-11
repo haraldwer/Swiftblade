@@ -32,7 +32,6 @@ vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
     // Get irradiance
     vec3 irradiance = SampleIrradiance(probe, N).rgb;
     vec3 diffuse    = irradiance * InAlbedo;
-    return diffuse;
 
     // Get specular using BRDF
     int mip = int(roughness * MAX_REFLECTION_LOD);

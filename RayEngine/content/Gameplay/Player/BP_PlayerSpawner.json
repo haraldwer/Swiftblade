@@ -6,7 +6,9 @@
 			}
 		},{
 			"Name":"Mesh",
-			"Data":{}
+			"Data":{
+				"GameVisible":false
+			}
 		},{
 			"Name":"Transform",
 			"Data":{}

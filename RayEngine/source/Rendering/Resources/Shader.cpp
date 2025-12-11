@@ -67,9 +67,11 @@ bool Rendering::ShaderResource::Load()
 bool Rendering::ShaderResource::Unload()
 {
     if (ptr)
+    {
         UnloadShader(*ptr);
-    delete ptr;
-    ptr = nullptr;
+        delete ptr;
+        ptr = nullptr;
+    }
     fsIncludes.clear();
     vsIncludes.clear();
     locations.clear();
@@ -129,6 +131,18 @@ int Rendering::ShaderResource::GetLocation(const String& InValue)
 int Rendering::ShaderResource::GetLocation(const DefaultLoc& InLoc) const
 {
     return defaultLocs[static_cast<size_t>(InLoc)];
+}
+
+bool Rendering::ShaderResource::Accept(const String &InPath)
+{
+    auto name = Utility::File::Name(InPath);
+    return name.starts_with("SH_") &&
+        (InPath.ends_with(".vs") ||
+        InPath.ends_with(".fs") ||
+        InPath.ends_with(".ds") ||
+        InPath.ends_with(".ps") ||
+        InPath.ends_with(".si") ||
+        !name.contains("."));
 }
 
 void Rendering::ShaderResource::LoadDefaultLocs()

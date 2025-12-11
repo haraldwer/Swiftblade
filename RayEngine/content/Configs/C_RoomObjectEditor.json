@@ -1,26 +1,11 @@
 {
 	"Types":[{
 			"Key":"END",
-			"Val":{
-				"Objects":[{
-						"Key":"SectionEnd",
-						"Val":{
-							"Icon":"Editor/Objects/T_Icon_Connection.png",
-							"BP":"Gameplay/Connection/BP_SectionEnd.json"
-						}
-					}
-				]
-			}
+			"Val":{}
 		},{
 			"Key":"START",
 			"Val":{
 				"Objects":[{
-						"Key":"Player",
-						"Val":{
-							"Icon":"Editor/Objects/T_Icon_Sword.png",
-							"BP":"Gameplay/Player/BP_PlayerSpawner.json"
-						}
-					},{
 						"Key":"Sword",
 						"Val":{
 							"Icon":"Editor/Objects/T_Icon_Sword.png",
@@ -33,12 +18,6 @@
 			"Key":"ARENA",
 			"Val":{
 				"Objects":[{
-						"Key":"Checkpoint",
-						"Val":{
-							"Icon":"Editor/Objects/T_Icon_Checkpoint.png",
-							"BP":"Gameplay/Checkpoint/BP_Checkpoint.json"
-						}
-					},{
 						"Key":"Enemy",
 						"Val":{
 							"Icon":"Editor/Objects/T_Icon_Enemy.png",

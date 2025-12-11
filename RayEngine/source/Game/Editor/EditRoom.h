@@ -35,6 +35,11 @@ struct EditRoom : PropertyOwner<EditRoom>
     {
         volumeData.Serialize(InOutObj);
     }
+
+    static bool Accept(const String& InPath)
+    {
+        return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("R_");
+    }
 };
 
 typedef Resource::PropertyFile<EditRoom> EditRoomResource;

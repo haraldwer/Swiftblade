@@ -28,7 +28,7 @@ public:
     
     static bool Accept(const String& InPath)
     {
-        return T::EditAccept(InPath);
+        return T::Accept(InPath);
     }
     
 private:

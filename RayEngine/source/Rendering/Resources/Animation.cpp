@@ -116,6 +116,11 @@ bool Rendering::AnimationResource::GetAction(const String &InAction, float InPre
     return false;
 }
 
+bool Rendering::AnimationResource::Accept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("A_");
+}
+
 Vec3F Rendering::AnimationResource::ReadVec3(AnimationData::Object &InObject, const String &InKey, const float InSample) const
 {
     auto find = InObject.find(InKey);

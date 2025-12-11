@@ -1,0 +1,9 @@
+#include "Shaders/SH_Default_ds.si"
+
+void main()
+{
+if (CheckID(TexCoord, DeferredID))
+discard;
+
+DefaultMatte(vec3(0.4f, 0.4f, 1.0f));
+}

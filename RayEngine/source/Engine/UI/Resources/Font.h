@@ -17,7 +17,7 @@ namespace UI
         Font* Get(uint32 InSize);
         Shader* GetShader() const;
 
-        static bool EditAccept(const String& InPath)
+        static bool Accept(const String& InPath)
         {
             return InPath.ends_with(".ttf");          
         }

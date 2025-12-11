@@ -22,6 +22,8 @@ public:
     SceneInstance Instantiate(const Mat4F& InOffset = Mat4F(), bool InIsRoot = true) const;
     bool FromInstance(const SceneInstance& InInstance) { return FromStr(InInstance.ToStr(false)); }
     bool FromStr(const String& InStr);
+
+    static bool Accept(const String& InPath);
     
 protected:
     DocumentObj doc = {}; 

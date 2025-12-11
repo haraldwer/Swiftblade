@@ -2,13 +2,13 @@
 	"Components":[{
 			"Name":"Attributes",
 			"Data":{
-				"Name":"Checkpoint"
+				"Name":"SectionEnd"
 			}
 		},{
 			"Name":"Transform",
 			"Data":{}
 		},{
-			"Name":"Checkpoint",
+			"Name":"SectionEnd",
 			"Data":{}
 		},{
 			"Name":"RoomConnection",
@@ -36,64 +36,12 @@
 						"Data":{
 							"IsTrigger":true,
 							"ShapeData":[
-								2.0,
-								2.0,
+								3.0,
+								4.0,
 								2.0,
 								1.0
 							]
 						}
-					}
-				]
-			}
-		},{
-			"Overrides":{
-				"Components":[{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"Crystal"
-						}
-					},{
-						"Name":"Mesh",
-						"Data":{
-							"Model":"Gameplay/Checkpoint/M_Crystal.obj",
-							"Material":"Gameplay/Checkpoint/RM_Crystal.json"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{
-							"Position":[
-								0.0,
-								3.299999952316284,
-								0.0
-							]
-						}
-					},{
-						"Name":"Light",
-						"Data":{
-							"Color":[
-								0.20000000298023224,
-								0.20000000298023224,
-								1.0
-							]
-						}
-					}
-				]
-			}
-		},{
-			"Overrides":{
-				"Components":[{
-						"Name":"Attributes",
-						"Data":{
-							"Name":"Base"
-						}
-					},{
-						"Name":"Mesh",
-						"Data":{
-							"Model":"Gameplay/Checkpoint/M_Crystal_Pedal.obj"
-						}
-					},{
-						"Name":"Transform",
-						"Data":{}
 					}
 				]
 			}
@@ -107,25 +55,102 @@
 					},{
 						"Name":"Mesh",
 						"Data":{
-							"Model":"Defaults/M_Pointer.obj"
+							"Model":"Defaults/M_Pointer.obj",
+							"GameVisible":false
 						}
 					},{
 						"Name":"Transform",
 						"Data":{
 							"Position":[
 								0.0,
-								3.4000000953674316,
-								4.600000381469727
+								2.799999952316284,
+								-4.100000381469727
 							],
 							"Rotation":[
-								-89.9161605834961,
+								90.00003814697266,
 								0.0,
 								0.0
 							],
 							"Scale":[
 								1.0,
-								1.0000014305114746,
-								1.0000014305114746
+								1.000001311302185,
+								1.000001311302185
+							]
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Frame"
+						}
+					},{
+						"Name":"Mesh",
+						"Data":{
+							"Model":"Gameplay/Connection/M_Door_Big_Frame.obj"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Door1"
+						}
+					},{
+						"Name":"Mesh",
+						"Data":{
+							"Model":"Gameplay/Connection/M_Door_Big.obj"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								-3.6999998092651367,
+								0.0,
+								0.0
+							]
+						}
+					}
+				]
+			}
+		},{
+			"Overrides":{
+				"Components":[{
+						"Name":"Attributes",
+						"Data":{
+							"Name":"Door2"
+						}
+					},{
+						"Name":"Mesh",
+						"Data":{
+							"Model":"Gameplay/Connection/M_Door_Big.obj"
+						}
+					},{
+						"Name":"Transform",
+						"Data":{
+							"Position":[
+								3.5999999046325684,
+								0.0,
+								0.0
+							],
+							"Rotation":[
+								-0.0,
+								-179.9999542236328,
+								0.0
+							],
+							"Scale":[
+								1.0000009536743164,
+								1.0,
+								1.0000009536743164
 							]
 						}
 					}

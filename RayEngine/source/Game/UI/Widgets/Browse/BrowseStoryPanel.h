@@ -4,8 +4,8 @@
 
 struct StoryEntry : PropertyOwner<StoryEntry>
 {
-    PROPERTY_C(String, Name, "");
-    PROPERTY_C(ResScene, Scene, ""); // TODO: Replace with level config 
+    PROPERTY(String, Name);
+    PROPERTY(LevelConfig, Level); 
 };
 
 struct StoryConfig : BaseConfig<StoryConfig>
@@ -22,8 +22,9 @@ namespace UI
     public:
         void Init(Container &InOwner) override;
         void Update(Container &InOwner) override;
+        bool DebugDraw(Container &InOwner, const String &InIdentifier, int &InC) override;
 
     private:
-        StoryConfig conf;
+        StoryConfig config;
     };
 }

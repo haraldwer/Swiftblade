@@ -16,6 +16,7 @@
 #include "Core/Debug/Manager.h"
 #include "Menu/Manager.h"
 
+#include "Instance/Instance.h"
 #include "Rendering/GLProfile.h"
 #include "Rendering/Scene/Scene.h"
 #include "Rendering/State/State.h"
@@ -112,7 +113,9 @@ void Rendering::Manager::DrawPanel()
         vMin.y + windowPos.y
     });
 
-    hovered = ImGui::IsMouseHoveringRect(vMin + windowPos, vMax + windowPos) && !ImGuizmo::IsOver();
+    
+    bool imguizmo = ImGuizmo::IsOver() && !Engine::Instance::Get().GetEditorCamera().IsControlling();
+    hovered = ImGui::IsMouseHoveringRect(vMin + windowPos, vMax + windowPos) && !imguizmo;
     //ImGui::IsAnyItemHovered()
     //ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)
     //ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopup)

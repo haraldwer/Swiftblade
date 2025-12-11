@@ -6,12 +6,12 @@ namespace ECS
 {
     struct EnemySpawner : Component<EnemySpawner>
     {
-        // Parameters for enemy config
-        //
+        float cooldown = 0.0f;
     };
 
     class SysEnemySpawner : public System<EnemySpawner>
     {
-        void Init(EntityID InID, EnemySpawner& InComponent) override;
+        void Update(EntityID InID, EnemySpawner &InComponent) override;
+        bool ShouldUpdate() const override;
     };
 }

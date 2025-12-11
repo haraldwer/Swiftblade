@@ -39,7 +39,6 @@ namespace Rendering
     private: 
         
         uint32 frameBuffer = 0;
-        uint32 depthID = 0;
         Vector<TargetTex> textures = {};
 
         int width = 0;

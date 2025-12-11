@@ -17,7 +17,7 @@ namespace Rendering
         uint32 Hash() const;
         bool Edit(const String &InName, uint32 InOffset = 0) override;
 
-        static bool EditAccept(const String& InPath)
+        static bool Accept(const String& InPath)
         {
             return InPath.ends_with(".obj");          
         }

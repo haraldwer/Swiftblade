@@ -33,7 +33,10 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const
     }
     
     for (auto& target : frameTargets.All())
+    {
         target.Setup(res, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        target.AttachDepth(InTarget);
+    }
 
     for (auto& target : aoTargets.All())
     {

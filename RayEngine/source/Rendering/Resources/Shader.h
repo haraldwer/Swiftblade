@@ -40,6 +40,8 @@ namespace Rendering
         int GetLocation(const String& InValue);
         int GetLocation(const DefaultLoc& InLoc) const;
 
+        static bool Accept(const String& InPath);
+
     private:
         String LoadShaderFile(const String& InPath, Set<String>& InIncludes);
 

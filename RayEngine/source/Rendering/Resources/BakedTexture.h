@@ -27,7 +27,7 @@ namespace Rendering
         bool IsBaked() const { return baked; }
         RenderTarget& Get() { return target; }
 
-        static bool EditAccept(const String& InPath);
+        static bool Accept(const String& InPath);
         
     private:
         RenderTarget target;

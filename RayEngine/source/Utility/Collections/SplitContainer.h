@@ -31,7 +31,7 @@ namespace Utility
 
             for (auto& n : nodes)
                 for (auto& index : n.indices)
-                    n.cache.push_back(data[index]);
+                    n.cache.push_back(data.at(index));
         }
 
         bool IsBuilt() const
@@ -59,7 +59,7 @@ namespace Utility
             Get(0, InPoints, nodeIndices);
             for (auto& nI : nodeIndices)
             {
-                auto& node = nodes[nI];
+                auto& node = nodes.at(nI);
                 indices.insert(node.indices.begin(), node.indices.end());
             }
             return indices;
@@ -72,7 +72,7 @@ namespace Utility
             Get(0, InPoints, nodeIndices);
             for (auto& nI : nodeIndices)
             {
-                auto& node = nodes[nI];
+                auto& node = nodes.at(nI);
                 result.insert(result.end(), node.cache.begin(), node.cache.end());
             }
             return result;

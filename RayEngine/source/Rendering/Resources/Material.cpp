@@ -36,3 +36,8 @@ uint32 Rendering::MaterialResource::DeferredHash()
         cachedDeferredHash = Utility::Hash(data.DeferredShader.Get().Identifier());
     return cachedDeferredHash;
 }
+
+bool Rendering::MaterialResource::Accept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("RM_");
+}

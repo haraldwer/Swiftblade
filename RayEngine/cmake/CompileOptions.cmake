@@ -86,9 +86,10 @@ elseif (UNIX)
   # Debug compile options
   target_compile_options(${PROJECT_NAME} PUBLIC
     $<$<CONFIG:Debug>:-O0> # No optimization
-    $<$<CONFIG:Debug>:-g> # Full debug info
+    $<$<CONFIG:Debug>:-g3> # Full debug info
     $<$<CONFIG:Debug>:-fno-inline> # Avoid inlining
     $<$<CONFIG:Debug>:-fno-omit-frame-pointer> # Easier debugging/profiling
+    #$<$<CONFIG:Debug>:-fsanitize=address>
     $<$<CONFIG:Debug>:-gsplit-dwarf>) # Split debug -> faster linking
 
   # Release compile options
@@ -108,6 +109,10 @@ elseif (UNIX)
     $<$<CONFIG:Release>:-flto> # Link-time optimization
     $<$<CONFIG:Release>:-Wl,--gc-sections> # Remove unused code
     #$<$<CONFIG:Release>:-Wl,--icf=all> # Fold identical functions - on clang
+  )
+
+  target_link_options(${PROJECT_NAME} PUBLIC
+    #$<$<CONFIG:Debug>:-fsanitize=address>
   )
           
   if (NOT EMSCRIPTEN)

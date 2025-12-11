@@ -32,7 +32,7 @@ Utility::Timepoint Rendering::TextureResource::GetEditTime() const
     return Utility::File::GetWriteTime(id.Str());  
 }
 
-bool Rendering::TextureResource::EditAccept(const String &InPath)
+bool Rendering::TextureResource::Accept(const String &InPath)
 {
     return InPath.ends_with(".png");
 }

@@ -18,7 +18,7 @@ namespace Rendering
         Utility::Timepoint GetEditTime() const override;
         Texture* Get() const { return ptr; }
 
-        static bool EditAccept(const String& InPath);
+        static bool Accept(const String& InPath);
 
     private:
         Texture* ptr = nullptr;

@@ -1,1 +1,30 @@
-{}
+{
+	"EndBP":[{
+			"Key":"END",
+			"Val":"Gameplay/Connection/BP_Connection_Door_Big.json"
+		},{
+			"Key":"START",
+			"Val":"Gameplay/Connection/BP_Connection_Door.json"
+		},{
+			"Key":"ARENA",
+			"Val":"Gameplay/Checkpoint/BP_Checkpoint.json"
+		},{
+			"Key":"ROOM",
+			"Val":"Gameplay/Connection/BP_Connection_Door.json"
+		}
+	],
+	"StartBP":[{
+			"Key":"ROOM",
+			"Val":"Gameplay/Connection/BP_Connection_Door.json"
+		},{
+			"Key":"ARENA",
+			"Val":"Gameplay/Connection/BP_Connection_Door_Big.json"
+		},{
+			"Key":"START",
+			"Val":"Gameplay/Player/BP_PlayerSpawner.json"
+		},{
+			"Key":"END",
+			"Val":"Gameplay/Connection/BP_Connection_Door.json"
+		}
+	]
+}

@@ -54,12 +54,13 @@ namespace Rendering
     public:
         bool Load() override;
         bool Unload() override;
-
-
+        
         Mat4F Get(const String& InObject, float InTime);
         float GetCurve(const String& InObject, const String& InKey, float InTime, int InIndex = 0);
         float GetDuration() const { return data.duration_seconds; }
         bool GetAction(const String& InAction, float InPrevTime, float InCurrentTime);
+
+        static bool Accept(const String& InPath);
         
     private:
         Vec3F ReadVec3(AnimationData::Object& InObject, const String& InKey, float InTime) const;

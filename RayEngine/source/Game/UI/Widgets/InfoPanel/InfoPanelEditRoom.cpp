@@ -116,6 +116,27 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
             editor->SetRoom(room);
 }
 
+bool UI::InfoPanelEditRoom::DebugDraw(Container &InOwner, const String &InIdentifier, int &InC)
+{
+    if (GetVisible())
+    {
+        if (ImGui::Begin(("Room info##" + Utility::ToStr(InC)).c_str()))
+        {
+            if (room.Edit())
+            {
+                if (auto res = room.Get())
+                {
+                    res->Save();
+                    SetResourceInfo(res->data);
+                }
+            }
+        }
+        ImGui::End();
+    }
+    
+    return Container::DebugDraw(InOwner, InIdentifier, InC);
+}
+
 void UI::InfoPanelEditRoom::SetRoom(const ResEditRoom& InRoom)
 {
     if (InRoom.Identifier().IsValid() && InRoom == room)

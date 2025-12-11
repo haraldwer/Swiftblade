@@ -27,11 +27,18 @@ void RoomConnectionEditor::Init()
     auto centerCoord = v.GetVolumeStart();
     if (startEntity == ECS::INVALID_ID)
     {
-        if (const auto bp = config.StartBP.Get().Get())
+        auto type = GetRoom().Info.Get().Type.Get();
+        auto& starts = config.StartBP.Get();
+        auto startFind = starts.find(type);
+        if (startFind != starts.end())
         {
-            const Vec3F center = v.CoordToPos(centerCoord) + GetOff(true);
-            startEntity = bp->Instantiate(center);
-            sys.Get<ECS::RoomConnection>(startEntity).IsEnd = false; 
+            if (const auto bp = startFind->second.Get())
+            {
+                const Vec3F center = v.CoordToPos(centerCoord) + GetOff(true);
+                startEntity = bp->Instantiate(center);
+                if (auto conn = sys.TryGet<ECS::RoomConnection>(startEntity))
+                    conn->IsEnd = false; 
+            }
         }
     }
     

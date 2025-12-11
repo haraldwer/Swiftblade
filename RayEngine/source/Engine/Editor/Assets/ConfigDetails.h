@@ -25,7 +25,7 @@ public:
     
     static bool Accept(const String& InPath)
     {
-        return InPath.contains(T().Path());
+        return InPath.ends_with(T().Path());
     }
 
 private:

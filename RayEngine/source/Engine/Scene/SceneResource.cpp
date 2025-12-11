@@ -106,6 +106,11 @@ bool SceneResource::FromStr(const String &InStr)
     return doc.IsObject();
 }
 
+bool SceneResource::Accept(const String &InPath)
+{
+    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("S_");
+}
+
 bool SceneResource::Load()
 {
     if (id.Unique())
