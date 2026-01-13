@@ -9,6 +9,21 @@ bool Rendering::ModelResource::Load()
     *ptr = LoadModel(id.Str().c_str());
     cachedHash = Utility::Hash(id.Str());
     editIndices.clear();
+    
+    for (int i = 0; i < ptr->meshCount; i++)
+    {
+        auto& mesh = ptr->meshes[i];
+        auto aabb = GetMeshBoundingBox(mesh);
+        Vec3F dist = {
+            Utility::Math::Max(abs(aabb.max.x), abs(aabb.min.x)),
+            Utility::Math::Max(abs(aabb.max.y), abs(aabb.min.y)),
+            Utility::Math::Max(abs(aabb.max.z), abs(aabb.min.z))
+        };
+        range = Utility::Math::Max(range, dist.LengthSqr());
+        // TODO: Also consider offset between min and max -> Center mesh in aabb
+    }
+    range = Utility::Math::SquareRoot(range);
+    
     return true;
 }
 
@@ -30,6 +45,11 @@ Model* Rendering::ModelResource::Get() const
     if (IsModelValid(*ptr))
         return ptr;
     return nullptr;
+}
+
+float Rendering::ModelResource::GetRange() const
+{
+    return range;
 }
 
 uint32 Rendering::ModelResource::Hash() const

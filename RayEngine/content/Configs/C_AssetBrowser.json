@@ -1,10 +1,13 @@
 {
 	"Selected":[
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Connection"
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Shaders/Lumin"
 	],
 	"Expanded":[
 		"/home/harald/Dev/Swiftblade/RayEngine/content",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Gameplay/Player"
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Dressing",
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Dressing/RM_StoneWall.json",
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Dressing/SH_StoneWall.ds",
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Shaders",
+		"/home/harald/Dev/Swiftblade/RayEngine/content/Shaders/Lumin"
 	]
 }

@@ -38,7 +38,7 @@ void Rendering::MeshCollection::Add(const MeshInstance& InInstance, const uint32
     CHECK_ASSERT(entry.transforms.IsBuilt(), "Clear before adding");
     entry.transforms.Insert(InInstance.transform, {
         .position = InInstance.transform.GetPosition(),
-        .extent = InInstance.extent
+        .extent = InInstance.model.Get()->GetRange()
     });
 }
 
@@ -49,7 +49,7 @@ void Rendering::MeshCollection::Add(const MeshInstance& InInstance, const Vector
     for (auto& t : InTransforms)
         entry.transforms.Insert(t, {
             .position = t.GetPosition(),
-            .extent = InInstance.extent
+            .extent = InInstance.model.Get()->GetRange()
         });
 }
 

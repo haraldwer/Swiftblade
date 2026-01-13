@@ -5,6 +5,7 @@
 #include "Game/Editor/RoomEditor.h"
 #include "Game/Instances/MenuInstance.h"
 #include "Game/Instances/GameInstance.h"
+#include "Game/Instances/RenderInstance.h"
 
 #ifdef IMGUI_ENABLE
 
@@ -59,6 +60,7 @@ void Engine::Launcher::Push(const String& InName)
     LAUNCHER_REG_INSTANCE(GameInstance, InName)
     LAUNCHER_REG_INSTANCE(BlueprintEditor, InName)
     LAUNCHER_REG_INSTANCE(RoomEditor, InName)
+    LAUNCHER_REG_INSTANCE(RenderInstance, InName)
 #endif
 }
 

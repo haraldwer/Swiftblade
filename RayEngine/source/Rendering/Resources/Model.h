@@ -14,6 +14,7 @@ namespace Rendering
         bool Load() override;
         bool Unload() override;
         Model* Get() const;
+        float GetRange() const;
         uint32 Hash() const;
         bool Edit(const String &InName, uint32 InOffset = 0) override;
 
@@ -24,6 +25,7 @@ namespace Rendering
         
     private:
         uint32 cachedHash = 0;
+        float range = 0.0f;
         Model* ptr = nullptr;
 
         Map<uint32, Vector<uint32>> editIndices;

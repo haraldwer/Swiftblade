@@ -17,6 +17,7 @@ if (MSVC) # Uses config
       $<$<CONFIG:Release>:${CMAKE_SOURCE_DIR}/library/${COMPILE_PLATFORM}_Release/dynamic/>
       $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 else()
+  # TODO: Check if folder exists
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_SOURCE_DIR}/library/${COMPILE_PLATFORM_PATH}/dynamic/

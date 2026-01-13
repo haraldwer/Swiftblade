@@ -72,6 +72,8 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
 
 Rendering::LuminRenderData Rendering::Lumin::GetFrameProbes(const RenderArgs &InArgs)
 {
+    PROFILE_GL();
+    
     LuminRenderData data;
     data.fallback = &fallback;
 
@@ -353,20 +355,23 @@ Vector<Rendering::LuminProbe*> Rendering::Lumin::GetProbes(const RenderArgs& InA
     };
 
     const float halfFar = cam.far / 2.0f; 
+    const Vec3F maxDist =  Vec3F::One() / GetDensity(InLayer);
+    const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
+    const float cullFar = halfFar - cullDist;
     const auto checkFunc = [&](const ProbeCoord& InCoord)
     {
-        const Vec3F pos = FromCoord(InCoord);
-        const Vec3F maxDist = Vec3F::One() / GetDensity(InLayer);
-        const float cullDist = Utility::Math::Max(Utility::Math::Max(maxDist.x, maxDist.y), maxDist.z);
-        const float cullFar = halfFar - cullDist;
+        const Vec3F pos = FromCoord(InCoord); 
         return frustum.CheckSphere(pos, cullDist) || (pos - cam.position).LengthSqr() < cullFar * cullFar;
     };
 
     Set<uint64>& layer = layerProbes[InLayer];
     for (auto& id : layer)
+    {
+        PROFILE_GL_NAMED("Insert layer");
         if (checkFunc(ProbeCoord(id)))
             Utility::SortedInsert(result, &probes.at(id), sortFunc);
-
+    }
+    
     const auto count = Utility::Math::Min(static_cast<int>(result.size()), config.MaxLayerCount.Get());
     CHECK_RETURN(count <= 0, {});
     return { result.begin(), result.begin() + count };
@@ -379,15 +384,25 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
     CHECK_ASSERT(!InArgs.scenePtr, "Invalid scene");
 
     bool changed = probes.empty();
-    Vector<const Utility::SplitContainer<Mat4F>*> transformCollections;
+    
+    struct RangeTrans
+    {
+        const Utility::SplitContainer<Mat4F>* trans;
+        float range = 1.0f;
+    };
+    
+    Vector<RangeTrans> transformCollections;
     for (auto& persistence : InArgs.scenePtr->meshes.GetEntries())
     {
         CHECK_CONTINUE(persistence.first == 0);
         for (const std::pair<const unsigned long, MeshCollection::Entry> &entry: persistence.second)
         {
             CHECK_CONTINUE(!(entry.second.mask & static_cast<uint8>(VisibilityMask::LUMIN)));
-            changed |= entry.second.justRebuilt; 
-            transformCollections.push_back(&entry.second.transforms);
+            changed |= entry.second.justRebuilt;
+            transformCollections.push_back({
+                &entry.second.transforms,
+                entry.second.model.Get()->GetRange()
+            });
         }
     }
 
@@ -397,41 +412,41 @@ void Rendering::Lumin::ExpandVolume(const RenderArgs& InArgs)
     // Find changes
     probePersistence.Begin();
     Vec3F offset = config.Offset;
+    
+    Vec3F min;
+    Vec3F max;
+    for (auto& transforms : transformCollections)
+    {
+        for (const Mat4F& t : transforms.trans->GetAll())
+        {
+            // TODO: Consider scale
+            const Vec3F pos = t.GetPosition();
+            min = {
+                Utility::Math::Min(min.x, pos.x - transforms.range),
+                Utility::Math::Min(min.y, pos.y - transforms.range),
+                Utility::Math::Min(min.z, pos.z - transforms.range),
+            };
+            max = {
+                Utility::Math::Max(max.x, pos.x + transforms.range),
+                Utility::Math::Max(max.y, pos.y + transforms.range),
+                Utility::Math::Max(max.z, pos.z + transforms.range),
+            };
+        }
+    }
+    
     for (int layer = 0; layer < config.Layers; layer++)
     {
         const auto density = GetDensity(layer);
-        for (auto& transforms : transformCollections)
-        {
-            for (const Mat4F& t : transforms->GetAll())
-            {
-                const Vec3F pos = t.GetPosition();
-                const ProbeCoord ceil(
-                    static_cast<int16>(ceilf(pos.x * density.x - offset.x)),
-                    static_cast<int16>(ceilf(pos.y * density.y - offset.y)),
-                    static_cast<int16>(ceilf(pos.z * density.z - offset.z)),
-                    static_cast<int16>(layer)
-                );
-                const ProbeCoord floor(
-                    static_cast<int16>(floorf(pos.x * density.x - offset.x)),
-                    static_cast<int16>(floorf(pos.y * density.y - offset.y)),
-                    static_cast<int16>(floorf(pos.z * density.z - offset.z)),
-                    static_cast<int16>(layer)
-                );
-                const ProbeCoord coords[8] =
-                {
-                    { ceil.pos.x, ceil.pos.y, ceil.pos.z, ceil.pos.w },
-                    { floor.pos.x, ceil.pos.y, ceil.pos.z, ceil.pos.w },
-                    { ceil.pos.x, floor.pos.y, ceil.pos.z, ceil.pos.w },
-                    { floor.pos.x, floor.pos.y, ceil.pos.z, ceil.pos.w },
-                    { ceil.pos.x, ceil.pos.y, floor.pos.z, ceil.pos.w },
-                    { floor.pos.x, ceil.pos.y, floor.pos.z, ceil.pos.w },
-                    { ceil.pos.x, floor.pos.y, floor.pos.z, ceil.pos.w },
-                    { floor.pos.x, floor.pos.y, floor.pos.z, ceil.pos.w },
-                };
-                for (auto& coord : coords)
-                    probePersistence.Touch(coord.key);
-            }
-        }
+        const int16 startx = static_cast<int16>(floorf(min.x * density.x - offset.x));
+        const int16 starty = static_cast<int16>(floorf(min.y * density.y - offset.y));
+        const int16 startz = static_cast<int16>(floorf(min.z * density.z - offset.z));
+        const int16 endx = static_cast<int16>(ceilf(max.x * density.x - offset.x));
+        const int16 endy = static_cast<int16>(ceilf(max.y * density.y - offset.y));
+        const int16 endz = static_cast<int16>(ceilf(max.z * density.z - offset.z));
+        for (int16 x = startx; x <= endx; x++)
+            for (int16 y = starty; y <= endy; y++)
+                for (int16 z = startz; z <= endz; z++)
+                    probePersistence.Touch(ProbeCoord(x, y, z, static_cast<int16>(layer)).key);
     }
 
     for (auto added : probePersistence.GetAdded())

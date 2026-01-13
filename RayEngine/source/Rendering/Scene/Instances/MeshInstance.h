@@ -12,7 +12,6 @@ namespace Rendering
         ResRM material;
         Mat4F transform;
         uint64 hash;
-        float extent = 1.0f;
         uint8 mask = static_cast<uint8>(VisibilityMask::ALL);
 
         inline static uint32 PERSISTENT_ID = 0;

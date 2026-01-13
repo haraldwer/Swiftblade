@@ -7,7 +7,7 @@ Complete list of libraries / tools used:
  - ReactPhysics3D 0.10.2 (custom sweep fork)
  - Nakama 3.26.0 (nakama-cpp 2.8.5)
  - ImGui (docking branch)
- - Tracy 0.12.1
+ - Tracy 0.13.1
  - rapidjson
  - FastNoiseLite
  - Inkscape (for ui design)

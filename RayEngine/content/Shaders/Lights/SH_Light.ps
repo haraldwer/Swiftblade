@@ -29,6 +29,10 @@ float Godrays(vec4 InWorldPos, vec3 InToLight)
     return 0.0f;
 }
 
+// TODO: https://ijdykeman.github.io/graphics/simple_fog_shader
+// The amunt of fog between a and b where h is the ray - point distance between light and view direction
+// (arctan(bh) − arctan(ah)) / h
+
 void main()
 {
     Output = vec4(0.0f);

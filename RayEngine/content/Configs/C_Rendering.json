@@ -1,7 +1,6 @@
 {
 	"Context":{
 		"FX":{
-			"Tonemapping":true,
 			"SSAO":true,
 			"ChromaticAberration":true,
 			"FXAA":true,
@@ -9,11 +8,16 @@
 			"Bloom":true
 		},
 		"Lumin":{
-			"Enabled":false,
+			"Debug":true,
 			"Viewport":{
 				"Height":4096,
 				"Width":4096
-			}
+			},
+			"BaseDensity":[
+				0.20000000298023224,
+				0.20000000298023224,
+				0.20000000298023224
+			]
 		},
 		"Lights":{
 			"Viewport":{
@@ -35,7 +39,7 @@
 	},
 	"Viewport":{
 		"Height":1758,
-		"Width":2575
+		"Width":2892
 	},
 	"Window":{
 		"Height":1758,

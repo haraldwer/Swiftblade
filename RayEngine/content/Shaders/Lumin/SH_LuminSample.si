@@ -4,7 +4,7 @@
 #include "Shaders/Utility/SH_Utility.si"
 
 // Main switch
-//#define LUMIN
+#define LUMIN
 #define LUMIN_FALLBACK
 //#define LUMIN_DEPTH_OCCLUSION
 

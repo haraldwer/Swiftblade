@@ -17,7 +17,7 @@ namespace Rendering
         PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json");
 
         // Probe locations and layering
-        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.2f));
+        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.1f));
         PROPERTY_D(Vec3F, Offset, Vec3F(0.5f));
         PROPERTY_D(float, LayerScale, 0.25f);
         PROPERTY_D(float, Far, 50.0f);
