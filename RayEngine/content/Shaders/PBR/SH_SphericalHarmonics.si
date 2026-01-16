@@ -1,4 +1,7 @@
 
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+
 // https://www.ppsloan.org/publications/StupidSH36.pdf
 // https://www.ppsloan.org/publications/SHJCGT.pdf
 
@@ -44,14 +47,13 @@ float TexelSolidAngle(vec2 uv, int size)
 }
 
 // Accumulates the SH values from a cubemap
-// Maybe I can do this per face, so that only one render pass is required?
-// And blend the radiance textures?
-void AccumulateCubemapToSH(samplerCube InTexEnv, int InFaceRes, int InFaceIndex, int InBandIndex, out vec4 OutRadiance[9])
+vec4 AccumulateCubemapToSH(samplerCube InTexEnv, int InFaceRes, int InBandIndex)
 {
-    OutRadiance[InBandIndex] = vec4(0);
+    vec4 bandRadiance = vec4(0);
 
-    for(int y=0; y<InFaceRes; y++)
-    for(int x=0; x<InFaceRes; x++)
+    for (int side=0; side < 6; side++)
+    for (int y=0; y<InFaceRes; y++)
+    for (int x=0; x<InFaceRes; x++)
     {
         vec2 uv = (vec2(x,y) + 0.5) / InFaceRes * 2.0 - 1.0;
         vec3 dir = CubemapUVToDir(InFaceIndex, uv);
@@ -65,9 +67,10 @@ void AccumulateCubemapToSH(samplerCube InTexEnv, int InFaceRes, int InFaceIndex,
         EvalSHBasis(dir, Y);
         
         float w = Y[InBandIndex] * sa;
-        OutRadiance[InBandIndex].rgb += radiance * w;
-        OutRadiance[InBandIndex].a += depth * w;
+        bandRadiance.rgb += radiance * w;
+        bandRadiance.a += depth * w;
     }
+    return bandRadiance;
 }
 
 // Sample radiance + irradiance + depth

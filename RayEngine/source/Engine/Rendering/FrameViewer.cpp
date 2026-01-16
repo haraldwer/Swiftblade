@@ -70,7 +70,7 @@ void Rendering::FrameViewer::DrawViewportPanel()
                     DrawTex(*tex.tex);
             ImGui::SeparatorText("Probes");
             if (const auto l = man.defaultContext.GetLumin())
-                for (auto& tex : l->GetProbeTarget().GetTextures())
+                for (auto& tex : l->GetFrameData().shTarget->GetTextures())
                     DrawTex(*tex.tex);
         }
         ImGui::End();

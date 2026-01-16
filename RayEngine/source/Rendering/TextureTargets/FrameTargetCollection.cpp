@@ -4,13 +4,14 @@
 #include "rlgl.h"
 #include "Context/FXConfig.h"
 
-void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const FXConfig &InFX)
+void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const FXConfig &InFX, bool InCubemap)
 {
     Deinit();
 
-    const Vec2I res = {
-            InTarget.texture.width,
-        InTarget.texture.height
+    const Vec3I res = {
+        InTarget.texture.width,
+        InTarget.texture.height,
+        0
     };
     
     for (auto& t : sceneTargets.All())
@@ -34,13 +35,13 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const
     
     for (auto& target : frameTargets.All())
     {
-        target.Setup(res, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+        target.Setup(res, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, -1, InCubemap ? TexType::CUBEMAP : TexType::TEX);
         target.AttachDepth(InTarget);
     }
 
     for (auto& target : aoTargets.All())
     {
-        Vec2I aoRes = (res.To<float>() * InFX.SSAOScale.Get()).To<int>();
+        Vec3I aoRes = (res.To<float>() * InFX.SSAOScale.Get()).To<int>();
         target.Setup(aoRes, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
     }
 
@@ -50,7 +51,7 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const
         bloomTargets = SwapTarget(InFX.BloomPasses);
         for (auto& target : bloomTargets.All())
         {
-            Vec2I bloomRes = (res.To<float>() * bloomScale).To<int>();
+            Vec3I bloomRes = (res.To<float>() * bloomScale).To<int>();
             target.Setup(bloomRes, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
             bloomScale *= InFX.BloomDownscale;
         }

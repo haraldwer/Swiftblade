@@ -8,8 +8,7 @@ namespace Rendering
     class LuminPipeline : public Pipeline
     {
     public:
-        static Stats RenderProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget);
-        static Stats RenderFallbackProbe(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget, bool InUseScene);
+        static Stats RenderProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InTarget, bool InFallback);
         static Stats LerpProbes(const RenderArgs& InArgs, const ResShader& InShader, RenderTarget& InFrame, SwapTarget& InTarget);
     };
 }

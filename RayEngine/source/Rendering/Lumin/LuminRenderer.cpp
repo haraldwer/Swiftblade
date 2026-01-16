@@ -11,88 +11,18 @@ void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResour
 {
     CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
     Lumin &lumin = *InArgs.luminPtr;
-    LuminRenderData probeData = lumin.GetFrameProbes(InArgs);
-
-    double time = InArgs.contextPtr->Time();
+    auto data = lumin.GetFrameData();
     
-    // Collect probe data
-    Vector<Vec4F> positions;
-    Vector<Vec2F> rects;
-
-    // Add fallback
-    rects.emplace_back(probeData.fallback->rect.xy);
-    positions.emplace_back(
-        probeData.fallback->rect.x,
-        probeData.fallback->rect.y,
-        probeData.fallback->rect.z,
-        1
-    );
-    Vec2F rectSize = {
-        probeData.fallback->rect.z,
-        probeData.fallback->rect.w
-    };
-
-    for (int i = 0; i < static_cast<int>(probeData.probes.size()); i++)
-    {
-        float timeFade = 0;
-        if (probeData.timestamps[i] > 0)
-            timeFade = time - probeData.timestamps[i];  
-        
-        auto& probe = probeData.probes[i];
-        CHECK_CONTINUE(!probe);
-        positions.emplace_back(
-            probe->pos.x,
-            probe->pos.y,
-            probe->pos.z,
-            timeFade // Fade in and out
-        );
-        rects.push_back(probe->rect.xy);
-    }
-    
-    // Collect layer data
-    Vector<Vec3F> densities;
-    Vector<Vec4I> sizes;
-    Vector<Vec4I> starts;
-    for (auto& layer : probeData.layers)
-    {
-        densities.push_back(layer.density);
-        sizes.emplace_back(
-            layer.size.x,
-            layer.size.y,
-            layer.size.z,
-            layer.startIndex
-        );
-        starts.emplace_back(
-            layer.start.x,
-            layer.start.y,
-            layer.start.z,
-            layer.endIndex
-        );
-    }
-
     // Set layer data
-    SetValue(InShader, "ProbeDensities", densities.data(), SHADER_UNIFORM_VEC3, static_cast<int>(densities.size()));
-    SetValue(InShader, "ProbeSizes", sizes.data(), SHADER_UNIFORM_IVEC4, static_cast<int>(sizes.size()));
-    SetValue(InShader, "ProbeStarts", starts.data(), SHADER_UNIFORM_IVEC4, static_cast<int>(starts.size()));
-
-    // Set probe data
-    SetValue(InShader, "ProbeIndices", probeData.indices.data(), SHADER_UNIFORM_INT, static_cast<int>(probeData.indices.size()));
-    SetValue(InShader, "ProbePositions", positions.data(), SHADER_UNIFORM_VEC4, static_cast<int>(positions.size()));
-    SetValue(InShader, "ProbeRects", rects.data(), SHADER_UNIFORM_VEC2, static_cast<int>(rects.size()));
-    SetValue(InShader, "ProbeRectSize", &rectSize, SHADER_UNIFORM_VEC2);
-
-    // Set probe texture data
-    auto& target = lumin.GetProbeTarget();
-    Vec2F texel = Vec2F::One() / target.Size().To<float>();
-    SetValue(InShader, "ProbeFaceTexel", &texel, SHADER_UNIFORM_VEC2);
+    SetValue(InShader, "ProbeSize", &data.probeSize, SHADER_UNIFORM_FLOAT, 1);
 
     Vec2F nearfar = Vec2F(lumin.config.Near, lumin.config.Far);
     SetValue(InShader, "ProbeNearFar", &nearfar, SHADER_UNIFORM_VEC2);
-    SetValue(InShader, "ProbeOffset", &lumin.config.Offset.Get(), SHADER_UNIFORM_VEC3);
 
     // Bind textures
     BindBRDF(InArgs, InShader, InOutSlot);
-    target.Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
+    if (data.shTarget)
+        data.shTarget->Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
 }
 
 void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
@@ -101,7 +31,6 @@ void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource
     if (auto brdf = InArgs.luminPtr->config.TexBRDF.Get().Get())
         brdf->Get().Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
 }
-
 
 int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
@@ -114,14 +43,14 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     CHECK_RETURN(!conf.Enabled, {})
     CHECK_RETURN(!conf.Debug, {})
     
-    LuminRenderData probeData = lumin.GetFrameProbes(InArgs);
-    auto& t = lumin.GetProbeTarget();
+    Vector<Mat4F> probes = lumin.GetDebugProbes(InArgs);
+    CHECK_RETURN(probes.empty(), {})
     
     const auto& debugRes = conf.DebugShader;
-    ShaderResource* debugShaderResource = debugRes.Get().Get();
-    CHECK_RETURN(!debugShaderResource, 0);
-    const Shader* debugShader = debugShaderResource->Get();
-    CHECK_RETURN(!debugShader, 0);
+    ShaderResource* shaderRes = debugRes.Get().Get();
+    CHECK_RETURN(!shaderRes, 0);
+    const Shader* shader = shaderRes->Get();
+    CHECK_RETURN(!shader, 0);
 
     auto model = conf.SphereModel.Get().Get();
     auto* modelRes = model->Get();
@@ -135,57 +64,37 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     rlState::current.Set(frameCmd);
     
     ShaderCommand debugShaderCmd;
-    debugShaderCmd.locs = debugShader->locs;
-    debugShaderCmd.id = debugShader->id;
+    debugShaderCmd.locs = shader->locs;
+    debugShaderCmd.id = shader->id;
     debugShaderCmd.depthTest = true;
     debugShaderCmd.depthMask = true;
     rlState::current.Set(debugShaderCmd);
     
-    SetFrameShaderValues(InArgs, *debugShaderResource);
-
-    Vec2F texel = Vec2F(1.0f) / t.Size().To<float>();
-    SetValue(*debugShaderResource, "LuminTexel", &texel, SHADER_UNIFORM_VEC2);
-
-    int debugTexSlot = 0;
-    t.Bind(*debugShaderResource, debugTexSlot);
-    BindNoiseTextures(InArgs, *debugShaderResource, debugTexSlot);
+    SetFrameShaderValues(InArgs, *shaderRes);
+    
+    int texSlot = 0;
+    ApplyLumin(InArgs, *shaderRes, texSlot);
+    BindNoiseTextures(InArgs, *shaderRes, texSlot);
     for (auto& b : InBuffers)
-        if (b) b->Bind(*debugShaderResource, debugTexSlot);
+        if (b) b->Bind(*shaderRes, texSlot);
 
     MeshCommand cmd;
     cmd.vaoID = mesh.vaoId;
 
-    int l = 0;
-    int c = 0;
-    for (auto& layer : probeData.layers)
+    // Draw all probes in one call
+    if (rlState::current.Set(cmd, probes))
     {
-        l++;
-        for (int i = layer.startIndex; i < layer.endIndex; i++)
+        // Draw every perspective
+        for (auto& perspective : InArgs.perspectives)
         {
-            int probeIndex = probeData.indices[i];
-            CHECK_CONTINUE(probeIndex == -1);
-            PROFILE_GL_NAMED("Lumin probe debug");
-            
-            LuminProbe* probe = probeData.probes[probeIndex];
-            SetValue(*debugShaderResource, "ProbePosition", &probe->pos, SHADER_UNIFORM_VEC3);
-            SetValue(*debugShaderResource, "ProbeRect", &probe->rect, SHADER_UNIFORM_VEC4);
-
-            Mat4F mat = { probe->pos, QuatF::Identity(), Vec3F(l * l * 0.4f) };
-            if (rlState::current.Set(cmd, { mat }))
-            {
-                // Draw every perspective
-                for (auto& perspective : InArgs.perspectives)
-                {
-                    PerspectiveCommand perspCmd;
-                    perspCmd.rect = perspective.targetRect;
-                    rlState::current.Set(perspCmd);
-                    SetPerspectiveShaderValues(InArgs, perspective, InTarget, *debugShaderResource);
-                    DrawInstances(mesh, 1);
-                    c++;
-                }
-            }
+            PerspectiveCommand perspCmd;
+            perspCmd.rect = perspective.targetRect;
+            rlState::current.Set(perspCmd);
+            SetPerspectiveShaderValues(InArgs, perspective, InTarget, *shaderRes);
+            DrawInstances(mesh, 1);
         }
-    }   
+    }
+    
     rlState::current.ResetMesh();
-    return c;
+    return static_cast<int>(probes.size());
 }

@@ -8,16 +8,10 @@
 			"Bloom":true
 		},
 		"Lumin":{
-			"Debug":true,
 			"Viewport":{
 				"Height":4096,
 				"Width":4096
-			},
-			"BaseDensity":[
-				0.20000000298023224,
-				0.20000000298023224,
-				0.20000000298023224
-			]
+			}
 		},
 		"Lights":{
 			"Viewport":{
@@ -26,14 +20,14 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"TexSimplex",
-				"Val":"Defaults/T_Noise_Simplex.json"
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
+				"Key":"TexSimplex",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			}
 		]
 	},
@@ -41,6 +35,7 @@
 		"Height":1758,
 		"Width":2892
 	},
+	"ShowLumin":true,
 	"Window":{
 		"Height":1758,
 		"Width":2892

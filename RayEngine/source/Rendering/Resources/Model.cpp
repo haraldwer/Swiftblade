@@ -3,10 +3,103 @@
 #include "raylib.h"
 #include "ImGui/ImPlot3D/implot3d.h"
 
+Mesh CombineModelMeshes(const Model& model)
+{
+    Mesh out = { 0 };
+
+    // First pass: count totals
+    int totalVertices = 0;
+    int totalIndices  = 0;
+
+    for (int i = 0; i < model.meshCount; i++)
+    {
+        const Mesh& m = model.meshes[i];
+        totalVertices += m.vertexCount;
+        totalIndices += m.indices ? m.triangleCount * 3 : m.vertexCount;
+    }
+
+    // Allocate output buffers
+    out.vertexCount   = totalVertices;
+    out.triangleCount = totalIndices / 3;
+
+    out.vertices  = (float*)MemAlloc(sizeof(float) * totalVertices * 3);
+    out.normals   = (float*)MemAlloc(sizeof(float) * totalVertices * 3);
+    out.texcoords = (float*)MemAlloc(sizeof(float) * totalVertices * 2);
+    out.indices   = (unsigned short*)MemAlloc(sizeof(unsigned short) * totalIndices);
+
+    int vertexOffset = 0;
+    int indexOffset  = 0;
+
+    // Second pass: copy data
+    for (int m = 0; m < model.meshCount; m++)
+    {
+        const Mesh& src = model.meshes[m];
+
+        // Copy vertices
+        for (int v = 0; v < src.vertexCount; v++)
+        {
+            int dstV = vertexOffset + v;
+
+            out.vertices[dstV * 3 + 0] = src.vertices[v * 3 + 0];
+            out.vertices[dstV * 3 + 1] = src.vertices[v * 3 + 1];
+            out.vertices[dstV * 3 + 2] = src.vertices[v * 3 + 2];
+
+            if (src.normals)
+            {
+                out.normals[dstV * 3 + 0] = src.normals[v * 3 + 0];
+                out.normals[dstV * 3 + 1] = src.normals[v * 3 + 1];
+                out.normals[dstV * 3 + 2] = src.normals[v * 3 + 2];
+            }
+
+            if (src.texcoords)
+            {
+                out.texcoords[dstV * 2 + 0] = src.texcoords[v * 2 + 0];
+                out.texcoords[dstV * 2 + 1] = src.texcoords[v * 2 + 1];
+            }
+        }
+
+        if (src.indices)
+        {
+            int count = src.triangleCount * 3;
+            for (int i = 0; i < count; i++)
+                out.indices[indexOffset + i] =
+                    src.indices[i] + vertexOffset;
+            indexOffset += count;
+        }
+        else
+        {
+            for (int i = 0; i < src.vertexCount; i++)
+                out.indices[indexOffset + i] =
+                    vertexOffset + i;
+            indexOffset += src.vertexCount;
+        }
+
+        vertexOffset += src.vertexCount;
+    }
+
+    UploadMesh(&out, false);
+    return out;
+}
+
+Model CreateCombinedModel(const Model& InModel)
+{
+    Model singleMeshModel = { 0 };
+    singleMeshModel.meshCount = 1;
+    singleMeshModel.meshes = new Mesh();
+    singleMeshModel.meshes[0] = CombineModelMeshes(InModel);
+    singleMeshModel.materialCount = 1;
+    singleMeshModel.materials = InModel.materials;
+    return singleMeshModel;
+}
+
 bool Rendering::ModelResource::Load()
 {
-    ptr = new Model(); 
-    *ptr = LoadModel(id.Str().c_str());
+    ptr = new Model();
+    
+    Model original = LoadModel(id.Str().c_str());
+    //*ptr = original.meshCount > 1 ? CreateCombinedModel(original) : original;
+    *ptr = original; 
+    
     cachedHash = Utility::Hash(id.Str());
     editIndices.clear();
     
@@ -26,6 +119,8 @@ bool Rendering::ModelResource::Load()
     
     return true;
 }
+
+
 
 bool Rendering::ModelResource::Unload()
 {

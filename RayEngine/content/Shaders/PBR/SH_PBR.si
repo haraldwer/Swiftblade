@@ -6,8 +6,6 @@
 // From LearnOpenGL
 // https://learnopengl.com/PBR/Lighting
 
-const float MAX_REFLECTION_LOD = 4.0f;
-
 vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
 {
     float metallic = InSurface.r;
@@ -25,20 +23,17 @@ vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
     vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
     vec3 kD = vec3(1.0f) - F; // kS = F
     kD *= 1.0f - metallic;
-
-    // Get lumin probe
-    ProbeData probe = GetProbe(InWorldPos, InNormal);
     
-    // Get irradiance
-    vec3 irradiance = SampleIrradiance(probe, N).rgb;
+    // Irradiance -> Diffuse
+    vec3 irradiance = SampleIrradiance(InWorldPos, InNormal).rgb;
     vec3 diffuse    = irradiance * InAlbedo;
 
-    // Get specular using BRDF
-    int mip = int(roughness * MAX_REFLECTION_LOD);
-    vec3 prefilteredColor = SamplePrefilter(probe, R, mip).rgb;
+    // Radiance + BRDF -> Specular
+    vec3 radiance = SampleRadiance(probe, InNormal, R, roughness).rgb;
     vec2 envBRDF  = SampleBRDF(N, V, roughness);
-    vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+    vec3 specular = radiance * (F * envBRDF.x + envBRDF.y);
 
     // Add diffuse and specular
+    // TODO: Break into lower res
     return (kD * diffuse + specular) * ao;
 }

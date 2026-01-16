@@ -35,7 +35,7 @@ namespace Rendering
             return proj;
         }
 
-        Vector<Vec3F> GetFrustumCorners(const Vec2F& InSize) const
+        Array<Vec3F, 8> GetFrustumCorners(const Vec2F& InSize) const
         {
             // Calculate frustum edge points
             // For each point, ask if on left or right side

@@ -24,17 +24,18 @@ vec2 IntegrateBRDF(float InNdotV, float InRoughness)
     {
         vec2 Xi = Hammersley(i, BRDF_SAMPLE_COUNT);
         vec3 H  = ImportanceSampleGGX(Xi, N, InRoughness);
-        vec3 L  = Normalize(2.0f * dot(V, H) * H - V);
+        float VdotH = dot(V, H);
+        vec3 L  = Normalize(2.0f * VdotH * H - V);
 
         float NdotL = max(L.z, 0.0f);
         float NdotH = max(H.z, 0.0f);
-        float VdotH = max(dot(V, H), 0.0f);
+        float VdotHMax = max(VdotH, 0.0f);
 
         if(NdotL > 0.0f)
         {
-            float G = GeometrySmith(N, V, L, InRoughness);
-            float G_Vis = (G * VdotH) / (NdotH * InNdotV);
-            float Fc = Pow5(1.0f - VdotH);
+            float G = GeometrySmith(N, V, L, InRoughness); // Maybe use SchlickGGX instead
+            float G_Vis = (G * VdotHMax) / (NdotH * InNdotV);
+            float Fc = Pow5(1.0f - VdotHMax);
 
             A += (1.0f - Fc) * G_Vis;
             B += Fc * G_Vis;

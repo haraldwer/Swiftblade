@@ -7,7 +7,7 @@ namespace Rendering
 
     struct FrameTargetCollection
     {
-        void Init(const RenderTexture& InTarget, const FXConfig& InFX);
+        void Init(const RenderTexture& InTarget, const FXConfig& InFX, bool InCubemap = false);
         void Deinit();
 
         OrderedMap<String, Vector<RenderTarget::TargetTex>> GetNamed();

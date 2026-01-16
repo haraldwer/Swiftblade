@@ -1,23 +1,16 @@
 #include "Shaders/Uniforms/SH_FrameUniforms.si"
 
-uniform sampler2D TexIrradiance;
-uniform sampler2D TexPrefilter;
-
-uniform sampler2D TexFrameIrradiance;
-uniform sampler2D TexFramePrefilter;
+uniform sampler2D TexSH;
+uniform sampler2D TexFrameSH;
 
 in vec2 TexCoord;
 
-layout(location = 0) out vec4 OutIrradiance;
-layout(location = 1) out vec4 OutPrefilter;
+layout(location = 0) out vec4 OutSH;
 
 void main()
 {
-    vec4 irradianceFrame = texture(TexFrameIrradiance, TexCoord);
-    vec4 prefilterFrame = texture(TexFramePrefilter, TexCoord);
-    vec4 irradiance = texture(TexIrradiance, TexCoord);
-    vec4 prefilter = texture(TexPrefilter, TexCoord);
-    
-    OutIrradiance = mix(irradiance, irradianceFrame, 0.1f);
-    OutPrefilter = mix(prefilter, prefilterFrame, 0.1f);
+    // Could probably do with just some alpha blending... 
+    vec4 frameSH = texture(TexFrameSH, TexCoord);
+    vec4 lerpSH = texture(TexSH, TexCoord);
+    OutSH = mix(lerpSH, frameSH, 0.1f);
 }

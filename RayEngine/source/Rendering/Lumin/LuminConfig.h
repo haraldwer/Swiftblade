@@ -9,33 +9,22 @@ namespace Rendering
 {
     struct LuminConfig : PropertyOwner<LuminConfig>
     {
-        PROPERTY(ViewportConfig, Viewport);
-
         // Shaders
         PROPERTY_D(ResShader, CollectShader, "Shaders/Lumin/SH_LuminCollect.ps");
         PROPERTY_D(ResShader, LerpShader, "Shaders/Lumin/SH_LuminLerp.ps");
-        PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json");
+        PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json"); // Move to material for custom BRDFs
 
-        // Probe locations and layering
-        PROPERTY_D(Vec3F, BaseDensity, Vec3F(0.1f));
-        PROPERTY_D(Vec3F, Offset, Vec3F(0.5f));
-        PROPERTY_D(float, LayerScale, 0.25f);
+        // SH probe grid
+        PROPERTY_D(Vec3F, ProbeSize, Vec3F(1.0f));
+        PROPERTY_D(int, SHResolution, 4096);
+        
+        // Probe rendering
+        PROPERTY(ViewportConfig, Viewport);
         PROPERTY_D(float, Far, 50.0f);
         PROPERTY_D(float, Near, 0.01f);
 
-        // Has to match SH_LumnSample.si!!
-        PROPERTY_D(int, Layers, 2);
-        PROPERTY_D(int, MaxLayerCount, 15 * 15); // LayerCount * Layers - padding - fallback 
-        PROPERTY_D(int, AtlasPadding, 64); // For reusing nearby probes
-        PROPERTY_D(int, MaxGridCount, 1024); // For mapping grid -> probe
-
         // Probe update rules
-        PROPERTY_D(float, UpdateFrequency, 0.0f);
-        PROPERTY_D(int, Iterations, 0);
-        PROPERTY_D(int, MaxFrameRenders, 1);
-        PROPERTY_D(bool, SceneFallback, false);
-        PROPERTY_D(bool, InvalidateFallback, false);
-        PROPERTY_D(bool, InvalidateCache, false);
+        PROPERTY_D(int, FrameRenders, 1);
         
         // Debugging
         PROPERTY_D(ResShader, DebugShader, "Shaders/Lumin/SH_LuminDebug.fs");

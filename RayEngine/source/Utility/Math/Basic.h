@@ -59,5 +59,27 @@ namespace Utility
             InValue++;
             return InValue;
         }
+        
+        // Static (compile time) evaluation
+        
+        constexpr int StaticPow(const int base, const int exp) 
+        {
+            int result = 1;
+            for (int i = 0; i < exp; ++i)
+                result *= base;
+            return result;
+        }
+
+        constexpr int StaticSumPow(const int n, const int d) 
+        {
+            if (d == 0)
+                return 1;
+            if (d == 1)
+                return n;
+            if (n == 1)
+                return d;
+            return (StaticPow(n, d + 1) - n) / (n - 1);
+        }
+
     }
 }

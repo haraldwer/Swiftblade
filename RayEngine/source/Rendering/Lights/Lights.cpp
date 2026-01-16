@@ -114,7 +114,7 @@ Vector<const Rendering::LightInstance*> Rendering::Lights::GetLights(const Rende
     auto points = cam.GetFrustumCorners(res.To<float>());
     
     // Query spatialContainer
-    auto culled = InArgs.scenePtr->lights.GetIndices(points);
+    auto culled = InArgs.scenePtr->lights.GetIndices({ points.begin(), points.end() });
     auto sortFunc = [&](const LightInstance* InFirst, const LightInstance* InSecond)
     {
         return (InFirst->data.position - cam.position).LengthSqr() < (InSecond->data.position - cam.position).LengthSqr();

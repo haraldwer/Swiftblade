@@ -34,7 +34,6 @@ void Rendering::Manager::Init()
 
 void Rendering::Manager::Deinit()
 {
-    
     defaultContext.Deinit();
     mainViewport.Deinit();
     window.Close();
@@ -45,7 +44,11 @@ void Rendering::Manager::Render(const Scene& InScene)
     PROFILE_GL();
     
     if (currConfig.UpdateCulling)
-        cullPoints = InScene.GetCamera().GetFrustumCorners(mainViewport.GetResolution().To<float>());
+    {
+        auto res = mainViewport.GetResolution().To<float>();
+        auto corners = InScene.GetCamera().GetFrustumCorners(res);
+        cullPoints = { corners.begin(), corners.end() };
+    }
     
     const RenderArgs args {
         .scenePtr= &InScene,

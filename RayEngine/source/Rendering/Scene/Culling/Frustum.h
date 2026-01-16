@@ -94,7 +94,7 @@ namespace Rendering
 			return true;
 		}
 
-		bool CheckBox(const float InXCenter, const float InYCenter, const float InZCenter, const float InXSize, const float InYSize, const float InZSize) const
+		bool CheckBox(const Vec3F& InCenter, const Vec3F& InSize) const
 		{
 			if (far < 0.01f)
 				return true;
@@ -102,14 +102,14 @@ namespace Rendering
 			// Check if any of the 6 planes of the box are inside the view frustum.
 			for (const auto& plane : planes)
 			{
-				if (PlaneDotVec(plane, (InXCenter - InXSize), (InYCenter - InYSize), (InZCenter - InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter + InXSize), (InYCenter - InYSize), (InZCenter - InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter - InXSize), (InYCenter + InYSize), (InZCenter - InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter - InXSize), (InYCenter - InYSize), (InZCenter + InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter + InXSize), (InYCenter + InYSize), (InZCenter - InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter + InXSize), (InYCenter - InYSize), (InZCenter + InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter - InXSize), (InYCenter + InYSize), (InZCenter + InZSize)) >= 0.0f ||
-					PlaneDotVec(plane, (InXCenter + InXSize), (InYCenter + InYSize), (InZCenter + InZSize)) >= 0.0f)
+				if (PlaneDotVec(plane, (InCenter.x - InSize.x), (InCenter.y - InSize.y), (InCenter.z - InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x + InSize.x), (InCenter.y - InSize.y), (InCenter.z - InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x - InSize.x), (InCenter.y + InSize.y), (InCenter.z - InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x - InSize.x), (InCenter.y - InSize.y), (InCenter.z + InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x + InSize.x), (InCenter.y + InSize.y), (InCenter.z - InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x + InSize.x), (InCenter.y - InSize.y), (InCenter.z + InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x - InSize.x), (InCenter.y + InSize.y), (InCenter.z + InSize.z)) >= 0.0f ||
+					PlaneDotVec(plane, (InCenter.x + InSize.x), (InCenter.y + InSize.y), (InCenter.z + InSize.z)) >= 0.0f)
 					continue;
 				return false;
 			}
