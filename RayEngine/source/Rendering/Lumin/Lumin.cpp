@@ -20,20 +20,11 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
     viewConf.Height = w;
     viewport.Init(viewConf, {});
     
-    target.Setup(config.SHResolution.Get(), "TexFrameSH", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, RL_TEXTURE_FILTER_LINEAR, TexType::TEX_3D);
-    for (auto& t : lerpTarget.All())
-    {
-        if (t.TryBeginSetup(config.SHResolution.Get()))
-        {
-            t.CreateBuffer("TexSH", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, TexType::TEX_3D);
-            t.EndSetup();
-        }
-    }
+    
 }
 
 void Rendering::Lumin::Deinit()
 {
-    timestamps.Clear();
     viewport.Deinit();
     context.Deinit();
     target.Unload();
@@ -212,7 +203,6 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
 {
     PROFILE_GL();
     
-    auto rect = atlas.GetRect(0, 0, true);
     Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
     RenderArgs args = {
         .scenePtr = InArgs.scenePtr,
@@ -234,8 +224,8 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
         for (int i = 0; i < 6; i++)
         {
             args.perspectives.push_back({
-                .referenceRect = rect,
-                .targetRect = atlas.GetRect(0, i, true),
+                .referenceRect = {},
+                .targetRect = {},
                 .camera = {
                     .position = probePos,
                     .rotation = directions[i],

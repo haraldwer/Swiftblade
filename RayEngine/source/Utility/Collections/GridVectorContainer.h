@@ -8,7 +8,7 @@
 namespace Utility
 {
     template <class T, class KeyType, class CoordType>
-    class GridContainer
+    class GridVectorContainer
     {
         struct Node
         {
@@ -17,7 +17,7 @@ namespace Utility
         
     public:
 
-        GridContainer(int InSize) : size(InSize) {}
+        GridVectorContainer(int InSize) : size(InSize) {}
         
         void Insert(const T& InData, const Cullable& InCullable)
         {

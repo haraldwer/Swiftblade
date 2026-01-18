@@ -11,9 +11,13 @@
 
 #ifdef _WINDOWS
 
-#include <windows.h>      
-#include <intrin.h>       
-#include <iphlpapi.h>     
+#undef NOMSG
+#undef NOUSER
+
+#include <windows.h>
+#include <winuser.h>
+#include <intrin.h>
+#include <iphlpapi.h>
 
 #pragma comment(lib, "IPHLPAPI.lib")
 

@@ -12,7 +12,8 @@ void Rendering::Lights::Init(const LightConfig& InConfig)
     config = InConfig;
     atlasView.Init(config.Viewport, {});
     atlas.Init(config.MaxLights, true, atlasView.GetSize().x);
-    target.Setup(atlasView.GetSize(), "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    auto size = atlasView.GetSize();
+    target.Setup({ size.x, size.y , 0 }, "TexShadow", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 }
 
 void Rendering::Lights::Deinit()

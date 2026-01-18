@@ -66,6 +66,10 @@ if(MSVC)
     "$<$<CONFIG:Release>:/LTCG>" # Whole program optimization
   )
   
+elseif (MINGW)
+  
+  
+  
 elseif (UNIX)
 
   message("-- Setting custom GCC / Clang flags")

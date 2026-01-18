@@ -1,22 +1,19 @@
 #pragma once
 
+#include "LuminChunk.h"
 #include "LuminConfig.h"
 #include "LuminPipeline.h"
-#include "Collections/GridSplitContainer.h"
-#include "Math/Coord.h"
 #include "Rendering/Context/Context.h"
-#include "Rendering/TextureTargets/AtlasMap.h"
 #include "Rendering/Viewport/Viewport.h"
 
 namespace Rendering
 {
     struct RenderArgs;
     class Scene;
-    using LuminCoord = Utility::Coord<uint64, uint16>;  
-
+    
     struct LuminData
     {
-        RenderTarget* shTarget;
+        Vector<LuminChunkFrameData> visibleChunks;
         Vec3F probeSize;
         Vec3F gridSize;
     };
@@ -33,9 +30,6 @@ namespace Rendering
         // Probe data
         LuminData GetFrameData();
         Vector<Mat4F> GetDebugProbes(const RenderArgs& InArgs);
-        
-        // The last rendered probe (for debugging)
-        RenderTarget& GetFrameTarget() { return target; }
     
     private:
         Vec3F SelectProbe(const RenderArgs& InArgs);
@@ -47,15 +41,9 @@ namespace Rendering
         Context context = {};
         Viewport viewport = {};
         
-        // For calculating ordering etc
-        using TimeGrid = Utility::GridSplitContainer<float>; 
-        TimeGrid timestamps;
         Vec3I frustumMin;
         Vec3I frustumMax;
-        bool fallbackRendered = false;
         
-        // Each entry is just 9 rgba pixels in a row
-        RenderTarget target = {};
-        SwapTarget lerpTarget = {};
+        
     };
 }
