@@ -9,7 +9,7 @@ bool Rendering::RenderTarget::Setup(const Vec3I& InRes, const String& InName, ui
 {
     if (TryBeginSetup(InRes))
     {
-        CreateBuffer(InName, InFormat, 1.0, InDefaultFilter, InType);
+        CreateBuffer(InName, InFormat, 1.0, InDefaultFilter, -1, InType);
         EndSetup();
         return true;
     }
@@ -89,10 +89,9 @@ void Rendering::RenderTarget::Unload()
     size = {};
 }
 
-void Rendering::RenderTarget::AttachAsTarget(int InLayerFace)
+void Rendering::RenderTarget::Attach(const int InLayerFace) const
 {
     int i = 0;
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     for (const TargetTex& buff : textures)
     {
         // These types require additional attachment logic
@@ -107,7 +106,6 @@ void Rendering::RenderTarget::AttachAsTarget(int InLayerFace)
                 );
                 break;
             case TexType::CUBEMAP:
-                glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
                 GLenum face = GL_TEXTURE_CUBE_MAP_POSITIVE_X + InLayerFace;
                 glFramebufferTexture2D(
                     GL_FRAMEBUFFER,
@@ -116,12 +114,10 @@ void Rendering::RenderTarget::AttachAsTarget(int InLayerFace)
                     buff.tex->id,
                     0
                 );
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 break;
         }
         i++;
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, const int InFilter, const String& InPostfix) const

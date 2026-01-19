@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include <cmath>
+
+#include "Macros.h"
 
 namespace Utility
 {
@@ -45,7 +48,7 @@ namespace Utility
         template <class T>
         T NextPow2(T InValue)
         {
-            return pow(static_cast<T>(2), ceil(log(InValue)/log(static_cast<T>(2))));
+            return std::pow(static_cast<T>(2), std::ceil(std::log(InValue)/std::log(static_cast<T>(2))));
         }
         
         inline uint32 NextPow2(uint32 InValue)

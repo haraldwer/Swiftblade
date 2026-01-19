@@ -36,7 +36,7 @@ int Rendering::ParticlesRenderer::Simulate(const RenderArgs& InArgs, SwapTarget&
     shaderCmd.id = shader->id;
     rlState::current.Set(shaderCmd);
     
-    SetFrameShaderValues(InArgs, *shaderResource);
+    SetFrame(InArgs, *shaderResource);
     float age = static_cast<float>(InArgs.contextPtr->Time() - InInstance.startTimestamp) / res->data.SystemLifetime.Get();
     SetValue(*shaderResource, "Age", &age, SHADER_UNIFORM_FLOAT);
     
@@ -109,7 +109,7 @@ int Rendering::ParticlesRenderer::DrawParticles(const RenderArgs& InArgs, const 
         SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
         float age = static_cast<float>(InArgs.contextPtr->Time() - data.instance.startTimestamp) / res->data.SystemLifetime.Get();
         SetValue(*resShader, "Age", &age, SHADER_UNIFORM_FLOAT);
-        SetFrameShaderValues(InArgs, *resShader);
+        SetFrame(InArgs, *resShader);
         SetCustomShaderValues(*resShader);
         SetValue(*resShader, "SystemTransform", Mat4F::Transpose(data.instance.transform));
 
@@ -133,7 +133,7 @@ int Rendering::ParticlesRenderer::DrawParticles(const RenderArgs& InArgs, const 
                     PROFILE_GL_NAMED("Perspective");
                     PerspectiveCommand perspCmd;
                     perspCmd.rect = perspective.targetRect;
-                    SetPerspectiveShaderValues(InArgs, perspective, InSceneTarget, *resShader);
+                    SetPerspective(InArgs, perspective, InSceneTarget, *resShader);
                     rlState::current.Set(perspCmd);
                     count += DrawInstances(meshes[i], res->data.MaxInstances);
                 }

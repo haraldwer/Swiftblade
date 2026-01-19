@@ -29,7 +29,7 @@ namespace UI
         String GetSelected() const;
         int GetSelectedIndex() const;
         void SetSelectedIndex(int InIndex);
-        void SetSelected(String InValue);
+        void SetSelected(const String &InValue);
 
     private:
         Vector<ToggleSelectorEntry> toggles;

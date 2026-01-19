@@ -1,5 +1,6 @@
 #pragma once
 #include "SwapTarget.h"
+#include "Lumin/LuminTargets.h"
 
 namespace Rendering
 {
@@ -19,5 +20,6 @@ namespace Rendering
         // Extras, depends on fx
         SwapTarget aoTargets = {};
         SwapTarget bloomTargets = {};
+        LuminTargets luminTargets = {};
     };
 }

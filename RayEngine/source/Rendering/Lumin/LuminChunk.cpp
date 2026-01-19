@@ -4,6 +4,7 @@
 
 #include "raylib.h"
 #include "rlgl.h"
+#include "Scene/Culling/Frustum.h"
 
 void Rendering::LuminChunk::Init(int InCells)
 {
@@ -74,8 +75,9 @@ int Rendering::LuminChunk::CoordToIndex(const Coord& InCoord) const
          + InCoord.pos.z * cells * cells;
 }
 
-void Rendering::LuminChunkCollection::Init(int InChunkAxisCells, const Vec3F& InCellSize)
+void Rendering::LuminChunkCollection::Init(const int InChunkAxisCells, const Vec3F& InCellSize)
 {
+    CHECK_ASSERT(!chunks.empty(), "Init before unload");
     cellSize = InCellSize;
     chunkCells = InChunkAxisCells;
 }
@@ -110,10 +112,8 @@ void Rendering::LuminChunkCollection::Expand(const Vec3F& InMin, const Vec3F& In
     }
 }
 
-Vec3F Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F& InMin, const Vec3F& InMax)
+void Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax, LuminChunkFrameData& OutChunkData, Vec3F& OutCell) const
 {
-    Expand(InMin, InMax);
-    
     LuminChunk* smallest = nullptr;
     Coord smallestCoord = Coord(0);
     float smallestTime = -1;
@@ -133,8 +133,7 @@ Vec3F Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F& InMin, co
             smallestCoord = coord;
         }
     }
-    if (!smallest)
-        return Vec3F();
+    CHECK_RETURN(!smallest);
     
     auto probeCoord = smallest->RefreshOldestCell();
     Vec3F probePos = Vec3F( 
@@ -148,15 +147,17 @@ Vec3F Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F& InMin, co
         smallestCoord.pos.y,
         smallestCoord.pos.z
     ) * chunkSize;
-    return probePos + chunkPos;
+    
+    OutCell = probePos + chunkPos;
+    OutChunkData = {
+        &smallest->GetTarget(),
+        chunkPos
+    };
 }
 
-Vector<Rendering::LuminChunkFrameData> Rendering::LuminChunkCollection::GetFrameChunks(const Frustum &InFrustum, const Vec3F& InMin, const Vec3F& InMax)
+Vector<Rendering::LuminChunkFrameData> Rendering::LuminChunkCollection::GetFrameChunks(const Frustum &InFrustum, const Vec3F& InMin, const Vec3F& InMax) const
 {
-    Expand(InMin, InMax);
-    
-    Vector<Rendering::LuminChunkFrameData> result;
-    
+    Vector<LuminChunkFrameData> result;
     Coord start = PosToCoord(InMin);
     Coord end = PosToCoord(InMax);
     for (int z = start.pos.z; z < end.pos.z; z++)
@@ -170,12 +171,14 @@ Vector<Rendering::LuminChunkFrameData> Rendering::LuminChunkCollection::GetFrame
             coord.pos.y,
             coord.pos.z
         ) * chunkSize;
-        CHECK_CONTINUE(!InFrustum.CheckCube())
-        
-        
-        
+        CHECK_CONTINUE(!InFrustum.CheckBox(chunkPos, chunkSize))
         LuminChunk* c = chunks.at(coord.key);
+        result.push_back({
+            &c->GetTarget(),
+            chunkPos
+        });
     }
+    return result;
 }
 
 Rendering::LuminChunkCollection::Coord Rendering::LuminChunkCollection::PosToCoord(const Vec3F &InPos) const

@@ -41,10 +41,12 @@ namespace Rendering
         void Init(int InChunkAxisCells, const Vec3F& InCellSize);
         void Unload();
         void Expand(const Vec3F& InMin, const Vec3F& InMax);
-        Vec3F RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax);
+
+        void RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax, LuminChunkFrameData &OutChunkData, Vec3F &OutCell) const;
         
-        Vector<LuminChunkFrameData> GetFrameChunks(const Frustum &InFrustum, const Vec3F &InMin, const Vec3F &InMax);
+        Vector<LuminChunkFrameData> GetFrameChunks(const Frustum &InFrustum, const Vec3F &InMin, const Vec3F &InMax) const;
         Vec3F GetCellSize() const { return cellSize; }
+        Vec3F GetChunkSize() const { return cellSize * chunkCells; }
         
     private:
         Coord PosToCoord(const Vec3F& InPos) const;

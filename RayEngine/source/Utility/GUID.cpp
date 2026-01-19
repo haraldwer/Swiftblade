@@ -27,6 +27,9 @@
 #include <intrin.h>
 #endif
 
+#define NOMSG
+#define NOUSER
+
 typedef uint16 u16;
 typedef uint32 u32;
 

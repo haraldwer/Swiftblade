@@ -64,14 +64,9 @@ void Rendering::FrameViewer::DrawViewportPanel()
     {
         if (ImGui::Begin("Lumin debug", &c.ShowLumin.Get()))
         {
-            ImGui::SeparatorText("Frame");
-            if (const auto l = man.defaultContext.GetLumin())
-                for (auto& tex : l->GetFrameTarget().GetTextures())
-                    DrawTex(*tex.tex);
-            ImGui::SeparatorText("Probes");
-            if (const auto l = man.defaultContext.GetLumin())
-                for (auto& tex : l->GetFrameData().shTarget->GetTextures())
-                    DrawTex(*tex.tex);
+            // Somehow debug the chunk grid
+            // And show where player is!
+            
         }
         ImGui::End();
     }

@@ -7,22 +7,23 @@
 #include "State/Command.h"
 #include "State/State.h"
 
-void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
+void Rendering::LuminRenderer::SetLuminValues(const RenderArgs& InArgs, ShaderResource& InShader)
 {
     CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
     Lumin &lumin = *InArgs.luminPtr;
-    auto data = lumin.GetFrameData();
+    auto data = lumin.GetFrameData(InArgs);
     
     // Set layer data
-    SetValue(InShader, "ProbeSize", &data.probeSize, SHADER_UNIFORM_FLOAT, 1);
+    SetValue(InShader, "CellSize", &data.cellSize, SHADER_UNIFORM_FLOAT, 1);
+    SetValue(InShader, "ChunkSize", &data.chunkSize, SHADER_UNIFORM_FLOAT, 1);
+}
 
-    Vec2F nearfar = Vec2F(lumin.config.Near, lumin.config.Far);
-    SetValue(InShader, "ProbeNearFar", &nearfar, SHADER_UNIFORM_VEC2);
-
+void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
+{
     // Bind textures
     BindBRDF(InArgs, InShader, InOutSlot);
-    if (data.shTarget)
-        data.shTarget->Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
+    
+    // Bind lumin texture from frame targets
 }
 
 void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
@@ -43,9 +44,6 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     CHECK_RETURN(!conf.Enabled, {})
     CHECK_RETURN(!conf.Debug, {})
     
-    Vector<Mat4F> probes = lumin.GetDebugProbes(InArgs);
-    CHECK_RETURN(probes.empty(), {})
-    
     const auto& debugRes = conf.DebugShader;
     ShaderResource* shaderRes = debugRes.Get().Get();
     CHECK_RETURN(!shaderRes, 0);
@@ -63,35 +61,42 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     frameCmd.size = InTarget.Size();
     rlState::current.Set(frameCmd);
     
-    ShaderCommand debugShaderCmd;
-    debugShaderCmd.locs = shader->locs;
-    debugShaderCmd.id = shader->id;
-    debugShaderCmd.depthTest = true;
-    debugShaderCmd.depthMask = true;
-    rlState::current.Set(debugShaderCmd);
+    ShaderCommand shaderCmd;
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    shaderCmd.depthTest = true;
+    shaderCmd.depthMask = true;
+    rlState::current.Set(shaderCmd);
     
-    SetFrameShaderValues(InArgs, *shaderRes);
+    SetFrame(InArgs, *shaderRes);
     
     int texSlot = 0;
-    ApplyLumin(InArgs, *shaderRes, texSlot);
-    BindNoiseTextures(InArgs, *shaderRes, texSlot);
+    SetLuminValues(InArgs, *shaderRes);
     for (auto& b : InBuffers)
         if (b) b->Bind(*shaderRes, texSlot);
 
-    MeshCommand cmd;
-    cmd.vaoID = mesh.vaoId;
-
-    // Draw all probes in one call
-    if (rlState::current.Set(cmd, probes))
+    int chunkTexSlot = texSlot;
+    auto luminData = lumin.GetFrameData(InArgs);
+    Vector<Mat4F> probes = lumin.GetDebugProbes();
+    for (auto& chunk : luminData.visibleChunks)
     {
-        // Draw every perspective
-        for (auto& perspective : InArgs.perspectives)
+        SetValue(*shaderRes, "ChunkPosition", &chunk.position, SHADER_UNIFORM_VEC3);
+        chunk.target->Bind(*shaderRes, chunkTexSlot);
+        
+        // Draw one chunk per call
+        MeshCommand cmd;
+        cmd.vaoID = mesh.vaoId;
+        if (rlState::current.Set(cmd, probes))
         {
-            PerspectiveCommand perspCmd;
-            perspCmd.rect = perspective.targetRect;
-            rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, perspective, InTarget, *shaderRes);
-            DrawInstances(mesh, 1);
+            // Draw every perspective
+            for (auto& perspective : InArgs.perspectives)
+            {
+                PerspectiveCommand perspCmd;
+                perspCmd.rect = perspective.targetRect;
+                rlState::current.Set(perspCmd);
+                SetPerspective(InArgs, perspective, InTarget, *shaderRes);
+                DrawInstances(mesh, probes.size());
+            }
         }
     }
     

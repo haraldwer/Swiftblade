@@ -14,8 +14,8 @@ namespace Rendering
     struct LuminData
     {
         Vector<LuminChunkFrameData> visibleChunks;
-        Vec3F probeSize;
-        Vec3F gridSize;
+        Vec3F cellSize;
+        Vec3F chunkSize;
     };
     
     class Lumin
@@ -26,24 +26,21 @@ namespace Rendering
         void Deinit();
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
-        
-        // Probe data
-        LuminData GetFrameData();
-        Vector<Mat4F> GetDebugProbes(const RenderArgs& InArgs);
-    
+        LuminData GetFrameData(const RenderArgs& InArgs);
+        Vector<Mat4F> GetDebugProbes();
+
     private:
-        Vec3F SelectProbe(const RenderArgs& InArgs);
-        Array<Vec3F, 9> GetCullPoints(const Vec3F &InPos) const;
         Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
-        Pipeline::Stats LerpProbes(const RenderArgs& InArgs);
+        
+        Array<Vec3F, 9> GetCullPoints(const Vec3F &InPos) const;
+        static void GetFrustum(const RenderArgs& InArgs, Frustum& OutFrustum, Vec3F& OutMin, Vec3F& OutMax);
+        RenderArgs GetCubemapArgs(const RenderArgs& InArgs, const Vec3F& InProbePos);
         
         LuminConfig config = {};
         Context context = {};
         Viewport viewport = {};
-        
-        Vec3I frustumMin;
-        Vec3I frustumMax;
-        
-        
+        LuminChunkCollection chunks;
+        RenderTarget frame;
+        Vector<Mat4F> debugProbes;
     };
 }

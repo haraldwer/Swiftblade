@@ -10,5 +10,8 @@ namespace Rendering
         static void ApplyLumin(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot);
         static void BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot);
         static int DrawLuminProbesDebug(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers);
+        
+    private:
+        static void SetLuminValues(const RenderArgs &InArgs, ShaderResource &InShader);
     };
 }

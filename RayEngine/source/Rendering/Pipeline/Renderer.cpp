@@ -59,7 +59,7 @@ void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderR
     rlState::current.Set(cmd);
 }
 
-void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader)
+void Rendering::Renderer::SetFrame(const RenderArgs& InArgs, ShaderResource& InShader)
 {
     PROFILE_GL();
 
@@ -77,7 +77,7 @@ void Rendering::Renderer::SetFrameShaderValues(const RenderArgs& InArgs, ShaderR
     SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &res, SHADER_UNIFORM_VEC2);
 }
 
-void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader)
+void Rendering::Renderer::SetPerspective(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader)
 {
     PROFILE_GL();
 
@@ -86,6 +86,8 @@ void Rendering::Renderer::SetPerspectiveShaderValues(const RenderArgs& InArgs, c
     auto& viewport = *InArgs.viewportPtr;
     auto ptr = InShader.Get();
     CHECK_RETURN(!ptr);
+    
+    InTarget.Attach(InPerspective.layerFace);
 
     const Vec2F res = InTarget.Size().To<float>();
     Vec4F refRect = {
@@ -191,7 +193,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
     shaderCmd.blendMode = InBlend;
     rlState::current.Set(shaderCmd);
     
-    SetFrameShaderValues(InArgs, *shaderResource);
+    SetFrame(InArgs, *shaderResource);
     
     int texSlot = 0;
     for (auto& b : InBuffers)
@@ -203,7 +205,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
         PerspectiveCommand perspCmd;
         perspCmd.rect = persp.targetRect;
         rlState::current.Set(perspCmd);
-        SetPerspectiveShaderValues(InArgs, persp, InTarget, *shaderResource);
+        SetPerspective(InArgs, persp, InTarget, *shaderResource);
         DrawQuad();
     }
 }
@@ -243,7 +245,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
         shaderCmd.id = downShader->id;
         rlState::current.Set(shaderCmd);
 
-        SetFrameShaderValues(InArgs, *downRes);
+        SetFrame(InArgs, *downRes);
         
         Vec2F size = Vec2F(1.0f) / target.Size().To<float>();
         SetValue(*downRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
@@ -256,7 +258,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
             PerspectiveCommand perspCmd;
             perspCmd.rect = persp.targetRect;
             rlState::current.Set(perspCmd);
-            SetPerspectiveShaderValues(InArgs, persp, target, *downRes);
+            SetPerspective(InArgs, persp, target, *downRes);
             DrawQuad();
         }
     }
@@ -285,7 +287,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
             upShaderCmd.blendMode = RL_BLEND_ADDITIVE;
             rlState::current.Set(upShaderCmd);
 
-            SetFrameShaderValues(InArgs, *upRes);
+            SetFrame(InArgs, *upRes);
             
             Vec2F size = Vec2F(1.0f) / prev.Size().To<float>();
             SetValue(*upRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
@@ -301,7 +303,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
                 PerspectiveCommand perspCmd;
                 perspCmd.rect = persp.targetRect;
                 rlState::current.Set(perspCmd);
-                SetPerspectiveShaderValues(InArgs, persp, target, *upRes);
+                SetPerspective(InArgs, persp, target, *upRes);
                 DrawQuad();
             }
         }

@@ -36,7 +36,7 @@ namespace Rendering
         
         void Unload();
         
-        void AttachAsTarget(int InLayerFace);
+        void Attach(int InLayerFace) const;
         void Bind(ShaderResource& InShader, int& InOutSlot, int InFilter = -1, const String& InPostfix = "") const;
         
         const Vector<TargetTex>& GetTextures() const { return textures; }

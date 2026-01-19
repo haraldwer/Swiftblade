@@ -1,6 +1,7 @@
 #include "Animation.h"
 
 #include "Collections/SortedInsert.h"
+#include "Math/Bezier.h"
 
 bool Rendering::AnimationResource::Load()
 {

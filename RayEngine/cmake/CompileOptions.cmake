@@ -1,6 +1,6 @@
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG FALSE)
-set(CMAKE_BUILD_PARALLEL_LEVEL 8)
+set(CMAKE_BUILD_PARALLEL_LEVEL 2)
 set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
 # Shared properties
@@ -67,9 +67,51 @@ if(MSVC)
   )
   
 elseif (MINGW)
-  
-  
-  
+
+  # Shared compile options
+  target_compile_options(${PROJECT_NAME} PUBLIC
+    -fpermissive
+    -Wall
+    -Wshadow
+    -Wpointer-arith
+    -Wcast-align
+    -Winit-self
+    -Wuninitialized
+  )
+
+  # Debug compile options
+  target_compile_options(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Debug>:-O0>
+    $<$<CONFIG:Debug>:-g3>
+    $<$<CONFIG:Debug>:-fno-inline>
+    $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+    $<$<CONFIG:Debug>:-fno-lto>
+  )
+
+
+  # Debug link options
+  target_link_options(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Debug>:-fno-lto>
+    $<$<CONFIG:Debug>:-fuse-ld=lld>
+  )
+
+  # Release compile options
+  target_compile_options(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Release>:-ffast-math>
+    $<$<CONFIG:Release>:-Ofast>
+    $<$<CONFIG:Release>:-march=native>
+    $<$<CONFIG:Release>:-flto>
+    $<$<CONFIG:Release>:-funroll-loops>
+    $<$<CONFIG:Release>:-fdata-sections -ffunction-sections>
+    $<$<CONFIG:Release>:-fomit-frame-pointer>
+  )
+
+  # Release link options
+  target_link_options(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Release>:-flto>
+    $<$<CONFIG:Release>:-Wl,--gc-sections>
+  )
+
 elseif (UNIX)
 
   message("-- Setting custom GCC / Clang flags")

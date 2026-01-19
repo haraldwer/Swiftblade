@@ -8,7 +8,7 @@ bool Rendering::BakedTexture::Load()
 {
     PropertyFile::Load();
 
-    bool result = target.Setup(Vec2I(data.Res), data.Name, PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+    bool result = target.Setup(Vec3I(data.Res), data.Name, PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
     CHECK_RETURN_LOG(!result, "Failed to setup baked texture", false);
     return true;
 }

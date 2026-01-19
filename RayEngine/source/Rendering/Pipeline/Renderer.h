@@ -26,6 +26,7 @@ namespace Rendering
         Vec4F referenceRect = {};
         Vec4F targetRect = {};
         CameraInstance camera = {};
+        int layerFace;
     };
     
     struct RenderArgs
@@ -58,8 +59,8 @@ namespace Rendering
         static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount = 1);
         static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue);
 
-        static void SetFrameShaderValues(const RenderArgs& InArgs, ShaderResource& InShader);
-        static void SetPerspectiveShaderValues(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader);
+        static void SetFrame(const RenderArgs& InArgs, ShaderResource& InShader);
+        static void SetPerspective(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader);
         static void BindNoiseTextures(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot);
         
         static void SetCustomShaderValues(ShaderResource& InShader);

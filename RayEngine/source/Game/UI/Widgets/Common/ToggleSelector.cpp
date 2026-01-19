@@ -11,49 +11,49 @@ void UI::ToggleSelector::Update(Container &InOwner)
 {
     List::Update(InOwner);
 
-    auto children = GetChildren();
-    if (children.empty())
+    auto childrenIDs = GetChildren();
+    if (childrenIDs.empty())
         return;
 
     if (selected == -1)
-        selected = children.front();
-    for (auto e : children)
+        selected = childrenIDs.front();
+    for (auto e : childrenIDs)
         if (Get<Toggle>(e).IsClicked())
             selected = e;
-    for (auto e : children)
+    for (auto e : childrenIDs)
         Get<Toggle>(e).SetToggled(e == selected);
 }
 
 String UI::ToggleSelector::GetSelected() const
 {
-    if (selected == -1)
+    if (selected == static_cast<ElementID>(-1))
         return "";
     return Get<Toggle>(selected).GetOption();
 }
 
 int UI::ToggleSelector::GetSelectedIndex() const
 {
-    auto children = GetChildren();
-    for (int i = 0; i < children.size(); i++)
-        if (children[i] == selected)
+    auto childrenIDs = GetChildren();
+    for (int i = 0; i < static_cast<int>(childrenIDs.size()); i++)
+        if (childrenIDs[i] == selected)
             return i;
     return 0;
 }
 
-void UI::ToggleSelector::SetSelectedIndex(int InIndex)
+void UI::ToggleSelector::SetSelectedIndex(const int InIndex)
 {
-    auto children = GetChildren();
-    for (int i = 0; i < children.size(); i++)
+    auto childrenIDs = GetChildren();
+    for (int i = 0; i < static_cast<int>(childrenIDs.size()); i++)
     {
-        auto id = children[i];
-        Get<Toggle>(id).SetToggled(i == InIndex);
+        auto childID = childrenIDs[i];
+        Get<Toggle>(childID).SetToggled(i == InIndex);
         if (i == InIndex)
-            selected = id;
+            selected = childID;
     }
 }
 
 
-void UI::ToggleSelector::SetSelected(String InValue)
+void UI::ToggleSelector::SetSelected(const String &InValue)
 {
     for (auto e : children)
     {

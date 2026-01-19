@@ -7,6 +7,8 @@ namespace Rendering
     struct FXConfig : PropertyOwner<FXConfig>
     {
         PROPERTY_D(ResShader, SurfaceShader, "Shaders/SH_Surface.ps");
+        PROPERTY_D(float, IrradianceScale, 0.2);
+        PROPERTY_D(float, RadianceScale, 0.4);
         
         PROPERTY_D(bool, SSAO, false);
         PROPERTY_D(float, SSAOScale, 0.5f);

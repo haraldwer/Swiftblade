@@ -50,7 +50,7 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
     shaderCmd.blendMode = RL_BLEND_ADDITIVE;
     rlState::current.Set(shaderCmd);
     
-    SetFrameShaderValues(InArgs, *shaderResource);
+    SetFrame(InArgs, *shaderResource);
 
     int texSlot = 0;
     auto& t = lightMan.GetShadowTarget();
@@ -127,7 +127,7 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
         PerspectiveCommand perspCmd;
         perspCmd.rect = perspective.targetRect;
         rlState::current.Set(perspCmd);
-        SetPerspectiveShaderValues(InArgs, perspective, InTarget, *shaderResource);
+        SetPerspective(InArgs, perspective, InTarget, *shaderResource);
         DrawQuad();
     }
 
@@ -143,7 +143,7 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
         debugShaderCmd.depthMask = true;
         rlState::current.Set(debugShaderCmd);
         
-        SetFrameShaderValues(InArgs, *debugShaderResource);
+        SetFrame(InArgs, *debugShaderResource);
         SetValue(*debugShaderResource, "UpdateFrequency", &conf.UpdateFrequency.Get(), SHADER_UNIFORM_FLOAT);
 
         int debugTexSlot = 0;
@@ -183,7 +183,7 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
                     PerspectiveCommand perspCmd;
                     perspCmd.rect = perspective.targetRect;
                     rlState::current.Set(perspCmd);
-                    SetPerspectiveShaderValues(InArgs, perspective, InTarget, *debugShaderResource);
+                    SetPerspective(InArgs, perspective, InTarget, *debugShaderResource);
                     DrawInstances(mesh, 1);
                 }
                 rlState::current.ResetMesh();

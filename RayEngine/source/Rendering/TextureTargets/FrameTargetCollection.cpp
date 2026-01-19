@@ -33,29 +33,38 @@ void Rendering::FrameTargetCollection::Init(const RenderTexture& InTarget, const
         surfaceTarget.EndSetup();
     }
     
+    // Only frame has to be aware about being a cubemap!
     for (auto& target : frameTargets.All())
     {
         target.Setup(res, "TexFrame", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, -1, InCubemap ? TexType::CUBEMAP : TexType::TEX);
         target.AttachDepth(InTarget);
     }
 
-    for (auto& target : aoTargets.All())
+    if (InFX.SSAO)
     {
-        Vec3I aoRes = (res.To<float>() * InFX.SSAOScale.Get()).To<int>();
-        target.Setup(aoRes, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
-    }
-
-    if (InFX.BloomPasses.Get() >= 2)
-    {
-        float bloomScale = 1.0f;
-        bloomTargets = SwapTarget(InFX.BloomPasses);
-        for (auto& target : bloomTargets.All())
+        for (auto& target : aoTargets.All())
         {
-            Vec3I bloomRes = (res.To<float>() * bloomScale).To<int>();
-            target.Setup(bloomRes, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
-            bloomScale *= InFX.BloomDownscale;
+            Vec3I aoRes = (res.To<float>() * InFX.SSAOScale.Get()).To<int>();
+            target.Setup(aoRes, "TexAO", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
         }
     }
+    
+    if (InFX.Bloom)
+    {
+        if (InFX.BloomPasses.Get() >= 2)
+        {
+            float bloomScale = 1.0f;
+            bloomTargets = SwapTarget(InFX.BloomPasses);
+            for (auto& target : bloomTargets.All())
+            {
+                Vec3I bloomRes = (res.To<float>() * bloomScale).To<int>();
+                target.Setup(bloomRes, "TexBloom", PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, RL_TEXTURE_FILTER_LINEAR);
+                bloomScale *= InFX.BloomDownscale;
+            }
+        }
+    }
+    
+    luminTargets.Init(InTarget, InFX.IrradianceScale, InFX.RadianceScale);
 }
 
 void Rendering::FrameTargetCollection::Deinit()
@@ -68,6 +77,7 @@ void Rendering::FrameTargetCollection::Deinit()
         t.Unload();
     for (auto& t : bloomTargets.All())
         t.Unload();
+    luminTargets.Deinit();
 }
 
 OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameTargetCollection::GetNamed()
@@ -78,5 +88,7 @@ OrderedMap<String, Vector<Rendering::RenderTarget::TargetTex>> Rendering::FrameT
     result["Frame"] = frameTargets.Curr().GetTextures();
     result["AO"] = aoTargets.Curr().GetTextures();
     result["Bloom"] = bloomTargets.Curr().GetTextures(); 
+    result["Irradiance"] = luminTargets.irradianceFrameTarget.GetTextures(); 
+    result["Radiance"] = luminTargets.radianceFrameTarget.GetTextures(); 
     return result;
 }
