@@ -4,8 +4,6 @@
 
 #include "Engine/Rendering/Manager.h"
 #include "Utility/File/File.h"
-#include "raylib.h"
-#include "rlgl.h"
 
 Rendering::ShaderResource::ShaderResource()
 {
@@ -91,7 +89,7 @@ Utility::Timepoint Rendering::ShaderResource::GetEditTime() const
     return  max;
 }
 
-Shader* Rendering::ShaderResource::Get() const
+Shader* Rendering::ShaderResource::GetProgram() const
 {
     if (ptr && IsShaderValid(*ptr))
         return ptr;
@@ -100,7 +98,7 @@ Shader* Rendering::ShaderResource::Get() const
     {
         if (const auto defaultShader = ResShader("Shaders/SH_Default.ds").Get())
             if (defaultShader != this)
-                return defaultShader->Get();
+                return defaultShader->GetProgram();
     }
     else if (id.Str().ends_with(".ps"))
     {
@@ -110,7 +108,7 @@ Shader* Rendering::ShaderResource::Get() const
     {
         if (const auto defaultShader = ResShader("Shaders/SH_Default").Get())
             if (defaultShader != this)
-                return defaultShader->Get();
+                return defaultShader->GetProgram();
     }
     return nullptr; 
 }
@@ -118,7 +116,7 @@ Shader* Rendering::ShaderResource::Get() const
 int Rendering::ShaderResource::GetLocation(const String& InValue)
 {
     PROFILE_GL();
-    const Shader* shaderPtr = Get();
+    const Shader* shaderPtr = GetProgram();
     CHECK_RETURN(!shaderPtr, -1);
     const auto find = locations.find(InValue);
     if (find != locations.end())

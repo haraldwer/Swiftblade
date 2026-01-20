@@ -24,7 +24,7 @@ namespace Rendering
         Vector<ParticleInstanceData> GetFrameInstances(const RenderArgs& InArgs);
 
     private:
-        bool TryCreate(SwapTarget& InTarget, const ParticleInstance& InValue);
+        static bool TryCreate(SwapTarget& InTarget, const ParticleInstance& InValue);
 
         Utility::PersistenceContainer<uint32> persistence;
         Map<uint32, SwapTarget> particles;

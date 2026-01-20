@@ -29,7 +29,7 @@ void Log(const String& InMessage)
     }
 
     char timeStr[64] = {};
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     tm *tm_info = localtime(&now);
     strftime(timeStr, sizeof(timeStr), "%H:%M:%S", tm_info);
     const String t = std::format("[{}] ", timeStr);

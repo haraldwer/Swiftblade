@@ -1,7 +1,6 @@
 #include "Particles.h"
 
 #include "ParticlesRenderer.h"
-#include "raylib.h"
 #include "Scene/Scene.h"
 
 void Rendering::Particles::Init(const ContextConfig& InConfig)
@@ -77,8 +76,8 @@ bool Rendering::Particles::TryCreate(SwapTarget& InTarget, const ParticleInstanc
     {
         if (t.TryBeginSetup(res))
         {
-            t.CreateBuffer("TexPosition", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
-            t.CreateBuffer("TexVelocity", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16);
+            t.CreateBuffer("TexPosition");
+            t.CreateBuffer("TexVelocity");
             t.EndSetup();
         }
     }

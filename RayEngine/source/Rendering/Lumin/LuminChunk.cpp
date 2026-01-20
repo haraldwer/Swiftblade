@@ -2,8 +2,6 @@
 
 #include <random>
 
-#include "raylib.h"
-#include "rlgl.h"
 #include "Scene/Culling/Frustum.h"
 
 void Rendering::LuminChunk::Init(int InCells)
@@ -11,18 +9,24 @@ void Rendering::LuminChunk::Init(int InCells)
     cells = InCells;
     
     // 3D textures cannot be interpolated
-    if (target.TryBeginSetup(InCells))
+    if (targets03.TryBeginSetup(InCells, TextureType::TEXTURE_3D))
     {
-        target.CreateBuffer("TexSH0", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH1", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH2", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH3", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH4", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH5", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH6", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH7", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.CreateBuffer("TexSH8", PIXELFORMAT_UNCOMPRESSED_R16G16B16A16, 1, RL_TEXTURE_FILTER_POINT, 0, TexType::TEX_3D);
-        target.EndSetup();
+        targets03.CreateBuffer("TexSH0");
+        targets03.CreateBuffer("TexSH1");
+        targets03.CreateBuffer("TexSH2");
+        targets03.CreateBuffer("TexSH3");
+        targets03.CreateBuffer("TexSH4");
+        targets03.EndSetup();
+    }
+    
+    if (targets48.TryBeginSetup(InCells, TextureType::TEXTURE_3D))
+    {
+        targets48.CreateBuffer("TexSH4");
+        targets48.CreateBuffer("TexSH5");
+        targets48.CreateBuffer("TexSH6");
+        targets48.CreateBuffer("TexSH7");
+        targets48.CreateBuffer("TexSH8");
+        targets48.EndSetup();
     }
     
     int totalCells = InCells ^ 3;
@@ -36,9 +40,13 @@ void Rendering::LuminChunk::Init(int InCells)
     std::ranges::shuffle(timeIndices, rng);
 }
 
-void Rendering::LuminChunk::Unload()
+void Rendering::LuminChunk::Deinit()
 {
-    target.Unload();
+    targets03.Unload();
+    targets48.Unload();
+    timestamps.clear();
+    timeIndices.clear();
+    cells = 0;
 }
 
 float Rendering::LuminChunk::GetOldestTimestamp() const
@@ -46,7 +54,7 @@ float Rendering::LuminChunk::GetOldestTimestamp() const
     return timestamps.at(timeIndices.at(0));
 }
 
-Rendering::LuminChunk::Coord Rendering::LuminChunk::RefreshOldestCell()
+Rendering::LuminCoord Rendering::LuminChunk::RefreshOldestCell()
 {
     // Convert coord to index
     int timestampIndex = timeIndices.at(0);
@@ -59,16 +67,16 @@ Rendering::LuminChunk::Coord Rendering::LuminChunk::RefreshOldestCell()
     return IndexToCoord(timestampIndex);
 }
 
-Rendering::LuminChunk::Coord Rendering::LuminChunk::IndexToCoord(const int InIndex) const
+Rendering::LuminCoord Rendering::LuminChunk::IndexToCoord(const int InIndex) const
 {
-    Coord c;
+    LuminCoord c;
     c.pos.x = InIndex % cells;
     c.pos.y = InIndex / cells % cells;
     c.pos.z = InIndex / (cells * cells);
     return c;
 }
 
-int Rendering::LuminChunk::CoordToIndex(const Coord& InCoord) const
+int Rendering::LuminChunk::CoordToIndex(const LuminCoord& InCoord) const
 {
     return InCoord.pos.x
          + InCoord.pos.y * cells
@@ -82,11 +90,11 @@ void Rendering::LuminChunkCollection::Init(const int InChunkAxisCells, const Vec
     chunkCells = InChunkAxisCells;
 }
 
-void Rendering::LuminChunkCollection::Unload()
+void Rendering::LuminChunkCollection::Deinit()
 {
     for (auto& c : chunks)
     {
-        c.second->Unload();
+        c.second->Deinit();
         delete c.second;
     }
     chunks.clear();
@@ -98,9 +106,9 @@ void Rendering::LuminChunkCollection::Expand(const Vec3F& InMin, const Vec3F& In
 {
     Coord start = PosToCoord(InMin);
     Coord end = PosToCoord(InMax);
-    for (int z = start.pos.z; z < end.pos.z; z++)
-    for (int y = start.pos.y; y < end.pos.y; y++)
-    for (int x = start.pos.x; x < end.pos.x; x++)
+    for (int z = start.pos.z; z <= end.pos.z; z++)
+    for (int y = start.pos.y; y <= end.pos.y; y++)
+    for (int x = start.pos.x; x <= end.pos.x; x++)
     {
         Coord coord(x, y, z);
         if (!chunks.contains(coord.key))
@@ -112,18 +120,18 @@ void Rendering::LuminChunkCollection::Expand(const Vec3F& InMin, const Vec3F& In
     }
 }
 
-void Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax, LuminChunkFrameData& OutChunkData, Vec3F& OutCell) const
+void Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax, LuminChunkFrameData& OutChunkData, Vec3F& OutCell, LuminCoord& OutCoord) const
 {
     LuminChunk* smallest = nullptr;
     Coord smallestCoord = Coord(0);
     float smallestTime = -1;
     Coord start = PosToCoord(InMin);
     Coord end = PosToCoord(InMax);
-    for (int z = start.pos.z; z < end.pos.z; z++)
-    for (int y = start.pos.y; y < end.pos.y; y++)
-    for (int x = start.pos.x; x < end.pos.x; x++)
-    {
-        Coord coord(x, y, z);
+    for (int16 z = start.pos.z; z <= end.pos.z; z++)
+    for (int16 y = start.pos.y; y <= end.pos.y; y++)
+    for (int16 x = start.pos.x; x <= end.pos.x; x++)
+    { 
+        const Coord coord(x, y, z);
         LuminChunk* c = chunks.at(coord.key);
         const float t = c->GetOldestTimestamp();
         if (t < smallestTime || smallestTime < 0 || smallest == nullptr)
@@ -132,6 +140,7 @@ void Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F &InMin, con
             smallest = c;
             smallestCoord = coord;
         }
+        // TODO: Prioritize chunks based on distance
     }
     CHECK_RETURN(!smallest);
     
@@ -148,9 +157,11 @@ void Rendering::LuminChunkCollection::RefreshOldestProbe(const Vec3F &InMin, con
         smallestCoord.pos.z
     ) * chunkSize;
     
+    OutCoord = probeCoord;
     OutCell = probePos + chunkPos;
     OutChunkData = {
-        &smallest->GetTarget(),
+        &smallest->GetTargets03(),
+        &smallest->GetTargets48(),
         chunkPos
     };
 }
@@ -174,7 +185,8 @@ Vector<Rendering::LuminChunkFrameData> Rendering::LuminChunkCollection::GetFrame
         CHECK_CONTINUE(!InFrustum.CheckBox(chunkPos, chunkSize))
         LuminChunk* c = chunks.at(coord.key);
         result.push_back({
-            &c->GetTarget(),
+            &c->GetTargets03(),
+            &c->GetTargets48(),
             chunkPos
         });
     }
@@ -183,10 +195,10 @@ Vector<Rendering::LuminChunkFrameData> Rendering::LuminChunkCollection::GetFrame
 
 Rendering::LuminChunkCollection::Coord Rendering::LuminChunkCollection::PosToCoord(const Vec3F &InPos) const
 {
-    Vec3F chunkSize = cellSize * chunkCells;
-    return (
-        std::round(InPos.x / chunkSize.x),
-        std::round(InPos.y / chunkSize.y),
-        std::round(InPos.z / chunkSize.z)
+    const Vec3F chunkSize = cellSize * chunkCells;
+    return Coord(
+        static_cast<int16>(std::round(InPos.x / chunkSize.x)),
+        static_cast<int16>(std::round(InPos.y / chunkSize.y)),
+        static_cast<int16>(std::round(InPos.z / chunkSize.z))
     );
 }

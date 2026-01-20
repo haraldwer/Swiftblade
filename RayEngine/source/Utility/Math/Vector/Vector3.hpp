@@ -93,6 +93,34 @@ namespace Utility
 				return Math::Lerp(InA, InB, InT);
 			}
 			
+			Type Min() const
+			{
+				return Math::Min(Math::Min(x, y), z);
+			}
+			
+			Type Max() const
+			{
+				return Math::Max(Math::Max(x, y), z);
+			}
+			
+			static Vector3 Min(const Vector3& InA, const Vector3& InB)
+			{
+				return {
+					Math::Min(InA.x, InB.x),
+					Math::Min(InA.y, InB.y),
+					Math::Min(InA.z, InB.z)
+				};
+			}
+			
+			static Vector3 Max(const Vector3& InA, const Vector3& InB)
+			{
+				return {
+					Math::Max(InA.x, InB.x),
+					Math::Max(InA.y, InB.y),
+					Math::Max(InA.z, InB.z)
+				};
+			}
+			
 			const Type& operator [](int InIndex) const
 			{
 				return data[InIndex];

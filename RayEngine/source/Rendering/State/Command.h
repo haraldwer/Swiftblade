@@ -1,4 +1,6 @@
 #pragma once
+#include "Interface/Shaders.h"
+#include "Interface/Types.h"
 
 namespace Rendering
 {
@@ -7,21 +9,18 @@ namespace Rendering
         uint32 valueHash = 0;
         int loc = -1;
         const void* ptr = nullptr;
-        int type = 0;
+        UniformType type = UniformType::FLOAT;
         int count = 0;
-        bool mat = false;
 
         bool operator==(const UniformCommand& InOther) const
         {
-            return false;
             if (InOther.valueHash == 0 || valueHash == 0)
                 return false;
             return
                 InOther.valueHash == valueHash && 
                 InOther.loc == loc && 
                 InOther.type == type && 
-                InOther.count == count && 
-                InOther.mat == mat; 
+                InOther.count == count;
         }
     };
     
@@ -29,9 +28,9 @@ namespace Rendering
     {
         uint32 id = static_cast<uint32>(-1); // Texture ID
         int shaderLoc = -1; // Shader location
-        int wrap = -1;
-        int filter = -1;
-        bool cubemap = false;
+        TextureParamValue wrap = TextureParamValue::NONE;
+        TextureParamValue filter = TextureParamValue::NONE;
+        TextureType type = TextureType::TEXTURE;
 
         bool operator==(const TextureCommand& InOther) const
         {
@@ -40,7 +39,7 @@ namespace Rendering
                 InOther.shaderLoc == shaderLoc &&
                 InOther.wrap == wrap &&
                 InOther.filter == filter &&
-                InOther.cubemap == cubemap;
+                InOther.type == type;
         }
     };
     
@@ -51,7 +50,7 @@ namespace Rendering
         bool backfaceCulling = true;
         bool depthTest = false;
         bool depthMask = false;
-        int blendMode = -1;
+        BlendMode blendMode = BlendMode::NONE;
     };
 
     struct FrameCommand
@@ -65,6 +64,7 @@ namespace Rendering
     struct PerspectiveCommand
     {
         Vec4F rect = {};
+        int layer = -1;
     };
 
     struct MeshCommand

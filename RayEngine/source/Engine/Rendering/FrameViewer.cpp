@@ -43,7 +43,7 @@ void Rendering::FrameViewer::DrawViewportPanel()
     {
         DrawViewTex(*views[debugView].ptr);
         ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin() + ImVec2( 10, 10 ));
-        ImGui::Text(views[debugView].name.c_str());
+        ImGui::Text("%s", views[debugView].name.c_str());
     }
     
     ImGuizmo::SetDrawlist();
@@ -66,7 +66,9 @@ void Rendering::FrameViewer::DrawViewportPanel()
         {
             // Somehow debug the chunk grid
             // And show where player is!
-            
+            for (auto& target : man.defaultContext.GetLumin()->GetTargets())
+                for (auto tex : target->GetTextures())
+                    DrawTex(*tex.tex);
         }
         ImGui::End();
     }

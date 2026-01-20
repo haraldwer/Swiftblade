@@ -10,7 +10,7 @@ else ()
     if (UNIX)
         # Depends on linux distro
         set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
-        set(GLFW_BUILD_WAYLAND ON CACHE BOOL "" FORCE)
+        set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
     endif (UNIX)
 endif ()
 

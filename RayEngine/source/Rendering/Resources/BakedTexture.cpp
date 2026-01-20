@@ -1,7 +1,5 @@
 #include "BakedTexture.h"
 
-#include "raylib.h"
-#include "ImGui/rlImGui.h"
 #include "Pipeline/Renderer.h"
 
 bool Rendering::BakedTexture::Load()

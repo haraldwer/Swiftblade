@@ -44,9 +44,9 @@ Rendering::Pipeline::Stats Rendering::Pipeline::Render(RenderArgs InArgs)
     stats += RenderParticles(InArgs);
     stats += RenderAO(InArgs);
     stats += RenderDeferred(InArgs);
+    stats += RenderLumin(InArgs);
     stats += RenderSurfaces(InArgs);
     stats += RenderLights(InArgs);
-    stats += RenderLumin(InArgs);
     stats += RenderDebug(InArgs);
     stats += RenderSceneFX(InArgs);
     return stats;
@@ -154,7 +154,9 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderSurfaces(const RenderArgs 
     auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
     auto& surfaceTarget = InArgs.viewportPtr->targets.surfaceTarget;
-    stats.fullscreenPasses += DeferredRenderer::DrawSurfaces(InArgs, frameTarget, { &sceneTarget, &surfaceTarget });
+    auto& irrTarget = InArgs.viewportPtr->targets.luminTargets.irradianceTarget;
+    auto& radTarget = InArgs.viewportPtr->targets.luminTargets.radianceTarget;
+    stats.fullscreenPasses += DeferredRenderer::DrawSurfaces(InArgs, frameTarget, { &sceneTarget, &surfaceTarget, &irrTarget, &radTarget });
     return stats;
 }
 
@@ -175,11 +177,11 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderLumin(const RenderArgs& In
     PROFILE_GL();
     Stats stats;
     auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
-    const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
-    stats.probes += LuminRenderer::DrawLuminProbesDebug(InArgs, frameTarget, { &sceneTarget });
+    auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
+    auto& luminTargets = InArgs.viewportPtr->targets.luminTargets;
+    stats.fullscreenPasses += LuminRenderer::DrawLumin(InArgs, luminTargets, { &sceneTarget, &frameTarget });
     return stats;
 }
-
 
 Rendering::Pipeline::Stats Rendering::Pipeline::RenderSceneFX(const RenderArgs &InArgs)
 {
@@ -266,6 +268,9 @@ Rendering::Pipeline::Stats Rendering::Pipeline::RenderDebug(const RenderArgs& In
 {
     PROFILE_GL();
     Stats stats;
+    auto& sceneTarget = InArgs.viewportPtr->targets.sceneTargets.Curr();
+    const auto& frameTarget = InArgs.viewportPtr->targets.frameTargets.Curr();
+    stats.probes += LuminRenderer::DrawLuminProbesDebug(InArgs, frameTarget, { &sceneTarget });
     stats.debugDrawCount = Renderer::DrawDebug(InArgs);
     return stats;
 }

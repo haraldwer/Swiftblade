@@ -24,10 +24,7 @@ void main()
     if (albedo.a > 0.99f)
         return;
     
-    vec3 worldNormal = SampleNormal(TexCoord);
-    vec3 surface = SampleSurface(TexCoord);
-    vec3 pbr = PBR(worldPosition.xyz, worldNormal, albedo.rgb, surface);
+    vec3 pbr = PBR(TexCoord, worldPosition.xyz, albedo.rgb);
     
     Output.rgb = mix(pbr, albedo.rgb, albedo.a);
-    // TODO: Store depth somewhere? 
 }

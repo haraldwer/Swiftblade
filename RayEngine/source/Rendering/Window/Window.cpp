@@ -1,7 +1,6 @@
 #include "Window.h"
 
 #include "Config.h"
-#include "raylib.h"
 #include "ImGui/ImPlot3D/implot3d.h"
 
 #ifdef IMGUI_ENABLE

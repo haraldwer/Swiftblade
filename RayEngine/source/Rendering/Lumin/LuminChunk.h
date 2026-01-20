@@ -5,24 +5,26 @@
 namespace Rendering
 {
     class Frustum;
+    using LuminCoord = Utility::Coord<uint32, uint8>;
 
     class LuminChunk
     {
-        using Coord = Utility::Coord<uint32, uint8>;
     public:
         
         void Init(int InCells);
-        void Unload();
+        void Deinit();
         
-        RenderTarget& GetTarget() { return target; }
+        RenderTarget& GetTargets03() { return targets03; }
+        RenderTarget& GetTargets48() { return targets48; }
         float GetOldestTimestamp() const;
-        Coord RefreshOldestCell();
+        LuminCoord RefreshOldestCell();
         
     private:
-        Coord IndexToCoord(int InIndex) const;
-        int CoordToIndex(const Coord& InCoord) const;
+        LuminCoord IndexToCoord(int InIndex) const;
+        int CoordToIndex(const LuminCoord& InCoord) const;
         
-        RenderTarget target = {};
+        RenderTarget targets03 = {};
+        RenderTarget targets48 = {};
         Vector<float> timestamps;
         Vector<int> timeIndices;
         int cells = 0;
@@ -30,24 +32,26 @@ namespace Rendering
     
     struct LuminChunkFrameData
     {
-        RenderTarget* target = nullptr;
+        RenderTarget* targets03 = nullptr;
+        RenderTarget* targets48 = nullptr;
         Vec3F position;
     };
     
     class LuminChunkCollection
     {
-        using Coord = Utility::Coord<uint32, uint8>;
+        using Coord = Utility::Coord<uint64, int16>;
     public:
         void Init(int InChunkAxisCells, const Vec3F& InCellSize);
-        void Unload();
+        void Deinit();
         void Expand(const Vec3F& InMin, const Vec3F& InMax);
 
-        void RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax, LuminChunkFrameData &OutChunkData, Vec3F &OutCell) const;
+        void RefreshOldestProbe(const Vec3F &InMin, const Vec3F &InMax, LuminChunkFrameData &OutChunkData, Vec3F& OutCell, LuminCoord& OutCoord) const;
         
         Vector<LuminChunkFrameData> GetFrameChunks(const Frustum &InFrustum, const Vec3F &InMin, const Vec3F &InMax) const;
         Vec3F GetCellSize() const { return cellSize; }
         Vec3F GetChunkSize() const { return cellSize * chunkCells; }
-        
+        Map<uint32, LuminChunk*>& GetAll() { return chunks; }
+
     private:
         Coord PosToCoord(const Vec3F& InPos) const;
         

@@ -108,6 +108,7 @@ typedef Utility::Math::Vector4<int> Vec4I;
 typedef Utility::Math::Matrix3x3<float> Mat3F;
 typedef Utility::Math::Matrix4x4<float> Mat4F;
 typedef Utility::Math::Quaternion<float> QuatF;
+#include "Utility/Color.h"
 
 namespace Utility
 {

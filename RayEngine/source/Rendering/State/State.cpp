@@ -1,6 +1,10 @@
 #include "State.h"
 
-#include "RayRenderUtility.h"
+#include "Interface/Meshes.h"
+#include "Interface/Textures.h"
+#include "Rendering/Utility.h"
+
+// TODO: Completely switch to opengl? 
 
 void Rendering::State::Set(const UniformCommand& InCmd)
 {
@@ -11,10 +15,7 @@ void Rendering::State::Set(const UniformCommand& InCmd)
     UniformCommand& uniform = uniforms[InCmd.loc];
     if (InCmd != uniform)
     {
-        if (InCmd.mat)
-            rlSetUniformMatrix(InCmd.loc, *static_cast<const Matrix*>(InCmd.ptr));
-        else
-            rlSetUniform(InCmd.loc, InCmd.ptr, InCmd.type, InCmd.count);
+        RHI::SetUniform(InCmd.loc, InCmd.type, InCmd.ptr, InCmd.count);
         uniform = InCmd;
     }
 }
@@ -34,37 +35,41 @@ void Rendering::State::Set(const TextureCommand& InCmd, const int InSlot)
     {
         if (activeTexSlot != InSlot)
         {
-            rlActiveTextureSlot(InSlot);
+            RHI::ActivateTextureSlot(InSlot);
             activeTexSlot = InSlot;
         }
         
-        if (InCmd.wrap != tex.wrap)
-        {
-            const int w = InCmd.wrap >= 0 ? InCmd.wrap : RL_TEXTURE_WRAP_CLAMP;
-            rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_S, w);
-            rlTextureParameters(InCmd.id, RL_TEXTURE_WRAP_T, w);
-        }
-
-        if (InCmd.filter != tex.filter)
-        {
-            const int f = InCmd.filter > 0 ? InCmd.filter : RL_TEXTURE_FILTER_NEAREST;
-            rlTextureParameters(InCmd.id, RL_TEXTURE_MIN_FILTER, f);
-            rlTextureParameters(InCmd.id, RL_TEXTURE_MAG_FILTER, f);
-        }
-    
         if (InCmd.id != tex.id)
         {
             if (InCmd.id != static_cast<uint32>(-1))
             {
-                InCmd.cubemap ? rlEnableTextureCubemap(InCmd.id) : rlEnableTexture(InCmd.id);
+                RHI::EnableTexture(InCmd.id, InCmd.type);
                 if (InCmd.shaderLoc >= 0) // Textures are cleared when switching shader
-                    rlSetUniform(InCmd.shaderLoc, &InSlot, SHADER_UNIFORM_INT, 1);
+                    RHI::SetUniform(InCmd.shaderLoc, &InSlot);
             }
             else
             {
-                InCmd.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
+                RHI::DisableTexture(tex.type);
                 const int l = 0;
-                rlSetUniform(InCmd.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
+                RHI::SetUniform(InCmd.shaderLoc, &l);
+            }
+        }
+        
+        if (InCmd.wrap != tex.wrap || InCmd.filter != tex.filter)
+        {
+            RHI::BindTexture(InCmd.id, InCmd.type);
+            if (InCmd.wrap != tex.wrap)
+            {
+                auto w = InCmd.wrap != TextureParamValue::NONE ? InCmd.wrap : TextureParamValue::WRAP;
+                RHI::SetTextureParam(TextureParam::WRAP_S, w, InCmd.type);
+                RHI::SetTextureParam(TextureParam::WRAP_T, w, InCmd.type);
+            }
+
+            if (InCmd.filter != tex.filter)
+            {
+                auto f = InCmd.filter != TextureParamValue::NONE ? InCmd.filter : TextureParamValue::NEAREST;
+                RHI::SetTextureParam(TextureParam::MIN_FILTER, f, InCmd.type);
+                RHI::SetTextureParam(TextureParam::MAG_FILTER, f, InCmd.type);
             }
         }
         
@@ -79,17 +84,18 @@ void Rendering::State::ResetTextures()
         PROFILE_GL_GPU("Reset textures");
         for (const auto& tex : textures)
         {
-            rlActiveTextureSlot(tex.first);
-            rlTextureParameters(tex.second.id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
-            rlTextureParameters(tex.second.id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
-            rlTextureParameters(tex.second.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_NEAREST);
-            rlTextureParameters(tex.second.id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_NEAREST);
+            RHI::ActivateTextureSlot(tex.first);
+            RHI::SetTextureParam(TextureParam::WRAP_S, TextureParamValue::CLAMP_TO_EDGE, tex.second.type);
+            RHI::SetTextureParam(TextureParam::WRAP_T, TextureParamValue::CLAMP_TO_EDGE, tex.second.type);
+            RHI::SetTextureParam(TextureParam::MIN_FILTER, TextureParamValue::NEAREST, tex.second.type);
+            RHI::SetTextureParam(TextureParam::MAG_FILTER, TextureParamValue::NEAREST, tex.second.type);
+            
             int l = 0;
-            rlSetUniform(tex.second.shaderLoc, &l, SHADER_UNIFORM_INT, 1);
-            tex.second.cubemap ? rlDisableTextureCubemap() : rlDisableTexture();
+            RHI::SetUniform(tex.second.shaderLoc, &l);
+            RHI::DisableTexture(tex.second.type);
         }
         textures.clear();
-        rlActiveTextureSlot(0);
+        RHI::ActivateTextureSlot(0);
         activeTexSlot = -1;
     }
 }
@@ -101,31 +107,9 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
     if (InCmd.vaoID != static_cast<uint32>(-1) && shader.locs)
     {
         PROFILE_GL_GPU("Set mesh");
-        
-        rlEnableVertexArray(InCmd.vaoID);
-
+        RHI::BindVertexArray(InCmd.vaoID);
         Set(InMatrices);
-
-        // Set instance matrix data location
-        const int matLoc = shader.locs[SHADER_LOC_MATRIX_MODEL];
-        if (matLoc != -1)
-        {
-            for (unsigned int i = 0; i < 4; i++)
-            {
-                rlEnableVertexAttribute(matLoc + i);
-                rlSetVertexAttribute(matLoc + i, 4, RL_FLOAT, false, sizeof(Mat4F), static_cast<int>(i * sizeof(Vec4F)));
-                rlSetVertexAttributeDivisor(matLoc + i, 1);
-            }
-        } 
-
-        // Upload model normal matrix
-        if (shader.locs[SHADER_LOC_MATRIX_NORMAL] != -1)
-            rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_NORMAL], MatrixIdentity());
-        
-        //// TODO: Only disable if no vert color
-        //const int colorLoc = shader.locs[SHADER_LOC_VERTEX_COLOR];
-        //if (colorLoc != -1)
-        //    rlDisableVertexAttribute(colorLoc);
+        RHI::EnableVertexMatrixAttributes();
     }
     
     return true;
@@ -134,14 +118,7 @@ bool Rendering::State::Set(const MeshCommand& InCmd, const Vector<Mat4F>& InMatr
 
 bool Rendering::State::Set(const Vector<Mat4F>& InMatrices)
 {
-    const int instances = static_cast<int>(InMatrices.size());
-    const int bufferSize = instances * static_cast<int>(sizeof(Mat4F));
-
-    if (vbo != static_cast<uint32>(-1))
-        ResetTransforms();
-    if (instances > 0)
-        vbo = rlLoadVertexBuffer(InMatrices.data(), bufferSize, false);
-    
+    RHI::LoadMatrixVertexBuffer(InMatrices);
     return true;
 }
 
@@ -149,7 +126,7 @@ void Rendering::State::ResetMesh()
 {
     if (mesh.vaoID != static_cast<uint32>(-1))
     {
-        rlDisableVertexArray();
+        RHI::UnbindVertexArray();
         ResetTransforms();
     }
     mesh = {};
@@ -160,9 +137,9 @@ void Rendering::State::ResetTransforms()
     if (vbo != static_cast<uint32>(-1))
     {
         PROFILE_GL_GPU("Reset mesh");
-        rlDisableVertexBuffer();
-        rlDisableVertexBufferElement();
-        rlUnloadVertexBuffer(vbo);
+        RHI::DisableVertexBuffer();
+        RHI::DisableVertexBufferElement();
+        RHI::UnloadVertexBuffer(vbo);
         vbo = static_cast<uint32>(-1);
     }
 }
@@ -180,7 +157,7 @@ void Rendering::State::Set(const ShaderCommand& InCmd, const bool InForce)
     }
 
     if (InCmd.blendMode != shader.blendMode || InForce)
-        RaylibRenderUtility::SetBlendMode(InCmd.blendMode);
+        SetBlendMode(InCmd.blendMode);
 
     if (InCmd.backfaceCulling != shader.backfaceCulling || InForce)
         InCmd.backfaceCulling ? rlEnableBackfaceCulling() : rlDisableBackfaceCulling();
@@ -197,7 +174,7 @@ void Rendering::State::ResetShader()
     if (shader.id == static_cast<uint32>(-1))
         return;
     PROFILE_GL_GPU("Reset shader");
-    RaylibRenderUtility::SetBlendMode(RL_BLEND_ALPHA);
+    SetBlendMode(RL_BLEND_ALPHA);
     rlDisableColorBlend();
     rlEnableBackfaceCulling();
     rlDisableDepthTest();

@@ -1,27 +1,27 @@
 ﻿#include "RenderTarget.h"
 
+#include "Interface/Textures.h"
 #include "Rendering/Resources/Shader.h"
-#include "raylib.h"
-#include "rlgl.h"
 #include "State/State.h"
 
-bool Rendering::RenderTarget::Setup(const Vec3I& InRes, const String& InName, uint8 InFormat, int InDefaultFilter, TexType InType)
+bool Rendering::RenderTarget::Setup(const Vec3I &InRes, const String &InName, TextureFormat InFormat, TextureParamValue InDefaultFilter, TextureType InType)
 {
-    if (TryBeginSetup(InRes))
+    if (TryBeginSetup(InRes, InType))
     {
-        CreateBuffer(InName, InFormat, 1.0, InDefaultFilter, -1, InType);
+        CreateBuffer(InName, InFormat, 1.0, InDefaultFilter, 1);
         EndSetup();
         return true;
     }
     return false;
 }
 
-bool Rendering::RenderTarget::TryBeginSetup(const Vec3I& InRes)
+bool Rendering::RenderTarget::TryBeginSetup(const Vec3I& InRes, TextureType InType)
 {
     int targetWidth = Utility::Math::Max(InRes.x, 16);
     int targetHeight = Utility::Math::Max(InRes.y, 16);
     if (size.x == targetWidth &&
-        size.y == targetHeight)
+        size.y == targetHeight &&
+        type == InType)
         return false;
     if (targetWidth <= 0 || targetHeight <= 0)
         return false;
@@ -33,178 +33,120 @@ bool Rendering::RenderTarget::TryBeginSetup(const Vec3I& InRes)
         targetHeight, 
         InRes.z
     };
+    type = InType;
 
     // Create framebuffer
-    frameBuffer = rlLoadFramebuffer();
+    frameBuffer = RHI::CreateFramebuffer();
     CHECK_ASSERT(!frameBuffer, "Unable to create framebuffer"); 
-    rlEnableFramebuffer(frameBuffer);
+    RHI::EnableFramebuffer(frameBuffer);
 
     return true;
 }
 
-void Rendering::RenderTarget::EndSetup() const
+void Rendering::RenderTarget::EndSetup()
 {
     CHECK_RETURN(!frameBuffer);
     
     // Attach to framebuffer
-    rlActiveDrawBuffers(static_cast<int>(textures.size())); // Count - Depth
-    for (int i = 0; i < static_cast<int>(textures.size()); i++)
+    RHI::ActivateDrawBuffers(static_cast<int>(textures.size())); // Count - Depth
+    int i = 0;
+    for (TargetTex& buff : textures)
     {
-        const auto& tex = textures[i];
-        CHECK_ASSERT(!tex.tex, "Tex nullptr");
-        rlFramebufferAttach(
-            frameBuffer,
-            tex.tex->id,
-            RL_ATTACHMENT_COLOR_CHANNEL0 + i,
-            RL_ATTACHMENT_TEXTURE2D,
-            0);
+        CHECK_ASSERT(buff.texture, "Texture invalid");
+        RHI::FramebufferAttach(buff.texture, type, TextureAttachment::COLOR, i, 1, 0);
+        buff.layerFace = 0;
+        i++;
     }
-    
-    CHECK_ASSERT(!rlFramebufferComplete(frameBuffer), "Framebuffer incomplete");
-}
-
-void Rendering::RenderTarget::AttachDepth(const RenderTexture& InTarget) const
-{
-    const uint32 depthID = InTarget.depth.id;
-    CHECK_ASSERT(depthID == 0, "Invalid depth texture");
-    rlFramebufferAttach(frameBuffer, depthID, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
+    CHECK_ASSERT(!RHI::FramebufferComplete(), "Framebuffer incomplete");
+    RHI::DisableFramebuffer();
 }
 
 void Rendering::RenderTarget::Unload()
 {
     for (const TargetTex& buff : textures)
-    {
-        CHECK_ASSERT(!buff.tex, "Tex nullptr");
-        rlUnloadTexture(buff.tex->id);
-        delete (buff.tex);
-    }
+        RHI::DestroyTexture(buff.texture);
     textures.clear(); 
 
     if (frameBuffer)
     {
-        rlFramebufferAttach(frameBuffer, 0, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
-        rlUnloadFramebuffer(frameBuffer);
+        RHI::DestroyFramebuffer(frameBuffer);
         frameBuffer = 0;
     }
     size = {};
 }
 
-void Rendering::RenderTarget::Attach(const int InLayerFace) const
+void Rendering::RenderTarget::Attach(const int InLayerFace)
 {
+    RHI::EnableFramebuffer(frameBuffer);
     int i = 0;
-    for (const TargetTex& buff : textures)
+    for (TargetTex& buff : textures)
     {
-        // These types require additional attachment logic
-        switch (buff.type) {
-            case TexType::TEX_3D:
-                glFramebufferTextureLayer(
-                    GL_FRAMEBUFFER,
-                    GL_COLOR_ATTACHMENT0 + i,
-                    buff.tex->id,
-                    0,
-                    InLayerFace
-                );
-                break;
-            case TexType::CUBEMAP:
-                GLenum face = GL_TEXTURE_CUBE_MAP_POSITIVE_X + InLayerFace;
-                glFramebufferTexture2D(
-                    GL_FRAMEBUFFER,
-                    GL_COLOR_ATTACHMENT0 + i,
-                    face,
-                    buff.tex->id,
-                    0
-                );
-                break;
-        }
+        CHECK_ASSERT(buff.texture, "Texture invalid");
+        CHECK_CONTINUE(buff.layerFace == InLayerFace);
+        RHI::FramebufferAttach(buff.texture, type, TextureAttachment::COLOR, i, 1, InLayerFace);
+        buff.layerFace = InLayerFace;
         i++;
     }
+    RHI::DisableFramebuffer();
 }
 
-void Rendering::RenderTarget::Bind(ShaderResource& InShader, int& InOutSlot, const int InFilter, const String& InPostfix) const
+void Rendering::RenderTarget::AttachDepth(const uint32 &InTarget) const
 {
-    for (const auto& tex : textures)
+    // Maybe assume that 
+    RHI::EnableFramebuffer(frameBuffer);
+    RHI::FramebufferAttach(InTarget, type, TextureAttachment::DEPTH);
+    RHI::DisableFramebuffer();
+}
+
+void Rendering::RenderTarget::Bind(ShaderResource &InShader, int &InOutSlot, const TextureParamValue InFilter, const int InLayerFace, const String &InPostfix) const
+{
+    for (const auto& buff : textures)
     {
-        const int loc = InShader.GetLocation(tex.name + InPostfix);
+        const int loc = InShader.GetLocation(buff.name + InPostfix);
         CHECK_CONTINUE(loc < 0);
-        CHECK_ASSERT(!tex.tex, "Tex nullptr");
+        CHECK_ASSERT(!buff.texture, "Tex nullptr");
 
         InOutSlot++;
         TextureCommand cmd;
         cmd.shaderLoc = loc;
-        cmd.id = tex.tex->id;
-        cmd.filter = InFilter < 0 ? tex.defaultFilter : InFilter;
+        cmd.filter = InFilter == TextureParamValue::NONE ? buff.defaultFilter : InFilter;
+        // Use one layer / side if specified, instead of entire 3D texture / cubemap
+        const bool useLayer = InLayerFace >= 0 && type != TextureType::TEXTURE; 
+        cmd.type = useLayer ? type : TextureType::TEXTURE;
+        cmd.id = useLayer ? buff.views.at(InLayerFace) : buff.texture;
         rlState::current.Set(cmd, InOutSlot);
 
-        const int scaleLoc = InShader.GetLocation(tex.name + InPostfix + "Scale");
+        const int scaleLoc = InShader.GetLocation(buff.name + InPostfix + "Scale");
         if (scaleLoc >= 0)
         {
-            Vec2F size = tex.scaledSize.xy.To<float>();
-            Vec2F ref = Vec2I(tex.tex->width, tex.tex->height).To<float>();
-            Vec2F scale = size / ref;
-            rlSetUniform(scaleLoc, &scale, RL_SHADER_UNIFORM_VEC2, 1);
+            Vec2F scaled = buff.scaledSize.xy.To<float>();
+            Vec2F ref = buff.size.xy.To<float>();
+            Vec2F scale = scaled / ref;
+            RHI::SetUniform(scaleLoc, &scale);
         }
         
-        const int texelLoc = InShader.GetLocation(tex.name + InPostfix + "Texel");
+        const int texelLoc = InShader.GetLocation(buff.name + InPostfix + "Texel");
         if (texelLoc >= 0)
         {
-            Vec2F texel = Vec2F(1.0f) / tex.scaledSize.xy.To<float>();
-            rlSetUniform(texelLoc, &texel, RL_SHADER_UNIFORM_VEC2, 1);
+            Vec2F texel = Vec2F(1.0f) / buff.scaledSize.xy.To<float>();
+            RHI::SetUniform(texelLoc, &texel);
         }
 
-        const int sizeLoc = InShader.GetLocation(tex.name + InPostfix + "Size");
+        const int sizeLoc = InShader.GetLocation(buff.name + InPostfix + "Size");
         if (sizeLoc >= 0)
         {
-            Vec2F size = tex.scaledSize.xy.To<float>();
-            rlSetUniform(sizeLoc, &size, RL_SHADER_UNIFORM_VEC2, 1);
+            const Vec2F s = buff.scaledSize.xy.To<float>();
+            RHI::SetUniform(sizeLoc, &s);
         }
     }
 }
 
-int rlLoadTexture3D(int width, int height, int depth, int format)
-{
-    unsigned int glInternalFormat, glFormat, glType;
-    rlGetGlTextureFormats(format, &glInternalFormat, &glFormat, &glType);
-    
-    GLuint texID;
-    glGenTextures(1, &texID);
-    glBindTexture(GL_TEXTURE_3D, texID);
-
-    glTexImage3D(
-        GL_TEXTURE_3D,
-        0,
-        glInternalFormat,          // internal format
-        width,
-        height,
-        depth,
-        0,
-        glFormat,
-        glType,
-        NULL                // no initial data
-    );
-
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_3D, 0);
-
-    return static_cast<int>(texID);
-}
-
-void Rendering::RenderTarget::CreateBuffer(const String &InName, uint8 InPixelFormat, float InResScale, int InDefaultFilter, int InMips, TexType InType)
+void Rendering::RenderTarget::CreateBuffer(const String &InName, TextureFormat InFormat, const float InResScale, const TextureParamValue InDefaultFilter, const int InMips)
 {
     const float scale = Utility::Math::Max(1.0f, InResScale);
     const auto scaled = (size.To<float>() * scale).To<int>(); 
     CHECK_RETURN_LOG(scaled.x <= 0 || scaled.y <= 0, "Buffer too small");
-    CHECK_RETURN_LOG(scaled.z <= 0 && InType == TexType::TEX_3D, "Buffer too small");
-    
-    int mips = InMips;
-    if (mips <= 0)
-        mips = 1 + static_cast<int>(floor(log(Utility::Math::Max(scaled.x, scaled.y)) / log(2)));
-    if (InType == TexType::TEX_3D)
-        mips = 0;
+    CHECK_RETURN_LOG(scaled.z <= 0 && InType == TextureType::TEXTURE_3D, "Buffer too small");
 
 #ifdef GRAPHICS_API_OPENGL_ES3
     // Fake a smaller resolution target (cannot have resolution mismatch)
@@ -215,26 +157,8 @@ void Rendering::RenderTarget::CreateBuffer(const String &InName, uint8 InPixelFo
     
     auto& buffer = textures.emplace_back();
     buffer.name = InName;
-    buffer.type = InType;
     buffer.defaultFilter = InDefaultFilter;
+    buffer.size = size;
     buffer.scaledSize = scaled;
-    buffer.tex = new Texture(); 
-    
-    switch (InType)
-    {
-        case TexType::TEX:
-            buffer.tex->id = rlLoadTexture(nullptr, texSize.x, texSize.y, InPixelFormat, mips);
-            break;
-        case TexType::TEX_3D:
-            buffer.tex->id = rlLoadTexture3D(texSize.x, texSize.y, texSize.z, InPixelFormat);
-            break;
-        case TexType::CUBEMAP:
-            buffer.tex->id = rlLoadTextureCubemap(nullptr, texSize.x, InPixelFormat, mips);
-            break;
-    }
-    
-    buffer.tex->width = texSize.x;
-    buffer.tex->height = texSize.y;
-    buffer.tex->mipmaps = mips;
-    buffer.tex->format = InPixelFormat;
+    buffer.texture = RHI::CreateTexture(texSize, InFormat, type, InMips);
 }

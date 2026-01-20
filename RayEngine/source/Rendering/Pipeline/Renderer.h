@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Collections/SplitContainer.h"
+#include "Interface/Shaders.h"
 #include "Rendering/Scene/Instances/CameraInstance.h"
 #include "Rendering/Resources/Shader.h"
 #include "TextureTargets/SwapTarget.h"
@@ -26,7 +27,7 @@ namespace Rendering
         Vec4F referenceRect = {};
         Vec4F targetRect = {};
         CameraInstance camera = {};
-        int layerFace;
+        int layerFace = 0;
     };
     
     struct RenderArgs
@@ -51,13 +52,10 @@ namespace Rendering
         static int DrawDebug(const RenderArgs& InArgs);
         static void Blip(const RenderTexture& InTarget, const RenderTarget& InBuffer);
         static bool Bake(const BakedTexture& InTex);
-
-
+    
     protected:
-        static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, int InType, int InCount = 1);
-        static void SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue);
-        static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, int InType, int InCount = 1);
-        static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue);
+        static void SetValue(ShaderResource& InShader, const String& InName, const void* InValue, UniformType InType, int InCount = 1);
+        static void SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, UniformType InType, int InCount = 1);
 
         static void SetFrame(const RenderArgs& InArgs, ShaderResource& InShader);
         static void SetPerspective(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader);

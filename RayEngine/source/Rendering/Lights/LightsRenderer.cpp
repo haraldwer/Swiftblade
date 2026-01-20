@@ -3,7 +3,7 @@
 #include "Lumin/LuminRenderer.h"
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
-#include "RayRenderUtility.h"
+#include "Rendering/Utility.h"
 #include "Scene/Scene.h"
 #include "State/Command.h"
 #include "State/State.h"
@@ -24,13 +24,13 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
     auto res = conf.LightShader;
     ShaderResource* shaderResource = res.Get().Get();
     CHECK_RETURN(!shaderResource, 0);
-    const Shader* shader = shaderResource->Get();
+    const Shader* shader = shaderResource->GetProgram();
     CHECK_RETURN(!shader, 0);
 
     const auto& debugRes = conf.DebugShader;
     ShaderResource* debugShaderResource = debugRes.Get().Get();
     CHECK_RETURN(!debugShaderResource, 0);
-    const Shader* debugShader = debugShaderResource->Get();
+    const Shader* debugShader = debugShaderResource->GetProgram();
     CHECK_RETURN(!debugShader, 0);
 
     auto model = conf.CubeModel.Get().Get();
@@ -182,6 +182,7 @@ int Rendering::LightsRenderer::DrawLights(const RenderArgs& InArgs, const Render
                 {
                     PerspectiveCommand perspCmd;
                     perspCmd.rect = perspective.targetRect;
+                    perspCmd.layer = perspective.layerFace;
                     rlState::current.Set(perspCmd);
                     SetPerspective(InArgs, perspective, InTarget, *debugShaderResource);
                     DrawInstances(mesh, 1);

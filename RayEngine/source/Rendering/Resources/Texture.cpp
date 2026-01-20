@@ -1,7 +1,6 @@
 ﻿#include "Texture.h"
 
 #include "Utility/File/File.h"
-#include "raylib.h"
 #include "ImGui/rlImGui.h"
 
 bool Rendering::TextureResource::Load()

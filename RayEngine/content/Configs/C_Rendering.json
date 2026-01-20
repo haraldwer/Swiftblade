@@ -1,16 +1,14 @@
 {
 	"Context":{
 		"FX":{
-			"SSAO":true,
-			"ChromaticAberration":true,
-			"FXAA":true,
-			"MotionBlur":true,
-			"Bloom":true
+			"SSAOScale":1.0,
+			"SSAO":true
 		},
 		"Lumin":{
 			"Viewport":{
-				"Height":4096,
-				"Width":4096
+				"Cubemap":true,
+				"Height":128,
+				"Width":128
 			}
 		},
 		"Lights":{
@@ -20,14 +18,14 @@
 			}
 		},
 		"NoiseTextures":[{
-				"Key":"TexCellular",
-				"Val":"Defaults/T_Noise_Cellular.json"
+				"Key":"TexSimplex",
+				"Val":"Defaults/T_Noise_Simplex.json"
 			},{
 				"Key":"TexPerlin",
 				"Val":"Defaults/T_Noise_Perlin.json"
 			},{
-				"Key":"TexSimplex",
-				"Val":"Defaults/T_Noise_Simplex.json"
+				"Key":"TexCellular",
+				"Val":"Defaults/T_Noise_Cellular.json"
 			}
 		]
 	},

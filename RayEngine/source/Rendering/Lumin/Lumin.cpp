@@ -1,6 +1,7 @@
 #include "Lumin.h"
 
-#include "RayRenderUtility.h"
+#include "Utility.h"
+#include "Rendering/Utility.h"
 #include "Scene/Scene.h"
 #include "Scene/Culling/Frustum.h"
 #include "Scene/Instances/CameraInstance.h"
@@ -9,14 +10,7 @@ void Rendering::Lumin::Init(const ContextConfig& InConfig)
 {
     config = InConfig.Lumin;
     context.Init(InConfig);
-    
-    // Create viewport for cubemap rendering
-    auto& viewConf = config.Viewport.Get(); 
-    viewConf.Cubemap = true;
-    auto& w = viewConf.Width.Get();
-    w = Utility::Math::Min(w, 16);
-    viewConf.Height = w;
-    viewport.Init(viewConf, {});
+    viewport.Init(config.Viewport.Get(), {});
     
     // Create storage for data chunks
     chunks.Init(config.ChunkAxisCells, config.CellSize);
@@ -27,6 +21,7 @@ void Rendering::Lumin::Deinit()
     viewport.Deinit();
     context.Deinit();
     debugProbes.clear();
+    chunks.Deinit();
 }
 
 Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
@@ -49,13 +44,12 @@ Rendering::Pipeline::Stats Rendering::Lumin::Update(const RenderArgs& InArgs)
     return stats;
 }
 
-Rendering::LuminData Rendering::Lumin::GetFrameData(const RenderArgs& InArgs)
+Rendering::LuminData Rendering::Lumin::GetFrameData(const RenderArgs& InArgs) const
 {
     Vec3F min;
     Vec3F max;
     Frustum frustum;
     GetFrustum(InArgs, frustum, min, max);
-    
     return {
         chunks.GetFrameChunks(frustum, min, max),
         chunks.GetCellSize(),
@@ -76,6 +70,17 @@ Vector<Mat4F> Rendering::Lumin::GetDebugProbes()
     return debugProbes;
 }
 
+Vector<Rendering::RenderTarget*> Rendering::Lumin::GetTargets()
+{
+    Vector<RenderTarget*> targets;
+    for (auto& c : chunks.GetAll())
+    {
+        targets.push_back(&c.second->GetTargets03());
+        targets.push_back(&c.second->GetTargets48());
+    }
+    return targets;
+}
+
 Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InArgs)
 {
     PROFILE_GL();
@@ -88,13 +93,21 @@ Rendering::Pipeline::Stats Rendering::Lumin::UpdateProbes(const RenderArgs& InAr
     GetFrustum(InArgs, frustum, min, max);
     
     Vec3F cell;
+    LuminCoord coord;
     LuminChunkFrameData chunk;
     chunks.Expand(min, max);
-    chunks.RefreshOldestProbe(min, max, chunk, cell);
-    CHECK_ASSERT(!chunk.target, "No chunk");
-    auto args = GetCubemapArgs(InArgs, cell);
+    chunks.RefreshOldestProbe(min, max, chunk, cell, coord);
+    CHECK_RETURN_LOG(!chunk.targets03 || !chunk.targets48, "No chunk", {});
+    // TODO: Other args for the SH gather
     
-    return LuminPipeline::RenderProbes(args, config.CollectShader, *chunk.target, false);
+    // Render probes to viewport framebuffer
+    RenderArgs probeArgs = GetCubemapArgs(InArgs, cell);
+    Pipeline::Stats stats = LuminPipeline::RenderProbes(probeArgs, false);
+    
+    // Collect sh coefficients
+    RenderArgs shArgs = GetSHArgs(InArgs, cell, coord);
+    stats += LuminPipeline::CollectSH(shArgs, chunk);
+    return stats;
 }
 
 void Rendering::Lumin::GetFrustum(const RenderArgs& InArgs, Frustum& OutFrustum, Vec3F& OutMin, Vec3F& OutMax)
@@ -105,14 +118,14 @@ void Rendering::Lumin::GetFrustum(const RenderArgs& InArgs, Frustum& OutFrustum,
     // AABB
     OutMin = cam.position;
     OutMax = cam.position;
-    for (auto& c : cam.GetFrustumCorners(size))
+    for (const auto& c : cam.GetFrustumCorners(size))
     {
-        if (OutMin.x < c.x) OutMin.x = c.x;
-        if (OutMin.y < c.y) OutMin.y = c.y;
-        if (OutMin.z < c.z) OutMin.z = c.z;
-        if (OutMax.x < c.x) OutMax.x = c.x;
-        if (OutMax.y < c.y) OutMax.y = c.y;
-        if (OutMax.z < c.z) OutMax.z = c.z;
+        if (c.x < OutMin.x) OutMin.x = c.x;
+        if (c.y < OutMin.y) OutMin.y = c.y;
+        if (c.z < OutMin.z) OutMin.z = c.z;
+        if (c.x > OutMax.x) OutMax.x = c.x;
+        if (c.y > OutMax.y) OutMax.y = c.y;
+        if (c.z > OutMax.z) OutMax.z = c.z;
     }
     
     // Culling
@@ -141,7 +154,7 @@ Array<Vec3F, 9> Rendering::Lumin::GetCullPoints(const Vec3F &InPos) const
 
 Rendering::RenderArgs Rendering::Lumin::GetCubemapArgs(const RenderArgs &InArgs, const Vec3F& InProbePos)
 {
-    Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
+    const Array<QuatF, 6> directions = GetCubemapRotations();
     RenderArgs args = {
         .scenePtr = InArgs.scenePtr,
         .contextPtr = &context,
@@ -167,9 +180,47 @@ Rendering::RenderArgs Rendering::Lumin::GetCubemapArgs(const RenderArgs &InArgs,
                 .fov = 90.0f,
                 .far = config.Far,
                 .near = config.Near
-            }
+            },
+            .layerFace = i
         });
     }
     
+    return args;
+}
+
+Rendering::RenderArgs Rendering::Lumin::GetSHArgs(const RenderArgs &InArgs, const Vec3F& InCell, const LuminCoord& InCoord)
+{
+    // We are only rendering to 1 (one) pixel!
+    // But 9 different textures... lol, optimization
+    float axis = static_cast<float>(config.ChunkAxisCells.Get());
+    Vec4F target = {
+        InCoord.pos.x / axis,
+        InCoord.pos.y / axis,
+        (InCoord.pos.x + 1) / axis, 
+        (InCoord.pos.y + 1) / axis, 
+    };
+    
+    RenderArgs args = {
+        .scenePtr = InArgs.scenePtr,
+        .contextPtr = InArgs.contextPtr,
+        .viewportPtr = &viewport, // SH viewport?
+        .luminPtr = this,
+        .lightsPtr = nullptr,
+        .particlesPtr = nullptr,
+        .perspectives = {{
+            .referenceRect = {},
+            .targetRect = target,
+            .camera = {
+                .position = InCell,
+                .rotation = QuatF(),
+                .fov = 90.0f,
+                .far = config.Far,
+                .near = config.Near
+            },
+            .layerFace = InCoord.pos.z
+        }},
+        .cullPoints = {},
+        .cullMask = static_cast<uint8>(VisibilityMask::LUMIN)
+    };
     return args;
 }

@@ -283,7 +283,7 @@ Shader* UI::FontResource::GetShader() const
 {
 #ifndef __EMSCRIPTEN__
     if (const auto res = sdfShader.Get())
-        return res->Get();
+        return res->GetProgram();
 #endif
     return nullptr;
 }

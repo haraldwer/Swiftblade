@@ -8,7 +8,7 @@ namespace Rendering
     class LuminTargets
     {
     public:
-        void Init(const RenderTexture& InTarget, const float InIrrScale, const float InRScale);
+        void Init(const Vec2I& InRes, float InIrrScale, float InRScale);
         void Deinit();
         
         RenderTarget irradianceTarget;

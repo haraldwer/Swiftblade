@@ -172,6 +172,7 @@ float Rendering::AnimationResource::Read(AnimationData::Curves& InCurves, const 
             const Vec2F h1 = to.handle_left;
             return Utility::Math::InterpBezier(frame, k0, h0, h1, k1);
         }
+        default: break;
     }
     
     return from.value;

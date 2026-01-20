@@ -2,28 +2,75 @@
 
 #include "Lights/Lights.h"
 #include "Lumin/Lumin.h"
-#include "RayRenderUtility.h"
+#include "Rendering/Utility.h"
 #include "Scene/Scene.h"
 #include "State/Command.h"
 #include "State/State.h"
 
-void Rendering::LuminRenderer::SetLuminValues(const RenderArgs& InArgs, ShaderResource& InShader)
+int Rendering::LuminRenderer::DrawChunks(const RenderArgs &InArgs, const ResShader& InShader, RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers, const LuminData& InData)
 {
-    CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
-    Lumin &lumin = *InArgs.luminPtr;
-    auto data = lumin.GetFrameData(InArgs);
+    ShaderResource* shaderRes = InShader.Get();
+    CHECK_RETURN_LOG(!shaderRes, "Failed to get shader resource", 0);
+    const Shader* shader = shaderRes->GetProgram();
+    CHECK_RETURN_LOG(!shader, "Failed to get shader", 0);
     
-    // Set layer data
-    SetValue(InShader, "CellSize", &data.cellSize, SHADER_UNIFORM_FLOAT, 1);
-    SetValue(InShader, "ChunkSize", &data.chunkSize, SHADER_UNIFORM_FLOAT, 1);
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.size = InTarget.Size();
+    frameCmd.clearTarget = true;
+    rlState::current.Set(frameCmd);
+
+    ShaderCommand shaderCmd;
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    rlState::current.Set(shaderCmd);
+    
+    SetFrame(InArgs, *shaderRes);
+    SetValue(*shaderRes, "CellSize", &InData.cellSize, SHADER_UNIFORM_VEC3, 1);
+    SetValue(*shaderRes, "ChunkSize", &InData.chunkSize, SHADER_UNIFORM_VEC3, 1);
+    
+    int texSlot = 0;
+    for (auto& b : InBuffers)
+        if (b) b->Bind(*shaderRes, texSlot);
+    
+    for (auto& chunk : InData.visibleChunks)
+    {
+        // Set chunk specific data
+        int chunkTexSlot = texSlot;
+        SetValue(*shaderRes, "ChunkPosition", &chunk.position, SHADER_UNIFORM_VEC3);
+        chunk.targets03->Bind(*shaderRes, chunkTexSlot);
+        chunk.targets48->Bind(*shaderRes, chunkTexSlot);
+        
+        for (auto& persp : InArgs.perspectives)
+        {
+            PerspectiveCommand perspCmd;
+            perspCmd.rect = persp.targetRect;
+            rlState::current.Set(perspCmd);
+            SetPerspective(InArgs, persp, InTarget, *shaderRes);
+            DrawQuad();
+        }
+    }
+    
+    return InData.visibleChunks.size() * InArgs.perspectives.size();
 }
 
-void Rendering::LuminRenderer::ApplyLumin(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
+int Rendering::LuminRenderer::DrawLumin(const RenderArgs& InArgs, LuminTargets& InTarget, const Vector<RenderTarget*>& InBuffers)
 {
-    // Bind textures
-    BindBRDF(InArgs, InShader, InOutSlot);
+    CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
+    auto& lumin = *InArgs.luminPtr;
+    LuminConfig& conf = lumin.config;
+    CHECK_RETURN(!conf.Enabled, {})
     
-    // Bind lumin texture from frame targets
+    auto luminData = lumin.GetFrameData(InArgs);
+    int passes = 0;
+    passes += DrawChunks(InArgs, conf.RadianceShader, InTarget.radianceTarget, InBuffers, luminData);
+    passes += DrawChunks(InArgs, conf.IrradianceShader, InTarget.irradianceTarget, InBuffers, luminData);
+    
+    // Lumin has now been collected in those two shaders
+    // Do some fancy blending?
+    // And then, ofc, upscale!
+    
+    return passes;
 }
 
 void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource& InShader, int& InOutSlot)
@@ -31,6 +78,48 @@ void Rendering::LuminRenderer::BindBRDF(const RenderArgs& InArgs, ShaderResource
     CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
     if (auto brdf = InArgs.luminPtr->config.TexBRDF.Get().Get())
         brdf->Get().Bind(InShader, InOutSlot, RL_TEXTURE_FILTER_LINEAR);
+}
+
+int Rendering::LuminRenderer::CollectSHCoefficients(const RenderArgs& InArgs, RenderTarget& InTarget, int InStartCoeff, int InEndCoeff, const Vector<RenderTarget*>& InBuffers)
+{
+    CHECK_ASSERT(!InArgs.luminPtr, "Invalid luminptr");
+    auto& lumin = *InArgs.luminPtr;
+    
+    LuminConfig& conf = lumin.config;
+    CHECK_RETURN(!conf.Enabled, {})
+    ShaderResource* shaderRes = conf.CollectShader.Get().Get();
+    CHECK_RETURN_LOG(!shaderRes, "Failed to get shader resource", 0);
+    const Shader* shader = shaderRes->GetProgram();
+    CHECK_RETURN_LOG(!shader, "Failed to get shader", 0);
+    
+    FrameCommand frameCmd;
+    frameCmd.fboID = InTarget.GetFBO();
+    frameCmd.size = InTarget.Size();
+    frameCmd.clearTarget = false;
+    rlState::current.Set(frameCmd);
+
+    ShaderCommand shaderCmd;
+    shaderCmd.locs = shader->locs;
+    shaderCmd.id = shader->id;
+    rlState::current.Set(shaderCmd);
+        
+    SetFrame(InArgs, *shaderRes);
+    SetValue(*shaderRes, "CoeffStart", &InStartCoeff, SHADER_UNIFORM_INT, 1 );
+    SetValue(*shaderRes, "CoeffEnd", &InEndCoeff, SHADER_UNIFORM_INT, 1 );
+        
+    int texSlot = 0;
+    for (auto& b : InBuffers)
+        if (b) b->Bind(*shaderRes, texSlot);
+    
+    for (auto& persp : InArgs.perspectives)
+    {
+        PerspectiveCommand perspCmd;
+        perspCmd.rect = persp.targetRect;
+        rlState::current.Set(perspCmd);
+        SetPerspective(InArgs, persp, InTarget, *shaderRes);
+        DrawQuad();
+    }
+    return InArgs.perspectives.size();
 }
 
 int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)
@@ -47,7 +136,7 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     const auto& debugRes = conf.DebugShader;
     ShaderResource* shaderRes = debugRes.Get().Get();
     CHECK_RETURN(!shaderRes, 0);
-    const Shader* shader = shaderRes->Get();
+    const Shader* shader = shaderRes->GetProgram();
     CHECK_RETURN(!shader, 0);
 
     auto model = conf.SphereModel.Get().Get();
@@ -71,17 +160,20 @@ int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, con
     SetFrame(InArgs, *shaderRes);
     
     int texSlot = 0;
-    SetLuminValues(InArgs, *shaderRes);
     for (auto& b : InBuffers)
         if (b) b->Bind(*shaderRes, texSlot);
 
     int chunkTexSlot = texSlot;
     auto luminData = lumin.GetFrameData(InArgs);
+    SetValue(*shaderRes, "CellSize", &luminData.cellSize, UniformType::FLOAT);
+    SetValue(*shaderRes, "ChunkSize", &luminData.chunkSize, UniformType::FLOAT);
+    
     Vector<Mat4F> probes = lumin.GetDebugProbes();
     for (auto& chunk : luminData.visibleChunks)
     {
-        SetValue(*shaderRes, "ChunkPosition", &chunk.position, SHADER_UNIFORM_VEC3);
-        chunk.target->Bind(*shaderRes, chunkTexSlot);
+        SetValue(*shaderRes, "ChunkPosition", &chunk.position, UniformType::FLOAT);
+        chunk.targets03->Bind(*shaderRes, chunkTexSlot);
+        chunk.targets48->Bind(*shaderRes, chunkTexSlot);
         
         // Draw one chunk per call
         MeshCommand cmd;

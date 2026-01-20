@@ -1,6 +1,5 @@
 #include "Model.h"
 
-#include "raylib.h"
 #include "ImGui/ImPlot3D/implot3d.h"
 
 Mesh CombineModelMeshes(const Model& model)

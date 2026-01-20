@@ -73,13 +73,13 @@ void SysMesh::SystemFrame()
     diff.Begin();
 }
 
-void SysMesh::Deinit(EntityID InID, Mesh &InComponent)
+void SysMesh::Deinit(const EntityID InID, Mesh &InComponent)
 {
     // Include in diff
     if (InComponent.hashCache != 0)
     {
         diff.Modify(InComponent.hashCache);
-        ComponentID id = Translate(InID);
+        const ComponentID id = Translate(InID);
         hashToComponent.at(InComponent.hashCache).erase(id);
     }
     

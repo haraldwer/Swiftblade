@@ -1,3 +1,4 @@
+#include "Shaders/Utility/Utility.si"
 
 // Atlas cube sampling
 vec3 GetFlatCubeUV(vec3 InDir)
@@ -63,6 +64,31 @@ vec4 SampleCubeAtlas(sampler2D InAtlas, vec2 InFaceTexel, vec4 InRect, vec3 InDi
 vec4 SampleCubeAtlasMip(sampler2D InAtlas, vec2 InFaceTexel, vec4 InRect, vec3 InDir, int InMip)
 {
     return texture(InAtlas, GetCubeAtlasUV(InFaceTexel, InRect, InDir));
+}
+
+// Cubemap -> Direction
+vec3 CubemapUVToDir(int face, vec2 uv)
+{
+    vec3 dir;
+
+    // uv is assumed to be in [-1, 1]
+    float u = uv.x;
+    float v = uv.y;
+
+    if (face == 0)        // +X
+    dir = vec3( 1.0, -v, -u);
+    else if (face == 1)   // -X
+    dir = vec3(-1.0, -v,  u);
+    else if (face == 2)   // +Y
+    dir = vec3( u,  1.0,  v);
+    else if (face == 3)   // -Y
+    dir = vec3( u, -1.0, -v);
+    else if (face == 4)   // +Z
+    dir = vec3( u, -v,  1.0);
+    else                  // face == 5, -Z
+    dir = vec3(-u, -v, -1.0);
+
+    return Normalize(dir);
 }
 
 // Spheres and octahedrons

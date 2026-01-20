@@ -1,0 +1,115 @@
+#include "Shaders/PBR/SH_SphericalHarmonics.si"
+
+uniform sampler3D TexSH0;
+uniform sampler3D TexSH1;
+uniform sampler3D TexSH2;
+uniform sampler3D TexSH3;
+uniform sampler3D TexSH4;
+uniform sampler3D TexSH5;
+uniform sampler3D TexSH6;
+uniform sampler3D TexSH7;
+uniform sampler3D TexSH8;
+
+uniform vec3 CellSize;
+uniform vec3 ChunkSize;
+uniform vec3 ChunkPosition;
+
+// Sample radiance + irradiance + depth
+void SampleSH(vec3 InNormal, vec4 InCoeff[9], out vec3 OutRadiance, out vec3 OutIrradiance, out float OutDepth)
+{
+    float basis[9];
+    EvalSHBasis(InNormal, basis);
+
+    float y0 = basis[0];
+    vec3 shrgb0 = InCoeff[0].rgb;
+    float sha0 = InCoeff[0].a;
+    OutRadiance = shrgb0 * y0;
+    OutDepth = sha0 * y0;
+    OutIrradiance = shrgb0 * PI;
+
+    float scaleL1 = 2.0 * PI / 3.0;
+    for (int i = 1; i <= 3; ++i)
+    {
+        float yi = basis[i];
+        vec3 shrgb = InCoeff[i].rgb;
+        float sha = InCoeff[i].a;
+
+        OutRadiance += shrgb * yi;
+        OutDepth += sha * yi;
+        OutIrradiance += shrgb * yi * scaleL1;
+    }
+
+    float scaleL2 = PI / 4.0;
+    for (int i = 4; i <= 8; ++i)
+    {
+        float yi = basis[i];
+        vec3 shrgb = InCoeff[i].rgb;
+        float sha = InCoeff[i].a;
+
+        OutRadiance += shrgb * yi;
+        OutDepth += sha * yi;
+        OutIrradiance += shrgb * yi * scaleL2;
+    }
+}
+
+float GetSampleCoeffs(vec3 InWorldPos, out vec4 OutCoeffs[9])
+{
+    vec3 chunkRelativePos = InWorldPos - ChunkPosition;
+    vec3 chunkPos = chunkRelativePos / ChunkSize; // Make x,y,z => 0-1
+    OutCoeffs[0] = texture(TexSH0, chunkPos);
+    OutCoeffs[1] = texture(TexSH1, chunkPos);
+    OutCoeffs[2] = texture(TexSH2, chunkPos);
+    OutCoeffs[3] = texture(TexSH3, chunkPos);
+    OutCoeffs[4] = texture(TexSH4, chunkPos);
+    OutCoeffs[5] = texture(TexSH5, chunkPos);
+    OutCoeffs[6] = texture(TexSH6, chunkPos);
+    OutCoeffs[7] = texture(TexSH7, chunkPos);
+    OutCoeffs[8] = texture(TexSH8, chunkPos);
+
+    vec3 cellPos = chunkPos * CellSize;
+    // TODO: Use cellpos to calculate weight
+    return 1.0f;
+}
+
+vec3 SampleSHRadiance(vec3 dir, vec4 coeffs[9])
+{
+    float basis[9];
+    EvalSHBasis(dir, basis);
+    vec3 radiance = vec3(0.0);
+    for (int i = 0; i < 9; ++i)
+    radiance += coeffs[i].rgb * basis[i];
+    return radiance;
+}
+
+vec3 SampleSHIrradiance(vec3 normal, vec4 coeffs[9])
+{
+    float basis[9];
+    EvalSHBasis(normal, basis);
+    vec3 irradiance = vec3(0.0);
+
+    // L0
+    irradiance += coeffs[0].rgb * basis[0] * PI;
+
+    // L1
+    float scaleL1 = 2.0 * PI / 3.0;
+    for (int i = 1; i <= 3; ++i)
+    irradiance += coeffs[i].rgb * basis[i] * scaleL1;
+
+    // L2
+    float scaleL2 = PI / 4.0;
+    for (int i = 4; i <= 8; ++i)
+    irradiance += coeffs[i].rgb * basis[i] * scaleL2;
+
+    return irradiance;
+}
+
+float SampleSHDepth(vec3 dir, vec4 coeffs[9])
+{
+    float basis[9];
+    EvalSHBasis(dir, basis);
+    float depth = 0.0;
+    for (int i = 0; i < 9; ++i)
+    depth += coeffs[i].a * basis[i];
+    return depth;
+}
+

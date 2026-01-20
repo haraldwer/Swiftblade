@@ -1,8 +1,6 @@
 #include "ParticlesRenderer.h"
 
 #include "Particles.h"
-#include "raylib.h"
-#include "rlgl.h"
 #include "Context/Context.h"
 #include "Scene/Scene.h"
 #include "Scene/Instances/ParticleInstance.h"
@@ -19,7 +17,7 @@ int Rendering::ParticlesRenderer::Simulate(const RenderArgs& InArgs, SwapTarget&
     // Get sim shader
     ShaderResource* shaderResource = res->data.SimShader.Get().Get();
     CHECK_RETURN(!shaderResource, 0);
-    const Shader* shader = shaderResource->Get();
+    const Shader* shader = shaderResource->GetProgram();
     CHECK_RETURN(!shader, 0);
 
     InTarget.Iterate();
@@ -38,11 +36,11 @@ int Rendering::ParticlesRenderer::Simulate(const RenderArgs& InArgs, SwapTarget&
     
     SetFrame(InArgs, *shaderResource);
     float age = static_cast<float>(InArgs.contextPtr->Time() - InInstance.startTimestamp) / res->data.SystemLifetime.Get();
-    SetValue(*shaderResource, "Age", &age, SHADER_UNIFORM_FLOAT);
+    SetValue(*shaderResource, "Age", &age, UniformType::FLOAT);
     
     int texSlot = 0;
     prev.Bind(*shaderResource, texSlot);
-    res->BakedExpressions.Bind("TexExpr", *shaderResource, texSlot, RL_TEXTURE_FILTER_LINEAR);
+    res->BakedExpressions.Bind("TexExpr", *shaderResource, texSlot, TextureParamValue::LINEAR);
     BindNoiseTextures(InArgs, *shaderResource, texSlot);
     
     PerspectiveCommand perspCmd;
@@ -93,7 +91,7 @@ int Rendering::ParticlesRenderer::DrawParticles(const RenderArgs& InArgs, const 
         CHECK_CONTINUE(!resMat);
         ShaderResource* resShader = resMat->data.SurfaceShader.Get().Get();
         CHECK_CONTINUE(!resShader);
-        Shader* shader = resShader->Get();
+        Shader* shader = resShader->GetProgram();
         CHECK_CONTINUE(!shader);
 
         // Enable shader

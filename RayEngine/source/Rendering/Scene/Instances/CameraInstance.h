@@ -6,9 +6,9 @@ namespace Rendering
     {
         Vec3F position;
         QuatF rotation;
-        float fov;
-        float far;
-        float near;
+        float fov = 90.0f;
+        float far = 50.0f;
+        float near = 0.01f;
 
         Mat4F GetViewMatrix() const
         {

@@ -2,16 +2,15 @@
 
 #include "Context/Context.h"
 #include "Core/Utility/RayUtility.h"
+#include "Interface/Meshes.h"
 #include "Lights/Lights.h"
-#include "Lumin/Lumin.h"
-#include "RayRenderUtility.h"
 #include "Scene/Scene.h"
 #include "State/Command.h"
 #include "State/State.h"
 #include "Viewport/Viewport.h"
 #include "Resources/BakedTexture.h"
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const int InType, const int InCount)
+void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const void* InValue, const UniformType InType, const int InCount)
 {
     const int loc = InShader.GetLocation(InName);
     CHECK_RETURN(loc < 0);
@@ -23,19 +22,7 @@ void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InNam
     rlState::current.Set(cmd);
 }
 
-void Rendering::Renderer::SetValue(ShaderResource& InShader, const String& InName, const Mat4F& InValue)
-{
-    const int loc = InShader.GetLocation(InName);
-    CHECK_RETURN(loc < 0);
-    const Matrix m = Utility::Ray::ConvertMat(InValue);
-    UniformCommand cmd;
-    cmd.loc = loc;
-    cmd.ptr = &m;
-    cmd.mat = true;
-    rlState::current.Set(cmd);
-}
-
-void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, const int InType, const int InCount)
+void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const void* InValue, const UniformType InType, const int InCount)
 {
     const int loc = InShader.GetLocation(InLoc);
     CHECK_RETURN(loc < 0);
@@ -44,18 +31,6 @@ void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderR
     cmd.ptr = InValue;
     cmd.type = InType;
     cmd.count = InCount;
-    rlState::current.Set(cmd);
-}
-
-void Rendering::Renderer::SetValue(const ShaderResource& InShader, const ShaderResource::DefaultLoc& InLoc, const Mat4F& InValue)
-{
-    const int loc = InShader.GetLocation(InLoc);
-    CHECK_RETURN(loc < 0);
-    const Matrix m = Utility::Ray::ConvertMat(InValue);
-    UniformCommand cmd;
-    cmd.loc = loc;
-    cmd.ptr = &m;
-    cmd.mat = true;
     rlState::current.Set(cmd);
 }
 
@@ -65,16 +40,16 @@ void Rendering::Renderer::SetFrame(const RenderArgs& InArgs, ShaderResource& InS
 
     const auto& viewport = *InArgs.viewportPtr;
     auto& context = *InArgs.contextPtr;
-    const auto ptr = InShader.Get();
+    const auto ptr = InShader.GetProgram();
     CHECK_RETURN(!ptr);
     
     // Time
     const float time = static_cast<float>(context.timer.Ellapsed()); 
-    SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, ShaderResource::DefaultLoc::TIME, &time, UniformType::FLOAT);
     const float delta = static_cast<float>(viewport.delta); 
-    SetValue(InShader, ShaderResource::DefaultLoc::DELTA, &delta, SHADER_UNIFORM_FLOAT);
+    SetValue(InShader, ShaderResource::DefaultLoc::DELTA, &delta, UniformType::FLOAT);
     const Vec2F res = viewport.GetResolution().To<float>();
-    SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &res, SHADER_UNIFORM_VEC2);
+    SetValue(InShader, ShaderResource::DefaultLoc::RESOLUTION, &res, UniformType::VEC2);
 }
 
 void Rendering::Renderer::SetPerspective(const RenderArgs& InArgs, const Perspective& InPerspective, const RenderTarget& InTarget, ShaderResource& InShader)
@@ -84,11 +59,9 @@ void Rendering::Renderer::SetPerspective(const RenderArgs& InArgs, const Perspec
     CHECK_ASSERT(!InArgs.viewportPtr, "Invalid viewport");
     
     auto& viewport = *InArgs.viewportPtr;
-    auto ptr = InShader.Get();
+    auto ptr = InShader.GetProgram();
     CHECK_RETURN(!ptr);
     
-    InTarget.Attach(InPerspective.layerFace);
-
     const Vec2F res = InTarget.Size().To<float>();
     Vec4F refRect = {
         InPerspective.referenceRect.x,
@@ -109,18 +82,19 @@ void Rendering::Renderer::SetPerspective(const RenderArgs& InArgs, const Perspec
     Mat4F view = InPerspective.camera.GetViewMatrix();
     Mat4F proj = InPerspective.camera.GetProjectionMatrix(size);
     viewport.viewProj = Mat4F::GetInverse(view) * proj;
+    Mat4F inv = Mat4F::GetInverse(viewport.viewProj);
     
-    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ, Mat4F::Transpose(viewport.viewProj));
-    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_PREV, Mat4F::Transpose(viewport.viewProjPrev));
-    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_INV, Mat4F::Transpose(Mat4F::GetInverse(viewport.viewProj)));
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ, &viewport.viewProj, UniformType::MAT_4X4);
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_PREV, &viewport.viewProjPrev , UniformType::MAT_4X4);
+    SetValue(InShader, ShaderResource::DefaultLoc::VIEW_PROJ_INV, &inv, UniformType::MAT_4X4);
     
-    SetValue(InShader, ShaderResource::DefaultLoc::RECT, &rect, SHADER_UNIFORM_VEC4);
-    SetValue(InShader, ShaderResource::DefaultLoc::REF_RECT, &refRect, SHADER_UNIFORM_VEC4);
+    SetValue(InShader, ShaderResource::DefaultLoc::RECT, &rect, UniformType::VEC4);
+    SetValue(InShader, ShaderResource::DefaultLoc::REF_RECT, &refRect, UniformType::VEC4);
 
     // Camera and view
-    SetValue(InShader, ShaderResource::DefaultLoc::CAMERA_POSITION, &InPerspective.camera.position, SHADER_UNIFORM_VEC3);
+    SetValue(InShader, ShaderResource::DefaultLoc::CAMERA_POSITION, &InPerspective.camera.position, UniformType::VEC3);
     Vec2F nearFar = { InPerspective.camera.near, InPerspective.camera.far };
-    SetValue(InShader, ShaderResource::DefaultLoc::NEAR_FAR, &nearFar, SHADER_UNIFORM_VEC2);
+    SetValue(InShader, ShaderResource::DefaultLoc::NEAR_FAR, &nearFar, UniformType::VEC2);
 }
 
 void Rendering::Renderer::SetCustomShaderValues(ShaderResource& InShader)
@@ -148,9 +122,9 @@ void Rendering::Renderer::BindNoiseTextures(const RenderArgs& InArgs, ShaderReso
         InOutSlot++;
         TextureCommand cmd;
         cmd.shaderLoc = loc;
-        cmd.id = tex->id;
-        cmd.filter = RL_TEXTURE_FILTER_LINEAR;
-        cmd.wrap = RL_TEXTURE_WRAP_REPEAT;
+        cmd.id = tex;
+        cmd.filter = TextureParamValue::LINEAR;
+        cmd.wrap = TextureParamValue::REPEAT;
         rlState::current.Set(cmd, InOutSlot);
     }
 }
@@ -159,16 +133,15 @@ void Rendering::Renderer::DrawQuad()
 {
     PROFILE_GL_GPU("Draw quad");
     rlState::current.ResetMesh();
-    rlLoadDrawQuad();
+    RHI::DrawQuad();
+    
 }
 
-int Rendering::Renderer::DrawInstances(const Mesh& InMesh, int InCount)
+int Rendering::Renderer::DrawInstances(const Mesh& InMesh, const int InCount)
 {
     PROFILE_GL_GPU("Draw instances");
-    if (InMesh.indices != nullptr)
-        rlDrawVertexArrayElementsInstanced(0, InMesh.triangleCount * 3, nullptr, InCount);
-    else
-        rlDrawVertexArrayInstanced(0, InMesh.vertexCount, InCount);
+    if (InMesh.indices != nullptr) RHI::DrawElementsInstanced(InMesh.triangleCount, InCount);
+    else RHI::DrawElementsInstanced(InMesh.vertexCount, InCount);
     return InCount;
 }
 
@@ -178,7 +151,7 @@ void Rendering::Renderer::DrawFullscreen(const RenderArgs& InArgs, const RenderT
     
     ShaderResource* shaderResource = InShader.Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource");
-    const Shader* shader = shaderResource->Get();
+    const Shader* shader = shaderResource->GetProgram();
     CHECK_RETURN_LOG(!shader, "Failed to get shader");
 
     FrameCommand frameCmd;
@@ -225,7 +198,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
     
     ShaderResource* downRes = fx.BloomDownsampleShader.Get().Get();
     CHECK_RETURN_LOG(!downRes, "Failed to find shader resource");
-    const Shader* downShader = downRes->Get();
+    const Shader* downShader = downRes->GetProgram();
     CHECK_RETURN_LOG(!downShader, "Failed to get shader");
     
     // Downsample
@@ -248,7 +221,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
         SetFrame(InArgs, *downRes);
         
         Vec2F size = Vec2F(1.0f) / target.Size().To<float>();
-        SetValue(*downRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
+        SetValue(*downRes, "SamplePixelSize", &size, UniformType::VEC2);
         
         int texSlot = 0;
         prev.Bind(*downRes, texSlot);
@@ -267,7 +240,7 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
     {
         ShaderResource* upRes = fx.BloomUpsampleShader.Get().Get();
         CHECK_RETURN_LOG(!upRes, "Failed to find shader resource");
-        const Shader* upShader = upRes->Get();
+        const Shader* upShader = upRes->GetProgram();
         CHECK_RETURN_LOG(!upShader, "Failed to get shader");
         
         for (int i = static_cast<int>(bloomArr.size()) - 1; i >= 0; i--)
@@ -284,16 +257,16 @@ void Rendering::Renderer::DrawBloom(const RenderArgs &InArgs, SwapTarget &InBloo
             ShaderCommand upShaderCmd;
             upShaderCmd.locs = upShader->locs;
             upShaderCmd.id = upShader->id;
-            upShaderCmd.blendMode = RL_BLEND_ADDITIVE;
+            upShaderCmd.blendMode = BlendMode::ADDITIVE;
             rlState::current.Set(upShaderCmd);
 
             SetFrame(InArgs, *upRes);
             
             Vec2F size = Vec2F(1.0f) / prev.Size().To<float>();
-            SetValue(*upRes, "SamplePixelSize", &size, SHADER_UNIFORM_VEC2);
+            SetValue(*upRes, "SamplePixelSize", &size, UniformType::VEC2);
 
             float layerStrength = fx.BloomStrength.Get() / (static_cast<int>(bloomArr.size()) - i);
-            SetValue(*upRes, "LayerStrength", &layerStrength, SHADER_UNIFORM_FLOAT);
+            SetValue(*upRes, "LayerStrength", &layerStrength, UniformType::FLOAT);
                         
             int texSlot = 0;
             prev.Bind(*upRes, texSlot);
@@ -442,7 +415,7 @@ bool Rendering::Renderer::Bake(const BakedTexture& InTex)
 {
     ShaderResource* shaderResource = InTex.data.Shader.Get().Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to find shader resource", false);
-    const Shader* shader = shaderResource->Get();
+    const Shader* shader = shaderResource->GetProgram();
     CHECK_RETURN_LOG(!shader, "Failed to get shader", false);
 
     FrameCommand frameCmd;
@@ -453,11 +426,10 @@ bool Rendering::Renderer::Bake(const BakedTexture& InTex)
     ShaderCommand shaderCmd;
     shaderCmd.locs = shader->locs;
     shaderCmd.id = shader->id;
-    shaderCmd.blendMode = -1;
     rlState::current.Set(shaderCmd);
 
     Vec4F rect = Vec4F(0, 0, 1, 1);
-    SetValue(*shaderResource, ShaderResource::DefaultLoc::RECT, &rect, SHADER_UNIFORM_VEC4);
+    SetValue(*shaderResource, ShaderResource::DefaultLoc::RECT, &rect, UniformType::VEC4);
     
     DrawQuad();
     

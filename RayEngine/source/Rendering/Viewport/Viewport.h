@@ -19,8 +19,7 @@ namespace Rendering
         void Resize(const Vec2I& InSize);
         void BeginFrame();
 
-        RenderTexture GetVirtualTarget() const;
-        Texture* GetFrameTexture() { return targets.frameTargets.Curr().GetTextures().at(0).tex; }
+        uint32 GetFrameTexture() { return targets.frameTargets.Curr().GetTextures().at(0).texture; }
         FrameTargetCollection& GetTargets() { return targets; }
         
         Vec2I GetResolution() const;
@@ -29,9 +28,9 @@ namespace Rendering
         Vec2F GetPosition() const { return position; }
         void ResetPosition();
 
-        Vec2F ScreenToViewport(const Vec2F& InScreenPos);
-        Vec2F ScreenToViewportAbsolute(const Vec2F& InScreenPos); // 0 - 1
-        Vec2F DistortCoord(const Vec2F& InAbsView);
+        Vec2F ScreenToViewport(const Vec2F& InScreenPos) const;
+        Vec2F ScreenToViewportAbsolute(const Vec2F& InScreenPos) const; // 0 - 1
+        Vec2F DistortCoord(const Vec2F& InAbsView) const;
 
     private:
         ViewportConfig config = {};
@@ -45,6 +44,5 @@ namespace Rendering
         double delta = 0;
 
         FrameTargetCollection targets = {};
-        RenderTexture* virtualTarget = nullptr;
     };
 }

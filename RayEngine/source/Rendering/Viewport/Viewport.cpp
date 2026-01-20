@@ -1,10 +1,8 @@
 #include "Viewport.h"
 
-#include "raylib.h"
-
 void Rendering::Viewport::Init(const ViewportConfig &InConfig, const FXConfig &InFX)
 {
-    if (config == InConfig && fx == InFX && virtualTarget)
+    if (config == InConfig && fx == InFX)
         return;
 
     fx = InFX;
@@ -17,29 +15,13 @@ void Rendering::Viewport::Init(const ViewportConfig &InConfig, const FXConfig &I
     const int virtualHeight = config.RenderSize ?
         config.RenderSize : config.Height;
 
-    if (!virtualTarget)
-        virtualTarget = new RenderTexture();
-    
-    if (virtualTarget->texture.width != virtualWidth ||
-        virtualTarget->texture.height != virtualHeight)
-    {
-        if (IsRenderTextureValid(*virtualTarget))
-            UnloadRenderTexture(*virtualTarget);
-        *virtualTarget = LoadRenderTexture( virtualWidth, virtualHeight);
-    }
-    
-    targets.Init(*virtualTarget, fx);
+    const Vec2I res = { virtualWidth, virtualHeight };
+    targets.Init(res, fx, config.Cubemap);
 }
 
 void Rendering::Viewport::Deinit()
 {
-    if (virtualTarget != nullptr)
-    {
-        if (IsRenderTextureValid(*virtualTarget))
-            UnloadRenderTexture(*virtualTarget);
-        delete (virtualTarget);
-        virtualTarget = nullptr;
-    }
+    targets.Deinit();
 }
 
 void Rendering::Viewport::Resize(const Vec2I& InSize)
@@ -67,23 +49,23 @@ void Rendering::Viewport::ResetPosition()
     position = Vec2F::Zero();
 }
 
-Vec2F Rendering::Viewport::ScreenToViewport(const Vec2F &InScreenPos)
+Vec2F Rendering::Viewport::ScreenToViewport(const Vec2F &InScreenPos) const
 {
     return InScreenPos - GetPosition();
 }
 
-Vec2F Rendering::Viewport::ScreenToViewportAbsolute(const Vec2F &InScreenPos)
+Vec2F Rendering::Viewport::ScreenToViewportAbsolute(const Vec2F &InScreenPos) const
 {
     const Vec2I si = GetSize();
     const Vec2F s = { static_cast<float>(si.x), static_cast<float>(si.y) };
     return ScreenToViewport(InScreenPos) / s;
 }
 
-Vec2F Rendering::Viewport::DistortCoord(const Vec2F &InAbsView)
+Vec2F Rendering::Viewport::DistortCoord(const Vec2F &InAbsView) const
 {
-    const float DISTORT_STRENGTH = 0.2f;
-    const float DISTORT_POW = 4.0f;
-    const float DISTORT_ZOOM = 0.15f;
+    constexpr float DISTORT_STRENGTH = 0.2f;
+    constexpr float DISTORT_POW = 4.0f;
+    constexpr float DISTORT_ZOOM = 0.15f;
     
     const Vec2F size = GetSize().To<float>();
     const float aspect = Utility::Math::Min(size.x, size.y) / Utility::Math::Max(size.x, size.y);
@@ -99,24 +81,12 @@ Vec2F Rendering::Viewport::DistortCoord(const Vec2F &InAbsView)
     return newCoord;
 }
 
-RenderTexture Rendering::Viewport::GetVirtualTarget() const
-{
-    CHECK_ASSERT(!virtualTarget, "Invalid target");
-    return *virtualTarget;
-}
-
 Vec2I Rendering::Viewport::GetResolution() const
 {
-    return {
-        virtualTarget->texture.width,
-        virtualTarget->texture.height
-    };
+    return targets.frameTargets.Curr().Size();
 }
 
 Vec2I Rendering::Viewport::GetSize() const
 {
-    return {
-        config.Width,
-        config.Height
-    };
+    return { config.Width, config.Height };
 }

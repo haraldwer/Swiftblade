@@ -2,9 +2,6 @@
 
 #include "Core/Resource/Resource.h"
 
-// Raylib shader reference
-struct Shader;
-
 namespace Rendering
 {
     class ShaderResource : Resource::Base
@@ -34,8 +31,10 @@ namespace Rendering
 
         bool Load() override;
         bool Unload() override;
-        Utility::Timepoint GetEditTime() const override; 
-        Shader* Get() const;
+        Utility::Timepoint GetEditTime() const override;
+        
+        // TODO: Shader variants?
+        uint32 GetProgram() const;
 
         int GetLocation(const String& InValue);
         int GetLocation(const DefaultLoc& InLoc) const;
@@ -49,7 +48,7 @@ namespace Rendering
         String ProcessDefines(const String& InShaderCode);
         void LoadDefaultLocs();
         
-        Shader* ptr = nullptr;
+        uint32 program;
         Set<String> vsIncludes = {};
         Set<String> fsIncludes = {};
         Vector<String> defines = {};

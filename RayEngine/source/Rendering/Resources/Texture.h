@@ -2,9 +2,6 @@
 
 #include "Core/Resource/Resource.h"
 
-// Raylib model reference
-struct Texture; 
-
 namespace Rendering
 {
     class TextureResource : Resource::Base
@@ -16,12 +13,11 @@ namespace Rendering
         bool Unload() override;
         bool Edit(const String& InName, uint32 InOffset = 0) override;
         Utility::Timepoint GetEditTime() const override;
-        Texture* Get() const { return ptr; }
-
+        uint32 Get() const { return texture; }
         static bool Accept(const String& InPath);
 
     private:
-        Texture* ptr = nullptr;
+        uint32 texture = 0;
     };
 }
 

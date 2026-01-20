@@ -10,14 +10,14 @@ namespace Rendering
     struct LuminConfig : PropertyOwner<LuminConfig>
     {
         // Shaders
-        PROPERTY_D(ResShader, CollectShader, "Shaders/Lumin/SH_LuminCollect.ps")
-        PROPERTY_D(ResShader, LerpShader, "Shaders/Lumin/SH_LuminLerp.ps");
+        PROPERTY_D(ResShader, RadianceShader, "Shaders/Lumin/SH_LuminRadiance.ps")
+        PROPERTY_D(ResShader, IrradianceShader, "Shaders/Lumin/SH_LuminIrradiance.ps")
+        PROPERTY_D(ResShader, CollectShader, "Shaders/Lumin/SH_LuminAccumulate.ps")
         PROPERTY_D(ResBakedTex, TexBRDF, "Defaults/BT_BRDF.json"); // Move to material for custom BRDFs
 
         // SH probe grid
         PROPERTY_D(Vec3F, CellSize, Vec3F(1.0f));
         PROPERTY_D(int, ChunkAxisCells, 32);
-        PROPERTY_D(int, SHResolution, 4096);
         
         // Probe rendering
         PROPERTY(ViewportConfig, Viewport);

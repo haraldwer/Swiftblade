@@ -14,8 +14,9 @@ namespace Rendering
         void DrawViewportPanel();
 
     private:
-        void DrawTex(const Texture& tex);
-        void DrawViewTex(const Texture& tex);
+        static void DrawTex(const Texture& tex);
+        static void DrawViewTex(const Texture& tex);
+        
         Pipeline::Stats stats = {};
         int debugView = 0;
     };

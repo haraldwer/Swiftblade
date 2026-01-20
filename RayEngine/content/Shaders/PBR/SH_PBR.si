@@ -6,13 +6,16 @@
 // From LearnOpenGL
 // https://learnopengl.com/PBR/Lighting
 
-vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
+vec3 PBR(vec2 InCoord, vec3 InWorldPos, vec3 InAlbedo)
 {
-    float metallic = InSurface.r;
-    float roughness = InSurface.g;
-    float ao = InSurface.b;
+    vec3 worldNormal = SampleNormal(InCoord);
+    vec3 surface = SampleSurface(InCoord);
     
-    vec3 N = InNormal;
+    float metallic = surface.r;
+    float roughness = surface.g;
+    float ao = surface.b;
+    
+    vec3 N = worldNormal;
     vec3 V = Normalize(CameraPosition - InWorldPos);
     vec3 R = reflect(-V, N);
     
@@ -25,15 +28,14 @@ vec3 PBR(vec3 InWorldPos, vec3 InNormal, vec3 InAlbedo, vec3 InSurface)
     kD *= 1.0f - metallic;
     
     // Irradiance -> Diffuse
-    vec3 irradiance = SampleIrradiance(InWorldPos, InNormal).rgb;
+    vec3 irradiance = SampleIrradiance(InCoord).rgb;
     vec3 diffuse    = irradiance * InAlbedo;
 
     // Radiance + BRDF -> Specular
-    vec3 radiance = SampleRadiance(probe, InNormal, R, roughness).rgb;
+    vec3 radiance = SampleRadiance(InCoord).rgb;
     vec2 envBRDF  = SampleBRDF(N, V, roughness);
     vec3 specular = radiance * (F * envBRDF.x + envBRDF.y);
 
     // Add diffuse and specular
-    // TODO: Break into lower res
     return (kD * diffuse + specular) * ao;
 }

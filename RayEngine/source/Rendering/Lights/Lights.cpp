@@ -1,6 +1,6 @@
 #include "Lights.h"
 
-#include "RayRenderUtility.h"
+#include "Rendering/Utility.h"
 #include "Context/Context.h"
 #include "Pipeline/Renderer.h"
 #include "Scene/Scene.h"
@@ -56,7 +56,7 @@ Rendering::Pipeline::Stats Rendering::Lights::Update(const RenderArgs& InArgs)
     
     CHECK_RETURN(timeSortedCache.empty(), {});
 
-    Array<QuatF, 6> directions = RaylibRenderUtility::GetCubemapRotations();
+    Array<QuatF, 6> directions = GetCubemapRotations();
     RenderArgs args = {
         .scenePtr = InArgs.scenePtr,
         .contextPtr = InArgs.contextPtr,

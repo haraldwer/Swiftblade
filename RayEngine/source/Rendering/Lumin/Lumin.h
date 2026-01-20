@@ -26,15 +26,19 @@ namespace Rendering
         void Deinit();
 
         Pipeline::Stats Update(const RenderArgs& InArgs);
-        LuminData GetFrameData(const RenderArgs& InArgs);
+        LuminData GetFrameData(const RenderArgs &InArgs) const;
         Vector<Mat4F> GetDebugProbes();
 
+        Vector<RenderTarget*> GetTargets();
+
     private:
+
         Pipeline::Stats UpdateProbes(const RenderArgs& InArgs);
         
         Array<Vec3F, 9> GetCullPoints(const Vec3F &InPos) const;
         static void GetFrustum(const RenderArgs& InArgs, Frustum& OutFrustum, Vec3F& OutMin, Vec3F& OutMax);
         RenderArgs GetCubemapArgs(const RenderArgs& InArgs, const Vec3F& InProbePos);
+        RenderArgs GetSHArgs(const RenderArgs& InArgs, const Vec3F& InCell, const LuminCoord& InCoord);
         
         LuminConfig config = {};
         Context context = {};

@@ -8,7 +8,7 @@ namespace Rendering
 
     struct FrameTargetCollection
     {
-        void Init(const RenderTexture& InTarget, const FXConfig& InFX, bool InCubemap = false);
+        void Init(const Vec2I& InRes, const FXConfig& InFX, bool InCubemap = false);
         void Deinit();
 
         OrderedMap<String, Vector<RenderTarget::TargetTex>> GetNamed();
@@ -21,5 +21,6 @@ namespace Rendering
         SwapTarget aoTargets = {};
         SwapTarget bloomTargets = {};
         LuminTargets luminTargets = {};
+        uint32 depthTex = 0; 
     };
 }

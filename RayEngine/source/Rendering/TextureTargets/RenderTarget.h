@@ -1,18 +1,9 @@
 ﻿#pragma once
-
-struct RenderTexture;
-struct Texture;
+#include "Interface/Types.h"
 
 namespace Rendering
 {
     class ShaderResource;
-    
-    enum class TexType
-    {
-        TEX,
-        TEX_3D,
-        CUBEMAP,
-    };
     
     class RenderTarget
     {
@@ -20,24 +11,26 @@ namespace Rendering
         
         struct TargetTex
         {
-            Texture* tex = {};
             String name = {}; 
-            TexType type;
-            int defaultFilter = -1;
+            uint32 texture;
+            Vector<uint32> views;
+            Vec3I size;
             Vec3I scaledSize;
+            TextureParamValue defaultFilter = TextureParamValue::NONE;
+            int layerFace = -1;
         };
         
-        bool Setup(const Vec3I& InRes, const String& InName, uint8 InFormat, int InDefaultFilter = -1, TexType InType = TexType::TEX);
-        bool TryBeginSetup(const Vec3I& InRes);
+        bool Setup(const Vec3I& InRes, const String& InName, TextureFormat InFormat = TextureFormat::RGBA16, TextureParamValue InDefaultFilter = TextureParamValue::NONE, TextureType InType = TextureType::TEXTURE);
+        bool TryBeginSetup(const Vec3I& InRes, TextureType InType = TextureType::TEXTURE);
         
-        void CreateBuffer(const String& InName, uint8 InPixelFormat, float InResScale = 1.0f, int InDefaultFilter = -1, int InMips = 1, TexType InType = TexType::TEX);
-        void AttachDepth(const RenderTexture& InTarget) const;
-        void EndSetup() const;
+        void CreateBuffer(const String& InName, TextureFormat InFormat = TextureFormat::RGBA16, float InResScale = 1.0f, TextureParamValue InDefaultFilter = TextureParamValue::NONE, int InMips = 1);
+        void AttachDepth(const uint32& InTarget) const;
+        void EndSetup();
         
         void Unload();
         
-        void Attach(int InLayerFace) const;
-        void Bind(ShaderResource& InShader, int& InOutSlot, int InFilter = -1, const String& InPostfix = "") const;
+        void Attach(int InLayerFace);
+        void Bind(ShaderResource& InShader, int& InOutSlot, TextureParamValue InFilter = TextureParamValue::NONE, int InLayerFace = -1, const String& InPostfix = "") const;
         
         const Vector<TargetTex>& GetTextures() const { return textures; }
         int NumTextures() const { return static_cast<int>(textures.size()); }
@@ -47,6 +40,7 @@ namespace Rendering
 
     private: 
         
+        TextureType type = TextureType::TEXTURE;
         uint32 frameBuffer = 0;
         Vector<TargetTex> textures = {};
         Vec3I size;

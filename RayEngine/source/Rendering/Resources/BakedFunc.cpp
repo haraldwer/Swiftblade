@@ -1,14 +1,14 @@
 #include "BakedFunc.h"
 
-#include "raylib.h"
 #include "Shader.h"
+#include "Interface/Textures.h"
 #include "State/State.h"
 
 void Rendering::BakedFunc::Bake(const Vec2I& InResolution, const std::function<Vec4F(const Vec2F&, const Vec2I&)>& InEvalFunc)
 {
     CHECK_RETURN_LOG(!Unload(), "Failed to unload previous func");
     
-    // Evaulate each coordinate
+    // Evaluate each coordinate
     // Maybe split workload using threads?
     
     int size = InResolution.x * InResolution.y;
@@ -37,18 +37,18 @@ void Rendering::BakedFunc::Bake(const Vec2I& InResolution, const std::function<V
         .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
     };
 
-    tex = new Texture();
-    CHECK_ASSERT(!tex, "Invalid tex");
+    texture = RHI::LoadTexture(pixels, InResolution)
+    
     *tex = LoadTextureFromImage(image);
     UnloadImage(image);         // Unload CPU (RAM) image data (pixels)
 }
 
 
-void Rendering::BakedFunc::Bind(const String& InName, ShaderResource& InShader, int& InOutSlot, int InFilter) const
+void Rendering::BakedFunc::Bind(const String &InName, ShaderResource &InShader, int &InOutSlot, TextureParamValue InFilter) const
 {
     CHECK_RETURN(!baked);
     
-    CHECK_ASSERT(!tex, "Tex nullptr");
+    CHECK_ASSERT(!texture, "Tex nullptr");
     
     const int loc = InShader.GetLocation(InName);
     CHECK_RETURN(loc < 0);
@@ -56,7 +56,7 @@ void Rendering::BakedFunc::Bind(const String& InName, ShaderResource& InShader, 
     InOutSlot++;
     TextureCommand cmd;
     cmd.shaderLoc = loc;
-    cmd.id = tex->id;
+    cmd.id = texture;
     cmd.filter = InFilter;
     rlState::current.Set(cmd, InOutSlot);
 }
@@ -64,11 +64,10 @@ void Rendering::BakedFunc::Bind(const String& InName, ShaderResource& InShader, 
 bool Rendering::BakedFunc::Unload()
 {
     baked = false;
-    if (tex)
+    if (texture != 0)
     {
-        UnloadTexture(*tex);
-        delete tex;
-        tex = nullptr;
+        RHI::DestroyTexture(texture);
+        texture = 0;
     }
     return true;
 }

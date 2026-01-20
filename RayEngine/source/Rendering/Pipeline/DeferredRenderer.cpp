@@ -3,8 +3,7 @@
 #include "Lumin/LuminRenderer.h"
 #include "Context/Context.h"
 #include "Lights/Lights.h"
-#include "Lumin/Lumin.h"
-#include "RayRenderUtility.h"
+#include "Rendering/Utility.h"
 #include "Scene/Scene.h"
 #include "State/Command.h"
 #include "State/State.h"
@@ -34,7 +33,7 @@ int Rendering::DeferredRenderer::DrawSkyboxes(const RenderArgs& InArgs, const Re
         CHECK_CONTINUE(!rm);
         ShaderResource* shaderResource = rm->data.SurfaceShader.Get().Get();
         CHECK_CONTINUE(!shaderResource);
-        const Shader* shader = shaderResource->Get();
+        const Shader* shader = shaderResource->GetProgram();
         CHECK_CONTINUE(!shader);
 
         ShaderCommand shaderCmd;
@@ -108,7 +107,7 @@ Map<uint64, int> Rendering::DeferredRenderer::DrawScene(const RenderArgs& InArgs
             CHECK_CONTINUE(!resMat);
             ShaderResource* resShader = resMat->data.SurfaceShader.Get().Get();
             CHECK_CONTINUE(!resShader);
-            Shader* shader = resShader->Get();
+            Shader* shader = resShader->GetProgram();
             CHECK_CONTINUE(!shader);
 
             // Enable shader
@@ -176,6 +175,7 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
     Map<uint32, ResShader> passes = scene.meshes.GetDeferredShaders();
 
     // Inject skybox
+    // TODO: Multiple skyboxes?
     for (auto& environment : InArgs.scenePtr->environments)
     {
         MaterialResource* rm = environment.skybox.Get();
@@ -187,9 +187,9 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
     {
         PROFILE_GL_NAMED("Deferred pass");
         
-        ShaderResource* shaderResource = entry.second.Get();
-        CHECK_CONTINUE(!shaderResource);
-        const Shader* shader = shaderResource->Get();
+        ShaderResource* resShader = entry.second.Get();
+        CHECK_CONTINUE(!resShader);
+        const Shader* shader = resShader->GetProgram();
         CHECK_CONTINUE(!shader);
 
         ShaderCommand shaderCmd;
@@ -198,34 +198,38 @@ int Rendering::DeferredRenderer::DrawDeferredScene(const RenderArgs& InArgs, con
         rlState::current.Set(shaderCmd);
 
         const int id = static_cast<int32>(entry.first);
-        SetValue(*shaderResource, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
-        SetFrame(InArgs, *shaderResource);
+        SetValue(*resShader, ShaderResource::DefaultLoc::DEFERRED_ID, &id, SHADER_UNIFORM_INT);
+        SetFrame(InArgs, *resShader);
         
         int texSlot = 0;
-        for (auto& b : InBuffers)
-            if (b) b->Bind(*shaderResource, texSlot);
+        BindNoiseTextures(InArgs, *resShader, texSlot);
         
-        BindNoiseTextures(InArgs, *shaderResource, texSlot);
+        // Set values and textures from material
+        SetCustomShaderValues(*resShader);
 
         for (auto& perspective : InArgs.perspectives)
         {
+            int perspSlot = texSlot;
+            for (auto& b : InBuffers)
+                if (b) b->Bind(*resShader, perspSlot, -1, perspective.layerFace);
+            
             PerspectiveCommand perspCmd;
             perspCmd.rect = perspective.targetRect;
             rlState::current.Set(perspCmd);
-            SetPerspective(InArgs, perspective, InTarget, *shaderResource);
+            SetPerspective(InArgs, perspective, InTarget, *resShader);
             DrawQuad();
         }
     }
     return static_cast<int>(passes.size());
 }
 
-int Rendering::DeferredRenderer::DrawSurfaces(const RenderArgs &InArgs, const RenderTarget &InTarget, const Vector<RenderTarget *> &InBuffers)
+int Rendering::DeferredRenderer::DrawSurfaces(const RenderArgs &InArgs, const RenderTarget &InTarget, const Vector<RenderTarget*> &InBuffers)
 {
     PROFILE_GL();
     
     ShaderResource* shaderResource = InArgs.contextPtr->config.FX.Get().SurfaceShader.Get().Get();
     CHECK_RETURN(!shaderResource, 0);
-    const Shader* shader = shaderResource->Get();
+    const Shader* shader = shaderResource->GetProgram();
     CHECK_RETURN(!shader, 0);
 
     FrameCommand frameCmd;
@@ -242,13 +246,15 @@ int Rendering::DeferredRenderer::DrawSurfaces(const RenderArgs &InArgs, const Re
     SetFrame(InArgs, *shaderResource);
     
     int texSlot = 0;
-    for (auto& b : InBuffers)
-        if (b) b->Bind(*shaderResource, texSlot);
+    LuminRenderer::BindBRDF(InArgs, *shaderResource, texSlot);
     
-    LuminRenderer::ApplyLumin(InArgs, *shaderResource, texSlot);
-
     for (auto& perspective : InArgs.perspectives)
     {
+        int perspSlot = texSlot;
+        for (auto& b : InBuffers)
+            if (b) b->Bind(*shaderResource, perspSlot, -1, perspective.layerFace);
+        
+        
         PerspectiveCommand perspCmd;
         perspCmd.rect = perspective.targetRect;
         rlState::current.Set(perspCmd);

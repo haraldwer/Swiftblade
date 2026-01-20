@@ -4,9 +4,6 @@
 #include "Resource/PropertyFile.h"
 #include "Texture.h"
 
-struct RenderTexture;
-struct Color;
-
 namespace Rendering
 {
     enum class NoiseType : uint8
