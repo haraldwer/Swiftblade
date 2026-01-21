@@ -124,6 +124,7 @@ int Rendering::LuminRenderer::CollectSHCoefficients(const RenderArgs& InArgs, Re
     }
     return InArgs.perspectives.size();
     */
+    return 0;
 }
 
 int Rendering::LuminRenderer::DrawLuminProbesDebug(const RenderArgs& InArgs, const RenderTarget& InTarget, const Vector<RenderTarget*>& InBuffers)

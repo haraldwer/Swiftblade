@@ -1,9 +1,162 @@
 
-// TODO: Learn WebGPU!
+#include "webgpu/webgpu.hpp"
+
+// If using Dawn
+//#define WEBGPU_BACKEND_DAWN
+// If using wgpu-native
+//#define WEBGPU_BACKEND_WGPU
+// If using emscripten
+//#define WEBGPU_BACKEND_EMSCRIPTEN
+// If built for web
+//#if (EMSCRIPTEN)
+
+
+// Request adapter synchronously
+WGPUAdapter requestAdapter(WGPUInstance instance, WGPURequestAdapterOptions const* options) 
+{
+    struct UserData {
+        WGPUAdapter adapter = nullptr;
+        bool requestEnded = false;
+    };
+    UserData userData;
+    
+    // OUTDATED
+    auto onAdapterRequestEnded = [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void * pUserData1, void * pUserData2) 
+    {
+        UserData& userData = *reinterpret_cast<UserData*>(pUserData1);
+        if (status == WGPURequestAdapterStatus_Success) {
+            userData.adapter = adapter;
+        } else {
+            std::cout << "Could not get WebGPU adapter: " << message.data << std::endl;
+        }
+        userData.requestEnded = true;
+    };
+    
+    WGPURequestAdapterCallbackInfo adapterRequestCallback = {
+        .nextInChain = nullptr,
+        .mode = WGPUCallbackMode_AllowProcessEvents,
+        .callback = onAdapterRequestEnded,
+        .userdata1 = (void*)&userData,
+        .userdata2 = nullptr
+        
+    };
+    
+    wgpuInstanceRequestAdapter(
+        instance,
+        options,
+        adapterRequestCallback
+    );
+
+    // We wait until userData.requestEnded gets true
+#ifdef __EMSCRIPTEN__
+    while (!userData.requestEnded) {
+        emscripten_sleep(100);
+    }
+#endif
+
+    assert(userData.requestEnded);
+
+    return userData.adapter;
+}
 
 int main()
 {
     printf("Hello world!");
+    
+    
+    
+    // Step 1: Create WGPU instance!
+#ifdef WEBGPU_BACKEND_EMSCRIPTEN
+    WGPUInstance instance = wgpuCreateInstance(nullptr);
+#else
+    WGPUInstanceDescriptor desc = {};
+    desc.nextInChain = nullptr;
+    WGPUInstance instance = wgpuCreateInstance(&desc);
+#endif
+    
+    if (!instance)
+    {
+        std::cerr << "Could not initialize WebGPU!" << std::endl;
+        return 1;
+    }
+    std::cout << "WGPU instance: " << instance << std::endl;
+    wgpuInstanceRelease(instance);
+    
+    
+    
+    // Step 2: Request Adapter and create device
+    // Adapter = the gpu
+    std::cout << "Requesting adapter..." << std::endl;
+    WGPURequestAdapterOptions adapterOpts = {};
+    adapterOpts.nextInChain = nullptr;
+    WGPUAdapter adapter = requestAdapter(instance, &adapterOpts);
+    std::cout << "Got adapter: " << adapter << std::endl;
+    wgpuAdapterRelease(adapter);
+    
+    
+    
+    // Step 3: Get adapter limits
+#ifndef __EMSCRIPTEN__
+    WGPULimits supportedLimits = {};
+    supportedLimits.nextInChain = nullptr;
+#ifdef WEBGPU_BACKEND_DAWN
+    WGPUStatus status = wgpuAdapterGetLimits(adapter, &supportedLimits);
+#else
+    WGPUStatus status = wgpuAdapterGetLimits(adapter, &supportedLimits);
+#endif
+    if (status == WGPUStatus_Success) {
+        std::cout << "Adapter limits:" << std::endl;
+        std::cout << " - maxTextureDimension1D: " << supportedLimits.maxTextureDimension1D << std::endl;
+        std::cout << " - maxTextureDimension2D: " << supportedLimits.maxTextureDimension2D << std::endl;
+        std::cout << " - maxTextureDimension3D: " << supportedLimits.maxTextureDimension3D << std::endl;
+        std::cout << " - maxTextureArrayLayers: " << supportedLimits.maxTextureArrayLayers << std::endl;
+    }
+#endif
+    
+    
+    
+    // Step 4: Get features 
+    // OUTDATED
+    WGPUSupportedFeatures features;
+    wgpuAdapterGetFeatures(adapter, &features);
+    std::cout << "Adapter features:" << std::endl;
+    std::cout << std::hex; // Write integers as hexadecimal to ease comparison with webgpu.h literals
+    for (size_t i = 0; i < features.featureCount; i++) {
+        std::cout << " - 0x" << features.features[i] << std::endl;
+    }
+    std::cout << std::dec; // Restore decimal numbers
+    
+    
+    
+    // Step 5: Get properties
+    //WGPUAdapterProperties properties = {};
+    //properties.nextInChain = nullptr;
+    //wgpuAdapterGetProperties(adapter, &properties);
+    //std::cout << "Adapter properties:" << std::endl;
+    //std::cout << " - vendorID: " << properties.vendorID << std::endl;
+    //if (properties.vendorName) {
+    //    std::cout << " - vendorName: " << properties.vendorName << std::endl;
+    //}
+    //if (properties.architecture) {
+    //    std::cout << " - architecture: " << properties.architecture << std::endl;
+    //}
+    //std::cout << " - deviceID: " << properties.deviceID << std::endl;
+    //if (properties.name) {
+    //    std::cout << " - name: " << properties.name << std::endl;
+    //}
+    //if (properties.driverDescription) {
+    //    std::cout << " - driverDescription: " << properties.driverDescription << std::endl;
+    //}
+    //std::cout << std::hex;
+    //std::cout << " - adapterType: 0x" << properties.adapterType << std::endl;
+    //std::cout << " - backendType: 0x" << properties.backendType << std::endl;
+    //std::cout << std::dec; // Restore decimal numbers
+    
+    
+    
+    
+    
+    return 0;
 }
 
 

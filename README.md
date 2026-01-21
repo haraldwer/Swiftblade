@@ -2,18 +2,6 @@
 Swiftblade is a first-person movement-focused speedrunning game.
 
 The game runs in a home-made engine, which I've built mostly using Raylib, a C library for making games. 
-Complete list of libraries / tools used:
- - Raylib 5.5
- - ReactPhysics3D 0.10.2 (custom sweep fork)
- - Nakama 3.26.0 (nakama-cpp 2.8.5)
- - ImGui (docking branch)
- - Tracy 0.13.1
- - rapidjson
- - FastNoiseLite
- - tinyexpr
- - Inkscape (for ui design)
- - Blender (for modelling)
- - CMake (IDE)
 
 Here are some features of the engine: 
  - Dense, single-threaded ECS
@@ -79,6 +67,22 @@ ln -s /path/to/gcc/$VERSION $VERSION
 ```
 And finally, add to your cmake command:
 ``--gcc-toolchain=$MYTOOLCHAIN``
+
+# Libraries
+ - FastNoiseLite (MIT)
+ - MeshOptimizer (MIT)
+ - Miniaudio (MIT)
+ - Nakama 3.26.0 (nakama-cpp 2.8.5) (Apache-2.0)
+ - PicoSHA2 (MIT)
+ - RapidJSON (MIT)
+ - ReactPhysics3D (ZLib) (custom sweep fork)
+ - STB (MIT)
+ - tiny-AES-c (Unlicense)
+ - TinyExpr++ (zLib)
+ - TinyObjLoader (MIT)
+ - Tracy (BSD 3-Clause)
+ - WebGPU-Distribution (MIT)
+ - glfw (zLib)
 
 # Standards
 Code: 

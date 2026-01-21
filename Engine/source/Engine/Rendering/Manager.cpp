@@ -124,6 +124,7 @@ void Rendering::Manager::DrawPanel()
 bool Rendering::Manager::IsViewportClickable() const
 {
     // TODO: Focus     return (!IsPanelOpen() || hovered) && IsWindowFocused();
+    return false;
 }
 
 #else

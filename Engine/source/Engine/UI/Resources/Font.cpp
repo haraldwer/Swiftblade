@@ -319,8 +319,8 @@ bool UI::FontResource::Edit(const String &InName, uint32 InOffset)
                 });
         }
     }
-    return false;
     */
+    return false;
 }
 
 #else

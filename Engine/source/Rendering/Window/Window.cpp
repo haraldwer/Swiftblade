@@ -146,6 +146,7 @@ bool Rendering::Window::ShouldClose()
     return false;
 #endif
     */
+    return false;
 }
 
 Vec2I Rendering::Window::GetSize()

@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 cmake_policy(SET CMP0135 NEW)
 cmake_policy(SET CMP0169 OLD)
-include(FetchContent)
-Set(FETCHCONTENT_QUIET FALSE)
 
 project(Engine VERSION 0.1.0 LANGUAGES CXX C)
 
-include(cmake/SharedCompileOptions.cmake)
+include(cmake/CMakeOptions.cmake)
 include(cmake/Platform.cmake)
 include(cmake/Retail.cmake)
 
