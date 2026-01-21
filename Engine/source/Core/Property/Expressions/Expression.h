@@ -5,7 +5,7 @@
 
 struct Expression : PropertyOwner<Expression>
 {
-    ~Expression();
+    ~Expression() override;
     Expression();
     Expression(const String& InExpression);
     Expression(const Expression& InOther);

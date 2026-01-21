@@ -9,5 +9,6 @@ include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
 target_link_libraries(${PROJECT_NAME} 
     Core
     glfw
+    glfw3webgpu
     webgpu
 )
