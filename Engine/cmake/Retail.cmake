@@ -1,0 +1,15 @@
+message("-- Evaluating retail mode: " ${PROJECT_NAME})
+
+option(RETAIL_MODE "Retail mode, for distribution" OFF)
+if (RETAIL_MODE)
+    message("Compiling for retail")
+endif ()
+
+if (RETAIL_MODE)
+    add_compile_definitions(RETAIL_MODE)
+    add_compile_definitions(IMGUI_DISABLE)
+    add_compile_definitions(TRACY_DISABLE)
+else ()
+    add_compile_definitions(IMGUI_ENABLE)
+    add_compile_definitions(TRACY_ENABLE)
+endif ()

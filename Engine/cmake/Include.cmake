@@ -1,0 +1,10 @@
+message("-- Adding includes: " ${PROJECT_NAME})
+set(PROJECT_INCLUDES ${PROJECT_INCLUDES} ${PROJECT_SOURCE_DIR} CACHE INTERNAL "")
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/source
+    ${PROJECT_INCLUDES}
+    ${DEP_INCLUDES}
+)
+message("${DEP_INCLUDES}")

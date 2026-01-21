@@ -1,5 +1,0 @@
-nakama-sdk/libnakama-sdk.so
-rp3d/libreactphysics3d.a
-uuid
-stdc++
-stdc++fs

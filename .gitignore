@@ -15,16 +15,16 @@ _deps
 */.idea
 
 # Build
-RayEngine/build/*
-RayEngine/cmake-build-debug
-RayEngine/cmake-build-release
-RayEngine/cmake-build-clang-19---debug
-RayEngine/cmake-build-clang-19---release
-RayEngine/cmake-build-win
+Engine/build/*
+Engine/cmake-build-debug
+Engine/cmake-build-release
+Engine/cmake-build-clang-19---debug
+Engine/cmake-build-clang-19---release
+Engine/cmake-build-win
 
 # Cache
-RayEngine/content/Cache/*
-RayEngine/content/User/*
+Engine/content/Cache/*
+Engine/content/User/*
 
 # Imgui
 imgui.ini

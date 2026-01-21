@@ -1,0 +1,25 @@
+#pragma once
+#include "Core/Debug/Panel.h"
+#include "Rendering/Pipeline/Pipeline.h"
+#include "TextureTargets/RenderTarget.h"
+
+struct Texture;
+
+namespace Rendering
+{
+    class FrameViewer : public Debug::Panel
+    {
+    public:
+        void DrawPanel() override;
+        String PanelName() const override { return "Rendering"; }
+        void SetStats(const Pipeline::Stats& InStats) { stats = InStats; }
+        void DrawViewportPanel();
+
+    private:
+        static void DrawTex(const Texture& tex);
+        static void DrawViewTex(const Texture& tex);
+        
+        Pipeline::Stats stats = {};
+        int debugView = 0;
+    };
+}
