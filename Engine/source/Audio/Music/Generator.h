@@ -2,7 +2,7 @@
 
 #include "Composition.h"
 #include "ToneLibrary.h"
-#include "Interface/Audio.h"
+#include "Interface/Interface.h"
 #include "Utility/Collections/SwapBuffer.h"
 
 namespace Music

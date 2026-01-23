@@ -14,9 +14,11 @@ else (EMSCRIPTEN)
     set(WEBGPU_BACKEND WGPU CACHE BOOL "" FORCE)
     set(WEBGPU_BUILD_FROM_SOURCE OFF CACHE BOOL "" FORCE)
     set(WEBGPU_LINK_TYPE STATIC CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
-
+    if (UNIX)
+        set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
+        set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+    endif ()
+        
     FetchContent_Declare(
         glfw-light
         URL      https://eliemichel.github.io/LearnWebGPU/_downloads/6873a344e35ea9f5e4fc7e5cc85d3ab8/glfw-3.4.0-light.zip

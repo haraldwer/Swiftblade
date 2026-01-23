@@ -2,7 +2,7 @@
 
 #include "Entity.h"
 #include "System.h"
-#include "Editor/Inspector.h"
+#include "../../Editor/ECS/Inspector.h"
 
 namespace ECS
 {

@@ -1,6 +1,6 @@
 #include "Generator.h"
 
-#include "Audio/Interface/Audio.h"
+#include "Audio/Interface/Interface.h"
 
 void Fill(void* InBuffer, const unsigned int InFrames)
 {

@@ -1,7 +1,7 @@
 #include "Launcher.h"
 
 #include "Manager.h"
-#include "Editor/BlueprintEditor.h"
+#include "../../Editor/ECS/BlueprintEditor.h"
 #include "Game/Editor/RoomEditor.h"
 #include "Game/Instances/MenuInstance.h"
 #include "Game/Instances/GameInstance.h"

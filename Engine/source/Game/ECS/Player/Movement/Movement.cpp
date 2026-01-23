@@ -4,7 +4,7 @@
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Rigidbody.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Editor/Debug/Draw.h"
+#include "Editor/Debug/Draw.h"
 #include "Engine/Instance/Instance.h"
 #include "Engine/Physics/Query.h"
 #include "MovementStateMachine.h"

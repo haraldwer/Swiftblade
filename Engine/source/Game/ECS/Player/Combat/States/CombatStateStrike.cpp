@@ -7,7 +7,7 @@
 #include "Engine/ECS/Systems/Transform.h"
 #include "Engine/Physics/Query.h"
 #include "Input/Action.h"
-#include "Engine/Editor/Debug/Draw.h"
+#include "Editor/Debug/Draw.h"
 
 Utility::Type CombatStateStrike::Update()
 {

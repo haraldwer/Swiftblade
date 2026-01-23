@@ -2,7 +2,7 @@
 
 #include "ECS/Manager.h"
 #include "ECS/Systems/Attributes.h"
-#include "Editor/BlueprintEditor.h"
+#include "../../Editor/ECS/BlueprintEditor.h"
 #include "Instance/Manager.h"
 #include "Utility/File/File.h"
 

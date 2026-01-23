@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Utility/EventScopes.h"
-#include "Editor/EditorCamera.h"
+#include "../../Editor/Utility/EditorCamera.h"
 #include "Input/Manager.h"
 #include "Menu/Manager.h"
 #include "Rendering/Scene/Scene.h"
