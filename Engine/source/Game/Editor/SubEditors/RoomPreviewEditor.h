@@ -23,7 +23,7 @@ private:
     
     void OnSubmitResponse(const DB::Response<DB::RPCSubmitRoom>& InResp);
     
-    InstanceEvent<MenuRoomPreview::OnClickedEvent>::Callback onClicked;
+    Engine::InstanceEvent<MenuRoomPreview::OnClickedEvent>::Callback onClicked;
     MenuRoomPreview* previewMenu = nullptr;
     
     DB::Event<DB::RPCSubmitRoom>::Callback onSubmit;

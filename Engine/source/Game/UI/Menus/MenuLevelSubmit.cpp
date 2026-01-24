@@ -65,9 +65,9 @@ void MenuLevelSubmit::Update()
 {
     Instance::Update();
     if (ui["Submit"].IsClicked() || ui["Retry"].IsClicked())
-        InstanceEvent<OnClickedEvent>::Invoke({ "Submit" });
+        Engine::InstanceEvent<OnClickedEvent>::Invoke({ "Submit" });
     if (ui["Return"].IsClicked() || ui["Close"].IsClicked() || ui["Cancel"].IsClicked())
-        InstanceEvent<OnClickedEvent>::Invoke({ "Return" });
+        Engine::InstanceEvent<OnClickedEvent>::Invoke({ "Return" });
 }
 
 void MenuLevelSubmit::BeginLoading()

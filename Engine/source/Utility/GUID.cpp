@@ -19,11 +19,10 @@
 #include <intrin.h>
 #include <iphlpapi.h>
 
-#pragma comment(lib, "IPHLPAPI.lib")
-
 #ifndef _MSC_VER
 #include <cpuid.h>
 #else
+#pragma comment(lib, "IPHLPAPI.lib")
 #include <intrin.h>
 #endif
 

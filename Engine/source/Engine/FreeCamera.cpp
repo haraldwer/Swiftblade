@@ -1,10 +1,10 @@
-#include "EditorCamera.h"
+#include "FreeCamera.h"
 
 #include "Input/Action.h"
 #include "Instance/Instance.h"
 #include "Rendering/Manager.h"
 
-void Editor::Camera::Update()
+void Engine::FreeCamera::Update()
 {
     PROFILE();
     
@@ -35,7 +35,7 @@ void Editor::Camera::Update()
         UpdateMovement(); 
 }
 
-void Editor::Camera::Deinit()
+void Engine::FreeCamera::Deinit()
 {
     if (bInputEnabled)
         Input::Manager::Get().Pop("EditorCamera");
@@ -45,14 +45,14 @@ void Editor::Camera::Deinit()
     bUseEditCamera = false;
 }
 
-void Editor::Camera::SetState(const Vec3F &InPos, const Vec3F &InRot)
+void Engine::FreeCamera::SetState(const Vec3F &InPos, const Vec3F &InRot)
 {
     targetState.position = InPos;
     targetState.rotation = InRot;
     currentState = targetState;
 }
 
-void Editor::Camera::SetTarget(const Vec3F& InPosition, const float InDistance)
+void Engine::FreeCamera::SetTarget(const Vec3F& InPosition, const float InDistance)
 {
     const Vec3F dir = Vec3F(1.0f, -1.0f, 1.0f).GetNormalized();
     targetState.position = InPosition - dir * InDistance;
@@ -64,7 +64,7 @@ void Editor::Camera::SetTarget(const Vec3F& InPosition, const float InDistance)
     currentState = targetState;
 }
 
-Vec3F Editor::Camera::GetMouseDirection() const
+Vec3F Engine::FreeCamera::GetMouseDirection() const
 {
     /*
     Vector2 mouse = GetMousePosition();
@@ -73,7 +73,7 @@ Vec3F Editor::Camera::GetMouseDirection() const
     return {};
 }
 
-Vec3F Editor::Camera::ScreenToWorld(const Vec2F &InScreen) const
+Vec3F Engine::FreeCamera::ScreenToWorld(const Vec2F &InScreen) const
 {
     auto& man = Rendering::Manager::Get();
     auto& view = man.mainViewport;
@@ -83,7 +83,7 @@ Vec3F Editor::Camera::ScreenToWorld(const Vec2F &InScreen) const
     return ClipToWorld(clipPos);
 }
 
-Vec3F Editor::Camera::ClipToWorld(Vec2F InClip) const
+Vec3F Engine::FreeCamera::ClipToWorld(Vec2F InClip) const
 {
     Rendering::CameraInstance c {
         currentState.position,
@@ -102,7 +102,7 @@ Vec3F Editor::Camera::ClipToWorld(Vec2F InClip) const
     return world.xyz.GetNormalized();
 }
 
-void Editor::Camera::Toggle()
+void Engine::FreeCamera::Toggle()
 {
     bUseEditCamera = !bUseEditCamera;
     if (bUseEditCamera)
@@ -123,7 +123,7 @@ void Editor::Camera::Toggle()
     }
 }
 
-void Editor::Camera::UpdateMovement()
+void Engine::FreeCamera::UpdateMovement()
 {
     PROFILE();
     

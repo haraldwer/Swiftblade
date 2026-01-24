@@ -72,11 +72,11 @@ void MenuRoomPreview::Update()
 {
     Instance::Update();
     if (ui["Submit"].IsClicked() || ui["Retry"].IsClicked())
-        InstanceEvent<OnClickedEvent>::Invoke({ "Submit" });
+        Engine::InstanceEvent<OnClickedEvent>::Invoke({ "Submit" });
     if (ui["Preview"].IsClicked())
-        InstanceEvent<OnClickedEvent>::Invoke({ "Preview" });
+        Engine::InstanceEvent<OnClickedEvent>::Invoke({ "Preview" });
     if (ui["Return"].IsClicked())
-        InstanceEvent<OnClickedEvent>::Invoke({ "Return" });
+        Engine::InstanceEvent<OnClickedEvent>::Invoke({ "Return" });
     if (ui["Close"].IsClicked())
         ui["Status"].SetVisible(false);
 }

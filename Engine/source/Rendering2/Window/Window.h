@@ -13,11 +13,11 @@ namespace Rendering
         void Frame(bool& InRun);
         void Present();
 
+        wgpu::Surface surface;
 
     private:
         WindowConfig config = {};
         
         GLFWwindow* window = nullptr;
-        wgpu::Surface surface;
     };
 }

@@ -7,7 +7,7 @@
 
 #include "Rendering/Manager.h"
 
-bool Editor::Edit(Mat4F &InOutMat, int &InOutSpace, int &InOutOperation, bool &InOutUseSnap)
+bool Engine::EditTransform(Mat4F &InOutMat, int &InOutSpace, int &InOutOperation, bool &InOutUseSnap)
 {
     // Mode / operation UI
     if (InOutOperation == 0)

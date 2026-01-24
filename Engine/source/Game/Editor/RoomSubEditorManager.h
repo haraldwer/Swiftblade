@@ -33,6 +33,6 @@ private:
     
     Type currentEditor;
     String roomType;
-    
-    InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback onMenuClicked;
+
+    Engine::InstanceEvent<MenuRoomEditor::OnClickedEvent>::Callback onMenuClicked;
 };

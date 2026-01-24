@@ -58,7 +58,7 @@ void Engine::Launcher::Push(const String& InName)
 
 #ifndef __EMSCRIPTEN__
     LAUNCHER_REG_INSTANCE(GameInstance, InName)
-    LAUNCHER_REG_INSTANCE(BlueprintEditor, InName)
+    //LAUNCHER_REG_INSTANCE(BlueprintEditor, InName)
     LAUNCHER_REG_INSTANCE(RoomEditor, InName)
     LAUNCHER_REG_INSTANCE(RenderInstance, InName)
 #endif

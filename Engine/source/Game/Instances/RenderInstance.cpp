@@ -28,15 +28,15 @@ void RenderInstance::Init()
                 static_cast<uint8>(Rendering::VisibilityMask::ALL)
             }, persistantID);
     
-    editorCamera.Toggle();
-    editorCamera.SetState(Vec3F::Zero(), Vec3F::Zero());
+    freeCamera.Toggle();
+    freeCamera.SetState(Vec3F::Zero(), Vec3F::Zero());
 }
 
 void RenderInstance::Logic(double InDelta)
 {
     Instance::Logic(InDelta);
     
-    editorCamera.Update();
+    freeCamera.Update();
     if (Input::Action::Get("Back").Pressed())
         Engine::Manager::Get().Pop();
 }

@@ -8,7 +8,6 @@
 #include "webgpu/webgpu.hpp"
 
 #include "Core/pch.h"
-#include "Utility.h"
 #include "Profile.h"
 
 inline const char* ToStr(const wgpu::StringView& InStr)

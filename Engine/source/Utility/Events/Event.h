@@ -17,7 +17,7 @@ void func()
     Event<MyEventData>::Callback callback;
     callback.Bind([](const MyEventData& InParameter)
     {
-        LOG(std::to_string(InParameter.Value));
+        UT_LOG(std::to_string(InParameter.Value));
     });
 
     // Invoke the event, pass the data

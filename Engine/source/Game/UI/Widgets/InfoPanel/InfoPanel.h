@@ -8,8 +8,8 @@
 namespace UI
 {
     class InfoPanel;
-    typedef InstanceEvent<EditRoomEntryData>::ContextCallback<InfoPanel*> EditRoomCallback;
-    typedef InstanceEvent<LevelEntryData>::ContextCallback<InfoPanel*> LevelCallback;
+    typedef Engine::InstanceEvent<EditRoomEntryData>::ContextCallback<InfoPanel*> EditRoomCallback;
+    typedef Engine::InstanceEvent<LevelEntryData>::ContextCallback<InfoPanel*> LevelCallback;
 
     class InfoPanel : public Container
     {
@@ -33,7 +33,7 @@ namespace UI
     private:
         EditRoomCallback onEditRoomSelected;
         LevelCallback onLevelSelected;
-        InstanceRemovedEvent::ContextCallback<InfoPanel*> onInstanceRemoved;
+        Engine::InstanceRemovedEvent::ContextCallback<InfoPanel*> onInstanceRemoved;
         bool pendingClear = false;
     };
 }

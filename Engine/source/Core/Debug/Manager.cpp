@@ -74,7 +74,7 @@ void Debug::Manager::Frame(const double InDeltaTime)
         
         if (ImGui::BeginPopupModal("About", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove))
         {
-            String text = "Swiftblade " + String(ENGINE_VERSION);
+            String text = "Swiftblade";
             auto windowWidth = ImGui::GetWindowSize().x;
             auto textWidth   = ImGui::CalcTextSize(text.c_str()).x;
             ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);

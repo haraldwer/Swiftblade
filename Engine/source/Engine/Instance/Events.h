@@ -12,15 +12,16 @@ namespace Engine
     struct InstanceRemovedEventData
     {
     };
+    
+    using InstanceAddedEvent = InstanceEvent<InstanceAddedEventData>;
+    using InstanceRemovedEvent = InstanceEvent<InstanceRemovedEventData>;
+
+    template <class T>
+    using InstanceAddedCallbackT = InstanceAddedEvent::ContextCallback<T>;
+    using InstanceAddedCallback = InstanceAddedEvent::Callback;
+
+    template <class T>
+    using InstanceRemovedCallbackT = InstanceRemovedEvent::ContextCallback<T>;
+    using InstanceRemovedCallback = InstanceRemovedEvent::Callback;
 }
 
-using InstanceAddedEvent = InstanceEvent<Engine::InstanceAddedEventData>;
-using InstanceRemovedEvent = InstanceEvent<Engine::InstanceRemovedEventData>;
-
-template <class T>
-using InstanceAddedCallbackT = InstanceAddedEvent::ContextCallback<T>;
-using InstanceAddedCallback = InstanceAddedEvent::Callback;
-
-template <class T>
-using InstanceRemovedCallbackT = InstanceRemovedEvent::ContextCallback<T>;
-using InstanceRemovedCallback = InstanceRemovedEvent::Callback;

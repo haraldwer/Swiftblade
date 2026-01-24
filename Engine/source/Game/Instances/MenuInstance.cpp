@@ -21,8 +21,8 @@ void MenuInstance::Init()
     if (auto ptr = config.Scene.Get().Get())
         scene = ptr->Instantiate();
 
-    editorCamera.Toggle();
-    editorCamera.SetState(
+    freeCamera.Toggle();
+    freeCamera.SetState(
         config.CameraPosition,
         config.CameraRotation);
 }
@@ -30,8 +30,8 @@ void MenuInstance::Init()
 void MenuInstance::Deinit()
 {
 #ifdef _DEBUG
-    config.CameraPosition = editorCamera.GetPosition();
-    config.CameraRotation = editorCamera.GetRotation();
+    config.CameraPosition = freeCamera.GetPosition();
+    config.CameraRotation = freeCamera.GetRotation();
     config.SaveConfig();
 #endif
 
@@ -45,7 +45,7 @@ void MenuInstance::Logic(const double InDelta)
     Instance::Logic(InDelta);
     
     ecs.Update();
-    editorCamera.Update();
+    freeCamera.Update();
     
     if (Input::Action::Get("Back").Pressed())
         menus.Pop();

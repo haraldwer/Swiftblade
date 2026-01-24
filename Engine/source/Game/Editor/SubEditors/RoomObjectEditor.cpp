@@ -55,7 +55,7 @@ void RoomObjectEditor::TryPickObject()
     
     auto& objects = GetRoom().Objects.Get();
     auto& v = GetVolume();
-    auto& cam = GetEditor().GetEditorCamera();
+    auto& cam = GetEditor().GetFreeCamera();
     Vec3F mouseDir = cam.GetMouseDirection();
     Vec3F camPos = cam.GetPosition();
     

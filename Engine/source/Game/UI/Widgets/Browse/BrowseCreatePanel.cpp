@@ -88,8 +88,8 @@ void UI::BrowseCreatePanel::NewLevel(const LevelEntryData &InData)
     LevelEntryWidget w(newData);
     w.Init(list);
     list.Insert(w, list.Count() - 1);
-    
-    InstanceEvent<LevelEntryData>::Invoke(newData); // Select the new entry
+
+    Engine::InstanceEvent<LevelEntryData>::Invoke(newData); // Select the new entry
 }
 
 void UI::BrowseCreatePanel::NewRoom(const EditRoomEntryData& InData)
@@ -115,8 +115,8 @@ void UI::BrowseCreatePanel::NewRoom(const EditRoomEntryData& InData)
     EditRoomEntryWidget w(newData);
     w.Init(list);
     list.Insert(w, list.Count() - 1);
-    
-    InstanceEvent<EditRoomEntryData>::Invoke(newData);
+
+    Engine::InstanceEvent<EditRoomEntryData>::Invoke(newData);
 }
 
 void UI::BrowseCreatePanel::SelectLevels()

@@ -30,7 +30,7 @@ void MenuRoomSelect::Update()
 {
     Instance::Update();
     if (ui["Select"].IsClicked())
-        InstanceEvent<OnSelectEvent>::Invoke({ ui.Get<UI::RoomListWidget>("RoomList").Selected() });
+        Engine::InstanceEvent<OnSelectEvent>::Invoke({ ui.Get<UI::RoomListWidget>("RoomList").Selected() });
     if (ui["Cancel"].IsClicked())
-        InstanceEvent<OnSelectEvent>::Invoke({ {} });
+        Engine::InstanceEvent<OnSelectEvent>::Invoke({ {} });
 }

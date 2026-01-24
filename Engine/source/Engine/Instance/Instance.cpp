@@ -9,7 +9,7 @@ void Engine::Instance::Init()
 
 void Engine::Instance::Deinit()
 {
-    editorCamera.Deinit(); 
+    freeCamera.Deinit(); 
     renderScene = Rendering::Scene();
     menus.Clear();
 }

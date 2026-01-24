@@ -114,7 +114,7 @@ void Rendering::Manager::DrawPanel()
     });
 
     
-    bool imguizmo = ImGuizmo::IsOver() && !Engine::Instance::Get().GetEditorCamera().IsControlling();
+    bool imguizmo = ImGuizmo::IsOver() && !Engine::Instance::Get().GetFreeCamera().IsControlling();
     hovered = ImGui::IsMouseHoveringRect(vMin + windowPos, vMax + windowPos) && !imguizmo;
     //ImGui::IsAnyItemHovered()
     //ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)

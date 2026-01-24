@@ -6,13 +6,13 @@ include(${CMAKE_SOURCE_DIR}/cmake/Pch.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
 
 # Link projects
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME} PUBLIC
     Game
     Rendering2
 )
 
 if (NOT RETAIL_MODE)
-    target_link_libraries(${PROJECT_NAME}
+    target_link_libraries(${PROJECT_NAME} PUBLIC
         Editor
     )
 endif ()

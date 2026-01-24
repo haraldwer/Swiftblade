@@ -1,7 +1,5 @@
 #pragma once
 
-#define ENGINE_VERSION "0.1"
-
 #include "Utility/pch.h"
 
 #include "Utility/Serialization/JsonUtility.h"

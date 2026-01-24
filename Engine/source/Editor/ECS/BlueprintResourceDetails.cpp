@@ -3,7 +3,7 @@
 #include "BlueprintEditor.h"
 #include "Instance/Manager.h"
 
-void BlueprintResourceDetails::Init()
+void Editor::BlueprintResourceDetails::Init()
 {
     resource = path;
     content = Utility::File::Read(path);
@@ -20,12 +20,12 @@ void BlueprintResourceDetails::Init()
     }
 }
 
-void BlueprintResourceDetails::Deinit()
+void Editor::BlueprintResourceDetails::Deinit()
 {
     // TODO: Maybe close?
 }
 
-void BlueprintResourceDetails::Draw()
+void Editor::BlueprintResourceDetails::Draw()
 {
     DrawFileInfo();
     
@@ -38,7 +38,7 @@ void BlueprintResourceDetails::Draw()
     }
 }
 
-bool BlueprintResourceDetails::Accept(const String &InPath)
+bool Editor::BlueprintResourceDetails::Accept(const String &InPath)
 {
     return BlueprintResource::Accept(InPath);
 }

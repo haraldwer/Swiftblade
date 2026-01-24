@@ -33,9 +33,9 @@ namespace UI
         void SelectLevels();
         void SelectRooms();
 
-        InstanceEvent<LevelEntryData>::ContextCallback<BrowseCreatePanel*> onAddedLevel;
-        InstanceEvent<EditRoomEntryData>::ContextCallback<BrowseCreatePanel*> onAddedRoom;
-        InstanceRemovedCallbackT<BrowseCreatePanel*> onInstanceRemoved;
+        Engine::InstanceEvent<LevelEntryData>::ContextCallback<BrowseCreatePanel*> onAddedLevel;
+        Engine::InstanceEvent<EditRoomEntryData>::ContextCallback<BrowseCreatePanel*> onAddedRoom;
+        Engine::InstanceRemovedCallbackT<BrowseCreatePanel*> onInstanceRemoved;
 
         bool pendingRefresh = false;
         bool levelsSelected = false;

@@ -40,5 +40,6 @@ void Rendering::Window::Present()
 {
 #ifndef __EMSCRIPTEN__
     wgpu::Status status = surface.present(); // TODO: Might fail!
+    assert(status == wgpu::Status::Success && "Failed to present frame");
 #endif
 }

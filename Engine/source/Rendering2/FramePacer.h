@@ -83,9 +83,9 @@ namespace Rendering
         double tickTimeCounter = 0.0;
         double frameLeftoverDelta = 0.0;
         
-        const int targetFramerate = 120;
-        const int targetTickrate = 300;
-        const double maxFrameTickTime = 0.0333;
-        const double sleepMargin = 0.001;
+        int targetFramerate = 120;
+        int targetTickrate = 300;
+        double maxFrameTickTime = 0.0333;
+        double sleepMargin = 0.001;
     };
 }

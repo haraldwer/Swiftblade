@@ -14,7 +14,7 @@ void Editor::BlueprintEditor::Init()
 {
     Instance::Init();
     ecs.Init();
-    editorCamera.Toggle(); 
+    freeCamera.Toggle(); 
     config.LoadConfig();
     if (pendingBP.Identifier().IsValid())
         config.Blueprint = pendingBP;
@@ -63,7 +63,7 @@ void Editor::BlueprintEditor::SetBP(const ResBlueprint& InBP)
     }
     
     if (const auto t = ecs.GetComponent<ECS::Transform>(instanceID))
-        editorCamera.SetTarget(t->GetPosition());
+        freeCamera.SetTarget(t->GetPosition());
 }
 
 void Editor::BlueprintEditor::Logic(const double InDelta)
@@ -72,7 +72,7 @@ void Editor::BlueprintEditor::Logic(const double InDelta)
 
     // Update
     ecs.Update();
-    editorCamera.Update();
+    freeCamera.Update();
 
     if (instanceID == ECS::INVALID_ID)
         return; 

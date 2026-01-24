@@ -48,11 +48,11 @@ namespace UI
         LevelEntryData data;
         DB::Event<DB::RPCLevelInfo>::ContextCallback<InfoPanelLevel*> onInfo;
         DB::Event<DB::RPCSubmitLevel>::ContextCallback<InfoPanelLevel*> onSubmit;
-        InstanceEvent<MenuLevelSubmit::OnClickedEvent>::ContextCallback<InfoPanelLevel*> onSubmitClick;
+        Engine::InstanceEvent<MenuLevelSubmit::OnClickedEvent>::ContextCallback<InfoPanelLevel*> onSubmitClick;
         MenuLevelSubmit* submitMenu = nullptr;
         MenuLevelPlay* playMenu = nullptr;
         bool submitting = false;
 
-        InstanceRemovedCallbackT<InfoPanelLevel*> onInstanceRemoved;
+        Engine::InstanceRemovedCallbackT<InfoPanelLevel*> onInstanceRemoved;
     };
 }

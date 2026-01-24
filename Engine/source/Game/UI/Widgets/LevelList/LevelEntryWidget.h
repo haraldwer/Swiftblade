@@ -28,6 +28,6 @@ namespace UI
         void UpdateInfo(const LevelEntryData& InData);
         
         LevelEntryData data;
-        InstanceEvent<LevelEntryData>::ContextCallback<LevelEntryWidget*> onChanged;
+        Engine::InstanceEvent<LevelEntryData>::ContextCallback<LevelEntryWidget*> onChanged;
     };
 }

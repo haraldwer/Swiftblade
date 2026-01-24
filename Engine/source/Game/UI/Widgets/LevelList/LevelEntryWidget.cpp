@@ -54,7 +54,7 @@ void UI::LevelEntryWidget::Update(Container &InOwner)
         background.color.a = Utility::Math::Max(background.color.a, 0.2f);
 
     if (IsClicked())
-        InstanceEvent<LevelEntryData>::Invoke(data);
+        Engine::InstanceEvent<LevelEntryData>::Invoke(data);
 }
 
 void UI::LevelEntryWidget::UpdateInfo(const LevelEntryData& InData)

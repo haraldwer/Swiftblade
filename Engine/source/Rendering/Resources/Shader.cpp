@@ -82,8 +82,7 @@ bool Rendering::ShaderResource::Unload()
 Utility::Timepoint Rendering::ShaderResource::GetEditTime() const
 {
     if (defines != Manager::Get().GetConfig().Context.Get().GlobalDefines.Get())
-        return std::chrono::high_resolution_clock::now();
-    
+        return Utility::Now();
     Utility::Timepoint max = Utility::Timepoint::min(); 
     for (String path : fsIncludes)
         max = Utility::Math::Max(max, Utility::File::GetWriteTime(path));

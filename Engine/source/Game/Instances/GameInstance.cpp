@@ -63,7 +63,7 @@ void GameInstance::Logic(const double InDelta)
             Menu::Manager::Get().Push<MenuPause>();
     }
     ecs.Update();
-    editorCamera.Update();
+    freeCamera.Update();
 }
 
 void GameInstance::Frame()

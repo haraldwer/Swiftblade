@@ -110,7 +110,7 @@ void UI::InfoPanelLevel::Update(Container &InOwner)
                 res->Save();
 
                 data.entry.Name = text;
-                InstanceEvent<LevelEntryData>::Invoke(data);
+                Engine::InstanceEvent<LevelEntryData>::Invoke(data);
             
                 // Apply new name!
                 Get<Label>("Name").SetText(text);

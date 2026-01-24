@@ -3,6 +3,7 @@
 
 #include "AssetDetails.h"
 #include "Debug/Panel.h"
+#include "Core/Utility/Singelton.h"
 
 namespace Editor
 {

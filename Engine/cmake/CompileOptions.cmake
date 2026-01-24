@@ -6,13 +6,15 @@ set_target_properties(${PROJECT_NAME}
     UNITY_BUILD false)
 
 # Shared definitions
-target_compile_definitions(${PROJECT_NAME} PUBLIC
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  LOG_CATEGORY="${PROJECT_NAME}"
   PROJECT_VERSION="${PROJECT_VERSION}"
-  PROJECT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-  PROJECT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-  PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
   "$<$<CONFIG:Release>:NDEBUG>"
-  "$<$<CONFIG:Debug>:_DEBUG>")
+  "$<$<CONFIG:Debug>:_DEBUG>"
+)
 
 if(MSVC)
   
@@ -68,6 +70,8 @@ if(MSVC)
   
 elseif (MINGW)
 
+  message("-- Setting custom MINGW flags")
+
   # Shared compile options
   target_compile_options(${PROJECT_NAME} PUBLIC
     -fpermissive
@@ -87,8 +91,7 @@ elseif (MINGW)
     $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
     $<$<CONFIG:Debug>:-fno-lto>
   )
-
-
+  
   # Debug link options
   target_link_options(${PROJECT_NAME} PUBLIC
     $<$<CONFIG:Debug>:-fno-lto>

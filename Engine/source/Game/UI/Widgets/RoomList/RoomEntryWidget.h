@@ -27,6 +27,6 @@ namespace UI
         void UpdateInfo(const RoomEntryData& InData);
         
         RoomEntryData data;
-        InstanceEvent<RoomEntryData>::ContextCallback<RoomEntryWidget*> onChanged;
+        Engine::InstanceEvent<RoomEntryData>::ContextCallback<RoomEntryWidget*> onChanged;
     };
 }

@@ -4,25 +4,25 @@
 #include "ImGui/Knobs/imgui-knobs.h"
 #endif
 
-void Audio::Manager::Init()
+void Audio::Audio::Init()
 {
     config.LoadConfig();
     generator.Init(config);
 }
 
-void Audio::Manager::Deinit()
+void Audio::Audio::Deinit()
 {
     generator.Deinit();
 }
 
-void Audio::Manager::Update()
+void Audio::Audio::Update()
 {
 }
 
 
 #ifdef IMGUI_ENABLE
 
-void Audio::Manager::DrawPanel()
+void Audio::Audio::DrawPanel()
 {
     PROFILE();
     
@@ -48,6 +48,6 @@ void Audio::Manager::DrawPanel()
 
 #else
 
-void Audio::Manager::DrawDebugPanel() { }
+void Audio::Audio::DrawDebugPanel() { }
 
 #endif

@@ -82,8 +82,6 @@ namespace ECS
 
         // Objects that should be destroyed
         Set<EntityID> pendingDestroy = {};
-
-        Inspector inspector;
     };
 }
 

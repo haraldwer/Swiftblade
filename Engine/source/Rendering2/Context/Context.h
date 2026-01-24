@@ -11,6 +11,10 @@ namespace Rendering
         
         wgpu::Surface CreateSurface(const Vec2I& InResolution, GLFWwindow* InWindow = nullptr) const;
 
+        wgpu::Instance instance;
+        wgpu::Adapter adapter;
+        wgpu::Device device;
+        
     private:
         ContextConfig config;
         
@@ -19,9 +23,6 @@ namespace Rendering
         void GetAdapter();
         void GetDevice();
         
-        wgpu::Instance instance;
-        wgpu::Adapter adapter;
-        wgpu::Device device;
         
         // TODO: Store limits!
         

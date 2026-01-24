@@ -43,9 +43,8 @@ namespace UI
         ElementID addButton = -1;
         bool changed = false;
         bool added = false;
-        
 
-        InstanceEvent<MenuRoomSelect::OnSelectEvent>::ContextCallback<LevelRoomList*> onSelect;
+        Engine::InstanceEvent<MenuRoomSelect::OnSelectEvent>::ContextCallback<LevelRoomList*> onSelect;
         MenuRoomSelect* selectMenu = nullptr;
     };
 }

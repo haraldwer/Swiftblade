@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "Debug/Panel.h"
+#include "Core/Property/PropertyOwner.h"
 
 #ifndef PACK_PATH
 #define PACK_DIR "/package/"

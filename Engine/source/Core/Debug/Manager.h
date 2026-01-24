@@ -30,8 +30,7 @@ namespace Debug
         Map<const Panel*, int> panelToPriority;
         
         Config current = {};
-
-
+        
         // Logic tick counter
         int logicCounter = 0;
         double tpf = 0.0;

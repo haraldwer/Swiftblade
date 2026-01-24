@@ -241,7 +241,7 @@ void RoomPathEditor::VerifyPath() const
 
 void RoomPathEditor::SelectClosest()
 {
-    auto& cam = GetEditor().GetEditorCamera();
+    auto& cam = GetEditor().GetFreeCamera();
     Vec3F camPos = cam.GetPosition();
     Vec3F mouseDir = cam.GetMouseDirection();
 

@@ -89,8 +89,8 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
             
                 if (text.empty())
                     text = "Untitled";
-                
-                InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
+
+                Engine::InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
                 
                 // Apply new name!
                 Get<Label>("Name").SetText(text);
@@ -108,7 +108,7 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
             res->data.Info.Get().Type = toggle.GetSelected();
             res->Save();
         }
-        InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
+        Engine::InstanceEvent<EditRoomEntryData>::Invoke({ room, false });
     }
 
     if (Get<ButtonDefault>("Open").IsClicked())

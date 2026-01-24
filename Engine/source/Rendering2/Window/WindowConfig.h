@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Property/PropertyOwner.h"
+
 namespace Rendering
 {
     struct WindowConfig : PropertyOwner<WindowConfig>

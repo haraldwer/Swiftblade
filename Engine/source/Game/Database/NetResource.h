@@ -56,7 +56,7 @@ namespace DB
             String error;
         };
 
-        typedef GlobalEvent<EventData, Resource::ID> Event;
+        typedef Engine::GlobalEvent<EventData, Resource::ID> Event;
         template <class ContextT>
         class Callback : public Event::template ContextCallback<ContextT>
         {

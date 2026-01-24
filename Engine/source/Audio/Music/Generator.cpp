@@ -9,7 +9,7 @@ void Fill(void* InBuffer, const unsigned int InFrames)
 
 void Music::Generator::Init(Config InConfig)
 {
-    PROFILE_AU();
+    AU_PROFILE();
 
     config = InConfig;
     
@@ -26,7 +26,7 @@ void Music::Generator::Init(Config InConfig)
 
 void Music::Generator::Deinit() 
 {
-    PROFILE_AU();
+    AU_PROFILE();
     Audio::UnloadStream(stream);
     stream = {};
     Audio::CloseDevice();
@@ -34,7 +34,7 @@ void Music::Generator::Deinit()
 
 void Music::Generator::FillBuffer(void* buffer, unsigned int frames)
 {
-    PROFILE_AU();
+    AU_PROFILE();
 
     const auto samples = static_cast<float*>(buffer);
     memset(samples, 0, sizeof(float) * frames); // Reset buffer

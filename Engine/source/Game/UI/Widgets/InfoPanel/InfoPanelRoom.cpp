@@ -80,7 +80,7 @@ void UI::InfoPanelRoom::Update(Container &InOwner)
                 text = "Untitled";
 
             res->Save();
-            InstanceEvent<RoomInfo>::Invoke(info);
+            Engine::InstanceEvent<RoomInfo>::Invoke(info);
             
             // Apply new name!
             Get<Label>("Name").SetText(text);

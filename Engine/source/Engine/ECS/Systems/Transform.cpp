@@ -6,7 +6,7 @@
 #include "Rendering/Manager.h"
 
 #ifdef IMGUI_ENABLE
-#include "../../../Editor/Utility/EditTransform.h"
+#include "../../EditTransform.h"
 #include "ImGui/Gizmo/ImGuizmo.h"
 #endif
 
@@ -242,7 +242,7 @@ bool SysTransform::EditGizmo(EntityID InID)
     static bool useSnap = true;
 
     if (Rendering::Manager::Get().IsViewportClickable() &&
-        !Engine::Instance::Get().GetEditorCamera().IsControlling())
+        !Engine::Instance::Get().GetFreeCamera().IsControlling())
     {
         if (ImGui::IsKeyPressed(ImGuiKey_W))
             gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
@@ -253,7 +253,7 @@ bool SysTransform::EditGizmo(EntityID InID)
     }
     
     Mat4F trans = t.World();
-    const bool finishEdit = ImGuizmo::Edit(trans, gizmoSpace, gizmoOperation, useSnap);
+    const bool finishEdit = Engine::EditTransform(trans, gizmoSpace, gizmoOperation, useSnap);
     t.SetWorld(trans); 
     return finishEdit; 
 }

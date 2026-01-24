@@ -38,15 +38,15 @@ void RoomEditor::Init()
     if (!config.EditMode.Get().empty())
         subEditorManager.SetCurrent(config.EditMode.Get());
     
-    editorCamera.Toggle(); 
-    editorCamera.SetAlwaysEnabled(true);
+    freeCamera.Toggle(); 
+    freeCamera.SetAlwaysEnabled(true);
     if (config.CamPos.Get() != Vec3F::Zero() && config.CamRot.Get() != Vec3F::Zero())
     {
-        editorCamera.SetState(config.CamPos, config.CamRot);
+        freeCamera.SetState(config.CamPos, config.CamRot);
     }
     else
     {
-        editorCamera.SetTarget(Vec3F::One());
+        freeCamera.SetTarget(Vec3F::One());
     }
     
     Input::Manager::Get().Push("RoomEditor");
@@ -56,8 +56,8 @@ void RoomEditor::Deinit()
 {
     Input::Manager::Get().Pop("RoomEditor");
 
-    config.CamPos = editorCamera.GetPosition();
-    config.CamRot = editorCamera.GetRotation();
+    config.CamPos = freeCamera.GetPosition();
+    config.CamRot = freeCamera.GetRotation();
     config.LastRoom = roomResource;
     config.EditMode = subEditorManager.GetCurrentName();
     config.SaveConfig();
@@ -74,7 +74,7 @@ void RoomEditor::Logic(const double InDelta)
     
     Instance::Logic(InDelta);
     ecs.Update();
-    editorCamera.Update();
+    freeCamera.Update();
     
     subEditorManager.Update();
 
@@ -130,7 +130,7 @@ void RoomEditor::PlayRoom()
     ResScene tempScene = GetTempScene(ConvertRoomToScene());
     int repeats = workingRoom.Info.Get().Type.Get() == "ROOM" ? 3 : 1;
     if (auto game = Engine::Manager::Get().Push<GameInstance>())
-        game->PlayScene({ tempScene, repeats, editorCamera.GetPosition() });
+        game->PlayScene({ tempScene, repeats, freeCamera.GetPosition() });
 }
 
 void RoomEditor::ExportScene()

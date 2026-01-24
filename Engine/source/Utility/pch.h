@@ -55,6 +55,7 @@
 #include <chrono>
 #include <cassert>
 #include <cstdint>
+#include <functional>
 
 using String = std::string; 
 template <class T>
@@ -79,11 +80,11 @@ typedef int16_t int16;
 typedef uint8_t uint8;
 typedef int8_t int8;
 
-
 #include "Utility/Math/Macros.h"
 #include "Utility/Math/Basic.h"
-#include "Utility/Utility.h"
 #include "Utility/Math/Lerp.h"
+
+#include "Utility/Utility.h"
 
 #include "Utility/Type.h"
 using Type = Utility::Type;

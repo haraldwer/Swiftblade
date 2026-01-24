@@ -50,7 +50,7 @@ void UI::EditRoomEntryWidget::Update(Container &InOwner)
 {
     Container::Update(InOwner);
     if (IsClicked())
-        InstanceEvent<EditRoomEntryData>::Invoke(data);
+        Engine::InstanceEvent<EditRoomEntryData>::Invoke(data);
 }
 
 void UI::EditRoomEntryWidget::UpdateInfo(const EditRoomEntryData &InData)

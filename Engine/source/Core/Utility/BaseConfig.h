@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Property/PropertyOwner.h"
+
 template <class T>
 struct BaseConfig : PropertyOwner<T>
 {

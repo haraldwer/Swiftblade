@@ -1,12 +1,12 @@
 #pragma once
 
-namespace Editor
+namespace Engine
 {
-    class Camera
+    class FreeCamera
     {
     public:
 
-        Camera() = default;
+        FreeCamera() = default;
 
         void Update();
         void Deinit();

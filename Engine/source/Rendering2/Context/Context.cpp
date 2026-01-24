@@ -123,14 +123,14 @@ void Rendering::Context::GetDevice()
     deviceDesc.defaultQueue.nextInChain = nullptr;
     deviceDesc.defaultQueue.label = wgpu::StringView("Default queue");
     deviceDesc.deviceLostCallbackInfo.callback = [](
-        WGPUDevice const* device,
-        const WGPUDeviceLostReason reason,
-        const WGPUStringView message, 
-        void* pUserData1, 
-        void* pUserData2) 
+        WGPUDevice const* InDevice,
+        const WGPUDeviceLostReason InReason,
+        const WGPUStringView InMessage, 
+        void* InData1, 
+        void* InData2) 
             {
                 // TODO: Recreate everything!
-                printf("Device lost: %i | %s\n", reason, ToStr(message));
+                printf("Device lost: %i | %s\n", InReason, ToStr(InMessage));
                 assert(false && "Device lost");
             };
     device = RequestDevice(instance, adapter, deviceDesc);
