@@ -4,15 +4,19 @@
 #include "ImGui/imgui.h"
 
 #include "Blueprints/Blueprint.h"
+#include "ECS/Registration.h"
 #include "ECS/Systems/Attributes.h"
 #include "ECS/Systems/Environment.h"
 #include "ECS/Systems/Transform.h"
-#include "Instance/Manager.h"
+#include "Game/ECS/Registration.h"
+#include "Instance/InstanceManager.h"
 #include "Game/Instances/GameInstance.h"
 
 void Editor::BlueprintEditor::Init()
 {
     Instance::Init();
+    ECS::RegisterEngineSystems();
+    ECS::RegisterGameSystems();
     ecs.Init();
     freeCamera.Toggle(); 
     config.LoadConfig();
@@ -84,13 +88,13 @@ void Editor::BlueprintEditor::Logic(const double InDelta)
                 bp->SaveEntity(instanceID); 
         
         if (Input::Action::Get("Play").Pressed())
-            Engine::Manager::Get().Push<GameInstance>();
+            Engine::InstanceManager::Get().Push<GameInstance>();
     }
 
     if (Input::Action::Get("Back").Pressed())
     {
         LOG("Leaving editor");
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
     }
 }
 
@@ -98,6 +102,8 @@ void Editor::BlueprintEditor::Frame()
 {
     ecs.Frame();
     
+    // TODO: 
+    /*
     if (ecs.GetSystem<ECS::SysEnvironment>().Empty())
     {
         Rendering::EnvironmentInstance i;
@@ -109,6 +115,7 @@ void Editor::BlueprintEditor::Frame()
     {
         //DrawGrid(25, 1);
     });
+    */
     
     Instance::Frame();
 }
@@ -128,7 +135,7 @@ void Editor::BlueprintEditor::DrawPanel()
     if (ImGui::Button("Close", ImVec2(-1, 0)))
     {
         LOG("Leaving editor");
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
     }
 
     ImGui::SeparatorText("Hierarchy");

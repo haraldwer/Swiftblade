@@ -2,7 +2,7 @@
 
 #include "Editor/RoomEditor.h"
 #include "Editor/Menus/MenuRoomPreview.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "Menu/Manager.h"
 
 void RoomPreviewEditor::Init()
@@ -26,7 +26,7 @@ void RoomPreviewEditor::Init()
         if (InE.option == "Preview")
             GetEditor().PlayRoom();
         if (InE.option == "Return")
-            Engine::Manager::Get().Pop();
+            Engine::InstanceManager::Get().Pop();
     }};
 
     onSubmit = { [&](auto& InResp, auto InC)

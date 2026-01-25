@@ -4,7 +4,7 @@
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 #include "Input/Action.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "UI/Elements/List.h"
 #include "UI/Widgets/Common/LabelHeader.h"
 #include "UI/Widgets/Common/LabelTitle.h"
@@ -32,7 +32,7 @@ void MenuPause::Update()
         Menu::Manager::Get().Close(this);
 
     if (ui["Quit"].IsClicked())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }
 
 void MenuPause::Deinit()

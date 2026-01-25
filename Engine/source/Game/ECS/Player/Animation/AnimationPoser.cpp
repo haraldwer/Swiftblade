@@ -26,9 +26,9 @@ void ECS::AnimationPoser::VisualizePoses()
         if (name.starts_with(VisualizePoseB.Get()) && !VisualizePoseB.Get().empty())
             b = Get<Transform>(c).Local();
     }
-
-    uint64 hash = Rendering::MeshInstance::GenHash(VisualizationMesh.Get(), VisualizationMat.Get());
     
+    // TODO:
+    /*
     auto& rs = Engine::Instance::Get().GetRenderScene();
     if (a != Mat4F() || b != Mat4F())
     {
@@ -60,6 +60,7 @@ void ECS::AnimationPoser::VisualizePoses()
             Get<Transform>(c).Local(),
             hash 
         });
+    */
 }
 
 Mat4F ECS::AnimationPoser::GetPose(const String& InPose) const

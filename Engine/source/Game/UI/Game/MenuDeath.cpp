@@ -1,6 +1,6 @@
 ﻿#include "MenuDeath.h"
 
-#include "Engine/Instance/Manager.h"
+#include "Engine/Instance/InstanceManager.h"
 #include "Engine/UI/Builder.h"
 #include "Engine/UI/Elements/Label.h"
 #include "Engine/UI/Elements/List.h"
@@ -44,11 +44,11 @@ void MenuDeath::Update()
     if (ui["Respawn"].IsClicked())
     {
         // Push new game instance
-        Engine::Manager::Get().Pop();
-        if (const auto newGame = Engine::Manager::Get().Push<GameInstance>())
+        Engine::InstanceManager::Get().Pop();
+        if (const auto newGame = Engine::InstanceManager::Get().Push<GameInstance>())
             newGame->SetState(GameState::Get()); // Transfer game state
     }
     
     if (ui["Main Menu"].IsClicked())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }

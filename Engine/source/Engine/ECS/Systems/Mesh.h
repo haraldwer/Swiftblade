@@ -3,9 +3,9 @@
 #include "Utility/Collections/PersistenceContainer.h"
 #include "ECS/System.h"
 #include "ECS/Component.h"
-#include "Rendering/Resources/Model.h"
 #include "Rendering/Resources/Material.h"
-#include "Rendering/Scene/Culling/VisibilityMask.h"
+#include "Rendering/Resources/Model.h"
+#include "Scene/Culling/VisibilityMask.h"
 
 namespace ECS
 {

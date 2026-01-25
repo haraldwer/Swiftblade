@@ -5,7 +5,7 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "C:\\Dev\\Swiftblade\\RayEngine\\build\\source\\Game\\Debug\\Game.exe",
+        "executable": "/home/harald/Dev/Swiftblade/Engine/cmake-build-debug/source/Application/Application",
         "inject": false,
         "numQueuedFrames": 0,
         "options": {

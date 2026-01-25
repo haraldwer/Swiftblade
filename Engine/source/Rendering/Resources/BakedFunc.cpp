@@ -1,9 +1,5 @@
 #include "BakedFunc.h"
 
-#include "Shader.h"
-#include "Interface/Textures.h"
-#include "State/State.h"
-
 void Rendering::BakedFunc::Bake(const Vec2I& InResolution, const std::function<Vec4F(const Vec2F&, const Vec2I&)>& InEvalFunc)
 {
     CHECK_RETURN_LOG(!Unload(), "Failed to unload previous func");
@@ -46,30 +42,15 @@ void Rendering::BakedFunc::Bake(const Vec2I& InResolution, const std::function<V
     */
 }
 
-void Rendering::BakedFunc::Bind(const String &InName, ShaderResource &InShader, int &InOutSlot, TextureParamValue InFilter) const
+void Rendering::BakedFunc::Bind(const String &InName, ShaderResource &InShader, int &InOutSlot, int InFilter) const
 {
     CHECK_RETURN(!baked);
     
-    CHECK_ASSERT(!texture, "Tex nullptr");
-    
-    const int loc = InShader.GetLocation(InName);
-    CHECK_RETURN(loc < 0);
-
-    InOutSlot++;
-    TextureCommand cmd;
-    cmd.shaderLoc = loc;
-    cmd.id = texture;
-    cmd.filter = InFilter;
-    rlState::current.Set(cmd, InOutSlot);
+    // TODO: 
 }
 
 bool Rendering::BakedFunc::Unload()
 {
     baked = false;
-    if (texture != 0)
-    {
-        RHI::DestroyTexture(texture);
-        texture = 0;
-    }
     return true;
 }

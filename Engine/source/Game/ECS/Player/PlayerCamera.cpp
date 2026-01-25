@@ -1,7 +1,7 @@
 ﻿#include "PlayerCamera.h"
 
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Instance/Manager.h"
+#include "Engine/Instance/InstanceManager.h"
 
 void ECS::PlayerCamera::Init()
 {

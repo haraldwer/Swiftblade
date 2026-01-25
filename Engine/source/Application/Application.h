@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Audio.h"
-#include "Editor.h"
-#include "Engine.h"
-#include "Renderer.h"
+#include "Audio/Manager.h"
+#include "Editor/Manager.h"
+#include "Engine/Manager.h"
+#include "Rendering/Manager.h"
 
 #define EDITOR_ENABLED
 
@@ -19,13 +19,13 @@ namespace Application
     private:
         void Frame();
         
-        bool run = true;
-        Engine engine;
-        Renderer renderer;
-        Audio audio;
-        
 #ifdef EDITOR_ENABLED
-        Editor editor;
+        Editor::Manager editor;
 #endif
+        Engine::Manager engine;
+        Rendering::Manager renderer;
+        Audio::Manager audio;
+        
+        bool run = true;
     };
 }

@@ -4,7 +4,6 @@
 #include "Manager.h"
 #include "QueryCallback.h"
 #include "Utility.h"
-#include "Editor/Debug/Draw.h"
 #include "reactphysics3d/engine/PhysicsWorld.h"
 
 Physics::QueryResult Physics::Query::Trace(const TraceParams& InParams)

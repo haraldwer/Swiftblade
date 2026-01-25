@@ -1,13 +1,5 @@
 {
-	"Selected":[
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Shaders/Lumin"
-	],
 	"Expanded":[
-		"/home/harald/Dev/Swiftblade/RayEngine/content",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Dressing",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Dressing/RM_StoneWall.json",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Dressing/SH_StoneWall.ds",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Shaders",
-		"/home/harald/Dev/Swiftblade/RayEngine/content/Shaders/Lumin"
+		"/home/harald/Dev/Swiftblade/Engine/cmake-build-debug/source/Application"
 	]
 }

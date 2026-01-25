@@ -2,7 +2,7 @@
 
 #include <ranges>
 
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "Instances/GameInstance.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
@@ -48,7 +48,7 @@ void UI::BrowseStoryPanel::Update(Container &InOwner)
  
     for (auto& e : std::ranges::reverse_view(config.Entries.Get()))
         if (Get<Element>(e.Name).IsClicked())
-            if (auto game = Engine::Manager::Get().Push<GameInstance>())
+            if (auto game = Engine::InstanceManager::Get().Push<GameInstance>())
                 game->PlayScene({ ResScene("Cache/test.json") });
             
 }

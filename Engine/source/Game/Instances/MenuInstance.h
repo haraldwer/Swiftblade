@@ -2,6 +2,7 @@
 
 #include "ECS/Manager.h"
 #include "Engine/Instance/Instance.h"
+#include "Resources/Material.h"
 #include "Scene/SceneResource.h"
 
 struct MenuConfig : BaseConfig<MenuConfig>

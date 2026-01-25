@@ -1,7 +1,7 @@
 #include "Application.h"
 
 #ifdef __EMSCRIPTEN__
-    #include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #endif
 
 void Application::App::Init()

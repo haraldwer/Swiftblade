@@ -1,8 +1,11 @@
 ﻿#include "MenuInstance.h"
 
 #include "../UI/Menus/MenuMain.h"
-#include "Instance/Manager.h"
+#include "ECS/Registration.h"
+#include "Game/ECS/Registration.h"
+#include "Instance/InstanceManager.h"
 #include "Scene/SceneResource.h"
+#include "Scene/Instances/EnvironmentInstance.h"
 #include "UI/Menus/MenuLogin.h"
 
 void MenuInstance::Init()
@@ -15,6 +18,8 @@ void MenuInstance::Init()
     menus.Push<MenuMain>();
 #endif
     
+    ECS::RegisterEngineSystems();
+    ECS::RegisterGameSystems();
     ecs.Init();
     
     config.LoadConfig();
@@ -51,14 +56,14 @@ void MenuInstance::Logic(const double InDelta)
         menus.Pop();
 
     if (menus.Empty())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }
 
 void MenuInstance::Frame()
 {
     Rendering::EnvironmentInstance env;
     env.skybox = config.Skybox;
-    GetRenderScene().AddEnvironment(env);
+    // TODO: GetRenderScene().AddEnvironment(env);
     ecs.Frame(); 
     Instance::Frame();
 }

@@ -5,7 +5,11 @@
 #define CONCAT_INTERNAL(A, B) A ## B
 #define CONCAT(A, B) CONCAT_INTERNAL(A, B)
 
-#define LOG(text) { Utility::ExternalLog(Utility::ToStr(LOG_CATEGORY), __FILE__, __FUNCTION__, __LINE__, Utility::ToStr(text)); }
+#define LOG(...) \
+Utility::ExternalLog( \
+    Utility::ToStr(LOG_CATEGORY), \
+    __FILE__, __FUNCTION__, __LINE__, \
+    Utility::ToStrCat(__VA_ARGS__));
 
 #define CHECK_ASSERT(condition, text) \
 assert(!(condition) && text);

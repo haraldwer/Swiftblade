@@ -1,13 +1,18 @@
 ﻿#include "RoomEditor.h"
 
+#include "ImGui/imgui.h"
+
 #include "Database/Manager.h"
 #include "Database/Data/RPCRoom.h"
+
+#include "Game/ECS/Registration.h"
+#include "ECS/Registration.h"
 #include "ECS/Volume/CubeVolume.h"
-#include "Engine/Instance/Manager.h"
+
+#include "Engine/Instance/InstanceManager.h"
 #include "Instances/GameInstance.h"
-#include "ImGui/imgui.h"
 #include "Menus/MenuRoomEditor.h"
-#include "Rendering/Manager.h"
+#include "Scene/Instances/EnvironmentInstance.h"
 #include "SubEditors/RoomConnectionEditor.h"
 #include "SubEditors/RoomObjectEditor.h"
 #include "SubEditors/RoomVolumeEditor.h"
@@ -18,6 +23,9 @@ void RoomEditor::Init()
 
     config.LoadConfig();
     menu = menus.Push<MenuRoomEditor>();
+    
+    ECS::RegisterEngineSystems();
+    ECS::RegisterGameSystems();
     ecs.Init();
 
     if (!roomResource.Identifier().IsValid())
@@ -98,14 +106,15 @@ void RoomEditor::Logic(const double InDelta)
     }
 
     if (Input::Action::Get("Back").Released())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }
 
 void RoomEditor::Frame()
 {
     Rendering::EnvironmentInstance env;
     env.skybox = config.Skybox;
-    GetRenderScene().AddEnvironment(env);
+    // TODO: 
+    //GetRenderScene().AddEnvironment(env);
     
     subEditorManager.Frame();
     ecs.Frame(); 
@@ -129,7 +138,7 @@ void RoomEditor::PlayRoom()
     SaveRoom();
     ResScene tempScene = GetTempScene(ConvertRoomToScene());
     int repeats = workingRoom.Info.Get().Type.Get() == "ROOM" ? 3 : 1;
-    if (auto game = Engine::Manager::Get().Push<GameInstance>())
+    if (auto game = Engine::InstanceManager::Get().Push<GameInstance>())
         game->PlayScene({ tempScene, repeats, freeCamera.GetPosition() });
 }
 

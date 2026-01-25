@@ -1,8 +1,8 @@
 #include "Collider.h"
 
 #include "Transform.h"
-#include "Editor/Debug/Draw.h"
-#include "Instance/Manager.h"
+#include "../../Utility/DebugDraw.h"
+#include "Instance/InstanceManager.h"
 #include "Physics/CollisionShape.h"
 #include "Physics/Manager.h"
 

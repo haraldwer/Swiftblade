@@ -11,7 +11,7 @@ using namespace ECS;
 
 void Manager::Init()
 {
-    RegisterSystems();
+    CHECK_ASSERT(systemMap.empty(), "No systems registered!")
     SortSystems();
     for (SystemBase* system : sortedSystems)
         system->SystemInit();
@@ -239,6 +239,22 @@ void Manager::DeserializeChildren(const EntityID InID, const DeserializeObj& InO
         // TODO: Only if child is newly created
         transSys.SetupHierarchy(InID, childID, Transform::Space::LOCAL, false);
     }
+}
+
+void Manager::RegisterSystem(SystemBase *InSys, const String &InName, Utility::TypeHash InComponentHash, Utility::TypeHash InSystemHash)
+{
+    CHECK_ASSERT(!InSys, "System nullptr");
+    CHECK_ASSERT(InName.empty(), "Invalid system name");
+    CHECK_ASSERT(InComponentHash == Utility::TypeHash(), "Invalid component type");
+    CHECK_ASSERT(InSystemHash == Utility::TypeHash(), "Invalid system type");
+    CHECK_ASSERT(systemMap.contains(InSystemHash), "System already registered");
+    CHECK_ASSERT(componentMap.contains(InComponentHash), "Component already registered");
+    CHECK_ASSERT(nameToSystem.contains(InName), "System already registered");
+    
+    systemMap[InSystemHash] = InSys;
+    componentMap[InComponentHash] = InSys;
+    nameToSystem[InName] = InSys;
+    systemToName[InSys] = InName; 
 }
 
 void Manager::Serialize(const EntityID InID, SerializeObj& OutObj, const bool InChildren)

@@ -3,7 +3,7 @@
 #include "MenuMain.h"
 #include "Database/Manager.h"
 #include "Database/Components/Authentication.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"

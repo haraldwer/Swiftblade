@@ -2,7 +2,6 @@
 
 #include "Entity.h"
 #include "System.h"
-#include "../../Editor/ECS/Inspector.h"
 
 namespace ECS
 {
@@ -44,13 +43,14 @@ namespace ECS
 
         SystemBase* GetSystem(const String& InComponentName);
         SystemBase* GetSystem(const Utility::Type& InType, bool InIsCompHash);
+        void RegisterSystem(SystemBase* InSys, const String& InName, Utility::TypeHash InComponentHash, Utility::TypeHash InSystemHash);
         
         const Map<String, SystemBase*>& GetAllSystems() const { return nameToSystem; }
         std::set<EntityID> GetAllEntities() { return entities; }
 
         void Deserialize(EntityID InID, const Mat4F& InTransform, const Vector<DeserializeObj>& InObjects);
         void Serialize(EntityID InID, SerializeObj& OutObj, bool InChildren);
-
+    
     private:
 
         struct DeserializeSysTuple
@@ -64,7 +64,6 @@ namespace ECS
         Set<SystemBase*> DeserializeComponents(EntityID InID, const DeserializeObj& InObj); 
         void DeserializeChildren(EntityID InID, const DeserializeObj& InObj, DeserializeEntityCollection& OutSystems, int InDepth);
         
-        void RegisterSystems();
         void SortSystems(); 
 
         // System type -> System ptr

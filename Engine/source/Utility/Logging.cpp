@@ -51,7 +51,7 @@ void Utility::ExternalLog(const String& InCategory, const String& InFile, const 
     auto filenameEnd = InFile.find_last_of('.');
     auto filenameStart = Math::Min(InFile.find_last_of('/'), InFile.find_last_of('\\')) + 1;
     String filename = InFile.substr(filenameStart, filenameEnd - filenameStart); 
-    Log("[" + ToUpper(InCategory) + "]" + filename + "::" + InFunc + "::" + ToStr(InLine) + " | " + InText);
+    Log("[" + ToUpper(InCategory) + "] " + filename + "::" + InFunc + "::" + ToStr(InLine) + " | " + InText);
 }
 
 void Utility::AddLogCallback(const std::function<void(const String &)> &InCallback)

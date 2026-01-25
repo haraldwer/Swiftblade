@@ -3,7 +3,7 @@
 #include "ECS/Manager.h"
 #include "ECS/Systems/Attributes.h"
 #include "../../Editor/ECS/BlueprintEditor.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "Utility/File/File.h"
 
 bool BlueprintResource::Load()

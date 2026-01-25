@@ -2,7 +2,7 @@
 
 #include "MenuBrowse.h"
 #include "Editor/RoomEditor.h"
-#include "Engine/Instance/Manager.h"
+#include "Engine/Instance/InstanceManager.h"
 #include "Engine/UI/Builder.h"
 #include "Engine/UI/Elements/Image.h"
 #include "Engine/UI/Elements/Label.h"
@@ -73,5 +73,5 @@ void MenuMain::Update()
     if (ui["Settings"].IsClicked())
         Menu::Manager::Get().Push<MenuSettings>();
     if (ui["Exit"].IsClicked())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }

@@ -14,12 +14,10 @@ namespace Utility
         return ToStr(std::chrono::system_clock::to_time_t(InTimePoint), InFormat);
     }
 
-#if defined(WIN32) || defined(__EMSCRIPTEN__)
     inline String ToStr(const Timepoint& InTimePoint, const String& InFormat = "%Y-%m-%d %H:%M:%S")
     {
         auto duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(InTimePoint - std::chrono::steady_clock::now());
         auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + duration);
         return ToStr(t, InFormat);
     }
-#endif
 }

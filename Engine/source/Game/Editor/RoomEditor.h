@@ -7,6 +7,7 @@
 #include "RoomSubEditorManager.h"
 #include "History/History.h"
 #include "EditRoom.h"
+#include "Resources/Material.h"
 
 class MenuRoomEditor;
 

@@ -16,6 +16,9 @@ void ECS::SysLight::Frame(const EntityID InID, Light& InComponent)
     }
 
     const Transform& t = Get<Transform>(InID);
+    
+    // TODO: 
+    /*
     auto& s = Engine::Instance::Get().GetRenderScene();
     s.AddLight({
         .data= {
@@ -29,4 +32,5 @@ void ECS::SysLight::Frame(const EntityID InID, Light& InComponent)
         .shadows= InComponent.Shadows,
         .id= InComponent.id
     });
+    */
 }

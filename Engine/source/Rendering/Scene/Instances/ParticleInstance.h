@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Rendering/Resources/Material.h"
-#include "Rendering/Resources/Model.h"
+#include "RenderingOld/Resources/Material.h"
+#include "RenderingOld/Resources/Model.h"
 #include "Resources/Particle.h"
 #include "Scene/Culling/VisibilityMask.h"
 

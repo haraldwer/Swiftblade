@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <string>
-
 namespace Utility
 {
     inline String ToStr(const String& InValue)

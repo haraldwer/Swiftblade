@@ -2,13 +2,12 @@
 
 #include "Transform.h"
 #include "Instance/Instance.h"
-#include "Rendering/Scene/Instances/MeshInstance.h"
 
 using namespace ECS;
 
 void SysMesh::SystemInit()
 {
-    persistentID = Rendering::MeshInstance::GenPersistentID();
+    persistentID = 0;// TODO:
 }
 
 void SysMesh::SystemFrame()
@@ -25,7 +24,7 @@ void SysMesh::SystemFrame()
         CHECK_CONTINUE(!t);
         
         const Mat4F world = t->World();
-        const uint64 hash = Rendering::MeshInstance::GenHash(m.Model, m.Material);
+        const uint64 hash = 0; // TODO: Rendering::MeshInstance::GenHash(m.Model, m.Material);
         CHECK_CONTINUE(hash == 0);
         
         if (world == m.worldCache && hash == m.hashCache)
@@ -41,6 +40,8 @@ void SysMesh::SystemFrame()
         }
     }
 
+    // TODO:
+    /*
     Rendering::Scene &rs = Engine::Instance::Get().GetRenderScene();
 
     // Remove persistence for unused hashes
@@ -68,7 +69,8 @@ void SysMesh::SystemFrame()
             }, persistentID);
         }
     }
-
+    */
+    
     // Begin diff for next frame
     diff.Begin();
 }

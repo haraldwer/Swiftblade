@@ -1,8 +1,9 @@
 #include "Camera.h"
 
 #include "Transform.h"
-#include "Editor/Debug/Draw.h"
+#include "../../Utility/DebugDraw.h"
 #include "Instance/Instance.h"
+#include "Scene/Instances/CameraInstance.h"
 
 void ECS::SysCamera::Frame(EntityID InEntity, Camera& InComponent)
 {
@@ -26,8 +27,10 @@ void ECS::SysCamera::Set(const EntityID InEntity, Camera& InComponent)
 
     // TODO: Camera manager
     auto& i = Engine::Instance::Get();
+    /*
     auto& s = i.GetRenderScene(); 
     s.SetCamera(c);
+    */
 
     if (i.IsEditor())
         Debug::Sphere(t.GetPosition());

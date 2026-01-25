@@ -286,8 +286,8 @@ Font* UI::FontResource::Get(const uint32 InSize)
 Shader* UI::FontResource::GetShader() const
 {
 #ifndef __EMSCRIPTEN__
-    if (const auto res = sdfShader.Get())
-        return res->GetProgram();
+    //if (const auto res = sdfShader.Get())
+    //    return res->GetProgram();
 #endif
     return nullptr;
 }

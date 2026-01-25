@@ -53,9 +53,11 @@
 #include <map>
 #include <string>
 #include <chrono>
+#include <utility>
 #include <cassert>
 #include <cstdint>
 #include <functional>
+#include <algorithm>
 
 using String = std::string; 
 template <class T>
@@ -128,6 +130,6 @@ typedef Utility::Math::Random Random;
 #include "Utility/Time/Timer.h"
 #include "Utility/Math/Hash.h"
 
-#include "Utility/String/StringFunctions.h"
 #include "Utility/String/StringConversion.h"
 #include "Utility/String/StringConversionMath.h"
+#include "Utility/String/StringFunctions.h"

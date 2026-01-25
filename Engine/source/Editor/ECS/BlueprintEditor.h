@@ -4,6 +4,7 @@
 #include "Core/Debug/Panel.h"
 #include "ECS/Manager.h"
 #include "Instance/Instance.h"
+#include "Resources/Material.h"
 
 namespace Editor
 {

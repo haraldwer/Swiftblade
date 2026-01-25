@@ -2,7 +2,7 @@
 
 #include "Database/Manager.h"
 #include "Database/Data/RPCRoom.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "Instances/GameInstance.h"
 #include "UI/Builder.h"
 #include "UI/Widgets/Common/LoadingSpinner.h"
@@ -188,6 +188,6 @@ void MenuLevelPlay::TryFinishRoomLoading()
     for (auto& arena : arenas)
         config.Arenas.Get().push_back(sceneResources.at(arena));
 
-    if (auto game = Engine::Manager::Get().Push<GameInstance>())
+    if (auto game = Engine::InstanceManager::Get().Push<GameInstance>())
         game->PlayLevel(config);
 }

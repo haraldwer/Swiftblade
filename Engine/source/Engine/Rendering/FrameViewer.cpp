@@ -3,15 +3,10 @@
 #ifdef IMGUI_ENABLE
 
 #include "ImGui/imgui.h"
-#include "Manager.h"
 #include "ImGui/Gizmo/ImGuizmo.h"
-#include "Lights/Lights.h"
-#include "Lumin/Lumin.h"
 
 void Rendering::FrameViewer::DrawViewportPanel()
 {
-    auto& man = Manager::Get();
-
     struct NamedTex
     {
         String name;
@@ -50,16 +45,15 @@ void Rendering::FrameViewer::DrawViewportPanel()
     
     ImGuizmo::SetDrawlist();
     
+    /*
     auto c = man.GetConfig();
     if (c.ShowLights)
     {
         if (ImGui::Begin("Light debug", &c.ShowLights.Get()))
         {
-            /*
             if (const auto l = man.defaultContext.GetLights())
                 for (auto& tex : l->GetShadowTarget().GetTextures())
                     DrawTex(*tex.tex);
-            */
         }
         ImGui::End();
     }
@@ -70,17 +64,16 @@ void Rendering::FrameViewer::DrawViewportPanel()
         {
             // Somehow debug the chunk grid
             // And show where player is!
-            /*
             for (auto& target : man.defaultContext.GetLumin()->GetTargets())
                 for (auto tex : target->GetTextures())
                     DrawTex(*tex.tex);
-            */
         }
         ImGui::End();
     }
 
     if (c != man.GetConfig())
         man.QueueConfig(c);
+    */
 }
 
 void Rendering::FrameViewer::DrawTex(const Texture& tex)
@@ -131,6 +124,7 @@ void Rendering::FrameViewer::DrawPanel()
 {
     if (ImGui::CollapsingHeader("Stats"))
     {
+        /*
         int total = 0;
         for (auto& entry : stats.meshDrawCount)
             total += entry.second;
@@ -144,12 +138,15 @@ void Rendering::FrameViewer::DrawPanel()
         ImGui::Text("Skyboxes: %i", stats.skyboxes);
         ImGui::Text("Particle simulations: %i", stats.particleSims);
         ImGui::Text("Particles: %i", stats.particles);
+        */
     }
     
-    auto& man = Manager::Get();
+    /*
+    auto& man = PrevManager::Get();
     auto c = man.GetConfig();
     if (c.Edit())
         man.QueueConfig(c);
+    */
 }
 
 #else

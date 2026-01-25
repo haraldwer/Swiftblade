@@ -2,14 +2,13 @@
 
 #include "Container.h"
 #include "Input/Manager.h"
-#include "Rendering/Manager.h"
 #include "Math/Random.hpp"
 
 void UI::Element::BeginDraw(Container &InOwner)
 {
     CHECK_RETURN(!cacheVisible);
     
-    if (Rendering::Manager::Get().GetConfig().DrawElementRects.Get())
+    if (false) // TODO: Draw element rect
         DrawRect(cachedDrawRect);
 
     /*
@@ -155,7 +154,10 @@ bool UI::Element::IsPressed() const
 
 UI::Rect UI::Element::GetReferenceRect()
 {
-    const Vec2I res = Rendering::Manager::Get().mainViewport.GetResolution();
+    return UI::Rect();
+    // TODO:
+    /*
+    const Vec2I res = Rendering::PrevManager::Get().mainViewport.GetResolution();
     const float aspect = static_cast<float>(res.x) / static_cast<float>(res.y); 
     return {
         Vec2F::Zero(),
@@ -164,6 +166,7 @@ UI::Rect UI::Element::GetReferenceRect()
             1000.0f
         }
     };
+    */
 }
 
 UI::Rect UI::Element::ReferenceToViewport(const Rect& InRect)
@@ -179,9 +182,13 @@ Vec2F UI::Element::ReferenceToViewport(const Vec2F& InVec)
     // TODO: Also consider ref start
     // TODO: Fix stretching
     
-    const Vec2I resi = Rendering::Manager::Get().mainViewport.GetResolution();
+    return InVec;
+    // TODO:
+    /*
+    const Vec2I resi = Rendering::PrevManager::Get().mainViewport.GetResolution();
     const Rect ref = GetReferenceRect();
     return (InVec / ref.end) * resi.To<float>();
+    */
 }
 
 UI::Rect UI::Element::CalculateRect(const Rect& InContainer) const

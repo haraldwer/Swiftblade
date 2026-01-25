@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Element.h"
-#include "Rendering/Resources/Texture.h"
+#include "Resources/Texture.h"
 
 namespace UI
 {

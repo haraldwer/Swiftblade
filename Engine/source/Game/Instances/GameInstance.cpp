@@ -3,16 +3,21 @@
 #include "../ECS/Player/Animation/PlayerAnimator.h"
 #include "../ECS/Player/Combat/Combat.h"
 #include "../ECS/Player/Movement/Movement.h"
+#include "ECS/Registration.h"
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/SceneResource.h"
+#include "Game/ECS/Registration.h"
 #include "ImGui/imgui.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "UI/Menus/MenuPause.h"
 
 void GameInstance::Init()
 {
     Instance::Init();
+    
+    ECS::RegisterEngineSystems();
+    ECS::RegisterGameSystems();
     ecs.Init();
     physics.Init();
 

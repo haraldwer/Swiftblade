@@ -4,7 +4,7 @@
 #include "Engine/ECS/Component.h"
 #include "Engine/ECS/System.h"
 #include "Physics/Resources/Material.h"
-#include "Rendering/Scene/Instances/MeshInstance.h"
+#include "Scene/Instances/MeshInstance.h"
 
 namespace ECS
 {

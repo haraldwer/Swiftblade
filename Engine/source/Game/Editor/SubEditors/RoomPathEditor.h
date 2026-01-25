@@ -40,10 +40,6 @@ private:
     RoomPathEditorConfig config;
     Vector<Vec3F> smoothPath;
     bool renderCacheChanged = false;
-    uint32 pointID = 0;
-    uint32 linkID = 0;
-    uint32 pointHash = 0;
-    uint32 linkHash = 0;
 
     void SelectClosest();
     void MoveSelected();

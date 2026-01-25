@@ -3,7 +3,7 @@
 #include <ranges>
 
 #include "UI/Widgets/Common/ButtonTab.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Label.h"
 #include "UI/Elements/List.h"

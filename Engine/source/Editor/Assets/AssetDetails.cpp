@@ -1,7 +1,6 @@
 #include "AssetDetails.h"
 
-#include "../ECS/BlueprintResourceDetails.h"
-#include "Config.h"
+#include "ECS/BlueprintResourceDetails.h"
 #include "TextDetails.h"
 #include "ResourceDetails.h"
 #include "Physics/Resources/Material.h"
@@ -11,10 +10,9 @@
 #include "UI/Resources/Font.h"
 #include "ConfigDetails.h"
 #include "Debug/Config.h"
-#include "../ECS/BlueprintEditor.h"
-#include "ImGui/imgui_internal.h"
+#include "ECS/BlueprintEditor.h"
 #include "Input/Config.h"
-#include "Instance/Launcher.h"
+#include "Launcher/Launcher.h"
 #include "Resources/Particle.h"
 
 void Editor::AssetDetails::DrawPanel()
@@ -88,15 +86,15 @@ void Editor::AssetDetails::OpenPanel(const String& InPath)
     ASSET_TRY_OPEN(FileResourceDetails<UI::FontResource>);
     
     ASSET_TRY_OPEN(TextResourceDetails<Rendering::NoiseTextureResource>);
-    ASSET_TRY_OPEN(TextResourceDetails<Rendering::BakedTexture>);
+    //ASSET_TRY_OPEN(TextResourceDetails<Rendering::BakedTexture>);
     ASSET_TRY_OPEN(TextResourceDetails<Rendering::Particle>);
     ASSET_TRY_OPEN(TextResourceDetails<PhysicsMaterialResource>);
     ASSET_TRY_OPEN(TextResourceDetails<Rendering::MaterialResource>);
     ASSET_TRY_OPEN(BlueprintResourceDetails);
     
-    ASSET_TRY_OPEN(ConfigDetails<Rendering::Config>);
+    //ASSET_TRY_OPEN(ConfigDetails<Rendering::Config>);
     ASSET_TRY_OPEN(ConfigDetails<Input::Config>);
-    ASSET_TRY_OPEN(ConfigDetails<Engine::LauncherConfig>);
+    ASSET_TRY_OPEN(ConfigDetails<LauncherConfig>);
     ASSET_TRY_OPEN(ConfigDetails<BlueprintEditorConfig>);
     ASSET_TRY_OPEN(ConfigDetails<Debug::Config>);
     

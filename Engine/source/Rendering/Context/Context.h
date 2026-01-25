@@ -1,36 +1,45 @@
 #pragma once
-
 #include "ContextConfig.h"
+
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
+#include <webgpu/webgpu.hpp>
 
 namespace Rendering
 {
-    class Particles;
-    class Lights;
-    class Lumin;
-    struct LuminConfig;
+    class CommandList;
+    class Window;
 
-    class Context
+    class Context : public Utility::Singelton<Context, true>
     {
-        friend class Pipeline;
-        friend class Renderer;
-        friend class DeferredRenderer;
-        
     public:
-        void Init(const ContextConfig& InConfig, bool InRoot = false);
+        void Init(const ContextConfig& InConfig);
         void Deinit();
-        double Time() const { return timer.Ellapsed(); }
-        Lights* GetLights() const { return lightsPtr; }
-        Lumin* GetLumin() const { return luminPtr; }
-        Particles* GetParticles() const { return particlesPtr; }
+        
+        wgpu::Surface CreateWindowSurface(const Window& InWindow) const;
+        wgpu::Surface CreateSurface(const wgpu::SurfaceConfiguration& InConfig) const;
+        wgpu::ShaderModule CreateShader(const wgpu::ShaderModuleDescriptor& InDesc) const;
+        wgpu::RenderPipeline CreatePipeline(const wgpu::RenderPipelineDescriptor& InDesc) const;
+        wgpu::CommandEncoder CreateEncoder(const wgpu::CommandEncoderDescriptor& InDesc) const;
+        wgpu::Buffer CreateBuffer(const wgpu::BufferDescriptor& InDesc);
+        void Submit(const Vector<wgpu::CommandBuffer>& InCommands) const;
+        void Poll();
+
 
     private:
-        ContextConfig config = {};
-
-        // Total context lifetime
-        Utility::Timer timer = {};
+        ContextConfig config;
         
-        Lights* lightsPtr = nullptr;
-        Lumin* luminPtr = nullptr;
-        Particles* particlesPtr = nullptr;
+        void InitGLFW();
+        void CreateInstance();
+        void GetAdapter();
+        void GetDevice();
+        void GetQueue();
+        
+        wgpu::Instance instance;
+        wgpu::Adapter adapter;
+        wgpu::Device device;
+        wgpu::Queue queue;
+        
+        // TODO: Store limits! 
     };
 }

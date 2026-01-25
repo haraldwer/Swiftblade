@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core/Resource/Resource.h"
-#include "Core/Resource/PropertyFile.h"
 #include "Texture.h"
 
 namespace Rendering

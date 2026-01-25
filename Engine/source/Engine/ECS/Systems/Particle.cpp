@@ -1,7 +1,7 @@
 #include "Particle.h"
 
 #include "Transform.h"
-#include "Instance/Instance.h"
+#include "Scene/Culling/VisibilityMask.h"
 
 void ECS::SysParticle::Frame(EntityID InID, Particle& InComponent)
 {
@@ -22,6 +22,8 @@ void ECS::SysParticle::Frame(EntityID InID, Particle& InComponent)
     if (InComponent.Shadows)
         mask |= static_cast<uint8>(Rendering::VisibilityMask::SHADOWS);
         
+    // TODO:
+    /*
     auto& s = Engine::Instance::Get().GetRenderScene();
     s.AddParticle({
         .particle = InComponent.Resource,
@@ -32,4 +34,5 @@ void ECS::SysParticle::Frame(EntityID InID, Particle& InComponent)
         .id = InComponent.id,
         .mask = mask,
     });
+    */
 }

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "ECS/UniqueComponent.h"
-#include "Rendering/Resources/Material.h"
-#include "Rendering/Resources/Model.h"
+#include "Resources/Material.h"
+#include "Resources/Model.h"
 
 namespace ECS
 {
@@ -15,7 +15,7 @@ namespace ECS
 
     private:
         
-        Vector<ECS::EntityID> GetPoses() const;
+        Vector<EntityID> GetPoses() const;
         void VisualizePoses();
         
         PROPERTY_D(ResModel, VisualizationMesh, "Defaults/M_Cube.obj");

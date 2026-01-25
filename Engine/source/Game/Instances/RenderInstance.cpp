@@ -1,6 +1,8 @@
 #include "RenderInstance.h"
 
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
+#include "Scene/Instances/EnvironmentInstance.h"
+#include "Scene/Instances/MeshInstance.h"
 
 void RenderInstance::Init()
 {
@@ -11,13 +13,10 @@ void RenderInstance::Init()
         CHECK_CONTINUE(!f.ends_with(".obj"))
         LOG("Sponza model: " + f);
         auto m = ResModel(f);
-        sponza.push_back({
-            m,
-            Rendering::MeshInstance::GenHash(m, material)
-        });
+        sponza.push_back(m);
     }
-    persistantID = Utility::Hash("Sponza");
-    
+    // TODO: 
+    /*
     auto& rs = GetRenderScene();
     for (const auto& m : sponza)
         rs.Meshes().Add({
@@ -27,6 +26,7 @@ void RenderInstance::Init()
                 m.hash,
                 static_cast<uint8>(Rendering::VisibilityMask::ALL)
             }, persistantID);
+    */
     
     freeCamera.Toggle();
     freeCamera.SetState(Vec3F::Zero(), Vec3F::Zero());
@@ -38,14 +38,14 @@ void RenderInstance::Logic(double InDelta)
     
     freeCamera.Update();
     if (Input::Action::Get("Back").Pressed())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }
 
 void RenderInstance::Frame()
 {
     Rendering::EnvironmentInstance env;
     env.skybox = skybox;
-    GetRenderScene().AddEnvironment(env);
+    //GetRenderScene().AddEnvironment(env);
     Instance::Frame();
 }
 

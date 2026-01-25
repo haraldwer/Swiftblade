@@ -8,7 +8,7 @@ void Utility::File::SetWorkingDir()
 {
 #ifndef __EMSCRIPTEN__
     std::filesystem::path curr = std::filesystem::current_path();
-    while (!curr.string().ends_with("RayEngine") && !curr.empty())
+    while (!curr.string().ends_with("Engine") && !curr.empty() && curr != "/")
     {
         String file = curr.filename().string();
         curr = curr.parent_path();
@@ -89,7 +89,7 @@ void Utility::File::CreateDir(const String &InPath)
 
 bool Utility::File::Delete(const String &InPath)
 {
-    LOG("Deleting " + InPath)
+    LOG("Deleting " + InPath);
     CHECK_RETURN(!Exists(InPath), false)
     return std::filesystem::remove(InPath);
 }

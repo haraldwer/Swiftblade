@@ -1,7 +1,5 @@
 #include "BakedTexture.h"
 
-#include "ImGui/imgui.h"
-#include "Pipeline/Renderer.h"
 
 bool Rendering::BakedTexture::Load()
 {
@@ -16,7 +14,7 @@ bool Rendering::BakedTexture::Load()
 bool Rendering::BakedTexture::Unload()
 {
     baked = false;
-    target.Unload();
+    //target.Unload();
     return true;
 }
 
@@ -61,7 +59,7 @@ Utility::Timepoint Rendering::BakedTexture::GetEditTime() const
 
 bool Rendering::BakedTexture::Bake()
 {
-    baked = Renderer::Bake(*this);
+    //baked = Renderer::Bake(*this);
     return baked;
 }
 

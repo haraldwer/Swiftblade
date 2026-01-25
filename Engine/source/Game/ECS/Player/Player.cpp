@@ -10,7 +10,7 @@
 #include "Engine/ECS/Systems/Camera.h"
 #include "Engine/ECS/Systems/Collider.h"
 #include "Engine/ECS/Systems/Transform.h"
-#include "Engine/Instance/Manager.h"
+#include "Engine/Instance/InstanceManager.h"
 #include "Engine/Menu/Manager.h"
 #include "Instances/GameInstance.h"
 #include "GameState.h"
@@ -109,8 +109,8 @@ void ECS::Player::TriggerSectionEnd() const
     state.arena = true;
 
     // Go to next section
-    Engine::Manager::Get().Pop();
-    if (const auto newGame = Engine::Manager::Get().Push<GameInstance>())
+    Engine::InstanceManager::Get().Pop();
+    if (const auto newGame = Engine::InstanceManager::Get().Push<GameInstance>())
         newGame->SetState(state); // Transfer game state
 }
 
@@ -131,7 +131,7 @@ void ECS::Player::ActivateCheckpoint() const
     state.checkpoint++;
 
     // Go to next section
-    Engine::Manager::Get().Pop();
-    if (const auto newGame = Engine::Manager::Get().Push<GameInstance>())
+    Engine::InstanceManager::Get().Pop();
+    if (const auto newGame = Engine::InstanceManager::Get().Push<GameInstance>())
         newGame->SetState(state); // Transfer game state
 }

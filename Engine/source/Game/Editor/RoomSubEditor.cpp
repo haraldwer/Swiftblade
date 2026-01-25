@@ -5,7 +5,7 @@
 #include "Engine/ECS/Entity.h"
 #include "Engine/ECS/Manager.h"
 #include "Instance/Instance.h"
-#include "Rendering/Scene/Instances/CameraInstance.h"
+#include "Scene/Instances/CameraInstance.h"
 #include "SubEditors/RoomVolumeEditor.h"
 
 void RoomSubEditor::Deinit()
@@ -68,7 +68,7 @@ ECS::VolumeCoord RoomSubEditor::CameraTrace(const int32 InDist) const
 
 ECS::VolumeCoord RoomSubEditor::CameraOffset(const float InDist) const
 {
-    const Rendering::CameraInstance cam = Engine::Instance::Get().GetRenderScene().GetCamera();
+    const Rendering::CameraInstance cam = {}; // TODO: Engine::Instance::Get().GetRenderScene().GetCamera();
     Vec3F targetPos = cam.position + cam.rotation.ForwardDirection() * InDist;
     return GetVolume().PosToCoord(targetPos);
 }

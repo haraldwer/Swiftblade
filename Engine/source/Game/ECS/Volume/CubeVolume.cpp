@@ -237,12 +237,12 @@ void ECS::SysCubeVolume::DrawEditVolume(EntityID InID, VolumeCoord InStart, Volu
                     QuatF::Identity(),
                     Vec3F(1.01f));
 
-    Engine::Instance::Get().GetRenderScene().Meshes().Add(v.editMesh, matrices);
+    // TODO: Engine::Instance::Get().GetRenderScene().Meshes().Add(v.editMesh, matrices);
 }
 
 void ECS::SysCubeVolume::SystemInit()
 {
-    persistentID = Rendering::MeshInstance::GenPersistentID();
+    persistentID = 0; // TODO: 
 }
 
 void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
@@ -255,7 +255,6 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .model = ResModel("Defaults/M_Cube.obj"),
         .material = Engine::Instance::Get().IsEditor() ? InComponent.EditMaterial : InComponent.Material,
         .transform = {},
-        .hash = 0,
         .mask = static_cast<uint8>(Rendering::VisibilityMask::ALL)
     };
 
@@ -263,13 +262,8 @@ void ECS::SysCubeVolume::Init(const EntityID InID, CubeVolume& InComponent)
         .model = ResModel("Defaults/M_Cube.obj"),
         .material = InComponent.MarkerMaterial,
         .transform = {},
-        .hash = 0,
         .mask = static_cast<uint8>(Rendering::VisibilityMask::DEFAULT)
     };
-    
-    // Generate hash
-    InComponent.blockMesh.hash = Rendering::MeshInstance::GenHash(InComponent.blockMesh.model, InComponent.blockMesh.material);
-    InComponent.editMesh.hash = Rendering::MeshInstance::GenHash(InComponent.editMesh.model, InComponent.editMesh.material);
     
     if (Engine::Instance::Get().IsEditor())
         return;
@@ -287,6 +281,8 @@ void ECS::SysCubeVolume::Deinit(EntityID InID, CubeVolume& InComponent)
 
 void ECS::SysCubeVolume::SystemFrame()
 {
+    // TODO: 
+    /*
     Rendering::MeshCollection& meshes = Engine::Instance::Get().GetRenderScene().Meshes();
     
     bool changed = false;
@@ -311,4 +307,5 @@ void ECS::SysCubeVolume::SystemFrame()
     }
 
     // Splitting allows for one persistent ID => faster culling
+    */
 }

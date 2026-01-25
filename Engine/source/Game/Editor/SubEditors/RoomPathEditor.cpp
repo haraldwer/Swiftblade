@@ -13,18 +13,16 @@ void RoomPathEditor::Init()
 
     VerifyPath();
     selectedIndex = -1;
-
-    pointID = Rendering::MeshInstance::GenPersistentID();
-    linkID = Rendering::MeshInstance::GenPersistentID();
-    pointHash = Rendering::MeshInstance::GenHash(config.PathPoint.Get(), config.PathMaterial.Get());
-    linkHash = Rendering::MeshInstance::GenHash(config.PathLink.Get(), config.PathMaterial.Get());
 }
 
 void RoomPathEditor::Deinit()
 {
+    // TODO: 
+    /*
     auto& meshes = GetEditor().GetRenderScene().Meshes();
     meshes.Remove(pointHash, pointID);
     meshes.Remove(linkHash, linkID);
+    */
     config.SaveConfig();
 }
 
@@ -169,9 +167,12 @@ void RoomPathEditor::Enter()
 void RoomPathEditor::Exit()
 {
     // Only show when active
+    // TODO: 
+    /*
     auto& meshes = GetEditor().GetRenderScene().Meshes();
     meshes.Remove(pointHash, pointID);
     meshes.Remove(linkHash, linkID);
+    */
     smoothPath.clear();
 }
 
@@ -180,10 +181,13 @@ void RoomPathEditor::Frame()
     CHECK_RETURN(!IsCurrent());
     CHECK_RETURN(!renderCacheChanged);
     renderCacheChanged = false;
-        
+    
+    // TODO: 
+    /*
     auto& meshes = GetEditor().GetRenderScene().Meshes();
     meshes.Remove(pointHash, pointID);
     meshes.Remove(linkHash, linkID);
+    */
     
     Vec3F prevPos = Vec3F::Zero();
     Vector<Mat4F> links;
@@ -208,15 +212,16 @@ void RoomPathEditor::Frame()
     Rendering::MeshInstance link {
         .model = config.PathLink,
         .material = config.PathMaterial,
-        .hash = linkHash
     };
     Rendering::MeshInstance point {
         .model = config.PathPoint,
         .material = config.PathMaterial,
-        .hash = pointHash
     };
+    // TODO: 
+    /*
     meshes.Add(link, links, pointID);
     meshes.Add(point, points, linkID);
+    */
 }
 
 void RoomPathEditor::VerifyPath() const

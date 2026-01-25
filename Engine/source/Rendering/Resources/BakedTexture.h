@@ -1,8 +1,5 @@
 #pragma once
-
-#include "Core/Resource/PropertyFile.h"
-#include "Resources/Shader.h"
-#include "TextureTargets/RenderTarget.h"
+#include "Shader.h"
 
 namespace Rendering
 {
@@ -25,12 +22,10 @@ namespace Rendering
         
         bool Bake();
         bool IsBaked() const { return baked; }
-        RenderTarget& Get() { return target; }
 
         static bool Accept(const String& InPath);
         
     private:
-        RenderTarget target;
         bool baked = false;
     };
     

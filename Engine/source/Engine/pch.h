@@ -1,3 +1,6 @@
 #pragma once
 
-#include "Core/pch.h" 
+#include "Rendering/pch.h"
+#include "Audio/pch.h"
+
+

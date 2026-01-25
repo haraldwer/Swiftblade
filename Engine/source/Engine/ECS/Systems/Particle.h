@@ -1,9 +1,9 @@
 #pragma once
 #include "ECS/Component.h"
 #include "ECS/System.h"
-#include "Rendering/Resources/Material.h"
-#include "Rendering/Resources/Model.h"
-#include "Rendering/Resources/Particle.h"
+#include "Resources/Material.h"
+#include "Resources/Model.h"
+#include "Resources/Particle.h"
 
 namespace ECS
 {

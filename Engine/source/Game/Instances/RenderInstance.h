@@ -1,9 +1,11 @@
 #pragma once
 #include "Instance/Instance.h"
+#include "Resources/Material.h"
+#include "Resources/Model.h"
 
 class RenderInstance : public Engine::Instance, public Debug::Panel
 {
-    CLASS_INFO(RenderInstance, Instance);
+    CLASS_INFO(RenderInstance, Engine::Instance);
     
 public:
     void Init() override;
@@ -16,12 +18,5 @@ public:
 
     ResRM skybox = ResRM("Dressing/Skybox/RM_Skybox.json");
     ResRM material = ResRM("Defaults/RM_Default.json");
-    struct SponzaModel
-    {
-        ResModel model; 
-        uint64 hash;
-    };
-    Vector<SponzaModel> sponza;
-    
-    uint32 persistantID = 0; 
+    Vector<ResModel> sponza;
 };

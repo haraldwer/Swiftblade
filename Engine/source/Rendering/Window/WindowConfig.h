@@ -1,15 +1,12 @@
 #pragma once
 
+#include "Core/Property/PropertyOwner.h"
+
 namespace Rendering
 {
     struct WindowConfig : PropertyOwner<WindowConfig>
     {
-        PROPERTY_D(int, TargetFPS, 300);
-        PROPERTY_D(bool, Fullscreen, false);
-        PROPERTY_D(bool, VSync, false);
-        PROPERTY_D(bool, MSAA, false);
-        PROPERTY_D(int, Width, 1600);
-        PROPERTY_D(int, Height, 900);
+        PROPERTY_D(Vec2I, Resolution, Vec2I(1600, 900));
         PROPERTY_D(String, Title, "Swiftblade");
     };
 }

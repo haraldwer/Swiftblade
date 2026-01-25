@@ -3,7 +3,7 @@
 #include "Database/Manager.h"
 #include "Database/Data/RPCLevel.h"
 #include "Editor/RoomEditor.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"
 #include "UI/Elements/Label.h"
@@ -112,7 +112,7 @@ void UI::InfoPanelEditRoom::Update(Container &InOwner)
     }
 
     if (Get<ButtonDefault>("Open").IsClicked())
-        if (auto editor = Engine::Manager::Get().Push<RoomEditor>())
+        if (auto editor = Engine::InstanceManager::Get().Push<RoomEditor>())
             editor->SetRoom(room);
 }
 

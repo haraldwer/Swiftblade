@@ -2,7 +2,7 @@
 
 #include "Database/Manager.h"
 #include "Database/Data/RPCLevel.h"
-#include "Instance/Manager.h"
+#include "Instance/InstanceManager.h"
 #include "Instances/GameInstance.h"
 #include "UI/Builder.h"
 #include "UI/Elements/Image.h"

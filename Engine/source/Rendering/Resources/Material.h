@@ -1,17 +1,17 @@
 #pragma once
 
-#include "Rendering/Resources/Shader.h"
-#include "Core/Resource/Resource.h"
-#include "Core/Resource/PropertyFile.h"
+#include "Shader.h"
 
 namespace Rendering
 {
     struct MaterialData : PropertyOwner<MaterialData>
     {
-        PROPERTY_D(ResShader, SurfaceShader, "Shaders/SH_Default");
-        PROPERTY_D(ResShader, DeferredShader, "Shaders/SH_Default.ds");
-        PROPERTY_D(bool, TwoSided, false);
-        PROPERTY_D(bool, Transparent, false);
+        PROPERTY_D(ResShader, Shader, "Shaders/SH_Default.sh");
+        
+        // Also blending and other stuff!
+        //PROPERTY_D(bool, TwoSided, false);
+        //PROPERTY_D(bool, Transparent, false);
+        // 
     };
 
     class MaterialResource : public Resource::PropertyFile<MaterialData>
@@ -19,17 +19,10 @@ namespace Rendering
         CLASS_INFO(MaterialResource, Resource::PropertyFile<MaterialData>)
         
     public:
-        bool Load() override;
         Utility::Timepoint GetEditTime() const override;
-        
-        uint32 Hash();
-        uint32 DeferredHash();
+        ResShader GetShader() const;
 
         static bool Accept(const String& InPath);
-
-    private:
-        uint32 cachedHash = 0;
-        uint32 cachedDeferredHash = 0;
     };
 }
 

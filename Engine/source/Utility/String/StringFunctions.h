@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <algorithm>
 
 namespace Utility
 {
@@ -46,5 +45,13 @@ namespace Utility
     {
         std::ranges::transform(InStr.begin(), InStr.end(), InStr.begin(), toupper);
         return InStr;
+    }
+    
+    template <class... Ts>
+    std::string ToStrCat(Ts&&... args)
+    {
+        if constexpr (sizeof...(Ts) == 0)
+            return {};
+        return (ToStr(std::forward<Ts>(args)) + ...);
     }
 }

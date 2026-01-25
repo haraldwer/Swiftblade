@@ -8,7 +8,7 @@
 #include "MovementStateAir.h"
 #include "MovementStateIdle.h"
 #include "MovementStateWall.h"
-#include "Editor/Debug/Draw.h"
+#include "Utility/DebugDraw.h"
 
 Type MovementStateVault::Check()
 {

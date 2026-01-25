@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Core/Utility/EventScopes.h"
-#include "FreeCamera.h"
+#include "Utility/FreeCamera.h"
 #include "Input/Manager.h"
 #include "Menu/Manager.h"
-#include "Rendering/Scene/Scene.h"
 
 namespace Engine
 {
@@ -23,7 +22,6 @@ namespace Engine
         virtual bool IsEditor() const { return false; }
         bool IsFreecam() const { return freeCamera.IsControlling(); }
 
-        Rendering::Scene& GetRenderScene();
         FreeCamera& GetFreeCamera() { return freeCamera; }
 
     protected:
@@ -33,7 +31,6 @@ namespace Engine
         FreeCamera freeCamera = {};
         
     private:
-        Rendering::Scene renderScene = {};
         InstanceEventManager eventManager = {};
     };
 }

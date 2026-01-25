@@ -1,6 +1,6 @@
 ﻿#include "MenuGameEnd.h"
 
-#include "Engine/Instance/Manager.h"
+#include "Engine/Instance/InstanceManager.h"
 #include "Engine/UI/Builder.h"
 #include "Engine/UI/Elements/Label.h"
 #include "Engine/UI/Elements/List.h"
@@ -31,10 +31,10 @@ void MenuGameEnd::Update()
     if (ui["Replay"].IsClicked())
     {
         // Push new game instance
-        Engine::Manager::Get().Pop();
-        Engine::Manager::Get().Push<GameInstance>();
+        Engine::InstanceManager::Get().Pop();
+        Engine::InstanceManager::Get().Push<GameInstance>();
     }
 
     if (ui["Main Menu"].IsClicked())
-        Engine::Manager::Get().Pop();
+        Engine::InstanceManager::Get().Pop();
 }
