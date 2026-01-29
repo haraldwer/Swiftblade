@@ -9,7 +9,7 @@ class RenderInstance : public Engine::Instance, public Debug::Panel
     
 public:
     void Init() override;
-    void Logic(double InDelta) override;
+    void Tick(double InDelta) override;
     void Frame() override;
     
     void DrawPanel() override;

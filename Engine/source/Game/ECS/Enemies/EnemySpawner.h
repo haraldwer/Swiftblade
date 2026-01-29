@@ -11,7 +11,7 @@ namespace ECS
 
     class SysEnemySpawner : public System<EnemySpawner>
     {
-        void Update(EntityID InID, EnemySpawner &InComponent) override;
-        bool ShouldUpdate() const override;
+        void Tick(EntityID InID, EnemySpawner &InComponent) override;
+        bool ShouldTick() const override;
     };
 }

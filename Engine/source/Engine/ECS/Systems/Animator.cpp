@@ -2,7 +2,7 @@
 
 #include "Transform.h"
 
-void ECS::SysAnimator::Update(EntityID InID, Animator &InComponent)
+void ECS::SysAnimator::Tick(EntityID InID, Animator &InComponent)
 {
     auto anim = InComponent.Anim.Get().Get();
     CHECK_RETURN(!anim);

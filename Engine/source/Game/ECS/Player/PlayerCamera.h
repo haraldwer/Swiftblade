@@ -8,7 +8,7 @@ namespace ECS
     {
     public:
         void Init() override;
-        void Update() override;
+        void Tick() override;
         int GetPriority() const override { return 8; }
         
         void AddCrouchOffset(float InHeightDiff);

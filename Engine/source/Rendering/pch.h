@@ -9,7 +9,7 @@ namespace wgpu
 #include "Core/Resource/Resource.h"
 #include "Core/Resource/PropertyFile.h"
 
-#include "Profile.h"
-#include "Utility.h"
+#include "Rendering/Profile.h"
+#include "Rendering/Utility.h"
 
 

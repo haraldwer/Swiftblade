@@ -22,7 +22,7 @@ namespace ECS
 
     public:
 
-        void Update(EntityID InID, Enemy& InComponent) override;
+        void Tick(EntityID InID, Enemy& InComponent) override;
         
         void Spawn(EntityID InSpawnerID);
 

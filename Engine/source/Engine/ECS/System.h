@@ -14,14 +14,14 @@ namespace ECS
         // - Implement - //  
         virtual void Init(EntityID InID, T& InComponent) {}
         virtual void Deinit(EntityID InID, T& InComponent) {}
-        virtual void Update(EntityID InID, T& InComponent) {}
+        virtual void Tick(EntityID InID, T& InComponent) {}
         virtual void Frame(EntityID InID, T& InComponent) {}
 
         void SystemInit() override {}
-        void SystemUpdate() override
+        void SystemTick() override
         {
             for (const auto& id : ComponentMap())
-                Update(id.second, GetInternal(id.first));
+                Tick(id.second, GetInternal(id.first));
         }
         void SystemFrame() override
         {

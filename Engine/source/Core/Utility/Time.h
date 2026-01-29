@@ -8,7 +8,7 @@ namespace Utility
 
         void Tick(const double InDelta = 0.0)
         {
-            lastDelta = InDelta;
+            delta = InDelta;
         }
         
         void SetScale(const double InScale)
@@ -17,8 +17,11 @@ namespace Utility
         }
         
         double Total() const { return totalTimer.Ellapsed(); }
-        double Delta() const { return lastDelta * timeScale * static_cast<float>(!paused); }
-        double Unscaled() const { return lastDelta; }
+        
+        double Delta() const { return delta * timeScale * static_cast<float>(!paused); }
+        
+        double Unscaled() const { return delta; }
+        
         double Scale() const { return timeScale; }
 
         void SetPause(const bool InPause)
@@ -27,12 +30,11 @@ namespace Utility
         }
         
         bool IsPaused() const { return paused; }
-        
+    
     private:
         
         Timer totalTimer;
-        
-        double lastDelta = 0.0;
+        double delta = 0.0;
         double timeScale = 1.0f;
         bool paused = false; 
     };

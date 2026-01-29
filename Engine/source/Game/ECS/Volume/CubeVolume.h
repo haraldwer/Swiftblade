@@ -53,7 +53,7 @@ namespace ECS
         void Deinit(EntityID InID, CubeVolume& InComponent) override;
         void SystemFrame() override;
 
-        bool ShouldUpdate() const override { return true; }
+        bool ShouldTick() const override { return true; }
         int GetPriority() const override { return -101; }
         
     private:

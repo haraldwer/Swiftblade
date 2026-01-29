@@ -1,5 +1,21 @@
 #include "Material.h"
 
+bool Rendering::MaterialResource::Load()
+{
+    bool load = PropertyFile::Load();
+    
+    struct HashData
+    {
+        uint32 id;
+        Utility::Timepoint time;
+    } data;
+    data.id = id.Hash();
+    data.time = GetEditTime();
+    hash = Utility::Hash(data);
+    
+    return load;
+}
+
 Utility::Timepoint Rendering::MaterialResource::GetEditTime() const
 {
     Utility::Timepoint maxTime = PropertyFile::GetEditTime();

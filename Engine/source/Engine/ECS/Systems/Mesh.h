@@ -26,7 +26,7 @@ namespace ECS
     public:
         void SystemInit() override;
         void SystemFrame() override;
-        bool ShouldUpdate() const override { return true; }
+        bool ShouldTick() const override { return true; }
         int GetPriority() const override { return -100; }
         void Deinit(EntityID InID, Mesh &InComponent) override;
 

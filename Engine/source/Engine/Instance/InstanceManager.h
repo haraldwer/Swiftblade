@@ -34,7 +34,7 @@ namespace Engine
             queue.emplace_back(); 
         }
 
-        void Update()
+        void Tick()
         {
             PROFILE();
             
@@ -77,7 +77,7 @@ namespace Engine
             while (Top())
             {
                 Pop();
-                Update(); 
+                Tick(); 
             }
         }
 

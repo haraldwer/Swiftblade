@@ -18,7 +18,7 @@ namespace ECS
     {
     public:
         void Frame(EntityID InID, Environment& InComponent) override;
-        bool ShouldUpdate() const override { return true; }
+        bool ShouldTick() const override { return true; }
         int GetPriority() const override { return -100; }
     };
 }

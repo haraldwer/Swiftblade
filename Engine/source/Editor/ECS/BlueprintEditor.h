@@ -25,7 +25,7 @@ namespace Editor
     public:
         void Init() override;
         void Deinit() override;
-        void Logic(double InDelta) override;
+        void Tick(double InDelta) override;
         void Frame() override;
         void DrawPanel() override;
         String PanelName() const override { return "Blueprint Editor"; }

@@ -11,4 +11,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     glfw
     glfw3webgpu
     webgpu
+    meshoptimizer
 )

@@ -3,21 +3,44 @@
 
 namespace Rendering
 {
-    class FramePacer
+    struct PaceConfig : PropertyOwner<PaceConfig>
+    {
+        
+    };
+    
+    class FramePacer : public Utility::Singelton<FramePacer, true>
     {
     public:
+        ~FramePacer() override = default;
         FramePacer() = default;
-        FramePacer(const int InTargetFramerate, const int InTargetTickrate, const double InMaxFrameTickTime, const double InSleepMargin) : 
+        FramePacer(
+            const int InTargetFramerate, 
+            const int InTargetTickrate, 
+            const double InMaxFrameTickTime, 
+            const double InSleepMargin, 
+            const double InMinDelta, 
+            const double InMaxDelta) : 
             targetFramerate(InTargetFramerate), 
             targetTickrate(InTargetTickrate),
             maxFrameTickTime(InMaxFrameTickTime),
-            sleepMargin(InSleepMargin) { }
+            sleepMargin(InSleepMargin),
+            minDelta(InMinDelta),
+            maxDelta(InMaxDelta) { }
         
         int Pace()
         {
             RN_PROFILE();
-            double delta = CapFPS();
-            return CalculateTicks(delta);
+            frameDelta = CapFPS();
+            return CalculateTicks(frameDelta);
+        }
+        
+        double TickDelta() const
+        {
+            return Utility::Math::Clamp(1.0 / targetTickrate, minDelta, maxDelta);
+        }
+        double FrameDelta() const
+        {
+            return Utility::Math::Clamp(frameDelta, minDelta, maxDelta);
         }
         
     private:
@@ -85,10 +108,13 @@ namespace Rendering
         double timestamp = 0.0;
         double tickTimeCounter = 0.0;
         double frameLeftoverDelta = 0.0;
+        double frameDelta = 0;
         
-        int targetFramerate = 120;
+        int targetFramerate = 300;
         int targetTickrate = 300;
         double maxFrameTickTime = 0.0333;
         double sleepMargin = 0.001;
+        double minDelta = 1.0 / 2000;
+        double maxDelta = 1.0;
     };
 }

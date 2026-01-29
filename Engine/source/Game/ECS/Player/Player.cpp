@@ -76,7 +76,7 @@ void ECS::Player::Init()
     }
 }
 
-void ECS::Player::Update()
+void ECS::Player::Tick()
 {
     const auto& t = Get<Transform>(GetID());
     if (t.GetPosition().y < -30.0f)

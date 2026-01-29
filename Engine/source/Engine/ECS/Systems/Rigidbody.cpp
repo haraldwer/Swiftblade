@@ -41,7 +41,7 @@ Vec3F ECS::Rigidbody::GetVelocity() const
     return Physics::GetVec(ptr->getLinearVelocity());
 }
 
-void ECS::SysRigidbody::Update(EntityID InID, Rigidbody& InComponent)
+void ECS::SysRigidbody::Tick(EntityID InID, Rigidbody& InComponent)
 {
     InComponent.AddForce(Vec3F::Up() * -50.0f * InComponent.GravityScale.Get()); 
 }

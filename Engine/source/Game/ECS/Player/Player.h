@@ -11,7 +11,7 @@ namespace ECS
     {
     public:
         void Init() override;
-        void Update() override;
+        void Tick() override;
         int GetPriority() const override { return 20; }
 
         EntityID GetColliderID() const { return colliderID; }

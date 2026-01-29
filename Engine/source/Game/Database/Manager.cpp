@@ -44,7 +44,7 @@ void DB::Manager::Deinit()
     auth.Deinit();
 }
 
-void DB::Manager::Update() const
+void DB::Manager::Tick() const
 {
     client->tick();
     if (rtClient)

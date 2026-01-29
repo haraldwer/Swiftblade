@@ -11,7 +11,7 @@ void ECS::SysProjectile::Init(ECS::EntityID InID, Projectile& InComponent)
     InComponent.timer = InComponent.Lifetime;
 }
 
-void ECS::SysProjectile::Update(ECS::EntityID InID, Projectile& InComponent)
+void ECS::SysProjectile::Tick(ECS::EntityID InID, Projectile& InComponent)
 {
     auto& t = Get<ECS::Transform>(InID);
     const Vec3F f = t.World().Forward();

@@ -20,4 +20,20 @@ namespace Utility
         auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + duration);
         return ToStr(t, InFormat);
     }
+    
+    template <class Rep, class Period>
+    String ToStr(const std::chrono::duration<Rep, Period>& InDuration)
+    {
+        auto total_seconds = std::chrono::duration_cast<std::chrono::seconds>(InDuration).count();
+        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(InDuration).count() % 1000;
+
+        std::stringstream ss;
+        ss << '('
+           << std::setfill('0')
+           << std::setw(2) << total_seconds / 60 << ':'      // Minutes
+           << std::setw(2) << total_seconds % 60 << '.'      // Seconds
+           << std::setw(3) << milliseconds                    // Milliseconds
+           << ')';
+        return ss.str();
+    }
 }

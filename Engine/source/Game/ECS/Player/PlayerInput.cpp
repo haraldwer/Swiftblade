@@ -4,7 +4,7 @@
 #include "Engine/Input/Manager.h"
 #include "Movement/Movement.h"
 
-void ECS::PlayerInput::Update()
+void ECS::PlayerInput::Tick()
 {
     auto& trans = Get<Transform>(GetID());
 

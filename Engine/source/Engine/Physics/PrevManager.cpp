@@ -17,6 +17,8 @@
 
 void Physics::Persistent::Init()
 {
+    PROFILE();
+    
     CHECK_ASSERT(common, "Common already created");
     CHECK_ASSERT(logger, "Logger already created");
     common = new reactphysics3d::PhysicsCommon();
@@ -26,6 +28,8 @@ void Physics::Persistent::Init()
 
 void Physics::Persistent::Deinit()
 {
+    PROFILE();
+    
     CHECK_ASSERT(!common, "Invalid common");
     CHECK_ASSERT(!logger, "Invalid logger");
     reactphysics3d::PhysicsCommon::setLogger(nullptr);

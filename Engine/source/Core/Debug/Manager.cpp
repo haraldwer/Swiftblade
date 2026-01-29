@@ -19,7 +19,7 @@ void Debug::Manager::Logic()
     logicCounter++; 
 }
 
-void Debug::Manager::Frame(const double InDeltaTime)
+void Debug::Manager::Frame(double InDeltaTime)
 {
     PROFILE();
     

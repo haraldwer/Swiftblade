@@ -11,6 +11,8 @@
 void MenuInstance::Init()
 {
     Instance::Init();
+    
+    db.Init();
 
 #ifdef NAKAMA_ENABLE
     menus.Push<MenuLogin>();
@@ -45,10 +47,11 @@ void MenuInstance::Deinit()
     Instance::Deinit();
 }
 
-void MenuInstance::Logic(const double InDelta)
+void MenuInstance::Tick(const double InDelta)
 {
-    Instance::Logic(InDelta);
+    Instance::Tick(InDelta);
     
+    db.Tick();
     ecs.Update();
     freeCamera.Update();
     

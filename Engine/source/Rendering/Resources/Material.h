@@ -19,10 +19,15 @@ namespace Rendering
         CLASS_INFO(MaterialResource, Resource::PropertyFile<MaterialData>)
         
     public:
+        bool Load() override;
         Utility::Timepoint GetEditTime() const override;
         ResShader GetShader() const;
+        uint32 Hash() const { return hash; }
 
         static bool Accept(const String& InPath);
+        
+    private:
+        uint32 hash = 0;
     };
 }
 

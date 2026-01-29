@@ -30,9 +30,9 @@ namespace ECS
         // Can be overriden by T
         
         virtual void SystemInit() = 0;
-        virtual void SystemUpdate() = 0;
+        virtual void SystemTick() = 0;
         virtual void SystemFrame() = 0;
-        virtual bool ShouldUpdate() const;
+        virtual bool ShouldTick() const;
         virtual int GetPriority() const { return 0; }
 
         static SystemBase* GetAnonymousSystem(const Utility::Type& InType, bool InIsCompHash);

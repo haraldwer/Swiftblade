@@ -12,6 +12,7 @@ namespace Rendering
 
     class Context : public Utility::Singelton<Context, true>
     {
+        friend class ImGuiContext;
     public:
         void Init(const ContextConfig& InConfig);
         void Deinit();
@@ -22,9 +23,9 @@ namespace Rendering
         wgpu::RenderPipeline CreatePipeline(const wgpu::RenderPipelineDescriptor& InDesc) const;
         wgpu::CommandEncoder CreateEncoder(const wgpu::CommandEncoderDescriptor& InDesc) const;
         wgpu::Buffer CreateBuffer(const wgpu::BufferDescriptor& InDesc);
+        wgpu::Buffer UploadBuffer(const String& InLabel, const void* InData, uint64 InSize, wgpu::BufferUsage InUsage);
         void Submit(const Vector<wgpu::CommandBuffer>& InCommands) const;
         void Poll();
-
 
     private:
         ContextConfig config;

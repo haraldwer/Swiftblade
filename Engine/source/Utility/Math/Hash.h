@@ -19,10 +19,27 @@ namespace Utility
 	}
 	
 	template <class T>
-	uint32 Hash(T InKey)
+	uint32 Hash(const T& InKey)
 	{
 		const uint8* aBuffer = reinterpret_cast<const uint8*>(&InKey);
 		const int count = sizeof(T); 
+		
+		constexpr uint32 fnvOffsetBasis = 2166136261U;
+		constexpr uint32 fnvPrime = 16777619U;
+		uint32 val = fnvOffsetBasis;
+		for(int i = 0; i < count; i++)
+		{
+			val ^= aBuffer[i];
+			val *= fnvPrime;
+		}
+		return val;
+	}
+	
+	template <class T>
+	uint32 Hash(const Vector<T>& InKeys)
+	{
+		const uint8* aBuffer = reinterpret_cast<const uint8*>(InKeys.data());
+		const int count = sizeof(T) * InKeys.size(); 
 		
 		constexpr uint32 fnvOffsetBasis = 2166136261U;
 		constexpr uint32 fnvPrime = 16777619U;

@@ -5,6 +5,7 @@
 namespace Rendering
 {
     class RenderTarget;
+    typedef std::function<void(const wgpu::RenderPassEncoder& InEncoder)> RenderFunc;
     
     struct Command
     {
@@ -15,6 +16,10 @@ namespace Rendering
         // Where to?
         Vector<RenderTarget*> targets = {}; 
         RenderTarget* depthTarget = nullptr;
+        bool clear = false;
+        bool clearDepth = false;
+        bool writeDepth = true;
+        Vec4F clearColor = Vec4F::Zero();
         
         // How is it gonna get there?
         ResRM material = {};
@@ -23,5 +28,6 @@ namespace Rendering
         Vector<Mat4F> transforms = {};
         ResModel model = {};
         int uniforms = 0;
+        RenderFunc customFunc;
     };
 }

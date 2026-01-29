@@ -7,6 +7,7 @@ bool Rendering::ShaderResource::Load()
     String file = Utility::File::Read(id.Str());
     CHECK_RETURN_LOG(file.empty(), "Failed to read shader file: " + id.Str(), false)
     
+    LOG("Loading shader: " + id.Str());
     wgpu::StringView shaderSource = wgpu::StringView(file);
     wgpu::ShaderModuleDescriptor shaderDesc;
     shaderDesc.label = wgpu::StringView("Default shader");
@@ -16,6 +17,7 @@ bool Rendering::ShaderResource::Load()
     shaderDesc.nextInChain = &shaderCodeSource.chain;
     shaderCodeSource.code = shaderSource;
     shader = Context::Get().CreateShader(shaderDesc);
+    
     return true;
 }
 
@@ -38,5 +40,6 @@ bool Rendering::ShaderResource::Accept(const String &InPath)
         InPath.ends_with(".ds") ||
         InPath.ends_with(".ps") ||
         InPath.ends_with(".si") ||
+        InPath.ends_with(".wgsl") ||
         !name.contains("."));
 }

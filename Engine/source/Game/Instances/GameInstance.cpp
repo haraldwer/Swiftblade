@@ -57,9 +57,9 @@ void GameInstance::Deinit()
     Instance::Deinit();
 }
 
-void GameInstance::Logic(const double InDelta)
+void GameInstance::Tick(const double InDelta)
 {
-    Instance::Logic(InDelta); 
+    Instance::Tick(InDelta); 
     
     if (!time.IsPaused())
     {

@@ -4,12 +4,12 @@
 #include "ECS/Systems/Transform.h"
 #include "Instance/Instance.h"
 
-void ECS::AnimationPoser::Update()
+void ECS::AnimationPoser::Tick()
 {
     VisualizePoses();
 }
 
-bool ECS::AnimationPoser::ShouldUpdate() const
+bool ECS::AnimationPoser::ShouldTick() const
 {
     return Engine::Instance::Get().IsEditor();
 }

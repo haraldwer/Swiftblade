@@ -20,8 +20,6 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
     CHECK_ASSERT(!window, "Failed to create window");
     surface = Context::Get().CreateWindowSurface(*this);
     
-    // Create target!
-    
     // TODO: Handle glfw events!
     // Window resizing etc
 }
@@ -50,8 +48,9 @@ void Rendering::Window::Present(bool& InRun)
 {
     RN_PROFILE();
 #ifndef __EMSCRIPTEN__
-    wgpu::Status status = surface.present(); // TODO: Might fail!
-    CHECK_ASSERT(status != wgpu::Status::Success, "Failed to present frame");
+    wgpu::Status status = surface.present();
+    if (status != wgpu::Status::Success)
+        LOG("Failed to present frame");
 #endif
     
     // Also poll events

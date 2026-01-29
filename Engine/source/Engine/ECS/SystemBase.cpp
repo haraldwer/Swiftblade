@@ -3,7 +3,7 @@
 #include "Manager.h"
 #include "Instance/Instance.h"
 
-bool ECS::SystemBase::ShouldUpdate() const
+bool ECS::SystemBase::ShouldTick() const
 {
     return
         !Engine::Instance::Get().IsEditor() &&

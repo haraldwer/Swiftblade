@@ -16,7 +16,7 @@ namespace DB
         
     public:
         void Init();
-        void Update() const;
+        void Tick() const;
         void Deinit();
 
         EventManager events;

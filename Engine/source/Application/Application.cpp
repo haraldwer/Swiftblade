@@ -6,6 +6,7 @@
 
 void Application::App::Init()
 {
+    Utility::File::SetWorkingDir();
     run = true;
     
 #ifdef EDITOR_ENABLED
@@ -30,11 +31,18 @@ void Application::App::Run()
 void Application::App::Frame()
 {
     engine.Frame();
+#ifdef EDITOR_ENABLED
+    editor.Frame();
+#endif
     int ticks = renderer.Frame(run);
     for (int i = 0; i < ticks; i++)
     {
         engine.Tick();
         audio.Tick();
+        
+#ifdef EDITOR_ENABLED
+        editor.Tick();
+#endif
     }
 }
 
@@ -43,6 +51,7 @@ void Application::App::Deinit()
 #ifdef EDITOR_ENABLED
     editor.Deinit();
 #endif
+    
     engine.Deinit();
     audio.Deinit();
     renderer.Deinit();

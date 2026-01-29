@@ -19,78 +19,8 @@ void Rendering::CommandList::Begin(const String &InName)
     encoder.insertDebugMarker(wgpu::StringView("Begin: " + workingName));
 }
 
-void Rendering::CommandList::Add(const Command &InCommand)
+void BufferExamples()
 {
-    RN_PROFILE();
-    CHECK_ASSERT(InCommand.targets.empty(), "No targets for command");
-    
-    // Get material and mesh
-    auto material = InCommand.material.Get();
-    CHECK_RETURN_LOG(!material, "Failed to get material")
-    auto model = InCommand.model.Get();
-    CHECK_RETURN_LOG(!material, "Failed to get material")
-    
-    wgpu::PrimitiveState meshState; 
-    model->GetMeshState(meshState);
-    
-    // TODO: Who decides blending? Material?
-    // Configure color blending equation
-    wgpu::BlendState blendState;
-    blendState.color.srcFactor = wgpu::BlendFactor::SrcAlpha;
-    blendState.color.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
-    blendState.color.operation = wgpu::BlendOperation::Add;
-    // [...] Configure alpha blending equation
-    
-    // Configure targetStates
-    Vector<wgpu::ColorTargetState> targetStates;
-    for (auto& target : InCommand.targets)
-    {
-        wgpu::ColorTargetState& colorTarget = targetStates.emplace_back();
-        colorTarget.format = target->GetFormat();
-        colorTarget.blend = &blendState;
-        colorTarget.writeMask = wgpu::ColorWriteMask::All;
-    }
-    
-    // Get pipeline
-    wgpu::RenderPipeline pipeline = PipelineCache::Get().GetPipeline(*material, targetStates, meshState);
-    CHECK_RETURN_LOG(!pipeline, "Failed to get pipeline")
-    
-    // Create attachments and views
-    Vector<wgpu::RenderPassColorAttachment> attachments;
-    Vector<wgpu::TextureView> views;
-    attachments.reserve(InCommand.targets.size());
-    views.reserve(InCommand.targets.size());
-    for (auto& target : InCommand.targets)
-    {
-        CHECK_ASSERT(!target, "Invalid target");
-
-        wgpu::TextureViewDescriptor viewDesc = target->GetView();
-        wgpu::TextureView view = wgpuTextureCreateView(target->GetTexture(), &viewDesc);
-        CHECK_ASSERT(!view, "Failed to create view");
-        views.push_back(view);
-        
-        // Create attachment using textureView
-        wgpu::RenderPassColorAttachment& attachment = attachments.emplace_back();
-        attachment.view = view;
-        attachment.resolveTarget = nullptr;
-        attachment.loadOp = wgpu::LoadOp::Clear;
-        attachment.storeOp = wgpu::StoreOp::Store;
-        attachment.clearValue = { 0.2f, 0.8f, 0.34f, 1.0f };
-    #ifndef WEBGPU_BACKEND_WGPU
-        attachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-    #endif
-    }
-    
-    wgpu::RenderPassDepthStencilAttachment depthAttachment;
-    if (InCommand.depthTarget)
-    {
-        // Setup depth attachment
-    }
-
-    
-    
-    
-    
     /*
     {
         wgpu::BufferDescriptor inBufferDesc;
@@ -146,7 +76,7 @@ void Rendering::CommandList::Add(const Command &InCommand)
     }
     */
     
-    
+    /*
     // Vertex buffer data
     // There are 2 floats per vertex, one for x and one for y.
     // But in the end this is just a bunch of floats to the eyes of the GPU,
@@ -174,14 +104,59 @@ void Rendering::CommandList::Add(const Command &InCommand)
 
     // Upload geometry data to the buffer
     queue.writeBuffer(vertexBuffer, 0, vertexData.data(), bufferDesc.size);
+    */
     
+}
+
+void Rendering::CommandList::Add(const Command& InCommand)
+{
+    RN_PROFILE();
+    CHECK_ASSERT(InCommand.targets.empty(), "No targets for command");
     
+    // Create attachments and views
+    Vector<wgpu::RenderPassColorAttachment> attachments;
+    Vector<wgpu::TextureView> views;
+    attachments.reserve(InCommand.targets.size());
+    views.reserve(InCommand.targets.size());
+    for (auto& target : InCommand.targets)
+    {
+        CHECK_ASSERT(!target, "Invalid target");
+
+        wgpu::TextureViewDescriptor viewDesc = target->GetView();
+        wgpu::TextureView view = wgpuTextureCreateView(target->GetTexture(), &viewDesc);
+        CHECK_ASSERT(!view, "Failed to create view");
+        views.push_back(view);
+        
+        // Create attachment using textureView
+        wgpu::RenderPassColorAttachment& attachment = attachments.emplace_back();
+        attachment.view = view;
+        attachment.resolveTarget = nullptr;
+        attachment.loadOp = InCommand.clear ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
+        attachment.storeOp = wgpu::StoreOp::Store;
+        attachment.clearValue = { 
+            InCommand.clearColor.x, 
+            InCommand.clearColor.y, 
+            InCommand.clearColor.z, 
+            InCommand.clearColor.w 
+        };
+    #ifndef WEBGPU_BACKEND_WGPU
+        attachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+    #endif
+    }
     
-    
-    
-    
+    wgpu::RenderPassDepthStencilAttachment depthAttachment;
+    if (InCommand.depthTarget)
+    {
+        wgpu::TextureViewDescriptor viewDesc = InCommand.depthTarget->GetView();
+        depthAttachment.view = wgpuTextureCreateView(InCommand.depthTarget->GetTexture(), &viewDesc);
+        depthAttachment.depthLoadOp = InCommand.clearDepth ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
+        depthAttachment.depthStoreOp = wgpu::StoreOp::Store;
+        depthAttachment.depthClearValue = 0.0f;
+        depthAttachment.depthReadOnly = !InCommand.writeDepth;
+    }
+
     wgpu::RenderPassDescriptor renderPassDescriptor;
-    renderPassDescriptor.label = wgpu::StringView("RenderPass: " + workingName);
+    renderPassDescriptor.label = wgpu::StringView("RenderPass: " + InCommand.name);
     renderPassDescriptor.nextInChain = nullptr;
     renderPassDescriptor.colorAttachmentCount = attachments.size();
     renderPassDescriptor.colorAttachments = attachments.data();
@@ -189,11 +164,51 @@ void Rendering::CommandList::Add(const Command &InCommand)
     renderPassDescriptor.timestampWrites = nullptr;
     wgpu::RenderPassEncoder renderPass = encoder.beginRenderPass(renderPassDescriptor);
     
-    // Set pipeline
-    renderPass.setPipeline(pipeline);
-    // Draw 1 instance of a 3-vertices shape
-    renderPass.draw(3, 1, 0, 0);
-    // Or possibly, draw a number of meshes...
+    // Get material and mesh
+    if (ModelResource* model = InCommand.model.Get())
+    {
+        // Get pipeline
+        PipelineDescriptor pipelineDesc;
+        pipelineDesc.label = InCommand.name;
+        pipelineDesc.material = InCommand.material.Get();
+        pipelineDesc.meshState = model->GetMeshState(); 
+        for (auto& t : InCommand.targets)
+            pipelineDesc.targetFormats.push_back(t->GetFormat());
+        if (InCommand.depthTarget)
+            pipelineDesc.data.depth.format = InCommand.depthTarget->GetFormat();
+        pipelineDesc.data.depth.write = InCommand.writeDepth;
+        pipelineDesc.data.multisampling = false;
+        if (wgpu::RenderPipeline* pipeline = PipelineCache::Get().GetPipeline(pipelineDesc))
+        {
+            
+            renderPass.setPipeline(*pipeline);
+            
+            // For now, render all meshes
+            // In the future: Combine mesh buffers? 
+            int numMeshes = model->GetMeshCount();
+            for (int i = 0; i < numMeshes; i++)
+            {
+                if (auto lod = model->GetMesh(i, 2))
+                {
+                    auto& vb = lod->vertexBuffer;
+                    auto& ib = lod->indexBuffer;
+                    if (vb && ib)
+                    {
+                        renderPass.setVertexBuffer(0, vb, 0, lod->vertexCount * lod->vertexStride);
+                        renderPass.setIndexBuffer(ib, lod->indexFormat, 0, lod->indexCount * lod->indexStride);
+                            
+                        // Uniforms!
+                        //renderPass.setBindGroup();
+                            
+                        renderPass.drawIndexed(lod->indexCount, 1, 0, 0, 0);
+                    }
+                }
+            }
+        }
+    }
+    
+    if (InCommand.customFunc)
+        InCommand.customFunc(renderPass);
     
     // Use renderpass
     renderPass.end();
@@ -225,3 +240,4 @@ void Rendering::CommandList::Submit()
         cmd.release();
     commands.clear();
 }
+

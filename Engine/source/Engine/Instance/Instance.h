@@ -16,7 +16,7 @@ namespace Engine
 
         virtual void Init();
         virtual void Deinit();
-        virtual void Logic(double InDelta);
+        virtual void Tick(double InDelta);
         virtual void Frame();
         
         virtual bool IsEditor() const { return false; }

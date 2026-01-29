@@ -28,6 +28,6 @@ namespace Resource
         
     private:
         String str = {};
-        uint32 hash = {};
+        uint32 hash = 0;
     };
 }

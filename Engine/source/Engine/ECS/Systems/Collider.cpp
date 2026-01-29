@@ -20,7 +20,7 @@ void ECS::SysCollider::Deinit(const EntityID InEntity, Collider& InComponent)
     Physics::Manager::Get().Remove(InEntity); 
 }
 
-void ECS::SysCollider::Update(const EntityID InID, Collider& InComponent)
+void ECS::SysCollider::Tick(const EntityID InID, Collider& InComponent)
 {
     const auto& t = Get<Transform>(InID);
     const auto& data = InComponent.ShapeData.Get();
@@ -46,7 +46,7 @@ void ECS::SysCollider::Update(const EntityID InID, Collider& InComponent)
     }
 }
 
-bool ECS::SysCollider::ShouldUpdate() const
+bool ECS::SysCollider::ShouldTick() const
 {
     // Show debug visualization in editor
     return Engine::Instance::Get().IsEditor();

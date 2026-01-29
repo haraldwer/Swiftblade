@@ -2,6 +2,7 @@
 
 #include "Context/Context.h"
 #include "Resources/Material.h"
+#include "Resources/Model.h"
 
 void Rendering::PipelineCache::Init()
 {
@@ -18,87 +19,122 @@ void Rendering::PipelineCache::Deinit()
     cache.clear();
 }
 
-wgpu::RenderPipeline Rendering::PipelineCache::GetPipeline(const MaterialResource& InMaterial, const Vector<wgpu::ColorTargetState>& InTargetStates, const wgpu::PrimitiveState& InMeshState)
+uint32 GetHash(const Rendering::PipelineDescriptor& InData)
 {
-    RN_PROFILE();
-    union Data
+    struct FullHash
     {
-        uint64 key;
-        struct
-        {
-            uint32 materialHash; 
-            uint16 targetHash; 
-            uint16 layoutHash;
-        };
-    } hash;
-    
-    hash.materialHash = InMaterial.id.Hash();
-    hash.targetHash = 0; // TODO:
-    hash.layoutHash = 0; // TODO:
-    
-    auto find = cache.find(hash.key);
-    if (find != cache.end())
-        return find->second;
-    
-    auto pipeline = CreatePipeline(InMaterial, InTargetStates, InMeshState);
-    if (pipeline)
-        cache[hash.key] = pipeline;
-    return pipeline;
+        uint32 materialHash; 
+        uint32 meshHash;
+        uint32 targetHash; 
+        uint32 staticHash; 
+    } fullHash;
+    fullHash.materialHash = InData.material->Hash();
+    fullHash.meshHash = InData.meshState->hash;
+    fullHash.targetHash = Utility::Hash(InData.targetFormats);
+    fullHash.staticHash = Utility::Hash(InData.data);
+    return Utility::Hash(fullHash);
 }
 
-wgpu::RenderPipeline Rendering::PipelineCache::CreatePipeline(const MaterialResource &InMaterial, const Vector<wgpu::ColorTargetState> &InTargetStates, const wgpu::PrimitiveState &InMeshState)
+wgpu::RenderPipeline* Rendering::PipelineCache::GetPipeline(const PipelineDescriptor& InData)
 {
     RN_PROFILE();
     
-    // Get shader
-    ShaderResource* shaderResource = InMaterial.GetShader().Get();
-    CHECK_RETURN(!shaderResource, {});
+    CHECK_RETURN(!InData.material, nullptr);
+    CHECK_RETURN(!InData.meshState, nullptr);
+    CHECK_RETURN(InData.targetFormats.empty(), nullptr);
     
-    // Create pipeline
-    wgpu::RenderPipelineDescriptor pipelineDesc;
-    pipelineDesc.label = wgpu::StringView("Render pipeline");
+    uint32 hash = GetHash(InData);
+    auto find = cache.find(hash);
+    if (find != cache.end())
+        return &find->second;
     
-    // Describe vertex pipeline state
-    pipelineDesc.vertex.bufferCount = 0;
-    pipelineDesc.vertex.buffers = nullptr;
-    pipelineDesc.vertex.module = shaderResource->shader;
-    pipelineDesc.vertex.entryPoint = wgpu::StringView("vs_main");
-    pipelineDesc.vertex.constantCount = 0;
-    pipelineDesc.vertex.constants = nullptr;
+    wgpu::RenderPipeline pipeline;
+    if (!CreatePipeline(InData, hash, pipeline))
+        return nullptr;
+    auto& pipelineRef = cache[hash];
+    pipelineRef = pipeline;
+    return &pipelineRef;
+}
+
+bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, uint32 InHash, wgpu::RenderPipeline& OutPipeline)
+{
+    RN_PROFILE();
     
-    // Describe fragment pipeline state
-    wgpu::FragmentState fragmentState;
-    fragmentState.module = shaderResource->shader;
+    CHECK_ASSERT(!InData.material, "Invalid material")
+    CHECK_ASSERT(!InData.meshState, "Invalid meshState");
+    CHECK_ASSERT(InData.targetFormats.empty(), "No targets");
+    
+    ShaderResource* shaderResource = InData.material->GetShader().Get();
+    CHECK_RETURN_LOG(!shaderResource, "Failed to get shader", false);
+    
+    wgpu::VertexState vertexState{};
+    wgpu::PrimitiveState primitiveState{};
+    wgpu::FragmentState fragmentState{};
+    wgpu::DepthStencilState depthStencilState{};
+    wgpu::MultisampleState multisampleState{};
+    
+    // Vertex
+    vertexState.entryPoint = wgpu::StringView("vs_main");
+    vertexState.module = shaderResource->shader;
+    vertexState.bufferCount = static_cast<uint32_t>(InData.meshState->vertexLayouts.size());
+    vertexState.buffers = InData.meshState->vertexLayouts.data();
+    vertexState.constantCount = 0;
+    vertexState.constants = nullptr;
+
+    // Primitive
+    primitiveState = InData.meshState->primitiveState;
+    
+    // Fragment
     fragmentState.entryPoint = wgpu::StringView("fs_main");
+    fragmentState.module = shaderResource->shader;
     fragmentState.constantCount = 0;
     fragmentState.constants = nullptr;
+    wgpu::BlendState blendState{};
+    blendState.color.srcFactor = wgpu::BlendFactor::SrcAlpha;
+    blendState.color.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
+    blendState.color.operation = wgpu::BlendOperation::Add;
+    blendState.alpha.srcFactor = wgpu::BlendFactor::One;
+    blendState.alpha.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
+    blendState.alpha.operation = wgpu::BlendOperation::Add;
+    Vector<wgpu::ColorTargetState> targetStates;
+    for (auto& target : InData.targetFormats)
+    {
+        wgpu::ColorTargetState& colorTarget = targetStates.emplace_back();
+        colorTarget.format = target;
+        colorTarget.blend = &blendState;
+        colorTarget.writeMask = wgpu::ColorWriteMask::All;
+    }
+    fragmentState.targetCount = static_cast<uint32_t>(targetStates.size());
+    fragmentState.targets = targetStates.data();
     
-    // Describe primitive pipeline state
-    pipelineDesc.primitive = InMeshState;
+    // Depth/stencil
+    if (InData.data.depth.format != wgpu::TextureFormat::Undefined)
+    {
+        depthStencilState.format = InData.data.depth.format;
+        depthStencilState.depthCompare = wgpu::CompareFunction::Less;
+        depthStencilState.depthWriteEnabled = InData.data.depth.write ? wgpu::OptionalBool::True : wgpu::OptionalBool::False; // set explicitly
+        depthStencilState.stencilReadMask = 0xFFFFFFFFu;
+        depthStencilState.stencilWriteMask = 0xFFFFFFFFu;
+    }
     
-    // Set which targets are being rendered to
-    fragmentState.targetCount = InTargetStates.size();
-    fragmentState.targets = InTargetStates.data();
-    pipelineDesc.fragment = &fragmentState;
-
+    // Multisample
+    multisampleState.count = 1;
+    multisampleState.mask = ~0u;
+    multisampleState.alphaToCoverageEnabled = false;
     
+    // Create final descriptor
+    String label = InData.label + "_" + Utility::ToStr(InHash);
+    wgpu::RenderPipelineDescriptor desc;
+    desc.label = wgpu::StringView(label);
+    desc.vertex = vertexState;
+    desc.primitive = primitiveState;
+    desc.fragment = &fragmentState;
+    desc.depthStencil = InData.data.depth.format == wgpu::TextureFormat::Undefined ? nullptr : &depthStencilState;
+    desc.multisample = multisampleState;
+    desc.layout = nullptr; // Auto layout
     
-    
-    // Describe stencil/depth pipeline state
-    pipelineDesc.depthStencil = nullptr;
-    
-    // Describe multi-sampling state
-    pipelineDesc.multisample.count = 1;
-    pipelineDesc.multisample.mask = ~0u;
-    pipelineDesc.multisample.alphaToCoverageEnabled = false;
-    
-    // Describe pipeline layout (buffers and textures)
-    pipelineDesc.layout = nullptr;
-    
-    
-    
-    
-    auto pipeline = Context::Get().CreatePipeline(pipelineDesc);
-    CHECK_ASSERT(!pipeline, "Failed to create pipeline");
-    return pipeline;
+    OutPipeline = Context::Get().CreatePipeline(desc);
+    LOG("Pipeline created: ", label);
+    return true;
 }
+

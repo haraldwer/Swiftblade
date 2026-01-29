@@ -11,7 +11,7 @@ void ECS::PlayerCamera::Init()
     originalPosition = GetCameraTransform().GetPosition(Transform::Space::LOCAL); 
 }
 
-void ECS::PlayerCamera::Update()
+void ECS::PlayerCamera::Tick()
 {
     // Interpolate crouch offset
     const float dt = static_cast<float>(Utility::Time::Get().Delta());

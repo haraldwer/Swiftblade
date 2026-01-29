@@ -16,8 +16,8 @@ namespace ECS
     {
     public:
         void Frame(EntityID InEntity, Camera& InComponent) override;
-        void Update(EntityID InEntity, Camera& InComponent) override;
-        bool ShouldUpdate() const override { return true; }
+        void Tick(EntityID InEntity, Camera& InComponent) override;
+        bool ShouldTick() const override { return true; }
         int GetPriority() const override { return -99; }
     private:
         void Set(EntityID InEntity, Camera& InComponent);

@@ -28,7 +28,7 @@ void ECS::Movement::Deinit()
     }
 }
 
-void ECS::Movement::Update()
+void ECS::Movement::Tick()
 {
     if (Engine::Instance::Get().IsEditor())
         return;

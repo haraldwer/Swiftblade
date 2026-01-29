@@ -30,7 +30,7 @@ void Log(const String& InMessage)
     time_t now = time(nullptr);
     tm *tm_info = localtime(&now);
     strftime(timeStr, sizeof(timeStr), "%H:%M:%S", tm_info);
-    const String t = std::format("[{}] ", timeStr);
+    const String t = std::format("[{}]", timeStr);
     const String m = t + InMessage; 
     
 #ifdef __EMSCRIPTEN__

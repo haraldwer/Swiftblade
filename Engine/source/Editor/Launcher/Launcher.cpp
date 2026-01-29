@@ -10,7 +10,7 @@
 void Editor::Launcher::Init()
 {
     config.LoadConfig();
-    Push(config.Instance);
+    //Push(config.Instance);
 }
 
 void Editor::Launcher::Deinit()
@@ -24,7 +24,11 @@ void Editor::Launcher::Deinit()
 void Editor::Launcher::DrawPanel()
 {
     auto instance = Engine::InstanceManager::Get().Top();
-    CHECK_ASSERT(!instance, "No instance");
+    if (!instance)
+    {
+        ImGui::Text("No current instance");
+        return;
+    }
     
     String str = "Current instance: " + instance->GetObjName();
     ImGui::Text(str.c_str());

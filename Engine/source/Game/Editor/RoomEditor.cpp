@@ -76,11 +76,11 @@ void RoomEditor::Deinit()
     Instance::Deinit();
 }
 
-void RoomEditor::Logic(const double InDelta)
+void RoomEditor::Tick(const double InDelta)
 {
     PROFILE();
     
-    Instance::Logic(InDelta);
+    Instance::Tick(InDelta);
     ecs.Update();
     freeCamera.Update();
     

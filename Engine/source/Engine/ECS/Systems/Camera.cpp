@@ -10,7 +10,7 @@ void ECS::SysCamera::Frame(EntityID InEntity, Camera& InComponent)
     //Set(InEntity, InComponent);
 }
 
-void ECS::SysCamera::Update(const EntityID InEntity, Camera& InComponent)
+void ECS::SysCamera::Tick(const EntityID InEntity, Camera& InComponent)
 {
     Set(InEntity, InComponent);
 }

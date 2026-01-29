@@ -18,7 +18,7 @@ void ECS::PlayerAnimator::Init()
     stateMachine->Init();
 }
 
-void ECS::PlayerAnimator::Update()
+void ECS::PlayerAnimator::Tick()
 {
     if (stateMachine)
         stateMachine->Update();

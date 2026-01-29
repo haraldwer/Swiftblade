@@ -17,7 +17,7 @@ void Resource::Manager::Register(ImplBase* InResource, const ID& InID)
     resources[InID.Hash()] = InResource;
 }
 
-void Resource::Manager::Update()
+void Resource::Manager::Frame()
 {
     // Only check every 3 seconds
     CHECK_RETURN(checkTimer.Ellapsed() < CHECK_INTERVAL)
@@ -43,7 +43,6 @@ void Resource::Manager::TryUnload() const
         const auto res = resources.at(queue[index]);
         CHECK_CONTINUE(!res)
         CHECK_CONTINUE(!res->loaded)
-
         if (res->count <= 0)
         {
             PROFILE_NAMED("Unload");

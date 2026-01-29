@@ -2,6 +2,7 @@
 
 #include <webgpu/webgpu.hpp>
 
+#include "Mesh.h"
 #include "Core/Resource/Resource.h"
 
 struct Model;
@@ -21,10 +22,23 @@ namespace Rendering
             return InPath.ends_with(".obj");          
         }
         
-        void GetMeshState(const wgpu::PrimitiveState& InState) const { }
-        
+        const MeshState* GetMeshState();
+        MeshLOD const* GetMesh(int InMeshIndex, int InLOD);
+        int GetMeshCount();
+
     private:
+        void ContinueLoad();
+        void LoadState();
+        
+        bool asyncLoadStarted = false;
+        int loadCount = 0;
+        Vector<Mesh> meshes = {};
+        MeshState state = {};
+        
+        // TODO: Only load requested meshes and lods
     };
+    
+    // TODO: Provide some default meshes...
 }
 
 typedef Resource::Ref<Rendering::ModelResource> ResModel;  

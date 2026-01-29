@@ -70,9 +70,9 @@ void Editor::BlueprintEditor::SetBP(const ResBlueprint& InBP)
         freeCamera.SetTarget(t->GetPosition());
 }
 
-void Editor::BlueprintEditor::Logic(const double InDelta)
+void Editor::BlueprintEditor::Tick(const double InDelta)
 {
-    Instance::Logic(InDelta);
+    Instance::Tick(InDelta);
 
     // Update
     ecs.Update();

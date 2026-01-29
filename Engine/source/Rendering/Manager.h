@@ -4,6 +4,8 @@
 #include "Commands/CommandList.h"
 #include "Context/Context.h"
 #include "Pipeline/PipelineCache.h"
+#include "Resources/Material.h"
+#include "Resources/Model.h"
 #include "Window/Window.h"
 
 // If using Dawn
@@ -31,5 +33,8 @@ namespace Rendering
         FramePacer pacer;
         PipelineCache pipelineCache;
         CommandList list;
+        
+        ResRM rm = ResRM("RM_Test.json");
+        ResModel m = ResModel("Sponza/sponza.obj");
     };
 }

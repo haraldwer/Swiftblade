@@ -41,6 +41,6 @@ namespace ECS
     class SysRigidbody : public System<Rigidbody>
     {
     public:
-        void Update(EntityID InID, Rigidbody& InComponent) override;
+        void Tick(EntityID InID, Rigidbody& InComponent) override;
     };
 }

@@ -15,7 +15,7 @@ namespace ECS
     class SysAnimator : public System<Animator>
     {
     public:
-        void Update(EntityID InID, Animator &InComponent) override;
-        bool ShouldUpdate() const override { return true; }
+        void Tick(EntityID InID, Animator &InComponent) override;
+        bool ShouldTick() const override { return true; }
     };
 }

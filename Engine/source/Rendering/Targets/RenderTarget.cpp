@@ -1,7 +1,14 @@
 #include "RenderTarget.h"
 
-void Rendering::RenderTarget::Init() {}
-void Rendering::RenderTarget::Deinit() {}
+void Rendering::RenderTarget::Init()
+{
+    
+}
+
+void Rendering::RenderTarget::Deinit()
+{
+    
+}
 
 wgpu::TextureViewDescriptor Rendering::RenderTarget::GetView() const
 {
@@ -10,7 +17,7 @@ wgpu::TextureViewDescriptor Rendering::RenderTarget::GetView() const
     wgpu::TextureViewDescriptor viewDesc;
     viewDesc.nextInChain = nullptr;
     viewDesc.label = wgpu::StringView("Surface texture view");
-    viewDesc.format = wgpuTextureGetFormat(texture);
+    viewDesc.format = GetFormat();
     viewDesc.dimension = wgpu::TextureViewDimension::_2D;
     viewDesc.baseMipLevel = 0;
     viewDesc.mipLevelCount = 1;
@@ -25,7 +32,15 @@ wgpu::Texture & Rendering::RenderTarget::GetTexture()
     return texture;
 }
 
+uint32 Rendering::RenderTarget::GetHash()
+{
+    // Based on parameters?
+    return 0;
+}
+
 wgpu::TextureFormat Rendering::RenderTarget::GetFormat() const
 {
-    return wgpuTextureGetFormat(texture);
+    if (texture)
+        return wgpuTextureGetFormat(texture);
+    return wgpu::TextureFormat::Undefined;
 }

@@ -2,7 +2,7 @@
 
 #include "Instance/Instance.h"
 
-bool ECS::UniqueComponentBase::ShouldUpdate() const
+bool ECS::UniqueComponentBase::ShouldTick() const
 {
     return
         !Engine::Instance::Get().IsEditor() &&

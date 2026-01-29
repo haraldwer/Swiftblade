@@ -7,7 +7,7 @@ void ECS::Weapon::Init()
     startPos = Get<Transform>().GetPosition(); 
 }
 
-void ECS::Weapon::Update()
+void ECS::Weapon::Tick()
 {
     auto& t = Get<Transform>();
     if (t.GetParent() == INVALID_ID)

@@ -14,7 +14,7 @@ namespace Resource
         ImplBase* GetResource(const ID& InID);
         void Register(ImplBase* InResource, const ID& InID);
         
-        void Update();
+        void Frame();
         void Deinit();
 
         void DrawPanel() override;
@@ -29,5 +29,6 @@ namespace Resource
         
         static constexpr float CHECK_INTERVAL = 0.05f; 
         static constexpr int CHECK_NUM = 1; 
+        static constexpr int UNLOAD_DELAY_MS = 500; 
     };
 }

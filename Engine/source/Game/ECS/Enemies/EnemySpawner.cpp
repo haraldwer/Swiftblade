@@ -5,9 +5,9 @@
 #include "Instance/Instance.h"
 #include "Math/Random.hpp"
 
-void ECS::SysEnemySpawner::Update(EntityID InID, EnemySpawner &InComponent)
+void ECS::SysEnemySpawner::Tick(EntityID InID, EnemySpawner &InComponent)
 {
-    System::Update(InID, InComponent);
+    System::Tick(InID, InComponent);
     
     InComponent.cooldown -= Utility::Time::Get().Delta();
     if (InComponent.cooldown < 0.0f)
@@ -17,7 +17,7 @@ void ECS::SysEnemySpawner::Update(EntityID InID, EnemySpawner &InComponent)
     }
 }
 
-bool ECS::SysEnemySpawner::ShouldUpdate() const
+bool ECS::SysEnemySpawner::ShouldTick() const
 {
     return !Engine::Instance::Get().IsEditor();
 }

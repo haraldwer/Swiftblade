@@ -16,9 +16,9 @@ namespace ECS
         
         virtual void Init() {}
         virtual void Deinit() {}
-        virtual void Update() {}
+        virtual void Tick() {}
         virtual int GetPriority() const { return 0; }
-        virtual bool ShouldUpdate() const;
+        virtual bool ShouldTick() const;
 
     protected:
 
@@ -69,9 +69,9 @@ namespace ECS
             InComponent.Deinit(); 
         }
 
-        void Update(EntityID InID, T& InComponent) override
+        void Tick(EntityID InID, T& InComponent) override
         {
-            InComponent.Update(); 
+            InComponent.Tick(); 
         }
 
         int GetPriority() const override
@@ -79,9 +79,9 @@ namespace ECS
             return T().GetPriority();
         }
 
-        bool ShouldUpdate() const override
+        bool ShouldTick() const override
         {
-            return T().ShouldUpdate();
+            return T().ShouldTick();
         }
     };
 }

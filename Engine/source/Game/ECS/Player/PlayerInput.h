@@ -9,7 +9,7 @@ namespace ECS
     {
     public:
         
-        void Update() override;
+        void Tick() override;
 
         // TODO: input buffering
         

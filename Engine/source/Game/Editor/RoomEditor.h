@@ -32,7 +32,7 @@ public:
     void Deinit() override;
 
 
-    void Logic(double InDelta) override;
+    void Tick(double InDelta) override;
     void Frame() override;
 
     void SetRoom(const ResEditRoom& InRoom);

@@ -13,7 +13,7 @@ namespace ECS
     public:
 
         void Init() override;
-        void Update() override;
+        void Tick() override;
         void TryOverrideState(const Type& InAnimState) const;
         bool EditState() const;
 

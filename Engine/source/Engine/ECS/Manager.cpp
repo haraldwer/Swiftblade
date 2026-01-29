@@ -48,8 +48,8 @@ void Manager::Update()
 {
     PROFILE();
     for (SystemBase* system : sortedSystems)
-        if (system->ShouldUpdate())
-            system->SystemUpdate();
+        if (system->ShouldTick())
+            system->SystemTick();
     DestroyPending();
 }
 
@@ -57,7 +57,7 @@ void Manager::Frame()
 {
     PROFILE();
     for (SystemBase* system : sortedSystems)
-        if (system->ShouldUpdate())
+        if (system->ShouldTick())
             system->SystemFrame();
     DestroyPending();
 }

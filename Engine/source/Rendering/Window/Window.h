@@ -12,6 +12,7 @@ namespace Rendering
     class Window
     {
         friend class Context;
+        friend class ImGuiContext;
     public:
         void Open(const WindowConfig& InConfig);
         void Close();

@@ -2,6 +2,7 @@
 
 #include "glfw3webgpu.h"
 #include "Commands/CommandList.h"
+
 #include "Window/Window.h"
 
 void Rendering::Context::Init(const ContextConfig& InConfig)
@@ -150,9 +151,7 @@ void Rendering::Context::GetDevice()
         void* InData1, 
         void* InData2)
     {
-        // TODO: Recreate everything!
         LOG("Device error: ", InType, " | ", ToStr(InMessage));
-        CHECK_ASSERT(true, "Device error");
     };
     device = RequestDevice(instance, adapter, deviceDesc);
     CHECK_ASSERT(!device, "Failed to create device");
@@ -227,7 +226,7 @@ wgpu::Surface Rendering::Context::CreateWindowSurface(const Window& InWindow) co
     surfaceConfig.viewFormatCount = 0;
     surfaceConfig.viewFormats = nullptr;
     surfaceConfig.device = device;
-    surfaceConfig.presentMode = wgpu::PresentMode::Fifo;
+    surfaceConfig.presentMode = wgpu::PresentMode::Immediate;
     surfaceConfig.alphaMode = wgpu::CompositeAlphaMode::Opaque;
     surface.configure(surfaceConfig);
     return surface;
@@ -272,6 +271,44 @@ wgpu::Buffer Rendering::Context::CreateBuffer(const wgpu::BufferDescriptor &InDe
     auto buffer = device.createBuffer(InDesc);
     CHECK_ASSERT(!buffer, "Failed to create buffer");
     return buffer;
+}
+
+wgpu::Buffer Rendering::Context::UploadBuffer(const String& InLabel, const void* InData, const uint64 InSize, const wgpu::BufferUsage InUsage)
+{
+    CHECK_ASSERT(!InData, "Invalid data");
+    CHECK_ASSERT(InSize <= 0, "Invalid size");
+    
+    // WebGPU/wgpu requirement: queue.writeBuffer copy size must be aligned (typically 4 bytes).
+    constexpr uint64 kWriteBufferAlignment = 4;
+
+    auto alignUp = [](const uint64 v, const uint64 a) -> uint64
+    {
+        return (v + a - 1) / a * a;
+    };
+
+    const uint64 alignedSize = alignUp(InSize, kWriteBufferAlignment);
+
+    wgpu::BufferDescriptor bufferDesc;
+    bufferDesc.label = wgpu::StringView(InLabel);
+    bufferDesc.size = alignedSize;
+    bufferDesc.usage = InUsage | wgpu::BufferUsage::CopyDst;
+    bufferDesc.mappedAtCreation = false;
+
+    wgpu::Buffer vb = CreateBuffer(bufferDesc);
+    CHECK_ASSERT(!vb, "Failed to create vertex buffer");
+
+    if (alignedSize == InSize)
+    {
+        queue.writeBuffer(vb, 0, InData, InSize);
+    }
+    else
+    {
+        Vector padded(alignedSize, std::byte{0});
+        std::memcpy(padded.data(), InData, InSize);
+        queue.writeBuffer(vb, 0, padded.data(), alignedSize);
+    }
+    
+    return vb;
 }
 
 void Rendering::Context::Submit(const Vector<wgpu::CommandBuffer> &InCommands) const

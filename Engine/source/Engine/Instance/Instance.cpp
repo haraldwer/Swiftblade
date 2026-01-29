@@ -13,7 +13,7 @@ void Engine::Instance::Deinit()
     menus.Clear();
 }
 
-void Engine::Instance::Logic(const double InDelta)
+void Engine::Instance::Tick(const double InDelta)
 {
     time.Tick(InDelta);
     input.Update(); 

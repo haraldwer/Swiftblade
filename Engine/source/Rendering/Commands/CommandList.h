@@ -14,7 +14,7 @@ namespace Rendering
         void End();
         void Submit();
         
-    private:
+    private: 
         String workingName = "";
         wgpu::CommandEncoder encoder;
         Vector<wgpu::CommandBuffer> commands;

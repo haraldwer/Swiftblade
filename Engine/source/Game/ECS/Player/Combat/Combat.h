@@ -11,7 +11,7 @@ namespace ECS
     {
     public:
         void Init() override;
-        void Update() override;
+        void Tick() override;
         bool EditState() const;
 
     private:

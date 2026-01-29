@@ -15,7 +15,7 @@ namespace ECS
     public:
         void Init() override;
         void Deinit() override;
-        void Update() override;
+        void Tick() override;
         bool EditState() const;
         
         int GetPriority() const override { return 9; }

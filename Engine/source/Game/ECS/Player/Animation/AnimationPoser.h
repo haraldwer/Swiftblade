@@ -9,8 +9,8 @@ namespace ECS
     class AnimationPoser : public UniqueComponent<AnimationPoser>
     {
     public:
-        void Update() override;
-        bool ShouldUpdate() const override;
+        void Tick() override;
+        bool ShouldTick() const override;
         Mat4F GetPose(const String& InPose) const;
 
     private:

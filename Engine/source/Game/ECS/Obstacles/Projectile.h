@@ -16,6 +16,6 @@ namespace ECS
     {
     public:
         void Init(EntityID InID, Projectile& InComponent) override;
-        void Update(EntityID InID, Projectile& InComponent) override;
+        void Tick(EntityID InID, Projectile& InComponent) override;
     };
 }

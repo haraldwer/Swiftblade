@@ -13,7 +13,7 @@ void ECS::Combat::Init()
     stateMachine->Init();
 }
 
-void ECS::Combat::Update()
+void ECS::Combat::Tick()
 {
     if (stateMachine)
         stateMachine->Update();

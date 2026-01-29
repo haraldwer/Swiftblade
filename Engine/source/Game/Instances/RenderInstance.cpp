@@ -32,9 +32,9 @@ void RenderInstance::Init()
     freeCamera.SetState(Vec3F::Zero(), Vec3F::Zero());
 }
 
-void RenderInstance::Logic(double InDelta)
+void RenderInstance::Tick(double InDelta)
 {
-    Instance::Logic(InDelta);
+    Instance::Tick(InDelta);
     
     freeCamera.Update();
     if (Input::Action::Get("Back").Pressed())

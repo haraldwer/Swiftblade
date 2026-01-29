@@ -83,4 +83,25 @@ namespace ImGui
         // Then, add default spacing
         Spacing();
     }
+    
+    inline bool Combo(const char* label, int* curr, const std::vector<std::string>& items)
+    {
+        const std::string currItemLabel = *curr >= 0 && *curr < static_cast<int>(items.size()) ?  
+            items[*curr] : "None"; 
+        if (BeginCombo(label, currItemLabel.c_str())) {
+            for (int i = 0; i < static_cast<int>(items.size()); ++i) {
+                const bool isSelected = (*curr == i);
+                if (Selectable(items[i].c_str(), isSelected)) {
+                    *curr = i;
+                }
+            
+                if (isSelected) {
+                    SetItemDefaultFocus();
+                }
+            }
+            EndCombo();
+            return true; 
+        }
+        return false; 
+    }
 }

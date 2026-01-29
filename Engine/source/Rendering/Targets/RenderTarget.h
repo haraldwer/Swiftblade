@@ -18,6 +18,7 @@ namespace Rendering
         wgpu::TextureFormat GetFormat() const;
         wgpu::TextureViewDescriptor GetView() const;
         wgpu::Texture& GetTexture();
+        uint32 GetHash();
 
     private:
         wgpu::Texture texture;

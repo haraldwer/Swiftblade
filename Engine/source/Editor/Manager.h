@@ -13,9 +13,11 @@ namespace Editor
     {
     public:
         void Init();
-        void Tick();
         void Deinit();
-        
+        void Tick();
+        void Frame();
+
+
     private:
         Debug::Manager panels;
         Launcher launcher;

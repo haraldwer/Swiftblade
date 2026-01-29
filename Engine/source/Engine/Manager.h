@@ -1,8 +1,8 @@
 #pragma once
-#include "../Editor/Launcher/Launcher.h"
 #include "Instance/InstanceManager.h"
 #include "Physics/Manager.h"
 #include "Resource/Manager.h"
+#include "Tasks/Manager.h"
 
 namespace Engine
 {
@@ -15,6 +15,7 @@ namespace Engine
         void Deinit();
 
     private:
+        Tasks::Manager tasks;
         InstanceManager instances;
         GlobalEventManager events;
         Resource::Manager resources;
