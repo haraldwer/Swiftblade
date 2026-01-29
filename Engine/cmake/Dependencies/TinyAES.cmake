@@ -4,10 +4,6 @@ FetchContent_Declare(
     GIT_TAG master
     GIT_PROGRESS   TRUE
 )
-
-FetchContent_GetProperties(tiny_aes)
-if(NOT tiny_aes_POPULATED)
-    FetchContent_MakeAvailable(tiny_aes)
-endif()
+FetchContent_MakeAvailable(tiny_aes)
 
 list(APPEND DEP_INCLUDES ${tiny_aes_SOURCE_DIR})

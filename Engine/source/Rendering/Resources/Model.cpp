@@ -203,7 +203,7 @@ bool Rendering::ModelResource::Unload()
 
 bool Rendering::ModelResource::Edit(const String &InName, uint32 InOffset)
 {
-    
+    return false;
 }
 
 const Rendering::MeshState* Rendering::ModelResource::GetMeshState()

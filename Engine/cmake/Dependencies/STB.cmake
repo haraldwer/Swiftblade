@@ -7,7 +7,7 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(stb)
 if(NOT stb_POPULATED)
-    FetchContent_MakeAvailable(stb)
+    FetchContent_Populate(stb)
 endif()
 
 list(APPEND DEP_INCLUDES ${stb_SOURCE_DIR})

@@ -3,6 +3,7 @@ if (NOT RETAIL_MODE)
     
     project(ImGui)
     include(${CMAKE_SOURCE_DIR}/cmake/Library.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/CompileOptions.cmake)
     
     target_include_directories(${PROJECT_NAME} PUBLIC 
         ${PROJECT_SOURCE_DIR}

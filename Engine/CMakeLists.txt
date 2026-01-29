@@ -7,6 +7,7 @@ project(Engine VERSION 0.1.0 LANGUAGES CXX C)
 include(cmake/CMakeOptions.cmake)
 include(cmake/Platform.cmake)
 include(cmake/Retail.cmake)
+include(cmake/SharedCompileOptions.cmake)
 
 set(DEP_INCLUDES "")
 set(DEPENDENCY_DIR cmake/Dependencies)

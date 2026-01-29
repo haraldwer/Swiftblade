@@ -15,7 +15,7 @@ void UI::ToggleSelector::Update(Container &InOwner)
     if (childrenIDs.empty())
         return;
 
-    if (selected == -1)
+    if (selected == static_cast<ElementID>(-1))
         selected = childrenIDs.front();
     for (auto e : childrenIDs)
         if (Get<Toggle>(e).IsClicked())

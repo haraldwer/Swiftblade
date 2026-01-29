@@ -7,7 +7,7 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(fastnoiselite)
 if(NOT fastnoiselite_POPULATED)
-    FetchContent_MakeAvailable(fastnoiselite)
+    FetchContent_Populate(fastnoiselite)
 endif()
 
 list(APPEND DEP_INCLUDES ${fastnoiselite_SOURCE_DIR}/Cpp)

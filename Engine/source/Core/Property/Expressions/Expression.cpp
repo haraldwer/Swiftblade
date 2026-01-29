@@ -4,6 +4,8 @@
 #include "ImGui/imgui.h"
 #endif
 
+#include "tinyexpr.cpp"
+
 Expression::~Expression()
 {
     if (parser)
@@ -96,7 +98,7 @@ void Expression::Remove(const uint8 InKey)
         Var& var = vars.at(InKey);
         if (parser)
             parser->remove_variable_or_function(var.name);
-        delete (var.val);
+        delete var.val;
         var.val = nullptr;
         vars.erase(InKey);
     }

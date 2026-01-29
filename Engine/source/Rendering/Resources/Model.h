@@ -1,9 +1,7 @@
 #pragma once
 
-#include <webgpu/webgpu.hpp>
-
-#include "Mesh.h"
 #include "Core/Resource/Resource.h"
+#include "Rendering/Mesh.h"
 
 struct Model;
 
@@ -19,7 +17,7 @@ namespace Rendering
         
         static bool Accept(const String& InPath)
         {
-            return InPath.ends_with(".obj");          
+            return InPath.ends_with(".obj");
         }
         
         const MeshState* GetMeshState();
