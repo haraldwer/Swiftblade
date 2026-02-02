@@ -22,10 +22,16 @@ namespace Rendering
         wgpu::ShaderModule CreateShader(const wgpu::ShaderModuleDescriptor& InDesc) const;
         wgpu::RenderPipeline CreatePipeline(const wgpu::RenderPipelineDescriptor& InDesc) const;
         wgpu::CommandEncoder CreateEncoder(const wgpu::CommandEncoderDescriptor& InDesc) const;
-        wgpu::Buffer CreateBuffer(const wgpu::BufferDescriptor& InDesc);
-        wgpu::Buffer UploadBuffer(const String& InLabel, const void* InData, uint64 InSize, wgpu::BufferUsage InUsage);
+        
+        wgpu::Buffer CreateBuffer(wgpu::BufferDescriptor InDesc) const;
+        void WriteBuffer(const wgpu::Buffer& InBuffer, const void* InData, uint64 InSize) const;
+        
+        wgpu::BindGroupLayout CreateBindGroupLayout(const Vector<wgpu::BindGroupLayoutEntry>& InLayoutEntries) const;
+        wgpu::PipelineLayout CreateLayout(const Vector<wgpu::BindGroupLayout>& InLayoutGroups);
+        wgpu::BindGroup CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry>& InEntries);
         void Submit(const Vector<wgpu::CommandBuffer>& InCommands) const;
         void Poll();
+
 
     private:
         ContextConfig config;

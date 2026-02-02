@@ -9,16 +9,9 @@ namespace Utility
         return ss.str();
     }
 
-    inline String ToStr(const std::chrono::system_clock::time_point& InTimePoint, const String& InFormat = "%Y-%m-%d %H:%M:%S")
-    {
-        return ToStr(std::chrono::system_clock::to_time_t(InTimePoint), InFormat);
-    }
-
     inline String ToStr(const Timepoint& InTimePoint, const String& InFormat = "%Y-%m-%d %H:%M:%S")
     {
-        auto duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(InTimePoint - std::chrono::steady_clock::now());
-        auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + duration);
-        return ToStr(t, InFormat);
+        return ToStr(std::chrono::system_clock::to_time_t(InTimePoint), InFormat);
     }
     
     template <class Rep, class Period>

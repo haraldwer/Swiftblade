@@ -4,6 +4,7 @@
 
 namespace Rendering
 {
+    class BufferCollection;
     class RenderTarget;
     typedef std::function<void(const wgpu::RenderPassEncoder& InEncoder)> RenderFunc;
     
@@ -23,6 +24,7 @@ namespace Rendering
         
         // How is it gonna get there?
         ResRM material = {};
+        BufferCollection* buffers = nullptr;
         
         // What is it?
         Vector<Mat4F> transforms = {};

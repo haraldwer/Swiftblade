@@ -3,7 +3,8 @@
 #include "ImGuiContext.h"
 #include "Commands/Command.h"
 #include "Commands/CommandList.h"
-#include "Resources/Material.h"
+#include "Scene/Instances/CameraInstance.h"
+#include "Utility/FreeCamera.h"
 
 void Rendering::Manager::Init()
 {
@@ -21,6 +22,7 @@ void Rendering::Manager::Deinit()
     ImGuiContext::Deinit();
     window.Close();
     context.Deinit();
+    buffers.Clear();
 }
 
 int Rendering::Manager::Frame(bool& InRun)
@@ -31,8 +33,22 @@ int Rendering::Manager::Frame(bool& InRun)
     
     auto windowTarget = window.BeginFrame();
     
+    CameraInstance cam;
+    cam.near = 0.1f;
+    cam.far = 50.0f;
+    cam.position = Vec3F::Up() * 2;
+    cam.rotation = QuatF::Identity();
+    Vec2F res = windowTarget.GetSize().To<float>();
+    auto view = cam.GetViewMatrix();
+    auto proj = cam.GetProjectionMatrix(res);
+    auto viewproj = view * proj;
+    
+    auto& buffer = buffers.GetGroup(0);
+    buffer.Set(0, viewproj);
+    
     list.Begin("Main");
-    Command command("Main");
+    
+    Command command("MainCommand");
     command.material = rm;
     command.targets = { &windowTarget };
     command.clear = true;
@@ -41,8 +57,11 @@ int Rendering::Manager::Frame(bool& InRun)
     command.transforms = {}; // Assumes one mesh
     command.model = m; // Assumes fullscreen pass
     command.uniforms = {}; // Contains textures and buffers
+    command.buffers = &buffers;
     list.Add(command);
-    list.Add(ImGuiContext::Command(windowTarget));
+    
+    //list.Add(ImGuiContext::Command(windowTarget));
+    
     list.End();
     
     // Present and wait

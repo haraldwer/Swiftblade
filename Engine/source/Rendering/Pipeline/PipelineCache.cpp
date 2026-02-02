@@ -1,5 +1,6 @@
 #include "PipelineCache.h"
 
+#include "UniformBuffer.h"
 #include "Context/Context.h"
 #include "Resources/Material.h"
 #include "Resources/Model.h"
@@ -23,15 +24,17 @@ uint32 GetHash(const Rendering::PipelineDescriptor& InData)
 {
     struct FullHash
     {
-        uint32 materialHash; 
-        uint32 meshHash;
-        uint32 targetHash; 
-        uint32 staticHash; 
+        uint32 materialHash = 0; 
+        uint32 meshHash = 0;
+        uint32 targetHash = 0; 
+        uint32 staticHash = 0;
+        uint32 layoutHash = 0;
     } fullHash;
     fullHash.materialHash = InData.material->Hash();
     fullHash.meshHash = InData.meshState->hash;
     fullHash.targetHash = Utility::Hash(InData.targetFormats);
     fullHash.staticHash = Utility::Hash(InData.data);
+    fullHash.layoutHash = InData.layout ? InData.layout->hash : 0;
     return Utility::Hash(fullHash);
 }
 
@@ -131,7 +134,7 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     desc.fragment = &fragmentState;
     desc.depthStencil = InData.data.depth.format == wgpu::TextureFormat::Undefined ? nullptr : &depthStencilState;
     desc.multisample = multisampleState;
-    desc.layout = nullptr; // Auto layout
+    desc.layout = InData.layout ? InData.layout->layout : nullptr;
     
     OutPipeline = Context::Get().CreatePipeline(desc);
     LOG("Pipeline created: ", label);

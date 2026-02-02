@@ -15,7 +15,7 @@ namespace Rendering
             return Mat4F(position, rotation, Vec3F::One());
         }
         
-        Mat4F GetProjectionMatrix(Vec2F InSize) const
+        Mat4F GetProjectionMatrix(const Vec2F &InSize) const
         {
             Mat4F proj = Mat4F();
             const float aspect = InSize.x / InSize.y;
@@ -29,8 +29,8 @@ namespace Rendering
             proj(2, 3) = -1.0f;
             proj(3, 3) = 0.0f;
 
-            proj.forward *= -1.0f;
-            proj.right *= -1.0f;
+            //proj.forward *= -1.0f;
+            //proj.right *= -1.0f;
             
             return proj;
         }

@@ -265,50 +265,75 @@ wgpu::CommandEncoder Rendering::Context::CreateEncoder(const wgpu::CommandEncode
     return encoder;
 }
 
-wgpu::Buffer Rendering::Context::CreateBuffer(const wgpu::BufferDescriptor &InDesc)
+uint64 GetAlignedBufferSize(const uint64 InSize)
+{
+    constexpr uint64 kWriteBufferAlignment = 4;
+    auto alignUp = [](const uint64 v, const uint64 a) -> uint64
+    {
+        return (v + a - 1) / a * a;
+    };
+    return alignUp(InSize, kWriteBufferAlignment);
+}
+
+wgpu::Buffer Rendering::Context::CreateBuffer(wgpu::BufferDescriptor InDesc) const
 {
     RN_PROFILE();
+    InDesc.size = GetAlignedBufferSize(InDesc.size);
+    InDesc.usage |= wgpu::BufferUsage::CopyDst;
     auto buffer = device.createBuffer(InDesc);
     CHECK_ASSERT(!buffer, "Failed to create buffer");
     return buffer;
 }
 
-wgpu::Buffer Rendering::Context::UploadBuffer(const String& InLabel, const void* InData, const uint64 InSize, const wgpu::BufferUsage InUsage)
+void Rendering::Context::WriteBuffer(const wgpu::Buffer &InBuffer, const void *InData, uint64 InSize) const
 {
-    CHECK_ASSERT(!InData, "Invalid data");
-    CHECK_ASSERT(InSize <= 0, "Invalid size");
-    
-    // WebGPU/wgpu requirement: queue.writeBuffer copy size must be aligned (typically 4 bytes).
-    constexpr uint64 kWriteBufferAlignment = 4;
-
-    auto alignUp = [](const uint64 v, const uint64 a) -> uint64
-    {
-        return (v + a - 1) / a * a;
-    };
-
-    const uint64 alignedSize = alignUp(InSize, kWriteBufferAlignment);
-
-    wgpu::BufferDescriptor bufferDesc;
-    bufferDesc.label = wgpu::StringView(InLabel);
-    bufferDesc.size = alignedSize;
-    bufferDesc.usage = InUsage | wgpu::BufferUsage::CopyDst;
-    bufferDesc.mappedAtCreation = false;
-
-    wgpu::Buffer vb = CreateBuffer(bufferDesc);
-    CHECK_ASSERT(!vb, "Failed to create vertex buffer");
-
+    uint64 alignedSize = GetAlignedBufferSize(InSize);
     if (alignedSize == InSize)
     {
-        queue.writeBuffer(vb, 0, InData, InSize);
+        queue.writeBuffer(InBuffer, 0, InData, InSize);
     }
     else
     {
         Vector padded(alignedSize, std::byte{0});
         std::memcpy(padded.data(), InData, InSize);
-        queue.writeBuffer(vb, 0, padded.data(), alignedSize);
+        queue.writeBuffer(InBuffer, 0, padded.data(), alignedSize);
     }
-    
-    return vb;
+}
+
+wgpu::BindGroupLayout Rendering::Context::CreateBindGroupLayout(const Vector<wgpu::BindGroupLayoutEntry> &InLayoutEntries) const
+{
+    wgpu::BindGroupLayoutDescriptor bindGroupLayoutDesc{};
+    bindGroupLayoutDesc.entryCount = InLayoutEntries.size();
+    bindGroupLayoutDesc.entries = InLayoutEntries.data();
+    bindGroupLayoutDesc.label = wgpu::StringView("BindGroupLayout");
+    wgpu::BindGroupLayout layout = device.createBindGroupLayout(bindGroupLayoutDesc);
+    CHECK_ASSERT(!layout, "Failed to create bind group layout");
+    return layout;
+}
+
+wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGroupLayout> &InLayoutGroups)
+{
+    // Create the pipeline layout
+    wgpu::PipelineLayoutDescriptor layoutDesc{};
+    layoutDesc.bindGroupLayoutCount = InLayoutGroups.size();
+    layoutDesc.bindGroupLayouts = reinterpret_cast<WGPUBindGroupLayout const *>(InLayoutGroups.data());
+    layoutDesc.label = wgpu::StringView("PipelineLayout");
+    wgpu::PipelineLayout layout = device.createPipelineLayout(layoutDesc);
+    CHECK_ASSERT(!layout, "Failed to create pipeline layout");
+    return layout;
+}
+
+wgpu::BindGroup Rendering::Context::CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry> &InEntries)
+{
+    wgpu::BindGroupDescriptor bindGroupDesc{};
+    bindGroupDesc.layout = InLayout;
+    // There must be as many bindings as declared in the layout!
+    bindGroupDesc.entryCount = InEntries.size();
+    bindGroupDesc.entries = InEntries.data();
+    bindGroupDesc.label = wgpu::StringView("BindGroup");
+    wgpu::BindGroup bindGroup = device.createBindGroup(bindGroupDesc);
+    CHECK_ASSERT(!bindGroup, "Failed to create bindgroup");
+    return bindGroup;
 }
 
 void Rendering::Context::Submit(const Vector<wgpu::CommandBuffer> &InCommands) const

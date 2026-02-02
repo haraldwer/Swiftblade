@@ -20,6 +20,8 @@ namespace Rendering
         wgpu::Texture& GetTexture();
         uint32 GetHash();
 
+        Vec2I GetSize();
+
     private:
         wgpu::Texture texture;
         

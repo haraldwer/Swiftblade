@@ -26,5 +26,6 @@ void Engine::Manager::Frame()
 void Engine::Manager::Deinit()
 {
     physics.Deinit();
+    resources.Deinit();
     tasks.Deinit();
 }

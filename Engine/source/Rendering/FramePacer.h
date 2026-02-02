@@ -64,7 +64,7 @@ namespace Rendering
                 
                 if (totalDelta >= desiredFrameDelta)
                 {
-                    frameLeftoverDelta = totalDelta - desiredFrameDelta;
+                    frameLeftoverDelta = Utility::Math::Clamp(totalDelta - desiredFrameDelta, 0.0, desiredFrameDelta);
                     break;
                 }
                 
@@ -76,11 +76,11 @@ namespace Rendering
             }
             
             timestamp = ellapsed;
-            while (timestamp > 180.0f) // Precision reset
-            {
-                timestamp -= 180.0f;
-                timer = Utility::Timer();
-            }
+            //while (timestamp > 180.0f) // Precision reset
+            //{
+            //    timestamp -= 180.0f;
+            //    timer = Utility::Timer();
+            //}
             
             return delta;
         }

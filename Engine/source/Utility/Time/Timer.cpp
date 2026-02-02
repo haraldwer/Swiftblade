@@ -2,11 +2,12 @@
 
 Utility::Timer::Timer()
 {
-    start = std::chrono::steady_clock::now();
+    start = Now();
 }
 
 double Utility::Timer::Ellapsed() const
 {
-    const auto current = std::chrono::steady_clock::now();
-    return static_cast<double>((current - start).count()); // Convert to sec
+    const auto current = Now();
+    std::chrono::nanoseconds duration = current - start;
+    return static_cast<double>(duration.count()) / 1e9;
 }

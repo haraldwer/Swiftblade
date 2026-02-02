@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FramePacer.h"
+#include "UniformBuffer.h"
 #include "Commands/CommandList.h"
 #include "Context/Context.h"
 #include "Pipeline/PipelineCache.h"
@@ -33,6 +34,7 @@ namespace Rendering
         FramePacer pacer;
         PipelineCache pipelineCache;
         CommandList list;
+        BufferCollection buffers;
         
         ResRM rm = ResRM("RM_Test.json");
         ResModel m = ResModel("Sponza/sponza.obj");

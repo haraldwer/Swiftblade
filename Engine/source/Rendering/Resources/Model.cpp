@@ -144,11 +144,13 @@ void Rendering::ModelResource::ContinueLoad()
         lod.vertexCount = static_cast<uint32>(vertices.size());
         lod.indexCount = static_cast<uint32>(indices.size());
         lod.vertexStride = sizeof(VertexLayout);
-        lod.vertexBuffer = Context::Get().UploadBuffer(
-            "LOD" + Utility::ToStr(InParams.lodIndex + 1) + " VB: " + id.Str(),
-            vertices.data(),
-            vertices.size() * sizeof(VertexLayout),
-            wgpu::BufferUsage::Vertex);
+        
+        wgpu::BufferDescriptor vertexBufferDesc;
+        vertexBufferDesc.label = wgpu::StringView("LOD" + Utility::ToStr(InParams.lodIndex + 1) + " VB: " + id.Str());
+        vertexBufferDesc.size = vertices.size() * sizeof(VertexLayout);
+        vertexBufferDesc.usage = wgpu::BufferUsage::Vertex;
+        lod.vertexBuffer = Context::Get().CreateBuffer(vertexBufferDesc);
+        Context::Get().WriteBuffer(lod.vertexBuffer,vertices.data(),vertices.size() * sizeof(VertexLayout));
 
         bool canUseUint16 = (lod.vertexCount <= std::numeric_limits<uint16_t>::max());
         std::vector<uint16_t> indices16;
@@ -172,11 +174,12 @@ void Rendering::ModelResource::ContinueLoad()
         size_t sizeBytes = (canUseUint16 ? indices16.size() : indices.size()) * stride;
         lod.indexFormat = canUseUint16 ? wgpu::IndexFormat::Uint16 : wgpu::IndexFormat::Uint32;
         lod.indexStride = stride;
-        lod.indexBuffer = Context::Get().UploadBuffer(
-            "LOD" + Utility::ToStr(InParams.lodIndex + 1 + 1) + ibType + id.Str(), 
-            data, 
-            sizeBytes,
-            wgpu::BufferUsage::Index);
+        wgpu::BufferDescriptor indexBufferDesc;
+        indexBufferDesc.label = wgpu::StringView("LOD" + Utility::ToStr(InParams.lodIndex + 1 + 1) + ibType + id.Str());
+        indexBufferDesc.size = sizeBytes;
+        indexBufferDesc.usage = wgpu::BufferUsage::Index;
+        lod.indexBuffer = Context::Get().CreateBuffer(indexBufferDesc);
+        Context::Get().WriteBuffer(lod.indexBuffer,data,sizeBytes);
         
         return true;
     }, 1);

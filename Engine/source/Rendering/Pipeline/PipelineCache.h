@@ -7,6 +7,7 @@
 
 namespace Rendering
 {
+    struct PipelineLayout;
     class ModelResource;
     struct MeshState;
     class RenderTarget;
@@ -20,6 +21,7 @@ namespace Rendering
         MaterialResource* material = nullptr;
         const MeshState* meshState = nullptr;
         Vector<wgpu::TextureFormat> targetFormats;
+        PipelineLayout* layout = nullptr;
         
         struct StaticData // Can be hashed directly
         {

@@ -1,53 +1,39 @@
 #pragma once
 
-#include "Culling/MeshCollection.h"
-#include "Instances/CameraInstance.h"
-#include "Instances/DebugShape.h"
-#include "Instances/EnvironmentInstance.h"
-#include "Instances/LightInstance.h"
-#include "Instances/ParticleInstance.h"
-#include "Utility/Collections/SplitContainer.h"
+//#include "Culling/MeshCollection.h"
+//#include "Instances/CameraInstance.h"
+//#include "Instances/DebugShape.h"
+//#include "Instances/EnvironmentInstance.h"
+//#include "Instances/LightInstance.h"
+//#include "Instances/ParticleInstance.h"
+//#include "Utility/Collections/SplitContainer.h"
 
 namespace Rendering
 {
     struct RenderArgs;
-    typedef std::function<void()> DebugDrawFunc;
     
-    class Scene
+    struct Scene
     {
-        friend class Renderer;
-        friend class DeferredRenderer;
-        friend class Lumin;
-        friend class Lights;
-        friend class Particles;
-    public:
-        void SetCamera(const CameraInstance& InCamera);
-        const CameraInstance& GetCamera() const { return mainCamera; }
+        typedef std::function<void()> CustomFunc;
         
-        MeshCollection& Meshes() { return meshes; }
-        void AddEnvironment(const EnvironmentInstance& InEnvironment);
-        void AddLight(const LightInstance& InLight);
-        void AddParticle(const ParticleInstance& InParticle);
+        void Clear()
+        {
+            camera = {};
+        }
         
-        void AddDebugShape(const DebugShape& InShape);
-        void AddDebugLine(const DebugLine& InLine);
-        void AddDebugFunc(const DebugDrawFunc& InFunc);
+        void Build()
+        {
+            
+        }
 
-        void Clear();
-        void ClearDebug();
-        void Build();
-
-
-    private:
-        CameraInstance mainCamera = {};
-        Vector<EnvironmentInstance> environments = {};
-        MeshCollection meshes = {};
-        Utility::SplitContainer<LightInstance> lights = {};
-        Utility::SplitContainer<ParticleInstance> particles = {};
-        
-        Utility::SplitContainer<DebugShape> debugShapes = {};
-        Utility::SplitContainer<DebugLine> debugLines = {};
-        Vector<DebugDrawFunc> debugFunctions;
+        CameraInstance camera;
+        //Vector<EnvironmentInstance> environments = {};
+        //MeshCollection meshes = {};
+        //Utility::SplitContainer<LightInstance> lights = {};
+        //Utility::SplitContainer<ParticleInstance> particles = {};
+        //Utility::SplitContainer<DebugShape> shapes = {};
+        //Utility::SplitContainer<DebugLine> lines = {};
+        //Vector<CustomFunc> functions;
     };
 }
 

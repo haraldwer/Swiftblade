@@ -38,6 +38,14 @@ uint32 Rendering::RenderTarget::GetHash()
     return 0;
 }
 
+Vec2I Rendering::RenderTarget::GetSize()
+{
+    return {
+        static_cast<int>(texture.getWidth()),
+        static_cast<int>(texture.getHeight())
+    };
+}
+
 wgpu::TextureFormat Rendering::RenderTarget::GetFormat() const
 {
     if (texture)

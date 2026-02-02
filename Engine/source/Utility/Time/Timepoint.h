@@ -3,10 +3,10 @@
 
 namespace Utility
 {
-    typedef std::chrono::steady_clock::time_point Timepoint;
+    typedef std::chrono::high_resolution_clock::time_point Timepoint;
     
     inline Timepoint Now()
     {
-        return std::chrono::steady_clock::now();
+        return std::chrono::high_resolution_clock::now();
     }
 }

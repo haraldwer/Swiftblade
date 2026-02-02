@@ -52,7 +52,7 @@ void Application::App::Deinit()
     editor.Deinit();
 #endif
     
-    engine.Deinit();
     audio.Deinit();
     renderer.Deinit();
+    engine.Deinit();
 }

@@ -1,6 +1,7 @@
 #include "CommandList.h"
 
 #include "Command.h"
+#include "UniformBuffer.h"
 #include "Context/Context.h"
 #include "Pipeline/PipelineCache.h"
 #include "Targets/RenderTarget.h"
@@ -123,7 +124,9 @@ void Rendering::CommandList::Add(const Command& InCommand)
         CHECK_ASSERT(!target, "Invalid target");
 
         wgpu::TextureViewDescriptor viewDesc = target->GetView();
-        wgpu::TextureView view = wgpuTextureCreateView(target->GetTexture(), &viewDesc);
+        wgpu::Texture tex = target->GetTexture();
+        CHECK_CONTINUE(!tex);
+        wgpu::TextureView view = wgpuTextureCreateView(tex, &viewDesc);
         CHECK_ASSERT(!view, "Failed to create view");
         views.push_back(view);
         
@@ -178,28 +181,31 @@ void Rendering::CommandList::Add(const Command& InCommand)
             pipelineDesc.data.depth.format = InCommand.depthTarget->GetFormat();
         pipelineDesc.data.depth.write = InCommand.writeDepth;
         pipelineDesc.data.multisampling = false;
+        pipelineDesc.layout = InCommand.buffers ? 
+            InCommand.buffers->GetLayout() : nullptr;
         if (wgpu::RenderPipeline* pipeline = PipelineCache::Get().GetPipeline(pipelineDesc))
         {
-            
             renderPass.setPipeline(*pipeline);
+            
+            // Bind buffers
+            if (InCommand.buffers)
+                InCommand.buffers->Bind(renderPass);
             
             // For now, render all meshes
             // In the future: Combine mesh buffers? 
             int numMeshes = model->GetMeshCount();
             for (int i = 0; i < numMeshes; i++)
             {
-                if (auto lod = model->GetMesh(i, 2))
+                if (auto lod = model->GetMesh(i, 0))
                 {
                     auto& vb = lod->vertexBuffer;
                     auto& ib = lod->indexBuffer;
                     if (vb && ib)
                     {
+                        // TODO: Bind mesh-specific buffers...
+                        
                         renderPass.setVertexBuffer(0, vb, 0, lod->vertexCount * lod->vertexStride);
                         renderPass.setIndexBuffer(ib, lod->indexFormat, 0, lod->indexCount * lod->indexStride);
-                            
-                        // Uniforms!
-                        //renderPass.setBindGroup();
-                            
                         renderPass.drawIndexed(lod->indexCount, 1, 0, 0, 0);
                     }
                 }
