@@ -10,7 +10,7 @@
 void Editor::Launcher::Init()
 {
     config.LoadConfig();
-    //Push(config.Instance);
+    Push(config.Instance);
 }
 
 void Editor::Launcher::Deinit()

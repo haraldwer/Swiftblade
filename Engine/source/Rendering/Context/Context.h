@@ -27,8 +27,8 @@ namespace Rendering
         void WriteBuffer(const wgpu::Buffer& InBuffer, const void* InData, uint64 InSize) const;
         
         wgpu::BindGroupLayout CreateBindGroupLayout(const Vector<wgpu::BindGroupLayoutEntry>& InLayoutEntries) const;
-        wgpu::PipelineLayout CreateLayout(const Vector<wgpu::BindGroupLayout>& InLayoutGroups);
-        wgpu::BindGroup CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry>& InEntries);
+        wgpu::PipelineLayout CreateLayout(const Vector<wgpu::BindGroupLayout>& InLayoutGroups) const;
+        wgpu::BindGroup CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry>& InEntries) const;
         void Submit(const Vector<wgpu::CommandBuffer>& InCommands) const;
         void Poll();
 

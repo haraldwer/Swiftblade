@@ -115,9 +115,9 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     {
         depthStencilState.format = InData.data.depth.format;
         depthStencilState.depthCompare = wgpu::CompareFunction::Less;
-        depthStencilState.depthWriteEnabled = InData.data.depth.write ? wgpu::OptionalBool::True : wgpu::OptionalBool::False; // set explicitly
-        depthStencilState.stencilReadMask = 0xFFFFFFFFu;
-        depthStencilState.stencilWriteMask = 0xFFFFFFFFu;
+        depthStencilState.depthWriteEnabled = InData.data.depth.write ? wgpu::OptionalBool::True : wgpu::OptionalBool::False;
+        depthStencilState.stencilReadMask = 0;
+        depthStencilState.stencilWriteMask = 0;
     }
     
     // Multisample

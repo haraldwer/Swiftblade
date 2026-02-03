@@ -114,9 +114,7 @@ void Engine::FreeCamera::Toggle()
     bUseEditCamera = !bUseEditCamera;
     if (bUseEditCamera)
     {
-        // TODO: 
-        /*
-        auto& cam = Engine::Instance::Get().GetRenderScene().GetCamera();
+        auto& cam = RenderScene::Get().camera;
         if (cam.fov > 1.0f)
         {
             targetState.position = cam.position;
@@ -124,7 +122,6 @@ void Engine::FreeCamera::Toggle()
             targetState.fov = cam.fov;
         }
         currentState = targetState;
-        */
         Input::Manager::Get().Push("Default");
     }
     else
@@ -158,7 +155,6 @@ void Engine::FreeCamera::UpdateMovement()
     const Vec3F up = Vec3F::Up();
     const Vec3F right = rotMat.Right() * -1.0f;
     const Vec3F forward = rotMat.Forward();
-
     
     const float scrollDelta = 0;// TODO: GetMouseWheelMove() * 0.1f;
     targetState.movementSpeed = Utility::Math::Clamp(targetState.movementSpeed + scrollDelta * (50.0f + targetState.movementSpeed * 0.5f), 1.0f, 300.0f);
@@ -191,14 +187,11 @@ void Engine::FreeCamera::UpdateMovement()
     currentState.movementSpeed = Utility::Math::Lerp(currentState.movementSpeed, targetState.movementSpeed, 10.0f * dt); 
     
     // Set camera
-    // TODO:
-    /*
-    Engine::Instance::Get().GetRenderScene().SetCamera({
+    RenderScene::Get().camera = {
        currentState.position,
         QuatF::FromEuler(currentState.rotation),
         currentState.fov,
         50.0f,
         0.01f
-   });
-   */
+   };
 }

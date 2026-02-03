@@ -21,6 +21,8 @@ void Engine::Manager::Frame()
     if (Instance* instance = instances.Top())
         instance->Frame();
     resources.Frame();
+    
+    // TODO: Submit frame for rendering?
 }
 
 void Engine::Manager::Deinit()

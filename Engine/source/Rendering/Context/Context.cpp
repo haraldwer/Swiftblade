@@ -311,7 +311,7 @@ wgpu::BindGroupLayout Rendering::Context::CreateBindGroupLayout(const Vector<wgp
     return layout;
 }
 
-wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGroupLayout> &InLayoutGroups)
+wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGroupLayout> &InLayoutGroups) const
 {
     // Create the pipeline layout
     wgpu::PipelineLayoutDescriptor layoutDesc{};
@@ -323,7 +323,7 @@ wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGro
     return layout;
 }
 
-wgpu::BindGroup Rendering::Context::CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry> &InEntries)
+wgpu::BindGroup Rendering::Context::CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry> &InEntries) const
 {
     wgpu::BindGroupDescriptor bindGroupDesc{};
     bindGroupDesc.layout = InLayout;

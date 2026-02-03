@@ -15,9 +15,9 @@ void RenderInstance::Init()
         auto m = ResModel(f);
         sponza.push_back(m);
     }
+    auto& rs = Engine::RenderScene::Get();
     // TODO: 
     /*
-    auto& rs = GetRenderScene();
     for (const auto& m : sponza)
         rs.Meshes().Add({
                 m.model,

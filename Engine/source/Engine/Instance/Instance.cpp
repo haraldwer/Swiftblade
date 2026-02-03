@@ -24,4 +24,5 @@ void Engine::Instance::Frame()
 {
     PROFILE();
     input.Frame();
+    Rendering::SceneQueue::Get().Enqueue({ &renderScene });
 }

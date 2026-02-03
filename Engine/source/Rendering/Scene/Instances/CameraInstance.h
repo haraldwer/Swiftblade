@@ -21,7 +21,7 @@ namespace Rendering
             const float aspect = InSize.x / InSize.y;
 
             float fovRad = Utility::Math::DegreesToRadians(fov);
-            float f = 1.0f / tan(fovRad / 2.0f);
+            float f = 1.0f / tanf(fovRad / 2.0f);
             proj(0, 0) = f / aspect;
             proj(1, 1) = f;
             proj(2, 2) = (far + near) / (near - far);
@@ -29,8 +29,8 @@ namespace Rendering
             proj(2, 3) = -1.0f;
             proj(3, 3) = 0.0f;
 
-            //proj.forward *= -1.0f;
-            //proj.right *= -1.0f;
+            proj.forward *= -1.0f;
+            proj.right *= -1.0f;
             
             return proj;
         }

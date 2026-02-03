@@ -1,9 +1,10 @@
 ﻿#include "Manager.h"
 #include "Rendering/Manager.h"
 
+#include "imgui_internal.h"
+
 #ifdef IMGUI_ENABLE
 #include "ImGui/imgui.h"
-#include "ImGui/imgui_internal.h"
 #endif
 
 void Input::Manager::Push(const String& InContext)
@@ -73,9 +74,6 @@ void Input::Manager::Update()
     for (auto& context : current.Contexts.Get())
         for (auto& action : context.Actions.Get())
             UpdateAction(action);
-
-    if (mouseDelta.Length() > 0.0001f)
-        mouseDelta = Vec2F::Zero();
 }
 
 void Input::Manager::Frame()
@@ -108,55 +106,51 @@ void Input::Manager::UpdateAction(Action& InAction) const
     float value = 0.0f;
     if (Rendering::Manager::Get().IsViewportClickable())
     {
-        /*
+        auto& input = Rendering::Input::Get();
         switch (static_cast<KeyType>(InAction.KeyType.Get()))
         {
         case KeyType::KEYBOARD:
-            down = IsKeyDown(key);
+            down = input.GetKey(key);
             break;
         case KeyType::GAMEPAD_BUTTON:
-            down = IsGamepadButtonDown(0, key);
+            down = input.GetGamepadButton(key);
             break;
         case KeyType::GAMEPAD_AXIS:
-            value = GetGamepadAxisMovement(0, key); 
+            value = input.GetGamepadAxis(key); 
             break;
         case KeyType::MOUSE_BUTTON:
-            down = IsMouseButtonDown(key);
+            down = input.GetMouseButton(key);
             break;
         case KeyType::MOUSE_AXIS:
             switch (key)
             {
             case 0: 
-                value = mouseDelta.x;
+                value = input.GetMouseDelta().x;
                 break;
             case 1: 
-                value = mouseDelta.y;
+                value = input.GetMouseDelta().y;
                 break;
             case 2: 
-                value = GetMouseWheelMoveV().x;
+                value = input.GetMouseWheel().x;
                 break;
             case 3: 
-                value = GetMouseWheelMoveV().y;
+                value = input.GetMouseWheel().y;
                 break; 
             }
             break;
         }
 
 #ifdef IMGUI_ENABLE
-
         if (static_cast<KeyType>(InAction.KeyType.Get()) == KeyType::MOUSE_BUTTON)
         {
             switch (key)
             {
-                case MOUSE_BUTTON_LEFT: down |= ImGui::IsMouseDown(ImGuiMouseButton_Left); break;
-                case MOUSE_BUTTON_RIGHT: down |= ImGui::IsMouseDown(ImGuiMouseButton_Right); break;
-                case MOUSE_BUTTON_MIDDLE: down |= ImGui::IsMouseDown(ImGuiMouseButton_Middle); break;
+                case GLFW_MOUSE_BUTTON_1: down |= ImGui::IsMouseDown(ImGuiMouseButton_Left); break;
+                case GLFW_MOUSE_BUTTON_2: down |= ImGui::IsMouseDown(ImGuiMouseButton_Right); break;
+                case GLFW_MOUSE_BUTTON_3: down |= ImGui::IsMouseDown(ImGuiMouseButton_Middle); break;
             }
         }
-        
 #endif
-        */
-        
     }
     if (!down)
         down = abs(value) > InAction.Deadzone;
@@ -335,21 +329,20 @@ void Input::Manager::DrawDebugPanel() {  }
 void Input::Manager::UpdateCursorState()
 {
     CHECK_RETURN(contextStack.empty());
-    /*
-    const auto md = GetMouseDelta(); 
-    mouseDelta += Vec2F( md.x, md.y );
+    
+    auto& input = Rendering::Input::Get();
     
     // Refresh cursor visibility
     auto& context = GetContext(contextStack.back());
-    if (context.CursorVisible == IsCursorHidden())
+    if (context.CursorVisible == input.IsCursorHidden())
     {
         if (context.CursorVisible)
         {
-            EnableCursor();
+            input.ShowCursor();
         }
         else if (current.ConsumeCursor)
         {
-            DisableCursor();
+            input.HideCursor();
         }
     }
 
@@ -357,7 +350,6 @@ void Input::Manager::UpdateCursorState()
     if (!context.CursorVisible)
         ImGui::ClearActiveID();
 #endif
-    */
 }
 
 const Input::Context& Input::Manager::GetContext(const String& InName) const

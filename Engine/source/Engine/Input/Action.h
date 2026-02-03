@@ -22,10 +22,12 @@ namespace Input
         MOUSE_AXIS
     };
     
-    struct Action : PropertyOwner<Action>
+    class Action : public PropertyOwner<Action>
     {
         friend Manager; 
         friend Context; 
+     
+    public:
         
         bool Pressed() const { return Key >= 0 && current == State::PRESSED; }
         bool Down()  const { return Key >= 0 && (current == State::PRESSED || current == State::DOWN); } 

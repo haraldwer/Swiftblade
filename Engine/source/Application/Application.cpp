@@ -39,7 +39,6 @@ void Application::App::Frame()
     {
         engine.Tick();
         audio.Tick();
-        
 #ifdef EDITOR_ENABLED
         editor.Tick();
 #endif

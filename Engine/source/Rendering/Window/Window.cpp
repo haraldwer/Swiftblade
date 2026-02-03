@@ -1,5 +1,8 @@
 #include "Window.h"
 
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
+
 #include "Rendering/Context/Context.h"
 
 void Rendering::Window::Open(const WindowConfig& InConfig)
@@ -15,9 +18,11 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
         res.x, 
         res.y, 
         InConfig.Title.Get().c_str(), 
-        nullptr, 
+        nullptr,
         nullptr);
     CHECK_ASSERT(!window, "Failed to create window");
+    input.Init(window);
+    
     surface = Context::Get().CreateWindowSurface(*this);
     
     // TODO: Handle glfw events!
@@ -29,7 +34,8 @@ void Rendering::Window::Close()
     RN_PROFILE();
     surface.release();
     surface = {};
-    glfwDestroyWindow(window);
+    input.Deinit();
+    glfwDestroyWindow(static_cast<GLFWwindow*>(window));
     window = nullptr;
 }
 
@@ -54,9 +60,10 @@ void Rendering::Window::Present(bool& InRun)
 #endif
     
     // Also poll events
+    input.Frame();
     Context::Get().Poll();
     glfwPollEvents();
-    if (glfwWindowShouldClose(window))
+    if (glfwWindowShouldClose(static_cast<GLFWwindow*>(window)))
         InRun = false;
     
     // Release surface texture
@@ -68,4 +75,9 @@ void Rendering::Window::Present(bool& InRun)
     }
 #endif
     target = {};
+}
+
+Vec2I Rendering::Window::Size() const
+{
+    return config.Resolution.Get();
 }

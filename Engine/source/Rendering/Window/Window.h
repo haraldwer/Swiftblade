@@ -1,11 +1,10 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
-#include "GLFW/glfw3.h"
 #include <webgpu/webgpu.hpp>
 
 #include "WindowConfig.h"
 #include "Targets/RenderTarget.h"
+#include "Input.h"
 
 namespace Rendering
 {
@@ -18,10 +17,13 @@ namespace Rendering
         void Close();
         RenderTarget& BeginFrame();
         void Present(bool& InRun);
-        
+
+        Vec2I Size() const;
+
     private:
         WindowConfig config = {};
-        GLFWwindow* window = nullptr;
+        WindowHandle window = nullptr;
+        Input input = {};
         
         wgpu::Surface surface;
         wgpu::SurfaceTexture surfaceTexture;

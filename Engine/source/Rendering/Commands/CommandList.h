@@ -4,7 +4,7 @@
 
 namespace Rendering
 {
-    class Command;
+    struct Command;
 
     class CommandList
     {

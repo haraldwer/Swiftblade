@@ -4,6 +4,7 @@
 #include "Utility/FreeCamera.h"
 #include "Input/Manager.h"
 #include "Menu/Manager.h"
+#include "Rendering/RenderScene.h"
 
 namespace Engine
 {
@@ -29,6 +30,7 @@ namespace Engine
         Menu::Manager menus = {};
         Input::Manager input = {};
         FreeCamera freeCamera = {};
+        RenderScene renderScene = {};
         
     private:
         InstanceEventManager eventManager = {};

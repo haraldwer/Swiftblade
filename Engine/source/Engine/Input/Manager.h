@@ -29,7 +29,6 @@ namespace Input
         
         Vector<String> contextStack = {};
         Config current = {}; 
-        Vec2F mouseDelta = {};
 
         // TODO: Input buffering
         // TODO: Consuming input
