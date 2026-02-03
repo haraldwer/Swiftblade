@@ -1,12 +1,12 @@
 # Introduction
-Swiftblade is a first-person movement-focused speedrunning game.
+Swiftblade is a first-person movement-focused speedrunning game built with a homemade engine. 
 
-The game runs in a home-made engine, which I've built mostly using Raylib, a C library for making games. 
+I'm currently in the process of rewriting the rendering to use webgpu. I was previously using Raylib.
 
 Here are some features of the engine: 
  - Dense, single-threaded ECS
  - Property serialization
- - An opengl renderer
+ - A webgpu renderer
  - Custom UI layout system
  - An abstraction for nakama RPCs
  - Resource management with hot reloading
@@ -34,7 +34,7 @@ And here are some rendering features:
 	+ Linux: g++-12, clang-14
 
 # Setup
-## Windows
+## Windows / Visual Studio
 1. Call ``RayEngine/gen.bat``
 2. Open ``RayEngine/build/RayEngine.sln``
 Or call CMake manually.
@@ -99,7 +99,7 @@ namespace Context
 			OutParameter = someVariable.DoSomething();
 		}
 
-		Var _memberVar;
+		Var memberVar;
 	}
 
 	enum ExampleEnum
@@ -117,14 +117,3 @@ content/Folder
 	FileName.cpp
 	FileName.hpp
 ```
-
-## Principles
-No external dependencies
-
-Interactions limited to sandbox environments
-
-Examples:
- - Resource wrappers
- - Renderer converts MeshInstance data
-
-
