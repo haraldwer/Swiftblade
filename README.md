@@ -35,8 +35,8 @@ And here are some rendering features:
 
 # Setup
 ## Windows / Visual Studio
-1. Call ``RayEngine/gen.bat``
-2. Open ``RayEngine/build/RayEngine.sln``
+1. Call ``Engine/gen.bat``
+2. Open ``Engine/build/Engine.sln``
 Or call CMake manually.
 
 ## Linux
