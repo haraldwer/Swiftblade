@@ -32,6 +32,8 @@ namespace Rendering
         void Submit(const Vector<wgpu::CommandBuffer>& InCommands) const;
         void Poll();
 
+        wgpu::Texture CreateTexture(const wgpu::TextureDescriptor& InDesc) const;
+
 
     private:
         ContextConfig config;

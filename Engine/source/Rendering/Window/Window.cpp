@@ -32,6 +32,7 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
 void Rendering::Window::Close()
 {
     RN_PROFILE();
+    target.Deinit();
     surface.release();
     surface = {};
     input.Deinit();
@@ -45,8 +46,8 @@ Rendering::RenderTarget& Rendering::Window::BeginFrame()
     surface.getCurrentTexture(&surfaceTexture);
     CHECK_ASSERT(surfaceTexture.status > wgpu::SurfaceGetCurrentTextureStatus::Timeout, "Failed to get surface texture");
     
-    // Create RenderTarget!
-    target.texture = surfaceTexture.texture;
+    target.Deinit();
+    target.Init(surfaceTexture.texture);
     return target;
 }
 

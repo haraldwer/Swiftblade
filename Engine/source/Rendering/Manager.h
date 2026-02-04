@@ -1,13 +1,11 @@
 #pragma once
 
 #include "FramePacer.h"
-#include "Scene/SceneQueue.h"
-#include "UniformBuffer.h"
+#include "Uniforms/UniformBuffer.h"
 #include "Commands/CommandList.h"
 #include "Context/Context.h"
 #include "Pipeline/PipelineCache.h"
-#include "Resources/Material.h"
-#include "Resources/Model.h"
+#include "Scene/SceneRenderer.h"
 #include "Viewport/Viewport.h"
 #include "Window/Window.h"
 
@@ -44,9 +42,8 @@ namespace Rendering
         PipelineCache pipelineCache;
         CommandList list;
         BufferCollection buffers;
-        SceneQueue queue;
+        SceneRenderer sceneRenderer;
         
-        ResRM rm = ResRM("RM_Test.json");
-        ResModel m = ResModel("Sponza/sponza.obj");
+        ResRM blit = ResRM("Shaders/SH_Blit.wgsl");
     };
 }

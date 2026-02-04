@@ -2,17 +2,19 @@
 
 void Rendering::Viewport::Init(const Vec2I &InSize)
 {
-    frameTarget.Init(InSize);
+    size = InSize;
+    targets.Init(size);
 }
 
 void Rendering::Viewport::Deinit()
 {
-    frameTarget.Deinit();
+    targets.Deinit();
+    size = {};
 }
 
-void Rendering::Viewport::Resize(const Vec2I &InResolution)
+void Rendering::Viewport::Resize(const Vec2I &InSize)
 {
-    CHECK_RETURN(resolution == InResolution);
+    CHECK_RETURN(size == InSize);
     Deinit();
-    Init(InResolution);
+    Init(size);
 }

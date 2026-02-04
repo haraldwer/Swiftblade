@@ -17,9 +17,9 @@ namespace Rendering
         // Where to?
         Vector<RenderTarget*> targets = {}; 
         RenderTarget* depthTarget = nullptr;
-        bool clear = false;
-        bool clearDepth = false;
-        bool writeDepth = true;
+        bool clear = true;
+        bool clearDepth = true;
+        bool writeDepth = false;
         Vec4F clearColor = Vec4F::Zero();
         
         // How is it gonna get there?

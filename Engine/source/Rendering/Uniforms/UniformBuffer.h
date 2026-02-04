@@ -3,6 +3,8 @@
 
 namespace Rendering
 {
+    class RenderTarget;
+
     struct PipelineLayout
     {
         wgpu::PipelineLayout layout;
@@ -27,21 +29,24 @@ namespace Rendering
         }
         
         void Set(int InSlot, const void* InData, uint64 InSize, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment | wgpu::ShaderStage::Vertex);
+        void Set(int InSlot, const wgpu::TextureView& InView, const wgpu::TextureBindingLayout& InLayout, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment);
+        void Set(int InSlot, const RenderTarget& InTexture, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment);
         
         void Clear();
         
     private:
+        
         struct Uniform
         {
             void* data = nullptr;
             uint64 size = 0;
             wgpu::Buffer buffer;
+            wgpu::TextureView view;
         };
         Vector<Uniform> uniforms;
         Vector<wgpu::BindGroupLayoutEntry> layouts;
         Vector<wgpu::BindGroupEntry> bindings;
         Vector<uint32> hashes;
-        
         bool bindingChanged = false;
         bool layoutChanged = false;
     };

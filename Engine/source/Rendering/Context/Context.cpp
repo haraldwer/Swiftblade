@@ -287,6 +287,7 @@ wgpu::Buffer Rendering::Context::CreateBuffer(wgpu::BufferDescriptor InDesc) con
 
 void Rendering::Context::WriteBuffer(const wgpu::Buffer &InBuffer, const void *InData, uint64 InSize) const
 {
+    RN_PROFILE();
     uint64 alignedSize = GetAlignedBufferSize(InSize);
     if (alignedSize == InSize)
     {
@@ -302,6 +303,7 @@ void Rendering::Context::WriteBuffer(const wgpu::Buffer &InBuffer, const void *I
 
 wgpu::BindGroupLayout Rendering::Context::CreateBindGroupLayout(const Vector<wgpu::BindGroupLayoutEntry> &InLayoutEntries) const
 {
+    RN_PROFILE();
     wgpu::BindGroupLayoutDescriptor bindGroupLayoutDesc{};
     bindGroupLayoutDesc.entryCount = InLayoutEntries.size();
     bindGroupLayoutDesc.entries = InLayoutEntries.data();
@@ -313,6 +315,7 @@ wgpu::BindGroupLayout Rendering::Context::CreateBindGroupLayout(const Vector<wgp
 
 wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGroupLayout> &InLayoutGroups) const
 {
+    RN_PROFILE();
     // Create the pipeline layout
     wgpu::PipelineLayoutDescriptor layoutDesc{};
     layoutDesc.bindGroupLayoutCount = InLayoutGroups.size();
@@ -325,6 +328,7 @@ wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGro
 
 wgpu::BindGroup Rendering::Context::CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry> &InEntries) const
 {
+    RN_PROFILE();
     wgpu::BindGroupDescriptor bindGroupDesc{};
     bindGroupDesc.layout = InLayout;
     // There must be as many bindings as declared in the layout!
@@ -352,4 +356,12 @@ void Rendering::Context::Poll()
     if (!device.poll(false, nullptr))
         LOG("Device poll failed, might be a bad state");
 #endif
+}
+
+wgpu::Texture Rendering::Context::CreateTexture(const wgpu::TextureDescriptor& InDesc) const
+{
+    RN_PROFILE();
+    wgpu::Texture tex = device.createTexture(InDesc);
+    CHECK_ASSERT(!tex, "Invalid texture");
+    return tex;
 }

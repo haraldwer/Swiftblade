@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Targets/RenderTarget.h"
+#include "Targets/FrameTargets.h"
 
 namespace Rendering
 {
@@ -10,16 +10,12 @@ namespace Rendering
         void Init(const Vec2I& InSize);
         void Deinit();
 
-        void Resize(const Vec2I& InResolution);
-        Vec2I Resolution() const { return resolution; }
+        void Resize(const Vec2I& InSize);
+        Vec2I Size() const { return size; }
+        FrameTargets& GetTargets() { return targets; }
 
     private:
-        
-        RenderTarget frameTarget;
-        Vec2I resolution;
-        
-        // This class represents a "view" into the world
-        // It contains all required targets
-        // And can be used to draw the scene
+        FrameTargets targets;
+        Vec2I size;
     };
 }

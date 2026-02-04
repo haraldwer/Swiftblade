@@ -1,7 +1,7 @@
 #include "CommandList.h"
 
 #include "Command.h"
-#include "UniformBuffer.h"
+#include "../Uniforms/UniformBuffer.h"
 #include "Context/Context.h"
 #include "Pipeline/PipelineCache.h"
 #include "Targets/RenderTarget.h"
@@ -33,12 +33,8 @@ void Rendering::CommandList::Add(const Command& InCommand)
     for (auto& target : InCommand.targets)
     {
         CHECK_ASSERT(!target, "Invalid target");
-
-        wgpu::TextureViewDescriptor viewDesc = target->GetView();
-        wgpu::Texture tex = target->GetTexture();
-        CHECK_CONTINUE(!tex);
-        wgpu::TextureView view = wgpuTextureCreateView(tex, &viewDesc);
-        CHECK_ASSERT(!view, "Failed to create view");
+        wgpu::TextureView view = target->GetView();
+        CHECK_ASSERT(!view, "Invalid view");
         views.push_back(view);
         
         // Create attachment using textureView
@@ -61,16 +57,19 @@ void Rendering::CommandList::Add(const Command& InCommand)
     wgpu::RenderPassDepthStencilAttachment depthAttachment;
     if (InCommand.depthTarget)
     {
-        wgpu::TextureViewDescriptor viewDesc = InCommand.depthTarget->GetView();
-        depthAttachment.view = wgpuTextureCreateView(InCommand.depthTarget->GetTexture(), &viewDesc);
+        wgpu::TextureView depthView = InCommand.depthTarget->GetView();
+        CHECK_ASSERT(!depthView, "Invalid depth view");
+        depthAttachment.view = depthView;
         depthAttachment.depthLoadOp = InCommand.clearDepth ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
-        depthAttachment.depthStoreOp = wgpu::StoreOp::Store;
+        depthAttachment.depthStoreOp = InCommand.writeDepth ? wgpu::StoreOp::Store : wgpu::StoreOp::Discard;
         depthAttachment.depthClearValue = 0.0f;
         depthAttachment.depthReadOnly = !InCommand.writeDepth;
+        // TODO: If depthReadOnly, then depthLoadOp cannot be LoadOp::Clear
     }
 
+    String name = "RenderPass: " + InCommand.name;
     wgpu::RenderPassDescriptor renderPassDescriptor;
-    renderPassDescriptor.label = wgpu::StringView("RenderPass: " + InCommand.name);
+    renderPassDescriptor.label = wgpu::StringView(name);
     renderPassDescriptor.nextInChain = nullptr;
     renderPassDescriptor.colorAttachmentCount = attachments.size();
     renderPassDescriptor.colorAttachments = attachments.data();
@@ -130,10 +129,6 @@ void Rendering::CommandList::Add(const Command& InCommand)
     // Use renderpass
     renderPass.end();
     renderPass.release();
-    
-    // Free all allocated resources
-    for (auto& view : views)
-        view.release();
 }
 
 void Rendering::CommandList::End()

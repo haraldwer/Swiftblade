@@ -1,6 +1,6 @@
 #include "PipelineCache.h"
 
-#include "UniformBuffer.h"
+#include "../Uniforms/UniformBuffer.h"
 #include "Context/Context.h"
 #include "Resources/Material.h"
 #include "Resources/Model.h"

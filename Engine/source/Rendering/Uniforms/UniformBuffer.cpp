@@ -1,6 +1,7 @@
 #include "UniformBuffer.h"
 
 #include "Context/Context.h"
+#include "Targets/RenderTarget.h"
 
 void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uint64 InSize, wgpu::ShaderStage InVisibility)
 {
@@ -78,6 +79,68 @@ void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uin
         };
         hashes.at(InSlot) = Utility::Hash(hashData);
     }
+}
+
+void Rendering::BufferGroup::Set(const int InSlot, const wgpu::TextureView& InView, const wgpu::TextureBindingLayout& InLayout, wgpu::ShaderStage InVisibility)
+{
+    CHECK_ASSERT(!InView, "Invalid texture");
+    CHECK_ASSERT(InSlot < 0, "Invalid slot");
+    
+    if (uniforms.size() <= InSlot)
+        uniforms.resize(InSlot + 1);
+    auto& uniform = uniforms.at(InSlot);
+    if (layouts.size() <= InSlot)
+        layouts.resize(InSlot + 1);
+    auto& layout = layouts.at(InSlot);
+    if (bindings.size() <= InSlot)
+        bindings.resize(InSlot + 1);
+    auto& binding = bindings.at(InSlot);
+    if (hashes.size() <= InSlot)
+        hashes.resize(InSlot + 1);
+    
+    // Resize buffer
+    bool changed = false;
+    if (uniform.view != InView || uniform.data || uniform.size > 0) // Did uniform change?
+    {
+        if (uniform.data)
+        {
+            free(uniform.data);
+            uniform.data = nullptr;
+        }
+        uniform.size = 0;
+        uniform.view = InView;
+        binding.binding = InSlot;  // Index of bidning
+        binding.textureView = InView;
+        bindingChanged = true;
+        changed = true;
+    }
+    
+    // Update layout
+    if (changed || 
+        layout.visibility != InVisibility || 
+        layout.binding != InSlot)
+    {
+        layout.binding = InSlot;
+        layout.visibility = InVisibility;
+        layout.texture = InLayout;
+        layoutChanged = true;
+        
+        // Slot part of hash order
+        struct LayoutHash
+        {
+            wgpu::TextureBindingLayout layout;
+            WGPUShaderStage visibility;
+        } hashData {
+            InLayout,
+            InVisibility
+        };
+        hashes.at(InSlot) = Utility::Hash(hashData);
+    }
+}
+
+void Rendering::BufferGroup::Set(const int InSlot, const RenderTarget &InTexture, const wgpu::ShaderStage InVisibility)
+{
+    Set(InSlot, InTexture.GetView(), InTexture.GetLayout(), InVisibility);
 }
 
 void Rendering::BufferGroup::Clear()
