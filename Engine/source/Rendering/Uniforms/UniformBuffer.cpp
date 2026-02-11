@@ -140,7 +140,16 @@ void Rendering::BufferGroup::Set(const int InSlot, const wgpu::TextureView& InVi
 
 void Rendering::BufferGroup::Set(const int InSlot, const RenderTarget &InTexture, const wgpu::ShaderStage InVisibility)
 {
-    Set(InSlot, InTexture.GetView(), InTexture.GetLayout(), InVisibility);
+    wgpu::TextureBindingLayout layout;
+    layout.sampleType =wgpu::TextureSampleType::Float;
+    if (InTexture.descriptor.type == TextureType::DEPTH)
+        layout.sampleType = wgpu::TextureSampleType::Depth;
+    else if (InTexture.descriptor.multisample > 1)
+        layout.sampleType = wgpu::TextureSampleType::UnfilterableFloat;
+    layout.multisampled = InTexture.descriptor.multisample > 1 ?
+        wgpu::OptionalBool::True : wgpu::OptionalBool::False;
+    layout.viewDimension = InTexture.GetViewDimension();
+    Set(InSlot, InTexture.view, layout, InVisibility);
 }
 
 void Rendering::BufferGroup::Clear()
@@ -228,8 +237,13 @@ void Rendering::BufferCollection::Clear()
         groupLayout.release();
     for (auto& groupBinding : bindings)
         groupBinding.release();
-    layout.layout.release();
-    layout = {};
+    layouts.clear();
+    bindings.clear();
+    if (layout.layout)
+    {
+        layout.layout.release();
+        layout = {};
+    }
 }
 
 void Rendering::BufferCollection::Bind(const wgpu::RenderPassEncoder& InEncoder) const

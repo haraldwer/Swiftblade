@@ -40,10 +40,11 @@ int Rendering::Manager::Frame(bool& InRun)
     list.Begin("Viewport");
     
     // Maybe blit
-    buffers.GetGroup(1).Set(0, viewport.GetTargets().frame);
+    buffers.GetGroup(0).Set(0, viewport.GetTargets().msaaFrame);
     Command command("Blit");
     command.targets = { &windowTarget };
     command.material = blit;
+    command.buffers = &buffers;
     list.Add(command);
     
     list.Add(ImGuiContext::Command(windowTarget));

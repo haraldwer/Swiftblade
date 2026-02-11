@@ -31,7 +31,7 @@ uint32 GetHash(const Rendering::PipelineDescriptor& InData)
         uint32 layoutHash = 0;
     } fullHash;
     fullHash.materialHash = InData.material->Hash();
-    fullHash.meshHash = InData.meshState->hash;
+    fullHash.meshHash = InData.meshState ? InData.meshState->hash : 0;
     fullHash.targetHash = Utility::Hash(InData.targetFormats);
     fullHash.staticHash = Utility::Hash(InData.data);
     fullHash.layoutHash = InData.layout ? InData.layout->hash : 0;
@@ -43,7 +43,6 @@ wgpu::RenderPipeline* Rendering::PipelineCache::GetPipeline(const PipelineDescri
     RN_PROFILE();
     
     CHECK_RETURN(!InData.material, nullptr);
-    CHECK_RETURN(!InData.meshState, nullptr);
     CHECK_RETURN(InData.targetFormats.empty(), nullptr);
     
     uint32 hash = GetHash(InData);
@@ -64,7 +63,6 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     RN_PROFILE();
     
     CHECK_ASSERT(!InData.material, "Invalid material")
-    CHECK_ASSERT(!InData.meshState, "Invalid meshState");
     CHECK_ASSERT(InData.targetFormats.empty(), "No targets");
     
     ShaderResource* shaderResource = InData.material->GetShader().Get();
@@ -77,21 +75,24 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     wgpu::MultisampleState multisampleState{};
     
     // Vertex
+    vertexState.setDefault();
     vertexState.entryPoint = wgpu::StringView("vs_main");
     vertexState.module = shaderResource->shader;
-    vertexState.bufferCount = static_cast<uint32_t>(InData.meshState->vertexLayouts.size());
-    vertexState.buffers = InData.meshState->vertexLayouts.data();
-    vertexState.constantCount = 0;
-    vertexState.constants = nullptr;
-
+    
     // Primitive
-    primitiveState = InData.meshState->primitiveState;
+    primitiveState.setDefault();
+    
+    if (InData.meshState)
+    {
+        vertexState.bufferCount = static_cast<uint32_t>(InData.meshState->vertexLayouts.size());
+        vertexState.buffers = InData.meshState->vertexLayouts.data();
+        primitiveState = InData.meshState->primitiveState;
+    }
     
     // Fragment
+    fragmentState.setDefault();
     fragmentState.entryPoint = wgpu::StringView("fs_main");
     fragmentState.module = shaderResource->shader;
-    fragmentState.constantCount = 0;
-    fragmentState.constants = nullptr;
     wgpu::BlendState blendState{};
     blendState.color.srcFactor = wgpu::BlendFactor::SrcAlpha;
     blendState.color.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
@@ -121,7 +122,7 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     }
     
     // Multisample
-    multisampleState.count = 1;
+    multisampleState.count = Utility::Math::Clamp(InData.data.multisampling, 1, 8);
     multisampleState.mask = ~0u;
     multisampleState.alphaToCoverageEnabled = false;
     
@@ -137,6 +138,7 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     desc.layout = InData.layout ? InData.layout->layout : nullptr;
     
     OutPipeline = Context::Get().CreatePipeline(desc);
+    CHECK_ASSERT(!OutPipeline, "Failed to create pipeline");
     LOG("Pipeline created: ", label);
     return true;
 }

@@ -52,6 +52,7 @@ void Rendering::ImGuiContext::EndFrame()
 Rendering::Command Rendering::ImGuiContext::Command(RenderTarget &InTarget)
 {
     Rendering::Command command("ImGui");
+    command.clear = false;
     command.targets = { &InTarget };
     command.customFunc = [&](const wgpu::RenderPassEncoder& renderPass)
     {

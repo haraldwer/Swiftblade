@@ -353,8 +353,7 @@ void Rendering::Context::Poll()
 #if defined(WEBGPU_BACKEND_DAWN)
     device.tick();
 #elif defined(WEBGPU_BACKEND_WGPU)
-    if (!device.poll(false, nullptr))
-        LOG("Device poll failed, might be a bad state");
+    device.poll(false, nullptr);
 #endif
 }
 

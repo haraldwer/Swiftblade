@@ -5,7 +5,6 @@
 void Rendering::RenderTarget::Init(const Desc &InDesc)
 {
     descriptor = InDesc;
-    hash = Utility::Hash(descriptor);
     
     // Clamp layer count
     if (descriptor.type != TextureType::TEXTURE_3D)
@@ -22,7 +21,7 @@ void Rendering::RenderTarget::Init(const Desc &InDesc)
     desc.format = descriptor.format;
     desc.viewFormatCount = 0;
     desc.viewFormats = nullptr;
-    desc.sampleCount = 1;
+    desc.sampleCount = Utility::Math::Clamp(descriptor.multisample, 1, 8);
     desc.mipLevelCount = 1;
     texture = Context::Get().CreateTexture(desc);
     
@@ -77,33 +76,6 @@ void Rendering::RenderTarget::Deinit()
     if (view)
         view.release();
     descriptor = {};
-    hash = 0;
-}
-
-wgpu::TextureView Rendering::RenderTarget::GetView() const
-{
-    return view;
-}
-
-wgpu::TextureBindingLayout Rendering::RenderTarget::GetLayout() const
-{
-    wgpu::TextureBindingLayout layout;
-    layout.sampleType = descriptor.type == TextureType::DEPTH ?  
-        wgpu::TextureSampleType::Depth : wgpu::TextureSampleType::Float;
-    layout.multisampled = descriptor.multisample ?
-        wgpu::OptionalBool::True : wgpu::OptionalBool::False;
-    layout.viewDimension = GetViewDimension();
-    return layout;
-}
-
-wgpu::Texture Rendering::RenderTarget::GetTexture() const
-{
-    return texture;
-}
-
-uint32 Rendering::RenderTarget::GetHash() const
-{
-    return hash;
 }
 
 wgpu::TextureDimension Rendering::RenderTarget::GetDimension() const
@@ -135,9 +107,4 @@ wgpu::TextureViewDimension Rendering::RenderTarget::GetViewDimension() const
 Vec3I Rendering::RenderTarget::GetSize() const
 {
     return descriptor.size;
-}
-
-wgpu::TextureFormat Rendering::RenderTarget::GetFormat() const
-{
-    return descriptor.format;
 }

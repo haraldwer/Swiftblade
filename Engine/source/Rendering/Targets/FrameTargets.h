@@ -8,6 +8,7 @@ namespace Rendering
         void Init(const Vec2I& InSize);
         void Deinit();
         
+        RenderTarget msaaFrame;
         RenderTarget frame;
         RenderTarget depth;
     };

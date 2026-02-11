@@ -28,11 +28,12 @@ void Rendering::SceneRenderer::Render(CommandList& InOutList, Viewport& InMainVi
         
         Command command("MainCommand");
         command.material = rm;
-        command.targets = { &targets.frame };
+        command.targets = { &targets.msaaFrame };
         command.clear = true;
         command.clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
         command.depthTarget = &targets.depth;
         command.writeDepth = true;
+        command.multisample = true;
         command.transforms = {}; // Assumes one mesh
         command.model = m; // Assumes fullscreen pass
         command.uniforms = {}; // Contains textures and buffers

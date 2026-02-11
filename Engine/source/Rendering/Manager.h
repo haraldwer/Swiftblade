@@ -44,6 +44,6 @@ namespace Rendering
         BufferCollection buffers;
         SceneRenderer sceneRenderer;
         
-        ResRM blit = ResRM("Shaders/SH_Blit.wgsl");
+        ResRM blit = ResRM("RM_Blit.json");
     };
 }

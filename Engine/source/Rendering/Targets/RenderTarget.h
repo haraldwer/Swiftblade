@@ -16,13 +16,19 @@ namespace Rendering
     class RenderTarget
     {
         friend class Window;
+        friend class CommandList;
+        friend class BufferGroup;
     public:
         struct Desc
         {
             Vec3I size = {};
             wgpu::TextureFormat format = wgpu::TextureFormat::RGBA16Float;
             TextureType type = TextureType::TEXTURE_2D;
-            bool multisample = false;
+            int multisample = 0;
+            
+            // Also sampler parameters? 
+            // Or should this be passed separately?
+            // Texture is always read separately?
         };
         
         // A RenderTarget can be rendered to and read from
@@ -32,12 +38,7 @@ namespace Rendering
         void Init(const wgpu::Texture& InTexture);
         void Deinit();
         
-        wgpu::TextureFormat GetFormat() const;
-        wgpu::TextureView GetView() const;
-        wgpu::TextureBindingLayout GetLayout() const;
-        wgpu::Texture GetTexture() const;
         Vec3I GetSize() const;
-        uint32 GetHash() const;
 
     private:
         wgpu::TextureDimension GetDimension() const;
@@ -46,6 +47,5 @@ namespace Rendering
         wgpu::Texture texture;
         wgpu::TextureView view;
         Desc descriptor;
-        uint32 hash; 
     };
 }

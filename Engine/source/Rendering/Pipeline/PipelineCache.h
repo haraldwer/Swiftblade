@@ -30,7 +30,7 @@ namespace Rendering
                 wgpu::TextureFormat format = wgpu::TextureFormat::Undefined;
                 bool write = true;
             } depth;
-            bool multisampling = false;
+            int multisampling = 0;
         } data;
     };
     
