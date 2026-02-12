@@ -20,6 +20,7 @@ namespace Rendering
         bool clear = true;
         bool clearDepth = true;
         bool writeDepth = false;
+        bool multisample = false;
         Vec4F clearColor = Vec4F::Zero();
         
         // How is it gonna get there?

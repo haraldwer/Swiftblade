@@ -11,7 +11,11 @@ namespace Utility
 
     inline String ToStr(const Timepoint& InTimePoint, const String& InFormat = "%Y-%m-%d %H:%M:%S")
     {
-        return ToStr(std::chrono::system_clock::to_time_t(InTimePoint), InFormat);
+        auto sys_tp = std::chrono::system_clock::now() +
+            (InTimePoint - std::chrono::high_resolution_clock::now());
+        auto sys_tp_cast =
+            std::chrono::time_point_cast<std::chrono::system_clock::duration>(sys_tp);
+        return ToStr(std::chrono::system_clock::to_time_t(sys_tp_cast), InFormat);
     }
     
     template <class Rep, class Period>
@@ -23,9 +27,9 @@ namespace Utility
         std::stringstream ss;
         ss << '('
            << std::setfill('0')
-           << std::setw(2) << total_seconds / 60 << ':'      // Minutes
-           << std::setw(2) << total_seconds % 60 << '.'      // Seconds
-           << std::setw(3) << milliseconds                    // Milliseconds
+           << std::setw(2) << total_seconds / 60 << ':'
+           << std::setw(2) << total_seconds % 60 << '.'
+           << std::setw(3) << milliseconds
            << ')';
         return ss.str();
     }

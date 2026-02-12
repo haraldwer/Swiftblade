@@ -17,7 +17,7 @@ namespace Rendering
         
         static bool Accept(const String& InPath)
         {
-            return InPath.ends_with(".obj");
+            return InPath.ends_with(".obj") || InPath.ends_with(".gltf");
         }
         
         const MeshState* GetMeshState();

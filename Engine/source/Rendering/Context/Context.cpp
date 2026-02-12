@@ -212,7 +212,7 @@ void Rendering::Context::Deinit()
 wgpu::Surface Rendering::Context::CreateWindowSurface(const Window& InWindow) const
 {
     RN_PROFILE();
-    wgpu::Surface surface = glfwCreateWindowWGPUSurface(instance, InWindow.window);
+    wgpu::Surface surface = glfwCreateWindowWGPUSurface(instance, static_cast<GLFWwindow*>(InWindow.window));
     CHECK_ASSERT(!surface, "Failed to create surface");
     wgpu::SurfaceCapabilities surfaceCapabilities;
     wgpu::Status surfaceCapabilityStatus = surface.getCapabilities(adapter, &surfaceCapabilities);

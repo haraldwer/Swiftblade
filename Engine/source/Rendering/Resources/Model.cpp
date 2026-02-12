@@ -2,56 +2,11 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include "MeshLoader.h"
+#include "Loaders/MeshLoaderOBJ.h"
 
 #include "Context/Context.h"
 
 #include "Tasks/Task.h"
-
-void Rendering::ModelResource::LoadState() 
-{
-    state = {};
-    state.primitiveState.topology = wgpu::PrimitiveTopology::TriangleList;
-    state.primitiveState.frontFace = wgpu::FrontFace::CCW;
-    state.primitiveState.cullMode = wgpu::CullMode::Back;
-    state.primitiveState.stripIndexFormat = wgpu::IndexFormat::Undefined;
-    
-    // Create default layout
-    auto& layout = state.vertexLayouts.emplace_back();
-    static Vector<wgpu::VertexAttribute> attributes;
-    if (attributes.empty())
-    {
-        // TODO: Make this cleaner
-        attributes.resize(3);
-        auto& positionAttr = attributes.at(0);
-        positionAttr.format = wgpu::VertexFormat::Float32x3;
-        positionAttr.offset = 0;
-        positionAttr.shaderLocation = 0;
-        auto& normalAttr = attributes.at(1);
-        normalAttr.format = wgpu::VertexFormat::Float32x3;
-        normalAttr.offset = 3 * sizeof(float);
-        normalAttr.shaderLocation = 1;
-        auto& uvAttr = attributes.at(2);
-        uvAttr.format = wgpu::VertexFormat::Float32x2;
-        uvAttr.offset = 2 * 3 * sizeof(float);
-        uvAttr.shaderLocation = 2;
-    }
-    layout.attributes = attributes.data();
-    layout.attributeCount = static_cast<uint32>(attributes.size());
-    layout.arrayStride = sizeof(VertexLayout);
-    layout.stepMode = wgpu::VertexStepMode::Vertex;
-    
-    // TODO: Instanced attributes
-    
-    struct HashData
-    {
-        uint32 prim = 0;
-        uint32 attr = 0;
-    } hashData;
-    hashData.prim = Utility::Hash(state.primitiveState);
-    hashData.attr = Utility::Hash(attributes);
-    state.hash = Utility::Hash(hashData);
-}
 
 bool Rendering::ModelResource::Load()
 {
@@ -183,6 +138,51 @@ void Rendering::ModelResource::ContinueLoad()
         
         return true;
     }, 1);
+}
+
+void Rendering::ModelResource::LoadState() 
+{
+    state = {};
+    state.primitiveState.topology = wgpu::PrimitiveTopology::TriangleList;
+    state.primitiveState.frontFace = wgpu::FrontFace::CCW;
+    state.primitiveState.cullMode = wgpu::CullMode::Back;
+    state.primitiveState.stripIndexFormat = wgpu::IndexFormat::Undefined;
+    
+    // Create default layout
+    auto& layout = state.vertexLayouts.emplace_back();
+    static Vector<wgpu::VertexAttribute> attributes;
+    if (attributes.empty())
+    {
+        // TODO: Make this cleaner
+        attributes.resize(3);
+        auto& positionAttr = attributes.at(0);
+        positionAttr.format = wgpu::VertexFormat::Float32x3;
+        positionAttr.offset = 0;
+        positionAttr.shaderLocation = 0;
+        auto& normalAttr = attributes.at(1);
+        normalAttr.format = wgpu::VertexFormat::Float32x3;
+        normalAttr.offset = 3 * sizeof(float);
+        normalAttr.shaderLocation = 1;
+        auto& uvAttr = attributes.at(2);
+        uvAttr.format = wgpu::VertexFormat::Float32x2;
+        uvAttr.offset = 2 * 3 * sizeof(float);
+        uvAttr.shaderLocation = 2;
+    }
+    layout.attributes = attributes.data();
+    layout.attributeCount = static_cast<uint32>(attributes.size());
+    layout.arrayStride = sizeof(VertexLayout);
+    layout.stepMode = wgpu::VertexStepMode::Vertex;
+    
+    // TODO: Instanced attributes
+    
+    struct HashData
+    {
+        uint32 prim = 0;
+        uint32 attr = 0;
+    } hashData;
+    hashData.prim = Utility::Hash(state.primitiveState);
+    hashData.attr = Utility::Hash(attributes);
+    state.hash = Utility::Hash(hashData);
 }
 
 bool Rendering::ModelResource::Unload()

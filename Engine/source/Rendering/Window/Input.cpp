@@ -36,7 +36,7 @@ float Rendering::Input::GetGamepadAxis(int InAxis) const
 Vec2F Rendering::Input::GetMouseWheel() const
 {
     CHECK_ASSERT(!window, "Invalid window");
-    
+    return {};
 }
 
 Vec2D Rendering::Input::GetMousePosition() const

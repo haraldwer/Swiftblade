@@ -14,7 +14,7 @@ void Rendering::ImGuiContext::Init(Window &InWindow, Context &InContext)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     
-    ImGui_ImplGlfw_InitForOther(InWindow.window, true);
+    ImGui_ImplGlfw_InitForOther(static_cast<GLFWwindow*>(InWindow.window), true);
     
     ImGui_ImplWGPU_InitInfo info;
     info.Device = InContext.device;
