@@ -8,4 +8,10 @@ include(${CMAKE_SOURCE_DIR}/cmake/Pch.cmake)
 # Link projects
 target_link_libraries(${PROJECT_NAME} PUBLIC
     Engine
+    
+    opencv_core
+    opencv_imgproc
+    opencv_video
+    opencv_videoio
+    opencv_highgui
 )

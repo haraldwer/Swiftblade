@@ -38,6 +38,7 @@ int Rendering::Manager::Frame(bool& InRun)
     list.End();
     
     list.Begin("Viewport");
+    /*
     
     // Maybe blit
     buffers.GetGroup(0).Set(0, viewport.GetTargets().msaaFrame);
@@ -46,6 +47,7 @@ int Rendering::Manager::Frame(bool& InRun)
     command.material = blit;
     command.buffers = &buffers;
     list.Add(command);
+    */
     
     list.Add(ImGuiContext::Command(windowTarget));
     list.End();

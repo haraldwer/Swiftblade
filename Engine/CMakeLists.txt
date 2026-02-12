@@ -25,6 +25,7 @@ include(${DEPENDENCY_DIR}/TinyObjLoader.cmake)
 include(${DEPENDENCY_DIR}/TinyGLTF.cmake)
 include(${DEPENDENCY_DIR}/Tracy.cmake)
 include(${DEPENDENCY_DIR}/WebGPU.cmake)
+include(${DEPENDENCY_DIR}/OpenCV.cmake)
 add_subdirectory(source/ImGui)
 
 # Projects

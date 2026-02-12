@@ -6,6 +6,7 @@
 #include "Instances/MenuInstance.h"
 #include "Instances/GameInstance.h"
 #include "Instances/RenderInstance.h"
+#include "Instances/SDRInstance.h"
 
 void Editor::Launcher::Init()
 {
@@ -63,6 +64,7 @@ void Editor::Launcher::Push(const String& InName)
     LAUNCHER_REG_INSTANCE(BlueprintEditor, InName)
     LAUNCHER_REG_INSTANCE(RoomEditor, InName)
     LAUNCHER_REG_INSTANCE(RenderInstance, InName)
+    LAUNCHER_REG_INSTANCE(SDRInstance, InName)
 #endif
 }
 
