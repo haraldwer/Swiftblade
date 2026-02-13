@@ -2,7 +2,14 @@
 
 bool Rendering::MaterialResource::Load()
 {
-    bool load = PropertyFile::Load();
+    bool load = false;
+    if (ShaderResource::Accept(id.Str()))
+    {
+        // Treat as default material
+        data.Shader = ResShader(id);
+    }
+    else load = PropertyFile::Load();
+    
     
     struct HashData
     {
@@ -31,5 +38,6 @@ ResShader Rendering::MaterialResource::GetShader() const
 
 bool Rendering::MaterialResource::Accept(const String &InPath)
 {
-    return InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("RM_");
+    return (InPath.ends_with(".json") && Utility::File::Name(InPath).starts_with("RM_"))
+        || ShaderResource::Accept(InPath); // Also accept shaders
 }

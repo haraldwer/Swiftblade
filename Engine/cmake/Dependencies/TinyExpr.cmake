@@ -3,6 +3,8 @@ FetchContent_Declare(
     GIT_REPOSITORY  https://github.com/Blake-Madden/tinyexpr-plusplus.git
     GIT_TAG         v1.1.0
     GIT_PROGRESS    TRUE
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES_RECURSE FALSE
 )
 FetchContent_GetProperties(tinyexpr-git)
 if(NOT tinyexpr-git_POPULATED)

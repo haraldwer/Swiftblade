@@ -3,6 +3,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
     GIT_TAG        v2.0.0rc13
     GIT_PROGRESS   TRUE
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES_RECURSE FALSE
 )
 FetchContent_GetProperties(tinyobjloader)
 if(NOT tinyobjloader_POPULATED)

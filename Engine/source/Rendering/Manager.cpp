@@ -32,21 +32,31 @@ int Rendering::Manager::Frame(bool& InRun)
 
     RenderTarget& windowTarget = window.BeginFrame();
     viewport.Resize(window.Size());
+    auto& targets = viewport.GetTargets();
     
     list.Begin("Scene");
     sceneRenderer.Render(list, viewport);
     list.End();
     
+    list.Begin("Resolve");
+    buffers.GetGroup(0).Set(0, targets.msaaFrame);
+    buffers.GetGroup(0).Set(1, targets.msaaNormals);
+    Command resolveCommand("MultisampleResolve");
+    resolveCommand.targets = { &targets.frame, &targets.normals };
+    resolveCommand.material = resolve;
+    resolveCommand.buffers = &buffers;
+    list.Add(resolveCommand);
+    list.End();
+    
+    // Post processing...
+    
     list.Begin("Viewport");
-    
-    // Maybe blit
-    buffers.GetGroup(0).Set(0, viewport.GetTargets().msaaFrame);
-    Command command("Blit");
-    command.targets = { &windowTarget };
-    command.material = blit;
-    command.buffers = &buffers;
-    list.Add(command);
-    
+    buffers.GetGroup(0).Set(0, targets.frame);
+    Command blitCommand("Blit");
+    blitCommand.targets = { &windowTarget };
+    blitCommand.material = blit;
+    blitCommand.buffers = &buffers;
+    list.Add(blitCommand);
     list.Add(ImGuiContext::Command(windowTarget));
     list.End();
     

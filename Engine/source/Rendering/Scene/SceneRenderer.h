@@ -30,7 +30,7 @@ namespace Rendering
         Vector<Entry> entries;
         BufferCollection buffers;
         
-        ResRM rm = ResRM("RM_Test.json");
+        ResRM rm = ResRM("Materials/RM_Default.json");
         ResModel m = ResModel("Sponza/sponza.obj");
     };
 }

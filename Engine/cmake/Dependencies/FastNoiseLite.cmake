@@ -3,6 +3,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/Auburn/FastNoiseLite.git
     GIT_TAG        master
     GIT_PROGRESS   TRUE
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES_RECURSE FALSE
 )
 
 FetchContent_GetProperties(fastnoiselite)
