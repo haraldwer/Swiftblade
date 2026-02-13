@@ -13,14 +13,17 @@ struct SDRConfig : PropertyOwner<SDRConfig>
     PROPERTY_C(int, StereoBlockSize, 15);
     
     PROPERTY_C(float, FeatureUpdateFrequency, 5.0f);
+    PROPERTY_C(float, FeatureUpdateMinPoints, 20);
     PROPERTY_C(int, FeatureMaxCorners, 200);
     PROPERTY_C(float, FeatureQualityLevel, 0.01f);
     PROPERTY_C(float, FeatureMinDistance, 10.0f);
     
     PROPERTY_C(float, Scale, 0.5f);
+    PROPERTY_C(bool, Preview, true);
+    
     PROPERTY_C(float, FocalLength, 0.5f);
-    PROPERTY_C(float, StereoCameraDistance, 0.5f);
-    PROPERTY_C(float, CameraFOV, 0.5f);
+    PROPERTY_C(float, StereoCameraDistance, 10.0f);
+    PROPERTY_C(float, CameraFOV, 90.0f);
     
 };
 
@@ -30,6 +33,8 @@ struct SDRFrameData
     bool left = false;
     bool right = false;
     int points = 0;
+    Mat4F transform;
+    float framerate = 0.0f;
 };
 
 struct SDRContext
@@ -42,7 +47,8 @@ struct SDRContext
     cv::Ptr<cv::StereoBM> stereo;
     cv::VideoCapture capL, capR;
     
-    cv::Mat K, frameL, frameR, grayL, grayR, graySmallL, graySmallR, prevGray, prevGraySmall, disparity, points3D;
+    cv::Mat K, frameL, frameR, grayL, grayR, graySmallL, graySmallR, prevGray, prevGraySmall;
+    cv::Mat rvec, tvec;
     cv::UMat uLeft, uRight, uDisp, uDepth;
     std::vector<cv::Point2f> pointsPrev, pointsCurr;
     std::vector<cv::Vec3f> objectPoints;
@@ -55,6 +61,7 @@ struct SDRContext
     
     SDRConfig config;
     SDRFrameData frame;
+    Utility::Timer frameTimer;
 };
 
 class SDRInstance : public Engine::Instance, public Debug::Panel
@@ -79,4 +86,5 @@ private:
     std::mutex threadLock;
     std::thread mainThread;
     bool run = false;
+    bool reload = false;
 };

@@ -7,6 +7,18 @@
 void SDRInstance::Init()
 {
     Instance::Init();
+    
+    LOG("OpenGL support: ", cv::getBuildInformation());
+    
+    // Check OpenCL availability
+    CHECK_RETURN_LOG(!cv::ocl::haveOpenCL(), "OpenCL not available");
+    cv::ocl::setUseOpenCL(true);
+    
+    int threadCount = std::thread::hardware_concurrency();
+    int numThreads = Utility::Math::Max(1, threadCount * 3 / 4);
+    cv::setNumThreads(numThreads);
+    LOG("CV using num threads: ", numThreads);
+    
     StartThread();
 }
 
@@ -18,63 +30,78 @@ void SDRInstance::Deinit()
 
 void SDRInstance::DrawPanel()
 {
+    PROFILE();
+    
+    if (!cv::ocl::haveOpenCL())
+    {
+        ImGui::Text("OpenCL not available");
+        return;
+    }
+    
+    ImGui::SeparatorText("Config");
     ImGui::Text("Config");
-    bool reload = config.Edit();
+    config.Edit();
     
     threadLock.lock();
+    auto data = frameData;
+    threadLock.unlock();
     
-    // Cameras
-    ImGui::Separator();
-    ImGui::Text("Available cameras: %i", static_cast<int>(frameData.numCameras));
-    if (frameData.numCameras < 2)
+    ImGui::SeparatorText("Cameras");
+    ImGui::Text("Available cameras: %i", static_cast<int>(data.numCameras));
+    if (data.numCameras < 2)
     {
         ImGui::Text("Connect at least two cameras.");
     }
     else
     {
         ImGui::Text("Camera status:");
-        bool leftStatus = frameData.left;
+        bool leftStatus = data.left;
         ImGui::Checkbox("LEFT", &leftStatus);
-        bool rightStatus = frameData.right;
+        bool rightStatus = data.right;
         ImGui::Checkbox("RIGHT", &rightStatus);
     }
     
-    // Debug
-    ImGui::Separator();
-    ImGui::Text("NumPoints %i", static_cast<int>(frameData.points));
+    ImGui::SeparatorText("Debug");
+    ImGui::Text("NumPoints: %i", static_cast<int>(data.points));
+    ImGui::Text("FPS: %f", data.framerate);
     
-    threadLock.unlock();
-    
-    if (ImGui::Button("Reload", ImVec2(-1, 0)) || reload)
-    {
-        StopThread();
-        StartThread();
-    }
+    if (ImGui::Button("Reload", ImVec2(-1, 0)))
+        reload = true;
 }
 
 void SDRInstance::StartThread()
 {
+    PROFILE();
+    StopThread();
+    
     run = true;
     mainThread = std::thread([&]
     {
-        SDRContext context;
-        context.config = config;
-        if (context.Init())
+        while (run)
         {
-            while (run)
+            SDRContext context;
+            reload = false;
+            context.config = config;
+            if (context.Init())
             {
-                context.Frame();
-                threadLock.lock();
-                frameData = context.frame;
-                threadLock.unlock();
+                while (run && !reload)
+                {
+                    context.Frame();
+                    threadLock.lock();
+                    frameData = context.frame;
+                    threadLock.unlock();
+                }
             }
+            context.Deinit();
         }
-        context.Deinit();
     });
 }
 
 void SDRInstance::StopThread()
 {
+    PROFILE();
+    if (!run)
+        return;
     run = false; 
     if (mainThread.joinable())
         mainThread.join();
@@ -82,21 +109,15 @@ void SDRInstance::StopThread()
 
 bool SDRContext::Init()
 {
-    // Check OpenCL availability
-    CHECK_RETURN_LOG(!cv::ocl::haveOpenCL(), "OpenCL not available", false);
-    cv::ocl::setUseOpenCL(true);
-    
-    int threadCount = std::thread::hardware_concurrency();
-    int numThreads = Utility::Math::Max(1, threadCount * 3 / 4);
-    cv::setNumThreads(numThreads);
-    LOG("CV using num threads: ", numThreads);
+    PROFILE();
     
     // Query available cameras
     availableCameras.clear();
     for (int i = 0; i < config.CameraQueryCount; ++i) 
     {
         cv::VideoCapture cap(i);
-        if (cap.isOpened()) {
+        if (cap.isOpened()) 
+        {
             availableCameras.push_back(i);
             cap.release();
         }
@@ -118,12 +139,12 @@ bool SDRContext::Init()
     // Calibrate
     const int width = capL.get(cv::CAP_PROP_FRAME_WIDTH);
     const int height = capL.get(cv::CAP_PROP_FRAME_HEIGHT);
-    const double fovRad = config.CameraFOV * CV_PI / 180.0; // convert to radians
-    const double fx = width / (2.0 * tan(fovRad / 2.0));
-    const double fy = fx;
-    const double cx = width/2.0;
-    const double cy = height/2.0;
-    K = (cv::Mat_<double>(3,3) << 
+    const float fovRad = config.CameraFOV * CV_PI / 180.0; // convert to radians
+    const float fx = width / (2.0 * tan(fovRad / 2.0));
+    const float fy = fx;
+    const float cx = width/2.0;
+    const float cy = height/2.0;
+    K = (cv::Mat_<float>(3,3) << 
         fx, 0, cx,
        0, fy, cy,
        0, 0, 1);
@@ -133,11 +154,14 @@ bool SDRContext::Init()
 
 void SDRContext::Deinit()
 {
-    // Release stuff
+    capL.release();
+    capR.release();
 }
 
 void SDRContext::Frame() 
 {
+    PROFILE();
+    
     CHECK_RETURN(!stereo);
     CHECK_RETURN(!capL.isOpened() || !capR.isOpened());
 
@@ -151,8 +175,9 @@ void SDRContext::Frame()
     cv::cvtColor(frameR, grayR, cv::COLOR_BGR2GRAY);
 
     // 3. Downscale for tracking / LK
-    cv::resize(grayL, graySmallL, cv::Size(), config.Scale, config.Scale);
-    cv::resize(grayR, graySmallR, cv::Size(), config.Scale, config.Scale);
+    float scale = Utility::Math::Clamp(config.Scale.Get(), 0.1f, 1.0f);
+    cv::resize(grayL, graySmallL, cv::Size(), scale, scale);
+    cv::resize(grayR, graySmallR, cv::Size(), scale, scale);
 
     // 4. Allocate / reuse GPU memory
     if (uLeft.empty() || uLeft.size() != graySmallL.size())
@@ -174,7 +199,7 @@ void SDRContext::Frame()
     cv::UMat dispFloat;
     uDisp.convertTo(dispFloat, CV_32F, 1.0 / 16.0);           // BM scale
     const float baseline = config.StereoCameraDistance;
-    const float focalLength = (K.at<double>(1, 1) + K.at<double>(2, 2)) / 2;
+    const float focalLength = (K.at<float>(1, 1) + K.at<float>(2, 2)) / 2;
     cv::UMat fB(uDepth.size(), CV_32F, cv::Scalar(focalLength * baseline));
     cv::divide(fB, dispFloat, uDepth);
 
@@ -184,7 +209,8 @@ void SDRContext::Frame()
     uDepth.setTo(cv::Scalar(0.0f), mask);
 
     // 7. Feature detection (downscaled)
-    if (featureUpdateTimer.Ellapsed() > 5.0f || pointsPrev.size() < 10)
+    if (featureUpdateTimer.Ellapsed() > config.FeatureUpdateFrequency || 
+        pointsPrev.size() < config.FeatureUpdateMinPoints)
     {
         cv::goodFeaturesToTrack(graySmallL, pointsPrev, 200, 0.01, 10);
         featureUpdateTimer = {};
@@ -199,43 +225,88 @@ void SDRContext::Frame()
     // 9. Prepare 3D points for PnP (sparse)
     objectPoints.clear();
     imagePoints.clear();
-    const float scale = config.Scale;
+    CV_Assert(uDepth.type() == CV_32F);
+    const auto depthMat = uDepth.getMat(cv::ACCESS_READ);
     for (size_t i = 0; i < pointsCurr.size(); ++i)
     {
         if (!status[i])
             continue;
-        cv::Point2f pt = pointsCurr[i];
-        float d = uDepth.getMat(cv::ACCESS_READ).at<float>(cv::Point(pt.x, pt.y));
-        if (d <= 0.0f) continue;
-        cv::Vec3f xyz((pt.x * d) / focalLength, (pt.y * d) / focalLength, d); // camera-space
-        objectPoints.push_back(cv::Point3f(xyz));
-        imagePoints.push_back(pt / scale); // full-res coordinates
+        
+        int x = static_cast<int>(pointsCurr[i].x);
+        int y = static_cast<int>(pointsCurr[i].y);
+
+        if (x < 0 || y < 0 || x >= depthMat.cols || y >= depthMat.rows)
+            continue;
+
+        float d = depthMat.at<float>(y, x);
+        if (d <= 0.0f)
+            continue;
+
+        const float cx = K.at<float>(0,2);
+        const float cy = K.at<float>(1,2);
+        const float fx = K.at<float>(0,0);
+        const float fy = K.at<float>(1,1);
+
+        const float X = (x - cx) * d / fx;
+        const float Y = (y - cy) * d / fy;
+        const float Z = d;
+
+        objectPoints.emplace_back(X, Y, Z);
+        imagePoints.push_back(pointsCurr[i]);
     }
     
     // 10. Solve PnP for camera pose
-    cv::Mat rotation;
-    cv::Mat translation;
-    if (!objectPoints.empty())
+    if (objectPoints.size() >= 6)
     {
-        cv::Mat rvec, tvec;
-        cv::solvePnP(objectPoints, imagePoints, K, cv::Mat(), rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
-        cv::Rodrigues(rvec, rotation); // rotation
-        translation = tvec;               // translation
-    }
-
-    // 11. Draw tracking for debug (optional)
-    for (size_t i = 0; i < pointsCurr.size(); ++i)
-        if (status[i])
+        bool extrinsic = !rvec.empty() && !tvec.empty();
+        if (cv::solvePnP(objectPoints, imagePoints, K, cv::Mat(), rvec, tvec, extrinsic, cv::SOLVEPNP_EPNP))
         {
+            cv::Mat rotation;
+            cv::Rodrigues(rvec, rotation);
+            
+            frame.transform.SetPosition({ 
+                static_cast<float>(tvec.at<double>(0)), 
+                static_cast<float>(tvec.at<double>(1)), 
+                static_cast<float>(tvec.at<double>(2)) 
+            });
+            frame.transform.elements[0][0] = static_cast<float>(rotation.at<double>(0, 0)); 
+            frame.transform.elements[0][1] = static_cast<float>(rotation.at<double>(0, 1)); 
+            frame.transform.elements[0][2] = static_cast<float>(rotation.at<double>(0, 2)); 
+            frame.transform.elements[1][0] = static_cast<float>(rotation.at<double>(1, 0)); 
+            frame.transform.elements[1][1] = static_cast<float>(rotation.at<double>(1, 1)); 
+            frame.transform.elements[1][2] = static_cast<float>(rotation.at<double>(1, 2)); 
+            frame.transform.elements[2][0] = static_cast<float>(rotation.at<double>(2, 0)); 
+            frame.transform.elements[2][1] = static_cast<float>(rotation.at<double>(2, 1)); 
+            frame.transform.elements[2][2] = static_cast<float>(rotation.at<double>(2, 2)); 
+        }
+    }
+    
+    cv::namedWindow("Left", cv::WINDOW_NORMAL);
+    cv::namedWindow("Right", cv::WINDOW_NORMAL);
+    cv::namedWindow("Depth", cv::WINDOW_NORMAL | cv::WINDOW_OPENGL);
+    if (config.Preview)
+    {
+        // 11. Draw tracking
+        for (size_t i = 0; i < pointsCurr.size(); ++i)
+        {
+            CHECK_CONTINUE(!status[i]);
             cv::Point2f pt = pointsCurr[i] * (1.0f / scale); // scale up
             cv::circle(frameL, pt, 3, cv::Scalar(0, 255, 0), -1);
+            cv::circle(frameR, pt, 3, cv::Scalar(0, 255, 0), -1);
         }
-
+        
+        // 12. Display debug
+        cv::imshow("Left", frameL);
+        cv::imshow("Right", frameR);
+        cv::imshow("Depth", uDepth);
+    }
+    
+    cv::waitKey(1);
+    
     pointsPrev = pointsCurr;
     graySmallL.copyTo(prevGraySmall);
+    
     frame.points = pointsCurr.size();
-
-    // 12. Display full-resolution frame (debug)
-    cv::imshow("Stereo + VO (T-API)", frameL);
-    cv::waitKey(1);
+    frame.framerate = 1.0f / static_cast<float>(frameTimer.Ellapsed());
+    frameTimer = {};
 }
