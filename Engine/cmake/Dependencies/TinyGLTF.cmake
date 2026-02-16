@@ -7,6 +7,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/syoyo/tinygltf
     GIT_TAG        release
     GIT_PROGRESS   TRUE
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES_RECURSE FALSE
 )
 FetchContent_MakeAvailable(tinygltf)
 

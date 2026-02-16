@@ -15,8 +15,9 @@ if (NOT RETAIL_MODE)
         tracy
         GIT_REPOSITORY https://github.com/wolfpld/tracy.git
         GIT_TAG master
-        GIT_SHALLOW TRUE
         GIT_PROGRESS   TRUE
+        GIT_SHALLOW TRUE
+        GIT_SUBMODULES_RECURSE FALSE
     )
     FetchContent_MakeAvailable(tracy)
     set(DEP_INCLUDES ${DEP_INCLUDES} ${tracy_SOURCE_DIR})

@@ -9,15 +9,6 @@
 #include "Viewport/Viewport.h"
 #include "Window/Window.h"
 
-// If using Dawn
-//#define WEBGPU_BACKEND_DAWN
-// If using wgpu-native
-//#define WEBGPU_BACKEND_WGPU
-// If using emscripten
-//#define WEBGPU_BACKEND_EMSCRIPTEN
-// If built for web
-//#if (EMSCRIPTEN)
-
 namespace Rendering
 {
     struct Scene;
@@ -44,6 +35,7 @@ namespace Rendering
         BufferCollection buffers;
         SceneRenderer sceneRenderer;
         
-        ResRM blit = ResRM("RM_Blit.json");
+        ResRM blit = ResRM("Materials/Fullscreen/SH_Blit.wgsl");
+        ResRM resolve = ResRM("Materials/Fullscreen/SH_MultisampleResolve.wgsl");
     };
 }

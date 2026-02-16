@@ -3,6 +3,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/okdshin/PicoSHA2.git
     GIT_TAG        v1.0.1
     GIT_PROGRESS   TRUE
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES_RECURSE FALSE
 )
 
 FetchContent_GetProperties(picosha2)

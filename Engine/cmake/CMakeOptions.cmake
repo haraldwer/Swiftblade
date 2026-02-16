@@ -5,7 +5,7 @@ Set(FETCHCONTENT_QUIET FALSE)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	message("-- Setting dependency directory to C:/fc to avoid path limit.")
-	set(FETCHCONTENT_BASE_DIR "C:/fc" CACHE PATH "" FORCE)
+	set(FETCHCONTENT_BASE_DIR "C:/fc_${CMAKE_CXX_COMPILER_ID}" CACHE PATH "" FORCE)
 endif()
 
 set(CMAKE_C_STANDARD 23)

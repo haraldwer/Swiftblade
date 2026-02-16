@@ -2,7 +2,7 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include "Loaders/MeshLoaderOBJ.h"
+#include "Loaders/ModelLoaderOBJ.h"
 
 #include "Context/Context.h"
 
