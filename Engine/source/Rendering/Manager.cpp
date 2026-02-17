@@ -38,6 +38,7 @@ int Rendering::Manager::Frame(bool& InRun)
     sceneRenderer.Render(list, viewport);
     list.End();
     
+    /*
     list.Begin("Resolve");
     buffers.GetGroup(0).Set(0, targets.msaaFrame);
     buffers.GetGroup(0).Set(1, targets.msaaNormals);
@@ -47,16 +48,21 @@ int Rendering::Manager::Frame(bool& InRun)
     resolveCommand.buffers = &buffers;
     list.Add(resolveCommand);
     list.End();
+    */
     
     // Post processing...
     
     list.Begin("Viewport");
+    
+    /*
     buffers.GetGroup(0).Set(0, targets.frame);
     Command blitCommand("Blit");
     blitCommand.targets = { &windowTarget };
     blitCommand.material = blit;
     blitCommand.buffers = &buffers;
     list.Add(blitCommand);
+    */
+    
     list.Add(ImGuiContext::Command(windowTarget));
     list.End();
     
