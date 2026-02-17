@@ -6,7 +6,7 @@ namespace Rendering
 {
     struct MaterialData : PropertyOwner<MaterialData>
     {
-        PROPERTY_D(ResShader, Shader, "Shaders/SH_Default.sh");
+        PROPERTY_D(ResShader, Shader, "Materials/Surface/SH_Default.wgsl");
         
         // Also blending and other stuff!
         //PROPERTY_D(bool, TwoSided, false);

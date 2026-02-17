@@ -23,19 +23,16 @@ else (EMSCRIPTEN)
         glfw-light
         URL      https://eliemichel.github.io/LearnWebGPU/_downloads/6873a344e35ea9f5e4fc7e5cc85d3ab8/glfw-3.4.0-light.zip
         URL_HASH MD5=e6684142080457e9227e4f78a6f84fc2
-        GIT_PROGRESS   TRUE
     )
     FetchContent_Declare(
         glfw3webgpu
         URL https://github.com/eliemichel/glfw3webgpu/releases/download/v1.3.0-alpha/glfw3webgpu-v1.3.0-alpha.zip
         URL_HASH MD5=7742bdfe31d08371ab5560ba9684922a
-        GIT_PROGRESS   TRUE
     )
     FetchContent_Declare(
         webgpu
         URL https://github.com/eliemichel/WebGPU-distribution/archive/refs/tags/main-v0.3.0-alpha.zip
         URL_HASH MD5=ea1195dc6c7661c36aa13ea5b734b86e
-        GIT_PROGRESS   TRUE
     )
     FetchContent_MakeAvailable(glfw-light glfw3webgpu webgpu)
 

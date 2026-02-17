@@ -31,7 +31,7 @@ void Rendering::SceneRenderer::Render(CommandList& InOutList, Viewport& InMainVi
         command.targets = { &targets.msaaFrame };
         command.clear = true;
         command.clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
-        command.depthTarget = &targets.depth;
+        command.depthTarget = &targets.msaaDepth;
         command.writeDepth = true;
         command.multisample = true;
         command.transforms = {}; // Assumes one mesh

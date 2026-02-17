@@ -17,6 +17,7 @@ if (NOT RETAIL_MODE)
         GIT_TAG         v0.13.1
         GIT_SHALLOW     TRUE
         GIT_PROGRESS    TRUE
+        GIT_SUBMODULES_RECURSE FALSE
     )
     FetchContent_MakeAvailable(tracy)
     set(DEP_INCLUDES ${DEP_INCLUDES} ${tracy_SOURCE_DIR})

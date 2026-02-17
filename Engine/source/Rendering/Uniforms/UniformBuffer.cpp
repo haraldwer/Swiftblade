@@ -86,16 +86,16 @@ void Rendering::BufferGroup::Set(const int InSlot, const wgpu::TextureView& InVi
     CHECK_ASSERT(!InView, "Invalid texture");
     CHECK_ASSERT(InSlot < 0, "Invalid slot");
     
-    if (uniforms.size() <= InSlot)
+    if (static_cast<int>(uniforms.size()) <= InSlot)
         uniforms.resize(InSlot + 1);
     auto& uniform = uniforms.at(InSlot);
-    if (layouts.size() <= InSlot)
+    if (static_cast<int>(layouts.size()) <= InSlot)
         layouts.resize(InSlot + 1);
     auto& layout = layouts.at(InSlot);
-    if (bindings.size() <= InSlot)
+    if (static_cast<int>(bindings.size()) <= InSlot)
         bindings.resize(InSlot + 1);
     auto& binding = bindings.at(InSlot);
-    if (hashes.size() <= InSlot)
+    if (static_cast<int>(hashes.size()) <= InSlot)
         hashes.resize(InSlot + 1);
     
     // Resize buffer

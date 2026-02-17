@@ -9,7 +9,11 @@ namespace Rendering
         void Deinit();
         
         RenderTarget msaaFrame;
+        RenderTarget msaaNormals;
+        RenderTarget msaaDepth;
+        
         RenderTarget frame;
-        RenderTarget depth;
+        RenderTarget normals;
+        RenderTarget ssao;
     };
 }

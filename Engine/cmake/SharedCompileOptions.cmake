@@ -3,8 +3,7 @@ message("-- Creating compile options interface")
 add_library(compile_options INTERFACE)
 
 # Shared properties
-set_target_properties(compile_options
-    PROPERTIES
+set_target_properties(compile_options PROPERTIES
     UNITY_BUILD false
 )
 
@@ -83,14 +82,14 @@ elseif (MINGW)
     # Debug compile options
     target_compile_options(compile_options INTERFACE
         $<$<CONFIG:Debug>:-O0>
-        $<$<CONFIG:Debug>:-g3>
-        $<$<CONFIG:Debug>:-fno-inline>
+        $<$<CONFIG:Debug>:-g1>
         $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
     )
 
     # Debug link options
     target_link_options(compile_options INTERFACE
-        $<$<CONFIG:Debug>:-fuse-ld=lld>
+        $<$<CONFIG:Debug>:-fno-lto>
+        $<$<CONFIG:Debug>:-Wl,--no-keep-memory>
     )
 
     # Release compile options
