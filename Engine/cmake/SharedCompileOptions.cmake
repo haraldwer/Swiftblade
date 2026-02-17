@@ -86,12 +86,10 @@ elseif (MINGW)
         $<$<CONFIG:Debug>:-g3>
         $<$<CONFIG:Debug>:-fno-inline>
         $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
-        $<$<CONFIG:Debug>:-fno-lto>
     )
 
     # Debug link options
     target_link_options(compile_options INTERFACE
-        $<$<CONFIG:Debug>:-fno-lto>
         $<$<CONFIG:Debug>:-fuse-ld=lld>
     )
 
@@ -100,7 +98,6 @@ elseif (MINGW)
         $<$<CONFIG:Release>:-ffast-math>
         $<$<CONFIG:Release>:-Ofast>
         $<$<CONFIG:Release>:-march=native>
-        $<$<CONFIG:Release>:-flto>
         $<$<CONFIG:Release>:-funroll-loops>
         $<$<CONFIG:Release>:-fdata-sections -ffunction-sections>
         $<$<CONFIG:Release>:-fomit-frame-pointer>
@@ -108,7 +105,6 @@ elseif (MINGW)
 
     # Release link options
     target_link_options(compile_options INTERFACE
-        $<$<CONFIG:Release>:-flto>
         $<$<CONFIG:Release>:-Wl,--gc-sections>
     )
 
@@ -144,7 +140,6 @@ elseif (UNIX)
         $<$<CONFIG:Release>:-ffast-math>
         $<$<CONFIG:Release>:-Ofast> # Highest level of optimization
         $<$<CONFIG:Release>:-march=native> # Use host CPU instructions
-        $<$<CONFIG:Release>:-flto> # Link-time optimization
         $<$<CONFIG:Release>:-fno-plt> # Faster function calls
         $<$<CONFIG:Release>:-funroll-loops>
         $<$<CONFIG:Release>:-fdata-sections -ffunction-sections> # Make --gc-sections effective
@@ -153,7 +148,6 @@ elseif (UNIX)
 
     # Release link options
     target_link_options(compile_options INTERFACE
-        $<$<CONFIG:Release>:-flto> # Link-time optimization
         $<$<CONFIG:Release>:-Wl,--gc-sections> # Remove unused code
         #$<$<CONFIG:Release>:-Wl,--icf=all> # Fold identical functions - on clang
     )

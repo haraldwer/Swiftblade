@@ -13,10 +13,10 @@ if (NOT RETAIL_MODE)
     
     FetchContent_Declare(
         tracy
-        GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-        GIT_TAG master
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS   TRUE
+        GIT_REPOSITORY  https://github.com/wolfpld/tracy.git
+        GIT_TAG         v0.13.1
+        GIT_SHALLOW     TRUE
+        GIT_PROGRESS    TRUE
     )
     FetchContent_MakeAvailable(tracy)
     set(DEP_INCLUDES ${DEP_INCLUDES} ${tracy_SOURCE_DIR})

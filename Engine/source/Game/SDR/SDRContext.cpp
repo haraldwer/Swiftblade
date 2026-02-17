@@ -1,0 +1,107 @@
+#include "SDRContext.h"
+
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/videoio/legacy/constants_c.h"
+
+bool SDR::Context::Init()
+{
+    PROFILE();
+    
+    // Query available cameras
+    availableCameras.clear();
+    for (int i = 0; i < config.CameraQueryCount; ++i) 
+    {
+        cv::VideoCapture cap(i);
+        if (cap.isOpened()) 
+        {
+            availableCameras.push_back(i);
+            cap.release();
+        }
+    }
+    frame.numCameras = availableCameras.size();
+    CHECK_RETURN_LOG(availableCameras.size() < 2, "Not enough cameras connected", false);
+    
+    // Create cameras
+    capL = cv::VideoCapture(availableCameras.at(0));
+    capR = cv::VideoCapture(availableCameras.at(1));
+    frame.left = capL.isOpened();
+    frame.right = capR.isOpened();
+    
+    CHECK_RETURN_LOG(!capL.isOpened() || !capL.isOpened(), "Failed to open cameras", false);
+    
+    // Set capture resolution
+    float scale = Utility::Math::Clamp(config.Scale.Get(), 0.1f, 1.0f);
+    int heightL = capL.get(CV_CAP_PROP_FRAME_HEIGHT);
+    int widthL = capL.get(CV_CAP_PROP_FRAME_WIDTH);
+    int heightR = capR.get(CV_CAP_PROP_FRAME_HEIGHT);
+    int widthR = capR.get(CV_CAP_PROP_FRAME_WIDTH);
+    int height = Utility::Math::Min(heightL, heightR);
+    int width = Utility::Math::Min(widthL, widthR);
+    capL.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<int>(height * scale));
+    capL.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<int>(width * scale));
+    capR.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<int>(height * scale));
+    capR.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<int>(width * scale));
+    
+    // Calibrate
+    const float fovRad = config.CameraFOV * CV_PI / 180.0; // convert to radians
+    const float fx = width / (2.0 * tan(fovRad / 2.0));
+    const float fy = fx;
+    const float cx = width/2.0;
+    const float cy = height/2.0;
+    data.K = (cv::Mat_<float>(3,3) << 
+        fx, 0, cx,
+       0, fy, cy,
+       0, 0, 1);
+    
+    return true;
+}
+
+void SDR::Context::Deinit()
+{
+    PROFILE();
+    
+    capL.release();
+    capR.release();
+}
+
+void SDR::Context::Frame() 
+{
+    PROFILE();
+    
+    CHECK_RETURN(!capL.isOpened() || !capR.isOpened());
+
+    // Capture frames
+    capL >> data.Left;
+    capR >> data.Right;
+    CHECK_RETURN(data.Left.empty() || data.Right.empty());
+    
+    // TODO: Possibly some post processing
+    
+    // Convert to grayscale
+    cv::cvtColor(data.Left, data.GrayLeft, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(data.Right, data.GrayRight, cv::COLOR_BGR2GRAY);
+
+    if (data.PrevGrayLeft.empty())
+        data.GrayLeft.copyTo(data.PrevGrayLeft);
+    
+    depth.Frame(frame, data, config);
+    tracking.Frame(frame, data, config);
+    data.GrayLeft.copyTo(data.PrevGrayLeft);
+    
+    // Display debug
+    cv::namedWindow("Left", cv::WINDOW_NORMAL | cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("Right", cv::WINDOW_NORMAL | cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("Depth", cv::WINDOW_NORMAL | cv::WINDOW_OPENGL | cv::WINDOW_AUTOSIZE);
+    if (config.Preview)
+    {
+        PROFILE();
+        cv::imshow("Left", data.Left);
+        cv::imshow("Right", data.Right);
+        cv::imshow("Depth", data.Depth);
+    }
+    cv::waitKey(1);
+    
+    frame.framerate = 1.0f / static_cast<float>(frameTimer.Ellapsed());
+    frameTimer = {};
+}

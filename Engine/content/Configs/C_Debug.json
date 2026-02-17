@@ -1,5 +1,6 @@
 {
 	"OpenWindows":[
-		"Depth Estimation"
+		"Depth Estimation",
+		"Scene Depth Reconstruction"
 	]
 }

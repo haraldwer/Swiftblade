@@ -1,90 +1,28 @@
 #pragma once
 
+#include "Collections/SwapBuffer.h"
 #include "Instance/Instance.h"
-
-#include "opencv2/calib3d.hpp"
-#include "opencv2/videoio.hpp"
-
-struct SDRConfig : PropertyOwner<SDRConfig>
-{
-    PROPERTY_C(int, CameraQueryCount, 10);
-    
-    PROPERTY_C(int, StereoNumDisparities, 128);
-    PROPERTY_C(int, StereoBlockSize, 15);
-    
-    PROPERTY_C(float, FeatureUpdateFrequency, 5.0f);
-    PROPERTY_C(float, FeatureUpdateMinPoints, 20);
-    PROPERTY_C(int, FeatureMaxCorners, 200);
-    PROPERTY_C(float, FeatureQualityLevel, 0.01f);
-    PROPERTY_C(float, FeatureMinDistance, 10.0f);
-    
-    PROPERTY_C(float, Scale, 0.5f);
-    PROPERTY_C(bool, Preview, true);
-    
-    PROPERTY_C(float, FocalLength, 0.5f);
-    PROPERTY_C(float, StereoCameraDistance, 10.0f);
-    PROPERTY_C(float, CameraFOV, 90.0f);
-    
-};
-
-struct SDRFrameData
-{
-    int numCameras = 0;
-    bool left = false;
-    bool right = false;
-    int points = 0;
-    Mat4F transform;
-    float framerate = 0.0f;
-};
-
-struct SDRContext
-{ 
-    bool Init();
-    void Deinit();
-    void Frame();
-    
-    std::vector<int> availableCameras;
-    cv::Ptr<cv::StereoBM> stereo;
-    cv::VideoCapture capL, capR;
-    
-    cv::Mat K, frameL, frameR, grayL, grayR, graySmallL, graySmallR, prevGray, prevGraySmall;
-    cv::Mat rvec, tvec;
-    cv::UMat uLeft, uRight, uDisp, uDepth;
-    std::vector<cv::Point2f> pointsPrev, pointsCurr;
-    std::vector<cv::Vec3f> objectPoints;
-    std::vector<cv::Point2f> imagePoints;
-    
-    std::vector<uchar> status;
-    std::vector<float> err;
-    
-    Utility::Timer featureUpdateTimer;
-    
-    SDRConfig config;
-    SDRFrameData frame;
-    Utility::Timer frameTimer;
-};
+#include "SDR/SDRContext.h"
 
 class SDRInstance : public Engine::Instance, public Debug::Panel
 {
     CLASS_INFO(SDRInstance, Engine::Instance);
     
 public:
-
     void Init() override;
     void Deinit() override;
+    void Frame() override;
     
     void DrawPanel() override;
-    String PanelName() const override { return "Depth Estimation"; }
+    String PanelName() const override { return "Scene Depth Reconstruction"; }
     
 private:
     void StartThread();
     void StopThread();
     
-    SDRConfig config;
-    SDRFrameData frameData;
-    
-    std::mutex threadLock;
+    SDR::Config config;
     std::thread mainThread;
+    Utility::SwapBuffer<SDR::FrameData> frameData;
     bool run = false;
     bool reload = false;
 };
