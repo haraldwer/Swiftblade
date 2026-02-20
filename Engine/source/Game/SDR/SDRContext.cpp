@@ -23,12 +23,32 @@ bool SDR::Context::Init()
     CHECK_RETURN_LOG(availableCameras.size() < 2, "Not enough cameras connected", false);
     
     // Create cameras
-    capL = cv::VideoCapture(availableCameras.at(0));
-    capR = cv::VideoCapture(availableCameras.at(1));
+    int availableIndex = 0;
+    if (!config.CameraLeft.Get().empty())
+        capL = cv::VideoCapture(config.CameraLeft);
+    else
+    {
+        capL = cv::VideoCapture(availableCameras.at(availableIndex));
+        availableIndex++;
+    }
+        
+    if (!config.CameraRight.Get().empty())
+        capR = cv::VideoCapture(config.CameraRight);
+    else
+    {
+        capR = cv::VideoCapture(availableCameras.at(availableIndex));
+        availableIndex++;
+    }
+    
     frame.left = capL.isOpened();
     frame.right = capR.isOpened();
     
     CHECK_RETURN_LOG(!capL.isOpened() || !capL.isOpened(), "Failed to open cameras", false);
+    
+    capL.set(cv::CAP_PROP_BUFFERSIZE, 1);
+    capL.set(cv::CAP_PROP_FPS, config.CameraFPS);
+    capR.set(cv::CAP_PROP_BUFFERSIZE, 1);
+    capR.set(cv::CAP_PROP_FPS, config.CameraFPS);
     
     // Set capture resolution
     float scale = Utility::Math::Clamp(config.Scale.Get(), 0.1f, 1.0f);

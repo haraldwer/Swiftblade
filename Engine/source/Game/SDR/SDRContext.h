@@ -29,6 +29,9 @@ namespace SDR
         PROPERTY_C(float, FocalLength, 0.5f);
         PROPERTY_C(float, StereoCameraDistance, 10.0f);
         PROPERTY_C(float, CameraFOV, 90.0f);
+        PROPERTY_C(int, CameraFPS, 30);
+        PROPERTY_C(String, CameraLeft, "rtsp://192.168.1.subip:8554/cam1");
+        PROPERTY_C(String, CameraRight, "rtsp://192.168.1.subip:8554/cam2");
     };
 
     struct FrameData
