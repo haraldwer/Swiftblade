@@ -24,7 +24,7 @@ if(MSVC)
 
     # Debug compile options
     target_compile_options(compile_options INTERFACE
-        "$<$<CONFIG:Debug>:/MDd>" # Multithreaded debud DLL
+        "$<$<CONFIG:Debug>:/MDd>" # Multithreaded debug DLL
         "$<$<CONFIG:Debug>:/Od>" # Disable optimization
         #"$<$<CONFIG:Debug>:/RTC1->" # Disable runtime checks
         "$<$<CONFIG:Debug>:/Zi>" # Full debug info

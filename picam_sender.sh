@@ -1,7 +1,7 @@
 #!/bin/bash
 # sudo nano /boot/config.txt --> v3d_freq=750
 
-PC_IP=${1:-10.212.14.78}
+PC_IP=${1:-192.168.1.226}
 PORT=${2:-6767}
 WIDTH=${3:-640}
 HEIGHT=${4:-480}

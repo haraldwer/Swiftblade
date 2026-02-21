@@ -5,7 +5,7 @@
 
 :: Define the path to GStreamer
 set "PORT=%~1"
-if "%PORT%"==""      set "PORT=6767"
+if "%PORT%"=="" set "PORT=6767"
 
 :: Set gstreamer path
 set "GST_BIN=C:\Program Files\gstreamer\1.0\msvc_x86_64\bin"
