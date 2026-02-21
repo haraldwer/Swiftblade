@@ -3,6 +3,7 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio/legacy/constants_c.h"
+#include "opencv2/opencv_modules.hpp"
 
 bool SDR::Context::Init()
 {

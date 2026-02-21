@@ -34,15 +34,24 @@ set(WITH_OPENCL ON CACHE BOOL "" FORCE)
 set(WITH_OPENGL ON CACHE BOOL "" FORCE)
 set(WITH_OPENMP ON CACHE BOOL "" FORCE)
 set(WITH_QT ON CACHE BOOL "" FORCE)
+set(WITH_GSTREAMER ON CACHE BOOL "" FORCE)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    list(APPEND CMAKE_PREFIX_PATH
+        "C:/Program Files/gstreamer/1.0/msvc_x86_64"
+    )
+endif()
 
 set(WITH_IPP OFF CACHE BOOL "" FORCE)
 set(WITH_TBB OFF CACHE BOOL "" FORCE)
 set(WITH_CUDA OFF CACHE BOOL "" FORCE)
 set(WITH_GTK OFF CACHE BOOL "" FORCE)
+set(WITH_NVPL OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(opencv)
 
-list(APPEND DEP_INCLUDES
+list(APPEND DEP_INCLUDES 
+    ${opencv_BINARY_DIR}
     ${OPENCV_MODULE_opencv_core_LOCATION}/include
     ${OPENCV_MODULE_opencv_imgproc_LOCATION}/include
     ${OPENCV_MODULE_opencv_imgcodecs_LOCATION}/include
@@ -54,22 +63,4 @@ list(APPEND DEP_INCLUDES
     ${OPENCV_MODULE_opencv_highgui_LOCATION}/include
 )
 
-include_directories( 
-    # Core and modules
-    ${opencv_SOURCE_DIR}
-    ${opencv_SOURCE_DIR}/modules/core/include
-    ${opencv_SOURCE_DIR}/modules/imgproc/include
-    ${opencv_SOURCE_DIR}/modules/imgcodecs/include
-    ${opencv_SOURCE_DIR}/modules/flann/include
-    ${opencv_SOURCE_DIR}/modules/features2d/include
-    ${opencv_SOURCE_DIR}/modules/calib3d/include
-    ${opencv_SOURCE_DIR}/modules/video/include
-    ${opencv_SOURCE_DIR}/modules/videoio/include
-    ${opencv_SOURCE_DIR}/modules/highgui/include
-
-    # HAL/IPP
-    ${opencv_SOURCE_DIR}/hal/ipp/include
-    ${opencv_BINARY_DIR}/3rdparty/ippicv/ippicv_lnx/icv/include
-    ${opencv_BINARY_DIR}/3rdparty/ippicv/ippicv_lnx/iw/include
-    ${opencv_BINARY_DIR}/3rdparty/dlpack/include
-)
+include_directories(${CMAKE_BINARY_DIR})
