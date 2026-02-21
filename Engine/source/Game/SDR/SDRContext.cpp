@@ -5,6 +5,17 @@
 #include "opencv2/videoio/legacy/constants_c.h"
 #include "opencv2/opencv_modules.hpp"
 
+String ConstructPipeline()
+{
+    //udpsrc port=$port \
+    //caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96" ! \
+    //rtph264depay ! \
+    //avdec_h264 max-threads=1 ! \
+    //videoconvert ! \
+    //autovideosink sync=false
+    
+}
+
 bool SDR::Context::Init()
 {
     PROFILE();
@@ -26,7 +37,7 @@ bool SDR::Context::Init()
     // Create cameras
     int availableIndex = 0;
     if (!config.CameraLeft.Get().empty())
-        capL = cv::VideoCapture(config.CameraLeft);
+        capL = cv::VideoCapture(config.CameraLeft, cv::CAP_GSTREAMER);
     else
     {
         capL = cv::VideoCapture(availableCameras.at(availableIndex));
@@ -34,7 +45,7 @@ bool SDR::Context::Init()
     }
         
     if (!config.CameraRight.Get().empty())
-        capR = cv::VideoCapture(config.CameraRight);
+        capR = cv::VideoCapture(config.CameraRight, cv::CAP_GSTREAMER);
     else
     {
         capR = cv::VideoCapture(availableCameras.at(availableIndex));
