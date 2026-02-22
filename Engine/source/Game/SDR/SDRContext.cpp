@@ -5,15 +5,16 @@
 #include "opencv2/videoio/legacy/constants_c.h"
 #include "opencv2/opencv_modules.hpp"
 
-String ConstructPipeline()
+String ConstructPipeline(int InPort)
 {
-    //udpsrc port=$port \
-    //caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96" ! \
-    //rtph264depay ! \
-    //avdec_h264 max-threads=1 ! \
-    //videoconvert ! \
-    //autovideosink sync=false
-    
+    return std::format(R"(
+        udpsrc port={0} \
+        caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96" ! \
+        rtph264depay ! \
+        avdec_h264 max-threads=1 ! \
+        videoconvert ! \
+        appsink name=sink{0}
+    )", InPort);
 }
 
 bool SDR::Context::Init()
@@ -36,16 +37,16 @@ bool SDR::Context::Init()
     
     // Create cameras
     int availableIndex = 0;
-    if (!config.CameraLeft.Get().empty())
-        capL = cv::VideoCapture(config.CameraLeft, cv::CAP_GSTREAMER);
+    if (config.CameraLeft != 0)
+        capL = cv::VideoCapture(ConstructPipeline(config.CameraLeft), cv::CAP_GSTREAMER);
     else
     {
         capL = cv::VideoCapture(availableCameras.at(availableIndex));
         availableIndex++;
     }
         
-    if (!config.CameraRight.Get().empty())
-        capR = cv::VideoCapture(config.CameraRight, cv::CAP_GSTREAMER);
+    if (config.CameraLeft != 0)
+        capR = cv::VideoCapture(ConstructPipeline(config.CameraRight), cv::CAP_GSTREAMER);
     else
     {
         capR = cv::VideoCapture(availableCameras.at(availableIndex));
