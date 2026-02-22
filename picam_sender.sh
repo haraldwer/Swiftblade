@@ -2,10 +2,11 @@
 # sudo nano /boot/config.txt --> v3d_freq=750
 
 exec > >(tee -a /home/sdr/picam_sender.log) 2>&1
+echo " ##############"
 echo "Script started at $(date)"
 
 # Configuration
-PC_IP=${1:-192.168.1.213}
+PC_IP=${1:-192.168.1.226}
 PORT=${2:-6767}
 WIDTH=${3:-640}
 HEIGHT=${4:-480}
@@ -43,6 +44,16 @@ detect_cameras() {
         fi
     done
     echo "${cameras[@]}"
+}
+
+# Function to get camera name
+get_camera_name() {
+    local device=$1
+    local name=$(v4l2-ctl --device="$device" --get-ctrl=video_name 2>/dev/null | cut -d: -f2 | xargs)
+    if [ -z "$name" ]; then
+        name="Unknown Camera"
+    fi
+    echo "$name"
 }
 
 # Function to start stream for a camera
@@ -128,7 +139,8 @@ fi
 
 echo "Found ${#VALID_CAMERAS[@]} valid camera(s):"
 for i in "${!VALID_CAMERAS[@]}"; do
-    echo "  Camera $i: ${VALID_CAMERAS[$i]}"
+    camera_name=$(get_camera_name "${VALID_CAMERAS[$i]}")
+    echo "  Camera $i: ${VALID_CAMERAS[$i]} ($camera_name)"
 done
 
 # Start initial streams
@@ -140,7 +152,8 @@ done
 
 echo "All streams started. Access cameras at:"
 for i in "${!VALID_CAMERAS[@]}"; do
-    echo "  $PC_IP:$(($PORT + i)) - cam$i"
+    camera_name=$(get_camera_name "${VALID_CAMERAS[$i]}")
+    echo "  $PC_IP:$(($PORT + i)) - cam$i ($camera_name)"
 done
 
 # Monitor for camera changes

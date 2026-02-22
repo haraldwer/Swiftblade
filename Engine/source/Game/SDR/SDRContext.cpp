@@ -8,12 +8,10 @@
 String ConstructPipeline(int InPort)
 {
     return std::format(R"(
-        udpsrc port={0} \
-        caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96" ! \
-        rtph264depay ! \
-        avdec_h264 max-threads=1 ! \
-        videoconvert ! \
-        appsink name=sink{0}
+        udpsrc port={0} caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96"
+        ! rtph264depay ! h264parse ! avdec_h264 max-threads=1
+        ! videoconvert ! video/x-raw,format=BGR
+        ! appsink sync=false drop=true
     )", InPort);
 }
 
@@ -21,36 +19,42 @@ bool SDR::Context::Init()
 {
     PROFILE();
     
-    // Query available cameras
-    availableCameras.clear();
-    for (int i = 0; i < config.CameraQueryCount; ++i) 
+    // Query remote cameras
+    for (int i = 0; i < config.CameraPortCount; ++i) 
     {
-        cv::VideoCapture cap(i);
+        String pipeline = ConstructPipeline(config.CameraPortStart + i);
+        LOG("Pipeline: ", pipeline);
+        cv::VideoCapture cap(pipeline, cv::CAP_GSTREAMER);
         if (cap.isOpened()) 
         {
-            availableCameras.push_back(i);
-            cap.release();
+            if (capL.isOpened())
+            {
+                capR = cap;
+                break;
+            }
+            capL = cap;
+            break;
         }
     }
-    frame.numCameras = availableCameras.size();
-    CHECK_RETURN_LOG(availableCameras.size() < 2, "Not enough cameras connected", false);
     
-    // Create cameras
-    int availableIndex = 0;
-    if (config.CameraLeft != 0)
-        capL = cv::VideoCapture(ConstructPipeline(config.CameraLeft), cv::CAP_GSTREAMER);
-    else
+    bool leftLocal = !capL.isOpened();
+    bool rightLocal = !capR.isOpened();
+    if (!capR.isOpened())
     {
-        capL = cv::VideoCapture(availableCameras.at(availableIndex));
-        availableIndex++;
-    }
-        
-    if (config.CameraLeft != 0)
-        capR = cv::VideoCapture(ConstructPipeline(config.CameraRight), cv::CAP_GSTREAMER);
-    else
-    {
-        capR = cv::VideoCapture(availableCameras.at(availableIndex));
-        availableIndex++;
+        // Query available cameras
+        for (int i = 0; i < config.CameraQueryCount; ++i) 
+        {
+            cv::VideoCapture cap(i);
+            if (cap.isOpened()) 
+            {
+                if (capL.isOpened())
+                {
+                    capR = cap;
+                    break;
+                }
+                capL = cap;
+            }
+        }
     }
     
     frame.left = capL.isOpened();
@@ -58,30 +62,34 @@ bool SDR::Context::Init()
     
     CHECK_RETURN_LOG(!capL.isOpened() || !capL.isOpened(), "Failed to open cameras", false);
     
-    capL.set(cv::CAP_PROP_BUFFERSIZE, 1);
-    capL.set(cv::CAP_PROP_FPS, config.CameraFPS);
-    capR.set(cv::CAP_PROP_BUFFERSIZE, 1);
-    capR.set(cv::CAP_PROP_FPS, config.CameraFPS);
-    
-    // Set capture resolution
-    float scale = Utility::Math::Clamp(config.Scale.Get(), 0.1f, 1.0f);
-    int heightL = capL.get(CV_CAP_PROP_FRAME_HEIGHT);
-    int widthL = capL.get(CV_CAP_PROP_FRAME_WIDTH);
-    int heightR = capR.get(CV_CAP_PROP_FRAME_HEIGHT);
-    int widthR = capR.get(CV_CAP_PROP_FRAME_WIDTH);
-    int height = Utility::Math::Min(heightL, heightR);
-    int width = Utility::Math::Min(widthL, widthR);
-    capL.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<int>(height * scale));
-    capL.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<int>(width * scale));
-    capR.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<int>(height * scale));
-    capR.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<int>(width * scale));
+    int width = 640;
+    int height = 480;
+    if (leftLocal && rightLocal)
+    {
+        // Set capture resolution
+        float scale = Utility::Math::Clamp(config.Scale.Get(), 0.1f, 1.0f);
+        int heightL = capL.get(CV_CAP_PROP_FRAME_HEIGHT);
+        int widthL = capL.get(CV_CAP_PROP_FRAME_WIDTH);
+        int heightR = capR.get(CV_CAP_PROP_FRAME_HEIGHT);
+        int widthR = capR.get(CV_CAP_PROP_FRAME_WIDTH);
+        int height = Utility::Math::Min(heightL, heightR);
+        int width = Utility::Math::Min(widthL, widthR);
+        capL.set(cv::CAP_PROP_BUFFERSIZE, 1);
+        capL.set(cv::CAP_PROP_FPS, config.CameraFPS);
+        capL.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<int>(height * scale));
+        capL.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<int>(width * scale));
+        capR.set(cv::CAP_PROP_BUFFERSIZE, 1);
+        capR.set(cv::CAP_PROP_FPS, config.CameraFPS);
+        capR.set(CV_CAP_PROP_FRAME_HEIGHT, static_cast<int>(height * scale));
+        capR.set(CV_CAP_PROP_FRAME_WIDTH, static_cast<int>(width * scale));
+    }
     
     // Calibrate
     const float fovRad = config.CameraFOV * CV_PI / 180.0; // convert to radians
     const float fx = width / (2.0 * tan(fovRad / 2.0));
     const float fy = fx;
-    const float cx = width/2.0;
-    const float cy = height/2.0;
+    const float cx = width / 2.0;
+    const float cy = height / 2.0;
     data.K = (cv::Mat_<float>(3,3) << 
         fx, 0, cx,
        0, fy, cy,

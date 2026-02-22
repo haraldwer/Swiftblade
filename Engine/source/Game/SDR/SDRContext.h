@@ -9,7 +9,7 @@ namespace SDR
 {
     struct Config : PropertyOwner<Config>
     {
-        PROPERTY_C(int, CameraQueryCount, 10);
+        
         
         PROPERTY_C(int, StereoNumDisparities, 64);
         PROPERTY_C(int, StereoBlockSize, 5);
@@ -23,15 +23,16 @@ namespace SDR
         PROPERTY_C(Vec2I, OpticalFlowWindowSize, Vec2I(10));
         PROPERTY_C(int, OpticalFlowLevel, 2);
         
-        PROPERTY_C(float, Scale, 0.5f);
+        PROPERTY_C(float, Scale, 1.0f);
         PROPERTY_C(bool, Preview, true);
         
         PROPERTY_C(float, FocalLength, 0.5f);
         PROPERTY_C(float, StereoCameraDistance, 10.0f);
         PROPERTY_C(float, CameraFOV, 90.0f);
         PROPERTY_C(int, CameraFPS, 30);
-        PROPERTY_C(int, CameraLeft, 6767);
-        PROPERTY_C(int, CameraRight, 6768);
+        PROPERTY_C(int, CameraQueryCount, 10);
+        PROPERTY_C(int, CameraPortStart, 6767);
+        PROPERTY_C(int, CameraPortCount, 10);
     };
 
     struct FrameData
@@ -40,7 +41,6 @@ namespace SDR
         // TODO: Depth data
         
         // Debug
-        int numCameras = 0;
         bool left = false;
         bool right = false;
         int points = 0;
@@ -64,7 +64,6 @@ namespace SDR
         void Deinit();
         void Frame();
         
-        std::vector<int> availableCameras;
         cv::VideoCapture capL, capR;
         
         Config config;

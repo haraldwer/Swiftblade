@@ -7,10 +7,6 @@
 set "PORT=%~1"
 if "%PORT%"=="" set "PORT=6767"
 
-:: Set gstreamer path
-set "GST_BIN=C:\Program Files\gstreamer\1.0\msvc_x86_64\bin"
-set "PATH=%GST_BIN%;%PATH%"
-
 :: Find local IP
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4 Address"') do (
     set "LOCAL_IP=%%a"

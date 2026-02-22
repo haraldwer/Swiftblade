@@ -67,19 +67,11 @@ void SDRInstance::DrawPanel()
     const auto data = frameData.Back();
     
     ImGui::SeparatorText("Cameras");
-    ImGui::Text("Available cameras: %i", static_cast<int>(data.numCameras));
-    if (data.numCameras < 2)
-    {
-        ImGui::Text("Connect at least two cameras.");
-    }
-    else
-    {
-        ImGui::Text("Camera status:");
-        bool leftStatus = data.left;
-        ImGui::Checkbox("LEFT", &leftStatus);
-        bool rightStatus = data.right;
-        ImGui::Checkbox("RIGHT", &rightStatus);
-    }
+    ImGui::Text("Camera status:");
+    bool leftStatus = data.left;
+    ImGui::Checkbox("LEFT", &leftStatus);
+    bool rightStatus = data.right;
+    ImGui::Checkbox("RIGHT", &rightStatus);
     
     ImGui::SeparatorText("Debug");
     ImGui::Text("NumPoints: %i", static_cast<int>(data.points));
