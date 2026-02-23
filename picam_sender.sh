@@ -6,7 +6,7 @@ echo " ##############"
 echo "Script started at $(date)"
 
 # Configuration
-PC_IP=${1:-192.168.1.226}
+PC_IP=${1:-192.168.1.213}
 PORT=${2:-6767}
 WIDTH=${3:-640}
 HEIGHT=${4:-480}
@@ -33,27 +33,28 @@ cleanup() {
     exit 0
 }
 
+# Function to get camera name
+get_camera_name() {
+    local device=$1
+    local name=$(udevadm info --query=property --name=$device | grep '^ID_MODEL=' | cut -d= -f2-)
+    echo "$name"
+}
+
 # Function to detect valid cameras
 detect_cameras() {
     local cameras=()
     for device in /dev/video*; do
         if [ -e "$device" ] && [ -r "$device" ]; then
-            if v4l2-ctl --device="$device" --all 2>/dev/null | grep -q "Video Capture"; then
-                cameras+=("$device")
+            local name=$(udevadm info --query=property --name=$device | grep '^ID_MODEL=' | cut -d= -f2-)
+            if [ -n "$name" ]; then
+                local device_info=$(v4l2-ctl --device="$device" --all)
+                if [[ "$device_info" == *"Format Video Capture:"* ]]; then
+                    cameras+=("$device")
+                fi
             fi
         fi
     done
     echo "${cameras[@]}"
-}
-
-# Function to get camera name
-get_camera_name() {
-    local device=$1
-    local name=$(v4l2-ctl --device="$device" --get-ctrl=video_name 2>/dev/null | cut -d: -f2 | xargs)
-    if [ -z "$name" ]; then
-        name="Unknown Camera"
-    fi
-    echo "$name"
 }
 
 # Function to start stream for a camera
@@ -63,6 +64,14 @@ start_stream() {
     local port=$((PORT + index))
     local stream_name="cam$index"
     
+    echo "Setting camera properties for $camera"
+    # v4l2-ctl -d "$camera" -c auto_exposure=1
+    # v4l2-ctl -d "$camera" -c exposure_time_absolute=6
+    v4l2-ctl -d "$camera" -c exposure_dynamic_framerate=0
+    v4l2-ctl -d "$camera" -c focus_absolute=0
+    v4l2-ctl -d "$camera" -c focus_automatic_continuous=0
+    v4l2-ctl -d "$camera" -c power_line_frequency=2
+
     echo "Starting stream $stream_name from $camera to $PC_IP:$port..."
     gst-launch-1.0 -v v4l2src device=$camera ! \
         "video/x-raw,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1" ! \

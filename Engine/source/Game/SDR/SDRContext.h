@@ -2,15 +2,12 @@
 
 #include "SDRDepth.h"
 #include "SDRTracking.h"
-#include "opencv2/calib3d.hpp"
 #include "opencv2/videoio.hpp"
 
 namespace SDR
 {
     struct Config : PropertyOwner<Config>
     {
-        
-        
         PROPERTY_C(int, StereoNumDisparities, 64);
         PROPERTY_C(int, StereoBlockSize, 5);
         
@@ -23,13 +20,12 @@ namespace SDR
         PROPERTY_C(Vec2I, OpticalFlowWindowSize, Vec2I(10));
         PROPERTY_C(int, OpticalFlowLevel, 2);
         
-        PROPERTY_C(float, Scale, 1.0f);
         PROPERTY_C(bool, Preview, true);
         
         PROPERTY_C(float, FocalLength, 0.5f);
         PROPERTY_C(float, StereoCameraDistance, 10.0f);
         PROPERTY_C(float, CameraFOV, 90.0f);
-        PROPERTY_C(int, CameraFPS, 30);
+        PROPERTY_C(Vec2I, CameraDefaultSize, Vec2I(640, 480))
         PROPERTY_C(int, CameraQueryCount, 10);
         PROPERTY_C(int, CameraPortStart, 6767);
         PROPERTY_C(int, CameraPortCount, 10);
