@@ -10,7 +10,7 @@ PC_IP=${1:-192.168.1.213}
 PORT=${2:-6767}
 WIDTH=${3:-640}
 HEIGHT=${4:-480}
-FPS=${5:-30}
+FPS=${5:-15}
 
 # Detect Pi IP
 PI_IP=$(hostname -I | awk '{print $1}')
@@ -176,15 +176,3 @@ done
 
 exit
 
-echo "Starting raw stream to $PC_IP:$PORT..."
-rpicam-vid -t 0 \
-    --width $WIDTH --height $HEIGHT \
-    --framerate $FPS \
-    --codec h264 \
-    --bitrate 4M \
-    --intra 1 \
-    --inline \
-    --flush \
-    --tuning lowlatency \
-    --nopreview \
-    -o udp://$PC_IP:$PORT?pkt_size=1316

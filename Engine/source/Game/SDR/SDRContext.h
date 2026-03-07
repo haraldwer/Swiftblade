@@ -23,8 +23,8 @@ namespace SDR
         PROPERTY_C(bool, Preview, true);
         
         PROPERTY_C(float, FocalLength, 0.5f);
-        PROPERTY_C(float, StereoCameraDistance, 10.0f);
-        PROPERTY_C(float, CameraFOV, 90.0f);
+        PROPERTY_C(float, StereoCameraDistance, 4.0f);
+        PROPERTY_C(float, CameraFOV, 95.5f);
         PROPERTY_C(Vec2I, CameraDefaultSize, Vec2I(640, 480))
         PROPERTY_C(int, CameraQueryCount, 10);
         PROPERTY_C(int, CameraPortStart, 6767);
@@ -46,12 +46,15 @@ namespace SDR
     struct ContextData
     {
         cv::Mat K;
-        cv::UMat Left; 
-        cv::UMat Right; 
-        cv::UMat GrayLeft; 
-        cv::UMat PrevGrayLeft;
-        cv::UMat GrayRight; 
-        cv::UMat Depth; 
+        cv::Mat Left; 
+        cv::Mat Right; 
+        cv::Mat GrayLeft; 
+        cv::Mat PrevGrayLeft;
+        cv::Mat GrayRight; 
+        cv::Mat Depth;
+        
+        cv::Mat DisparityVisual;
+        cv::Mat Disparity;
     };
     
     struct Context

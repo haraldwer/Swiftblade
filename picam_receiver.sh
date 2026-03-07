@@ -31,14 +31,16 @@ trap cleanup SIGINT
 
 # Loop through ports
 for ((port=START_PORT; port<START_PORT+PORT_COUNT; port++)); do
-    echo "Listening on $LOCAL_IP:$port..."
-    gst-launch-1.0 -v \
-        udpsrc port=$port \
-        caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96" ! \
-        rtph264depay ! \
-        avdec_h264 max-threads=1 ! \
-        videoconvert ! \
-        autovideosink sync=false &
+    ffplay -i udp://@:$port -fflags nobuffer &
+
+    #echo "Listening on $LOCAL_IP:$port..."
+    #gst-launch-1.0 -v \
+    #    udpsrc port=$port \
+    #    caps="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96" ! \
+    #    rtph264depay ! \
+    #    avdec_h264 max-threads=1 ! \
+    #    videoconvert ! \
+    #    autovideosink sync=false &
 done
 
 # Wait for all background processes

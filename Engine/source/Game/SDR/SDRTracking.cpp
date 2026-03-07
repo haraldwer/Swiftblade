@@ -32,7 +32,6 @@ void SDR::Tracking::Frame(FrameData& InOutFrame, ContextData& InOutData, const C
     objectPoints.reserve(pointsCurr.size());
     imagePoints.reserve(pointsCurr.size());
     CV_Assert(InOutData.Depth.type() == CV_32F);
-    const auto depthMat = InOutData.Depth.getMat(cv::ACCESS_READ);
     {
         PROFILE_NAMED("Project points");
         for (size_t i = 0; i < pointsCurr.size(); ++i)
@@ -40,8 +39,8 @@ void SDR::Tracking::Frame(FrameData& InOutFrame, ContextData& InOutData, const C
             CHECK_CONTINUE(!status[i]);
             const int x = static_cast<int>(pointsCurr[i].x);
             const int y = static_cast<int>(pointsCurr[i].y);
-            CHECK_CONTINUE(x < 0 || y < 0 || x >= depthMat.cols || y >= depthMat.rows);
-            float d = depthMat.at<float>(y, x);
+            CHECK_CONTINUE(x < 0 || y < 0 || x >= InOutData.Depth.cols || y >= InOutData.Depth.rows);
+            float d = InOutData.Depth.at<float>(y, x);
             CHECK_CONTINUE(d <= 0.0f);
 
             const float cx = InOutData.K.at<float>(0,2);

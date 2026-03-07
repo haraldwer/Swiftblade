@@ -9,6 +9,14 @@ String ConstructPipeline(int InPort)
 {
     return std::format(R"(
         udpsrc port={0} 
+            ! jpegparse
+            ! jpegdec
+            ! videoconvert
+            ! video/x-raw,format=BGR
+            ! appsink sync=false drop=true
+    )", InPort);
+    return std::format(R"(
+        udpsrc port={0} 
             ! application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96
             ! rtph264depay
             ! h264parse
@@ -106,23 +114,25 @@ void SDR::Context::Frame()
     // TODO: Possibly some post processing
     
     // Convert to grayscale
-    //cv::cvtColor(data.Left, data.GrayLeft, cv::COLOR_BGR2GRAY);
-    //cv::cvtColor(data.Right, data.GrayRight, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(data.Left, data.GrayLeft, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(data.Right, data.GrayRight, cv::COLOR_BGR2GRAY);
 
-    //if (data.PrevGrayLeft.empty())
-    //    data.GrayLeft.copyTo(data.PrevGrayLeft);
+    if (data.PrevGrayLeft.empty())
+        data.GrayLeft.copyTo(data.PrevGrayLeft);
     
-    //depth.Frame(frame, data, config);
+    depth.Frame(frame, data, config);
     //tracking.Frame(frame, data, config);
-    //data.GrayLeft.copyTo(data.PrevGrayLeft);
+    data.GrayLeft.copyTo(data.PrevGrayLeft);
     
     // Display debug
     if (config.Preview)
     {
         PROFILE();
-        cv::imshow("Left", data.Left);
-        cv::imshow("Right", data.Right);
-        //cv::imshow("Depth", data.Depth);
+        cv::imshow("Left", data.GrayLeft);
+        cv::imshow("Right", data.GrayRight);
+        cv::imshow("Depth", data.Depth);
+        cv::imshow("Disparity", data.Disparity);
+        cv::imshow("DisparityFloat", data.DisparityVisual);
     }
     cv::waitKey(1);
     

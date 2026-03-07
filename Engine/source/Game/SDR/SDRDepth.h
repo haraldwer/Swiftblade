@@ -14,9 +14,6 @@ namespace SDR
         void Frame(FrameData& InOutFrame, ContextData& InOutData, const Config& InConfig);
         
     private:
-        cv::Ptr<cv::StereoBM> stereo;
-        cv::UMat DisparityFloat;
-        cv::UMat FocalBase;
-        cv::UMat Disparity;
+        cv::Ptr<cv::StereoSGBM> stereo;
     };
 }
