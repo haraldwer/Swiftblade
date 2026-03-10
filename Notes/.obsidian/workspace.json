@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/Backlog/Engine/2 - Scrolling isnt using input system.md",
+                "file": "Tasks/Backlog/Rendering/0 - Compute shader pipeline.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2 - Scrolling isnt using input system"
+              "title": "0 - Compute shader pipeline"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 291.5
+    "width": 393.5
   },
   "right": {
     "id": "78b0926d3271ad6a",
@@ -166,42 +166,42 @@
   },
   "active": "0936951435052654",
   "lastOpenFiles": [
-    "Tasks/Backlog/Editor/0 - Connection room type.md",
+    "Tasks/Backlog/Rendering/0 - Combine uniform buffers.md",
+    "Tasks/Backlog/Rendering/0 - Compute shader pipeline.md",
+    "Tasks/Backlog/Rendering/0 - MSAA Resolve.md",
+    "Tasks/Backlog/Rendering/1 - Resource-metadata.md",
+    "Untitled 1.base",
+    "Untitled.base",
+    "Current milestone.md",
+    "Tasks/Backlog/Rendering/0 - Basic PBR.md",
+    "Tasks/Backlog/Rendering/0 - GPU culling and mesh instancing.md",
+    "Tasks/Backlog/Rendering/0 - Combine mesh buffers.md",
+    "Milestones/Milestone 6 - Soft reboot (25.11.12).md",
+    "Tasks/Boards/Categories/Category - Rendering.base",
+    "Tasks/Boards/Categories/Category - UI.base",
+    "Tasks/Boards/Categories/Category - Rendering.md",
+    "Tasks/Boards/Categories/Category - Props.base",
+    "Tasks/Boards/Categories/Category - Editor.base",
+    "Tasks/Boards/Categories/Category - Abilities.base",
+    "Tasks/Boards/Done/Milestone 2 - Done.base",
+    "Tasks/Boards/Done/Milestone 7 - Done.base",
+    "Tasks/Boards/Todo/Milestone 6 - Todo.base",
+    "Milestones/Milestone 7 - Rendering (26.02.12).md",
+    "Backlog.md",
+    "Tasks/Archive/0 - Improved task management.md",
+    "Tasks/Backlog/Engine/2 - CubeVolume optimized serialization.md",
+    "Tasks/Backlog/Engine/2 - Child property serialization issue.md",
+    "Tasks/Backlog/Engine/1 - Inline resource editing.md",
+    "Tasks/Backlog/Engine/0 - Smart matrix interpolation.md",
     "Tasks/Backlog/Engine/2 - Scrolling isnt using input system.md",
-    "Milestones/Milestone 6 (25.11.12).md",
+    "Tasks/Backlog/Editor/0 - Connection room type.md",
     "Tasks/Archive/0 - Course room type.md",
     "Tasks/Archive/0 - Arena room type.md",
     "Tasks/Archive/0 - Selecting room type.md",
     "Tasks/Backlog/Engine/1 - Improved file picking.md",
     "Tasks/Archive/1 - Asset drag and drop.md",
-    "Tasks/Backlog/Engine/0 - Smart matrix interpolation.md",
     "Tasks/Archive/2 - Asset Details.md",
     "Tasks/Archive/2 - Engine asset creation.md",
-    "Tasks/Backlog/Engine/0 - Retail mode.md",
-    "Tasks/Backlog/Engine/2 - Child overrides.md",
-    "Tasks/Backlog/Engine/1 - Inline resource editing.md",
-    "Backlog.md",
-    "Tasks/Backlog/Editor/0 - Object icons in editor.md",
-    "Tasks/Backlog/Editor/0 - Object placement limits.md",
-    "Tasks/Backlog/Editor/0 - Room bounds.md",
-    "Tasks/Backlog/Editor/1 - Fix block placing logic.md",
-    "Tasks/Backlog/UI/0 - Story menu.md",
-    "Tasks/Backlog/UI/0 - Level leaderboard.md",
-    "Milestones/Milestone 2 (23.11.15).md",
-    "Milestones/Milestone 3 (23.11.29).md",
-    "Tasks/Backlog/Editor/0 - Backend support for room types.md",
-    "Tasks/Backlog/Editor/2 - Object icon juice.md",
-    "Tasks/Backlog/Editor/1 - Selected object highlight.md",
-    "Tasks/Boards/Done/Milestone 5 - Done.base",
-    "Tasks/Boards/Done/Milestone 4 - Done.base",
-    "Tasks/Boards/Done/Milestone 6 - Done.base",
-    "Tasks/Boards/Backlog - Polish.base",
-    "Tasks/Boards/Backlog - Issues.base",
-    "Tasks/Boards/Backlog - All.base",
-    "Tasks/Backlog/UI/Widgets",
-    "Tasks/Boards/Todo/Milestone 5 - Todo.base",
-    "Tasks/Boards/Todo/Milestone 6 - Todo.base",
-    "Untitled.base",
     "Tasks/Untitled.canvas"
   ]
 }
