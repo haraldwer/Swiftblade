@@ -18,18 +18,22 @@ bool Rendering::Input::GetMouseButton(int InButton) const
 bool Rendering::Input::GetGamepadButton(int InButton) const
 {
     CHECK_ASSERT(!window, "Invalid window");
+#ifndef EMSCRIPTEN
     GLFWgamepadstate state;
     if (glfwGetGamepadState(0, &state) == GLFW_TRUE)
-        return state.buttons[InButton] == GLFW_PRESS; 
+        return state.buttons[InButton] == GLFW_PRESS;
+#endif
     return false;
 }
 
 float Rendering::Input::GetGamepadAxis(int InAxis) const
 {
     CHECK_ASSERT(!window, "Invalid window");
+#ifndef EMSCRIPTEN
     GLFWgamepadstate state;
     if (glfwGetGamepadState(0, &state) == GLFW_TRUE)
-        return state.axes[InAxis]; 
+        return state.axes[InAxis];
+#endif
     return 0.0f;
 }
 

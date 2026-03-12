@@ -55,8 +55,8 @@ void Rendering::Window::Present(bool& InRun)
 {
     RN_PROFILE();
 #ifndef EMSCRIPTEN
-    wgpu::Status status = surface.present();
-    if (status != wgpu::Status::Success)
+    const WGPUStatus status = wgpuSurfacePresent(surface);
+    if (status != WGPUStatus_Success)
         LOG("Failed to present frame");
 #endif
     

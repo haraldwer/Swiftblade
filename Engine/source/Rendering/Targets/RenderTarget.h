@@ -44,8 +44,8 @@ namespace Rendering
         WGPUTextureDimension GetDimension() const;
         WGPUTextureViewDimension GetViewDimension() const;
         
-        WGPUTexture texture;
-        WGPUTextureView view;
-        Desc descriptor;
+        WGPUTexture texture = {};
+        WGPUTextureView view = {};
+        Desc descriptor = {};
     };
 }

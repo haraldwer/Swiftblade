@@ -1,4 +1,2 @@
-nakama-sdk/libnakama-sdk.so
 uuid
 stdc++
-stdc++fs

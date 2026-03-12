@@ -141,7 +141,7 @@ void Rendering::BufferGroup::Set(const int InSlot, const WGPUTextureView& InView
 void Rendering::BufferGroup::Set(const int InSlot, const RenderTarget &InTexture, const WGPUShaderStage InVisibility)
 {
     WGPUTextureBindingLayout layout;
-    layout.sampleType =WGPUTextureSampleType_Float;
+    layout.sampleType = WGPUTextureSampleType_Float;
     if (InTexture.descriptor.type == TextureType::DEPTH)
         layout.sampleType = WGPUTextureSampleType_Depth;
     else if (InTexture.descriptor.multisample > 1)

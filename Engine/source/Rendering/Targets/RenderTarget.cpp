@@ -12,21 +12,18 @@ void Rendering::RenderTarget::Init(const Desc &InDesc)
     if (descriptor.type == TextureType::CUBEMAP)
         descriptor.size.z = 6;
     
-    WGPUTextureDescriptor desc;
+    WGPUTextureDescriptor desc = {};
     desc.size.width = descriptor.size.x;
     desc.size.height = descriptor.size.y;
     desc.size.depthOrArrayLayers = descriptor.size.z;
     desc.dimension = GetDimension();
     desc.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding;
     desc.format = descriptor.format;
-    desc.viewFormatCount = 0;
-    desc.viewFormats = nullptr;
     desc.sampleCount = Utility::Math::Clamp(descriptor.multisample, 1, 8);
     desc.mipLevelCount = 1;
     texture = Context::Get().CreateTexture(desc);
     
-    WGPUTextureViewDescriptor viewDesc;
-    viewDesc.nextInChain = nullptr;
+    WGPUTextureViewDescriptor viewDesc = {};
     viewDesc.label = WGPUStringView("RenderTarget texture view");
     viewDesc.format = descriptor.format;
     viewDesc.baseMipLevel = 0;
@@ -36,7 +33,7 @@ void Rendering::RenderTarget::Init(const Desc &InDesc)
     viewDesc.aspect = descriptor.type == TextureType::DEPTH ? 
          WGPUTextureAspect_DepthOnly : WGPUTextureAspect_All;
     viewDesc.dimension = GetViewDimension();
-    wgpuTextureCreateView(texture, &viewDesc);
+    view = wgpuTextureCreateView(texture, &viewDesc);
     CHECK_ASSERT(!view, "Failed to create view");
 }
 
@@ -55,8 +52,7 @@ void Rendering::RenderTarget::Init(const WGPUTexture& InTexture)
     
     texture = InTexture;
     
-    WGPUTextureViewDescriptor viewDesc;
-    viewDesc.nextInChain = nullptr;
+    WGPUTextureViewDescriptor viewDesc = {};
     viewDesc.label = WGPUStringView("RenderTarget texture view");
     viewDesc.format = descriptor.format;
     viewDesc.baseMipLevel = 0;
@@ -65,14 +61,16 @@ void Rendering::RenderTarget::Init(const WGPUTexture& InTexture)
     viewDesc.arrayLayerCount = descriptor.size.z;
     viewDesc.aspect = WGPUTextureAspect_All;
     viewDesc.dimension = GetViewDimension();
-    wgpuTextureCreateView(texture, &viewDesc);
+    view = wgpuTextureCreateView(texture, &viewDesc);
     CHECK_ASSERT(!view, "Failed to create view");
 }
 
 void Rendering::RenderTarget::Deinit()
 {
-    wgpuTextureViewRelease(view);
-    wgpuTextureDestroy(texture);
+    if (view)
+        wgpuTextureViewRelease(view);
+    if (texture)
+        wgpuTextureDestroy(texture);
     view = {};
     texture = {};
     descriptor = {};

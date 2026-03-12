@@ -16,7 +16,8 @@ endif (MSVC OR MINGW)
 if (EMSCRIPTEN)
     message("-- Emscripten detected")
     # Default options
-    #add_link_options(-sUSE_GLFW=3 -sFULL_ES3 -sFORCE_FILESYSTEM=1 -sWASM=1 -sGL_ENABLE_GET_PROC_ADDRESS=1 -sEXPORTED_RUNTIME_METHODS=ccall,HEAPF32 -sTOTAL_MEMORY=67108864 -sALLOW_MEMORY_GROWTH=1)
+    #add_link_options(-sUSE_GLFW=3 -sFULL_ES3 -sFORCE_FILESYSTEM=1 -sWASM=1 -sGL_ENABLE_GET_PROC_ADDRESS=1 -sEXPORTED_RUNTIME_METHODS=ccall,HEAPF32 -sTOTAL_MEMORY=67108864)
+    add_link_options(-sALLOW_MEMORY_GROWTH=1)
     # Async options
     add_link_options(-sASYNCIFY)
     # Debug options
