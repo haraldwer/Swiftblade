@@ -6,7 +6,7 @@
 
 void Utility::File::SetWorkingDir()
 {
-#ifndef __EMSCRIPTEN__
+#ifndef EMSCRIPTEN
     std::filesystem::path curr = std::filesystem::current_path();
     while (!curr.string().ends_with("Engine") && !curr.empty() && curr != "/")
     {

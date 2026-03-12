@@ -1,6 +1,6 @@
 #include "Application.h"
 
-#ifdef __EMSCRIPTEN__
+#ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
 #endif
 
@@ -18,10 +18,21 @@ void Application::App::Init()
     engine.Init();
 }
 
+#ifdef EMSCRIPTEN
+static Application::App* emsc_app;
+void FrameFunc()
+{
+    CHECK_ASSERT(!emsc_app, "Invalid app!");
+    emsc_app->Frame();
+}
+#endif
+
 void Application::App::Run()
 {
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(Frame, 0, 1); 
+#ifdef EMSCRIPTEN
+    emsc_app = this;
+    emscripten_set_main_loop(FrameFunc, 0, 1);
+    emsc_app = nullptr;
 #else
     while (run)
         Frame();

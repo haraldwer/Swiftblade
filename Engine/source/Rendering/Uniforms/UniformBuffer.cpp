@@ -3,7 +3,7 @@
 #include "Context/Context.h"
 #include "Targets/RenderTarget.h"
 
-void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uint64 InSize, wgpu::ShaderStage InVisibility)
+void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uint64 InSize, WGPUShaderStage InVisibility)
 {
     CHECK_ASSERT(!InData, "Invalid data");
     CHECK_ASSERT(!InSize, "Invalid size");
@@ -32,11 +32,11 @@ void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uin
         
         // Also recreate buffer
         if (uniform.buffer)
-            uniform.buffer.release();
-        wgpu::BufferDescriptor desc;
+            wgpuBufferDestroy(uniform.buffer);
+        WGPUBufferDescriptor desc;
         desc.size = InSize;
-        desc.usage = wgpu::BufferUsage::Uniform;
-        desc.label = wgpu::StringView("Uniform buffer"); // TODO: Make unique
+        desc.usage = WGPUBufferUsage_Uniform;
+        desc.label = WGPUStringView("Uniform buffer"); // TODO: Make unique
         uniform.buffer = Context::Get().CreateBuffer(desc);
         
         binding.binding = InSlot;  // Index of bidning
@@ -62,7 +62,7 @@ void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uin
     {
         layout.binding = InSlot; // Index in shader
         layout.visibility = InVisibility;
-        layout.buffer.type = wgpu::BufferBindingType::Uniform;
+        layout.buffer.type = WGPUBufferBindingType_Uniform;
         layout.buffer.minBindingSize = InSize;
         layout.buffer.hasDynamicOffset = WGPUOptionalBool_False;
         // TODO: Textures are bound here ^
@@ -81,7 +81,7 @@ void Rendering::BufferGroup::Set(const int InSlot, const void* InData, const uin
     }
 }
 
-void Rendering::BufferGroup::Set(const int InSlot, const wgpu::TextureView& InView, const wgpu::TextureBindingLayout& InLayout, wgpu::ShaderStage InVisibility)
+void Rendering::BufferGroup::Set(const int InSlot, const WGPUTextureView& InView, const WGPUTextureBindingLayout& InLayout, WGPUShaderStage InVisibility)
 {
     CHECK_ASSERT(!InView, "Invalid texture");
     CHECK_ASSERT(InSlot < 0, "Invalid slot");
@@ -128,7 +128,7 @@ void Rendering::BufferGroup::Set(const int InSlot, const wgpu::TextureView& InVi
         // Slot part of hash order
         struct LayoutHash
         {
-            wgpu::TextureBindingLayout layout;
+            WGPUTextureBindingLayout layout;
             WGPUShaderStage visibility;
         } hashData {
             InLayout,
@@ -138,16 +138,16 @@ void Rendering::BufferGroup::Set(const int InSlot, const wgpu::TextureView& InVi
     }
 }
 
-void Rendering::BufferGroup::Set(const int InSlot, const RenderTarget &InTexture, const wgpu::ShaderStage InVisibility)
+void Rendering::BufferGroup::Set(const int InSlot, const RenderTarget &InTexture, const WGPUShaderStage InVisibility)
 {
-    wgpu::TextureBindingLayout layout;
-    layout.sampleType =wgpu::TextureSampleType::Float;
+    WGPUTextureBindingLayout layout;
+    layout.sampleType =WGPUTextureSampleType_Float;
     if (InTexture.descriptor.type == TextureType::DEPTH)
-        layout.sampleType = wgpu::TextureSampleType::Depth;
+        layout.sampleType = WGPUTextureSampleType_Depth;
     else if (InTexture.descriptor.multisample > 1)
-        layout.sampleType = wgpu::TextureSampleType::UnfilterableFloat;
+        layout.sampleType = WGPUTextureSampleType_UnfilterableFloat;
     layout.multisampled = InTexture.descriptor.multisample > 1 ?
-        wgpu::OptionalBool::True : wgpu::OptionalBool::False;
+        WGPUOptionalBool_True : WGPUOptionalBool_False;
     layout.viewDimension = InTexture.GetViewDimension();
     Set(InSlot, InTexture.view, layout, InVisibility);
 }
@@ -162,7 +162,7 @@ void Rendering::BufferGroup::Clear()
             uniform.data = nullptr;
         }
         if (uniform.buffer)
-            uniform.buffer.release();
+            wgpuBufferDestroy(uniform.buffer);
     }
     uniforms.clear();
 }
@@ -196,13 +196,13 @@ Rendering::PipelineLayout* Rendering::BufferCollection::GetLayout()
         if (group.layoutChanged)
         {
             if (groupLayout)
-                groupLayout.release();
+                wgpuBindGroupLayoutRelease(groupLayout);
             groupLayout = Context::Get().CreateBindGroupLayout(group.layouts);
         }
         
         // Recreate binding (depends on layout)
         if (groupBinding)
-            groupBinding.release();
+            wgpuBindGroupRelease(groupBinding);
         groupBinding = Context::Get().CreateBindGroup(groupLayout, group.bindings);
         
         changed = true;
@@ -214,7 +214,7 @@ Rendering::PipelineLayout* Rendering::BufferCollection::GetLayout()
     {
         // Recreate final pipeline layout
         if (layout.layout)
-            layout.layout.release();
+            wgpuPipelineLayoutRelease(layout.layout);
         layout.layout = Context::Get().CreateLayout(layouts);
         
         // Collect hashes
@@ -234,22 +234,22 @@ void Rendering::BufferCollection::Clear()
         group.Clear();
     groups.clear();
     for (auto& groupLayout : layouts)
-        groupLayout.release();
+        wgpuBindGroupLayoutRelease(groupLayout);
     for (auto& groupBinding : bindings)
-        groupBinding.release();
+        wgpuBindGroupRelease(groupBinding);
     layouts.clear();
     bindings.clear();
     if (layout.layout)
     {
-        layout.layout.release();
+        wgpuPipelineLayoutRelease(layout.layout);
         layout = {};
     }
 }
 
-void Rendering::BufferCollection::Bind(const wgpu::RenderPassEncoder& InEncoder) const
+void Rendering::BufferCollection::Bind(const WGPURenderPassEncoder& InEncoder) const
 {
     CHECK_ASSERT(!InEncoder, "Invalid encoder");
     for (int i = 0; i < bindings.size(); i++)
         if (auto& binding = bindings.at(i))
-            InEncoder.setBindGroup(i, binding, 0, nullptr);
+            wgpuRenderPassEncoderSetBindGroup(InEncoder, i, binding, 0, nullptr);
 }

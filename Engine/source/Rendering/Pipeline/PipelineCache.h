@@ -1,6 +1,6 @@
 #pragma once
 
-#include <webgpu/webgpu.hpp>
+#include "webgpu/webgpu.h"
 
 #include "Mesh.h"
 #include "Utility/Singelton.h"
@@ -20,14 +20,14 @@ namespace Rendering
         
         MaterialResource* material = nullptr;
         const MeshState* meshState = nullptr;
-        Vector<wgpu::TextureFormat> targetFormats;
+        Vector<WGPUTextureFormat> targetFormats;
         PipelineLayout* layout = nullptr;
         
         struct StaticData // Can be hashed directly
         {
             struct DepthData
             {
-                wgpu::TextureFormat format = wgpu::TextureFormat::Undefined;
+                WGPUTextureFormat format = WGPUTextureFormat_Undefined;
                 bool write = true;
             } depth;
             int multisampling = 0;
@@ -40,12 +40,12 @@ namespace Rendering
         void Init();
         void Deinit();
         
-        wgpu::RenderPipeline* GetPipeline(const PipelineDescriptor& InData);
+        WGPURenderPipeline* GetPipeline(const PipelineDescriptor& InData);
         
     private:
-        static bool CreatePipeline(const PipelineDescriptor& InData, uint32 InHash, wgpu::RenderPipeline& OutPipeline);
+        static bool CreatePipeline(const PipelineDescriptor& InData, uint32 InHash, WGPURenderPipeline& OutPipeline);
         
-        Map<uint32, wgpu::RenderPipeline> cache;
+        Map<uint32, WGPURenderPipeline> cache;
         // TODO: Also track lifetime!
         // TODO: And load from file!
     };

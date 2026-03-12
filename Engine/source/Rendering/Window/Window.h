@@ -1,6 +1,6 @@
 #pragma once
 
-#include <webgpu/webgpu.hpp>
+#include <webgpu/webgpu.h>
 
 #include "WindowConfig.h"
 #include "Targets/RenderTarget.h"
@@ -25,8 +25,8 @@ namespace Rendering
         WindowHandle window = nullptr;
         Input input = {};
         
-        wgpu::Surface surface;
-        wgpu::SurfaceTexture surfaceTexture;
+        WGPUSurface surface;
+        WGPUSurfaceTexture surfaceTexture;
         RenderTarget target;
     };
 }

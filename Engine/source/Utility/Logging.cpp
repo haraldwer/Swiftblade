@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#ifdef __EMSCRIPTEN__
+#ifdef EMSCRIPTEN
 #include "emscripten/console.h"
 #endif
 
@@ -33,7 +33,7 @@ void Log(const String& InMessage)
     const String t = std::format("[{}]", timeStr);
     const String m = t + InMessage; 
     
-#ifdef __EMSCRIPTEN__
+#ifdef EMSCRIPTEN
     emscripten_console_log(m.c_str());
 #else
     std::cout << m << std::endl; // Flush

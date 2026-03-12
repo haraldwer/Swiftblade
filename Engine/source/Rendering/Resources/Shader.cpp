@@ -8,10 +8,10 @@ bool Rendering::ShaderResource::Load()
     CHECK_RETURN_LOG(file.empty(), "Failed to read shader file: " + id.Str(), false)
     
     LOG("Loading shader: " + id.Str());
-    wgpu::StringView shaderSource = wgpu::StringView(file);
-    wgpu::ShaderModuleDescriptor shaderDesc;
-    shaderDesc.label = wgpu::StringView("Default shader");
-    wgpu::ShaderSourceWGSL shaderCodeSource;
+    WGPUStringView shaderSource = WGPUStringView(file.c_str());
+    WGPUShaderModuleDescriptor shaderDesc;
+    shaderDesc.label = WGPUStringView("Default shader");
+    WGPUShaderSourceWGSL shaderCodeSource;
     shaderCodeSource.chain.next = nullptr;
     shaderCodeSource.chain.sType = WGPUSType_ShaderSourceWGSL;
     shaderDesc.nextInChain = &shaderCodeSource.chain;
@@ -25,7 +25,7 @@ bool Rendering::ShaderResource::Unload()
 {
     if (shader)
     {
-        shader.release();
+        wgpuShaderModuleRelease(shader);
         shader = {};
     }
     return true;

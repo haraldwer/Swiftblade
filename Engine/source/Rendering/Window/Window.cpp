@@ -33,7 +33,7 @@ void Rendering::Window::Close()
 {
     RN_PROFILE();
     target.Deinit();
-    surface.release();
+    wgpuSurfaceRelease(surface);
     surface = {};
     input.Deinit();
     glfwDestroyWindow(static_cast<GLFWwindow*>(window));
@@ -43,8 +43,8 @@ void Rendering::Window::Close()
 Rendering::RenderTarget& Rendering::Window::BeginFrame()
 {
     RN_PROFILE();
-    surface.getCurrentTexture(&surfaceTexture);
-    CHECK_ASSERT(surfaceTexture.status > wgpu::SurfaceGetCurrentTextureStatus::Timeout, "Failed to get surface texture");
+    wgpuSurfaceGetCurrentTexture(surface, &surfaceTexture);
+    CHECK_ASSERT(surfaceTexture.status > WGPUSurfaceGetCurrentTextureStatus_Timeout, "Failed to get surface texture");
     
     target.Deinit();
     target.Init(surfaceTexture.texture);
@@ -54,7 +54,7 @@ Rendering::RenderTarget& Rendering::Window::BeginFrame()
 void Rendering::Window::Present(bool& InRun)
 {
     RN_PROFILE();
-#ifndef __EMSCRIPTEN__
+#ifndef EMSCRIPTEN
     wgpu::Status status = surface.present();
     if (status != wgpu::Status::Success)
         LOG("Failed to present frame");

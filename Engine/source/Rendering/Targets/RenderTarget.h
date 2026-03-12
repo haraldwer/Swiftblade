@@ -1,6 +1,6 @@
 #pragma once
 
-#include <webgpu/webgpu.hpp>
+#include "webgpu/webgpu.h"
 
 namespace Rendering
 {
@@ -22,7 +22,7 @@ namespace Rendering
         struct Desc
         {
             Vec3I size = {};
-            wgpu::TextureFormat format = wgpu::TextureFormat::RGBA16Float;
+            WGPUTextureFormat format = WGPUTextureFormat_RGBA16Float;
             TextureType type = TextureType::TEXTURE_2D;
             int multisample = 0;
             
@@ -35,17 +35,17 @@ namespace Rendering
         // It has a size and a format
         
         void Init(const Desc& InDesc);
-        void Init(const wgpu::Texture& InTexture);
+        void Init(const WGPUTexture& InTex);
         void Deinit();
         
         Vec3I GetSize() const;
 
     private:
-        wgpu::TextureDimension GetDimension() const;
-        wgpu::TextureViewDimension GetViewDimension() const;
+        WGPUTextureDimension GetDimension() const;
+        WGPUTextureViewDimension GetViewDimension() const;
         
-        wgpu::Texture texture;
-        wgpu::TextureView view;
+        WGPUTexture texture;
+        WGPUTextureView view;
         Desc descriptor;
     };
 }

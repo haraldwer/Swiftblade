@@ -1,9 +1,6 @@
 #pragma once
 #include "ContextConfig.h"
-
-#define GLFW_INCLUDE_NONE
-#include "GLFW/glfw3.h"
-#include <webgpu/webgpu.hpp>
+#include "webgpu/webgpu.h"
 
 namespace Rendering
 {
@@ -17,22 +14,22 @@ namespace Rendering
         void Init(const ContextConfig& InConfig);
         void Deinit();
         
-        wgpu::Surface CreateWindowSurface(const Window& InWindow) const;
-        wgpu::Surface CreateSurface(const wgpu::SurfaceConfiguration& InConfig) const;
-        wgpu::ShaderModule CreateShader(const wgpu::ShaderModuleDescriptor& InDesc) const;
-        wgpu::RenderPipeline CreatePipeline(const wgpu::RenderPipelineDescriptor& InDesc) const;
-        wgpu::CommandEncoder CreateEncoder(const wgpu::CommandEncoderDescriptor& InDesc) const;
+        WGPUSurface CreateWindowSurface(const Window& InWindow) const;
+        WGPUSurface CreateSurface(const WGPUSurfaceConfiguration& InConfig) const;
+        WGPUShaderModule CreateShader(const WGPUShaderModuleDescriptor& InDesc) const;
+        WGPURenderPipeline CreatePipeline(const WGPURenderPipelineDescriptor& InDesc) const;
+        WGPUCommandEncoder CreateEncoder(const WGPUCommandEncoderDescriptor& InDesc) const;
         
-        wgpu::Buffer CreateBuffer(wgpu::BufferDescriptor InDesc) const;
-        void WriteBuffer(const wgpu::Buffer& InBuffer, const void* InData, uint64 InSize) const;
+        WGPUBuffer CreateBuffer(WGPUBufferDescriptor InDesc) const;
+        void WriteBuffer(const WGPUBuffer& InBuffer, const void* InData, uint64 InSize) const;
         
-        wgpu::BindGroupLayout CreateBindGroupLayout(const Vector<wgpu::BindGroupLayoutEntry>& InLayoutEntries) const;
-        wgpu::PipelineLayout CreateLayout(const Vector<wgpu::BindGroupLayout>& InLayoutGroups) const;
-        wgpu::BindGroup CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry>& InEntries) const;
-        void Submit(const Vector<wgpu::CommandBuffer>& InCommands) const;
+        WGPUBindGroupLayout CreateBindGroupLayout(const Vector<WGPUBindGroupLayoutEntry>& InLayoutEntries) const;
+        WGPUPipelineLayout CreateLayout(const Vector<WGPUBindGroupLayout>& InLayoutGroups) const;
+        WGPUBindGroup CreateBindGroup(WGPUBindGroupLayout InLayout, const Vector<WGPUBindGroupEntry>& InEntries) const;
+        void Submit(const Vector<WGPUCommandBuffer>& InCommands) const;
         void Poll();
 
-        wgpu::Texture CreateTexture(const wgpu::TextureDescriptor& InDesc) const;
+        WGPUTexture CreateTexture(const WGPUTextureDescriptor& InDesc) const;
 
 
     private:
@@ -44,10 +41,10 @@ namespace Rendering
         void GetDevice();
         void GetQueue();
         
-        wgpu::Instance instance;
-        wgpu::Adapter adapter;
-        wgpu::Device device;
-        wgpu::Queue queue;
+        WGPUInstance instance;
+        WGPUAdapter adapter;
+        WGPUDevice device;
+        WGPUQueue queue;
         
         // TODO: Store limits! 
     };

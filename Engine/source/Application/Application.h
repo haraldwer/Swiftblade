@@ -14,11 +14,10 @@ namespace Application
     public:
         void Init();
         void Run();
+        void Frame();
         void Deinit();
         
     private:
-        void Frame();
-        
 #ifdef EDITOR_ENABLED
         Editor::Manager editor;
 #endif

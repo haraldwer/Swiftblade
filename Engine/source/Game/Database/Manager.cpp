@@ -55,7 +55,7 @@ void DB::Manager::Tick() const
 #else
 
 void DB::Manager::Init() {}
-void DB::Manager::Update() const {}
+void DB::Manager::Tick() const {}
 void DB::Manager::Deinit() {}
 
 #endif

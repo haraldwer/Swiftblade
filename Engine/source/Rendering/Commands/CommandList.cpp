@@ -12,12 +12,12 @@ void Rendering::CommandList::Begin(const String &InName)
     workingName = InName;
     
     // Create encoder
-    wgpu::CommandEncoderDescriptor encoderDesc;
-    encoderDesc.label = wgpu::StringView("Encoder: " + workingName);
+    WGPUCommandEncoderDescriptor encoderDesc;
+    encoderDesc.label = WGPUStringView(("Encoder: " + workingName).c_str());
     encoder = Context::Get().CreateEncoder(encoderDesc);
     
     // Add instructions
-    encoder.insertDebugMarker(wgpu::StringView("Begin: " + workingName));
+    wgpuCommandEncoderInsertDebugMarker(encoder, WGPUStringView(("Begin: " + workingName).c_str()));
 }
 
 void Rendering::CommandList::Add(const Command& InCommand)
@@ -26,8 +26,8 @@ void Rendering::CommandList::Add(const Command& InCommand)
     CHECK_ASSERT(InCommand.targets.empty(), "No targets for command");
     
     // Create attachments and views
-    Vector<wgpu::RenderPassColorAttachment> attachments;
-    Vector<wgpu::TextureView> views;
+    Vector<WGPURenderPassColorAttachment> attachments;
+    Vector<WGPUTextureView> views;
     attachments.reserve(InCommand.targets.size());
     views.reserve(InCommand.targets.size());
     for (auto& target : InCommand.targets)
@@ -37,11 +37,11 @@ void Rendering::CommandList::Add(const Command& InCommand)
         views.push_back(target->view);
         
         // Create attachment using textureView
-        wgpu::RenderPassColorAttachment& attachment = attachments.emplace_back();
+        WGPURenderPassColorAttachment& attachment = attachments.emplace_back();
         attachment.view = target->view;
         attachment.resolveTarget = nullptr;
-        attachment.loadOp = InCommand.clear ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
-        attachment.storeOp = wgpu::StoreOp::Store;
+        attachment.loadOp = InCommand.clear ? WGPULoadOp_Clear : WGPULoadOp_Load;
+        attachment.storeOp = WGPUStoreOp_Store;
         attachment.clearValue = { 
             InCommand.clearColor.x, 
             InCommand.clearColor.y, 
@@ -53,27 +53,27 @@ void Rendering::CommandList::Add(const Command& InCommand)
     #endif
     }
     
-    wgpu::RenderPassDepthStencilAttachment depthAttachment;
+    WGPURenderPassDepthStencilAttachment depthAttachment;
     if (InCommand.depthTarget)
     {
         CHECK_ASSERT(!InCommand.depthTarget->view, "Invalid depth view");
         depthAttachment.view = InCommand.depthTarget->view;
-        depthAttachment.depthLoadOp = InCommand.clearDepth ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
-        depthAttachment.depthStoreOp = InCommand.writeDepth ? wgpu::StoreOp::Store : wgpu::StoreOp::Discard;
+        depthAttachment.depthLoadOp = InCommand.clearDepth ? WGPULoadOp_Clear : WGPULoadOp_Load;
+        depthAttachment.depthStoreOp = InCommand.writeDepth ? WGPUStoreOp_Store : WGPUStoreOp_Discard;
         depthAttachment.depthClearValue = 1.0f;
         depthAttachment.depthReadOnly = !InCommand.writeDepth;
         // TODO: If depthReadOnly, then depthLoadOp cannot be LoadOp::Clear
     }
 
     String name = "RenderPass: " + InCommand.name;
-    wgpu::RenderPassDescriptor renderPassDescriptor;
-    renderPassDescriptor.label = wgpu::StringView(name);
+    WGPURenderPassDescriptor renderPassDescriptor;
+    renderPassDescriptor.label = WGPUStringView(name.c_str());
     renderPassDescriptor.nextInChain = nullptr;
     renderPassDescriptor.colorAttachmentCount = attachments.size();
     renderPassDescriptor.colorAttachments = attachments.data();
     renderPassDescriptor.depthStencilAttachment = InCommand.depthTarget ? &depthAttachment : nullptr;
     renderPassDescriptor.timestampWrites = nullptr;
-    wgpu::RenderPassEncoder renderPass = encoder.beginRenderPass(renderPassDescriptor);
+    WGPURenderPassEncoder renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDescriptor);
     
     InCommand.model.Identifier().IsValid() ? 
         RenderModel(InCommand, renderPass) : 
@@ -83,11 +83,11 @@ void Rendering::CommandList::Add(const Command& InCommand)
         InCommand.customFunc(renderPass);
     
     // Use renderpass
-    renderPass.end();
-    renderPass.release();
+    wgpuRenderPassEncoderEnd(renderPass);
+    wgpuRenderPassEncoderRelease(renderPass);
 }
 
-void Rendering::CommandList::RenderModel(const Command &InCommand, const wgpu::RenderPassEncoder& renderPass) 
+void Rendering::CommandList::RenderModel(const Command &InCommand, const WGPURenderPassEncoder& renderPass) 
 {
     // Get material and mesh
     ModelResource* model = InCommand.model.Get();
@@ -113,10 +113,10 @@ void Rendering::CommandList::RenderModel(const Command &InCommand, const wgpu::R
     pipelineDesc.layout = InCommand.buffers ? 
         InCommand.buffers->GetLayout() : nullptr;
     
-    wgpu::RenderPipeline* pipeline = PipelineCache::Get().GetPipeline(pipelineDesc);
+    WGPURenderPipeline* pipeline = PipelineCache::Get().GetPipeline(pipelineDesc);
     CHECK_RETURN(!pipeline);
     
-    renderPass.setPipeline(*pipeline);
+    wgpuRenderPassEncoderSetPipeline(renderPass, *pipeline);
         
     // Bind buffers
     if (InCommand.buffers)
@@ -134,13 +134,13 @@ void Rendering::CommandList::RenderModel(const Command &InCommand, const wgpu::R
         CHECK_RETURN(!vb || !ib);
         
         // TODO: Bind mesh-specific buffers...            
-        renderPass.setVertexBuffer(0, vb, 0, lod->vertexCount * lod->vertexStride);
-        renderPass.setIndexBuffer(ib, lod->indexFormat, 0, lod->indexCount * lod->indexStride);
-        renderPass.drawIndexed(lod->indexCount, 1, 0, 0, 0);
+        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, vb, 0, lod->vertexCount * lod->vertexStride);
+        wgpuRenderPassEncoderSetIndexBuffer(renderPass, ib, lod->indexFormat, 0, lod->indexCount * lod->indexStride);
+        wgpuRenderPassEncoderDrawIndexed(renderPass, lod->indexCount, 1, 0, 0, 0);
     }
 }
 
-void Rendering::CommandList::RenderFullscreen(const Command &InCommand, const wgpu::RenderPassEncoder& renderPass) 
+void Rendering::CommandList::RenderFullscreen(const Command &InCommand, const WGPURenderPassEncoder& renderPass) 
 {
     // Fullscreen pass
     // Get pipeline
@@ -157,25 +157,25 @@ void Rendering::CommandList::RenderFullscreen(const Command &InCommand, const wg
     pipelineDesc.layout = InCommand.buffers ? 
         InCommand.buffers->GetLayout() : nullptr;
     
-    wgpu::RenderPipeline* pipeline = PipelineCache::Get().GetPipeline(pipelineDesc);
+    WGPURenderPipeline* pipeline = PipelineCache::Get().GetPipeline(pipelineDesc);
     CHECK_RETURN(!pipeline);
     
     if (InCommand.buffers)
         InCommand.buffers->Bind(renderPass);
     
-    renderPass.setPipeline(*pipeline);
-    renderPass.draw(3, 1, 0, 0);
+    wgpuRenderPassEncoderSetPipeline(renderPass, *pipeline);
+    wgpuRenderPassEncoderDraw(renderPass, 3, 1, 0, 0);
 }
 
 void Rendering::CommandList::End()
 {
     RN_PROFILE();
-    encoder.insertDebugMarker(wgpu::StringView("End: " + workingName));
+    wgpuCommandEncoderInsertDebugMarker(encoder, WGPUStringView(("End: " + workingName).c_str()));
     
-    wgpu::CommandBufferDescriptor commandBufferDesc;
-    commandBufferDesc.label = wgpu::StringView("Command: " + workingName);
-    commands.emplace_back() = encoder.finish(commandBufferDesc);
-    encoder.release();
+    WGPUCommandBufferDescriptor commandBufferDesc;
+    commandBufferDesc.label = WGPUStringView(("Command: " + workingName).c_str());
+    commands.emplace_back() = wgpuCommandEncoderFinish(encoder, &commandBufferDesc);
+    wgpuCommandEncoderRelease(encoder);
     encoder = {};
     workingName = "";
 }
@@ -185,7 +185,7 @@ void Rendering::CommandList::Submit()
     RN_PROFILE();
     Context::Get().Submit(commands);
     for (auto& cmd : commands)
-        cmd.release();
+        wgpuCommandBufferRelease(cmd);
     commands.clear();
 }
 

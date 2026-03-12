@@ -99,8 +99,17 @@ void Editor::AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node
         InNode.type = GetNodeType(InNode);
         InNode.size = static_cast<int>(file_size(InPath));
     }
-    InNode.date = std::chrono::clock_cast<std::chrono::system_clock>(last_write_time(InPath));
-
+    
+    auto get_clock_delta = []{
+        auto sys_now = std::chrono::system_clock::now().time_since_epoch();
+        auto file_now = std::chrono::file_clock::now().time_since_epoch();
+        return sys_now - file_now;
+    };
+    auto file_time = std::filesystem::last_write_time(InPath);
+    auto raw_duration = file_time.time_since_epoch() + get_clock_delta();
+    auto casted_duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(raw_duration);
+    InNode.date = std::chrono::system_clock::time_point(casted_duration);
+    
     if (!InNode.dir)
         return;
 

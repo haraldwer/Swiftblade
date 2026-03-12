@@ -1,24 +1,36 @@
 
+set(WEBGPU_BUILD_FROM_SOURCE OFF CACHE BOOL "" FORCE)
+set(WEBGPU_LINK_TYPE STATIC CACHE BOOL "" FORCE)
+
 # Dependencies
 if (EMSCRIPTEN)
 
+    set(WEBGPU_BACKEND DAWN CACHE BOOL "" FORCE)
+
     add_library(glfw INTERFACE)
     add_library(webgpu INTERFACE)
-    target_link_options(webgpu INTERFACE -sUSE_WEBGPU=1)
-    target_link_options(glfw INTERFACE -sUSE_GLFW=3)
+    add_library(glfw3webgpu INTERFACE)
+    
+    # These flags must be present during COMPILATION for the headers to be found
+    target_compile_options(webgpu INTERFACE "--use-port=emdawnwebgpu")
+    target_compile_options(glfw INTERFACE "-sUSE_GLFW=3")
+    target_compile_definitions(webgpu INTERFACE WEBGPU_BACKEND_DAWN)
+
+    # These flags must be present during LINKING for the libraries to be included
+    target_link_options(webgpu INTERFACE "--use-port=emdawnwebgpu" "-sASYNCIFY")
+    target_link_options(glfw INTERFACE "-sUSE_GLFW=3")
+    
     function(target_copy_webgpu_binaries)
     endfunction()
 
 else (EMSCRIPTEN)
 
     set(WEBGPU_BACKEND WGPU CACHE BOOL "" FORCE)
-    set(WEBGPU_BUILD_FROM_SOURCE OFF CACHE BOOL "" FORCE)
-    set(WEBGPU_LINK_TYPE STATIC CACHE BOOL "" FORCE)
     if (UNIX)
         set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
         set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
     endif ()
-        
+
     FetchContent_Declare(
         glfw-light
         URL      https://eliemichel.github.io/LearnWebGPU/_downloads/6873a344e35ea9f5e4fc7e5cc85d3ab8/glfw-3.4.0-light.zip
@@ -35,5 +47,7 @@ else (EMSCRIPTEN)
         URL_HASH MD5=ea1195dc6c7661c36aa13ea5b734b86e
     )
     FetchContent_MakeAvailable(glfw-light glfw3webgpu webgpu)
-
+    
+    target_compile_definitions(webgpu INTERFACE WEBGPU_BACKEND_WGPU)
+    
 endif (EMSCRIPTEN)

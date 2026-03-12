@@ -2,6 +2,7 @@
 #include "Rendering/Manager.h"
 
 #include "imgui_internal.h"
+#include "GLFW/glfw3.h"
 
 #ifdef IMGUI_ENABLE
 #include "ImGui/imgui.h"

@@ -2,7 +2,7 @@
 
 #include <random>
 
-#ifndef __EMSCRIPTEN__
+#ifndef EMSCRIPTEN
 
 // Shamelessly stolen from
 // https://stackoverflow.com/questions/16858782/how-to-obtain-almost-unique-system-identifier-in-a-cross-platform-way

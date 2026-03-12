@@ -271,7 +271,7 @@ Font* UI::FontResource::Get(const uint32 InSize)
         return sizes.at(roundSize);
     auto& f = sizes[roundSize];
 
-#ifdef __EMSCRIPTEN__
+#ifdef EMSCRIPTEN
     if (LoadFont(roundSize, f))
         return f;
 #else
@@ -285,7 +285,7 @@ Font* UI::FontResource::Get(const uint32 InSize)
 
 Shader* UI::FontResource::GetShader() const
 {
-#ifndef __EMSCRIPTEN__
+#ifndef EMSCRIPTEN
     //if (const auto res = sdfShader.Get())
     //    return res->GetProgram();
 #endif

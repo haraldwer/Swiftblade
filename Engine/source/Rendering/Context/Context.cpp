@@ -1,8 +1,8 @@
 #include "Context.h"
 
-#include "glfw3webgpu.h"
-#include "Commands/CommandList.h"
+#include "webgpu/webgpu.h"
 
+#include "Commands/CommandList.h"
 #include "Window/Window.h"
 
 void Rendering::Context::Init(const ContextConfig& InConfig)
@@ -19,16 +19,20 @@ void Rendering::Context::Init(const ContextConfig& InConfig)
 void Rendering::Context::InitGLFW() 
 {
     RN_PROFILE();
+    
+#ifndef EMSCRIPTEN
     // Create GLFW context and window
     int initStatus = glfwInit();
     CHECK_ASSERT(initStatus != GLFW_TRUE, "Failed to initialize glfw");
+#endif
 }
 
 void Rendering::Context::CreateInstance() 
 {
     RN_PROFILE();
     // Create WGPU instance
-    wgpu::InstanceDescriptor instanceDesc;
+    WGPUInstanceDescriptor instanceDesc;
+#if false
 #ifdef WEBGPU_BACKEND_DAWN
     // Make sure the uncaptured error callback is called as soon as an error
     // occurs rather than at the next call to "wgpuDeviceTick".
@@ -41,24 +45,41 @@ void Rendering::Context::CreateInstance()
     toggles.enabledToggles = &toggleName;
     instanceDesc.nextInChain = &toggles.chain;
 #endif // WEBGPU_BACKEND_DAWN
-    instance = wgpu::createInstance(instanceDesc);
+#endif
+    
+    LOG("Creating wgpu instance...")
+    instance = wgpuCreateInstance(&instanceDesc);
     CHECK_ASSERT(!instance, "Failed to create WGPU instance");
-    LOG("WGPU instance: ", instance);
 }
 
 void Rendering::Context::GetAdapter() 
 {
     RN_PROFILE();
+    
     // Request Adapter and create device
     LOG("Requesting adapter...");
-    wgpu::RequestAdapterOptions adapterOptions;
-    adapter = instance.requestAdapter(adapterOptions);
+    WGPURequestAdapterOptions adapterOptions;
+    WGPURequestAdapterCallbackInfo adapterCallbackInfo;
+    adapterCallbackInfo.nextInChain = nullptr;
+    adapterCallbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+    adapterCallbackInfo.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* data1, void* data2)
+    {
+        auto c = static_cast<Context*>(data1);
+        c->adapter = adapter;
+        auto response = static_cast<bool*>(data2);
+        *response = true;
+    };
+    bool response = false;
+    adapterCallbackInfo.userdata1 = this;
+    adapterCallbackInfo.userdata2 = &response;
+    wgpuInstanceRequestAdapter(instance, &adapterOptions, adapterCallbackInfo);
+    while (!response)
+        wgpuInstanceProcessEvents(instance);
     CHECK_ASSERT(!adapter, "Failed to create adapter");
-    LOG("Adapter: ", adapter);
     
     // Get adapter limits
-    wgpu::Limits adapterLimits;
-    auto adapterLimitStatus = adapter.getLimits(&adapterLimits);
+    WGPULimits adapterLimits;
+    WGPUStatus adapterLimitStatus = wgpuAdapterGetLimits(adapter, &adapterLimits);
     if (adapterLimitStatus == WGPUStatus_Success) 
     {
         LOG("Adapter limits:");
@@ -70,15 +91,15 @@ void Rendering::Context::GetAdapter()
     }
     
     // Get features 
-    wgpu::SupportedFeatures adapterFeatures;
-    adapter.getFeatures(&adapterFeatures);
+    WGPUSupportedFeatures adapterFeatures;
+    wgpuAdapterGetFeatures(adapter, &adapterFeatures);
     LOG("Adapter features:");
     for (size_t i = 0; i < adapterFeatures.featureCount; i++) 
         LOG(" - ", adapterFeatures.features[i]);
     
     // Get info
-    wgpu::AdapterInfo info;
-    adapter.getInfo(&info);
+    WGPUAdapterInfo info;
+    wgpuAdapterGetInfo(adapter, &info);
     LOG("Adapter properties:");
     LOG(" - vendorID: ", info.vendorID);
     LOG(" - vendorName: ", ToStr(info.vendor));
@@ -91,35 +112,37 @@ void Rendering::Context::GetAdapter()
 }
 
 // Get device
-wgpu::Device RequestDevice(const wgpu::Instance& InInstance, const wgpu::Adapter& InAdapter, const wgpu::DeviceDescriptor& InDeviceDescriptor)
+WGPUDevice RequestDevice(const WGPUInstance& InInstance, const WGPUAdapter& InAdapter, const WGPUDeviceDescriptor& InDeviceDescriptor)
 {
     RN_PROFILE();
-    struct RequestData
-    {
-        wgpu::Device device;
-        bool response = false;
-    } data;
-    wgpu::RequestDeviceCallbackInfo deviceCallbackInfo;
-    deviceCallbackInfo.userdata1 = &data; 
+    bool response = false;
+    WGPUDevice device;
+    WGPURequestDeviceCallbackInfo deviceCallbackInfo;
+    deviceCallbackInfo.nextInChain = nullptr;
+    deviceCallbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+    deviceCallbackInfo.userdata1 = &device;
+    deviceCallbackInfo.userdata2 = &response;
     deviceCallbackInfo.callback = [](
-        const WGPURequestDeviceStatus status, 
-        const WGPUDevice device, 
-        const WGPUStringView message, 
-        void *pUserData1, 
-        void *pUserData2)
+        const WGPURequestDeviceStatus InStatus,
+        const WGPUDevice InDevice, 
+        const WGPUStringView InMessage, 
+        void *InUserData1, 
+        void *InUserData2)
     {
         RN_PROFILE();
-        RequestData& userData = *static_cast<RequestData*>(pUserData1);
-        if (status == WGPURequestDeviceStatus_Success)
-            userData.device = device;
+        auto device = static_cast<WGPUDevice*>(InUserData1);
+        if (InStatus == WGPURequestDeviceStatus_Success)
+            *device = InDevice;
         else
-            LOG("Could not get WebGPU device: ", Rendering::ToStr(message));
-        userData.response = true;
+            LOG("Could not get WebGPU device: ", Rendering::ToStr(InMessage));
+        auto response = static_cast<bool*>(InUserData2);
+        *response = true;
     };
-    InAdapter.requestDevice(InDeviceDescriptor, deviceCallbackInfo);
-    while (!data.response)
-        InInstance.processEvents();
-    return data.device;
+    
+    wgpuAdapterRequestDevice(InAdapter, &InDeviceDescriptor, deviceCallbackInfo);
+    while (!response)
+        wgpuInstanceProcessEvents(InInstance);
+    return device;
 }
 
 void Rendering::Context::GetDevice() 
@@ -127,12 +150,12 @@ void Rendering::Context::GetDevice()
     RN_PROFILE();
     // Get device
     LOG("Requesting device...");
-    wgpu::DeviceDescriptor deviceDesc;
-    deviceDesc.label = wgpu::StringView("Default");
+    WGPUDeviceDescriptor deviceDesc;
+    deviceDesc.label = WGPUStringView("Default");
     deviceDesc.requiredFeatureCount = 0;
     deviceDesc.requiredLimits = nullptr;
     deviceDesc.defaultQueue.nextInChain = nullptr;
-    deviceDesc.defaultQueue.label = wgpu::StringView("Default queue");
+    deviceDesc.defaultQueue.label = WGPUStringView("Default queue");
     deviceDesc.deviceLostCallbackInfo.callback = [](
         WGPUDevice const* InDevice,
         const WGPUDeviceLostReason InReason,
@@ -155,16 +178,15 @@ void Rendering::Context::GetDevice()
     };
     device = RequestDevice(instance, adapter, deviceDesc);
     CHECK_ASSERT(!device, "Failed to create device");
-    LOG("Got device: ", device);
     
     // Inspect device
-    wgpu::SupportedFeatures deviceFeatures;
-    device.getFeatures(&deviceFeatures);
+    WGPUSupportedFeatures deviceFeatures;
+    wgpuDeviceGetFeatures(device, &deviceFeatures);
     LOG("Device features:");
     for (size_t i = 0; i < deviceFeatures.featureCount; i++)
         LOG(" - ", deviceFeatures.features[i]);
-    wgpu::Limits deviceLimits;
-    if (device.getLimits(&deviceLimits) == wgpu::Status::Success) 
+    WGPULimits deviceLimits;
+    if (wgpuDeviceGetLimits(device, &deviceLimits) == WGPUStatus_Success) 
     {
         LOG("Device limits:");
         LOG(" - maxTextureDimension1D: ", deviceLimits.maxTextureDimension1D);
@@ -179,17 +201,22 @@ void Rendering::Context::GetQueue()
 {
     RN_PROFILE();
     // Setup the queue
-    queue = device.getQueue();
+    queue = wgpuDeviceGetQueue(device);
     CHECK_ASSERT(!queue, "Failed to create queue");
-    wgpu::QueueWorkDoneCallbackInfo queueDoneCallbackInfo;
+    WGPUQueueWorkDoneCallbackInfo queueDoneCallbackInfo;
+    queueDoneCallbackInfo.nextInChain = nullptr;
+    queueDoneCallbackInfo.userdata1 = nullptr;
+    queueDoneCallbackInfo.userdata2 = nullptr;
+    queueDoneCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
     queueDoneCallbackInfo.callback = [](
-        const WGPUQueueWorkDoneStatus status, 
+        const WGPUQueueWorkDoneStatus status,
+        const WGPUStringView InMessage,
         void* pUserData1,
         void* pUserData2) 
     {
         CHECK_ASSERT(status != WGPUQueueWorkDoneStatus_Success, "Queue failed to submit work");
     };
-    queue.onSubmittedWorkDone(queueDoneCallbackInfo);
+    wgpuQueueOnSubmittedWorkDone(queue, queueDoneCallbackInfo);
 }
 
 void Rendering::Context::Deinit()
@@ -199,68 +226,88 @@ void Rendering::Context::Deinit()
     CHECK_ASSERT(!device, "Device not set")
     CHECK_ASSERT(!adapter, "Adapter not set")
     CHECK_ASSERT(!instance, "Instance not set")
-    device.release();
-    device = {};
-    adapter.release();
-    adapter = {};
-    instance.release();
-    instance = {};
+    wgpuDeviceRelease(device);
+    wgpuAdapterRelease(adapter);
+    wgpuInstanceRelease(instance);
+    device = nullptr;
+    adapter = nullptr;
+    instance = nullptr;
     
+#ifndef EMSCRIPTEN
     glfwTerminate();
+#endif
 }
 
-wgpu::Surface Rendering::Context::CreateWindowSurface(const Window& InWindow) const
+WGPUSurface Rendering::Context::CreateWindowSurface(const Window& InWindow) const
 {
     RN_PROFILE();
-    wgpu::Surface surface = glfwCreateWindowWGPUSurface(instance, static_cast<GLFWwindow*>(InWindow.window));
+
+#ifdef EMSCRIPTEN
+    
+    WGPUEmscriptenSurfaceSourceCanvasHTMLSelector canvasDesc;
+    canvasDesc.chain.sType = WGPUSType_EmscriptenSurfaceSourceCanvasHTMLSelector;
+    canvasDesc.chain.next = nullptr;
+    canvasDesc.selector = WGPUStringView(config.CanvasID.Get().c_str()); // Match html canvas ID
+    WGPUSurfaceDescriptor surfaceDesc = {};
+    surfaceDesc.nextInChain = &canvasDesc.chain;
+    WGPUSurface surface = wgpuInstanceCreateSurface(instance, &surfaceDesc);
     CHECK_ASSERT(!surface, "Failed to create surface");
-    wgpu::SurfaceCapabilities surfaceCapabilities;
-    wgpu::Status surfaceCapabilityStatus = surface.getCapabilities(adapter, &surfaceCapabilities);
-    CHECK_ASSERT(surfaceCapabilityStatus != wgpu::Status::Success, "Failed to get surface capabilities");
+    
+#else
+    
+    WGPUSurface surface = glfwCreateWindowWGPUSurface(instance, static_cast<GLFWwindow*>(InWindow.window));
+    CHECK_ASSERT(!surface, "Failed to create surface");
+    
+#endif
+    
+    WGPUSurfaceCapabilities surfaceCapabilities;
+    WGPUStatus surfaceCapabilityStatus = wgpuSurfaceGetCapabilities(surface, adapter, &surfaceCapabilities);
+    CHECK_ASSERT(surfaceCapabilityStatus != WGPUStatus_Success, "Failed to get surface capabilities");
     CHECK_ASSERT(surfaceCapabilities.formatCount <= 0, "No available surface formats");
-    wgpu::SurfaceConfiguration surfaceConfig;
+    WGPUSurfaceConfiguration surfaceConfig;
     surfaceConfig.format = surfaceCapabilities.formats[0]; 
-    surfaceConfig.usage = wgpu::TextureUsage::RenderAttachment;
+    surfaceConfig.usage = WGPUTextureUsage_RenderAttachment;
     surfaceConfig.width = InWindow.config.Resolution.Get().x;
     surfaceConfig.height = InWindow.config.Resolution.Get().y;
     surfaceConfig.viewFormatCount = 0;
     surfaceConfig.viewFormats = nullptr;
     surfaceConfig.device = device;
-    surfaceConfig.presentMode = wgpu::PresentMode::Immediate;
-    surfaceConfig.alphaMode = wgpu::CompositeAlphaMode::Opaque;
-    surface.configure(surfaceConfig);
+    surfaceConfig.presentMode = WGPUPresentMode_Immediate;
+    surfaceConfig.alphaMode = WGPUCompositeAlphaMode_Opaque;
+    wgpuSurfaceConfigure(surface, &surfaceConfig);
     return surface;
 }
 
-wgpu::Surface Rendering::Context::CreateSurface(const wgpu::SurfaceConfiguration &InConfig) const
+WGPUSurface Rendering::Context::CreateSurface(const WGPUSurfaceConfiguration &InConfig) const
 {
     RN_PROFILE();
-    wgpu::Surface surface;
-    surface.configure(InConfig);
+    WGPUSurface surface = {};
+    wgpuSurfaceConfigure(surface, &InConfig);
     CHECK_ASSERT(!surface, "Failed to create surface");
     return surface;
 }
 
-wgpu::ShaderModule Rendering::Context::CreateShader(const wgpu::ShaderModuleDescriptor &InDesc) const
+WGPUShaderModule Rendering::Context::CreateShader(const WGPUShaderModuleDescriptor &InDesc) const
 {
     RN_PROFILE();
-    auto shader = device.createShaderModule(InDesc);
+    auto shader = wgpuDeviceCreateShaderModule(device, &InDesc);
     CHECK_ASSERT(!shader, "Failed to create shader module");
     return shader;
 }
 
-wgpu::RenderPipeline Rendering::Context::CreatePipeline(const wgpu::RenderPipelineDescriptor &InDesc) const
+WGPURenderPipeline Rendering::Context::CreatePipeline(const WGPURenderPipelineDescriptor &InDesc) const
 {
     RN_PROFILE();
-    auto pipeline = device.createRenderPipeline(InDesc);
+    // TODO: wgpuDeviceCreateRenderPipelineAsync
+    auto pipeline = wgpuDeviceCreateRenderPipeline(device, &InDesc);
     CHECK_ASSERT(!pipeline, "Failed to create pipeline");
     return pipeline;
 }
 
-wgpu::CommandEncoder Rendering::Context::CreateEncoder(const wgpu::CommandEncoderDescriptor &InDesc) const
+WGPUCommandEncoder Rendering::Context::CreateEncoder(const WGPUCommandEncoderDescriptor &InDesc) const
 {
     RN_PROFILE();
-    auto encoder = device.createCommandEncoder(InDesc);
+    auto encoder = wgpuDeviceCreateCommandEncoder(device, &InDesc);
     CHECK_ASSERT(!encoder, "Failed to create command encoder");
     return encoder;
 }
@@ -275,92 +322,95 @@ uint64 GetAlignedBufferSize(const uint64 InSize)
     return alignUp(InSize, kWriteBufferAlignment);
 }
 
-wgpu::Buffer Rendering::Context::CreateBuffer(wgpu::BufferDescriptor InDesc) const
+WGPUBuffer Rendering::Context::CreateBuffer(WGPUBufferDescriptor InDesc) const
 {
     RN_PROFILE();
     InDesc.size = GetAlignedBufferSize(InDesc.size);
-    InDesc.usage |= wgpu::BufferUsage::CopyDst;
-    auto buffer = device.createBuffer(InDesc);
+    InDesc.usage |= WGPUBufferUsage_CopyDst;
+    auto buffer = wgpuDeviceCreateBuffer(device, &InDesc);
     CHECK_ASSERT(!buffer, "Failed to create buffer");
     return buffer;
 }
 
-void Rendering::Context::WriteBuffer(const wgpu::Buffer &InBuffer, const void *InData, uint64 InSize) const
+void Rendering::Context::WriteBuffer(const WGPUBuffer &InBuffer, const void *InData, uint64 InSize) const
 {
     RN_PROFILE();
     uint64 alignedSize = GetAlignedBufferSize(InSize);
     if (alignedSize == InSize)
     {
-        queue.writeBuffer(InBuffer, 0, InData, InSize);
+        wgpuQueueWriteBuffer(queue, InBuffer, 0, InData, InSize);
     }
     else
     {
         Vector padded(alignedSize, std::byte{0});
         std::memcpy(padded.data(), InData, InSize);
-        queue.writeBuffer(InBuffer, 0, padded.data(), alignedSize);
+        wgpuQueueWriteBuffer(queue, InBuffer, 0, padded.data(), alignedSize);
     }
 }
 
-wgpu::BindGroupLayout Rendering::Context::CreateBindGroupLayout(const Vector<wgpu::BindGroupLayoutEntry> &InLayoutEntries) const
+WGPUBindGroupLayout Rendering::Context::CreateBindGroupLayout(const Vector<WGPUBindGroupLayoutEntry> &InLayoutEntries) const
 {
     RN_PROFILE();
-    wgpu::BindGroupLayoutDescriptor bindGroupLayoutDesc{};
+    WGPUBindGroupLayoutDescriptor bindGroupLayoutDesc{};
     bindGroupLayoutDesc.entryCount = InLayoutEntries.size();
     bindGroupLayoutDesc.entries = InLayoutEntries.data();
-    bindGroupLayoutDesc.label = wgpu::StringView("BindGroupLayout");
-    wgpu::BindGroupLayout layout = device.createBindGroupLayout(bindGroupLayoutDesc);
+    bindGroupLayoutDesc.label = WGPUStringView("BindGroupLayout");
+    WGPUBindGroupLayout layout = wgpuDeviceCreateBindGroupLayout(device, &bindGroupLayoutDesc);
     CHECK_ASSERT(!layout, "Failed to create bind group layout");
     return layout;
 }
 
-wgpu::PipelineLayout Rendering::Context::CreateLayout(const Vector<wgpu::BindGroupLayout> &InLayoutGroups) const
+WGPUPipelineLayout Rendering::Context::CreateLayout(const Vector<WGPUBindGroupLayout> &InLayoutGroups) const
 {
     RN_PROFILE();
     // Create the pipeline layout
-    wgpu::PipelineLayoutDescriptor layoutDesc{};
+    WGPUPipelineLayoutDescriptor layoutDesc{};
     layoutDesc.bindGroupLayoutCount = InLayoutGroups.size();
-    layoutDesc.bindGroupLayouts = reinterpret_cast<WGPUBindGroupLayout const *>(InLayoutGroups.data());
-    layoutDesc.label = wgpu::StringView("PipelineLayout");
-    wgpu::PipelineLayout layout = device.createPipelineLayout(layoutDesc);
+    layoutDesc.bindGroupLayouts = InLayoutGroups.data();
+    layoutDesc.label = WGPUStringView("PipelineLayout");
+    WGPUPipelineLayout layout = wgpuDeviceCreatePipelineLayout(device, &layoutDesc);
     CHECK_ASSERT(!layout, "Failed to create pipeline layout");
     return layout;
 }
 
-wgpu::BindGroup Rendering::Context::CreateBindGroup(wgpu::BindGroupLayout InLayout, const Vector<wgpu::BindGroupEntry> &InEntries) const
+WGPUBindGroup Rendering::Context::CreateBindGroup(WGPUBindGroupLayout InLayout, const Vector<WGPUBindGroupEntry> &InEntries) const
 {
     RN_PROFILE();
-    wgpu::BindGroupDescriptor bindGroupDesc{};
+    WGPUBindGroupDescriptor bindGroupDesc{};
     bindGroupDesc.layout = InLayout;
     // There must be as many bindings as declared in the layout!
     bindGroupDesc.entryCount = InEntries.size();
     bindGroupDesc.entries = InEntries.data();
-    bindGroupDesc.label = wgpu::StringView("BindGroup");
-    wgpu::BindGroup bindGroup = device.createBindGroup(bindGroupDesc);
+    bindGroupDesc.label = WGPUStringView("BindGroup");
+    WGPUBindGroup bindGroup = wgpuDeviceCreateBindGroup(device, &bindGroupDesc);
     CHECK_ASSERT(!bindGroup, "Failed to create bindgroup");
     return bindGroup;
 }
 
-void Rendering::Context::Submit(const Vector<wgpu::CommandBuffer> &InCommands) const
+void Rendering::Context::Submit(const Vector<WGPUCommandBuffer> &InCommands) const
 {
     RN_PROFILE();
     CHECK_ASSERT(!queue, "Queue not initialized");
-    queue.submit(InCommands.size(), InCommands.data());
+    wgpuQueueSubmit(queue, InCommands.size(), InCommands.data());
 }
 
 void Rendering::Context::Poll()
 {
     RN_PROFILE();
-#if defined(WEBGPU_BACKEND_DAWN)
+    
+#ifndef EMSCRIPTEN 
+#ifdef WEBGPU_BACKEND_DAWN
     device.tick();
-#elif defined(WEBGPU_BACKEND_WGPU)
+#elifdef WEBGPU_BACKEND_WGPU
     device.poll(false, nullptr);
+#endif
 #endif
 }
 
-wgpu::Texture Rendering::Context::CreateTexture(const wgpu::TextureDescriptor& InDesc) const
+WGPUTexture Rendering::Context::CreateTexture(const WGPUTextureDescriptor& InDesc) const
 {
     RN_PROFILE();
-    wgpu::Texture tex = device.createTexture(InDesc);
+    const WGPUTexture tex = wgpuDeviceCreateTexture(device, &InDesc);
     CHECK_ASSERT(!tex, "Invalid texture");
     return tex;
 }

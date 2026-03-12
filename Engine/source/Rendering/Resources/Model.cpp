@@ -100,10 +100,10 @@ void Rendering::ModelResource::ContinueLoad()
         lod.indexCount = static_cast<uint32>(indices.size());
         lod.vertexStride = sizeof(VertexLayout);
         
-        wgpu::BufferDescriptor vertexBufferDesc;
-        vertexBufferDesc.label = wgpu::StringView("LOD" + Utility::ToStr(InParams.lodIndex + 1) + " VB: " + id.Str());
+        WGPUBufferDescriptor vertexBufferDesc;
+        vertexBufferDesc.label = ToStr("LOD" + Utility::ToStr(InParams.lodIndex + 1) + " VB: " + id.Str());
         vertexBufferDesc.size = vertices.size() * sizeof(VertexLayout);
-        vertexBufferDesc.usage = wgpu::BufferUsage::Vertex;
+        vertexBufferDesc.usage = WGPUBufferUsage_Vertex;
         lod.vertexBuffer = Context::Get().CreateBuffer(vertexBufferDesc);
         Context::Get().WriteBuffer(lod.vertexBuffer,vertices.data(),vertices.size() * sizeof(VertexLayout));
 
@@ -127,12 +127,12 @@ void Rendering::ModelResource::ContinueLoad()
         String ibType = canUseUint16 ? " IB16: " : " IB32: ";
         uint32 stride = canUseUint16 ? sizeof(uint16_t) : sizeof(uint32);
         size_t sizeBytes = (canUseUint16 ? indices16.size() : indices.size()) * stride;
-        lod.indexFormat = canUseUint16 ? wgpu::IndexFormat::Uint16 : wgpu::IndexFormat::Uint32;
+        lod.indexFormat = canUseUint16 ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Uint32;
         lod.indexStride = stride;
-        wgpu::BufferDescriptor indexBufferDesc;
-        indexBufferDesc.label = wgpu::StringView("LOD" + Utility::ToStr(InParams.lodIndex + 1 + 1) + ibType + id.Str());
+        WGPUBufferDescriptor indexBufferDesc;
+        indexBufferDesc.label = ToStr("LOD" + Utility::ToStr(InParams.lodIndex + 1 + 1) + ibType + id.Str());
         indexBufferDesc.size = sizeBytes;
-        indexBufferDesc.usage = wgpu::BufferUsage::Index;
+        indexBufferDesc.usage = WGPUBufferUsage_Index;
         lod.indexBuffer = Context::Get().CreateBuffer(indexBufferDesc);
         Context::Get().WriteBuffer(lod.indexBuffer,data,sizeBytes);
         
@@ -143,35 +143,35 @@ void Rendering::ModelResource::ContinueLoad()
 void Rendering::ModelResource::LoadState() 
 {
     state = {};
-    state.primitiveState.topology = wgpu::PrimitiveTopology::TriangleList;
-    state.primitiveState.frontFace = wgpu::FrontFace::CCW;
-    state.primitiveState.cullMode = wgpu::CullMode::Back;
-    state.primitiveState.stripIndexFormat = wgpu::IndexFormat::Undefined;
+    state.primitiveState.topology = WGPUPrimitiveTopology_TriangleList;
+    state.primitiveState.frontFace = WGPUFrontFace_CCW;
+    state.primitiveState.cullMode = WGPUCullMode_Back;
+    state.primitiveState.stripIndexFormat = WGPUIndexFormat_Undefined;
     
     // Create default layout
     auto& layout = state.vertexLayouts.emplace_back();
-    static Vector<wgpu::VertexAttribute> attributes;
+    static Vector<WGPUVertexAttribute> attributes;
     if (attributes.empty())
     {
         // TODO: Make this cleaner
         attributes.resize(3);
         auto& positionAttr = attributes.at(0);
-        positionAttr.format = wgpu::VertexFormat::Float32x3;
+        positionAttr.format = WGPUVertexFormat_Float32x3;
         positionAttr.offset = 0;
         positionAttr.shaderLocation = 0;
         auto& normalAttr = attributes.at(1);
-        normalAttr.format = wgpu::VertexFormat::Float32x3;
+        normalAttr.format = WGPUVertexFormat_Float32x3;
         normalAttr.offset = 3 * sizeof(float);
         normalAttr.shaderLocation = 1;
         auto& uvAttr = attributes.at(2);
-        uvAttr.format = wgpu::VertexFormat::Float32x2;
+        uvAttr.format = WGPUVertexFormat_Float32x2;
         uvAttr.offset = 2 * 3 * sizeof(float);
         uvAttr.shaderLocation = 2;
     }
     layout.attributes = attributes.data();
     layout.attributeCount = static_cast<uint32>(attributes.size());
     layout.arrayStride = sizeof(VertexLayout);
-    layout.stepMode = wgpu::VertexStepMode::Vertex;
+    layout.stepMode = WGPUVertexStepMode_Vertex;
     
     // TODO: Instanced attributes
     
@@ -193,8 +193,8 @@ bool Rendering::ModelResource::Unload()
         {
             for (auto& lod : mesh.lods)
             {
-                if (lod.vertexBuffer) lod.vertexBuffer.release();
-                if (lod.indexBuffer) lod.indexBuffer.release();
+                if (lod.vertexBuffer) wgpuBufferRelease(lod.vertexBuffer);
+                if (lod.indexBuffer) wgpuBufferRelease(lod.indexBuffer);
             }
         }
         meshes.clear();

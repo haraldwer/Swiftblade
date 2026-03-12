@@ -1,6 +1,6 @@
 #pragma once
 
-#include <webgpu/webgpu.hpp>
+#include "webgpu/webgpu.h"
 
 namespace Rendering
 {
@@ -11,9 +11,9 @@ namespace Rendering
     public:
         void Begin(const String& InName);
 
-        void RenderFullscreen(const Command &InCommand, const wgpu::RenderPassEncoder& renderPass);
+        void RenderFullscreen(const Command &InCommand, const WGPURenderPassEncoder& renderPass);
 
-        void RenderModel(const Command &InCommand, const wgpu::RenderPassEncoder& renderPass);
+        void RenderModel(const Command &InCommand, const WGPURenderPassEncoder& renderPass);
 
         void Add(const Command& InCommand);
         void End();
@@ -21,7 +21,7 @@ namespace Rendering
         
     private: 
         String workingName = "";
-        wgpu::CommandEncoder encoder;
-        Vector<wgpu::CommandBuffer> commands;
+        WGPUCommandEncoder encoder = {};
+        Vector<WGPUCommandBuffer> commands;
     };
 }

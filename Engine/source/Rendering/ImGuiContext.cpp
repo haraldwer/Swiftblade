@@ -18,8 +18,8 @@ void Rendering::ImGuiContext::Init(Window &InWindow, Context &InContext)
     
     ImGui_ImplWGPU_InitInfo info;
     info.Device = InContext.device;
-    info.RenderTargetFormat = wgpu::TextureFormat::BGRA8UnormSrgb; // TODO: Use surface
-    info.DepthStencilFormat = wgpu::TextureFormat::Undefined; 
+    info.RenderTargetFormat = WGPUTextureFormat_BGRA8UnormSrgb; // TODO: Use surface
+    info.DepthStencilFormat = WGPUTextureFormat_Undefined; 
     ImGui_ImplWGPU_Init(&info);
     
     ImGui::SetDefaultFlags();
@@ -54,7 +54,7 @@ Rendering::Command Rendering::ImGuiContext::Command(RenderTarget &InTarget)
     Rendering::Command command("ImGui");
     command.clear = false;
     command.targets = { &InTarget };
-    command.customFunc = [&](const wgpu::RenderPassEncoder& renderPass)
+    command.customFunc = [&](const WGPURenderPassEncoder& renderPass)
     {
         ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPass);
     };

@@ -1,5 +1,5 @@
 #pragma once
-#include <webgpu/webgpu.hpp>
+#include "webgpu/webgpu.h"
 
 struct Shader;
 
@@ -17,7 +17,7 @@ namespace Rendering
         static bool Accept(const String& InPath);
         
     private:
-        wgpu::ShaderModule shader;
+        WGPUShaderModule shader;
     };
 }
 

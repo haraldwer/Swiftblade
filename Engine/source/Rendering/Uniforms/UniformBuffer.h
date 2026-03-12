@@ -1,5 +1,5 @@
 #pragma once
-#include <webgpu/webgpu.hpp>
+#include "webgpu/webgpu.h"
 
 namespace Rendering
 {
@@ -7,7 +7,7 @@ namespace Rendering
 
     struct PipelineLayout
     {
-        wgpu::PipelineLayout layout;
+        WGPUPipelineLayout layout;
         uint32 hash = 0;
     };
     
@@ -17,20 +17,20 @@ namespace Rendering
     public:
         
         template <class T>
-        void Set(const int InSlot, const T& InData, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment | wgpu::ShaderStage::Vertex)
+        void Set(const int InSlot, const T& InData, WGPUShaderStage InVisibility = WGPUShaderStage_Fragment | WGPUShaderStage_Vertex)
         {
             Set(InSlot, reinterpret_cast<const void *>(&InData), sizeof(T), InVisibility);
         }
         
         template <class T>
-        void Set(const int InSlot, const Vector<T>& InData, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment | wgpu::ShaderStage::Vertex)
+        void Set(const int InSlot, const Vector<T>& InData, WGPUShaderStage InVisibility = WGPUShaderStage_Fragment | WGPUShaderStage_Vertex)
         {
             Set(InSlot, reinterpret_cast<const void*>(InData.data()), InData.size() * sizeof(T), InVisibility);
         }
         
-        void Set(int InSlot, const void* InData, uint64 InSize, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment | wgpu::ShaderStage::Vertex);
-        void Set(int InSlot, const wgpu::TextureView& InView, const wgpu::TextureBindingLayout& InLayout, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment);
-        void Set(int InSlot, const RenderTarget& InTexture, wgpu::ShaderStage InVisibility = wgpu::ShaderStage::Fragment);
+        void Set(int InSlot, const void* InData, uint64 InSize, WGPUShaderStage InVisibility = WGPUShaderStage_Fragment | WGPUShaderStage_Vertex);
+        void Set(int InSlot, const WGPUTextureView& InView, const WGPUTextureBindingLayout& InLayout, WGPUShaderStage InVisibility = WGPUShaderStage_Fragment);
+        void Set(int InSlot, const RenderTarget& InTexture, WGPUShaderStage InVisibility = WGPUShaderStage_Fragment);
         
         void Clear();
         
@@ -40,12 +40,12 @@ namespace Rendering
         {
             void* data = nullptr;
             uint64 size = 0;
-            wgpu::Buffer buffer;
-            wgpu::TextureView view;
+            WGPUBuffer buffer;
+            WGPUTextureView view;
         };
         Vector<Uniform> uniforms;
-        Vector<wgpu::BindGroupLayoutEntry> layouts;
-        Vector<wgpu::BindGroupEntry> bindings;
+        Vector<WGPUBindGroupLayoutEntry> layouts;
+        Vector<WGPUBindGroupEntry> bindings;
         Vector<uint32> hashes;
         bool bindingChanged = false;
         bool layoutChanged = false;
@@ -58,12 +58,12 @@ namespace Rendering
         BufferGroup& GetGroup(int InSlot);
         PipelineLayout* GetLayout();
         void Clear();
-        void Bind(const wgpu::RenderPassEncoder& InEncoder) const;
+        void Bind(const WGPURenderPassEncoder& InEncoder) const;
 
     private:
         Vector<BufferGroup> groups;
-        Vector<wgpu::BindGroupLayout> layouts;
-        Vector<wgpu::BindGroup> bindings;
+        Vector<WGPUBindGroupLayout> layouts;
+        Vector<WGPUBindGroup> bindings;
         PipelineLayout layout;
     };
 }

@@ -16,7 +16,7 @@ void Rendering::PipelineCache::Deinit()
 {
     RN_PROFILE();
     for (auto& pipeline : cache)
-        pipeline.second.release();
+        wgpuRenderPipelineRelease(pipeline.second);
     cache.clear();
 }
 
@@ -38,7 +38,7 @@ uint32 GetHash(const Rendering::PipelineDescriptor& InData)
     return Utility::Hash(fullHash);
 }
 
-wgpu::RenderPipeline* Rendering::PipelineCache::GetPipeline(const PipelineDescriptor& InData)
+WGPURenderPipeline* Rendering::PipelineCache::GetPipeline(const PipelineDescriptor& InData)
 {
     RN_PROFILE();
     
@@ -50,7 +50,7 @@ wgpu::RenderPipeline* Rendering::PipelineCache::GetPipeline(const PipelineDescri
     if (find != cache.end())
         return &find->second;
     
-    wgpu::RenderPipeline pipeline;
+    WGPURenderPipeline pipeline;
     if (!CreatePipeline(InData, hash, pipeline))
         return nullptr;
     auto& pipelineRef = cache[hash];
@@ -58,7 +58,7 @@ wgpu::RenderPipeline* Rendering::PipelineCache::GetPipeline(const PipelineDescri
     return &pipelineRef;
 }
 
-bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, uint32 InHash, wgpu::RenderPipeline& OutPipeline)
+bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, uint32 InHash, WGPURenderPipeline& OutPipeline)
 {
     RN_PROFILE();
     
@@ -68,19 +68,28 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     ShaderResource* shaderResource = InData.material->GetShader().Get();
     CHECK_RETURN_LOG(!shaderResource, "Failed to get shader", false);
     
-    wgpu::VertexState vertexState{};
-    wgpu::PrimitiveState primitiveState{};
-    wgpu::FragmentState fragmentState{};
-    wgpu::DepthStencilState depthStencilState{};
-    wgpu::MultisampleState multisampleState{};
+    WGPUVertexState vertexState{};
+    WGPUPrimitiveState primitiveState{};
+    WGPUFragmentState fragmentState{};
+    WGPUDepthStencilState depthStencilState{};
+    WGPUMultisampleState multisampleState{};
     
     // Vertex
-    vertexState.setDefault();
-    vertexState.entryPoint = wgpu::StringView("vs_main");
+    vertexState.nextInChain = nullptr;
+    vertexState.bufferCount = 0;
+    vertexState.buffers = nullptr;
+    vertexState.constantCount = 0;
+    vertexState.constants = nullptr;
+    vertexState.entryPoint = WGPUStringView("vs_main");
     vertexState.module = shaderResource->shader;
     
     // Primitive
-    primitiveState.setDefault();
+    primitiveState.nextInChain = nullptr;
+    primitiveState.cullMode = WGPUCullMode_Back;
+    primitiveState.frontFace = WGPUFrontFace_CCW;
+    primitiveState.stripIndexFormat = WGPUIndexFormat_Uint32;
+    primitiveState.topology = WGPUPrimitiveTopology_LineList;
+    primitiveState.unclippedDepth = false;
     
     if (InData.meshState)
     {
@@ -90,33 +99,39 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     }
     
     // Fragment
-    fragmentState.setDefault();
-    fragmentState.entryPoint = wgpu::StringView("fs_main");
+    fragmentState.nextInChain = nullptr;
+    fragmentState.constantCount = 0;
+    fragmentState.constants = nullptr;
+    fragmentState.targetCount = 0;
+    fragmentState.targets = nullptr;
+    fragmentState.entryPoint = WGPUStringView("fs_main");
     fragmentState.module = shaderResource->shader;
-    wgpu::BlendState blendState{};
-    blendState.color.srcFactor = wgpu::BlendFactor::SrcAlpha;
-    blendState.color.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
-    blendState.color.operation = wgpu::BlendOperation::Add;
-    blendState.alpha.srcFactor = wgpu::BlendFactor::One;
-    blendState.alpha.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
-    blendState.alpha.operation = wgpu::BlendOperation::Add;
-    Vector<wgpu::ColorTargetState> targetStates;
+    
+    WGPUBlendState blendState{};
+    blendState.color.srcFactor = WGPUBlendFactor_SrcAlpha;
+    blendState.color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
+    blendState.color.operation = WGPUBlendOperation_Add;
+    blendState.alpha.srcFactor = WGPUBlendFactor_One;
+    blendState.alpha.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
+    blendState.alpha.operation = WGPUBlendOperation_Add;
+    
+    Vector<WGPUColorTargetState> targetStates;
     for (auto& target : InData.targetFormats)
     {
-        wgpu::ColorTargetState& colorTarget = targetStates.emplace_back();
+        WGPUColorTargetState& colorTarget = targetStates.emplace_back();
         colorTarget.format = target;
         colorTarget.blend = &blendState;
-        colorTarget.writeMask = wgpu::ColorWriteMask::All;
+        colorTarget.writeMask = WGPUColorWriteMask_All;
     }
     fragmentState.targetCount = static_cast<uint32_t>(targetStates.size());
     fragmentState.targets = targetStates.data();
     
     // Depth/stencil
-    if (InData.data.depth.format != wgpu::TextureFormat::Undefined)
+    if (InData.data.depth.format != WGPUTextureFormat_Undefined)
     {
         depthStencilState.format = InData.data.depth.format;
-        depthStencilState.depthCompare = wgpu::CompareFunction::Less;
-        depthStencilState.depthWriteEnabled = InData.data.depth.write ? wgpu::OptionalBool::True : wgpu::OptionalBool::False;
+        depthStencilState.depthCompare = WGPUCompareFunction_Less;
+        depthStencilState.depthWriteEnabled = InData.data.depth.write ? WGPUOptionalBool_True : WGPUOptionalBool_False;
         depthStencilState.stencilReadMask = 0;
         depthStencilState.stencilWriteMask = 0;
     }
@@ -128,12 +143,12 @@ bool Rendering::PipelineCache::CreatePipeline(const PipelineDescriptor& InData, 
     
     // Create final descriptor
     String label = InData.label + "_" + Utility::ToStr(InHash);
-    wgpu::RenderPipelineDescriptor desc;
-    desc.label = wgpu::StringView(label);
+    WGPURenderPipelineDescriptor desc;
+    desc.label = WGPUStringView(label.c_str());
     desc.vertex = vertexState;
     desc.primitive = primitiveState;
     desc.fragment = &fragmentState;
-    desc.depthStencil = InData.data.depth.format == wgpu::TextureFormat::Undefined ? nullptr : &depthStencilState;
+    desc.depthStencil = InData.data.depth.format == WGPUTextureFormat_Undefined ? nullptr : &depthStencilState;
     desc.multisample = multisampleState;
     desc.layout = InData.layout ? InData.layout->layout : nullptr;
     

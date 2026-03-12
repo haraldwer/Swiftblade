@@ -6,7 +6,7 @@ namespace Rendering
 {
     class BufferCollection;
     class RenderTarget;
-    typedef std::function<void(const wgpu::RenderPassEncoder& InEncoder)> RenderFunc;
+    typedef std::function<void(const WGPURenderPassEncoder& InEncoder)> RenderFunc;
     
     struct Command
     {
