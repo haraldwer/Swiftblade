@@ -7,7 +7,6 @@
 #include "Engine/Blueprints/Blueprint.h"
 #include "Engine/Physics/Manager.h"
 #include "Engine/Scene/SceneResource.h"
-#include "Game/ECS/Registration.h"
 #include "ImGui/imgui.h"
 #include "Instance/InstanceManager.h"
 #include "UI/Menus/MenuPause.h"

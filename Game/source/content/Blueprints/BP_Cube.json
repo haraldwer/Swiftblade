@@ -1,0 +1,20 @@
+{
+	"Components":[{
+			"Name":"Mesh",
+			"Data":{
+				"Material":"Defaults/RM_Default.json"
+			}
+		},{
+			"Name":"Attributes",
+			"Data":{
+				"Name":"Cube"
+			}
+		},{
+			"Name":"Transform",
+			"Data":{}
+		},{
+			"Name":"Collider",
+			"Data":{}
+		}
+	]
+}

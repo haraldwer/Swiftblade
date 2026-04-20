@@ -1,0 +1,166 @@
+﻿#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_DeferredID.si"
+
+in vec2 TexCoord;
+layout (location = 0) out vec4 Output;
+
+const int ITERATIONS = 8;
+const float INTENSITY = 0.35f;
+const float LERP_SPEED = 0.6f;
+const float SAMPLE_MAX_MIX = 0.1f;
+
+const float SCALE = 0.05f;
+const float INTERP_DEPTH_THRESHOLD_MUL = 0.1f;
+const float DIR_RANDOMNESS = 0.25f;
+
+vec3 SSAOPosition(vec2 uv)
+{
+     return SampleWorldPos(uv).xyz;
+}
+
+vec3 SSAONormal(vec2 uv)
+{
+     return SampleNormal(uv);
+}
+
+float SSAOIteration(vec2 InCoord, vec3 InStartPosition, vec3 InStartNormal)
+{
+     vec3 position = SSAOPosition(InCoord);
+     
+     // Pixel distance
+     vec3 difference = position - InStartPosition;
+     float distance = length(difference);
+     
+     // Pixel direction to start compared to normal
+     vec3 surfaceDir = difference / distance; 
+     return max(0.0f, dot(surfaceDir, InStartNormal));
+}
+
+float FrameSSAO(vec3 InStartPos, vec3 InCamDir)
+{
+     vec3 startNormal = SSAONormal(TexCoord);
+     float rand = Random(Time + Random(TexCoord));
+     
+     // What direction is the most likely?
+     vec3 likelyDir = reflect(InCamDir, startNormal);
+     vec3 randomDir = Random3(vec3(TexCoord, rand)) * 2.0f - vec3(1.0f);
+     likelyDir += randomDir * DIR_RANDOMNESS; // Plus some randomness
+     
+     // To coord
+     vec3 refScreenPos = (ViewProj * vec4(InStartPos, 1.0f)).xyz;
+     vec3 screenPos = (ViewProj * vec4(InStartPos + likelyDir, 1.0f)).xyz;
+     vec2 likelyCoordDir = (screenPos.xy - refScreenPos.xy) / 2.0f;
+     
+     // Normalize, keep sign
+     float likelyDist = length(likelyCoordDir);
+     likelyCoordDir /= likelyDist;
+
+     float ao = 0.0f;
+     float aoMax = 0.0f;
+     for (int i = 0; i < ITERATIONS; i++)
+     {
+          // Randomize dir
+          vec2 randDir = (Random2(vec2(rand, float(i))) * 2.0f - vec2(1.0f));
+          float randDot = dot(randDir, likelyCoordDir);
+          vec2 dir = randDir * randDot * SCALE;
+          vec2 coord = clamp(TexCoord + dir, 0.0001f, 0.9999f);
+          float value = SSAOIteration(coord, InStartPos, startNormal);
+          ao += value;
+          aoMax = max(aoMax, value);
+     }
+     return mix(ao / float(ITERATIONS), aoMax, SAMPLE_MAX_MIX);
+}
+
+// acc + weight
+vec2 BlurSamplePoint(sampler2D InTex, vec2 InCoord, float InWeight)
+{
+     vec4 ao = texture(InTex, Saturate(InCoord));
+     float acc = (ao.g + ao.b + ao.a) * InWeight;
+     return vec2(acc, InWeight * 3.0f);
+}
+
+vec2 BlurSample(sampler2D InTex, vec2 InCoord)
+{
+     vec2 pixelScale = TexAOScale / Resolution;
+     
+     float middleScale = 1.0f;
+     float farScale = 1.0f;
+     float middleWeight = 0.8f;
+     float farWeight = 0.5f;
+
+     vec2 edgeOff[4] = vec2[](
+          vec2(1.0f,1.0f),
+          vec2(1.0f,-1.0f),
+          vec2(-1.0f,1.0f),
+          vec2(-1.0f,-1.0f)
+     );
+     vec2 middleOff[4] = vec2[](
+          vec2(1.0f, 0.0f),
+          vec2(-1.0f,0.0f),
+          vec2(0.0f, 1.0f),
+          vec2(0.0f,-1.0f)
+     );
+
+     vec2 result = vec2(0.0f);
+     for (int i = 0; i < 4; i++)
+          result += BlurSamplePoint(InTex, InCoord + middleOff[i] * pixelScale * middleScale, middleWeight);
+     for (int i = 0; i < 4; i++)
+          result += BlurSamplePoint(InTex, InCoord + edgeOff[i] * pixelScale * farScale, farWeight);
+     return result;
+}
+
+vec4 BlurAccumulation(vec2 InCoord)
+{ 
+     vec2 scaledCoord = InCoord * TexAOScale;
+     vec4 prevAO = texture(TexAO, scaledCoord);
+     vec2 result = BlurSample(TexAO, scaledCoord);
+     result.x += (prevAO.g + prevAO.b + prevAO.a);
+     result.y += 3.0f;
+     return vec4(prevAO.rgb, result.x / result.y); 
+}
+
+void main()
+{
+     Output = vec4(0.0f);
+
+     if (!CheckID(TexCoord, 0)) // Exclude skybox
+          return;
+     
+     vec4 position = SampleWorldPos(TexCoord);
+     vec3 velocity = texture(TexData, TexCoord).rgb;
+     
+     // Camera distance
+     vec3 cameraDiff = position.xyz - CameraPosition;
+     float cameraDist = length(cameraDiff);
+     vec3 cameraDir = cameraDiff / cameraDist;
+     
+     // 1. Sample current
+     float newSample = FrameSSAO(position.xyz, cameraDir);
+     
+     // 2. Blur and sample previous 
+     vec4 blur = vec4(0.0f); // r = prevValue, gb = prevSamples, a = blurred
+     vec2 prevCoord = TexCoord - velocity.xy;
+     if ( prevCoord.x < 1.0f && prevCoord.x > 0.0f &&
+          prevCoord.y < 1.0f && prevCoord.y > 0.0f)
+     {
+          vec4 prevPos = SampleWorldPos(prevCoord);
+          float depthDiff = abs(position.w - prevPos.w);
+          if (depthDiff < cameraDist * INTERP_DEPTH_THRESHOLD_MUL)
+               blur = BlurAccumulation(prevCoord);
+     }
+     
+     blur.a = max(blur.a, newSample);
+     
+     // 3. Lerp towards blur
+     blur.r = mix(blur.r, blur.a * INTENSITY, LERP_SPEED);
+     
+     // 4. Output blur
+     Output.r = blur.r;
+     
+     // 5. Update previous
+     Output.g = newSample; // First use of new sample?
+     Output.ba = blur.gb; // discard oldest sample
+}

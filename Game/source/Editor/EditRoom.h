@@ -1,7 +1,7 @@
 #pragma once
-#include "Game/ECS/Volume/CubeVolumeCoord.h"
-#include "Game/ECS/Volume/CubeVolumeData.h"
-#include "Game/Level/RoomInfo.h"
+#include "ECS/Volume/CubeVolumeCoord.h"
+#include "ECS/Volume/CubeVolumeData.h"
+#include "Level/RoomInfo.h"
 #include "Resource/PropertyFile.h"
 #include "Resource/Resource.h"
 

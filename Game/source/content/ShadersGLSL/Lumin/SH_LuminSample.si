@@ -1,0 +1,21 @@
+
+uniform sampler2D TexBRDF;
+uniform sampler2D TexIrradiance;
+uniform sampler2D TexRadiance;
+
+vec2 SampleBRDF(vec3 InN, vec3 InV, float InRoughness)
+{
+    return texture(TexBRDF, vec2(max(dot(InN, InV), 0.0f), InRoughness)).rg;
+}
+
+vec3 SampleIrradiance(vec2 InCoord)
+{
+    return vec3(0.5f);
+    //return texture(TexIrradiance, InCoord).rgb;
+}
+
+vec3 SampleRadiance(vec2 InCoord)
+{
+    return vec3(0.5f);
+    //return texture(TexRadiance, InCoord).rgb;
+}

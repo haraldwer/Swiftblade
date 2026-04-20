@@ -1,0 +1,11 @@
+
+vec4 TriplanarSample(sampler2D InTex, vec3 InWorldPos, vec3 InNormal)
+{
+    vec4 front = texture(InTex, InWorldPos.xy);
+    vec4 side = texture(InTex, InWorldPos.zy);
+    vec4 top = texture(InTex, InWorldPos.xz);
+    vec3 w = abs(InNormal);
+    w /= w.x + w.y + w.z;
+    w *= w; // Pow2
+    return front * w.z + side * w.x + top * w.y;
+}

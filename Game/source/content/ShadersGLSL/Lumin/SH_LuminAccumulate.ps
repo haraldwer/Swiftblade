@@ -1,0 +1,61 @@
+﻿#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Utility/SH_Utility.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+#include "Shaders/PBR/SH_SphericalHarmonics.si"
+
+in vec2 TexCoord;
+in vec2 RectCoord;
+
+uniform samplerCube TexFrame;
+uniform int EnvRes;
+uniform int CoeffStart;
+uniform int CoeffEnd;
+
+// Maximum of 5 bands at a time
+layout(location = 0) out vec4 OutSH0;
+layout(location = 1) out vec4 OutSH1;
+layout(location = 2) out vec4 OutSH2;
+layout(location = 3) out vec4 OutSH3;
+layout(location = 4) out vec4 OutSH4;
+
+// Accumulates the SH values from a cubemap, 5 bands at a time
+void AccumulateCubemapToSH(samplerCube InTexEnv, int InFaceRes, int InBandStart, int InBandEnd, out vec4[5] OutBands)
+{
+    for (int i = 0; i < 5; i++)
+    OutBands[i] = vec4(0);
+
+    for (int side=0; side < 6; side++)
+    for (int y=0; y < InFaceRes; y++)
+    for (int x=0; x < InFaceRes; x++)
+    {
+        vec2 uv = (vec2(x,y) + 0.5) / InFaceRes * 2.0 - 1.0;
+        vec3 dir = CubemapUVToDir(side, uv);
+
+        float sa = TexelSolidAngle(uv, InFaceRes);
+        vec4 pixel = texture(InTexEnv, dir);
+        vec3 radiance = pixel.rgb;
+        float depth = pixel.a;
+
+        float Y[9];
+        EvalSHBasis(dir, Y);
+
+        for (int i = InBandStart; i <= InBandEnd; i++)
+        {
+            int bandIndex = i - InBandStart;
+            float w = Y[i] * sa;
+            OutBands[bandIndex].rgb += radiance * w;
+            OutBands[bandIndex].a += depth * w;
+        }
+    }
+}
+
+void main()
+{
+    vec4 bands[5];
+    AccumulateCubemapToSH(TexFrame, EnvRes, CoeffStart, CoeffEnd, bands);
+    OutSH0 = bands[0];
+    OutSH1 = bands[1];
+    OutSH2 = bands[2];
+    OutSH3 = bands[3];
+    OutSH4 = bands[4];
+}

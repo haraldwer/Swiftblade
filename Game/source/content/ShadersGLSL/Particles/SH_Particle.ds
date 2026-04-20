@@ -1,0 +1,6 @@
+#include "Shaders/SH_Default_ds.si"
+
+void main()
+{
+    DefaultMatte(vec3(0.0f, 0.0f, 1.0f));
+}

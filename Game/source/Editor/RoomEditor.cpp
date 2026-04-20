@@ -5,7 +5,6 @@
 #include "Database/Manager.h"
 #include "Database/Data/RPCRoom.h"
 
-#include "Game/ECS/Registration.h"
 #include "ECS/Registration.h"
 #include "ECS/Volume/CubeVolume.h"
 

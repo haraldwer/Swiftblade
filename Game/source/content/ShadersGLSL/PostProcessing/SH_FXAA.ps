@@ -1,0 +1,72 @@
+﻿#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_HSV.si"
+
+in vec2 TexCoord;
+layout (location = 0) out vec4 Output;
+
+const int MAX_SAMPLES = 64;
+const int MIN_SAMPLES = 1;
+const float SAMPLE_POW = 2.0f;
+
+const float EDGE_THRESHOLD = 0.2f;
+const float EDGE_VALUE_POW = 0.2f; // Value weight curve
+
+vec3 EdgeDirection(vec2 InOffset, vec2 InScale, float InWeight, vec3 InColor)
+{
+    vec4 color = texture(TexFrame, TexCoord + InOffset * InScale);
+    vec3 diff = abs(InColor - color.rgb);
+    float weight = max(max(diff.x, diff.y), diff.z);
+    float mul = min(1.0f, pow(weight, EDGE_VALUE_POW));
+    return vec3(InOffset * InWeight * mul, InWeight); 
+}
+
+vec4 BlurDir(vec2 InBlendDir, vec2 InPixelScale, float InBlendScale)
+{
+    vec3 result = vec3(0.0f);
+    float samplePOW = pow(InBlendScale, SAMPLE_POW);
+    int samples = MIN_SAMPLES + int(float(MAX_SAMPLES) * samplePOW + 0.5f);
+    for (int i = -samples; i <= samples; i++)
+    {
+        // Sample pixels
+        float distWeight = 1.0f - float(abs(i)) / float(samples);
+        vec2 coordOff = InBlendDir * float(i) * InPixelScale * distWeight;
+        result += texture(TexFrame, TexCoord + coordOff).rgb;
+    }
+    result /= float(samples * 2 + 1); 
+    return vec4(result, 1.0f);
+}
+
+void main()
+{
+    // Get current pixel
+    vec4 color = texture(TexFrame, TexCoord).rgba;
+    Output = color;
+
+    // Calculate edge direction
+    vec3 accDir = vec3(0.0f);
+    vec2 pixelScale = vec2(1.0f) / Resolution;
+    accDir += EdgeDirection(vec2( 1.0f, 0.0f), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2(-1.0f, 0.0f), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2( 0.0f, 1.0f), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2( 0.0f,-1.0f), pixelScale, 1.0f, color.rgb);
+    accDir += EdgeDirection(vec2( 1.0f, 1.0f), pixelScale, 0.7f, color.rgb);
+    accDir += EdgeDirection(vec2(-1.0f, 1.0f), pixelScale, 0.7f, color.rgb);
+    accDir += EdgeDirection(vec2( 1.0f,-1.0f), pixelScale, 0.7f, color.rgb);
+    accDir += EdgeDirection(vec2(-1.0f,-1.0f), pixelScale, 0.7f, color.rgb);
+    vec2 dir = accDir.xy / accDir.z;
+
+    // Vector size is edge weight
+    if (abs(dir.x) < EDGE_THRESHOLD && 
+        abs(dir.y) < EDGE_THRESHOLD)
+        return;
+
+    // Blur samples should be dependent on edge angle
+    vec4 blurColor = vec4(0.0f);
+    if (abs(dir.x) >= EDGE_THRESHOLD)
+        blurColor += BlurDir(vec2(0.0f, 1.0f), pixelScale, abs(dir.x));
+    if (abs(dir.y) >= EDGE_THRESHOLD)
+        blurColor += BlurDir(vec2(1.0f, 0.0f), pixelScale, abs(dir.y));
+    
+    Output.rgb = blurColor.rgb / blurColor.a;
+}

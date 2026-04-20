@@ -1,0 +1,58 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_CubeSampling.si"
+#include "Shaders/Utility/SH_Utility.si"
+
+#define SOFT_SHADOWS
+
+const int SHADOW_SAMPLES = 8;
+const float SHADOW_SAMPLE_SCALE = 11.0f;
+const float SHADOW_NOISE_SCALE = 2.0f;
+const float SHADOW_DIST_BIAS = 0.05f;
+const float SHADOW_DIST_BIAS_MULTIPLIER = 3.0f;
+
+vec2 VogelDiskSample(int sampleIndex, int samplesCount, float phi)
+{
+    float GoldenAngle = 2.4f;
+    float r = FastSqrt(float(sampleIndex) + 0.5f) / FastSqrt(float(samplesCount));
+    float theta = float(sampleIndex) * GoldenAngle + phi;
+    return vec2(r * cos(theta), r * sin(theta));
+}
+
+float ShadowTest(float InSampleDepth, float InLightDist)
+{
+    float shadowDiff = InSampleDepth - InLightDist;
+    return max(0.0f, (-shadowDiff - SHADOW_DIST_BIAS) * SHADOW_DIST_BIAS_MULTIPLIER);
+}
+
+float Shadow(vec3 InToLight, sampler2D InShadowTex, vec2 InCoord, vec2 InTexel, vec4 InRect, float InRange)
+{
+    float lightDist = length(InToLight);
+    vec3 toLightDir = InToLight / lightDist;
+
+    #ifdef SOFT_SHADOWS
+
+    vec3 right = vec3(InToLight.z, InToLight.y, -InToLight.x);
+    vec3 up = vec3(InToLight.x, InToLight.z, -InToLight.y);
+    float interleaved = PI * 2.0f * InterleavedGradientNoise(InCoord * SHADOW_NOISE_SCALE);
+    float depth = SampleCubeAtlas(InShadowTex, InTexel, InRect, -toLightDir).a * InRange;
+    float shadow = ShadowTest(depth, lightDist);
+    vec2 texel = 1.0f / Resolution;
+    for(int i = 1; i < SHADOW_SAMPLES; i++)
+    {
+        vec2 off = VogelDiskSample(i, SHADOW_SAMPLES, interleaved) * texel * SHADOW_SAMPLE_SCALE;
+        vec3 vec = Normalize(InToLight + right * off.x + up * off.y);
+        float shadowDepth = SampleCubeAtlas(InShadowTex, InTexel, InRect, -vec).a * InRange;
+        shadow += ShadowTest(shadowDepth, lightDist);
+    }
+    shadow /= float(SHADOW_SAMPLES);
+
+    #else
+
+    float depth = SampleCubeAtlas(InShadowTex, InTexel, InRect, -toLightDir).a * InRange;
+    float shadow = ShadowTest(depth, lightDist);
+
+    #endif
+
+    return 1.0f - Saturate(shadow - 0.5f);
+}

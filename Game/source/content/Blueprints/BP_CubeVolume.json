@@ -1,0 +1,15 @@
+{
+	"Components":[{
+			"Name":"Attributes",
+			"Data":{
+				"Name":"CubeVolume"
+			}
+		},{
+			"Name":"Transform",
+			"Data":{}
+		},{
+			"Name":"CubeVolume",
+			"Data":{}
+		}
+	]
+}

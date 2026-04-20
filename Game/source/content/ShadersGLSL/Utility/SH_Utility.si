@@ -1,0 +1,109 @@
+﻿
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+
+const float PI = 3.1415926535f;
+
+// World position -> View position
+vec4 WorldToView(vec3 InWorldPos, mat4 InMVP)
+{
+    return (InMVP * vec4(InWorldPos, 1.0f));
+}
+
+// View position -> Screen coordinate
+vec2 ViewToCoord(vec4 InViewPos)
+{
+    return (InViewPos.xy / InViewPos.w + 1.0f) / 2.0f;
+}
+
+// World position -> Screen coordinate (0-1)
+vec2 WorldToCoord(vec3 InWorldPosition, mat4 InMVP)
+{    
+    return ViewToCoord(WorldToView(InWorldPosition, InMVP));
+}
+
+vec2 GetPrevCoord(vec3 InWorldPosition)
+{
+    return WorldToCoord(InWorldPosition, ViewProjPrev);
+}
+
+float SquaredLength(vec2 InVec)
+{
+    return InVec.x * InVec.x + InVec.y * InVec.y;
+}
+
+float SquaredLength(vec3 InVec)
+{
+    return InVec.x * InVec.x + InVec.y * InVec.y + InVec.z * InVec.z;
+}
+
+float SquaredLength(vec4 InVec)
+{
+    return InVec.x * InVec.x + InVec.y * InVec.y + InVec.z * InVec.z + InVec.w * InVec.w;
+}
+
+float FastSqrt(float InValue)
+{
+    return InValue * inversesqrt(InValue);
+}
+
+float SuperFastSqrt(float InValue)
+{
+    return 0.5f * (InValue + 1.0f);
+}
+
+float FastLength(vec2 InVec)
+{
+    return FastSqrt(SquaredLength(InVec));
+}
+
+float FastLength(vec3 InVec)
+{
+    return FastSqrt(SquaredLength(InVec));
+}
+
+float FastLength(vec4 InVec)
+{
+    return FastSqrt(SquaredLength(InVec));
+}
+
+vec3 Normalize(vec3 InValue)
+{
+    return InValue * inversesqrt(dot(InValue, InValue) + 1e-5f);
+}
+
+float Pow2(float InValue)
+{
+    return InValue * InValue;
+}
+
+float Pow5(float InValue)
+{
+    return InValue * InValue * InValue * InValue * InValue;
+}
+
+float Saturate(float InValue)
+{
+    return clamp(InValue, 0.0f, 1.0f);
+}
+
+vec2 Saturate(vec2 InValue)
+{
+    return clamp(InValue, vec2(0.0f), vec2(1.0f));
+}
+
+vec3 Saturate(vec3 InValue)
+{
+    return clamp(InValue, vec3(0.0f), vec3(1.0f));
+}
+
+vec4 WorldPosToTex(vec4 InPos)
+{
+    return vec4(InPos.xyz - CameraPosition, InPos.w / NearFar.y);
+}
+
+vec3 GetViewDir(vec2 InUV)
+{
+    
+    
+    return vec3(0.0f); // Cant get this to work...
+}

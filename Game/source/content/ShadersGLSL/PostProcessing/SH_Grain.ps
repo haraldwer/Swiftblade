@@ -1,0 +1,22 @@
+#include "Shaders/Uniforms/SH_FrameUniforms.si"
+#include "Shaders/Uniforms/SH_TexUniforms.si"
+#include "Shaders/Utility/SH_Random.si"
+#include "Shaders/Utility/SH_HSV.si"
+
+in vec2 TexCoord;
+layout (location = 0) out vec4 Output;
+
+const float GRAIN_STRENGTH = 0.05f;
+
+void main()
+{
+    vec3 color = texture(TexFrame, TexCoord).rgb;
+    vec3 hsv = rgb2hsv(color);
+    
+    float grain = Random(TexCoord + Random2(Time)) * 2.0f - 1.0f;
+    float strength = (1.0f - hsv.z) * GRAIN_STRENGTH;
+    vec3 newLum = color + grain * strength;
+    
+    Output.rgb = hsv2rgb(vec3(hsv.xy, newLum));
+    Output.a = 1.0f;
+}

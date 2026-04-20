@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/ECS/Registration.h"
+#include "Engine/ECS/Reg.h"
 
 namespace ECS
 {

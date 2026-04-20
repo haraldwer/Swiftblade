@@ -2,7 +2,6 @@
 
 #include "../UI/Menus/MenuMain.h"
 #include "ECS/Registration.h"
-#include "Game/ECS/Registration.h"
 #include "Instance/InstanceManager.h"
 #include "Scene/SceneResource.h"
 #include "Scene/Instances/EnvironmentInstance.h"
