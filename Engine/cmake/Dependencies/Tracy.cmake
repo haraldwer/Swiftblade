@@ -1,4 +1,5 @@
-if (NOT RETAIL_MODE)
+
+if (NOT RETAIL_MODE AND NOT EMSCRIPTEN)
 
     set(TRACY_ENABLE ON CACHE BOOL "" FORCE)
     set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
@@ -22,4 +23,8 @@ if (NOT RETAIL_MODE)
     FetchContent_MakeAvailable(tracy)
     set(DEP_INCLUDES ${DEP_INCLUDES} ${tracy_SOURCE_DIR})
         
+else ()
+    
+    set(TRACY_ENABLE OFF CACHE BOOL "" FORCE)
+    
 endif ()

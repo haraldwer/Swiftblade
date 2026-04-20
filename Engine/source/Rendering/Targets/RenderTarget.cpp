@@ -2,7 +2,7 @@
 
 #include "Context/Context.h"
 
-void Rendering::RenderTarget::Init(const Desc &InDesc)
+void Rendering::RenderTarget::Init(const Desc& InDesc)
 {
     descriptor = InDesc;
     

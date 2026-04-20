@@ -12,7 +12,7 @@ void Rendering::CommandList::Begin(const String &InName)
     workingName = InName;
     
     // Create encoder
-    WGPUCommandEncoderDescriptor encoderDesc;
+    WGPUCommandEncoderDescriptor encoderDesc = {};
     encoderDesc.label = WGPUStringView(("Encoder: " + workingName).c_str());
     encoder = Context::Get().CreateEncoder(encoderDesc);
     
@@ -66,13 +66,11 @@ void Rendering::CommandList::Add(const Command& InCommand)
     }
 
     String name = "RenderPass: " + InCommand.name;
-    WGPURenderPassDescriptor renderPassDescriptor;
+    WGPURenderPassDescriptor renderPassDescriptor = {};
     renderPassDescriptor.label = WGPUStringView(name.c_str());
-    renderPassDescriptor.nextInChain = nullptr;
     renderPassDescriptor.colorAttachmentCount = attachments.size();
     renderPassDescriptor.colorAttachments = attachments.data();
     renderPassDescriptor.depthStencilAttachment = InCommand.depthTarget ? &depthAttachment : nullptr;
-    renderPassDescriptor.timestampWrites = nullptr;
     WGPURenderPassEncoder renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDescriptor);
     
     InCommand.model.Identifier().IsValid() ? 

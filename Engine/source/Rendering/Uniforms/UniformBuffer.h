@@ -7,7 +7,7 @@ namespace Rendering
 
     struct PipelineLayout
     {
-        WGPUPipelineLayout layout;
+        WGPUPipelineLayout layout = {};
         uint32 hash = 0;
     };
     
@@ -40,8 +40,8 @@ namespace Rendering
         {
             void* data = nullptr;
             uint64 size = 0;
-            WGPUBuffer buffer;
-            WGPUTextureView view;
+            WGPUBuffer buffer = {};
+            WGPUTextureView view = {};
         };
         Vector<Uniform> uniforms;
         Vector<WGPUBindGroupLayoutEntry> layouts;
@@ -64,6 +64,6 @@ namespace Rendering
         Vector<BufferGroup> groups;
         Vector<WGPUBindGroupLayout> layouts;
         Vector<WGPUBindGroup> bindings;
-        PipelineLayout layout;
+        PipelineLayout layout = {};
     };
 }

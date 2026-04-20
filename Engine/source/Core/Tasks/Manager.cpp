@@ -6,9 +6,13 @@ void Tasks::Manager::Init()
     
     CHECK_ASSERT(!threads.empty(), "Threads already started");
     
+#ifdef EMSCRIPTEN
+    int numThreads = 1;
+#else
     int hardwareThreads = static_cast<int>(std::thread::hardware_concurrency()); 
     int numThreadsMax = std::min(maxThreads, hardwareThreads - 2);
     int numThreads = std::max(1, numThreadsMax);
+#endif
     LOG("Starting threads: ", numThreads)
     
     threads.resize(numThreads);

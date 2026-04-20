@@ -13,6 +13,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 if (NOT RETAIL_MODE)
     target_link_libraries(${PROJECT_NAME} PUBLIC
         ImGui
-        TracyClient
     )
+    if (NOT EMSCRIPTEN)
+        target_link_libraries(${PROJECT_NAME} PUBLIC
+            TracyClient
+        )
+    endif ()
 endif ()

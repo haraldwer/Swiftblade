@@ -22,7 +22,7 @@ bool Music::Track::Edit(const String &InName, uint32 InOffset)
     ImGui::TableSetColumnIndex(0);
 
     ImGui::Spacing();
-    Vector<String> tones = { String("Bop 1"), String("Bop 2") };
+    Vector tones = { String("Bop 1"), String("Bop 2") };
     static int curr = 0;
     if (ImGui::Combo(off.c_str(), &curr, tones))
         Tone = tones[curr];

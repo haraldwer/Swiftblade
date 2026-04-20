@@ -4,6 +4,7 @@
 
 #ifdef EMSCRIPTEN
 #include "emscripten/console.h"
+#include <emscripten/emscripten.h>
 #endif
 
 static Vector<std::function<void(const String&)>> logCallbacks;
@@ -32,12 +33,7 @@ void Log(const String& InMessage)
     strftime(timeStr, sizeof(timeStr), "%H:%M:%S", tm_info);
     const String t = std::format("[{}]", timeStr);
     const String m = t + InMessage; 
-    
-#ifdef EMSCRIPTEN
-    emscripten_console_log(m.c_str());
-#else
-    std::cout << m << std::endl; // Flush
-#endif
+    std::cout << m << std::endl;
     
     for (auto& callback : logCallbacks)
         callback(m);

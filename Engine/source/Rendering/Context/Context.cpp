@@ -1,37 +1,46 @@
 #include "Context.h"
 
+
 #include "webgpu/webgpu.h"
 
-#ifndef EMSCRIPTEN
+#ifdef EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#include "GLFW/glfw3.h"
+#else
 #include "glfw3webgpu.h"
 #include "webgpu/wgpu.h"
 #endif
 
 #include "Window/Window.h"
 
-void Rendering::Context::Init(const ContextConfig& InConfig)
+void Rendering::Context::BeginInit(const ContextConfig& InConfig)
 {
     RN_PROFILE();
-    InitGLFW();
     
-    CreateInstance();
-    GetAdapter();
-    GetDevice();
-    GetQueue(); 
+    config = InConfig;
+    InitGLFW();
+    InitInstance();
+}
+
+void Rendering::Context::EndInit(const Window &InWindow)
+{
+    InitAdapter(InWindow);
+    InitDevice();
+    InitQueue();
+    
+    ConfigureWindowSurface(InWindow);
 }
 
 void Rendering::Context::InitGLFW() 
 {
     RN_PROFILE();
     
-#ifndef EMSCRIPTEN
     // Create GLFW context and window
     int initStatus = glfwInit();
     CHECK_ASSERT(initStatus != GLFW_TRUE, "Failed to initialize glfw");
-#endif
 }
 
-void Rendering::Context::CreateInstance() 
+void Rendering::Context::InitInstance() 
 {
     RN_PROFILE();
     WGPUInstanceDescriptor instanceDesc = {};
@@ -55,16 +64,26 @@ void Rendering::Context::CreateInstance()
     CHECK_ASSERT(!instance, "Failed to create WGPU instance");
 }
 
-void Rendering::Context::GetAdapter() 
+void Rendering::Context::InitAdapter(const Window &InWindow)
 {
     RN_PROFILE();
     
     // Request Adapter and create device
     LOG("Requesting adapter...");
     WGPURequestAdapterOptions adapterOptions = {};
+    adapterOptions.powerPreference = WGPUPowerPreference_HighPerformance;
+#ifdef EMSCRIPTEN
+    adapterOptions.backendType = WGPUBackendType_WebGPU;
+    adapterOptions.compatibleSurface = InWindow.surface;
+#endif
     WGPURequestAdapterCallbackInfo adapterCallbackInfo = {};
-    adapterCallbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
-    adapterCallbackInfo.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* data1, void* data2)
+    adapterCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+    adapterCallbackInfo.callback = [](
+        WGPURequestAdapterStatus status, 
+        WGPUAdapter adapter, 
+        WGPUStringView message, 
+        void* data1, 
+        void* data2)
     {
         auto c = static_cast<Context*>(data1);
         c->adapter = adapter;
@@ -76,11 +95,16 @@ void Rendering::Context::GetAdapter()
     adapterCallbackInfo.userdata2 = &response;
     wgpuInstanceRequestAdapter(instance, &adapterOptions, adapterCallbackInfo);
     while (!response)
+    {
+#ifdef EMSCRIPTEN
+        emscripten_sleep(10);
+#endif
         wgpuInstanceProcessEvents(instance);
+    }
     CHECK_ASSERT(!adapter, "Failed to create adapter");
     
     // Get adapter limits
-    WGPULimits adapterLimits = {};
+    adapterLimits = {};
     WGPUStatus adapterLimitStatus = wgpuAdapterGetLimits(adapter, &adapterLimits);
     if (adapterLimitStatus == WGPUStatus_Success) 
     {
@@ -93,67 +117,45 @@ void Rendering::Context::GetAdapter()
     }
     
     // Get features 
-    WGPUSupportedFeatures adapterFeatures;
+    adapterFeatures = {};
     wgpuAdapterGetFeatures(adapter, &adapterFeatures);
     LOG("Adapter features:");
     for (size_t i = 0; i < adapterFeatures.featureCount; i++) 
         LOG(" - ", adapterFeatures.features[i]);
     
     // Get info
-    WGPUAdapterInfo info;
-    wgpuAdapterGetInfo(adapter, &info);
+    adapterInfo = {};
+    wgpuAdapterGetInfo(adapter, &adapterInfo);
     LOG("Adapter properties:");
-    LOG(" - vendorID: ", info.vendorID);
-    LOG(" - vendorName: ", ToStr(info.vendor));
-    LOG(" - architecture: ", ToStr(info.architecture));
-    LOG(" - deviceID: ", info.deviceID);
-    LOG(" - device: ", ToStr(info.device));
-    LOG(" - driverDescription: ", ToStr(info.description));
-    LOG(" - adapterType: ", info.adapterType);
-    LOG(" - backendType: ", info.backendType);
+    LOG(" - vendorID: ", adapterInfo.vendorID);
+    LOG(" - vendorName: ", ToStr(adapterInfo.vendor));
+    LOG(" - architecture: ", ToStr(adapterInfo.architecture));
+    LOG(" - deviceID: ", adapterInfo.deviceID);
+    LOG(" - device: ", ToStr(adapterInfo.device));
+    LOG(" - driverDescription: ", ToStr(adapterInfo.description));
+    LOG(" - adapterType: ", adapterInfo.adapterType);
+    LOG(" - backendType: ", adapterInfo.backendType);
 }
 
-// Get device
-WGPUDevice RequestDevice(const WGPUInstance& InInstance, const WGPUAdapter& InAdapter, const WGPUDeviceDescriptor& InDeviceDescriptor)
-{
-    RN_PROFILE();
-    bool response = false;
-    WGPUDevice device = {};
-    WGPURequestDeviceCallbackInfo deviceCallbackInfo = {};
-    deviceCallbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
-    deviceCallbackInfo.userdata1 = &device;
-    deviceCallbackInfo.userdata2 = &response;
-    deviceCallbackInfo.callback = [](
-        const WGPURequestDeviceStatus InStatus,
-        const WGPUDevice InDevice, 
-        const WGPUStringView InMessage, 
-        void *InUserData1, 
-        void *InUserData2)
-    {
-        RN_PROFILE();
-        auto device = static_cast<WGPUDevice*>(InUserData1);
-        if (InStatus == WGPURequestDeviceStatus_Success)
-            *device = InDevice;
-        else
-            LOG("Could not get WebGPU device: ", Rendering::ToStr(InMessage));
-        auto response = static_cast<bool*>(InUserData2);
-        *response = true;
-    };
-    
-    wgpuAdapterRequestDevice(InAdapter, &InDeviceDescriptor, deviceCallbackInfo);
-    while (!response)
-        wgpuInstanceProcessEvents(InInstance);
-    return device;
-}
-
-void Rendering::Context::GetDevice() 
+void Rendering::Context::InitDevice() 
 {
     RN_PROFILE();
     // Get device
     LOG("Requesting device...");
     WGPUDeviceDescriptor deviceDesc {};
     deviceDesc.label = WGPUStringView("Default");
+    WGPULimits requiredLimits = adapterLimits;
+    
+    requiredLimits.maxBufferSize                   = std::min(requiredLimits.maxBufferSize,                   (uint64_t)512  * 1024 * 1024);
+    requiredLimits.maxUniformBufferBindingSize     = std::min(requiredLimits.maxUniformBufferBindingSize,     (uint64_t)16   * 1024 * 1024);
+    requiredLimits.maxStorageBufferBindingSize     = std::min(requiredLimits.maxStorageBufferBindingSize,     (uint64_t)128  * 1024 * 1024);
+    requiredLimits.maxTextureDimension2D           = std::min(requiredLimits.maxTextureDimension2D,           (uint32_t)4096);
+    requiredLimits.maxTextureArrayLayers           = std::min(requiredLimits.maxTextureArrayLayers,           (uint32_t)256);
+    requiredLimits.maxComputeWorkgroupStorageSize  = std::min(requiredLimits.maxComputeWorkgroupStorageSize,  (uint32_t)16   * 1024);
+    
+    deviceDesc.requiredLimits = &requiredLimits;
     deviceDesc.defaultQueue.label = WGPUStringView("Default queue");
+    deviceDesc.deviceLostCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
     deviceDesc.deviceLostCallbackInfo.callback = [](
         WGPUDevice const* InDevice,
         const WGPUDeviceLostReason InReason,
@@ -174,7 +176,37 @@ void Rendering::Context::GetDevice()
     {
         LOG("Device error: ", InType, " | ", ToStr(InMessage));
     };
-    device = RequestDevice(instance, adapter, deviceDesc);
+    
+    bool response = false;
+    WGPURequestDeviceCallbackInfo deviceCallbackInfo = {};
+    deviceCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+    deviceCallbackInfo.userdata1 = &device;
+    deviceCallbackInfo.userdata2 = &response;
+    deviceCallbackInfo.callback = [](
+        const WGPURequestDeviceStatus InStatus,
+        const WGPUDevice InDevice, 
+        const WGPUStringView InMessage, 
+        void *InUserData1, 
+        void *InUserData2)
+    {
+        auto device = static_cast<WGPUDevice*>(InUserData1);
+        if (InStatus == WGPURequestDeviceStatus_Success)
+            *device = InDevice;
+        else
+            LOG("Could not get WebGPU device: ", Rendering::ToStr(InMessage));
+        auto response = static_cast<bool*>(InUserData2);
+        *response = true;
+    };
+    
+    wgpuAdapterRequestDevice(adapter, &deviceDesc, deviceCallbackInfo);
+    while (!response)
+    {
+#ifdef EMSCRIPTEN
+        emscripten_sleep(10);
+#endif
+        wgpuInstanceProcessEvents(instance);
+    }
+    
     CHECK_ASSERT(!device, "Failed to create device");
     
     // Inspect device
@@ -195,9 +227,10 @@ void Rendering::Context::GetDevice()
     }
 }
 
-void Rendering::Context::GetQueue()
+void Rendering::Context::InitQueue()
 {
     RN_PROFILE();
+    
     // Setup the queue
     queue = wgpuDeviceGetQueue(device);
     CHECK_ASSERT(!queue, "Failed to create queue");
@@ -230,21 +263,22 @@ void Rendering::Context::Deinit()
     adapter = nullptr;
     instance = nullptr;
     
-#ifndef EMSCRIPTEN
     glfwTerminate();
-#endif
 }
 
 WGPUSurface Rendering::Context::CreateWindowSurface(const Window& InWindow) const
 {
     RN_PROFILE();
 
+    LOG("Creating window surface...")
+    
 #ifdef EMSCRIPTEN
     
-    WGPUEmscriptenSurfaceSourceCanvasHTMLSelector canvasDesc;
+    WGPUEmscriptenSurfaceSourceCanvasHTMLSelector canvasDesc = {};
     canvasDesc.chain.sType = WGPUSType_EmscriptenSurfaceSourceCanvasHTMLSelector;
     canvasDesc.chain.next = nullptr;
-    canvasDesc.selector = WGPUStringView(config.CanvasID.Get().c_str()); // Match html canvas ID
+    canvasDesc.selector = ToStr(config.CanvasID); // Match html canvas ID
+    LOG("Canvas ID: ", config.CanvasID.Get());
     WGPUSurfaceDescriptor surfaceDesc = {};
     surfaceDesc.nextInChain = &canvasDesc.chain;
     WGPUSurface surface = wgpuInstanceCreateSurface(instance, &surfaceDesc);
@@ -257,20 +291,25 @@ WGPUSurface Rendering::Context::CreateWindowSurface(const Window& InWindow) cons
     
 #endif
     
-    WGPUSurfaceCapabilities surfaceCapabilities = {};
-    WGPUStatus surfaceCapabilityStatus = wgpuSurfaceGetCapabilities(surface, adapter, &surfaceCapabilities);
+    return surface;
+}
+
+void Rendering::Context::ConfigureWindowSurface(const Window& InWindow)
+{
+    CHECK_ASSERT(!InWindow.surface, "Surface not configured!");
+    surfaceCapabilities = {};
+    WGPUStatus surfaceCapabilityStatus = wgpuSurfaceGetCapabilities(InWindow.surface, adapter, &surfaceCapabilities);
     CHECK_ASSERT(surfaceCapabilityStatus != WGPUStatus_Success, "Failed to get surface capabilities");
     CHECK_ASSERT(surfaceCapabilities.formatCount <= 0, "No available surface formats");
     WGPUSurfaceConfiguration surfaceConfig = {};
     surfaceConfig.format = surfaceCapabilities.formats[0]; 
+    surfaceConfig.presentMode = surfaceCapabilities.presentModes[0];
+    surfaceConfig.alphaMode = surfaceCapabilities.alphaModes[0];
     surfaceConfig.usage = WGPUTextureUsage_RenderAttachment;
     surfaceConfig.width = InWindow.config.Resolution.Get().x;
     surfaceConfig.height = InWindow.config.Resolution.Get().y;
     surfaceConfig.device = device;
-    surfaceConfig.presentMode = WGPUPresentMode_Immediate;
-    surfaceConfig.alphaMode = WGPUCompositeAlphaMode_Opaque;
-    wgpuSurfaceConfigure(surface, &surfaceConfig);
-    return surface;
+    wgpuSurfaceConfigure(InWindow.surface, &surfaceConfig);
 }
 
 WGPUSurface Rendering::Context::CreateSurface(const WGPUSurfaceConfiguration &InConfig) const

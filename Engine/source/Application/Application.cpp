@@ -19,7 +19,7 @@ void Application::App::Init()
 }
 
 #ifdef EMSCRIPTEN
-static Application::App* emsc_app;
+Application::App* emsc_app = nullptr;
 void FrameFunc()
 {
     CHECK_ASSERT(!emsc_app, "Invalid app!");

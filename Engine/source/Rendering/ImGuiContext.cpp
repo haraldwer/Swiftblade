@@ -18,7 +18,7 @@ void Rendering::ImGuiContext::Init(Window &InWindow, Context &InContext)
     
     ImGui_ImplWGPU_InitInfo info;
     info.Device = InContext.device;
-    info.RenderTargetFormat = WGPUTextureFormat_BGRA8UnormSrgb; // TODO: Use surface
+    info.RenderTargetFormat = InContext.surfaceCapabilities.formats[0]; // TODO: Use surface
     info.DepthStencilFormat = WGPUTextureFormat_Undefined; 
     ImGui_ImplWGPU_Init(&info);
     

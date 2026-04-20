@@ -38,7 +38,7 @@ void Editor::AssetBrowser::Init()
 void Editor::AssetBrowser::Deinit()
 {
     config.SaveConfig();
-    TryStopThread();
+    TryStopThread(); 
     Resource::pickCallback = {};
     Resource::dragDropCallback = {};
 }
@@ -90,6 +90,10 @@ void Editor::AssetBrowser::ForceUpdateCache()
 
 void Editor::AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node& InNode)
 {
+#ifndef EMSCRIPTEN
+    PROFILE();
+    
+    LOG("Cache path: ", InPath.string());
     InNode.path = InPath;
     InNode.name = Utility::StringRemove(InPath.filename().string(), InPath.extension().string());
     InNode.ext = InPath.extension().string();
@@ -131,6 +135,8 @@ void Editor::AssetBrowser::UpdateCache(const std::filesystem::path& InPath, Node
         auto rev = std::ranges::views::reverse(InNode.children);
         InNode.children = { rev.begin(), rev.end() };
     }
+    
+#endif
 }
 
 void Editor::AssetBrowser::DrawPanel()
@@ -519,6 +525,8 @@ void Editor::AssetBrowser::DrawNode(Node& InNode)
 
 void Editor::AssetBrowser::Search(const String& InStr)
 {
+    PROFILE();
+    
     config.Search = InStr;
     searchSplit = Utility::StringSplit(InStr, " ");
     searchResult.clear();

@@ -13,6 +13,7 @@ void Rendering::Window::Open(const WindowConfig& InConfig)
     CHECK_ASSERT(res.Min() <= 0, "Invalid resolution");
     config = InConfig;
     
+    LOG("Creating glfw window")
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     window = glfwCreateWindow(
         res.x, 
@@ -63,19 +64,16 @@ void Rendering::Window::Present(bool& InRun)
     // Also poll events
     input.Frame();
     Context::Get().Poll();
+    
+#ifndef EMSCRIPTEN
     glfwPollEvents();
     if (glfwWindowShouldClose(static_cast<GLFWwindow*>(window)))
         InRun = false;
+#endif
     
     // Release surface texture
-#ifdef WEBGPU_BACKEND_WGPU
-    if (surfaceTexture.texture)
-    {
-        wgpuTextureRelease(surfaceTexture.texture);
-        surfaceTexture.texture = nullptr;
-    }
-#endif
-    target = {};
+    target.Deinit();
+    surfaceTexture.texture = {};
 }
 
 Vec2I Rendering::Window::Size() const

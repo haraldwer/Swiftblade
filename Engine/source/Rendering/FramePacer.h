@@ -56,6 +56,9 @@ namespace Rendering
                 // Calculate delta
                 ellapsed = timer.Ellapsed();
                 delta = ellapsed - timestamp;
+#ifdef EMSCRIPTEN
+                break;
+#endif
                 if (targetFramerate <= 0) // No cap
                     break;
                 

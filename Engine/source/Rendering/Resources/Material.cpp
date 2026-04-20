@@ -4,12 +4,8 @@ bool Rendering::MaterialResource::Load()
 {
     bool load = false;
     if (ShaderResource::Accept(id.Str()))
-    {
-        // Treat as default material
         data.Shader = ResShader(id);
-    }
     else load = PropertyFile::Load();
-    
     
     struct HashData
     {
@@ -26,8 +22,9 @@ bool Rendering::MaterialResource::Load()
 Utility::Timepoint Rendering::MaterialResource::GetEditTime() const
 {
     Utility::Timepoint maxTime = PropertyFile::GetEditTime();
-    if (const ShaderResource* rsc = data.Shader.Get().Get())
-        maxTime = Utility::Math::Max(maxTime, rsc->GetEditTime());
+    if (!ShaderResource::Accept(id.Str()))
+        if (const ShaderResource* rsc = data.Shader.Get().Get())
+            maxTime = Utility::Math::Max(maxTime, rsc->GetEditTime());
     return maxTime;
 }
 

@@ -2,11 +2,13 @@
 
 void Rendering::FrameTargets::Init(const Vec2I &InSize)
 {
-    msaaFrame.Init({ 
+    RenderTarget::Desc msaaDesc{
         .size = Vec3I(InSize.x, InSize.y, 0),
         .multisample = 4
-    });
+    };
     
+    msaaFrame.Init(msaaDesc);
+    msaaNormals.Init(msaaDesc);
     msaaDepth.Init({ 
         .size = Vec3I(InSize.x, InSize.y, 0),
         .format = WGPUTextureFormat_Depth16Unorm,
@@ -16,6 +18,7 @@ void Rendering::FrameTargets::Init(const Vec2I &InSize)
     
     frame.Init({ .size = Vec3I(InSize.x, InSize.y, 0) });
     normals.Init({ .size = Vec3I(InSize.x, InSize.y, 0) });
+    ssao.Init({ .size = Vec3I(InSize.x, InSize.y, 0) });
 }
 
 void Rendering::FrameTargets::Deinit()
@@ -26,4 +29,5 @@ void Rendering::FrameTargets::Deinit()
     
     frame.Deinit();
     normals.Deinit();
+    ssao.Deinit();
 }

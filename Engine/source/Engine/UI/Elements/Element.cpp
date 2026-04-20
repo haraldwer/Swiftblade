@@ -140,6 +140,7 @@ bool UI::Element::IsHovered() const
         relative.y < cachedRect.end.y &&
         Rendering::Manager::Get().IsViewportClickable();
     */
+    return true;
 }
 
 bool UI::Element::IsClicked() const

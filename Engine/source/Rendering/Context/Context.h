@@ -11,10 +11,12 @@ namespace Rendering
     {
         friend class ImGuiContext;
     public:
-        void Init(const ContextConfig& InConfig);
+        void BeginInit(const ContextConfig& InConfig);
+        void EndInit(const Window& InWindow);
         void Deinit();
         
         WGPUSurface CreateWindowSurface(const Window& InWindow) const;
+        void ConfigureWindowSurface(const Window& InWindow);
         WGPUSurface CreateSurface(const WGPUSurfaceConfiguration& InConfig) const;
         WGPUShaderModule CreateShader(const WGPUShaderModuleDescriptor& InDesc) const;
         WGPURenderPipeline CreatePipeline(const WGPURenderPipelineDescriptor& InDesc) const;
@@ -36,16 +38,20 @@ namespace Rendering
         ContextConfig config;
         
         void InitGLFW();
-        void CreateInstance();
-        void GetAdapter();
-        void GetDevice();
-        void GetQueue();
+        void InitInstance();
+        void InitAdapter(const Window& InWindow);
+        void InitDevice();
+        void InitQueue();
         
         WGPUInstance instance;
         WGPUAdapter adapter;
         WGPUDevice device;
         WGPUQueue queue;
         
-        // TODO: Store limits! 
+        // TODO: Store limits!
+        WGPULimits adapterLimits;
+        WGPUSupportedFeatures adapterFeatures;
+        WGPUAdapterInfo adapterInfo;
+        WGPUSurfaceCapabilities surfaceCapabilities;
     };
 }
