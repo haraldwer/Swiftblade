@@ -1,6 +1,0 @@
-#include "Shaders/SH_Default_ds.si"
-
-void main()
-{
-    Default(vec3(1.0f), vec3(0.0f, 1.0f, 1.0f)); 
-}
