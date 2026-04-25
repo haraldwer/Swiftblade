@@ -18,5 +18,5 @@ file(GLOB_RECURSE files
 )
 
 # Write dummy
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dummy.c "")
-add_library(${PROJECT_NAME} STATIC ${files} dummy.c)
+file(WRITE ${GAME_CONTENT}/dummy.c "")
+add_library(${PROJECT_NAME} STATIC ${files} ${GAME_CONTENT}/dummy.c)
