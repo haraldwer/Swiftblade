@@ -69,7 +69,9 @@ And finally, add to your cmake command:
 ``--gcc-toolchain=$MYTOOLCHAIN``
 
 # Libraries
+ - HarfBuzz (Old MIT)
  - FastNoiseLite (MIT)
+ - FreeType (GNU GPLv2)
  - MeshOptimizer (MIT)
  - Miniaudio (MIT)
  - Nakama 3.26.0 (nakama-cpp 2.8.5) (Apache-2.0)

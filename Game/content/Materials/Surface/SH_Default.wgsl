@@ -1,6 +1,9 @@
 
 @group(0) @binding(0) var<uniform> ViewProj: mat4x4<f32>;
 
+@group(1) @binding(0) var<storage, read> instances : array<mat4x4<f32>>;
+@group(1) @binding(1) var<storage, read> meshes  : array<mat4x4<f32>>;  // Single matrix per mesh
+
 struct VSOut 
 {
     @builtin(position) position: vec4f,
@@ -16,13 +19,19 @@ struct FSOut
 
 @vertex
 fn vs_main(
+    @builtin(instance_index) instanceIdx : u32,
     @location(0) position: vec3f, 
     @location(1) normal: vec3f, 
     @location(2) uv: vec2f
     ) -> VSOut 
 {
+    let modelIdx = instanceIdx / arrayLength(&meshes);
+    let meshIdx  = instanceIdx % arrayLength(&meshes);
+    let world = instances[modelIdx] * meshes[meshIdx];
+    
+
     var out: VSOut;
-    out.position = ViewProj * vec4f(position, 1.0);
+    out.position = (ViewProj * world) * vec4f(position, 1.0);
     out.normal = normal;
     out.uv = uv;
     return out;
