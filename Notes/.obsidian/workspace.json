@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "b6b72ba99095fbe6",
+        "id": "bae63688ff54aa85",
         "type": "tabs",
         "children": [
           {
-            "id": "0936951435052654",
+            "id": "254dc98a5edb71d8",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Tasks/Backlog/Rendering/0 - Compute shader pipeline.md",
+                "file": "Design/GDD - Swiftblade.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "0 - Compute shader pipeline"
+              "title": "GDD - Swiftblade"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 393.5
+    "width": 260.5
   },
   "right": {
     "id": "78b0926d3271ad6a",
@@ -164,10 +164,28 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "0936951435052654",
+  "active": "254dc98a5edb71d8",
   "lastOpenFiles": [
-    "Tasks/Backlog/Rendering/0 - Combine uniform buffers.md",
+    "Documentation/Documentation.md",
+    "Design/Pitch.md",
+    "Documentation/Server architecture.md",
+    "Documentation/Menu design.md",
+    "Documentation/Editor Workflow.md",
+    "Design/GDD - Swiftblade.md",
+    "Backlog.md",
+    "Design/Gameplay/Obstacles.md",
+    "Design/Gameplay/Enemies.md",
+    "Design/Gameplay/Combat.md",
+    "Design/Levels/Rooms.md",
+    "Design/Levels/Propping.md",
+    "Design/Levels/Obstacle-course.md",
+    "Design/Levels/Editor.md",
+    "Design/Overview/Story.md",
+    "Design/Overview/Scoring.md",
+    "Design/Overview/Online.md",
+    "Design/Idea.md",
     "Tasks/Backlog/Rendering/0 - Compute shader pipeline.md",
+    "Tasks/Backlog/Rendering/0 - Combine uniform buffers.md",
     "Tasks/Backlog/Rendering/0 - MSAA Resolve.md",
     "Tasks/Backlog/Rendering/1 - Resource-metadata.md",
     "Untitled 1.base",
@@ -176,32 +194,14 @@
     "Tasks/Backlog/Rendering/0 - Basic PBR.md",
     "Tasks/Backlog/Rendering/0 - GPU culling and mesh instancing.md",
     "Tasks/Backlog/Rendering/0 - Combine mesh buffers.md",
-    "Milestones/Milestone 6 - Soft reboot (25.11.12).md",
     "Tasks/Boards/Categories/Category - Rendering.base",
     "Tasks/Boards/Categories/Category - UI.base",
-    "Tasks/Boards/Categories/Category - Rendering.md",
     "Tasks/Boards/Categories/Category - Props.base",
     "Tasks/Boards/Categories/Category - Editor.base",
     "Tasks/Boards/Categories/Category - Abilities.base",
     "Tasks/Boards/Done/Milestone 2 - Done.base",
     "Tasks/Boards/Done/Milestone 7 - Done.base",
     "Tasks/Boards/Todo/Milestone 6 - Todo.base",
-    "Milestones/Milestone 7 - Rendering (26.02.12).md",
-    "Backlog.md",
-    "Tasks/Archive/0 - Improved task management.md",
-    "Tasks/Backlog/Engine/2 - CubeVolume optimized serialization.md",
-    "Tasks/Backlog/Engine/2 - Child property serialization issue.md",
-    "Tasks/Backlog/Engine/1 - Inline resource editing.md",
-    "Tasks/Backlog/Engine/0 - Smart matrix interpolation.md",
-    "Tasks/Backlog/Engine/2 - Scrolling isnt using input system.md",
-    "Tasks/Backlog/Editor/0 - Connection room type.md",
-    "Tasks/Archive/0 - Course room type.md",
-    "Tasks/Archive/0 - Arena room type.md",
-    "Tasks/Archive/0 - Selecting room type.md",
-    "Tasks/Backlog/Engine/1 - Improved file picking.md",
-    "Tasks/Archive/1 - Asset drag and drop.md",
-    "Tasks/Archive/2 - Asset Details.md",
-    "Tasks/Archive/2 - Engine asset creation.md",
     "Tasks/Untitled.canvas"
   ]
 }
